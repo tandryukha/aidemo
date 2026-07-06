@@ -12,7 +12,7 @@
 <meta property="og:url" content="https://tandryukha.github.io/aidemo/">
 <meta property="og:image" content="https://tandryukha.github.io/aidemo/hero-poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="favicon.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -111,8 +111,8 @@
     padding: 18px 0;
     font-size: 15px;
   }
-  nav .brand { font-weight: 700; font-size: 17px; letter-spacing: -.02em; text-decoration: none; color: var(--text); }
-  nav .brand::before { content: "🎬 "; }
+  nav .brand { font-weight: 700; font-size: 17px; letter-spacing: -.02em; text-decoration: none; color: var(--text); display: inline-flex; align-items: center; gap: 9px; }
+  nav .brand img { width: 24px; height: 24px; border-radius: 6px; display: block; }
   nav a { color: var(--muted); text-decoration: none; }
   nav a:hover { color: var(--text); }
   nav .spacer { flex: 1; }
@@ -229,7 +229,11 @@
     padding: 22px;
   }
   .card h3 { font-size: 16.5px; margin-bottom: 8px; }
-  .card h3::before { content: attr(data-icon) " "; }
+  .card .ic {
+    width: 44px; height: 44px; display: block; margin-bottom: 14px;
+    border-radius: 11px; object-fit: cover; border: 1px solid var(--border);
+  }
+  .card .ic.brand { width: auto; border: 0; border-radius: 0; object-fit: contain; }
   .card p { color: var(--muted); font-size: 14.5px; }
   .card p code { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; font-size: 12.5px; color: var(--text); }
   .card .links { margin-top: 12px; font-size: 14px; }
@@ -264,7 +268,7 @@
 
 <div class="wrap">
   <nav>
-    <a class="brand" href="#">aidemo</a>
+    <a class="brand" href="#"><img src="icons/clapper.webp" alt="" aria-hidden="true" width="24" height="24">aidemo</a>
     <a class="hide-sm" href="#how">How it works</a>
     <a class="hide-sm" href="#examples">Examples</a>
     <a class="hide-sm" href="#integrations">Integrations</a>
@@ -386,22 +390,26 @@
     <h2 class="reveal">Why it's built this way</h2>
     <div class="cards">
       <div class="card reveal">
-        <h3 data-icon="🎯">Deterministic replay</h3>
+        <img class="ic" src="icons/target.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Deterministic replay</h3>
         <p>The recording runs a fixed action-spec at full speed. The agent authors the storyboard
           once; it's never in the loop during capture. Same input, same video.</p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="🔒">Local &amp; auth-friendly</h3>
+        <img class="ic" src="icons/lock.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Local &amp; auth-friendly</h3>
         <p>Uses your system Chrome and your logged-in profile. Works against localhost, staging,
           and auth-walled apps. No cloud browser, no upload.</p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="🎬">Cinematic by default</h3>
+        <img class="ic" src="icons/clapper.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Cinematic by default</h3>
         <p>Screen-Studio-style auto-zoom on clicks and typing, eased smooth-scrolling, sidechain
           music ducking under narration, PNG-rendered captions that work on any ffmpeg.</p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="♻️">Re-render, don't re-record</h3>
+        <img class="ic" src="icons/rerender.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Re-render, don't re-record</h3>
         <p>Per-scene TTS hash cache and compose-time zoom choreography mean edits are seconds,
           not another recording session.</p>
       </div>
@@ -416,7 +424,8 @@
       iframes, and production checkouts, <strong>demoed by a coding agent end to end</strong>.</p>
     <div class="cards">
       <div class="card reveal">
-        <h3 data-icon="🛒">MaxFit — shopping in a ChatGPT app</h3>
+        <img class="ic brand" src="icons/maxfit.webp" alt="MaxFit logo" width="44" height="44">
+        <h3>MaxFit — shopping in a ChatGPT app</h3>
         <p>The 75-second demo playing in the hero above: a shopping flow inside MaxFit's
           ChatGPT app — an auth-walled widget in nested iframes, through to a live
           checkout. Claude Code authored the <code>storyboard.json</code>; the engine
@@ -428,7 +437,8 @@
         </p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="🏋️">Turg — a live marketplace</h3>
+        <img class="ic brand" src="icons/turg.webp" alt="Fitness.ee logo" width="28" height="44">
+        <h3>Turg — a live marketplace</h3>
         <p>A fitness-gear marketplace running in production. Its walkthrough is the next
           demo on this page — the same <code>record-demo</code> skill, pointed at the
           live site. The finished video will land here.</p>
@@ -446,24 +456,28 @@
     <p class="lead">Built on the APIs and tools you already use — each layer is swappable.</p>
     <div class="cards">
       <div class="card reveal">
-        <h3 data-icon="🤖">Authoring — Claude</h3>
+        <img class="ic" src="icons/robot.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Authoring — Claude</h3>
         <p><strong>Claude Code today</strong>, via the bundled <code>record-demo</code> skill: it writes
           the storyboard, confirms selectors, and runs the render. Codex CLI and Gemini CLI are
           planned via an agent-neutral authoring doc + MCP server.</p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="🎙️">Voice — OpenAI TTS</h3>
+        <img class="ic" src="icons/mic.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Voice — OpenAI TTS</h3>
         <p>Realistic narration via <strong>OpenAI TTS</strong> (<code>gpt-4o-mini-tts</code>).
           Voice synthesis sits behind a swappable <code>VoiceProvider</code> interface, so other
           providers can plug in without touching the pipeline.</p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="💬">Captions — OpenAI Whisper</h3>
+        <img class="ic" src="icons/captions.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Captions — OpenAI Whisper</h3>
         <p>Word-level timestamps from <strong>Whisper</strong> keep captions in sync with the
           narration — exported as SRT/VTT plus styled on-video overlays.</p>
       </div>
       <div class="card reveal">
-        <h3 data-icon="🎞️">Record &amp; render — Chrome + ffmpeg</h3>
+        <img class="ic" src="icons/filmstrip.webp" alt="" aria-hidden="true" width="44" height="44">
+        <h3>Record &amp; render — Chrome + ffmpeg</h3>
         <p><strong>Playwright</strong> drives your system Chrome; <strong>ffmpeg</strong> composes
           the final cut (trim, auto-zoom, music ducking, mux). All local — no cloud rendering.</p>
       </div>
