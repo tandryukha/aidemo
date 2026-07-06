@@ -364,6 +364,25 @@ export async function feedback(
   ok(`file it upstream: ${url}`);
 }
 
+/**
+ * Ollama answers GET /api/version on its origin — nothing else in this niche
+ * does. Catching it at doctor time turns a cryptic voice-time 404 into an
+ * upfront hint. Only ever contacts the user-configured endpoint's origin.
+ */
+async function detectOllama(base: string): Promise<string | null> {
+  try {
+    const origin = new URL(base).origin;
+    const res = await fetch(`${origin}/api/version`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { version?: string } | null;
+    return body?.version ? `Ollama v${body.version}` : null;
+  } catch {
+    return null; // unreachable or not Ollama — no verdict either way
+  }
+}
+
 /** Preflight: check prereqs + report installed-vs-stable skill version. */
 export async function doctor(dir: string | undefined): Promise<void> {
   step(`aidemo doctor — engine v${engineVersion()}`);
@@ -376,6 +395,16 @@ export async function doctor(dir: string | undefined): Promise<void> {
   line("gh (feedback)", await probeCmd("gh", ["--version"]));
   const base = openAiBaseUrl();
   ok(`voice/captions endpoint: ${base ? `${base} (custom)` : "api.openai.com (default)"}`);
+  if (base) {
+    const ollama = await detectOllama(base);
+    if (ollama) {
+      fail(
+        `endpoint is ${ollama} — Ollama serves chat/embeddings only, no /v1/audio ` +
+          `(TTS/STT), so voice and captions will fail. Pair it with a speech server ` +
+          `such as speaches — see README "Local models & offline".`
+      );
+    }
+  }
   ok(
     `OPENAI_API_KEY: ${
       process.env.OPENAI_API_KEY

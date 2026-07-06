@@ -4,7 +4,12 @@ import { createHash } from "node:crypto";
 import type { Storyboard, VoiceManifest, VoicePlan } from "./types.js";
 import { VoiceManifestSchema } from "./types.js";
 import { Project } from "./project.js";
-import { requireOpenAiKey, openAiBaseUrl, TTS_MODEL } from "./config.js";
+import {
+  requireOpenAiKey,
+  openAiBaseUrl,
+  TTS_MODEL,
+  explainAudioEndpointError,
+} from "./config.js";
 import { runFfmpeg, probeDurationMs } from "./ffmpeg.js";
 import { ensureDir, writeJson, readJson, exists, log, ok, step } from "./util.js";
 import { dirname } from "node:path";
@@ -32,13 +37,15 @@ export class OpenAIVoiceProvider implements VoiceProvider {
 
   async synthesize({ text, plan }: { text: string; plan: VoicePlan }): Promise<Buffer> {
     const instructions = buildInstructions(plan);
-    const res = await this.client.audio.speech.create({
-      model: TTS_MODEL(),
-      voice: plan.voiceId as OpenAI.Audio.SpeechCreateParams["voice"],
-      input: text,
-      instructions,
-      response_format: "mp3",
-    });
+    const res = await this.client.audio.speech
+      .create({
+        model: TTS_MODEL(),
+        voice: plan.voiceId as OpenAI.Audio.SpeechCreateParams["voice"],
+        input: text,
+        instructions,
+        response_format: "mp3",
+      })
+      .catch((err) => explainAudioEndpointError(err, "tts"));
     return Buffer.from(await res.arrayBuffer());
   }
 }

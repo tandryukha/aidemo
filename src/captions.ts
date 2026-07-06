@@ -1,6 +1,11 @@
 import { createReadStream, promises as fs } from "node:fs";
 import { Project } from "./project.js";
-import { requireOpenAiKey, openAiBaseUrl, STT_MODEL } from "./config.js";
+import {
+  requireOpenAiKey,
+  openAiBaseUrl,
+  STT_MODEL,
+  explainAudioEndpointError,
+} from "./config.js";
 import { VoiceManifestSchema, type Storyboard } from "./types.js";
 import { srtTime, readJson, writeJson, exists, ok, step, log } from "./util.js";
 
@@ -37,12 +42,14 @@ export async function generateCaptions(project: Project): Promise<void> {
   // baseURL undefined → api.openai.com; set → any OpenAI-compatible server.
   const client = new OpenAI({ apiKey: requireOpenAiKey(), baseURL: base });
 
-  const res = await client.audio.transcriptions.create({
-    file: createReadStream(project.narrationPath),
-    model: STT_MODEL(),
-    response_format: "verbose_json",
-    timestamp_granularities: ["word"],
-  });
+  const res = await client.audio.transcriptions
+    .create({
+      file: createReadStream(project.narrationPath),
+      model: STT_MODEL(),
+      response_format: "verbose_json",
+      timestamp_granularities: ["word"],
+    })
+    .catch((err) => explainAudioEndpointError(err, "stt"));
 
   const words: Word[] = (res as unknown as { words?: Word[] }).words ?? [];
   if (words.length === 0) {

@@ -218,7 +218,8 @@ AIDEMO_STT_MODEL=Systran/faster-whisper-small       # default: whisper-1
 ```
 
 With a custom base URL set, **no `OPENAI_API_KEY` is needed**. `aidemo doctor`
-reports which endpoint is in effect.
+reports which endpoint is in effect and warns if it's an LLM-only server that
+can't serve these calls (it pings only the endpoint you configured).
 
 **One-server recipe — [speaches](https://speaches.ai)** covers both halves
 (faster-whisper STT with word timestamps + Kokoro TTS):
@@ -237,6 +238,16 @@ verified: the bundled fixture renders end-to-end against it — real Kokoro
 narration, word-timed faster-whisper captions, no API key.
 [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) or
 [LocalAI](https://localai.io) also work for the TTS half.
+
+**What about Ollama?** Ollama (like plain llama.cpp or vLLM) speaks the OpenAI
+*chat* protocol but has no `/v1/audio/*` endpoints
+([ollama#5424](https://github.com/ollama/ollama/issues/5424)) — and TTS + STT
+are the only AI calls in this pipeline, so there's nothing chat-shaped to point
+at it. Author storyboards with whatever agent you like (including one served by
+Ollama); for rendering, run a speech server like speaches above. Pointing
+`OPENAI_BASE_URL` at Ollama fails fast with an explanation, and `aidemo doctor`
+flags it upfront. The day Ollama ships audio endpoints, the same three env vars
+will work unchanged.
 
 **Caveat: caption sync needs word-level timestamps**, so the STT server must
 support `timestamp_granularities=word` — speaches does; whisper.cpp's compat

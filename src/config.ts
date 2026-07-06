@@ -81,6 +81,28 @@ export function requireOpenAiKey(): string {
 export const TTS_MODEL = () => process.env.AIDEMO_TTS_MODEL || "gpt-4o-mini-tts";
 export const STT_MODEL = () => process.env.AIDEMO_STT_MODEL || "whisper-1";
 
+/**
+ * LLM-only servers (Ollama, plain llama.cpp/vLLM) speak the OpenAI chat
+ * protocol but 404 the audio routes — the only routes this engine calls.
+ * Rethrow that specific failure with what's wrong and what to run instead.
+ */
+export function explainAudioEndpointError(err: unknown, kind: "tts" | "stt"): never {
+  const base = openAiBaseUrl();
+  const status = (err as { status?: number } | null)?.status;
+  if (base && (status === 404 || status === 405)) {
+    const endpoint =
+      kind === "tts" ? "POST /v1/audio/speech (TTS)" : "POST /v1/audio/transcriptions (STT)";
+    throw new Error(
+      `${base} doesn't implement ${endpoint}. LLM-only servers like Ollama or plain ` +
+        `llama.cpp/vLLM have no OpenAI audio endpoints — point OPENAI_BASE_URL at a ` +
+        `speech server such as speaches instead (README → "Local models & offline")` +
+        (kind === "stt" ? `, or skip transcription: aidemo captions <dir> --offline` : "") +
+        `. Original error: ${(err as Error).message}`
+    );
+  }
+  throw err;
+}
+
 /** Dedicated Chrome profile handed to Playwright (logged into ChatGPT). */
 export const chromeProfileDir = () =>
   process.env.AIDEMO_CHROME_PROFILE || resolve(REPO_ROOT, "chrome-profile");
