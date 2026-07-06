@@ -1,0 +1,28 @@
+name: scorecard
+
+# OpenSSF Scorecard: publishes results to the Scorecard API for the README
+# badge. Only works once the repo is public — trigger via workflow_dispatch
+# after flipping.
+on:
+  schedule:
+    - cron: '30 2 * * 1'
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
+        with:
+          results_format: sarif
+          results_file: results.sarif
+          publish_results: true

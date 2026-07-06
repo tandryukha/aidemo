@@ -13,6 +13,7 @@ auth-walled apps.
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/tandryukha/demo-engine)](https://github.com/tandryukha/demo-engine/releases)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](.claude/skills/record-demo/SKILL.md)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/demo-engine/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/demo-engine)
 
 **Works with:** Claude Code (today) · Codex CLI / Gemini CLI (planned, via an
 agent-neutral authoring doc + MCP server) · any human or agent that can write a
@@ -244,6 +245,22 @@ intro/outro cards — and the native/OBS capture path shipped; see above.)
 - Caption text comes from Whisper words (no punctuation); grouping is
   scene-aligned but not sentence-perfect. Editing captions in place is a roadmap
   item.
+
+## Security & trust
+
+- **No telemetry, no analytics, no install-time scripts** (`package.json` has
+  no `postinstall`/`preinstall`).
+- **Network access is exactly two endpoints, both user-initiated:**
+  `api.openai.com` (only for `aidemo voice` / `aidemo captions`, with your own
+  `OPENAI_API_KEY`) and `github.com` (only via your own locally-authenticated
+  `gh` CLI, for `aidemo feedback`). Recording and composing are fully local —
+  Playwright and ffmpeg spawned on your machine.
+- **Small, auditable surface:** ~20 source files under `src/`, 5 runtime
+  dependencies (`commander`, `openai`, `playwright`, `tsx`, `zod`), MIT.
+- Wary of the moving `#stable` tag? Pin an immutable ref:
+  `npx -y github:tandryukha/demo-engine#v0.3.0` or a full commit SHA.
+- Found a vulnerability? See [SECURITY.md](SECURITY.md) — please report
+  privately, not via a public issue.
 
 ## Contributing
 

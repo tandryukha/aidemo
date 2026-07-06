@@ -59,6 +59,9 @@ schema.
   context-rich issue from your session.
 - **Pull requests:** keep them focused; describe the storyboard/flow you tested
   against. If behavior changes, update README/SKILL.md in the same PR.
+- **CI on external PRs:** typecheck, secret scan, and dependency review run
+  after a maintainer approves the workflow run. PRs must not add install
+  scripts, new network endpoints, or unpinned GitHub Actions.
 - **Commit style:** short, imperative subject lines (`fix: compose hangs on
   unbounded apad`), matching the existing history.
 

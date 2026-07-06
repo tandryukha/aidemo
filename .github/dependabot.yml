@@ -1,0 +1,12 @@
+# Weekly npm bumps + github-actions bumps (keeps the SHA pins fresh).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
