@@ -1,0 +1,59 @@
+name: Bug report
+description: The engine crashed, hung, or produced a broken/wrong render outside a recording session.
+title: "bug: <short description>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If this came out of a **record-demo session** (broken selector, bad
+        timing, storyboard trouble), use the *Demo recording feedback* template
+        instead — or let `aidemo feedback demos/<name>` pre-fill it for you.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened (expected vs actual)
+      description: Be concrete — what did you run, what did you expect, what did you get?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Exact command(s), and a minimal storyboard excerpt if the input matters. The bundled fixture (`examples/local-demo`) is the ideal repro base.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`aidemo doctor` output"
+      description: Paste the full output — it covers engine version, Node, Chrome, ffmpeg, and API-key presence.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - macOS
+        - Linux
+        - Windows
+    validations:
+      required: true
+  - type: dropdown
+    id: capture
+    attributes:
+      label: Capture mode (if the bug is in record/compose)
+      options:
+        - default (Playwright screencast)
+        - "--capture native"
+        - "--capture obs"
+        - not capture-related
+  - type: textarea
+    id: log
+    attributes:
+      label: Log excerpt
+      description: Tail of `logs/<command>.log`; a failed take also leaves `logs/fail-*.png/json`.
+      render: text
