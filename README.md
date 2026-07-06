@@ -108,6 +108,13 @@ unobstructed and don't move it mid-take).
 
 Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`.
 
+**Platform support:** developed and tested on macOS. Linux should work for the
+default (Playwright) capture and `--capture obs`, but is untested; Windows is
+untested. `--capture native` is macOS-only (ffmpeg `avfoundation`) — use
+`--capture obs` for high-fidelity capture on other platforms. Run
+`aidemo doctor` to check your setup; platform reports welcome via
+`aidemo feedback`.
+
 ```bash
 npm install
 cp .env.example .env      # then add OPENAI_API_KEY
@@ -124,7 +131,7 @@ finished demo with zero external dependencies:
 ```bash
 node examples/local-demo/serve.mjs        # terminal 1: fixture on :8787
 node bin/aidemo.mjs render examples/local-demo --headless   # terminal 2
-open examples/local-demo/output/final-demo.mp4
+open examples/local-demo/output/final-demo.mp4   # xdg-open on Linux, start on Windows
 ```
 
 [![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/demo-engine/releases/download/v0.3.0/quickstart-demo.mp4)

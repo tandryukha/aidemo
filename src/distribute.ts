@@ -233,6 +233,29 @@ async function probeCmd(cmd: string, args: string[]): Promise<string | null> {
   }
 }
 
+/** Locate Chrome across platforms; returns a version string or install path. */
+async function probeChrome(): Promise<string | null> {
+  const version =
+    (await probeCmd("google-chrome", ["--version"])) ??
+    (await probeCmd("google-chrome-stable", ["--version"])) ??
+    (await probeCmd(
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      ["--version"]
+    ));
+  if (version) return version;
+  if (process.platform !== "win32") return null;
+  // chrome.exe --version prints nothing on Windows; check the usual install paths.
+  const winPaths = [
+    `${process.env["ProgramFiles"] ?? "C:\\Program Files"}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${process.env["ProgramFiles(x86)"] ?? "C:\\Program Files (x86)"}\\Google\\Chrome\\Application\\chrome.exe`,
+    process.env.LOCALAPPDATA
+      ? `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`
+      : "",
+  ];
+  for (const p of winPaths) if (p && (await exists(p))) return p;
+  return null;
+}
+
 /** Tail the most recent logs/*.log under a demo dir (best-effort). */
 async function recentLogTail(demoDir: string, lines = 40): Promise<string | null> {
   const logsDir = resolve(demoDir, "logs");
@@ -349,14 +372,7 @@ export async function doctor(dir: string | undefined): Promise<void> {
 
   line("node", process.version);
   line("ffmpeg", await probeCmd("ffmpeg", ["-version"]));
-  line(
-    "chrome",
-    (await probeCmd("google-chrome", ["--version"])) ??
-      (await probeCmd(
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-        ["--version"]
-      ))
-  );
+  line("chrome", await probeChrome());
   line("gh (feedback)", await probeCmd("gh", ["--version"]));
   ok(`OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? "set" : "MISSING (needed for voice/captions)"}`);
   // Ensure playwright's chromium/driver resolves (best-effort require probe).

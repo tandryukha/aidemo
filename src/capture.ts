@@ -79,6 +79,14 @@ export class AvfoundationCapture implements CaptureProvider {
     private device: string,
     private fps = 30
   ) {
+    if (process.platform !== "darwin") {
+      throw new Error(
+        `--capture native uses ffmpeg's avfoundation input, which only exists on ` +
+          `macOS (this is ${process.platform}). Use --capture obs (OBS Studio + ` +
+          `obs-websocket, any OS) for high-fidelity capture, or the default ` +
+          `Playwright capture.`
+      );
+    }
     this.name = `native screen capture (avfoundation "${device}")`;
   }
 
