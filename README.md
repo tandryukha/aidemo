@@ -44,6 +44,23 @@ clicking around and waiting between screenshots. It does that by separating
 **authoring** (slow, one-time — figure out the flow) from **recording** (a fast
 deterministic replay with a smooth animated cursor).
 
+## Use cases
+
+One engine, every demo a repo needs:
+
+- **GitHub README demos** — render once, `aidemo gif demos/onboarding`, drop
+  the autoplaying GIF into the readme (the Wikipedia and quickstart GIFs on
+  this page are exactly that).
+- **Landing-page hero videos** — the muted-autoplay MP4 on
+  [aidemo.top](https://aidemo.top) is a rendered demo, poster frame and all.
+- **Release / what-shipped demos** — narrate the new feature, then
+  `gh release upload v1.4.0 demos/whats-new/output/final-demo.mp4`.
+- **Customer & prospect demos** — personalized flows against your real app:
+  localhost, auth walls, your own logged-in Chrome; nothing leaves the machine.
+- **Progress demos** — end of sprint, tell your agent *"record what we shipped
+  this week"* and let it author + render in the background while you keep
+  working.
+
 ## Why it's built this way (key decisions)
 
 - **Deterministic replay, not an LLM in the loop.** The recording runs a fixed
