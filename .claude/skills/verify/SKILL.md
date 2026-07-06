@@ -5,8 +5,9 @@ description: >
   (examples/local-demo) and inspecting the output MP4 and intermediates. Use
   when the user says "verify", "run the smoke test", "e2e this change", "does
   the fixture still render", or before committing a nontrivial engine change.
-  Knows the gotchas: OPENAI_API_KEY is needed for voice/captions but not
-  probe/record/compose, stage-by-stage re-runs beat full re-renders,
+  Knows the gotchas: OPENAI_API_KEY (or a local OPENAI_BASE_URL server) is
+  needed for voice/captions but not probe/record/compose, stage-by-stage
+  re-runs beat full re-renders,
   AIDEMO_KEEP_TMP=1 keeps .compose-tmp for compose debugging, logs/fail-*.png
   from failed takes. Do NOT use for: recording real product demos (use
   record-demo) or doc-only changes with no runtime surface.
@@ -31,14 +32,16 @@ end-to-end. Be terse; surface only failures + a final status.
    curl -sf http://localhost:8787 >/dev/null && echo up
    ```
 
-3. **Full e2e** (needs `OPENAI_API_KEY` in `.env` — check with
-   `node bin/aidemo.mjs doctor` first):
+3. **Full e2e** (needs `OPENAI_API_KEY` in `.env`, or `OPENAI_BASE_URL`
+   pointing at a local OpenAI-compatible server — check with
+   `node bin/aidemo.mjs doctor` first; it reports the resolved endpoint):
    ```bash
    node bin/aidemo.mjs render examples/local-demo --headless
    ```
-   If no API key is available, fall back to the keyless path and say so in the
+   If neither is available, fall back to the keyless path and say so in the
    report: `probe` (selectors) + `record` + `compose` against previously
-   generated `audio/`/`generated/` artifacts if present.
+   generated `audio/`/`generated/` artifacts if present (`captions --offline`
+   can regenerate caption cues from an existing `voice.json` without network).
 
 4. **Inspect the output** — existence is not enough:
    ```bash

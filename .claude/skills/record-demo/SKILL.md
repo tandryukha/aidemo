@@ -23,7 +23,9 @@ Below, **`aidemo <cmd>`** means whichever of these applies:
   (the engine is *not* vendored here): `npx -y github:tandryukha/aidemo#stable <cmd>`.
 
 If unsure, run `aidemo doctor` — it prints the engine version and checks prereqs
-(ffmpeg, Chrome, `OPENAI_API_KEY`). See **Distribution & updates** at the bottom.
+(ffmpeg, Chrome, `OPENAI_API_KEY` — or `OPENAI_BASE_URL` pointing at a local
+OpenAI-compatible server, in which case no key is needed; doctor reports the
+resolved endpoint). See **Distribution & updates** at the bottom.
 
 ## Pipeline (what the engine does)
 `storyboard.json` → **voice** (OpenAI TTS per scene) → **record** (drives Chrome,

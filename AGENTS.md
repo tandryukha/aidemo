@@ -23,10 +23,11 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | One pipeline stage | `node bin/aidemo.mjs voice\|record\|captions\|compose <dir>` |
 | Environment check | `node bin/aidemo.mjs doctor` |
 
-`render`, `voice`, and `captions` need `OPENAI_API_KEY` in `.env`; `probe`,
+`render`, `voice`, and `captions` need `OPENAI_API_KEY` in `.env` (or
+`OPENAI_BASE_URL` pointing at a local OpenAI-compatible server); `probe`,
 `record`, and `compose` re-runs don't. Every engine change should keep the
 fixture rendering end-to-end (that's the smoke test CI can't run for you —
-it needs Chrome, ffmpeg, and an API key).
+it needs Chrome, ffmpeg, and a TTS/STT endpoint).
 
 ## Layout
 

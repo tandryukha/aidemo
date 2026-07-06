@@ -76,8 +76,10 @@ One engine, every demo a repo needs:
   `subtitles`/`drawtext` filters. We rasterize each caption to a transparent PNG
   with headless Chrome (full CSS control) and overlay it with time-gated
   `enable` — works on any ffmpeg with `overlay`.
-- **Swappable voice provider.** OpenAI `gpt-4o-mini-tts` today; the
-  `VoiceProvider` interface leaves room for ElevenLabs / local TTS later.
+- **Swappable voice provider.** OpenAI `gpt-4o-mini-tts` by default, but any
+  OpenAI-compatible server works — see
+  [Local models & offline](#local-models--offline). The `VoiceProvider`
+  interface leaves room for ElevenLabs later.
 - **Cinematic polish is compose-time, not record-time.** The player only
   *records* where attention went (clicks, typing, `focus` actions); the zoom
   choreography is rendered afterwards with ffmpeg `zoompan`, so a bad zoom is a
@@ -140,7 +142,8 @@ untested. `--capture native` is macOS-only (ffmpeg `avfoundation`) — use
 
 ```bash
 npm install
-cp .env.example .env      # then add OPENAI_API_KEY
+cp .env.example .env      # then add OPENAI_API_KEY (or point OPENAI_BASE_URL
+                          # at a local server — see "Local models & offline")
 ```
 
 No Playwright browser download is needed — the engine uses your system Chrome
@@ -180,6 +183,7 @@ aidemo voice   <dir> --force  # re-synthesize every scene (ignore the hash cache
 aidemo record  <dir>          # drive Chrome → raw video + timeline.json
 aidemo probe   <dir>          # record-only dry run; narration optional (verify selectors)
 aidemo captions <dir>         # Whisper → captions.{srt,vtt,cues.json}
+aidemo captions <dir> --offline   # approximate captions from the script — no network
 aidemo compose <dir>          # trim + sync + zoom + cards + caption + mux → final-demo.mp4
 aidemo gif     <dir>          # final-demo.mp4 → README-ready GIF (autoplays on GitHub)
 aidemo render  <dir>          # voice → record → captions → compose
@@ -199,6 +203,52 @@ and keeps the main recording, and on any action error it names the failing
 scene/action and drops a screenshot + frame dump in `logs/` (also, every command
 tees its own output to `logs/<command>.log`, so you don't need `| tee` — which
 would mask the exit code unless you `set -o pipefail`).
+
+## Local models & offline
+
+TTS (`voice`) and transcription (`captions`) are the **only two network calls
+in the pipeline**, and both go through the OpenAI SDK — so both can be pointed
+at any OpenAI-compatible server. Everything else — recording, composing, music
+synthesis, caption/card rendering — is local Chrome + ffmpeg already.
+
+```bash
+OPENAI_BASE_URL=http://localhost:8000/v1        # or AIDEMO_OPENAI_BASE_URL
+AIDEMO_TTS_MODEL=speaches-ai/Kokoro-82M-v1.0-ONNX   # default: gpt-4o-mini-tts
+AIDEMO_STT_MODEL=Systran/faster-whisper-small       # default: whisper-1
+```
+
+With a custom base URL set, **no `OPENAI_API_KEY` is needed**. `aidemo doctor`
+reports which endpoint is in effect.
+
+**One-server recipe — [speaches](https://speaches.ai)** covers both halves
+(faster-whisper STT with word timestamps + Kokoro TTS):
+
+```bash
+docker run --rm --detach --publish 8000:8000 \
+  --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub \
+  ghcr.io/speaches-ai/speaches:latest-cpu     # :latest-cuda if you have a GPU
+uvx speaches-cli model download speaches-ai/Kokoro-82M-v1.0-ONNX
+uvx speaches-cli model download Systran/faster-whisper-small
+```
+
+Then set the three env vars above and pick a voice the model knows in your
+storyboard's voice plan (Kokoro: `af_heart`, `am_adam`, …).
+[Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) or
+[LocalAI](https://localai.io) also work for the TTS half.
+
+**Caveat: caption sync needs word-level timestamps**, so the STT server must
+support `timestamp_granularities=word` — speaches does; whisper.cpp's compat
+layer may not. If yours doesn't (or you want zero network at all),
+`aidemo captions <dir> --offline` derives approximate captions from the script
+plus the per-scene timings in `voice.json` — no transcription call, close
+enough for most demos.
+
+**What leaves the machine:** with the default config, the narration script goes
+to the TTS endpoint and the narration audio to the transcription endpoint —
+that's the whole surface, and only when you run `voice`/`captions`/`render`.
+Point the base URL at localhost and nothing leaves at all. There's no telemetry
+anywhere; `aidemo feedback` and `aidemo skill update` touch GitHub only when
+you explicitly invoke them.
 
 ## Authoring a storyboard
 
@@ -277,9 +327,11 @@ intro/outro cards — and the native/OBS capture path shipped; see above.)
   no `postinstall`/`preinstall`).
 - **Network access is exactly two endpoints, both user-initiated:**
   `api.openai.com` (only for `aidemo voice` / `aidemo captions`, with your own
-  `OPENAI_API_KEY`) and `github.com` (only via your own locally-authenticated
-  `gh` CLI, for `aidemo feedback`). Recording and composing are fully local —
-  Playwright and ffmpeg spawned on your machine.
+  `OPENAI_API_KEY` — or a local server of your choice via `OPENAI_BASE_URL`,
+  see [Local models & offline](#local-models--offline)) and `github.com` (only
+  via your own locally-authenticated `gh` CLI, for `aidemo feedback`).
+  Recording and composing are fully local — Playwright and ffmpeg spawned on
+  your machine.
 - **Small, auditable surface:** ~20 source files under `src/`, 5 runtime
   dependencies (`commander`, `openai`, `playwright`, `tsx`, `zod`), MIT.
 - Wary of the moving `#stable` tag? Pin an immutable ref:
