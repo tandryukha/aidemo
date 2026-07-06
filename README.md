@@ -10,6 +10,7 @@ Clueso, or Demosmith** for when you'd rather your coding agent make the demo —
 no screen-recording session, no cloud upload, works against localhost and
 auth-walled apps.
 
+[![ci](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/tandryukha/aidemo)](https://github.com/tandryukha/aidemo/releases)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](.claude/skills/record-demo/SKILL.md)

@@ -1,9 +1,12 @@
 name: ci
 
-# PR gate: typecheck + gitleaks secret scan + dependency review. External PRs
-# run only after maintainer approval (Actions setting). Never uses secrets;
-# the workflow token is read-only.
+# PR gate + main build status: typecheck + gitleaks secret scan + dependency
+# review. External PRs run only after maintainer approval (Actions setting).
+# Never uses secrets; the workflow token is read-only. The push trigger keeps
+# the README build badge truthful for main.
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
