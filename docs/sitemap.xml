@@ -2,7 +2,7 @@
 <!-- NOTE: swap loc to the custom domain when purchased (see docs/internal/INDEXING_PLAN.md) -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://tandryukha.github.io/aidemo/</loc>
+    <loc>https://aidemo.top/</loc>
     <lastmod>2026-07-06</lastmod>
     <changefreq>weekly</changefreq>
   </url>

@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/tandryukha/aidemo.git"
   },
-  "homepage": "https://tandryukha.github.io/aidemo/",
+  "homepage": "https://aidemo.top/",
   "scripts": {
     "aidemo": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",

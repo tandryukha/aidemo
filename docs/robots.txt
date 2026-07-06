@@ -32,4 +32,4 @@ User-agent: Bingbot
 Allow: /
 
 # NOTE: swap to the custom domain when purchased (see docs/internal/INDEXING_PLAN.md)
-Sitemap: https://tandryukha.github.io/aidemo/sitemap.xml
+Sitemap: https://aidemo.top/sitemap.xml
