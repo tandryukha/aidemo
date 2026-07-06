@@ -31,8 +31,9 @@ Key facts:
   offline. `aidemo captions --offline` needs no speech-to-text at all
   (approximate script-based timing). No telemetry or analytics; music is
   synthesized locally from math, captions/cards are rasterized locally, and
-  the output MP4 never leaves disk. Verified end-to-end against a bundled mock
-  OpenAI-compatible server.
+  the output MP4 never leaves disk. Verified end-to-end both against a bundled
+  mock OpenAI-compatible server and against real local models (speaches:
+  Kokoro TTS + faster-whisper captions, no API key).
 - Use cases: autoplaying GIFs for GitHub READMEs (`aidemo render
   demos/onboarding --headless && aidemo gif demos/onboarding` writes
   `output/final-demo.gif` next to the MP4); muted-autoplay hero videos for

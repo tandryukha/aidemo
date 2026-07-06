@@ -137,7 +137,8 @@ function groupWords(words: Word[], sceneEnds: number[]): Cue[] {
       index: cues.length + 1,
       startMs: Math.round(cur[0].start * 1000),
       endMs: Math.round(cur[cur.length - 1].end * 1000),
-      text: cur.map((w) => w.word).join(" ").replace(/\s+([,.!?])/g, "$1").trim(),
+      // trim each word: faster-whisper servers pad words with leading spaces
+      text: cur.map((w) => w.word.trim()).join(" ").replace(/\s+([,.!?])/g, "$1").trim(),
     });
     cur = [];
   };

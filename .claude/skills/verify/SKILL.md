@@ -38,10 +38,19 @@ end-to-end. Be terse; surface only failures + a final status.
    ```bash
    node bin/aidemo.mjs render examples/local-demo --headless
    ```
-   If neither is available, fall back to the keyless path and say so in the
-   report: `probe` (selectors) + `record` + `compose` against previously
-   generated `audio/`/`generated/` artifacts if present (`captions --offline`
-   can regenerate caption cues from an existing `voice.json` without network).
+   If neither is available, prefer the **offline full e2e** — the bundled mock
+   serves both endpoints locally, so every stage still runs, with zero API
+   spend (say which path you used in the report):
+   ```bash
+   node test/mock-openai.mjs &            # mock TTS+STT on :8790
+   OPENAI_API_KEY= OPENAI_BASE_URL=http://127.0.0.1:8790/v1 \
+     node bin/aidemo.mjs render examples/local-demo --headless
+   ```
+   (Narration is sine tones and captions are placeholder words — fine for
+   verifying the pipeline, useless for judging output quality.) Last resort:
+   `probe` (selectors) + `record` + `compose` against previously generated
+   `audio/`/`generated/` artifacts if present (`captions --offline` can
+   regenerate caption cues from an existing `voice.json` without network).
 
 4. **Inspect the output** — existence is not enough:
    ```bash
@@ -74,7 +83,7 @@ end-to-end. Be terse; surface only failures + a final status.
 ```
 verify: PASS|FAIL
 typecheck: ok|errors
-e2e: full render | keyless fallback (probe+record+compose) | skipped (why)
+e2e: full render | offline full render (mock) | keyless fallback (probe+record+compose) | skipped (why)
 output: <duration>s, video+audio | anomaly: <what>
 failures: <stage → cause → log excerpt>   (omit if none)
 ```

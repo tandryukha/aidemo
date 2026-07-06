@@ -13,12 +13,13 @@
  *
  * Usage:
  *   node test/mock-openai.mjs                # listens on PORT (default 8790)
- *   OPENAI_BASE_URL=http://127.0.0.1:8790/v1 OPENAI_API_KEY=mock \
+ *   OPENAI_BASE_URL=http://127.0.0.1:8790/v1 \
  *     node bin/aidemo.mjs render examples/local-demo --headless
  *
- * The key is a dummy — the engine checks it's set (src/config.ts) but this
- * server never reads it. Every request is logged to stdout (method, path,
- * model), which doubles as proof of which endpoints a run actually hit.
+ * No API key needed — with a custom base URL set, requireOpenAiKey()
+ * (src/config.ts) sends a placeholder, and this server never reads it. Every
+ * request is logged to stdout (method, path, model), which doubles as proof
+ * of which endpoints a run actually hit.
  */
 import http from "node:http";
 import { execFile } from "node:child_process";

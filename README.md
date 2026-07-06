@@ -232,7 +232,9 @@ uvx speaches-cli model download Systran/faster-whisper-small
 ```
 
 Then set the three env vars above and pick a voice the model knows in your
-storyboard's voice plan (Kokoro: `af_heart`, `am_adam`, …).
+storyboard's voice plan (Kokoro: `af_heart`, `am_adam`, …). This exact stack is
+verified: the bundled fixture renders end-to-end against it — real Kokoro
+narration, word-timed faster-whisper captions, no API key.
 [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) or
 [LocalAI](https://localai.io) also work for the TTS half.
 
@@ -259,7 +261,14 @@ each, ~2.5 words/sec of narration, hook first, CTA last; use `waitForWidget` for
 every async "thinking" wait so it gets trimmed.
 
 The easiest way to make one: ask Claude — *"record a 45s demo of &lt;flow&gt;"* — and the
-`record-demo` skill drives the whole thing.
+`record-demo` skill drives the whole thing:
+
+![A real Claude Code session authoring and rendering a demo, middle fast-forwarded](docs/authoring.gif)
+
+<sub>A real session, unedited except the middle ~7 minutes being fast-forwarded:
+Claude Code loads the skill, writes the storyboard, probes the selectors with a
+record-only dry run, renders, then iterates narration length from a 38.9s cut
+to 43.8s by re-running only voice → captions → compose — and reports back.</sub>
 
 ## Recording ChatGPT apps (Apps SDK widgets)
 
