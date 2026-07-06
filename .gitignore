@@ -35,3 +35,6 @@ assets/*.wav
 
 # OS
 .DS_Store
+
+# session scratch files (never commit)
+.tmp-*
