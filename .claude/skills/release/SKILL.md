@@ -5,8 +5,8 @@ description: >
   (release.yml) then creates the vX.Y.Z tag, moves `stable`, and publishes the
   GitHub Release. Use when the user says "cut a release", "release vX.Y.Z",
   "bump and release", "ship a new version", or "move stable". Knows the
-  gotchas: the version lives ONLY in package.json, this repo pushes only when
-  the user asks, CI tagging is idempotent, npm caches the moving `stable` tag
+  gotchas: the version lives ONLY in package.json, pushing a version bump to
+  main IS the ship trigger, CI tagging is idempotent, npm caches the moving `stable` tag
   (--prefer-online to force-fresh). Do NOT use for: publishing to npm (the
   engine is npx-from-git only), or installing/updating the skill in consumer
   repos (that's `aidemo skill update`).
