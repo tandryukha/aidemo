@@ -1,7 +1,7 @@
 # Releasing aidemo
 
 The engine is **not published to a registry**. Consumer repos run it via
-`npx -y github:tandryukha/demo-engine#stable`, so "release" here means: cut a
+`npx -y github:tandryukha/aidemo#stable`, so "release" here means: cut a
 semver tag and move the `stable` tag onto it.
 
 - `stable` — the moving pointer consumer repos and the SessionStart hook resolve.
@@ -47,14 +47,14 @@ If the workflow fails on permissions, enable
 ## Consumers pick it up
 
 - The `SessionStart` hook in each consumer repo runs
-  `npx -y github:tandryukha/demo-engine#stable skill check` and prints a notice
+  `npx -y github:tandryukha/aidemo#stable skill check` and prints a notice
   when their installed skill is behind the new `stable`.
-- They apply it when ready: `npx -y github:tandryukha/demo-engine#stable skill update --dir .`
+- They apply it when ready: `npx -y github:tandryukha/aidemo#stable skill update --dir .`
 
 ## Caveat: npm caches moving tags
 
 `npx ...#stable` resolves the `stable` ref to a commit each run, but npm caches
 git installs by resolved commit. Right after moving `stable`, a consumer whose
 cache still holds the old commit may not see the new version until the cache
-refreshes. To force-fresh: `npx --prefer-online -y github:tandryukha/demo-engine#stable ...`,
+refreshes. To force-fresh: `npx --prefer-online -y github:tandryukha/aidemo#stable ...`,
 or pin the hook/commands to an explicit `#vX.Y.Z` when you need determinism.

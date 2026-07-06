@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tandryukha/demo-engine.git"
+    "url": "git+https://github.com/tandryukha/aidemo.git"
   },
   "scripts": {
     "aidemo": "tsx src/cli.ts",

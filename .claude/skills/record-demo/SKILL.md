@@ -18,9 +18,9 @@ browser demo video using the `aidemo` engine.
 
 ## Invoking the engine (`aidemo`)
 Below, **`aidemo <cmd>`** means whichever of these applies:
-- **In the demo-engine repo itself** (a full checkout): `node bin/aidemo.mjs <cmd>`.
+- **In the aidemo repo itself** (a full checkout): `node bin/aidemo.mjs <cmd>`.
 - **In a product repo** where this skill was installed via `aidemo repo-init`
-  (the engine is *not* vendored here): `npx -y github:tandryukha/demo-engine#stable <cmd>`.
+  (the engine is *not* vendored here): `npx -y github:tandryukha/aidemo#stable <cmd>`.
 
 If unsure, run `aidemo doctor` — it prints the engine version and checks prereqs
 (ffmpeg, Chrome, `OPENAI_API_KEY`). See **Distribution & updates** at the bottom.
@@ -216,7 +216,7 @@ air, and the key moment (e.g. checkout confirmed) is actually visible on screen.
 
 ## Distribution & updates
 This skill is a **versioned copy** of the source in the
-[demo-engine](https://github.com/tandryukha/demo-engine) repo. In a product repo
+[aidemo](https://github.com/tandryukha/aidemo) repo. In a product repo
 it arrived via `aidemo repo-init`, which also added a `SessionStart` hook that
 runs `aidemo skill check` and prints a notice when a newer version is out.
 - **Update the skill** (when notified, or any time): `aidemo skill update --dir .`
@@ -224,4 +224,4 @@ runs `aidemo skill check` and prints a notice when a newer version is out.
 - **Send feedback upstream** at the end of a rough session — broken selector, bad
   timing, or an idea: `aidemo feedback demos/<name>` files a context-rich GitHub
   issue on the engine repo (falls back to a local `docs/feedback-*.md` offline).
-- **Bootstrap a new repo**: `npx -y github:tandryukha/demo-engine#stable repo-init --dir .`
+- **Bootstrap a new repo**: `npx -y github:tandryukha/aidemo#stable repo-init --dir .`

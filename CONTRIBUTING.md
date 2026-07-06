@@ -9,8 +9,8 @@ practical stuff; for what the project is and how it works, start with the
 Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`.
 
 ```bash
-git clone https://github.com/tandryukha/demo-engine.git
-cd demo-engine
+git clone https://github.com/tandryukha/aidemo.git
+cd aidemo
 npm install
 cp .env.example .env      # add OPENAI_API_KEY (used for TTS + Whisper captions)
 ```

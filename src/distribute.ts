@@ -5,7 +5,7 @@
  * that runs `aidemo skill check`.
  *
  * Design notes:
- * - The engine is meant to be invoked as `npx -y github:tandryukha/demo-engine#stable`.
+ * - The engine is meant to be invoked as `npx -y github:tandryukha/aidemo#stable`.
  *   When run that way the engine's OWN version (engineVersion(), read from its
  *   bundled package.json) IS the latest stable — so `skill check` just compares
  *   that against the local installed.json, no extra network needed.
@@ -24,7 +24,7 @@ import { ensureDir, exists, ok, step, fail, log } from "./util.js";
 
 const execFileAsync = promisify(execFile);
 
-export const UPSTREAM_REPO = "tandryukha/demo-engine";
+export const UPSTREAM_REPO = "tandryukha/aidemo";
 export const UPSTREAM_SPEC = `github:${UPSTREAM_REPO}#stable`;
 const SKILL_REL = ".claude/skills/record-demo/SKILL.md";
 const MANIFEST_REL = ".claude/skills/record-demo/installed.json";
@@ -139,7 +139,7 @@ const SETTINGS_TEMPLATE = (): string =>
 const POINTER_DOC = (): string => `# record-demo skill — how this got here & how to keep it fresh
 
 This repo carries a **copy** of the \`record-demo\` skill from the
-[demo-engine](https://github.com/${UPSTREAM_REPO}) (aidemo). The engine itself is
+[aidemo](https://github.com/${UPSTREAM_REPO}). The engine itself is
 **not** vendored — it is run on demand via npx from a pinned \`stable\` tag.
 
 Everywhere below, \`aidemo\` means:

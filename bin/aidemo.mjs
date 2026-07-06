@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 /**
  * Resolve tsx's CLI entry via Node's module resolution so it works both from a
  * local checkout (tsx under the repo's node_modules) AND from a hoisted
- * `npx github:tandryukha/demo-engine@stable` install, where npm lifts tsx into a
+ * `npx github:tandryukha/aidemo@stable` install, where npm lifts tsx into a
  * parent node_modules that `<pkg>/node_modules/.bin/tsx` would miss.
  */
 function findTsxBin() {
@@ -42,7 +42,7 @@ const tsxBin = findTsxBin();
 if (!tsxBin) {
   console.error(
     "aidemo: could not locate the 'tsx' runtime. Run `npm install` in the engine, " +
-      "or invoke via `npx -y github:tandryukha/demo-engine@stable <cmd>`."
+      "or invoke via `npx -y github:tandryukha/aidemo@stable <cmd>`."
   );
   process.exit(1);
 }

@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for feeding back into the engine. The fastest path is
-        `npx -y github:tandryukha/demo-engine#stable feedback demos/<name>` — it
+        `npx -y github:tandryukha/aidemo#stable feedback demos/<name>` — it
         pre-fills most of this from your session. Otherwise fill it in below.
   - type: input
     id: repo

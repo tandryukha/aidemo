@@ -5,7 +5,7 @@
 Please **do not open a public issue** for security vulnerabilities.
 
 - **Preferred:** GitHub private vulnerability reporting — use
-  ["Report a vulnerability"](https://github.com/tandryukha/demo-engine/security/advisories/new)
+  ["Report a vulnerability"](https://github.com/tandryukha/aidemo/security/advisories/new)
   under the repo's Security tab.
 - **Fallback:** email [tandryukha@gmail.com](mailto:tandryukha@gmail.com).
 
@@ -37,4 +37,4 @@ What the tool does — and doesn't do — at runtime:
   licensed.
 
 If you'd rather not track the moving `#stable` tag, pin an immutable ref:
-`npx -y github:tandryukha/demo-engine#v0.3.0` (or a full commit SHA).
+`npx -y github:tandryukha/aidemo#v0.3.0` (or a full commit SHA).

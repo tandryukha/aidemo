@@ -11,20 +11,20 @@ no screen-recording session, no cloud upload, works against localhost and
 auth-walled apps.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/tandryukha/demo-engine)](https://github.com/tandryukha/demo-engine/releases)
+[![Release](https://img.shields.io/github/v/release/tandryukha/aidemo)](https://github.com/tandryukha/aidemo/releases)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](.claude/skills/record-demo/SKILL.md)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/demo-engine/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/demo-engine)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
 
 **Works with:** Claude Code (today) · Codex CLI / Gemini CLI (planned, via an
 agent-neutral authoring doc + MCP server) · any human or agent that can write a
 `storyboard.json` and run `aidemo render`.
 
-[![Shopping demo inside ChatGPT — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/demo-engine/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4)
+[![Shopping demo inside ChatGPT — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4)
 
 <sub>Real output — a ~75 s shopping flow inside a ChatGPT app (search → compare
 → product detail → add to basket → checkout hand-off), authored by Claude and
 recorded as a deterministic replay. The preview GIF is silent;
-**[watch the full version with narration ▶](https://github.com/tandryukha/demo-engine/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4)**.</sub>
+**[watch the full version with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4)**.</sub>
 
 ```
 storyboard.json
@@ -135,10 +135,10 @@ node bin/aidemo.mjs render examples/local-demo --headless   # terminal 2
 open examples/local-demo/output/final-demo.mp4   # xdg-open on Linux, start on Windows
 ```
 
-[![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/demo-engine/releases/download/v0.3.0/quickstart-demo.mp4)
+[![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)
 
 <sub>What the quick start produces — narrated, captioned, auto-trimmed. Silent
-preview; **[full version ▶](https://github.com/tandryukha/demo-engine/releases/download/v0.3.0/quickstart-demo.mp4)**.</sub>
+preview; **[full version ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)**.</sub>
 
 (You can also `npm link` to get a global `aidemo` command instead of
 `node bin/aidemo.mjs`.)
@@ -258,7 +258,7 @@ intro/outro cards — and the native/OBS capture path shipped; see above.)
 - **Small, auditable surface:** ~20 source files under `src/`, 5 runtime
   dependencies (`commander`, `openai`, `playwright`, `tsx`, `zod`), MIT.
 - Wary of the moving `#stable` tag? Pin an immutable ref:
-  `npx -y github:tandryukha/demo-engine#v0.3.0` or a full commit SHA.
+  `npx -y github:tandryukha/aidemo#v0.3.0` or a full commit SHA.
 - Found a vulnerability? See [SECURITY.md](SECURITY.md) — please report
   privately, not via a public issue.
 

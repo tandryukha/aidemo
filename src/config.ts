@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 /**
  * Engine install root = parent of src/. When the engine is run from its own
- * repo this is the repo root; when it's fetched via `npx github:.../demo-engine`
+ * repo this is the repo root; when it's fetched via `npx github:.../aidemo`
  * it's the temp package dir. Either way, package.json / bin / .claude live here.
  */
 export const ENGINE_ROOT = resolve(new URL("..", import.meta.url).pathname);
