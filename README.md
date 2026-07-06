@@ -20,12 +20,13 @@ auth-walled apps.
 agent-neutral authoring doc + MCP server) · any human or agent that can write a
 `storyboard.json` and run `aidemo render`.
 
-[![Shopping demo inside ChatGPT — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4)
+[![aidemo demoing itself on Wikipedia — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)
 
-<sub>Real output — a ~75 s shopping flow inside a ChatGPT app (search → compare
-→ product detail → add to basket → checkout hand-off), authored by Claude and
-recorded as a deterministic replay. The preview GIF is silent;
-**[watch the full version with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4)**.</sub>
+<sub>Real output — a ~51 s self-narrated tour of Wikipedia (portal search →
+Ada Lovelace → focus-zoom → click through to the Analytical Engine → glide
+scroll), authored by Claude from one `storyboard.json` and recorded as a
+deterministic replay. The preview GIF is silent;
+**[watch the full version with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)**.</sub>
 
 ```
 storyboard.json

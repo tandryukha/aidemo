@@ -217,7 +217,7 @@
         color-mix(in srgb, var(--accent-2) 60%, transparent)) border-box;
     box-shadow: var(--shadow);
   }
-  .demo-shot video { width: 100%; height: auto; aspect-ratio: 1280 / 800; display: block; }
+  .demo-shot video { width: 100%; height: auto; aspect-ratio: 1280 / 720; display: block; }
   .demo-shot .cap { text-align: center; font-size: 13.5px; color: var(--muted); margin-top: 14px; }
   .demo-shot .cap a { display: inline; border: 0; box-shadow: none; color: var(--accent); text-decoration: none; }
   .demo-shot .cap a:hover { text-decoration: underline; }
@@ -354,7 +354,7 @@
     </p>
     <div class="cta fade d4">
       <a class="btn primary" href="https://github.com/tandryukha/aidemo">View on GitHub</a>
-      <a class="btn ghost" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">Watch a real 75s output ▶</a>
+      <a class="btn ghost" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4">Watch a real 51s output ▶</a>
     </div>
     <div class="pills fade d4">
       <span class="pill">MIT licensed</span>
@@ -365,14 +365,14 @@
 
     <div class="demo-shot fade d5">
       <div class="halo"></div>
-      <a class="frame" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4"
-         aria-label="Shopping demo inside a ChatGPT app, recorded with aidemo — open the narrated version">
-        <video autoplay muted loop playsinline preload="metadata" poster="hero-poster.jpg" width="1280" height="800">
+      <a class="frame" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4"
+         aria-label="aidemo demoing itself on Wikipedia, recorded as a deterministic replay — open the narrated version">
+        <video autoplay muted loop playsinline preload="metadata" poster="hero-poster.jpg" width="1280" height="720">
           <source src="hero-demo.mp4" type="video/mp4">
         </video>
       </a>
-      <p class="cap">Real output — a shopping flow inside a ChatGPT app, authored by Claude and recorded as a
-        deterministic replay. Preview is silent; <a href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">watch the narrated version ▶</a></p>
+      <p class="cap">Real output — aidemo demoing itself on Wikipedia, from one agent-authored
+        <span class="mono">storyboard.json</span>. Preview is silent; <a href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4">watch the narrated version ▶</a></p>
     </div>
   </div>
 </header>
@@ -488,10 +488,10 @@
       <div class="card reveal">
         <img class="ic brand" src="icons/maxfit.webp" alt="MaxFit logo" width="44" height="44">
         <h3>MaxFit — shopping in a ChatGPT app</h3>
-        <p>The 75-second demo playing in the hero above: a shopping flow inside MaxFit's
-          ChatGPT app — an auth-walled widget in nested iframes, through to a live
-          checkout. Claude Code authored the <code>storyboard.json</code>; the engine
-          recorded it as a deterministic replay.</p>
+        <p>A 75-second shopping flow inside MaxFit's ChatGPT app — an auth-walled
+          widget in nested iframes, through to a live checkout. Claude Code authored
+          the <code>storyboard.json</code>; the engine recorded it as a deterministic
+          replay.</p>
         <p class="links">
           <a href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">Watch the narrated demo ▶</a>
           <span class="sep">·</span>

@@ -30,10 +30,12 @@ Key facts:
   rendering is local.
 - Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, an OpenAI API key.
   Developed on macOS; Linux expected to work (default capture path).
-- Made with aidemo (real-world examples): a 75-second narrated shopping demo
-  inside MaxFit's ChatGPT app (maxfit.ee) — an auth-walled widget in nested
-  iframes through to a live checkout; a walkthrough of turg.fitness.ee, a
-  production fitness-gear marketplace, is next.
+- Made with aidemo (real-world examples): a 51-second self-narrated demo of
+  the engine driving Wikipedia (the hero video on the landing page and README);
+  a 75-second narrated shopping demo inside MaxFit's ChatGPT app (maxfit.ee) —
+  an auth-walled widget in nested iframes through to a live checkout; a
+  walkthrough of turg.fitness.ee, a production fitness-gear marketplace, is
+  next.
 
 ## Docs
 
@@ -43,6 +45,8 @@ Key facts:
   how the agent authors a storyboard and renders a demo
 - [Releases](https://github.com/tandryukha/aidemo/releases): versioned releases
   with real rendered MP4s as assets
+- [Example output (51s, narrated)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4):
+  aidemo demoing itself on Wikipedia, authored by Claude
 - [Example output (75s, narrated)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4):
   a shopping flow inside a ChatGPT app, authored by Claude
 - [CONTRIBUTING](https://github.com/tandryukha/aidemo/blob/main/CONTRIBUTING.md)
