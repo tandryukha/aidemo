@@ -1,6 +1,6 @@
 # aidemo — your coding agent makes the demo video
 
-**[aidemo.top](https://aidemo.top)** · [showcase with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4) · [quick start](#quick-start-self-contained-smoke-test) · [the skill](.claude/skills/record-demo/SKILL.md)
+**[aidemo.top](https://aidemo.top)** · [showcase with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4) · [watch Claude author one](#authoring-a-storyboard) · [quick start](#quick-start-self-contained-smoke-test) · [the skill](.claude/skills/record-demo/SKILL.md)
 
 **Tell your coding agent *"record a 45s demo of the checkout flow"* — get back
 a polished MP4 with voiceover, synced captions, and auto-zoom.** The agent
