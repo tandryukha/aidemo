@@ -35,8 +35,9 @@ surface only failures + final status.
    git commit -asm "release: v$(node -p "require('./package.json').version")"
    ```
 
-3. **Push — only if the user asked for this release to go out** (repo rule:
-   pushes happen only when asked):
+3. **Push** — this is the ship step: once CI sees the version bump on main,
+   the release goes out. Make sure the user actually wants a release cut (a
+   routine end-of-session push must NOT include a version bump):
    ```bash
    git push origin main
    ```

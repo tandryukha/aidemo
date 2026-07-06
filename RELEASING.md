@@ -30,7 +30,10 @@ tags locally; `git push origin main --follow-tags` then pushes both, and CI is
 idempotent: it skips the existing tag but still moves `stable` and makes the
 Release.)
 
-This repo is **main-only** (no PRs/branches) and pushes happen **only when asked**.
+This repo is **main-only** (no PRs/branches) for the maintainer; contributions
+come in as PRs per CONTRIBUTING.md. Note the release trigger: any push to main
+that changes `package.json` version cuts a release — bump the version only when
+you mean to ship.
 
 ### Manual fallback (if CI is unavailable)
 
