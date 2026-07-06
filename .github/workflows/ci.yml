@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read # gitleaks-action lists PR commits
 
 jobs:
   ci:
@@ -33,6 +34,7 @@ jobs:
       - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GITLEAKS_ENABLE_COMMENTS: false # commenting would need PR write access
 
   dependency-review:
     if: github.event_name == 'pull_request'
