@@ -63,8 +63,14 @@ export class Project {
   get outputPath() {
     return this.p("output", "final-demo.mp4");
   }
+  get gifPath() {
+    return this.p("output", "final-demo.gif");
+  }
   get composeTmpDir() {
     return this.p(".compose-tmp");
+  }
+  get gifTmpDir() {
+    return this.p(".gif-tmp");
   }
 
   async ensureDirs(): Promise<void> {

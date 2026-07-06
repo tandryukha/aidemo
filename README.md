@@ -181,6 +181,7 @@ aidemo record  <dir>          # drive Chrome → raw video + timeline.json
 aidemo probe   <dir>          # record-only dry run; narration optional (verify selectors)
 aidemo captions <dir>         # Whisper → captions.{srt,vtt,cues.json}
 aidemo compose <dir>          # trim + sync + zoom + cards + caption + mux → final-demo.mp4
+aidemo gif     <dir>          # final-demo.mp4 → README-ready GIF (autoplays on GitHub)
 aidemo render  <dir>          # voice → record → captions → compose
 aidemo music   [out.wav]      # synthesize a license-free background-music bed
 ```

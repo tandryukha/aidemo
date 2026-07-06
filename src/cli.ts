@@ -6,6 +6,7 @@ import { record } from "./recorder.js";
 import { generateVoice } from "./voice.js";
 import { generateCaptions } from "./captions.js";
 import { compose } from "./compose.js";
+import { exportGif } from "./gif.js";
 import { synthesizeMusicBed } from "./music.js";
 import { ensureDir, ok, step, fail, setLogFile, closeLogFile } from "./util.js";
 import {
@@ -96,6 +97,13 @@ program
   .action(async (opts: { dir?: string }) => {
     await doctor(opts.dir);
   });
+
+function parsePositiveInt(name: string, value: string): number {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n <= 0)
+    throw new Error(`${name} must be a positive integer (got "${value}")`);
+  return n;
+}
 
 function parseCapture(value?: string): "playwright" | "native" | "obs" | undefined {
   if (value == null) return undefined;
@@ -200,13 +208,34 @@ program
 program
   .command("compose")
   .argument("<dir>", "demo project directory")
+  .option("--gif", "also export output/final-demo.gif after the mux", false)
   .description("trim, sync, mux and caption into output/final-demo.mp4")
-  .action(async (dir: string) => {
+  .action(async (dir: string, opts: { gif?: boolean }) => {
     const project = new Project(dir);
     await beginCommand(project, "compose");
     const storyboard = await project.loadStoryboard();
     await compose(project, storyboard);
+    if (opts.gif) await exportGif(project);
   });
+
+program
+  .command("gif")
+  .argument("<dir>", "demo project directory")
+  .option("--width <px>", "output width in pixels", "960")
+  .option("--fps <n>", "GIF frame rate", "12")
+  .option("--out <path>", "output path (default: <dir>/output/final-demo.gif)")
+  .description("convert output/final-demo.mp4 to a README-ready GIF")
+  .action(
+    async (dir: string, opts: { width: string; fps: string; out?: string }) => {
+      const project = new Project(dir);
+      await beginCommand(project, "gif");
+      await exportGif(project, {
+        width: parsePositiveInt("--width", opts.width),
+        fps: parsePositiveInt("--fps", opts.fps),
+        out: opts.out,
+      });
+    }
+  );
 
 program
   .command("render")
@@ -218,6 +247,7 @@ program
     "capture path: playwright (default) | native (ffmpeg screen grab) | obs"
   )
   .option("--force-voice", "re-synthesize narration even if unchanged", false)
+  .option("--gif", "also export output/final-demo.gif after the mux", false)
   .description("run the full pipeline: voice → record → captions → compose")
   .action(
     async (
@@ -227,6 +257,7 @@ program
         headless?: boolean;
         capture?: string;
         forceVoice?: boolean;
+        gif?: boolean;
       }
     ) => {
       const project = new Project(dir);
@@ -240,6 +271,7 @@ program
       });
       await generateCaptions(project);
       await compose(project, storyboard);
+      if (opts.gif) await exportGif(project);
       step("Done");
       ok(`▶ open ${project.outputPath}`);
     }
