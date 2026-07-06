@@ -1,0 +1,37 @@
+node_modules/
+dist/
+
+# Secrets
+.env
+**/credentials.local.json
+
+# Dedicated Chrome profile handed to Playwright (contains your logged-in session)
+chrome-profile/
+**/chrome-profile/
+
+# Private working area — real product demos are not part of the public repo
+# (use `aidemo init <name>` to scaffold your own under demos/)
+demos/
+
+# Internal strategy docs (launch plan, PRFAQ, session feedback)
+docs/internal/
+
+# Generated demo artifacts (heavy / reproducible) — for demos/ and examples/.
+# storyboard.json is kept; everything derived from it is ignored.
+**/recordings/
+**/audio/
+**/output/
+**/logs/
+**/generated/timeline.json
+**/generated/captions.srt
+**/generated/captions.vtt
+**/generated/captions.cues.json
+**/.compose-tmp/
+
+# Generated music beds — reproducible via `aidemo music` / make-music.mjs, and
+# heavy (~18MB). The generator script is tracked; the .wav it emits is not.
+**/music.wav
+assets/*.wav
+
+# OS
+.DS_Store

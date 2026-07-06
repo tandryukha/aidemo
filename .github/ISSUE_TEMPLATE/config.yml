@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: record-demo skill docs
+    url: https://github.com/tandryukha/demo-engine/blob/main/.claude/skills/record-demo/SKILL.md
+    about: How to author a storyboard and drive the aidemo engine.

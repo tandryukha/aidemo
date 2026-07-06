@@ -1,0 +1,62 @@
+name: release
+
+# Cut a release automatically when package.json "version" changes on main:
+# create the immutable vX.Y.Z tag, move the `stable` pointer, and publish a
+# GitHub Release. No-op for commits that don't bump the version.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          fetch-tags: true
+
+      - name: Detect version change
+        id: ver
+        run: |
+          new=$(node -p "require('./package.json').version")
+          old=$(git show HEAD~1:package.json 2>/dev/null \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).version)}catch{console.log('')}})")
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+          echo "old=$old" >> "$GITHUB_OUTPUT"
+          if [ "$new" != "$old" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::version $old -> $new — cutting release"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::version unchanged ($new) — no release"
+          fi
+
+      - name: Tag, move stable, publish release
+        if: steps.ver.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          v="v${{ steps.ver.outputs.new }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Immutable semver tag (create once).
+          if ! git rev-parse -q --verify "refs/tags/$v" >/dev/null; then
+            git tag -a "$v" -m "$v"
+            git push origin "$v"
+          fi
+
+          # Moving `stable` pointer that consumers resolve via npx.
+          git tag -f stable
+          git push -f origin stable
+
+          # GitHub Release (create once).
+          if ! gh release view "$v" >/dev/null 2>&1; then
+            gh release create "$v" --title "$v" --generate-notes
+          fi

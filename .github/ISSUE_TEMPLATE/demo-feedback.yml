@@ -1,0 +1,65 @@
+name: Demo recording feedback
+description: Report a broken selector, bad timing, or an idea from a record-demo session.
+title: "Demo feedback: <repo/flow>"
+labels: ["demo-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for feeding back into the engine. The fastest path is
+        `npx -y github:tandryukha/demo-engine#stable feedback demos/<name>` — it
+        pre-fills most of this from your session. Otherwise fill it in below.
+  - type: input
+    id: repo
+    attributes:
+      label: Consuming repo
+      description: Which product repo were you recording from?
+      placeholder: my-web-app / my-saas / ...
+    validations:
+      required: true
+  - type: input
+    id: engine-version
+    attributes:
+      label: aidemo engine version
+      description: From `aidemo --version` or `aidemo doctor`.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Which stage broke / needs work?
+      options:
+        - selector (a target didn't match / matched the wrong element)
+        - timing / pacing (waits, trims, freeze-holds)
+        - voice (TTS quality, wrong scene, drift)
+        - captions (timing, wording)
+        - compose (zoom, music, cards, mux)
+        - authoring / docs (skill guidance was wrong or missing)
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened (expected vs actual)
+      description: Be concrete. Paste the failing selector / scene id if you have it.
+    validations:
+      required: true
+  - type: textarea
+    id: storyboard
+    attributes:
+      label: Storyboard excerpt
+      description: The relevant scene(s) from generated/storyboard.json.
+      render: json
+  - type: textarea
+    id: log
+    attributes:
+      label: Log excerpt
+      description: Tail of logs/<command>.log (a failed take also leaves logs/fail-*.png/json).
+      render: text
+  - type: input
+    id: mp4
+    attributes:
+      label: Rendered MP4 (link, optional)
+      description: A link to the output if the take rendered but looked wrong.

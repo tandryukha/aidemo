@@ -1,0 +1,31 @@
+{
+  "name": "aidemo",
+  "version": "0.3.0",
+  "private": true,
+  "license": "MIT",
+  "description": "AI Demo Engine — turn a storyboard into a narrated, captioned product demo video",
+  "type": "module",
+  "bin": {
+    "aidemo": "./bin/aidemo.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tandryukha/demo-engine.git"
+  },
+  "scripts": {
+    "aidemo": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "serve-example": "node examples/local-demo/serve.mjs"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "openai": "^4.67.0",
+    "playwright": "^1.48.0",
+    "tsx": "^4.19.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}

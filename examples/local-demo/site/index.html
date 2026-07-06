@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DemoFit — Supplement Finder (demo fixture)</title>
+<style>
+  :root { --bg:#0e1220; --card:#171d2e; --ink:#eef2ff; --mut:#9aa6c8; --accent:#4c8dff; --good:#37d39b; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 70% -10%, #1c2340, var(--bg)) , var(--bg);
+    color: var(--ink); }
+  header { display:flex; align-items:center; gap:12px; padding:20px 32px; border-bottom:1px solid #222a42; }
+  .logo { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--accent),#7b5cff);
+    display:grid; place-items:center; font-weight:800; }
+  header h1 { font-size:18px; margin:0; letter-spacing:.2px; }
+  header .badge { margin-left:auto; background:var(--card); border:1px solid #2a3350; padding:8px 12px;
+    border-radius:999px; font-size:13px; color:var(--mut); }
+  .cart-count { color:var(--good); font-weight:700; }
+  main { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
+  .search { display:flex; gap:10px; }
+  input#search { flex:1; padding:16px 18px; font-size:17px; border-radius:12px; border:1px solid #2a3350;
+    background:#0f1424; color:var(--ink); outline:none; }
+  input#search:focus { border-color: var(--accent); box-shadow:0 0 0 3px rgba(76,141,255,.2); }
+  button.primary { padding:0 22px; border:0; border-radius:12px; font-size:16px; font-weight:700;
+    background:var(--accent); color:white; cursor:pointer; }
+  .hint { color:var(--mut); font-size:14px; margin-top:14px; }
+  .thinking { display:none; align-items:center; gap:12px; margin-top:34px; color:var(--mut); }
+  .thinking.show { display:flex; }
+  .spinner { width:18px; height:18px; border-radius:50%; border:3px solid #2a3350; border-top-color:var(--accent);
+    animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .results { display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:30px; }
+  .card { background:var(--card); border:1px solid #262f4c; border-radius:16px; padding:18px; }
+  .card h3 { margin:0 0 6px; font-size:16px; }
+  .vendor { color:var(--mut); font-size:13px; }
+  .row { display:flex; align-items:baseline; gap:10px; margin:14px 0; }
+  .price { font-size:22px; font-weight:800; }
+  .pps { color:var(--good); font-size:13px; font-weight:600; }
+  .stock { font-size:12px; color:var(--good); }
+  .add { width:100%; padding:12px; border:0; border-radius:10px; background:#22304f; color:var(--ink);
+    font-weight:700; cursor:pointer; }
+  .add:hover { background:#2b3c63; }
+  .checkout-bar { display:none; margin-top:28px; justify-content:space-between; align-items:center;
+    background:var(--card); border:1px solid #262f4c; border-radius:14px; padding:16px 20px; }
+  .checkout-bar.show { display:flex; }
+  .confirmed { display:none; margin-top:30px; text-align:center; padding:40px; background:var(--card);
+    border:1px solid #26543f; border-radius:16px; }
+  .confirmed.show { display:block; }
+  .confirmed .check { font-size:44px; color:var(--good); }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">D</div>
+  <h1>DemoFit Supplement Finder</h1>
+  <div class="badge">Basket: <span class="cart-count" id="cart-count">0</span></div>
+</header>
+<main>
+  <div class="search">
+    <input id="search" data-testid="search" placeholder="Ask for a supplement, e.g. whey isolate" autocomplete="off" />
+    <button class="primary" id="search-btn" data-testid="search-btn">Search</button>
+  </div>
+  <div class="hint">Try: “whey isolate under 30 euros”</div>
+
+  <div class="thinking" id="thinking"><div class="spinner"></div> Finding the best matches…</div>
+
+  <div class="results" id="results" data-testid="results" style="display:none"></div>
+
+  <div class="checkout-bar" id="checkout-bar">
+    <div>1 item · <strong>€28.90</strong></div>
+    <button class="primary" id="checkout" data-testid="checkout">Checkout</button>
+  </div>
+
+  <div class="confirmed" id="order-confirmed" data-testid="order-confirmed">
+    <div class="check">✓</div>
+    <h2>Order confirmed</h2>
+    <div class="vendor">Your supplements are on the way.</div>
+  </div>
+</main>
+
+<script>
+  const PRODUCTS = [
+    { name: "Whey Isolate 90 — 1kg", vendor: "PureLab", price: "€28.90", pps: "€0.96 / serving" },
+    { name: "ISO Zero Whey — 900g", vendor: "NordicFit", price: "€31.50", pps: "€1.05 / serving" },
+    { name: "Isolate Pro — 1kg", vendor: "DemoFit", price: "€29.90", pps: "€0.99 / serving" },
+    { name: "Clear Isolate — 750g", vendor: "Hydra", price: "€26.00", pps: "€1.10 / serving" },
+  ];
+  const $ = (id) => document.getElementById(id);
+  let cart = 0;
+
+  $("search-btn").addEventListener("click", runSearch);
+  $("search").addEventListener("keydown", (e) => { if (e.key === "Enter") runSearch(); });
+
+  function runSearch() {
+    $("results").style.display = "none";
+    $("results").innerHTML = "";
+    $("checkout-bar").classList.remove("show");
+    $("order-confirmed").classList.remove("show");
+    $("thinking").classList.add("show");
+    // Simulate ChatGPT/model "thinking" latency.
+    setTimeout(renderResults, 2200);
+  }
+
+  function renderResults() {
+    $("thinking").classList.remove("show");
+    const grid = $("results");
+    grid.innerHTML = "";
+    PRODUCTS.forEach((p, i) => {
+      const el = document.createElement("div");
+      el.className = "card";
+      el.setAttribute("data-testid", "product-card");
+      el.innerHTML =
+        '<h3>' + p.name + '</h3>' +
+        '<div class="vendor">' + p.vendor + '</div>' +
+        '<div class="row"><span class="price">' + p.price + '</span>' +
+        '<span class="pps">' + p.pps + '</span></div>' +
+        '<div class="stock">● In stock</div>' +
+        '<div style="height:12px"></div>' +
+        '<button class="add" data-testid="' + (i === 0 ? "add-to-cart" : "add-" + i) + '">Add to basket</button>';
+      el.querySelector("button").addEventListener("click", () => addToCart());
+      grid.appendChild(el);
+    });
+    grid.style.display = "grid";
+  }
+
+  function addToCart() {
+    cart += 1;
+    $("cart-count").textContent = String(cart);
+    $("checkout-bar").classList.add("show");
+  }
+
+  $("checkout").addEventListener("click", () => {
+    $("checkout").textContent = "Processing…";
+    $("checkout").disabled = true;
+    setTimeout(() => {
+      $("checkout-bar").classList.remove("show");
+      $("order-confirmed").classList.add("show");
+    }, 1600);
+  });
+</script>
+</body>
+</html>

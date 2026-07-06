@@ -1,0 +1,63 @@
+{
+  "title": "DemoFit Supplement Finder — local smoke test",
+  "targetLengthSeconds": 40,
+  "video": { "width": 1280, "height": 720 },
+  "frames": {},
+  "voice": {
+    "voiceId": "marin",
+    "instructions": "Friendly founder, upbeat and clear. Brisk, confident pace.",
+    "speed": 1.05
+  },
+  "scenes": [
+    {
+      "id": "s1",
+      "narration": "Looking for the right supplement? Just tell DemoFit what you need.",
+      "actions": [
+        { "op": "goto", "url": "http://localhost:8787/" },
+        { "op": "pause", "ms": 600 },
+        { "op": "type", "target": { "selector": "#search" }, "text": "whey isolate under 30 euros" },
+        { "op": "click", "target": { "selector": "#search-btn" } },
+        {
+          "op": "waitForWidget",
+          "target": { "selector": "[data-testid=product-card]" },
+          "label": "thinking"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "narration": "It finds matching products and shows price per serving, so the best value jumps right out.",
+      "actions": [
+        { "op": "scrollTo", "target": { "selector": "[data-testid=product-card]" } },
+        { "op": "pause", "ms": 1400 }
+      ]
+    },
+    {
+      "id": "s3",
+      "narration": "Add the one you want, and it drops straight into your basket.",
+      "actions": [
+        { "op": "click", "target": { "selector": "[data-testid=add-to-cart]" } },
+        { "op": "pause", "ms": 1200 }
+      ]
+    },
+    {
+      "id": "s4",
+      "narration": "Then check out in a single click. No forms, no friction.",
+      "actions": [
+        { "op": "click", "target": { "selector": "[data-testid=checkout]" } },
+        {
+          "op": "waitForWidget",
+          "target": { "selector": "[data-testid=order-confirmed]" },
+          "label": "thinking"
+        },
+        { "op": "scrollTo", "target": { "selector": "[data-testid=order-confirmed]" } },
+        { "op": "pause", "ms": 900 }
+      ]
+    },
+    {
+      "id": "s5",
+      "narration": "That's DemoFit — find, compare, and buy in seconds.",
+      "actions": [{ "op": "pause", "ms": 1500 }]
+    }
+  ]
+}
