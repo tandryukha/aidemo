@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>aidemo — your coding agent makes the demo video</title>
-<meta name="description" content="aidemo turns a storyboard into a polished, narrated, captioned product-demo video. An open-source (MIT) alternative to Screen Studio, Clueso, or Demosmith — your coding agent writes the storyboard, a deterministic player records it. Works on localhost and auth-walled apps.">
+<meta name="description" content="aidemo lets coding agents autonomously record polished, narrated, captioned product-demo videos — for landing pages, GitHub READMEs, and customer release notes. An open-source (MIT) alternative to Screen Studio, Clueso, or Demosmith. Works on localhost and auth-walled apps.">
 <link rel="canonical" href="https://tandryukha.github.io/aidemo/">
 <meta property="og:title" content="aidemo — your coding agent makes the demo video">
-<meta property="og:description" content="Open-source alternative to Screen Studio / Clueso / Demosmith: your coding agent writes a storyboard.json, aidemo records a narrated, captioned MP4.">
+<meta property="og:description" content="Coding agents autonomously record narrated, captioned product demos — for landing pages, READMEs, release notes. Open-source alternative to Screen Studio / Clueso / Demosmith.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tandryukha.github.io/aidemo/">
 <meta property="og:image" content="https://tandryukha.github.io/aidemo/hero-poster.jpg">
@@ -20,7 +20,7 @@
   "name": "aidemo",
   "operatingSystem": "macOS, Linux",
   "applicationCategory": "DeveloperApplication",
-  "description": "Open-source CLI that turns an agent-authored storyboard.json into a narrated, captioned product-demo video (MP4). Deterministic Chrome replay, OpenAI TTS voiceover, Whisper captions, ffmpeg compose with auto-zoom.",
+  "description": "Open-source CLI built for coding agents to autonomously record product-demo videos — for landing pages, GitHub READMEs, and customer release notes. Turns an agent-authored storyboard.json into a narrated, captioned MP4: deterministic Chrome replay, OpenAI TTS voiceover, Whisper captions, ffmpeg compose with auto-zoom.",
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://github.com/tandryukha/aidemo",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -31,6 +31,11 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What would I use aidemo for?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Anywhere your product needs a video: the hero demo on a landing page, a walkthrough in a GitHub README, a what-shipped video attached to release notes for customers, onboarding clips for docs. The agent authors the storyboard from your repo's context, so regenerating the video after a release is a one-line prompt." }
+    },
     {
       "@type": "Question",
       "name": "Can Claude Code record a demo video?",
@@ -269,9 +274,10 @@
   <div class="wrap">
     <h1 class="fade d1">Your coding agent<br>makes the <em>demo video</em>.</h1>
     <p class="sub fade d2">
-      <strong>aidemo</strong> turns a storyboard into a polished, narrated, captioned
-      product-demo video. Your agent writes one <span class="mono">storyboard.json</span>;
-      the engine drives a real Chrome, records it, voices it, captions it, and exports a
+      <strong>aidemo</strong> is built for coding agents to <strong>autonomously record
+      product demos</strong> — for your landing page, your GitHub README, release notes
+      for customers. The agent writes one <span class="mono">storyboard.json</span>; the
+      engine drives a real Chrome, records it, voices it, captions it, and exports a
       shareable MP4. An <strong>open-source alternative to Screen Studio, Clueso, or
       Demosmith</strong> — for when you'd rather your coding agent make the demo.
     </p>
@@ -453,6 +459,14 @@
   <div class="wrap">
     <h2 class="reveal">FAQ</h2>
     <div class="faq">
+      <details class="reveal">
+        <summary>What would I use aidemo for?</summary>
+        <p>Anywhere your product needs a video: the hero demo on your landing page, a
+          walkthrough GIF/MP4 in your GitHub README, a "here's what shipped" video attached to
+          release notes for customers, onboarding clips for docs. Because the agent authors the
+          storyboard from your repo's context, regenerating the video after a release is a
+          one-line prompt.</p>
+      </details>
       <details class="reveal">
         <summary>Can Claude Code record a demo video?</summary>
         <p>Yes — with aidemo's bundled <a href="https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md">record-demo skill</a>,
