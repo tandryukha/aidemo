@@ -213,6 +213,8 @@ Always set `"last": true` on widget targets (newest widget for this turn).
 Play (or frame-extract) `output/final-demo.mp4`: cursor glides and clicks pulse,
 narration matches on-screen actions, captions are readable and in sync, no dead
 air, and the key moment (e.g. checkout confirmed) is actually visible on screen.
+If the demo is headed for a README, `aidemo gif demos/<name>` converts it to a
+README-ready `output/final-demo.gif` (GIFs autoplay on GitHub; MP4s don't).
 
 ## Distribution & updates
 This skill is a **versioned copy** of the source in the
