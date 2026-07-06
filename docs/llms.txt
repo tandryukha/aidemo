@@ -20,6 +20,11 @@ Key facts:
 - Tweak loop without re-recording: per-scene TTS hash cache means editing one
   narration line re-voices only that scene; zoom choreography is compose-time,
   so a bad zoom is a recompose, never a re-record.
+- Integrations: authoring by Claude (Claude Code) today, Codex CLI / Gemini CLI
+  planned; narration voice by OpenAI TTS (gpt-4o-mini-tts) today with a
+  swappable VoiceProvider interface — ElevenLabs and local/offline TTS planned;
+  captions by OpenAI Whisper (word-level timestamps); recording via Playwright
+  + system Chrome; final compose via ffmpeg. All rendering is local.
 - Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, an OpenAI API key.
   Developed on macOS; Linux expected to work (default capture path).
 

@@ -257,6 +257,7 @@
   <nav>
     <a class="brand" href="#">aidemo</a>
     <a class="hide-sm" href="#how">How it works</a>
+    <a class="hide-sm" href="#integrations">Integrations</a>
     <a class="hide-sm" href="#quickstart">Quickstart</a>
     <a class="hide-sm" href="#faq">FAQ</a>
     <span class="spacer"></span>
@@ -392,6 +393,37 @@
         <h3 data-icon="♻️">Re-render, don't re-record</h3>
         <p>Per-scene TTS hash cache and compose-time zoom choreography mean edits are seconds,
           not another recording session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="integrations">
+  <div class="wrap">
+    <h2 class="reveal">Integrations</h2>
+    <p class="lead">Built on the APIs and tools you already use — each layer is swappable.</p>
+    <div class="cards">
+      <div class="card reveal">
+        <h3 data-icon="🤖">Authoring — Claude</h3>
+        <p><strong>Claude Code today</strong>, via the bundled <code>record-demo</code> skill: it writes
+          the storyboard, confirms selectors, and runs the render. Codex CLI and Gemini CLI are
+          planned via an agent-neutral authoring doc + MCP server.</p>
+      </div>
+      <div class="card reveal">
+        <h3 data-icon="🎙️">Voice — OpenAI, ElevenLabs next</h3>
+        <p>Narration via <strong>OpenAI TTS</strong> (<code>gpt-4o-mini-tts</code>) today. The
+          <code>VoiceProvider</code> interface is swappable — <strong>ElevenLabs</strong> and
+          local/offline TTS are on the roadmap.</p>
+      </div>
+      <div class="card reveal">
+        <h3 data-icon="💬">Captions — OpenAI Whisper</h3>
+        <p>Word-level timestamps from <strong>Whisper</strong> keep captions in sync with the
+          narration — exported as SRT/VTT plus styled on-video overlays.</p>
+      </div>
+      <div class="card reveal">
+        <h3 data-icon="🎞️">Record &amp; render — Chrome + ffmpeg</h3>
+        <p><strong>Playwright</strong> drives your system Chrome; <strong>ffmpeg</strong> composes
+          the final cut (trim, auto-zoom, music ducking, mux). All local — no cloud rendering.</p>
       </div>
     </div>
   </div>
