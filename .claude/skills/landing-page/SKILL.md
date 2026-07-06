@@ -25,6 +25,9 @@ serve both audiences.
 - `docs/robots.txt` — AI-crawler allowlist. `docs/sitemap.xml` — single URL.
 - `docs/hero-demo.mp4` (1280×800 h264, copy of the release asset) +
   `docs/hero-poster.jpg` (poster frame, also the og:image).
+- `docs/icons/*.webp` — card icons (176px, shown at 44px) + real customer
+  logo marks; `docs/favicon.png` (64px, from the clapper icon). See "Icon
+  system" below before adding one.
 - `docs/.nojekyll` — keep; Pages serves `docs/` verbatim from `main`.
 - `docs/internal/` is **gitignored and private** — never link to it from the
   page, and read `docs/internal/INDEXING_PLAN.md` for strategy/decisions
@@ -86,8 +89,40 @@ Run that check with Bash `run_in_background: true`, never a bare foreground slee
 - Max content width 920px (`.wrap`); wide content scrolls in its own
   container, the body never scrolls horizontally.
 - Section order: hero → How it works → Why it's built this way →
-  Integrations → Quickstart → FAQ → footer. New sections get a nav link
-  (`hide-sm` class hides it on mobile).
+  Made with aidemo (#examples) → Integrations → Quickstart → FAQ → footer.
+  New sections get a nav link (`hide-sm` class hides it on mobile).
+
+## Icon system (no emojis)
+
+Card icons, the nav brand mark, and the favicon are **locally generated
+matte-clay badge tiles** (own dark backdrop → theme-proof), NOT emojis and NOT
+transparent cutouts. Rendered with the dropshipping-irondust SDXL backend:
+
+```bash
+HF_HUB_DOWNLOAD_TIMEOUT=20 ~/.venvs/sdxl/bin/python \
+  ~/dropshipping-irondust/scripts/blog/sdxl_backend.py --fast --jobs jobs.jsonl
+```
+
+- Job = `{"prompt", "negative", "out", "seed", "width":1024, "height":1024}`;
+  prompt is used verbatim. Locked style prompt: *"3D icon of {subject},
+  minimalist matte clay style, soft rounded shapes, smooth studio product
+  render, centered, floating on a plain dark charcoal background, coral orange
+  and violet purple rim lighting, gentle top light, soft shadow, high detail,
+  square composition"* — matches `--accent`/`--accent-2`. Keep it for new
+  icons or the set stops matching. Note: `--fast` runs guidance 1.0, so the
+  negative prompt has little effect and CLIP truncates at 77 tokens — the
+  positive prompt must carry the style.
+- Generate 2–3 seeds per subject, pick at ACTUAL size (44px and 24px composited
+  on `#161a20` AND white) before shipping — subjects that come out crumbly or
+  abstract get re-rolled, not shipped. Object subjects work; abstract marks
+  don't.
+- Post-process: crop ~6% margins → 176×176 webp q85 (44px @4x) →
+  `docs/icons/{name}.webp`; wire as `<img class="ic" ... width="44"
+  height="44">` above the card `h3` (alt="" aria-hidden). Customer logo marks
+  use `class="ic brand"` (transparent, no tile). Favicon = 64px PNG of the
+  clapper icon.
+- Raw seeds/jobs live in the session scratchpad only; committed output is the
+  small webps. One GPU job at a time (Metal contention).
 
 ## When swapping the hero video
 
