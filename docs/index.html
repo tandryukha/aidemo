@@ -20,7 +20,7 @@
   "name": "aidemo",
   "operatingSystem": "macOS, Linux",
   "applicationCategory": "DeveloperApplication",
-  "description": "Open-source CLI built for coding agents to autonomously record product-demo videos — for landing pages, GitHub READMEs, and customer release notes. Turns an agent-authored storyboard.json into a narrated, captioned MP4: deterministic Chrome replay, OpenAI TTS voiceover, Whisper captions, ffmpeg compose with auto-zoom.",
+  "description": "Open-source CLI built for coding agents to autonomously record product-demo videos — for landing pages, GitHub READMEs, and customer release notes. Turns an agent-authored storyboard.json into a narrated, captioned MP4: deterministic Chrome replay, OpenAI TTS voiceover, Whisper captions, ffmpeg compose with auto-zoom. Voice and captions also run against any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) for a fully offline, key-free render.",
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://github.com/tandryukha/aidemo",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -35,6 +35,11 @@
       "@type": "Question",
       "name": "What would I use aidemo for?",
       "acceptedAnswer": { "@type": "Answer", "text": "Anywhere your product needs a video: the hero demo on a landing page, a walkthrough in a GitHub README, a what-shipped video attached to release notes for customers, onboarding clips for docs. The agent authors the storyboard from your repo's context, so regenerating the video after a release is a one-line prompt." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can aidemo make a GIF for a GitHub README?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Render the demo, then export it: aidemo render demos/onboarding --headless && aidemo gif demos/onboarding writes an autoplaying final-demo.gif next to the MP4 — commit it and embed it at the top of the readme. Regenerating after a release is re-running those two commands." }
     },
     {
       "@type": "Question",
@@ -53,13 +58,18 @@
     },
     {
       "@type": "Question",
+      "name": "What leaves your machine?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two API calls, nothing else: text-to-speech for the narration and speech-to-text for caption timing, sent with your own OpenAI key — or to any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) via OPENAI_BASE_URL, which makes the whole render offline with no API key at all. aidemo captions --offline skips speech-to-text entirely. No telemetry, no analytics: music is synthesized locally, captions and cards are rasterized locally, and the output MP4 never leaves your disk." }
+    },
+    {
+      "@type": "Question",
       "name": "Which coding agents work with aidemo?",
       "acceptedAnswer": { "@type": "Answer", "text": "Claude Code today, via the bundled record-demo skill. Codex CLI and Gemini CLI are planned via an agent-neutral authoring doc and an MCP server. Any human or agent that can write a storyboard.json and run aidemo render can use it." }
     },
     {
       "@type": "Question",
       "name": "Is aidemo free?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — MIT-licensed open source. The only runtime cost is your own OpenAI API key for text-to-speech narration and Whisper caption alignment." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — MIT-licensed open source. The only runtime cost is your own OpenAI API key for narration and caption timing — and even that is optional: point OPENAI_BASE_URL at any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) and the render is free, key-free, and fully offline." }
     }
   ]
 }
@@ -96,6 +106,7 @@
     color: var(--text);
     font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip; /* decorative bleeds (halo/glow) must never cause a horizontal scrollbar */
   }
   .glow {
     position: absolute; inset: 0 0 auto 0; height: 120vh; z-index: -1; pointer-events: none;
@@ -121,7 +132,7 @@
   code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
 
   nav {
-    display: flex; align-items: center; gap: 22px;
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap; row-gap: 6px;
     padding: 18px 0;
     font-size: 15px;
   }
@@ -301,6 +312,7 @@
 
   .steps { display: grid; gap: 18px; margin-top: 26px; }
   .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; }
+  .step > div { min-width: 0; } /* long .term lines scroll inside the pre, never widen the page */
   .step .n {
     width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
     font-weight: 700; font-size: 15px; color: #fff;
@@ -359,6 +371,7 @@
   <nav>
     <a class="brand" href="#"><img src="icons/clapper.webp" alt="" aria-hidden="true" width="24" height="24">aidemo</a>
     <a class="hide-sm" href="#how">How it works</a>
+    <a class="hide-sm" href="#use-cases">Use cases</a>
     <a class="hide-sm" href="#examples">Examples</a>
     <a class="hide-sm" href="#agents">Agents</a>
     <a class="hide-sm" href="#integrations">Integrations</a>
@@ -390,7 +403,7 @@
     </div>
     <div class="pills fade d4">
       <span class="pill">MIT licensed</span>
-      <span class="pill">Runs locally — no cloud upload</span>
+      <span class="pill">Private by design — offline with local models</span>
       <span class="pill">Works on localhost &amp; auth-walled apps</span>
       <span class="pill">Claude Code today · Codex / Gemini planned</span>
     </div>
@@ -493,9 +506,10 @@
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/lock.webp" alt="" aria-hidden="true" width="44" height="44">
-        <h3>Local &amp; auth-friendly</h3>
-        <p>Uses your system Chrome and your logged-in profile. Works against localhost, staging,
-          and auth-walled apps. No cloud browser, no upload.</p>
+        <h3>Private by design</h3>
+        <p>Your system Chrome, your logged-in profile — localhost, staging, and auth-walled apps
+          all work, no cloud browser. The only network calls are voice and captions, and even
+          those can hit a local OpenAI-compatible server for a fully offline render. No telemetry.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/clapper.webp" alt="" aria-hidden="true" width="44" height="44">
@@ -508,6 +522,87 @@
         <h3>Re-render, don't re-record</h3>
         <p>Per-scene TTS hash cache and compose-time zoom choreography mean edits are seconds,
           not another recording session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="use-cases">
+  <div class="wrap">
+    <h2 class="reveal">What teams render with it</h2>
+    <p class="lead">Five jobs, one engine. Each starts as a prompt or a one-liner in your repo —
+      <strong>the agent authors, the engine renders</strong>, you ship the file.</p>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="n">1</div>
+        <div>
+          <h3>GitHub README demos</h3>
+          <p>The autoplaying GIF at the top of the readme. Render once, export, commit — no
+            screen-recording session.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>readme demo</span></div>
+            <pre><span class="g">$</span> aidemo render demos/onboarding --headless &amp;&amp; aidemo gif demos/onboarding
+<span class="g">  → demos/onboarding/output/final-demo.gif</span>  <span class="c"># embed it in README.md</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="n">2</div>
+        <div>
+          <h3>Landing-page hero videos</h3>
+          <p>A muted, autoplaying MP4 for the marketing site. The hero video at the top of this
+            page is aidemo output.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>hero video</span></div>
+            <pre><span class="g">$</span> claude <span class="a">"record a 45s hero demo of the app for the landing page"</span>
+<span class="g">  → demos/hero/output/final-demo.mp4</span>  <span class="c"># &lt;video autoplay muted loop playsinline&gt;</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="n">3</div>
+        <div>
+          <h3>Release &amp; what-shipped demos</h3>
+          <p>Walk through what's new in the version you're cutting and attach the video to the
+            release notes your customers actually read.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>what shipped</span></div>
+            <pre><span class="g">$</span> claude <span class="a">"record a walkthrough of what's new in v1.4.0"</span>
+<span class="g">$</span> gh release upload v1.4.0 demos/whats-new/output/final-demo.mp4</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="n">4</div>
+        <div>
+          <h3>Customer &amp; prospect demos</h3>
+          <p>Personalized walkthroughs against your real app. The replay runs in your own
+            logged-in Chrome — localhost, staging, and auth-walled flows all work, and nothing
+            is uploaded anywhere.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>customer demo</span></div>
+            <pre><span class="g">$</span> claude <span class="a">"record the reporting flow on staging, logged in as the Acme sandbox account"</span>
+<span class="g">  → demos/acme-reporting/output/final-demo.mp4</span>  <span class="c"># your Chrome, your profile</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="n">5</div>
+        <div>
+          <h3>Progress demos</h3>
+          <p>The end-of-sprint "what we built this week" clip. One prompt — the agent authors
+            the storyboard and renders in the background while you keep working.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>sprint review</span></div>
+            <pre><span class="g">$</span> claude <span class="a">"demo what we built this week for the sprint review"</span>
+<span class="g">  → demos/sprint-42/output/final-demo.mp4</span>  <span class="c"># rendered while you kept working</span></pre>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -593,15 +688,18 @@
       <div class="card reveal">
         <img class="ic" src="icons/mic.webp" alt="" aria-hidden="true" width="44" height="44">
         <h3>Voice — OpenAI TTS</h3>
-        <p>Realistic narration via <strong>OpenAI TTS</strong> (<code>gpt-4o-mini-tts</code>).
-          Voice synthesis sits behind a swappable <code>VoiceProvider</code> interface, so other
-          providers can plug in without touching the pipeline.</p>
+        <p>Realistic narration via <strong>OpenAI TTS</strong> (<code>gpt-4o-mini-tts</code>) — or
+          any OpenAI-compatible local server (speaches, Kokoro-FastAPI) via
+          <code>OPENAI_BASE_URL</code>, no API key needed. Synthesis sits behind a swappable
+          <code>VoiceProvider</code> interface, so other providers can plug in too.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/captions.webp" alt="" aria-hidden="true" width="44" height="44">
         <h3>Captions — OpenAI Whisper</h3>
         <p>Word-level timestamps from <strong>Whisper</strong> keep captions in sync with the
-          narration — exported as SRT/VTT plus styled on-video overlays.</p>
+          narration — from OpenAI, a local OpenAI-compatible server (LocalAI, speaches), or with
+          no STT at all via <code>aidemo captions --offline</code>. Exported as SRT/VTT plus
+          styled on-video overlays.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/filmstrip.webp" alt="" aria-hidden="true" width="44" height="44">
@@ -618,7 +716,7 @@
     <h2 class="reveal">Quickstart</h2>
     <p class="lead">A bundled fixture store renders a finished demo with zero external
       dependencies — <strong>under 5 minutes</strong> on a clean machine. Prereqs: Node 20+,
-      Google Chrome, ffmpeg, an OpenAI API key.</p>
+      Google Chrome, ffmpeg, an OpenAI API key (or a local OpenAI-compatible server).</p>
     <div class="term reveal">
       <div class="bar"><i></i><i></i><i></i><span>quickstart</span></div>
       <pre><span class="g">$</span> git clone https://github.com/tandryukha/aidemo &amp;&amp; cd aidemo
@@ -646,6 +744,13 @@
           one-line prompt.</p>
       </details>
       <details class="reveal">
+        <summary>Can aidemo make a GIF for a GitHub README?</summary>
+        <p>Yes. Render the demo, then export it: <span class="mono">aidemo render demos/onboarding
+          --headless &amp;&amp; aidemo gif demos/onboarding</span> writes an autoplaying
+          <span class="mono">final-demo.gif</span> next to the MP4 — commit it and embed it at the
+          top of the readme. Regenerating after a release is re-running those two commands.</p>
+      </details>
+      <details class="reveal">
         <summary>Can Claude Code record a demo video?</summary>
         <p>Yes — with aidemo's bundled <a href="https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md">record-demo skill</a>,
           Claude Code writes the <span class="mono">storyboard.json</span> (script, per-scene voice
@@ -662,7 +767,18 @@
         <summary>Does it work on localhost or apps behind a login?</summary>
         <p>Yes. aidemo drives your system Chrome locally with your own profile, so localhost,
           staging environments, and auth-walled apps all work. Nothing leaves your machine except
-          the TTS/caption API calls to OpenAI.</p>
+          the two narration/caption API calls — and those can go to a local OpenAI-compatible
+          server instead of OpenAI.</p>
+      </details>
+      <details class="reveal">
+        <summary>What leaves your machine?</summary>
+        <p>Two API calls, nothing else: text-to-speech for the narration and speech-to-text for
+          caption timing, sent with your own OpenAI key — or to any OpenAI-compatible local
+          server (speaches, Kokoro-FastAPI, LocalAI) via <span class="mono">OPENAI_BASE_URL</span>,
+          which makes the whole render offline with no API key at all.
+          <span class="mono">aidemo captions --offline</span> skips speech-to-text entirely.
+          No telemetry, no analytics: music is synthesized locally, captions and cards are
+          rasterized locally, and the output MP4 never leaves your disk.</p>
       </details>
       <details class="reveal">
         <summary>Which coding agents work with aidemo?</summary>
@@ -673,8 +789,11 @@
       </details>
       <details class="reveal">
         <summary>Is it free?</summary>
-        <p>Yes — MIT license. The only runtime cost is your own OpenAI API key for narration
-          (gpt-4o-mini-tts) and caption alignment (Whisper).</p>
+        <p>Yes — MIT-licensed open source. The only runtime cost is your own OpenAI API key for
+          narration and caption timing — and even that is optional: point
+          <span class="mono">OPENAI_BASE_URL</span> at any OpenAI-compatible local server
+          (speaches, Kokoro-FastAPI, LocalAI) and the render is free, key-free, and fully
+          offline.</p>
       </details>
     </div>
   </div>

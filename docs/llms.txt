@@ -11,8 +11,9 @@
 > real Chrome — no LLM in the loop during capture — records it, generates a
 > realistic voiceover (OpenAI TTS), aligns word-level captions (Whisper), trims
 > dead time, auto-zooms on interactions, and exports a shareable MP4. Runs
-> locally; works against localhost and auth-walled apps using your own Chrome
-> profile.
+> locally — fully offline if voice/captions point at an OpenAI-compatible local
+> server — and works against localhost and auth-walled apps using your own
+> Chrome profile.
 
 Key facts:
 - Works with Claude Code today via the bundled `record-demo` skill; Codex CLI /
@@ -23,13 +24,34 @@ Key facts:
 - Tweak loop without re-recording: per-scene TTS hash cache means editing one
   narration line re-voices only that scene; zoom choreography is compose-time,
   so a bad zoom is a recompose, never a re-record.
+- Private by design: the pipeline's only network calls are TTS narration and
+  caption transcription, sent with your own OpenAI key — or to any
+  OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) via
+  OPENAI_BASE_URL, in which case no API key is needed and the whole render is
+  offline. `aidemo captions --offline` needs no speech-to-text at all
+  (approximate script-based timing). No telemetry or analytics; music is
+  synthesized locally from math, captions/cards are rasterized locally, and
+  the output MP4 never leaves disk. Verified end-to-end against a bundled mock
+  OpenAI-compatible server.
+- Use cases: autoplaying GIFs for GitHub READMEs (`aidemo render
+  demos/onboarding --headless && aidemo gif demos/onboarding` writes
+  `output/final-demo.gif` next to the MP4); muted-autoplay hero videos for
+  landing pages (the hero video on aidemo.top is aidemo output); release /
+  what-shipped demos attached to a release (`gh release upload v1.4.0
+  demos/whats-new/output/final-demo.mp4`); personalized customer & prospect
+  demos against localhost or auth-walled apps in your own logged-in Chrome,
+  nothing uploaded anywhere; end-of-sprint progress demos — one prompt, the
+  agent authors and renders in the background while you keep working.
 - Integrations: authoring by Claude (Claude Code) today, Codex CLI / Gemini CLI
   planned; narration voice by OpenAI TTS (gpt-4o-mini-tts) behind a swappable
-  VoiceProvider interface; captions by OpenAI Whisper (word-level timestamps);
-  recording via Playwright + system Chrome; final compose via ffmpeg. All
-  rendering is local.
-- Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, an OpenAI API key.
-  Developed on macOS; Linux expected to work (default capture path).
+  VoiceProvider interface; captions by OpenAI Whisper (word-level timestamps) —
+  voice and captions both also work against any OpenAI-compatible local server
+  (speaches, Kokoro-FastAPI, LocalAI) via OPENAI_BASE_URL; recording via
+  Playwright + system Chrome; final compose via ffmpeg. All rendering is local.
+- Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, and an OpenAI API key
+  — or an OpenAI-compatible local server via OPENAI_BASE_URL (no key needed,
+  render is fully offline). Developed on macOS; Linux expected to work (default
+  capture path).
 - Made with aidemo (real-world examples): a 51-second self-narrated demo of
   the engine driving Wikipedia (the hero video on the landing page and README);
   a 75-second narrated shopping demo inside MaxFit's ChatGPT app (maxfit.ee) —
