@@ -157,6 +157,11 @@ export async function generateVoice(
       `~${Math.round(total / 1000)}s; ${made} voiced, ${reused} reused)`
   );
   ok(`voice.json → ${project.voiceManifestPath}`);
+  // Existing captions were timed against the OLD narration; compose would burn
+  // mismatched text. Say so now, not after a wasted compose.
+  if (made > 0 && (await exists(project.captionsCuesPath))) {
+    log(`⚠ narration changed — captions are now stale; re-run: aidemo captions ${project.dir}`);
+  }
   return manifest;
 }
 

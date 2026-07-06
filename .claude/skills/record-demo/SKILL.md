@@ -104,17 +104,39 @@ Action vocabulary (a `target` is `{selector}` or `{frame,selector}` or
   without clicking it (needs top-level `zoom` enabled)
 - `{op:"waitFor", target, timeoutMs?}`  — normal wait (fires instantly if the
   selector already matches — no good for in-place changes)
-- `{op:"waitForWidget", target, label?, timeoutMs?}`  — **records the wait as
-  idle** so compose trims/speeds it. Use for every ChatGPT "thinking" wait for a
-  brand-**new** widget.
+- `{op:"waitForWidget", target, textMatches?, label?, timeoutMs?}`  — **records
+  the wait as idle** so compose trims/speeds it. Use for every ChatGPT
+  "thinking" wait for a brand-**new** widget. When a prompt could render
+  either of two widget types that share the selector (e.g. carousel vs compare
+  both carry `button[data-add-id]`), pass `textMatches` (case-insensitive regex
+  on the new widget's text) with a string unique to the type you expect — an
+  unqualified wait passes on the wrong widget and the desync only shows in review.
+- `{op:"waitForReply", selector?, textMatches?, label?, timeoutMs?}`  — wait for
+  a **new TEXT-ONLY assistant reply** (a tool that answers without a widget,
+  e.g. a delivery-options lookup) — the main-frame twin of `waitForWidget`:
+  assistant-message count growth + generation finished, always recorded as
+  trimmable idle. `selector` defaults to ChatGPT's message nodes
+  (`[data-message-author-role="assistant"]`); `textMatches` additionally
+  asserts the finished reply's text (fails the scene if the model answered
+  off-script).
 - `{op:"waitForChange", target, textMatches?, timeoutMs?, idle?, label?}`  —
-  wait for an **in-place mutation** of an existing element (the gap between the
-  two above). Use after a widget-side click that re-renders the SAME widget:
-  click-Add renders the basket bar into `[data-cart-bar]`; a qty `±` re-renders
-  the row. Pass `textMatches` (case-insensitive regex on the new text) to wait
-  for a specific state, e.g. target the qty display and pass `"2"` for a 1→2
-  re-render. `idle:true` records it as trimmable idle like `waitForWidget`.
+  wait for an **in-place mutation** of an existing element (the gap between
+  waitFor and waitForWidget). Use after a widget-side click that re-renders the
+  SAME widget: click-Add renders the basket bar into `[data-cart-bar]`; a qty
+  `±` re-renders the row. Pass `textMatches` (case-insensitive regex on the new
+  text) to wait for a specific state, e.g. target the qty display and pass
+  `"2"` for a 1→2 re-render. `idle:true` records it as trimmable idle like
+  `waitForWidget`.
 - `{op:"pause", ms}`  — a deliberate on-screen beat (not trimmed)
+
+Target `last`/`nth` pick among matching **frames** on framed targets and among
+matching **elements** on plain (frameless) targets — e.g.
+`{selector:"[data-message-author-role=\"assistant\"]", last:true}` is the
+newest reply.
+
+Typing into the composer while the prior reply is still streaming is safe: the
+player waits the composer out and **records that wait as trimmable idle**, so a
+long streaming turn can't blow the next scene past its narration.
 
 High-fidelity capture: `aidemo record/render --capture native` (macOS ffmpeg
 screen grab; terminal needs Screen Recording permission) or `--capture obs`
@@ -183,8 +205,21 @@ Always set `"last": true` on widget targets (newest widget for this turn).
   selector:"[data-cart-bar]"}, textMatches:"checkout"}`) — it waits for the element
   to actually change, unlike `waitFor` (fires instantly on a stale match) or
   `waitForWidget` (times out — no new widget). A bare `pause` races the server.
-  Also confirmed: a widget-click `add_to_cart` session DOES thread into a later
-  *prompted* "show my basket".
+- **Widget-initiated tool results are invisible to the model** (v3 recording,
+  2026-07-06): a widget-click `add_to_cart` returns its result to the widget
+  only — the model never learns the session id, so a later *prompted* "show my
+  basket" can render an EMPTY cart. (v2's adjacency success was luck, not
+  contract.) Rule: a flow that needs model-side cart continuity must make its
+  FIRST cart mutation a typed/model-invoked one; after that, widget clicks
+  (qty `±`, checkout) are safe.
+- **Dev-connector widgets carry a "CSP off" badge** on their header (new since
+  2026-07-06). Cosmetic, appears in every frame, not fixable app-side (CSP
+  `_meta` verified riding `resources/read`) — accept it, or frame zooms to keep
+  the header out of the payoff shots.
+- **Pin prompts to exact catalog titles.** A fuzzy product reference ("Gold
+  Standard 900 g") can trigger an intermediate model search that renders a
+  "0 products found" widget mid-video. Use the product's exact catalog title in
+  the prompt.
 - **Don't hand-author scrolls before widget clicks** — the player self-scrolls:
   sandbox iframes are out-of-process, so a scroll from inside the widget can't move
   ChatGPT's page; `boxOf` wheels the main scroller until the target sits in the

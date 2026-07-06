@@ -33,9 +33,11 @@ const TargetSchema = z.object({
    * When multiple frames match `frame` (e.g. a ChatGPT conversation renders one
    * widget iframe per tool call), pick the NEWEST one. Essential for multi-turn
    * demos so each `waitForWidget` targets the current reply, not the first.
+   * On a plain (frameless) target it picks the last matching ELEMENT instead —
+   * e.g. the newest assistant message in a conversation.
    */
   last: z.boolean().optional(),
-  /** Pick the nth matching frame (0-based). Overridden by `last`. */
+  /** Pick the nth matching frame — or element, when frameless (0-based). Overridden by `last`. */
   nth: z.number().optional(),
 });
 export type Target = z.infer<typeof TargetSchema>;
@@ -128,6 +130,31 @@ export const ActionSchema = z.discriminatedUnion("op", [
     ...BaseAction,
     op: z.literal("waitForWidget"),
     target: TargetSchema,
+    /**
+     * Require the NEW widget frame's text to match this JS regex (i-flag).
+     * Different tools share selectors (product-carousel and product-compare
+     * both carry button[data-add-id]); when a prompt could render either, an
+     * unqualified wait passes on the wrong widget and the desync only shows in
+     * review. Pick a string unique to the widget type you expect.
+     */
+    textMatches: z.string().optional(),
+    label: z.string().default("thinking"),
+    timeoutMs: z.number().optional(),
+  }),
+  /**
+   * Wait for a NEW assistant reply that answers in TEXT (no widget) — the
+   * main-frame twin of waitForWidget, for tools that reply without rendering
+   * one (e.g. a delivery-options lookup). Baseline = assistant-message count at
+   * wait start; satisfied when it grows AND generation has finished (composer
+   * ready again). Always recorded as IDLE so compose trims the thinking time.
+   */
+  z.object({
+    ...BaseAction,
+    op: z.literal("waitForReply"),
+    /** Selector counting assistant messages. Default: ChatGPT's message nodes. */
+    selector: z.string().optional(),
+    /** Require the new reply's text to match this JS regex (i-flag). */
+    textMatches: z.string().optional(),
     label: z.string().default("thinking"),
     timeoutMs: z.number().optional(),
   }),

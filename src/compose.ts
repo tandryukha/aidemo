@@ -35,6 +35,7 @@ export async function compose(
   const voice = VoiceManifestSchema.parse(
     await readJson(project.voiceManifestPath)
   );
+  await warnStaleCaptions(project);
   const tmp = project.composeTmpDir;
   await fs.rm(tmp, { recursive: true, force: true });
   await ensureDir(tmp);
@@ -212,6 +213,31 @@ export async function compose(
   // AIDEMO_KEEP_TMP=1 keeps .compose-tmp for debugging intermediates.
   if (!process.env.AIDEMO_KEEP_TMP) {
     await fs.rm(tmp, { recursive: true, force: true });
+  }
+}
+
+/**
+ * A re-voice after captions were generated leaves the caption files stale —
+ * compose would silently burn OLD caption text over the NEW audio, and the
+ * mismatch only shows up in review (bit us on maxfit-chatgpt-v3). Whisper
+ * needs an API key so compose can't regenerate them itself; warn loudly and
+ * name the fix instead.
+ */
+async function warnStaleCaptions(project: Project): Promise<void> {
+  try {
+    const [cap, narr] = await Promise.all([
+      fs.stat(project.captionsCuesPath),
+      fs.stat(project.narrationPath),
+    ]);
+    if (cap.mtimeMs < narr.mtimeMs) {
+      log(
+        `⚠ STALE CAPTIONS: narration.mp3 is newer than the caption files — ` +
+          `the burned captions will not match the audio. ` +
+          `Fix: aidemo captions ${project.dir}` + ` (then re-run compose).`
+      );
+    }
+  } catch {
+    /* captions or narration absent — burnCaptions handles missing captions */
   }
 }
 

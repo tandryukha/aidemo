@@ -140,11 +140,11 @@ function widgetRootFrames(page: Page): Frame[] {
  * and lets `last` mean "newest widget that has this element". Returns null when
  * no content frame is ready yet (callers retry).
  */
-async function pickNestedLocator(
+async function pickNestedFrame(
   page: Page,
   selector: string,
   target: Target
-): Promise<Locator | null> {
+): Promise<Frame | null> {
   const matching: Frame[] = [];
   for (const f of widgetRootFrames(page)) {
     if (f.isDetached()) continue;
@@ -157,7 +157,16 @@ async function pickNestedLocator(
     : target.nth != null
       ? matching[target.nth]
       : matching[0];
-  return chosen ? chosen.locator(selector).first() : null;
+  return chosen ?? null;
+}
+
+async function pickNestedLocator(
+  page: Page,
+  selector: string,
+  target: Target
+): Promise<Locator | null> {
+  const frame = await pickNestedFrame(page, selector, target);
+  return frame ? frame.locator(selector).first() : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -251,6 +260,13 @@ async function resolveInterruptions(page: Page): Promise<void> {
   }
 }
 
+/** ChatGPT's Stop control — visible exactly while a reply is streaming. */
+const STOP_BUTTON_SELECTOR =
+  'button[data-testid="stop-button"], button[aria-label="Stop streaming"], button[aria-label*="Stop" i]';
+
+/** ChatGPT's assistant message nodes — the default `waitForReply` counter. */
+const ASSISTANT_MESSAGE_SELECTOR = '[data-message-author-role="assistant"]';
+
 /**
  * ChatGPT shows a Stop control while a reply streams. Wait until it's gone so
  * the next prompt isn't typed into a still-generating (send-disabled) composer —
@@ -258,9 +274,7 @@ async function resolveInterruptions(page: Page): Promise<void> {
  * if the control isn't found (returns after a short settle).
  */
 async function waitComposerReady(page: Page, timeoutMs = 20000): Promise<void> {
-  const stop = page.locator(
-    'button[data-testid="stop-button"], button[aria-label="Stop streaming"], button[aria-label*="Stop" i]'
-  );
+  const stop = page.locator(STOP_BUTTON_SELECTOR);
   await sleep(400); // let a just-started generation register the Stop control
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -297,7 +311,10 @@ async function resolveTargetLocator(
     );
   }
   if (!target.frame) {
-    return page.locator(selector).first();
+    // Frameless targets honor last/nth at the ELEMENT level (e.g. the newest
+    // assistant message); previously they silently collapsed to .first().
+    const loc = page.locator(selector);
+    return target.last ? loc.last() : target.nth != null ? loc.nth(target.nth) : loc.first();
   }
   const frameSelector = storyboard.frames[target.frame];
   if (!frameSelector) {
@@ -371,7 +388,7 @@ async function waitForNewWidget(
   page: Page,
   storyboard: Storyboard,
   target: Target,
-  timeoutMs: number
+  opts: { timeoutMs: number; textMatches?: string }
 ): Promise<void> {
   const selector = target.named
     ? NAMED_SELECTORS[target.named]
@@ -379,20 +396,34 @@ async function waitForNewWidget(
   const frameSelector = target.frame ? storyboard.frames[target.frame] : undefined;
   const nested = !!frameSelector && !!selector && NESTED_WIDGET_RE.test(frameSelector);
   if (!nested || !selector) {
-    await waitForTargetVisible(page, storyboard, target, timeoutMs);
+    await waitForTargetVisible(page, storyboard, target, opts.timeoutMs);
     return;
   }
-  const deadline = Date.now() + timeoutMs;
+  const re = opts.textMatches ? new RegExp(opts.textMatches, "i") : null;
+  const deadline = Date.now() + opts.timeoutMs;
   const baseline = await countNestedMatches(page, selector);
   for (;;) {
     // A mid-turn A/B eval / consent wall shows text instead of a widget and
     // would otherwise silently burn the whole timeout; try to clear it.
     await resolveInterruptions(page);
     if ((await countNestedMatches(page, selector)) > baseline) {
-      const loc = await pickNestedLocator(page, selector, target).catch(() => null);
-      if (loc) {
+      const frame = await pickNestedFrame(page, selector, target).catch(() => null);
+      // With textMatches, the chosen NEW widget must also carry the expected
+      // text — different tools share selectors (carousel and compare both have
+      // button[data-add-id]), so when the model could render either, an
+      // unqualified match would pass on the wrong widget type. A mismatch
+      // keeps polling: the right widget may still be streaming in.
+      let textOk = true;
+      if (frame && re) {
+        const text = await frame
+          .locator("body")
+          .textContent({ timeout: 800 })
+          .catch(() => null);
+        textOk = !!text && re.test(text);
+      }
+      if (frame && textOk) {
         try {
-          await loc.waitFor({
+          await frame.locator(selector).first().waitFor({
             state: "visible",
             timeout: Math.max(400, Math.min(2000, deadline - Date.now())),
           });
@@ -408,7 +439,58 @@ async function waitForNewWidget(
     }
     if (Date.now() >= deadline) {
       throw new Error(
-        `waitForWidget: no new "${selector}" widget within ${timeoutMs}ms (baseline ${baseline})`
+        `waitForWidget: no new "${selector}" widget` +
+          (re ? ` with text matching ${re}` : "") +
+          ` within ${opts.timeoutMs}ms (baseline ${baseline})`
+      );
+    }
+    await sleep(350);
+  }
+}
+
+/**
+ * Wait for a NEW assistant reply that answers in TEXT (no widget) — the
+ * main-frame twin of waitForNewWidget, for tools whose result the model
+ * narrates without rendering a widget. Baseline = assistant-message count at
+ * wait start; satisfied when it grows, then the generation is waited out so
+ * the on-screen text is complete before the scene advances. Fallback: if the
+ * reply node streamed in BEFORE the baseline sample (fast first token), a
+ * Stop-button appear→disappear cycle counts as the reply — the prior turn
+ * can't be the one streaming, because `type` waits out the composer first.
+ */
+async function waitForNewReply(
+  page: Page,
+  opts: { selector: string; textMatches?: string; timeoutMs: number }
+): Promise<void> {
+  const messages = page.locator(opts.selector);
+  const stop = page.locator(STOP_BUTTON_SELECTOR);
+  const re = opts.textMatches ? new RegExp(opts.textMatches, "i") : null;
+  const baseline = await messages.count().catch(() => 0);
+  let sawStreaming = (await stop.count().catch(() => 0)) > 0;
+  const deadline = Date.now() + opts.timeoutMs;
+  for (;;) {
+    await resolveInterruptions(page);
+    const streamingNow = (await stop.count().catch(() => 0)) > 0;
+    sawStreaming ||= streamingNow;
+    const grown = (await messages.count().catch(() => 0)) > baseline;
+    if (grown || (sawStreaming && !streamingNow)) {
+      await waitComposerReady(page, Math.max(1000, deadline - Date.now()));
+      if (re) {
+        const text =
+          (await messages.last().textContent({ timeout: 2000 }).catch(() => "")) ?? "";
+        if (!re.test(text)) {
+          throw new Error(
+            `waitForReply: new assistant reply does not match ${re} ` +
+              `(got ${JSON.stringify(text.replace(/\s+/g, " ").trim().slice(0, 80))})`
+          );
+        }
+      }
+      return;
+    }
+    if (Date.now() >= deadline) {
+      throw new Error(
+        `waitForReply: no new assistant message ("${opts.selector}") within ` +
+          `${opts.timeoutMs}ms (baseline ${baseline})`
       );
     }
     await sleep(350);
@@ -445,10 +527,26 @@ async function runAction(
       const isComposer = action.target.named === "composer";
       // Guard multi-turn ChatGPT: clear any interruption UI (A/B eval, consent
       // wall) then never type while the prior reply is still streaming (the
-      // Enter would be dropped and prompts would interleave).
+      // Enter would be dropped and prompts would interleave). The wait is
+      // recorded as IDLE: a still-streaming prior turn can hold the composer
+      // for tens of seconds, and untrimmed that time blows the scene past its
+      // narration and compose tail-trims the scene's PAYOFF instead (bit us
+      // on maxfit-chatgpt-v3 s8: 38s raw vs 9s narration).
       if (isComposer) {
+        const waitStart = Date.now() - t0;
         await resolveInterruptions(page);
         await waitComposerReady(page);
+        const waitEnd = Date.now() - t0;
+        // Below ~1s there's nothing worth trimming (waitComposerReady's settle
+        // alone is 400ms) and each span costs a keep-interval split in compose.
+        if (waitEnd - waitStart > 1000) {
+          capture.idleSpans.push({
+            startMs: waitStart,
+            endMs: waitEnd,
+            label: "reply streaming",
+          });
+          log(`  idle "reply streaming": ${waitEnd - waitStart}ms (pre-type composer wait)`);
+        }
       }
       const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame);
       markFocus(cx, cy, "type");
@@ -524,12 +622,23 @@ async function runAction(
 
     case "waitForWidget": {
       const start = Date.now() - t0;
-      await waitForNewWidget(
-        page,
-        storyboard,
-        action.target,
-        action.timeoutMs ?? 30000
-      );
+      await waitForNewWidget(page, storyboard, action.target, {
+        timeoutMs: action.timeoutMs ?? 30000,
+        textMatches: action.textMatches,
+      });
+      const end = Date.now() - t0;
+      capture.idleSpans.push({ startMs: start, endMs: end, label: action.label });
+      log(`  idle "${action.label}": ${end - start}ms`);
+      return;
+    }
+
+    case "waitForReply": {
+      const start = Date.now() - t0;
+      await waitForNewReply(page, {
+        selector: action.selector ?? ASSISTANT_MESSAGE_SELECTOR,
+        textMatches: action.textMatches,
+        timeoutMs: action.timeoutMs ?? 30000,
+      });
       const end = Date.now() - t0;
       capture.idleSpans.push({ startMs: start, endMs: end, label: action.label });
       log(`  idle "${action.label}": ${end - start}ms`);
