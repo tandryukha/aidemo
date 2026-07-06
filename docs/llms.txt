@@ -52,12 +52,13 @@ Key facts:
   — or an OpenAI-compatible local server via OPENAI_BASE_URL (no key needed,
   render is fully offline). Developed on macOS; Linux expected to work (default
   capture path).
-- Made with aidemo (real-world examples): a 51-second self-narrated demo of
-  the engine driving Wikipedia (the hero video on the landing page and README);
-  a 75-second narrated shopping demo inside MaxFit's ChatGPT app (maxfit.ee) —
-  an auth-walled widget in nested iframes through to a live checkout; a
-  walkthrough of turg.fitness.ee, a production fitness-gear marketplace, is
-  next.
+- Made with aidemo (first customers, real-world examples): a 51-second
+  self-narrated demo of the engine driving Wikipedia (the hero video on the
+  landing page and README); aidemo's first customers are MaxFit (maxfit.ee) —
+  a 75-second narrated shopping demo inside its ChatGPT app, an auth-walled
+  widget in nested iframes through to a live checkout — and turg.fitness.ee, a
+  production fitness-gear marketplace whose walkthrough (same record-demo
+  skill, pointed at the live site) is next.
 
 ## Docs
 
