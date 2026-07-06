@@ -232,6 +232,10 @@
   .card h3::before { content: attr(data-icon) " "; }
   .card p { color: var(--muted); font-size: 14.5px; }
   .card p code { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; font-size: 12.5px; color: var(--text); }
+  .card .links { margin-top: 12px; font-size: 14px; }
+  .card .links a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .card .links a:hover { text-decoration: underline; }
+  .card .links .sep { color: var(--muted); margin: 0 7px; }
 
   .faq { margin-top: 26px; display: grid; gap: 10px; }
   .faq details {
@@ -262,6 +266,7 @@
   <nav>
     <a class="brand" href="#">aidemo</a>
     <a class="hide-sm" href="#how">How it works</a>
+    <a class="hide-sm" href="#examples">Examples</a>
     <a class="hide-sm" href="#integrations">Integrations</a>
     <a class="hide-sm" href="#quickstart">Quickstart</a>
     <a class="hide-sm" href="#faq">FAQ</a>
@@ -399,6 +404,37 @@
         <h3 data-icon="♻️">Re-render, don't re-record</h3>
         <p>Per-scene TTS hash cache and compose-time zoom choreography mean edits are seconds,
           not another recording session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="examples">
+  <div class="wrap">
+    <h2 class="reveal">Made with aidemo</h2>
+    <p class="lead">Real products, not staged fixtures — live sites with auth walls, nested
+      iframes, and production checkouts, <strong>demoed by a coding agent end to end</strong>.</p>
+    <div class="cards">
+      <div class="card reveal">
+        <h3 data-icon="🛒">MaxFit — shopping in a ChatGPT app</h3>
+        <p>The 75-second demo playing in the hero above: a shopping flow inside MaxFit's
+          ChatGPT app — an auth-walled widget in nested iframes, through to a live
+          checkout. Claude Code authored the <code>storyboard.json</code>; the engine
+          recorded it as a deterministic replay.</p>
+        <p class="links">
+          <a href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">Watch the narrated demo ▶</a>
+          <span class="sep">·</span>
+          <a href="https://maxfit.ee">maxfit.ee ↗</a>
+        </p>
+      </div>
+      <div class="card reveal">
+        <h3 data-icon="🏋️">Turg — a live marketplace</h3>
+        <p>A fitness-gear marketplace running in production. Its walkthrough is the next
+          demo on this page — the same <code>record-demo</code> skill, pointed at the
+          live site. The finished video will land here.</p>
+        <p class="links">
+          <a href="https://turg.fitness.ee">turg.fitness.ee ↗</a>
+        </p>
       </div>
     </div>
   </div>

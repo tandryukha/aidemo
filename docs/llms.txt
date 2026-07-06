@@ -30,6 +30,10 @@ Key facts:
   rendering is local.
 - Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, an OpenAI API key.
   Developed on macOS; Linux expected to work (default capture path).
+- Made with aidemo (real-world examples): a 75-second narrated shopping demo
+  inside MaxFit's ChatGPT app (maxfit.ee) — an auth-walled widget in nested
+  iframes through to a live checkout; a walkthrough of turg.fitness.ee, a
+  production fitness-gear marketplace, is next.
 
 ## Docs
 
