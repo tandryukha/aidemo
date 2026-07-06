@@ -56,6 +56,11 @@ Run that check with Bash `run_in_background: true`, never a bare foreground slee
    what-shipped videos for customer release notes. Open-source alternative to
    Screen Studio / Clueso / Demosmith. Keep this framing consistent across
    hero sub, meta description, og:description, JSON-LD, and llms.txt.
+   **Audience = developers** (owner directive): write dev-to-dev — terminal-first
+   examples with real, runnable commands and real paths, no marketing fluff.
+   When showing an assistant/integration, show the actual command a developer
+   would type (planned ones marked with a muted `# planned` comment, which is
+   the approved way to show Codex/Gemini without violating rule 1).
 3. **Video, never GIF, for the hero.** GIFs are 256-color mush (the old
    560×350 GIF looked terrible upscaled). Use `<video autoplay muted loop
    playsinline preload="metadata" poster=...>` with a same-origin MP4. Set
