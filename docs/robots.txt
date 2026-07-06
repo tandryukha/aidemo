@@ -1,0 +1,35 @@
+# aidemo — https://github.com/tandryukha/aidemo
+# All crawlers welcome, including AI/LLM crawlers (we want to be indexed).
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# NOTE: swap to the custom domain when purchased (see docs/internal/INDEXING_PLAN.md)
+Sitemap: https://tandryukha.github.io/aidemo/sitemap.xml

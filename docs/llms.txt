@@ -1,0 +1,42 @@
+# aidemo
+
+> aidemo turns an agent-authored `storyboard.json` into a polished, narrated,
+> captioned product-demo video (MP4). It is an open-source (MIT) alternative to
+> Screen Studio, Clueso, or Demosmith for when you'd rather your coding agent
+> make the demo: the agent writes the storyboard (script + per-scene voice/music
+> plan + declarative browser action-spec), then a deterministic player drives a
+> real Chrome — no LLM in the loop during capture — records it, generates a
+> realistic voiceover (OpenAI TTS), aligns word-level captions (Whisper), trims
+> dead time, auto-zooms on interactions, and exports a shareable MP4. Runs
+> locally; works against localhost and auth-walled apps using your own Chrome
+> profile.
+
+Key facts:
+- Works with Claude Code today via the bundled `record-demo` skill; Codex CLI /
+  Gemini CLI planned via an agent-neutral authoring doc + MCP server. Any human
+  or agent that can write a `storyboard.json` and run `aidemo render` can use it.
+- Deterministic replay: recording runs a fixed action-spec at full speed; the
+  agent only authors, it never drives the capture. Same input → same video.
+- Tweak loop without re-recording: per-scene TTS hash cache means editing one
+  narration line re-voices only that scene; zoom choreography is compose-time,
+  so a bad zoom is a recompose, never a re-record.
+- Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, an OpenAI API key.
+  Developed on macOS; Linux expected to work (default capture path).
+
+## Docs
+
+- [README](https://github.com/tandryukha/aidemo#readme): positioning, design
+  decisions, quickstart, CLI reference, cinematic-polish options
+- [record-demo skill](https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md):
+  how the agent authors a storyboard and renders a demo
+- [Releases](https://github.com/tandryukha/aidemo/releases): versioned releases
+  with real rendered MP4s as assets
+- [Example output (75s, narrated)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4):
+  a shopping flow inside a ChatGPT app, authored by Claude
+- [CONTRIBUTING](https://github.com/tandryukha/aidemo/blob/main/CONTRIBUTING.md)
+
+## Install
+
+- Clone + run: `git clone https://github.com/tandryukha/aidemo && npm install`,
+  then `node bin/aidemo.mjs render <demo-dir>`
+- Or via npx from a product repo: `npx -y github:tandryukha/aidemo#stable <cmd>`

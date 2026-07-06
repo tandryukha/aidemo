@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aidemo — your coding agent makes the demo video</title>
+<meta name="description" content="aidemo turns a storyboard into a polished, narrated, captioned product-demo video. An open-source (MIT) alternative to Screen Studio, Clueso, or Demosmith — your coding agent writes the storyboard, a deterministic player records it. Works on localhost and auth-walled apps.">
+<link rel="canonical" href="https://tandryukha.github.io/aidemo/">
+<meta property="og:title" content="aidemo — your coding agent makes the demo video">
+<meta property="og:description" content="Open-source alternative to Screen Studio / Clueso / Demosmith: your coding agent writes a storyboard.json, aidemo records a narrated, captioned MP4.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tandryukha.github.io/aidemo/">
+<meta property="og:image" content="https://tandryukha.github.io/aidemo/demo.gif">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "aidemo",
+  "operatingSystem": "macOS, Linux",
+  "applicationCategory": "DeveloperApplication",
+  "description": "Open-source CLI that turns an agent-authored storyboard.json into a narrated, captioned product-demo video (MP4). Deterministic Chrome replay, OpenAI TTS voiceover, Whisper captions, ffmpeg compose with auto-zoom.",
+  "license": "https://opensource.org/licenses/MIT",
+  "url": "https://github.com/tandryukha/aidemo",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can Claude Code record a demo video?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — with aidemo's bundled record-demo skill, Claude Code writes a storyboard.json (script, per-scene voice plan, browser actions) and runs aidemo render. The engine drives a real Chrome, records it, generates a voiceover, aligns captions, and exports a shareable MP4." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is aidemo different from Screen Studio or Clueso?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Screen Studio and Clueso require a human to record raw footage. With aidemo, your coding agent authors the demo and a deterministic player records it — no screen-recording session, no cloud upload. It is open source (MIT) and runs locally." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does aidemo work on localhost or apps behind a login?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. aidemo drives your system Chrome locally, so it works against localhost and auth-walled apps using your own logged-in profile. Nothing is uploaded anywhere." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which coding agents work with aidemo?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Claude Code today, via the bundled record-demo skill. Codex CLI and Gemini CLI are planned via an agent-neutral authoring doc and an MCP server. Any human or agent that can write a storyboard.json and run aidemo render can use it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is aidemo free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — MIT-licensed open source. The only runtime cost is your own OpenAI API key for text-to-speech narration and Whisper caption alignment." }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --bg-soft: #12151a;
+    --panel: #161a20;
+    --border: #262c35;
+    --text: #e8ebef;
+    --muted: #9aa4b2;
+    --accent: #d97757;
+    --accent-2: #b07aff;
+    --code-bg: #0d1117;
+    --shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #fbfaf8;
+      --bg-soft: #f3f1ec;
+      --panel: #ffffff;
+      --border: #e4e0d8;
+      --text: #1d232b;
+      --muted: #5b6572;
+      --code-bg: #14181e;
+      --shadow: 0 20px 50px rgba(40,30,20,.10);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .glow {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(600px 320px at 18% -5%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+      radial-gradient(700px 380px at 85% 0%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 70%);
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+  code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+
+  nav {
+    display: flex; align-items: center; gap: 22px;
+    padding: 18px 0;
+    font-size: 15px;
+  }
+  nav .brand { font-weight: 700; font-size: 17px; letter-spacing: -.02em; text-decoration: none; color: var(--text); }
+  nav .brand::before { content: "🎬 "; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--text); }
+  nav .spacer { flex: 1; }
+  .gh-btn {
+    color: var(--text) !important; border: 1px solid var(--border);
+    padding: 7px 14px; border-radius: 8px; font-weight: 600;
+    background: var(--panel);
+  }
+  .gh-btn:hover { border-color: var(--accent); }
+  @media (max-width: 640px) { nav .hide-sm { display: none; } }
+
+  header.hero { padding: 64px 0 36px; text-align: left; }
+  .hero h1 {
+    font-size: clamp(34px, 6vw, 56px);
+    line-height: 1.08; letter-spacing: -.03em; font-weight: 800;
+    max-width: 780px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.sub { margin: 22px 0 0; font-size: 19px; color: var(--muted); max-width: 700px; }
+  .hero p.sub strong { color: var(--text); font-weight: 600; }
+  .cta { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 12px 22px; border-radius: 10px;
+    font-weight: 650; font-size: 15.5px; text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { border-color: var(--border); color: var(--text); background: var(--panel); }
+  .btn.ghost:hover { border-color: var(--accent-2); }
+  .pills { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; font-size: 13px; }
+  .pill {
+    border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px;
+    color: var(--muted); background: var(--bg-soft);
+  }
+
+  .demo-shot { margin: 44px 0 8px; }
+  .demo-shot a { display: block; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .demo-shot img { width: 100%; display: block; }
+  .demo-shot .cap { text-align: center; font-size: 13.5px; color: var(--muted); margin-top: 12px; }
+  .demo-shot .cap a { display: inline; border: 0; box-shadow: none; color: var(--accent); text-decoration: none; }
+  .demo-shot .cap a:hover { text-decoration: underline; }
+
+  section { padding: 56px 0 0; }
+  section h2 { font-size: 28px; letter-spacing: -.02em; margin-bottom: 8px; }
+  section > .wrap > p.lead { color: var(--muted); max-width: 700px; margin-bottom: 28px; }
+  section > .wrap > p.lead strong { color: var(--text); }
+
+  .term {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  .term .bar {
+    display: flex; align-items: center; gap: 6px; padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .term .bar i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .term .bar i:nth-child(1) { background: #ff5f57; }
+  .term .bar i:nth-child(2) { background: #febc2e; }
+  .term .bar i:nth-child(3) { background: #28c840; }
+  .term .bar span { margin-left: 8px; font-size: 12.5px; color: #8b95a3; }
+  .term pre {
+    padding: 18px 20px; overflow-x: auto; font-size: 13.5px; line-height: 1.7;
+    color: #dbe2ea;
+  }
+  .term pre .c { color: #7d8896; }
+  .term pre .g { color: #7ee08a; }
+  .term pre .a { color: #f0a583; }
+  .term pre .v { color: #c0a3ff; }
+
+  .steps { display: grid; gap: 18px; margin-top: 26px; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; }
+  .step .n {
+    width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+    font-weight: 700; font-size: 15px; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    margin-top: 2px;
+  }
+  .step h3 { font-size: 17px; margin-bottom: 4px; }
+  .step p { color: var(--muted); font-size: 15px; max-width: 640px; }
+  .step p code { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 13px; color: var(--text); }
+  .step .term { margin-top: 12px; box-shadow: none; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 26px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px;
+  }
+  .card h3 { font-size: 16.5px; margin-bottom: 8px; }
+  .card h3::before { content: attr(data-icon) " "; }
+  .card p { color: var(--muted); font-size: 14.5px; }
+  .card p code { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; font-size: 12.5px; color: var(--text); }
+
+  .faq { margin-top: 26px; display: grid; gap: 10px; }
+  .faq details {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .faq summary { font-weight: 650; cursor: pointer; font-size: 16px; list-style: none; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; float: right; color: var(--muted); font-weight: 400; }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin-top: 10px; color: var(--muted); font-size: 15px; }
+  .faq details p a { color: var(--accent); }
+
+  footer {
+    margin-top: 72px; padding: 28px 0 44px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 14px;
+  }
+  footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+  footer .spacer { flex: 1; }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#">aidemo</a>
+    <a class="hide-sm" href="#how">How it works</a>
+    <a class="hide-sm" href="#quickstart">Quickstart</a>
+    <a class="hide-sm" href="#faq">FAQ</a>
+    <span class="spacer"></span>
+    <a class="gh-btn" href="https://github.com/tandryukha/aidemo">GitHub&nbsp;★</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Your coding agent<br>makes the <em>demo video</em>.</h1>
+    <p class="sub">
+      <strong>aidemo</strong> turns a storyboard into a polished, narrated, captioned
+      product-demo video. Your agent writes one <span class="mono">storyboard.json</span>;
+      the engine drives a real Chrome, records it, voices it, captions it, and exports a
+      shareable MP4. An <strong>open-source alternative to Screen Studio, Clueso, or
+      Demosmith</strong> — for when you'd rather your coding agent make the demo.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/tandryukha/aidemo">View on GitHub</a>
+      <a class="btn ghost" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">Watch a real 75s output ▶</a>
+    </div>
+    <div class="pills">
+      <span class="pill">MIT licensed</span>
+      <span class="pill">Runs locally — no cloud upload</span>
+      <span class="pill">Works on localhost &amp; auth-walled apps</span>
+      <span class="pill">Claude Code today · Codex / Gemini planned</span>
+    </div>
+
+    <div class="demo-shot">
+      <a href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">
+        <img src="demo.gif" alt="Shopping demo inside a ChatGPT app — search, compare, product detail, add to basket, checkout — recorded with aidemo" width="1280" height="720">
+      </a>
+      <p class="cap">Real output — a shopping flow inside a ChatGPT app, authored by Claude and recorded as a
+        deterministic replay. Preview is silent; <a href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">watch the narrated version ▶</a></p>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lead">Authoring is slow and happens once. Recording is a <strong>fast, deterministic
+      replay</strong> — no LLM in the loop during capture, so the video is smooth, not an AI
+      clicking around and waiting between screenshots.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <div>
+          <h3>You type one prompt</h3>
+          <p>In your repo, with the bundled <code>record-demo</code> skill installed:</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>terminal</span></div>
+            <pre><span class="g">$</span> claude <span class="a">"record a 45s demo of the checkout flow we shipped this week"</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="n">2</div>
+        <div>
+          <h3>The agent writes a readable artifact</h3>
+          <p>One <code>storyboard.json</code>: the script, a per-scene voice &amp; music plan, and a
+            declarative browser action-spec. It's plain JSON — review it, edit a narration line,
+            keep it in git.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>storyboard.json</span></div>
+            <pre>{ <span class="v">"id"</span>: <span class="a">"s2"</span>,
+  <span class="v">"narration"</span>: <span class="a">"Search results come back instantly — let's compare the top two."</span>,
+  <span class="v">"actions"</span>: [
+    { <span class="v">"op"</span>: <span class="a">"type"</span>,  <span class="v">"target"</span>: <span class="a">"#search"</span>, <span class="v">"text"</span>: <span class="a">"running shoes"</span> },
+    { <span class="v">"op"</span>: <span class="a">"click"</span>, <span class="v">"target"</span>: <span class="a">"text=Compare"</span> } ] }</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="n">3</div>
+        <div>
+          <h3>The engine renders the video</h3>
+          <p>Drives your system Chrome with a smooth animated cursor, narrates each scene with
+            realistic TTS, aligns word-level captions, trims the dead time, auto-zooms on
+            interactions, and muxes a final MP4.</p>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>aidemo render</span></div>
+            <pre><span class="g">$</span> aidemo render demos/checkout
+<span class="c">  voice     ✓ 6 scenes (cache hit: 4)</span>
+<span class="c">  record    ✓ 52.3s raw + timeline.json</span>
+<span class="c">  captions  ✓ word-aligned (whisper)</span>
+<span class="c">  compose   ✓ trim · sync · zoom · captions · music</span>
+<span class="g">  → output/final-demo.mp4</span>  <span class="c">(45.1s, 1080p)</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="n">4</div>
+        <div>
+          <h3>Tweak without re-recording</h3>
+          <p>Edit one narration line → <code>aidemo voice --scene s3 &amp;&amp; aidemo compose</code>
+            regenerates just that scene's audio and the final cut. Bad zoom? Recompose, never
+            re-record. That's the determinism payoff.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="wrap">
+    <h2>Why it's built this way</h2>
+    <div class="cards">
+      <div class="card">
+        <h3 data-icon="🎯">Deterministic replay</h3>
+        <p>The recording runs a fixed action-spec at full speed. The agent authors the storyboard
+          once; it's never in the loop during capture. Same input, same video.</p>
+      </div>
+      <div class="card">
+        <h3 data-icon="🔒">Local &amp; auth-friendly</h3>
+        <p>Uses your system Chrome and your logged-in profile. Works against localhost, staging,
+          and auth-walled apps. No cloud browser, no upload.</p>
+      </div>
+      <div class="card">
+        <h3 data-icon="🎬">Cinematic by default</h3>
+        <p>Screen-Studio-style auto-zoom on clicks and typing, eased smooth-scrolling, sidechain
+          music ducking under narration, PNG-rendered captions that work on any ffmpeg.</p>
+      </div>
+      <div class="card">
+        <h3 data-icon="♻️">Re-render, don't re-record</h3>
+        <p>Per-scene TTS hash cache and compose-time zoom choreography mean edits are seconds,
+          not another recording session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <p class="lead">A bundled fixture store renders a finished demo with zero external
+      dependencies — <strong>under 5 minutes</strong> on a clean machine. Prereqs: Node 20+,
+      Google Chrome, ffmpeg, an OpenAI API key.</p>
+    <div class="term">
+      <div class="bar"><i></i><i></i><i></i><span>quickstart</span></div>
+      <pre><span class="g">$</span> git clone https://github.com/tandryukha/aidemo &amp;&amp; cd aidemo
+<span class="g">$</span> npm install &amp;&amp; cp .env.example .env   <span class="c"># add OPENAI_API_KEY</span>
+<span class="g">$</span> node examples/local-demo/serve.mjs     <span class="c"># terminal 1: fixture on :8787</span>
+<span class="g">$</span> node bin/aidemo.mjs render examples/local-demo --headless
+<span class="g">$</span> open examples/local-demo/output/final-demo.mp4</pre>
+    </div>
+    <p class="demo-shot cap" style="margin-top:14px; text-align:left;">
+      What it produces: <a style="color:var(--accent); text-decoration:none;" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4">quickstart-demo.mp4 ▶</a>
+    </p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <div class="faq">
+      <details>
+        <summary>Can Claude Code record a demo video?</summary>
+        <p>Yes — with aidemo's bundled <a href="https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md">record-demo skill</a>,
+          Claude Code writes the <span class="mono">storyboard.json</span> (script, per-scene voice
+          plan, browser actions) and runs <span class="mono">aidemo render</span>. The engine does
+          the rest: recording, voiceover, captions, final MP4.</p>
+      </details>
+      <details>
+        <summary>How is aidemo different from Screen Studio or Clueso?</summary>
+        <p>Those tools require a human to record raw footage first. With aidemo, your coding agent
+          authors the demo and a deterministic player records it — no screen-recording session, no
+          cloud upload. And it's MIT-licensed open source.</p>
+      </details>
+      <details>
+        <summary>Does it work on localhost or apps behind a login?</summary>
+        <p>Yes. aidemo drives your system Chrome locally with your own profile, so localhost,
+          staging environments, and auth-walled apps all work. Nothing leaves your machine except
+          the TTS/caption API calls to OpenAI.</p>
+      </details>
+      <details>
+        <summary>Which coding agents work with aidemo?</summary>
+        <p>Claude Code today, via the bundled skill. Codex CLI and Gemini CLI are planned via an
+          agent-neutral authoring doc and an MCP server. Any human or agent that can write a
+          <span class="mono">storyboard.json</span> and run <span class="mono">aidemo render</span>
+          can use it.</p>
+      </details>
+      <details>
+        <summary>Is it free?</summary>
+        <p>Yes — MIT license. The only runtime cost is your own OpenAI API key for narration
+          (gpt-4o-mini-tts) and caption alignment (Whisper).</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 aidemo · MIT</span>
+    <span class="spacer"></span>
+    <a href="https://github.com/tandryukha/aidemo">GitHub</a>
+    <a href="https://github.com/tandryukha/aidemo/releases">Releases</a>
+    <a href="https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md">record-demo skill</a>
+    <a href="llms.txt">llms.txt</a>
+  </div>
+</footer>
+
+</body>
+</html>
