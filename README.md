@@ -1,15 +1,18 @@
 # aidemo — your coding agent makes the demo video
 
-**aidemo turns a storyboard into a polished, narrated, captioned product-demo
-video.** Your coding agent (Claude Code today, via the bundled `record-demo`
-skill) writes one `storyboard.json` — the script, per-scene voice/music plan,
-and a browser action-spec — and the engine drives a real Chrome, records it,
-generates a realistic voiceover, aligns captions, trims the dead time, and
-exports a shareable MP4. It's an **open-source alternative to Screen Studio,
-Clueso, or Demosmith** for when you'd rather your coding agent make the demo —
-no screen-recording session, no cloud upload, works against localhost and
-auth-walled apps.
+**[aidemo.top](https://aidemo.top)** · [showcase with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4) · [quick start](#quick-start-self-contained-smoke-test) · [the skill](.claude/skills/record-demo/SKILL.md)
 
+**Tell your coding agent *"record a 45s demo of the checkout flow"* — get back
+a polished MP4 with voiceover, synced captions, and auto-zoom.** The agent
+(Claude Code today, via the bundled `record-demo` skill) writes one
+`storyboard.json` — the script, per-scene voice/music plan, and a browser
+action-spec — and the engine drives a real Chrome, records a deterministic
+replay, generates a realistic voiceover, aligns captions, and trims the dead
+time. An **open-source alternative to Screen Studio, Clueso, or Demosmith**
+for when you'd rather your coding agent make the demo — no screen-recording
+session, no cloud upload, works against localhost and auth-walled apps.
+
+[![Website](https://img.shields.io/badge/website-aidemo.top-1a7f37)](https://aidemo.top)
 [![ci](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/tandryukha/aidemo)](https://github.com/tandryukha/aidemo/releases)
@@ -137,9 +140,11 @@ node bin/aidemo.mjs render examples/local-demo --headless   # terminal 2
 open examples/local-demo/output/final-demo.mp4   # xdg-open on Linux, start on Windows
 ```
 
+![The render running — voice, record, captions, compose](docs/terminal.gif)
+
 [![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)
 
-<sub>What the quick start produces — narrated, captioned, auto-trimmed. Silent
+<sub>The run, and what it produces — narrated, captioned, auto-trimmed. Silent
 preview; **[full version ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)**.</sub>
 
 (You can also `npm link` to get a global `aidemo` command instead of
