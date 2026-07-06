@@ -17,7 +17,7 @@ import { resolve, dirname, basename } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { platform, release } from "node:os";
-import { ENGINE_ROOT, engineVersion } from "./config.js";
+import { ENGINE_ROOT, engineVersion, openAiBaseUrl } from "./config.js";
 import { Project } from "./project.js";
 import { STARTER_BRIEF, STARTER_STORYBOARD } from "./starter.js";
 import { ensureDir, exists, ok, step, fail, log } from "./util.js";
@@ -374,7 +374,17 @@ export async function doctor(dir: string | undefined): Promise<void> {
   line("ffmpeg", await probeCmd("ffmpeg", ["-version"]));
   line("chrome", await probeChrome());
   line("gh (feedback)", await probeCmd("gh", ["--version"]));
-  ok(`OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? "set" : "MISSING (needed for voice/captions)"}`);
+  const base = openAiBaseUrl();
+  ok(`voice/captions endpoint: ${base ? `${base} (custom)` : "api.openai.com (default)"}`);
+  ok(
+    `OPENAI_API_KEY: ${
+      process.env.OPENAI_API_KEY
+        ? "set"
+        : base
+          ? "not required (custom endpoint set)"
+          : "MISSING (needed for voice/captions)"
+    }`
+  );
   // Ensure playwright's chromium/driver resolves (best-effort require probe).
   try {
     await import("playwright");

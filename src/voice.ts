@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import type { Storyboard, VoiceManifest, VoicePlan } from "./types.js";
 import { VoiceManifestSchema } from "./types.js";
 import { Project } from "./project.js";
-import { requireOpenAiKey, TTS_MODEL } from "./config.js";
+import { requireOpenAiKey, openAiBaseUrl, TTS_MODEL } from "./config.js";
 import { runFfmpeg, probeDurationMs } from "./ffmpeg.js";
 import { ensureDir, writeJson, readJson, exists, log, ok, step } from "./util.js";
 import { dirname } from "node:path";
@@ -26,7 +26,8 @@ export interface VoiceProvider {
 export class OpenAIVoiceProvider implements VoiceProvider {
   private client: OpenAI;
   constructor() {
-    this.client = new OpenAI({ apiKey: requireOpenAiKey() });
+    // baseURL undefined → api.openai.com; set → any OpenAI-compatible server.
+    this.client = new OpenAI({ apiKey: requireOpenAiKey(), baseURL: openAiBaseUrl() });
   }
 
   async synthesize({ text, plan }: { text: string; plan: VoicePlan }): Promise<Buffer> {
@@ -91,7 +92,8 @@ export async function generateVoice(
   storyboard: Storyboard,
   opts: VoiceOptions = {}
 ): Promise<VoiceManifest> {
-  step("Generating narration (OpenAI TTS)");
+  const base = openAiBaseUrl();
+  step(base ? `Generating narration (TTS @ ${base})` : "Generating narration (OpenAI TTS)");
   await ensureDir(dirname(project.narrationPath));
 
   // Construct the provider lazily so a fully-cached run needs no API key.

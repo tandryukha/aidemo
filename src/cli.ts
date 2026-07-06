@@ -4,7 +4,7 @@ import { loadEnv, engineVersion } from "./config.js";
 import { Project } from "./project.js";
 import { record } from "./recorder.js";
 import { generateVoice } from "./voice.js";
-import { generateCaptions } from "./captions.js";
+import { generateCaptions, generateCaptionsOffline } from "./captions.js";
 import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
 import { synthesizeMusicBed } from "./music.js";
@@ -198,11 +198,21 @@ program
 program
   .command("captions")
   .argument("<dir>", "demo project directory")
+  .option(
+    "--offline",
+    "generate approximate captions from the storyboard script + voice.json timings — no network/STT",
+    false
+  )
   .description("transcribe narration.mp3 to captions.srt/vtt with word timing")
-  .action(async (dir: string) => {
+  .action(async (dir: string, opts: { offline?: boolean }) => {
     const project = new Project(dir);
     await beginCommand(project, "captions");
-    await generateCaptions(project);
+    if (opts.offline) {
+      const storyboard = await project.loadStoryboard();
+      await generateCaptionsOffline(project, storyboard);
+    } else {
+      await generateCaptions(project);
+    }
   });
 
 program

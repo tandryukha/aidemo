@@ -58,14 +58,24 @@ export async function loadEnv(): Promise<void> {
   if (engineEnv !== cwdEnv) await loadEnvFile(engineEnv);
 }
 
+/**
+ * Custom endpoint for any OpenAI-compatible server (LocalAI, speaches,
+ * Kokoro-FastAPI, …). AIDEMO_OPENAI_BASE_URL wins over the SDK-standard
+ * OPENAI_BASE_URL; unset → api.openai.com.
+ */
+export const openAiBaseUrl = () =>
+  process.env.AIDEMO_OPENAI_BASE_URL || process.env.OPENAI_BASE_URL || undefined;
+
 export function requireOpenAiKey(): string {
   const key = process.env.OPENAI_API_KEY;
-  if (!key) {
-    throw new Error(
-      "OPENAI_API_KEY is not set. Copy .env.example to .env and add your key."
-    );
-  }
-  return key;
+  if (key) return key;
+  // Local OpenAI-compatible servers rarely check auth; a placeholder key keeps
+  // the SDK happy without demanding a real one.
+  if (openAiBaseUrl()) return "sk-aidemo-local";
+  throw new Error(
+    "OPENAI_API_KEY is not set. Copy .env.example to .env and add your key, " +
+      "or point OPENAI_BASE_URL at a local OpenAI-compatible server."
+  );
 }
 
 export const TTS_MODEL = () => process.env.AIDEMO_TTS_MODEL || "gpt-4o-mini-tts";
