@@ -51,6 +51,10 @@
           "found": true
         },
         {
+          "op": "still",
+          "ok": true
+        },
+        {
           "op": "pause",
           "ok": true,
           "ms": 1400
