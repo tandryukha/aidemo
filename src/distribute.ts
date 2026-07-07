@@ -383,54 +383,118 @@ async function detectOllama(base: string): Promise<string | null> {
   }
 }
 
-/** Preflight: check prereqs + report installed-vs-stable skill version. */
-export async function doctor(dir: string | undefined): Promise<void> {
-  step(`aidemo doctor — engine v${engineVersion()}`);
-  const line = (label: string, val: string | null) =>
-    val ? ok(`${label}: ${val}`) : fail(`${label}: NOT FOUND`);
+export interface DoctorReport {
+  engineVersion: string;
+  node: string;
+  ffmpeg: string | null;
+  chrome: string | null;
+  gh: string | null;
+  endpoint: { url: string; custom: boolean; warning?: string };
+  apiKey: "set" | "not-required" | "missing";
+  playwright: boolean;
+  skill: {
+    target: string;
+    installed: { version: string; stableAvailable: string | null } | null;
+  };
+  /** Everything the pipeline needs (gh is feedback-only, doesn't gate). */
+  ok: boolean;
+}
 
-  line("node", process.version);
-  line("ffmpeg", await probeCmd("ffmpeg", ["-version"]));
-  line("chrome", await probeChrome());
-  line("gh (feedback)", await probeCmd("gh", ["--version"]));
+/** Build the structured preflight report (used by CLI doctor + MCP doctor). */
+export async function doctorReport(dir: string | undefined): Promise<DoctorReport> {
   const base = openAiBaseUrl();
-  ok(`voice/captions endpoint: ${base ? `${base} (custom)` : "api.openai.com (default)"}`);
+  let endpointWarning: string | undefined;
   if (base) {
     const ollama = await detectOllama(base);
     if (ollama) {
-      fail(
+      endpointWarning =
         `endpoint is ${ollama} — Ollama serves chat/embeddings only, no /v1/audio ` +
-          `(TTS/STT), so voice and captions will fail. Pair it with a speech server ` +
-          `such as speaches — see README "Local models & offline".`
-      );
+        `(TTS/STT), so voice and captions will fail. Pair it with a speech server ` +
+        `such as speaches — see README "Local models & offline".`;
     }
   }
+  let playwrightOk = false;
+  // Ensure playwright's chromium/driver resolves (best-effort require probe).
+  try {
+    await import("playwright");
+    playwrightOk = true;
+  } catch {
+    playwrightOk = false;
+  }
+  const target = targetOf(dir);
+  const manifest = await readManifest(target);
+  const latest = engineVersion();
+  const report: DoctorReport = {
+    engineVersion: latest,
+    node: process.version,
+    ffmpeg: await probeCmd("ffmpeg", ["-version"]),
+    chrome: await probeChrome(),
+    gh: await probeCmd("gh", ["--version"]),
+    endpoint: {
+      url: base ?? "https://api.openai.com/v1",
+      custom: Boolean(base),
+      ...(endpointWarning ? { warning: endpointWarning } : {}),
+    },
+    apiKey: process.env.OPENAI_API_KEY ? "set" : base ? "not-required" : "missing",
+    playwright: playwrightOk,
+    skill: {
+      target,
+      installed: manifest
+        ? {
+            version: manifest.version,
+            stableAvailable:
+              cmpVersion(latest, manifest.version) > 0 ? latest : null,
+          }
+        : null,
+    },
+    ok: false,
+  };
+  report.ok = Boolean(
+    report.ffmpeg &&
+      report.chrome &&
+      report.playwright &&
+      report.apiKey !== "missing" &&
+      !endpointWarning
+  );
+  return report;
+}
+
+/** Preflight: check prereqs + report installed-vs-stable skill version. */
+export async function doctor(dir: string | undefined): Promise<void> {
+  const r = await doctorReport(dir);
+  step(`aidemo doctor — engine v${r.engineVersion}`);
+  const line = (label: string, val: string | null) =>
+    val ? ok(`${label}: ${val}`) : fail(`${label}: NOT FOUND`);
+
+  line("node", r.node);
+  line("ffmpeg", r.ffmpeg);
+  line("chrome", r.chrome);
+  line("gh (feedback)", r.gh);
+  ok(
+    `voice/captions endpoint: ${r.endpoint.custom ? `${r.endpoint.url} (custom)` : "api.openai.com (default)"}`
+  );
+  if (r.endpoint.warning) fail(r.endpoint.warning);
   ok(
     `OPENAI_API_KEY: ${
-      process.env.OPENAI_API_KEY
+      r.apiKey === "set"
         ? "set"
-        : base
+        : r.apiKey === "not-required"
           ? "not required (custom endpoint set)"
           : "MISSING (needed for voice/captions)"
     }`
   );
-  // Ensure playwright's chromium/driver resolves (best-effort require probe).
-  try {
-    await import("playwright");
-    ok(`playwright: resolvable`);
-  } catch {
-    fail(`playwright: not installed`);
-  }
+  if (r.playwright) ok(`playwright: resolvable`);
+  else fail(`playwright: not installed`);
 
-  const target = targetOf(dir);
-  const manifest = await readManifest(target);
-  if (manifest) {
-    const latest = engineVersion();
-    const behind = cmpVersion(latest, manifest.version) > 0;
+  if (r.skill.installed) {
     ok(
-      `installed skill: v${manifest.version}${behind ? ` (stable v${latest} available — aidemo skill update)` : " (up to date)"}`
+      `installed skill: v${r.skill.installed.version}${
+        r.skill.installed.stableAvailable
+          ? ` (stable v${r.skill.installed.stableAvailable} available — aidemo skill update)`
+          : " (up to date)"
+      }`
     );
   } else {
-    log(`no record-demo skill installed in ${target} (run: aidemo repo-init)`);
+    log(`no record-demo skill installed in ${r.skill.target} (run: aidemo repo-init)`);
   }
 }

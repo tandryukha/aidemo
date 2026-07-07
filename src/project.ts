@@ -94,36 +94,76 @@ export class Project {
    */
   async loadStoryboard(opts: { relaxed?: boolean } = {}): Promise<Storyboard> {
     const raw = await readJson<unknown>(this.storyboardPath);
-    if (
-      opts.relaxed &&
-      raw &&
-      typeof raw === "object" &&
-      Array.isArray((raw as { scenes?: unknown }).scenes)
-    ) {
-      for (const s of (raw as { scenes: Array<Record<string, unknown>> }).scenes) {
-        if (s && typeof s === "object" && s.narration == null) s.narration = "";
-      }
-    }
-    const parsed = StoryboardSchema.safeParse(raw);
-    if (!parsed.success) {
+    const parsed = parseStoryboard(raw, opts);
+    if (!parsed.ok) {
       throw new Error(
-        `Invalid storyboard.json:\n${parsed.error.issues
-          .map((i) => `  - ${i.path.join(".")}: ${i.message}`)
+        `Invalid storyboard.json:\n${parsed.issues
+          .map((i) => `  - ${i.path}: ${i.message}`)
           .join("\n")}`
       );
     }
-    warnStoryboard(parsed.data);
-    return parsed.data;
+    for (const w of parsed.warnings) log(w);
+    return parsed.storyboard;
   }
 }
 
+export interface StoryboardIssue {
+  path: string;
+  message: string;
+  code: string;
+}
+
+export type StoryboardParse =
+  | { ok: true; storyboard: Storyboard; warnings: string[] }
+  | { ok: false; issues: StoryboardIssue[] };
+
+/**
+ * Validate a raw storyboard value against the schema, returning structured
+ * issues instead of throwing. `relaxed` (probe) makes narration optional by
+ * injecting an empty one where missing before validating — a record-only dry
+ * run doesn't need a script.
+ */
+export function parseStoryboard(
+  raw: unknown,
+  opts: { relaxed?: boolean } = {}
+): StoryboardParse {
+  if (
+    opts.relaxed &&
+    raw &&
+    typeof raw === "object" &&
+    Array.isArray((raw as { scenes?: unknown }).scenes)
+  ) {
+    for (const s of (raw as { scenes: Array<Record<string, unknown>> }).scenes) {
+      if (s && typeof s === "object" && s.narration == null) s.narration = "";
+    }
+  }
+  const parsed = StoryboardSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      issues: parsed.error.issues.map((i) => ({
+        path: i.path.join("."),
+        message: i.message,
+        code: i.code,
+      })),
+    };
+  }
+  return {
+    ok: true,
+    storyboard: parsed.data,
+    warnings: storyboardWarnings(parsed.data),
+  };
+}
+
 /** Surface silent no-ops in the storyboard so they aren't a surprise. */
-function warnStoryboard(sb: Storyboard): void {
+export function storyboardWarnings(sb: Storyboard): string[] {
+  const warnings: string[] = [];
   const withCue = sb.scenes.filter((s) => s.music?.cue).map((s) => s.id);
   if (withCue.length) {
-    log(
+    warnings.push(
       `⚠ per-scene music.cue is informational only and currently ignored ` +
         `(scenes: ${withCue.join(", ")})`
     );
   }
+  return warnings;
 }
