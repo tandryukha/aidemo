@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import { resolve, isAbsolute } from "node:path";
 import { Project } from "./project.js";
-import type { Storyboard, Timeline, IdleSpan, Card } from "./types.js";
+import type { Storyboard, Timeline, IdleSpan, Card, Output } from "./types.js";
 import { TimelineSchema, VoiceManifestSchema } from "./types.js";
 import type { Cue } from "./captions.js";
 import { renderCaptionPngs } from "./caption-render.js";
@@ -146,7 +146,28 @@ export async function compose(
 
   if (sceneVideos.length === 0) throw new Error("No scenes to compose.");
 
-  let content = await concatSegments(sceneVideos, resolve(tmp, "content.mp4"), tmp, "scenes");
+  // Scene assembly. Default: stream-copy concat (hard cuts) — the fast,
+  // lossless path, untouched when no transition is set. Opt-in: crossfade the
+  // scene boundaries (re-encodes the join; total duration is preserved).
+  let content: string;
+  if (storyboard.transition && sceneVideos.length >= 2) {
+    const durMs = storyboard.transition.durationMs;
+    log(
+      `scene crossfade: ${durMs}ms x ${sceneVideos.length - 1} boundary/ies`
+    );
+    content = await crossfadeScenes(
+      sceneVideos,
+      durMs,
+      resolve(tmp, "content.mp4")
+    );
+  } else {
+    content = await concatSegments(
+      sceneVideos,
+      resolve(tmp, "content.mp4"),
+      tmp,
+      "scenes"
+    );
+  }
 
   // Auto-zoom pass over the content (never over the cards or captions).
   if (zoomCfg && zoomEvents.length > 0) {
@@ -208,7 +229,13 @@ export async function compose(
     introMs,
     pxScale
   );
-  await muxAudio(project, storyboard, captioned, introMs);
+  // Optional final resize/reframe (opt-in). Applied last, over the whole
+  // composed frame (cards + captions included), so a 1280x720 take can render
+  // as a vertical social clip. Audio is muxed after, so mux stays -c:v copy.
+  const finalVideo = storyboard.output
+    ? await resizeOutput(captioned, storyboard.output, tmp)
+    : captioned;
+  await muxAudio(project, storyboard, finalVideo, introMs);
   ok(`final video → ${project.outputPath}`);
   // AIDEMO_KEEP_TMP=1 keeps .compose-tmp for debugging intermediates.
   if (!process.env.AIDEMO_KEEP_TMP) {
@@ -274,6 +301,127 @@ async function concatSegments(
     outPath,
   ]);
   return outPath;
+}
+
+/**
+ * Crossfade the scene segments into one clip WITHOUT shrinking the timeline.
+ *
+ * A plain xfade overlaps its two inputs and so shortens the result by the fade
+ * length per boundary — which would slide every later scene ahead of its
+ * (fixed, continuous) narration. Instead we steal the overlap from each
+ * scene's OWN frozen tail: every non-last segment is clone-padded past its end,
+ * and each xfade offset is the cumulative *real* scene duration, so scene k's
+ * content still begins at exactly sum(d_0..d_{k-1}) — its narration slot. The
+ * final total equals the plain-concat total (the last segment is left un-
+ * padded). Net effect: identical A/V duration + alignment as hard cuts, but the
+ * boundaries cross-dissolve. Re-encodes (xfade needs filter_complex).
+ */
+async function crossfadeScenes(
+  sceneVideos: string[],
+  durationMs: number,
+  outPath: string
+): Promise<string> {
+  const D = Math.max(0.05, durationMs / 1000);
+  // Measure each segment so the offsets track real (not assumed) durations.
+  const durs = await Promise.all(sceneVideos.map((p) => probeDurationMs(p)));
+  // Freeze-tail margin: a touch longer than D so the fade never starves at the
+  // boundary. The excess past offset+D is discarded by xfade (harmless).
+  const extendSec = (D + 0.25).toFixed(3);
+
+  const inputs: string[] = [];
+  for (const p of sceneVideos) inputs.push("-i", p);
+
+  const filters: string[] = [];
+  const labels: string[] = [];
+  sceneVideos.forEach((_, i) => {
+    const last = i === sceneVideos.length - 1;
+    // Clone-freeze the tail of every non-last segment so the crossfade overlaps
+    // that freeze rather than eating real content. Reset PTS for a clean join.
+    const pad = last
+      ? ""
+      : `tpad=stop_mode=clone:stop_duration=${extendSec},`;
+    filters.push(`[${i}:v]${pad}setpts=PTS-STARTPTS[e${i}]`);
+    labels.push(`e${i}`);
+  });
+
+  let prev = labels[0];
+  let cumMs = 0;
+  for (let i = 1; i < sceneVideos.length; i++) {
+    cumMs += durs[i - 1];
+    const offset = (cumMs / 1000).toFixed(3);
+    const out = i === sceneVideos.length - 1 ? "xout" : `x${i}`;
+    filters.push(
+      `[${prev}][${labels[i]}]xfade=transition=fade:duration=${D.toFixed(
+        3
+      )}:offset=${offset}[${out}]`
+    );
+    prev = out;
+  }
+
+  await runFfmpeg([
+    ...inputs,
+    "-filter_complex",
+    filters.join(";"),
+    "-map",
+    "[xout]",
+    "-an",
+    "-r",
+    String(FPS),
+    "-c:v",
+    "libx264",
+    "-preset",
+    "veryfast",
+    "-crf",
+    "20",
+    "-pix_fmt",
+    "yuv420p",
+    outPath,
+  ]);
+  return outPath;
+}
+
+/**
+ * Reframe the finished (captioned) video to a different size/aspect — the
+ * opt-in `output` block. "contain" scales to fit and pads the remainder
+ * (letterbox bars in `background`); "cover" scales to fill and center-crops.
+ * Core scale/pad/crop only (portable). This seeds the vertical "social clip"
+ * lane: e.g. 720x1280 / 1080x1920 from a 1280x720 take.
+ */
+async function resizeOutput(
+  video: string,
+  output: Output,
+  tmp: string
+): Promise<string> {
+  const { width: W, height: H } = output;
+  const fit = output.fit ?? "contain";
+  const bg = output.background ?? "black";
+  const vf =
+    fit === "cover"
+      ? `scale=${W}:${H}:force_original_aspect_ratio=increase:flags=lanczos,` +
+        `crop=${W}:${H},setsar=1`
+      : `scale=${W}:${H}:force_original_aspect_ratio=decrease:flags=lanczos,` +
+        `pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:color=${bg},setsar=1`;
+  const out = resolve(tmp, "resized.mp4");
+  await runFfmpeg([
+    "-i",
+    video,
+    "-vf",
+    vf,
+    "-an",
+    "-r",
+    String(FPS),
+    "-c:v",
+    "libx264",
+    "-preset",
+    "veryfast",
+    "-crf",
+    "20",
+    "-pix_fmt",
+    "yuv420p",
+    out,
+  ]);
+  log(`output resize -> ${W}x${H} (${fit})`);
+  return out;
 }
 
 /** Render a title card PNG and encode it as a fade-in/out video segment. */

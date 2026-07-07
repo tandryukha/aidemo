@@ -288,6 +288,40 @@ export const CardSchema = z.object({
 });
 export type Card = z.infer<typeof CardSchema>;
 
+/**
+ * Scene-to-scene transition (opt-in). When present, compose crossfades the
+ * video across every scene boundary instead of hard-cutting. The overlap is
+ * stolen from each scene's own frozen tail so the timeline does NOT shrink —
+ * total duration and per-scene narration alignment are preserved exactly.
+ * Omit the key for the default hard cuts (unchanged stream-copy concat).
+ */
+export const TransitionSchema = z.object({
+  type: z.literal("crossfade"),
+  /** Crossfade length, ms. Default 400. */
+  durationMs: z.number().default(400),
+});
+export type Transition = z.infer<typeof TransitionSchema>;
+
+/**
+ * Final output sizing (opt-in). Renders the composed video at a different
+ * size/aspect than the recording — e.g. a vertical 1080x1920 social clip from
+ * a 1280x720 take. Applied AFTER cards + captions, so the whole frame is
+ * scaled as one. Omit to keep the recording size. width/height should be even
+ * (yuv420p). Uses core scale/pad/crop filters only.
+ */
+export const OutputSchema = z.object({
+  width: z.number(),
+  height: z.number(),
+  /**
+   * "contain" (default) = scale to fit + pad the remainder (letterbox bars).
+   * "cover" = scale to fill + center-crop the overflow (no bars).
+   */
+  fit: z.enum(["contain", "cover"]).default("contain"),
+  /** Pad color for "contain" (ffmpeg color syntax, e.g. black, 0x1a1a1a). Default black. */
+  background: z.string().optional(),
+});
+export type Output = z.infer<typeof OutputSchema>;
+
 export const StoryboardSchema = z.object({
   title: z.string(),
   /**
@@ -314,6 +348,10 @@ export const StoryboardSchema = z.object({
   /** Optional title cards around the demo (music plays under both). */
   intro: CardSchema.optional(),
   outro: CardSchema.optional(),
+  /** Scene-to-scene transition (opt-in crossfade). Omit for hard cuts. */
+  transition: TransitionSchema.optional(),
+  /** Final output sizing (opt-in letterbox/crop). Omit to keep recording size. */
+  output: OutputSchema.optional(),
   scenes: z.array(SceneSchema).min(1),
 });
 export type Storyboard = z.infer<typeof StoryboardSchema>;

@@ -116,7 +116,8 @@ The precise contract is the JSON Schema from `get_storyboard_schema`
 
 Top level: `title`, `targetLengthSeconds?`, `video{width,height}` (default
 1280x720), `frames{ name: iframeSelector }`, `voice{voiceId,instructions,speed}`
-(default, scenes may override), `music?`, `zoom?`, `intro?`, `outro?`, `scenes[]`.
+(default, scenes may override), `music?`, `zoom?`, `intro?`, `outro?`,
+`transition?`, `output?`, `scenes[]`.
 
 Cinematic keys (all opt-in; omit for the plain look):
 - `zoom: {scale?=1.55, easeMs?=600, holdMs?=1700}` — **auto-zoom on focus**:
@@ -133,9 +134,45 @@ Cinematic keys (all opt-in; omit for the plain look):
   one with `aidemo music assets/music.wav` and point `track` at it. Per-scene
   `music.cue` is informational only — it's ignored (the bed plays
   continuously), and setting one logs a warning at load.
+- `transition: {type:"crossfade", durationMs?=400}` — **cross-dissolve every
+  scene boundary** instead of hard-cutting (see below).
+- `output: {width, height, fit?="contain", background?}` — **render at a
+  different size/aspect** than the recording, e.g. a vertical social clip (see
+  below).
 
 Each scene: `id`, `narration`, `voice?`, `music?`, `zoom?` (false to disable),
 `actions[]`.
+
+## Transitions & output sizing
+
+Two opt-in, compose-time polish keys. Both are pure post-processing — they never
+touch the recording, so tuning them is always a recompose, never a re-record.
+Omit them and compose behaves exactly as before (hard-cut scenes, recording-size
+output).
+
+**`transition: {type:"crossfade", durationMs?=400}`** — cross-dissolves the video
+across every scene boundary. Narration is a single continuous track and stays
+authoritative: the crossfade steals its overlap from each scene's own frozen
+tail frames (a hold beyond the scene's end), so the timeline does **not** shrink.
+The final video's total duration, frame count, and per-scene narration alignment
+are identical to the hard-cut version — only the cuts become dissolves. Cost: the
+scene join is re-encoded (the default hard-cut path is a lossless stream-copy
+concat). Needs ≥2 scenes; a shorter `durationMs` (250–400) reads as a snappy
+dissolve, longer (600+) as a slow cinematic fade.
+
+**`output: {width, height, fit?, background?}`** — reframes the finished video
+(cards and captions already baked in) to a target size, applied as the last
+step. `fit`:
+- `"contain"` (default) — scale to fit inside `width×height` and pad the
+  remainder with `background` (ffmpeg color syntax, e.g. `black`, `0x1a1a1a`;
+  default black). Letterbox/pillarbox bars, nothing cropped.
+- `"cover"` — scale to fill and center-crop the overflow. No bars, but edges are
+  lost.
+
+This seeds the **social-clips lane**: a vertical `{width:1080, height:1920}` (or
+`720×1280`) clip from a landscape 1280×720 take. Use even width/height (yuv420p).
+Only core scale/pad/crop filters are used, so it stays portable across ffmpeg
+builds.
 
 ## Action vocabulary
 
