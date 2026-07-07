@@ -221,6 +221,13 @@ With a custom base URL set, **no `OPENAI_API_KEY` is needed**. `aidemo doctor`
 reports which endpoint is in effect and warns if it's an LLM-only server that
 can't serve these calls (it pings only the endpoint you configured).
 
+**Prefer ElevenLabs voices?** Swap just the TTS half with
+`AIDEMO_TTS_PROVIDER=elevenlabs` + `ELEVENLABS_API_KEY` — captions keep using
+the OpenAI-compatible endpoint above. Your storyboard's `voiceId` is then an
+ElevenLabs voice id (pick the default with `AIDEMO_ELEVENLABS_VOICE`, the model
+with `AIDEMO_ELEVENLABS_MODEL`; `voice.instructions` is OpenAI-only and is
+ignored). Leave the variable unset and nothing changes.
+
 **One-server recipe — [speaches](https://speaches.ai)** covers both halves
 (faster-whisper STT with word timestamps + Kokoro TTS):
 

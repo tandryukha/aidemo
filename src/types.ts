@@ -182,7 +182,11 @@ export type Action = z.infer<typeof ActionSchema>;
 // ---------------------------------------------------------------------------
 
 export const VoicePlanSchema = z.object({
-  /** OpenAI voice id (alloy, ash, ballad, cedar, coral, echo, fable, marin, nova, onyx, sage, shimmer, verse). */
+  /**
+   * Voice id for the active TTS provider. Default provider = OpenAI (alloy,
+   * ash, ballad, cedar, coral, echo, fable, marin, nova, onyx, sage, shimmer,
+   * verse); with AIDEMO_TTS_PROVIDER=elevenlabs this is an ElevenLabs voice id.
+   */
   voiceId: z.string().default("marin"),
   /** Steering prompt for gpt-4o-mini-tts: tone, emotion, pace. */
   instructions: z.string().optional(),
