@@ -281,6 +281,15 @@ export type Card = z.infer<typeof CardSchema>;
 
 export const StoryboardSchema = z.object({
   title: z.string(),
+  /**
+   * Declared template parameters: name → default value. Enables `{{name}}`
+   * placeholders in any storyboard string (narration, action url, `type` text,
+   * card title/subtitle, waitFor* textMatches, voice instructions, …). At load
+   * time each param resolves to a `--param`/MCP/variant override else its
+   * default; unresolved or undeclared placeholders are a hard load-time error.
+   * Omit entirely for a non-parameterized storyboard (renders identically).
+   */
+  params: z.record(z.string(), z.string()).optional(),
   targetLengthSeconds: z.number().optional(),
   /** Recording viewport / video size. Default 1280x720. */
   video: z

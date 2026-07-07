@@ -307,6 +307,81 @@ Always set `"last": true` on widget targets (newest widget for this turn).
 `init_demo` / `aidemo init` scaffolds a storyboard already using all of the
 above.
 
+## Parameterized storyboards & variants
+
+One storyboard, many personalized renders (per prospect, per segment). Declare
+template params, reference them as `{{name}}`, then override per run or render a
+whole matrix at once.
+
+**Declare** a top-level `params` map (name → default value). Every declared
+param needs a default so the storyboard still renders with no overrides (and so
+`validate_storyboard` stays green):
+
+```json
+{
+  "title": "{{customer}} — supplement finder",
+  "params": { "customer": "there", "query": "whey isolate under 30 euros" },
+  "scenes": [
+    {
+      "id": "s1",
+      "narration": "Hi {{customer}}! Just tell DemoFit what you need.",
+      "actions": [
+        { "op": "goto", "url": "http://localhost:8787/" },
+        { "op": "type", "target": { "selector": "#search" }, "text": "{{query}}" },
+        { "op": "click", "target": { "selector": "#search-btn" } }
+      ]
+    }
+  ],
+  "intro": { "title": "A demo for {{customer}}" }
+}
+```
+
+**Where placeholders work:** any storyboard string — narration, action `url`,
+`type` `text`, card `title`/`subtitle`, `waitFor*` `textMatches`, voice
+`instructions`, even selectors. Not numbers: a `{{n}}` in a numeric field fails
+schema validation (put the value in a string field). The `params` defaults
+themselves are literal (not recursively substituted).
+
+**Resolution & errors** (both caught at load, before any stage runs):
+- an override key that isn't declared → hard error (typo guard);
+- a `{{name}}` used but not declared → hard error listing the missing names.
+
+**Override a single render** with repeatable `--param key=value` (CLI) — works
+on every storyboard-loading command (`probe`, `record`, `voice`, `captions`,
+`compose`, `render`); the MCP tools take an equivalent `params` object:
+
+```bash
+aidemo render <dir> --param customer="Acme Corp" --param query="creatine"
+aidemo probe  <dir> --param customer="Acme Corp"   # verify the take, zero spend
+```
+
+**Consistency across stages.** One resolved param set applies to the whole run,
+so a param in narration re-voices + re-captions and one in a url/typed text
+changes the recorded take. The resolved set is persisted to
+`generated/params.json`, so a later stage-only re-run (e.g. `aidemo compose
+<dir>`) reuses the exact same values — pass `--param` again only to change them
+(a take-affecting change then needs a re-record, per "polish is compose-time").
+
+**Render a whole matrix** with `--variants variants.json`, an array of
+`{ name, params }`:
+
+```json
+[
+  { "name": "acme",   "params": { "customer": "Acme Corp", "query": "creatine" } },
+  { "name": "globex", "params": { "customer": "Globex",    "query": "omega 3"  } }
+]
+```
+
+```bash
+aidemo render <dir> --variants variants.json
+```
+
+Each entry renders as an isolated full pipeline into
+`output/variants/<name>/` (its own take — content differs; voice hashing still
+skips unchanged scenes within a variant). Runs are sequential. Because a variant
+renders relative to its own dir, keep any local asset paths (e.g. a music
+`track`) absolute.
+
 ## Verify before declaring done
 
 Play (or frame-extract) `output/final-demo.mp4`: cursor glides and clicks

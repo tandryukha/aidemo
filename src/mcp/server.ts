@@ -90,6 +90,20 @@ const DIR_INPUT = z
   .string()
   .describe("demo project directory — pass an absolute path");
 
+/**
+ * Template params for a parameterized storyboard: name → value. Each key must
+ * be declared in the storyboard's `params` block (typo-guarded); `{{name}}`
+ * placeholders resolve to these values (else the declared default) across all
+ * stages of the run.
+ */
+const PARAMS_INPUT = z
+  .record(z.string(), z.string())
+  .optional()
+  .describe(
+    "storyboard template params (name → value); each must be declared in the " +
+      "storyboard's params block. Substitutes {{name}} across all stages."
+  );
+
 const RECORD_INPUT_SHAPE = {
   dir: DIR_INPUT,
   headless: z
@@ -101,6 +115,7 @@ const RECORD_INPUT_SHAPE = {
     .optional()
     .describe("Chrome user-data dir (logged-in profile)"),
   capture: z.enum(["playwright", "native", "obs"]).optional(),
+  params: PARAMS_INPUT,
 };
 
 function throwIfAborted(signal: AbortSignal): void {
@@ -182,6 +197,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         path: z.string().optional().describe("path to a storyboard .json file"),
         json: z.string().optional().describe("storyboard JSON as a string"),
         relaxed: z.boolean().optional(),
+        params: PARAMS_INPUT,
       },
       outputSchema: {
         valid: z.boolean(),
@@ -230,7 +246,11 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           warnings: [],
         });
       }
-      const parsed = parseStoryboard(raw, { relaxed: args.relaxed });
+      const parsed = parseStoryboard(raw, {
+        relaxed: args.relaxed,
+        params: args.params,
+        strict: args.params != null,
+      });
       if (!parsed.ok) {
         return jsonResult({
           valid: false,
@@ -541,7 +561,10 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     RECORD_INPUT_SHAPE,
     (project, args) => async (job) =>
       jobs.runStage(job, "probe", async () => {
-        const storyboard = await project.loadStoryboard({ relaxed: true });
+        const storyboard = await project.loadStoryboard({
+          relaxed: true,
+          params: args.params,
+        });
         const timeline = await record(project, storyboard, recordOpts(args, job));
         return {
           rawVideo: await project.resolveRawVideo(),
@@ -558,7 +581,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     RECORD_INPUT_SHAPE,
     (project, args) => async (job) =>
       jobs.runStage(job, "record", async () => {
-        const storyboard = await project.loadStoryboard();
+        const storyboard = await project.loadStoryboard({ params: args.params });
         const timeline = await record(project, storyboard, recordOpts(args, job));
         return {
           rawVideo: await project.resolveRawVideo(),
@@ -580,7 +603,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     (project, args) => async (job) =>
       jobs.runStage(job, "render", async () => {
         const signal = job.controller.signal;
-        const storyboard = await project.loadStoryboard();
+        const storyboard = await project.loadStoryboard({ params: args.params });
         job.stage = "voice";
         await generateVoice(project, storyboard, {
           force: args.forceVoice,
@@ -621,10 +644,11 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       dir: DIR_INPUT,
       scene: z.string().optional().describe("regenerate only this scene id"),
       force: z.boolean().optional(),
+      params: PARAMS_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "voice", async () => {
-        const storyboard = await project.loadStoryboard();
+        const storyboard = await project.loadStoryboard({ params: args.params });
         const manifest = await generateVoice(project, storyboard, {
           only: args.scene,
           force: args.force,
@@ -650,11 +674,12 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         .boolean()
         .optional()
         .describe("approximate captions from the script — no network/STT"),
+      params: PARAMS_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "captions", async () => {
         if (args.offline) {
-          const storyboard = await project.loadStoryboard();
+          const storyboard = await project.loadStoryboard({ params: args.params });
           await generateCaptionsOffline(project, storyboard);
         } else {
           await generateCaptions(project);
@@ -673,10 +698,11 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     {
       dir: DIR_INPUT,
       gif: z.boolean().optional().describe("also export output/final-demo.gif"),
+      params: PARAMS_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "compose", async () => {
-        const storyboard = await project.loadStoryboard();
+        const storyboard = await project.loadStoryboard({ params: args.params });
         await compose(project, storyboard);
         let gifPath: string | undefined;
         if (args.gif) gifPath = await exportGif(project);

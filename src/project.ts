@@ -1,6 +1,7 @@
 import { resolve, isAbsolute } from "node:path";
 import { StoryboardSchema, type Storyboard } from "./types.js";
-import { ensureDir, exists, readJson, log } from "./util.js";
+import { applyParams } from "./params.js";
+import { ensureDir, exists, readJson, writeJson, log } from "./util.js";
 
 /**
  * Resolves and creates the standard artifact layout for one demo project.
@@ -28,6 +29,14 @@ export class Project {
   }
   get timelinePath() {
     return this.p("generated", "timeline.json");
+  }
+  /**
+   * Resolved template params of the last load are persisted here so a later
+   * stage-only re-run (e.g. `aidemo compose <dir>` after a parameterized record)
+   * reuses the SAME values — keeping narration, captions and the take in sync.
+   */
+  get paramsPath() {
+    return this.p("generated", "params.json");
   }
   get captionsSrtPath() {
     return this.p("generated", "captions.srt");
@@ -91,10 +100,25 @@ export class Project {
    * narration optional — a record-only dry run to verify selectors/timing
    * doesn't need a script — by injecting an empty narration where missing
    * before validating against the one schema.
+   *
+   * `params` are explicit template overrides (CLI `--param`, MCP `params`,
+   * variant params); they take precedence and are typo-guarded. When none are
+   * given, the last run's persisted params (generated/params.json) are reused
+   * so stage-only re-runs stay consistent. The resolved set is persisted here.
    */
-  async loadStoryboard(opts: { relaxed?: boolean } = {}): Promise<Storyboard> {
+  async loadStoryboard(
+    opts: { relaxed?: boolean; params?: Record<string, string> } = {}
+  ): Promise<Storyboard> {
     const raw = await readJson<unknown>(this.storyboardPath);
-    const parsed = parseStoryboard(raw, opts);
+    const explicit =
+      opts.params && Object.keys(opts.params).length ? opts.params : undefined;
+    const provided = explicit ?? (await this.readPersistedParams());
+    const parsed = parseStoryboard(raw, {
+      relaxed: opts.relaxed,
+      params: provided,
+      // Typo-guard only explicit user input; persisted params are filtered.
+      strict: explicit != null,
+    });
     if (!parsed.ok) {
       throw new Error(
         `Invalid storyboard.json:\n${parsed.issues
@@ -103,7 +127,29 @@ export class Project {
       );
     }
     for (const w of parsed.warnings) log(w);
+    if (Object.keys(parsed.resolved).length) {
+      await this.persistParams(parsed.resolved);
+    }
     return parsed.storyboard;
+  }
+
+  /** Last run's resolved template params, or undefined if none were persisted. */
+  async readPersistedParams(): Promise<Record<string, string> | undefined> {
+    if (!(await exists(this.paramsPath))) return undefined;
+    try {
+      const data = await readJson<{ params?: Record<string, string> }>(
+        this.paramsPath
+      );
+      return data && typeof data.params === "object" ? data.params : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /** Persist the resolved template params for later stage-only re-runs. */
+  async persistParams(resolved: Record<string, string>): Promise<void> {
+    await ensureDir(this.p("generated"));
+    await writeJson(this.paramsPath, { params: resolved });
   }
 }
 
@@ -114,7 +160,13 @@ export interface StoryboardIssue {
 }
 
 export type StoryboardParse =
-  | { ok: true; storyboard: Storyboard; warnings: string[] }
+  | {
+      ok: true;
+      storyboard: Storyboard;
+      /** Resolved template params after applying declared defaults + overrides. */
+      resolved: Record<string, string>;
+      warnings: string[];
+    }
   | { ok: false; issues: StoryboardIssue[] };
 
 /**
@@ -122,10 +174,14 @@ export type StoryboardParse =
  * issues instead of throwing. `relaxed` (probe) makes narration optional by
  * injecting an empty one where missing before validating — a record-only dry
  * run doesn't need a script.
+ *
+ * `params` are template overrides; substitution runs AFTER zod validation on
+ * the typed storyboard (so placeholders only reach string fields) and reports
+ * unresolved/undeclared placeholders as a `params` issue.
  */
 export function parseStoryboard(
   raw: unknown,
-  opts: { relaxed?: boolean } = {}
+  opts: { relaxed?: boolean; params?: Record<string, string>; strict?: boolean } = {}
 ): StoryboardParse {
   if (
     opts.relaxed &&
@@ -148,10 +204,22 @@ export function parseStoryboard(
       })),
     };
   }
+  // Resolve + substitute {{template}} params on the typed storyboard.
+  const applied = applyParams(parsed.data, {
+    provided: opts.params,
+    strict: opts.strict,
+  });
+  if (!applied.ok) {
+    return {
+      ok: false,
+      issues: [{ path: "params", message: applied.message, code: "params" }],
+    };
+  }
   return {
     ok: true,
-    storyboard: parsed.data,
-    warnings: storyboardWarnings(parsed.data),
+    storyboard: applied.storyboard,
+    resolved: applied.resolved,
+    warnings: storyboardWarnings(applied.storyboard),
   };
 }
 

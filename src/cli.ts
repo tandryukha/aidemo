@@ -10,6 +10,7 @@ import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
 import { buildEmbed, formatEmbed } from "./embed.js";
 import { synthesizeMusicBed } from "./music.js";
+import { loadVariants, renderVariants } from "./variants.js";
 import { ensureDir, ok, step, fail, log, setLogFile, closeLogFile } from "./util.js";
 import {
   scaffoldDemo,
@@ -131,6 +132,26 @@ function parseCapture(value?: string): "playwright" | "native" | "obs" | undefin
   throw new Error(`--capture must be playwright, native or obs (got "${value}")`);
 }
 
+/** Commander collector for a repeatable option, accumulating into an array. */
+function collectKv(value: string, previous: string[]): string[] {
+  return previous.concat([value]);
+}
+
+/** Parse repeated `--param key=value` pairs into a params record (or undefined). */
+function parseParams(pairs?: string[]): Record<string, string> | undefined {
+  if (!pairs || !pairs.length) return undefined;
+  const out: Record<string, string> = {};
+  for (const p of pairs) {
+    const eq = p.indexOf("=");
+    if (eq <= 0) throw new Error(`--param must be key=value (got "${p}")`);
+    out[p.slice(0, eq).trim()] = p.slice(eq + 1);
+  }
+  return out;
+}
+
+const PARAM_OPT_DESC =
+  "set a storyboard template param (key=value; repeatable; must be declared in the storyboard's params block)";
+
 program
   .command("record")
   .argument("<dir>", "demo project directory")
@@ -140,15 +161,16 @@ program
     "--capture <mode>",
     "capture path: playwright (default) | native (ffmpeg screen grab) | obs"
   )
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .description("drive the storyboard in Chrome and record raw video + timeline.json")
   .action(
     async (
       dir: string,
-      opts: { profile?: string; headless?: boolean; capture?: string }
+      opts: { profile?: string; headless?: boolean; capture?: string; param?: string[] }
     ) => {
       const project = new Project(dir);
       await beginCommand(project, "record");
-      const storyboard = await project.loadStoryboard();
+      const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
       await record(project, storyboard, {
         profileDir: opts.profile,
         headed: !opts.headless,
@@ -166,18 +188,22 @@ program
     "--capture <mode>",
     "capture path: playwright (default) | native (ffmpeg screen grab) | obs"
   )
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .description(
     "record-only dry run to verify selectors/timing (narration optional)"
   )
   .action(
     async (
       dir: string,
-      opts: { profile?: string; headless?: boolean; capture?: string }
+      opts: { profile?: string; headless?: boolean; capture?: string; param?: string[] }
     ) => {
       const project = new Project(dir);
       await beginCommand(project, "probe");
       // Relaxed: narration is optional — a probe just exercises the flow.
-      const storyboard = await project.loadStoryboard({ relaxed: true });
+      const storyboard = await project.loadStoryboard({
+        relaxed: true,
+        params: parseParams(opts.param),
+      });
       await record(project, storyboard, {
         profileDir: opts.profile,
         headed: !opts.headless,
@@ -194,11 +220,12 @@ program
   .argument("<dir>", "demo project directory")
   .option("--scene <id>", "regenerate only this scene's narration")
   .option("--force", "re-synthesize every scene even if unchanged", false)
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .description("generate per-scene TTS and assemble narration.mp3 + voice.json")
-  .action(async (dir: string, opts: { scene?: string; force?: boolean }) => {
+  .action(async (dir: string, opts: { scene?: string; force?: boolean; param?: string[] }) => {
     const project = new Project(dir);
     await beginCommand(project, "voice");
-    const storyboard = await project.loadStoryboard();
+    const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
     await generateVoice(project, storyboard, { only: opts.scene, force: opts.force });
   });
 
@@ -223,12 +250,13 @@ program
     "generate approximate captions from the storyboard script + voice.json timings — no network/STT",
     false
   )
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .description("transcribe narration.mp3 to captions.srt/vtt with word timing")
-  .action(async (dir: string, opts: { offline?: boolean }) => {
+  .action(async (dir: string, opts: { offline?: boolean; param?: string[] }) => {
     const project = new Project(dir);
     await beginCommand(project, "captions");
     if (opts.offline) {
-      const storyboard = await project.loadStoryboard();
+      const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
       await generateCaptionsOffline(project, storyboard);
     } else {
       await generateCaptions(project);
@@ -239,11 +267,12 @@ program
   .command("compose")
   .argument("<dir>", "demo project directory")
   .option("--gif", "also export output/final-demo.gif after the mux", false)
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .description("trim, sync, mux and caption into output/final-demo.mp4")
-  .action(async (dir: string, opts: { gif?: boolean }) => {
+  .action(async (dir: string, opts: { gif?: boolean; param?: string[] }) => {
     const project = new Project(dir);
     await beginCommand(project, "compose");
-    const storyboard = await project.loadStoryboard();
+    const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
     await compose(project, storyboard);
     if (opts.gif) await exportGif(project);
   });
@@ -308,6 +337,11 @@ program
   )
   .option("--force-voice", "re-synthesize narration even if unchanged", false)
   .option("--gif", "also export output/final-demo.gif after the mux", false)
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option(
+    "--variants <file>",
+    "render one full pipeline per entry of a variants JSON file → output/variants/<name>/"
+  )
   .description("run the full pipeline: voice → record → captions → compose")
   .action(
     async (
@@ -318,11 +352,28 @@ program
         capture?: string;
         forceVoice?: boolean;
         gif?: boolean;
+        param?: string[];
+        variants?: string;
       }
     ) => {
       const project = new Project(dir);
       await beginCommand(project, "render");
-      const storyboard = await project.loadStoryboard();
+      // Variants matrix: one isolated full render per entry (params differ).
+      if (opts.variants) {
+        const variants = await loadVariants(opts.variants);
+        const results = await renderVariants(dir, variants, {
+          record: {
+            profileDir: opts.profile,
+            headed: !opts.headless,
+            capture: parseCapture(opts.capture),
+          },
+          forceVoice: opts.forceVoice,
+        });
+        step("Done");
+        ok(`▶ ${results.length} variant(s) under ${project.p("output", "variants")}`);
+        return;
+      }
+      const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
       await generateVoice(project, storyboard, { force: opts.forceVoice });
       await record(project, storyboard, {
         profileDir: opts.profile,
