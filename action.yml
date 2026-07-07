@@ -1,0 +1,206 @@
+name: aidemo
+description: >-
+  Re-render committed aidemo storyboards into narrated, captioned demo media
+  (MP4 + optional GIF) in CI. Deterministic replay + local Kokoro voice means
+  zero LLM tokens and no API key are required.
+author: aidemo (github.com/tandryukha/aidemo)
+branding:
+  icon: play-circle
+  color: purple
+
+# This is a COMPOSITE action — it runs on the calling job's runner, so that
+# runner must provide the engine's prerequisites:
+#   * Node.js 20+ and npm on PATH (ubuntu-latest ships this; or run
+#     actions/setup-node before this action for a pinned version)
+#   * Google Chrome / Chromium (recorder uses `channel: "chrome"`)
+#   * ffmpeg + ffprobe on PATH
+# ubuntu-latest (and macos-latest) ship Chrome and ffmpeg preinstalled. The only
+# network egress is github.com (engine), registry.npmjs.org (deps) and, for
+# tts=local, huggingface.co (one-time ~90 MB Kokoro model download, cacheable).
+
+inputs:
+  demos:
+    description: >-
+      Demo directories to (re-)render, space- or newline-separated. Shell globs
+      are expanded (e.g. "demos/*"). Each dir must contain
+      generated/storyboard.json.
+    required: true
+  command:
+    description: >-
+      aidemo pipeline command: render (default, full pipeline) | probe (selector
+      dry-run) | record | compose | voice | captions | gif.
+    required: false
+    default: render
+  tts:
+    description: >-
+      Voice backend. "local" runs Kokoro-82M in-process (no key, captions fall
+      back to offline script timing); "openai" needs openai-api-key.
+    required: false
+    default: local
+  gif:
+    description: Also export output/final-demo.gif (applies to render and compose).
+    required: false
+    default: "false"
+  headless:
+    description: Run Chrome headless (required on CI runners, which have no display).
+    required: false
+    default: "true"
+  dtype:
+    description: >-
+      Kokoro quantization for local TTS: q8 (default, ~90 MB) | fp32 | fp16 | q4
+      | q4f16. Passed through as AIDEMO_TTS_MODEL_DTYPE.
+    required: false
+    default: q8
+  engine-ref:
+    description: >-
+      Engine git ref to install from github:tandryukha/aidemo (tag, branch or
+      SHA). Defaults to the moving "stable" release pointer.
+    required: false
+    default: stable
+  engine-path:
+    description: >-
+      Use an already-checked-out engine at this path instead of installing from
+      GitHub. Its dependencies must already be installed (e.g. `npm ci`), and for
+      tts=local kokoro-js must be resolvable from it. Mainly for the engine's own
+      self-test; leave empty for consumer use.
+    required: false
+    default: ""
+  openai-api-key:
+    description: >-
+      OpenAI API key — only used when tts=openai. Pass a secret
+      (${{ secrets.OPENAI_API_KEY }}); never hard-code.
+    required: false
+    default: ""
+  working-directory:
+    description: Directory to resolve the demo paths from.
+    required: false
+    default: "."
+
+outputs:
+  media:
+    description: Newline-separated list of rendered media files (mp4/gif).
+    value: ${{ steps.render.outputs.media }}
+  engine-bin:
+    description: Absolute path to the aidemo CLI entry the action ran.
+    value: ${{ steps.engine.outputs.bin }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve aidemo engine
+      id: engine
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        TTS: ${{ inputs.tts }}
+        ENGINE_REF: ${{ inputs.engine-ref }}
+        ENGINE_PATH: ${{ inputs.engine-path }}
+      run: |
+        set -euo pipefail
+        if [ -n "$ENGINE_PATH" ]; then
+          # Dev / self-test mode: run the checked-out engine directly.
+          bin="$(cd "$ENGINE_PATH" && pwd)/bin/aidemo.mjs"
+          if [ ! -f "$bin" ]; then
+            echo "::error::engine-path has no bin/aidemo.mjs: $ENGINE_PATH"; exit 1
+          fi
+          echo "using checked-out engine at $bin"
+        else
+          # Consumer mode: install the engine AND (for local voice) kokoro-js into
+          # one throwaway prefix. Because kokoro-js lands as a sibling of the
+          # engine in the same node_modules, the engine's lazy `import("kokoro-js")`
+          # resolves it — an npx-cached engine could not see a consumer-side install.
+          # --ignore-scripts keeps the install script-free (kokoro-js still runs;
+          # the engine drives system Chrome, so Playwright needs no browser download).
+          home="${RUNNER_TEMP}/aidemo-engine"
+          mkdir -p "$home"
+          ( cd "$home" && npm init -y >/dev/null 2>&1 || true )
+          pkgs=("github:tandryukha/aidemo#${ENGINE_REF}")
+          if [ "$TTS" = "local" ]; then pkgs+=("kokoro-js"); fi
+          echo "installing: ${pkgs[*]}"
+          npm i --prefix "$home" --no-save --ignore-scripts --no-audit --no-fund "${pkgs[@]}"
+          bin="$home/node_modules/aidemo/bin/aidemo.mjs"
+          if [ ! -f "$bin" ]; then
+            echo "::error::engine install produced no bin at $bin"; exit 1
+          fi
+          echo "installed engine -> $bin"
+        fi
+        echo "bin=$bin" >> "$GITHUB_OUTPUT"
+
+    - name: Environment check (aidemo doctor)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BIN: ${{ steps.engine.outputs.bin }}
+        AIDEMO_TTS_PROVIDER: ${{ inputs.tts }}
+        AIDEMO_TTS_MODEL_DTYPE: ${{ inputs.dtype }}
+      # Informational preflight — the render step is the hard gate.
+      run: node "$BIN" doctor || true
+
+    - name: Render demos
+      id: render
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BIN: ${{ steps.engine.outputs.bin }}
+        DEMOS: ${{ inputs.demos }}
+        COMMAND: ${{ inputs.command }}
+        GIF: ${{ inputs.gif }}
+        HEADLESS: ${{ inputs.headless }}
+        AIDEMO_TTS_PROVIDER: ${{ inputs.tts }}
+        AIDEMO_TTS_MODEL_DTYPE: ${{ inputs.dtype }}
+        OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+
+        # Flags that apply to the chosen command (avoid `test && cmd` — it trips set -e).
+        flags=()
+        case "$COMMAND" in
+          render)
+            if [ "$HEADLESS" = "true" ]; then flags+=(--headless); fi
+            if [ "$GIF" = "true" ]; then flags+=(--gif); fi
+            ;;
+          record|probe)
+            if [ "$HEADLESS" = "true" ]; then flags+=(--headless); fi
+            ;;
+          compose)
+            if [ "$GIF" = "true" ]; then flags+=(--gif); fi
+            ;;
+          voice|captions|gif)
+            :
+            ;;
+          *)
+            echo "::error::unknown command '$COMMAND' (use render|probe|record|compose|voice|captions|gif)"
+            exit 1
+            ;;
+        esac
+
+        media=()
+        count=0
+        # DEMOS is space/newline separated; unquoted expansion applies globbing.
+        for pattern in $DEMOS; do
+          matched=0
+          for dir in $pattern; do
+            if [ ! -d "$dir" ]; then continue; fi
+            matched=1
+            count=$((count + 1))
+            echo "::group::aidemo $COMMAND $dir ${flags[*]:-}"
+            node "$BIN" "$COMMAND" "$dir" "${flags[@]}"
+            echo "::endgroup::"
+            if [ -f "$dir/output/final-demo.mp4" ]; then media+=("$dir/output/final-demo.mp4"); fi
+            if [ -f "$dir/output/final-demo.gif" ]; then media+=("$dir/output/final-demo.gif"); fi
+          done
+          if [ "$matched" = "0" ]; then
+            echo "::warning::no demo directory matched '$pattern'"
+          fi
+        done
+        if [ "$count" = "0" ]; then
+          echo "::error::no demo directories matched input 'demos' (${DEMOS})"; exit 1
+        fi
+
+        {
+          echo "media<<__AIDEMO_EOF__"
+          printf '%s\n' "${media[@]:-}"
+          echo "__AIDEMO_EOF__"
+        } >> "$GITHUB_OUTPUT"
+        echo "rendered $count demo(s)"

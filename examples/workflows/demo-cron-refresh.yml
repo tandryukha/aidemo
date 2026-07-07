@@ -1,0 +1,53 @@
+name: demo-cron-refresh
+
+# Weekly: re-render every committed demo storyboard and open a PR with the
+# refreshed media (so a human still reviews the diff before it lands). Copy to
+# .github/workflows/ and adjust the demo paths marked ← below.
+on:
+  schedule:
+    - cron: "17 6 * * 1" # 06:17 UTC every Monday
+  workflow_dispatch:
+
+permissions:
+  contents: write # create-pull-request pushes the refresh branch
+  pull-requests: write # ...and opens the PR
+
+concurrency:
+  group: demo-cron-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/huggingface
+          key: kokoro-${{ runner.os }}-q8
+
+      - uses: tandryukha/aidemo@stable
+        with:
+          demos: demos/* # ← every committed demo
+          command: render
+          tts: local
+          gif: "true"
+
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: demo/weekly-refresh
+          delete-branch: true
+          title: "chore(demo): weekly media refresh"
+          commit-message: "chore(demo): re-render all demos [skip ci]"
+          add-paths: |
+            demos/**/output/**
+          body: |
+            Automated weekly re-render of every committed demo storyboard.
+
+            Deterministic replay + local Kokoro voice — no API tokens were used.
+            Review the media diff and merge if it looks right.

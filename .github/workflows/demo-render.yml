@@ -1,0 +1,63 @@
+name: demo-render
+
+# Self-test for the aidemo Action: render the bundled fixture (examples/local-demo)
+# through the LOCAL action (uses: ./) with local Kokoro voice and no API keys.
+# Manual trigger only — it needs Chrome + ffmpeg (ubuntu-latest ships both) and
+# downloads the ~90 MB Kokoro model on the first run (cached thereafter).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Local-voice dependency, deliberately kept out of package.json (~400 MB of
+      # onnxruntime). --ignore-scripts keeps the engine's install script-free; the
+      # engine's own `import("kokoro-js")` resolves this from the repo node_modules.
+      - name: Install local-voice dependency
+        run: npm i --no-save --ignore-scripts kokoro-js
+
+      # Cache the Kokoro model dir so re-runs skip the huggingface.co download.
+      # transformers.js caches under $HF_HOME (default ~/.cache/huggingface).
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/huggingface
+          key: kokoro-${{ runner.os }}-q8
+
+      # The fixture storyboard drives http://localhost:8787 — serve it.
+      - name: Start fixture server
+        run: |
+          node examples/local-demo/serve.mjs &
+          for _ in $(seq 1 20); do
+            curl -sf http://localhost:8787/ >/dev/null && break
+            sleep 0.5
+          done
+
+      - name: Render fixture via the local action
+        uses: ./
+        with:
+          demos: examples/local-demo
+          command: render
+          tts: local
+          gif: "true"
+          engine-path: "." # exercise THIS checkout's engine, not github:stable
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: final-demo
+          path: |
+            examples/local-demo/output/final-demo.mp4
+            examples/local-demo/output/final-demo.gif
+          if-no-files-found: error
