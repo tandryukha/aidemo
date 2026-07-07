@@ -67,8 +67,8 @@ inputs:
     default: ""
   openai-api-key:
     description: >-
-      OpenAI API key — only used when tts=openai. Pass a secret
-      (${{ secrets.OPENAI_API_KEY }}); never hard-code.
+      OpenAI API key — only used when tts=openai. Pass it from a repository
+      secret via the caller's `with:` block; never hard-code it.
     required: false
     default: ""
   working-directory:
