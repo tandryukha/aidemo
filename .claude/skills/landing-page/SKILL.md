@@ -47,10 +47,12 @@ Run that check with Bash `run_in_background: true`, never a bare foreground slee
 ## Hard rules (learned, do not relearn)
 
 1. **Only claim what ships.** No named future integrations or roadmap promises
-   on the page (e.g. ElevenLabs was deliberately removed; "Codex/Gemini
-   planned" is the one approved exception, mirroring the README). Describe
-   extensibility via what's true in code ("swappable `VoiceProvider`
-   interface").
+   on the page. (History: ElevenLabs was removed while planned, then claimed
+   once it shipped; the old "Codex/Gemini planned" exception is obsolete —
+   since v0.6.0 they work today via the built-in MCP server, as do the
+   ElevenLabs provider and the in-process local voice, and the page claims all
+   of them as shipped.) Describe extensibility via what's true in code
+   ("swappable `VoiceProvider` interface").
 2. **Positioning (approved):** built for coding agents to *autonomously record
    product demos* — landing-page hero videos, GitHub README walkthroughs,
    what-shipped videos for customer release notes. Open-source alternative to
@@ -59,8 +61,8 @@ Run that check with Bash `run_in_background: true`, never a bare foreground slee
    **Audience = developers** (owner directive): write dev-to-dev — terminal-first
    examples with real, runnable commands and real paths, no marketing fluff.
    When showing an assistant/integration, show the actual command a developer
-   would type (planned ones marked with a muted `# planned` comment, which is
-   the approved way to show Codex/Gemini without violating rule 1).
+   would type (if a genuinely unshipped integration ever needs showing, a
+   muted `# planned` comment is the approved mechanism — currently none are).
 3. **Video, never GIF, for the hero.** GIFs are 256-color mush (the old
    560×350 GIF looked terrible upscaled). Use `<video autoplay muted loop
    playsinline preload="metadata" poster=...>` with a same-origin MP4. Set
