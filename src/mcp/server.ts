@@ -9,6 +9,13 @@ import { Project, parseStoryboard } from "../project.js";
 import { StoryboardSchema } from "../types.js";
 import { generateVoice } from "../voice.js";
 import { record, type RecordOptions } from "../recorder.js";
+import {
+  buildProbeGolden,
+  diffGolden,
+  readProbeGolden,
+  writeProbeGolden,
+} from "../golden.js";
+import type { ProbeGoldenScene } from "../types.js";
 import { generateCaptions, generateCaptionsOffline } from "../captions.js";
 import { compose } from "../compose.js";
 import { exportGif } from "../gif.js";
@@ -557,21 +564,74 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
 
   registerJob(
     "probe",
-    "Record-only dry run to verify selectors/timing (narration optional).",
-    RECORD_INPUT_SHAPE,
+    "Record-only dry run to verify selectors/timing (narration optional). " +
+      "With updateGolden, writes golden/probe.json (the regression baseline); " +
+      "with golden, deep-compares against it and returns match + field-level diffs.",
+    {
+      ...RECORD_INPUT_SHAPE,
+      updateGolden: z
+        .boolean()
+        .optional()
+        .describe("write golden/probe.json from this probe (commit it as the baseline)"),
+      golden: z
+        .boolean()
+        .optional()
+        .describe("compare against golden/probe.json; returns match + diffs (CI guard)"),
+    },
     (project, args) => async (job) =>
       jobs.runStage(job, "probe", async () => {
         const storyboard = await project.loadStoryboard({
           relaxed: true,
           params: args.params,
         });
-        const timeline = await record(project, storyboard, recordOpts(args, job));
-        return {
+        const goldenMode = !!(args.golden || args.updateGolden);
+        const probeScenes: ProbeGoldenScene[] = [];
+        const timeline = await record(project, storyboard, {
+          ...recordOpts(args, job),
+          ...(goldenMode ? { probe: probeScenes } : {}),
+        });
+        const base = {
           rawVideo: await project.resolveRawVideo(),
           timeline: project.timelinePath,
           totalMs: timeline.totalMs,
           scenes: timeline.scenes.length,
         };
+        if (args.updateGolden) {
+          const golden = buildProbeGolden(storyboard, probeScenes);
+          await writeProbeGolden(project, golden);
+          return {
+            ...base,
+            golden: {
+              path: project.goldenProbePath,
+              updated: true,
+              scenes: golden.scenes.length,
+            },
+          };
+        }
+        if (args.golden) {
+          const expected = await readProbeGolden(project);
+          if (!expected) {
+            return {
+              ...base,
+              golden: {
+                path: project.goldenProbePath,
+                match: false,
+                error:
+                  "no golden baseline — run probe with updateGolden:true first",
+              },
+            };
+          }
+          const diffs = diffGolden(expected, buildProbeGolden(storyboard, probeScenes));
+          return {
+            ...base,
+            golden: {
+              path: project.goldenProbePath,
+              match: diffs.length === 0,
+              diffs,
+            },
+          };
+        }
+        return base;
       })
   );
 

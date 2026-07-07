@@ -47,6 +47,14 @@ export class Project {
   get captionsCuesPath() {
     return this.p("generated", "captions.cues.json");
   }
+  /** Caption reuse manifest (per-scene input hashes + stored word timings). */
+  get captionsManifestPath() {
+    return this.p("generated", "captions.manifest.json");
+  }
+  /** Checked-in golden baseline for `aidemo probe --golden` regression checks. */
+  get goldenProbePath() {
+    return this.p("golden", "probe.json");
+  }
   get rawVideoPath() {
     return this.p("recordings", "raw.webm");
   }

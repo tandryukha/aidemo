@@ -4,6 +4,13 @@ import { readFile } from "node:fs/promises";
 import { loadEnv, engineVersion, ENGINE_ROOT, captionsAutoOffline } from "./config.js";
 import { Project } from "./project.js";
 import { record } from "./recorder.js";
+import {
+  buildProbeGolden,
+  diffGolden,
+  readProbeGolden,
+  writeProbeGolden,
+} from "./golden.js";
+import type { ProbeGoldenScene } from "./types.js";
 import { generateVoice } from "./voice.js";
 import { generateCaptions, generateCaptionsOffline } from "./captions.js";
 import { compose } from "./compose.js";
@@ -189,13 +196,30 @@ program
     "capture path: playwright (default) | native (ffmpeg screen grab) | obs"
   )
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option(
+    "--update-golden",
+    "write golden/probe.json from this probe (commit it as the regression baseline)",
+    false
+  )
+  .option(
+    "--golden",
+    "compare this probe against golden/probe.json; readable diff + non-zero exit on drift (CI)",
+    false
+  )
   .description(
     "record-only dry run to verify selectors/timing (narration optional)"
   )
   .action(
     async (
       dir: string,
-      opts: { profile?: string; headless?: boolean; capture?: string; param?: string[] }
+      opts: {
+        profile?: string;
+        headless?: boolean;
+        capture?: string;
+        param?: string[];
+        golden?: boolean;
+        updateGolden?: boolean;
+      }
     ) => {
       const project = new Project(dir);
       await beginCommand(project, "probe");
@@ -204,11 +228,51 @@ program
         relaxed: true,
         params: parseParams(opts.param),
       });
+      const goldenMode = !!(opts.golden || opts.updateGolden);
+      const probeScenes: ProbeGoldenScene[] = [];
       await record(project, storyboard, {
         profileDir: opts.profile,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
+        ...(goldenMode ? { probe: probeScenes } : {}),
       });
+
+      if (opts.updateGolden) {
+        const golden = buildProbeGolden(storyboard, probeScenes);
+        await writeProbeGolden(project, golden);
+        const actions = golden.scenes.reduce((a, s) => a + s.actions.length, 0);
+        step("Probe golden updated");
+        ok(
+          `golden → ${project.goldenProbePath} (${golden.scenes.length} scenes, ${actions} actions)`
+        );
+        ok(`commit it, then 'aidemo probe ${dir} --golden' guards the flow in CI`);
+        return;
+      }
+
+      if (opts.golden) {
+        const expected = await readProbeGolden(project);
+        if (!expected) {
+          throw new Error(
+            `no golden baseline at ${project.goldenProbePath} — create it first: ` +
+              `aidemo probe ${dir} --update-golden`
+          );
+        }
+        const actual = buildProbeGolden(storyboard, probeScenes);
+        const diffs = diffGolden(expected, actual);
+        if (diffs.length > 0) {
+          fail(`golden probe mismatch — ${diffs.length} field difference(s):`);
+          for (const d of diffs) log(d);
+          throw new Error(
+            `probe --golden failed: the recorded flow drifted from ` +
+              `${project.goldenProbePath} (${diffs.length} difference(s)). ` +
+              `Re-run with --update-golden if this change is intended.`
+          );
+        }
+        step("Probe golden matches");
+        ok(`flow unchanged vs ${project.goldenProbePath}`);
+        return;
+      }
+
       step("Probe done");
       ok(`inspect ${project.rawVideoPath} + ${project.timelinePath}`);
       ok(`any failure left a screenshot + frame dump in ${project.p("logs")}`);

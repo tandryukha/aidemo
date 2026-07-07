@@ -380,3 +380,99 @@ export const VoiceManifestSchema = z.object({
   ),
 });
 export type VoiceManifest = z.infer<typeof VoiceManifestSchema>;
+
+// ---------------------------------------------------------------------------
+// Captions manifest — emitted by the captions step. Mirrors voice.json's
+// content-hash reuse (VoiceManifest.hash): a captions re-run whose inputs are
+// unchanged reuses the stored word timings instead of re-transcribing. Optional
+// artifact; captions still work if it's absent (first run / deleted).
+// ---------------------------------------------------------------------------
+
+/** A word with scene-relative timing (seconds from the scene's own start). */
+export const CaptionWordSchema = z.object({
+  word: z.string(),
+  start: z.number(),
+  end: z.number(),
+});
+export type CaptionWord = z.infer<typeof CaptionWordSchema>;
+
+export const CaptionCueSchema = z.object({
+  index: z.number(),
+  startMs: z.number(),
+  endMs: z.number(),
+  text: z.string(),
+});
+
+export const CaptionsManifestSchema = z.object({
+  /** Which path wrote this: "stt" (Whisper/local STT) or "offline" (script-timed). */
+  mode: z.enum(["stt", "offline"]),
+  /**
+   * Combined hash of every caption-affecting input. A full match means the
+   * stored cues can be reused verbatim — no transcription at all.
+   */
+  inputHash: z.string(),
+  /** Cue-grouping config; a change re-segments even with identical words. */
+  config: z.object({
+    gapMs: z.number(),
+    maxWords: z.number(),
+    maxCueMs: z.number(),
+  }),
+  /**
+   * Per-scene inputs + reusable scene-relative word timings (offline path only).
+   * Enables per-scene reuse: only a scene whose narration/duration changed is
+   * re-derived; the rest keep their stored words.
+   */
+  scenes: z
+    .array(
+      z.object({
+        id: z.string(),
+        /** sha256 of (narration + durationMs + config) — the scene's caption identity. */
+        hash: z.string(),
+        durationMs: z.number(),
+        words: z.array(CaptionWordSchema),
+      })
+    )
+    .optional(),
+  /** The assembled cues — the reusable result (both modes). */
+  cues: z.array(CaptionCueSchema),
+});
+export type CaptionsManifest = z.infer<typeof CaptionsManifestSchema>;
+
+// ---------------------------------------------------------------------------
+// Probe golden — a normalized, deterministic projection of a probe run, used as
+// a checked-in regression baseline (vhs's golden-file pattern). Timing-free by
+// design: only stable outcomes (op, resolved target, ok, found, goto final URL)
+// so `aidemo probe --golden` fails a CI check when a UI change breaks the flow.
+// ---------------------------------------------------------------------------
+
+export const ProbeActionOutcomeSchema = z.object({
+  op: z.string(),
+  /** For target actions: the resolved selector (named→selector, frame-prefixed).
+   *  For goto: the requested URL. Omitted for press/pause/scrollBy. */
+  target: z.string().optional(),
+  /** The action completed without throwing (deterministic replay outcome). */
+  ok: z.boolean(),
+  /** Target-bearing actions: did the selector resolve to ≥1 element on the page. */
+  found: z.boolean().optional(),
+  /** goto only: page URL after navigation (redirects surface here). */
+  finalUrl: z.string().optional(),
+  key: z.string().optional(),
+  ms: z.number().optional(),
+  dy: z.number().optional(),
+  label: z.string().optional(),
+});
+export type ProbeActionOutcome = z.infer<typeof ProbeActionOutcomeSchema>;
+
+export const ProbeGoldenSceneSchema = z.object({
+  id: z.string(),
+  actions: z.array(ProbeActionOutcomeSchema),
+});
+export type ProbeGoldenScene = z.infer<typeof ProbeGoldenSceneSchema>;
+
+export const ProbeGoldenSchema = z.object({
+  version: z.literal(1),
+  title: z.string(),
+  video: z.object({ width: z.number(), height: z.number() }),
+  scenes: z.array(ProbeGoldenSceneSchema),
+});
+export type ProbeGolden = z.infer<typeof ProbeGoldenSchema>;

@@ -1,6 +1,11 @@
 import { chromium } from "playwright";
 import { promises as fs } from "node:fs";
-import type { Storyboard, Timeline, TimelineScene } from "./types.js";
+import type {
+  Storyboard,
+  Timeline,
+  TimelineScene,
+  ProbeGoldenScene,
+} from "./types.js";
 import { Project } from "./project.js";
 import { cursorInitScript } from "./cursor.js";
 import { runStoryboard } from "./player.js";
@@ -42,6 +47,12 @@ export interface RecordOptions {
   onSceneStart?: (sceneId: string, index: number, total: number) => void;
   onSceneComplete?: (scene: TimelineScene, index: number, total: number) => void;
   signal?: AbortSignal;
+  /**
+   * Golden-probe capture (see PlayerOptions.probe / src/golden.ts). When present,
+   * the run records a normalized per-action outcome into this array and doesn't
+   * abort on an action failure — for `aidemo probe --golden/--update-golden`.
+   */
+  probe?: ProbeGoldenScene[];
 }
 
 /**
@@ -152,6 +163,7 @@ export async function record(
       video: { width, height },
       logsDir,
       signal: options.signal,
+      probe: options.probe,
       onSceneStart: options.onSceneStart,
       onSceneComplete: (s, i, total) => {
         doneScenes.push(s);

@@ -1,4 +1,5 @@
 import { createReadStream, promises as fs } from "node:fs";
+import { createHash } from "node:crypto";
 import { Project } from "./project.js";
 import {
   requireOpenAiKey,
@@ -6,7 +7,12 @@ import {
   STT_MODEL,
   explainAudioEndpointError,
 } from "./config.js";
-import { VoiceManifestSchema, type Storyboard } from "./types.js";
+import {
+  VoiceManifestSchema,
+  CaptionsManifestSchema,
+  type CaptionsManifest,
+  type Storyboard,
+} from "./types.js";
 import { srtTime, readJson, writeJson, exists, ok, step, log } from "./util.js";
 
 export interface Cue {
@@ -37,6 +43,33 @@ export async function generateCaptions(project: Project): Promise<void> {
       ? `Generating captions (STT @ ${base})`
       : "Generating captions (Whisper word timestamps)"
   );
+
+  // Scene boundaries (ms) in the narration track keep a cue from spanning two
+  // scenes, so caption breaks line up with the on-screen beats.
+  const sceneEnds = await sceneEndTimes(project);
+  const config = captionConfig(await loadGapMs(project));
+
+  // Content-hash reuse (mirrors voice.ts): transcription is a pure function of
+  // the narration audio + model + endpoint + scene boundaries + grouping config.
+  // Unchanged → reuse the stored cues and skip the Whisper/STT call entirely.
+  const model = STT_MODEL();
+  const endpoint = base ?? "openai";
+  const narrationHash = await fileHash(project.narrationPath);
+  const inputHash = hashOf({
+    mode: "stt",
+    narrationHash,
+    model,
+    endpoint,
+    sceneEnds,
+    config,
+  });
+  const prior = await readCaptionsManifest(project);
+  if (prior && prior.mode === "stt" && prior.inputHash === inputHash) {
+    await writeCaptionFiles(project, prior.cues);
+    ok(`captions unchanged, reusing (cached; skipped transcription)`);
+    return;
+  }
+
   // Lazy import: the offline path below must work without touching the SDK.
   const { default: OpenAI } = await import("openai");
   // baseURL undefined → api.openai.com; set → any OpenAI-compatible server.
@@ -45,7 +78,7 @@ export async function generateCaptions(project: Project): Promise<void> {
   const res = await client.audio.transcriptions
     .create({
       file: createReadStream(project.narrationPath),
-      model: STT_MODEL(),
+      model,
       response_format: "verbose_json",
       timestamp_granularities: ["word"],
     })
@@ -55,11 +88,9 @@ export async function generateCaptions(project: Project): Promise<void> {
   if (words.length === 0) {
     log("no word timestamps returned; captions may be empty");
   }
-  // Scene boundaries (ms) in the narration track keep a cue from spanning two
-  // scenes, so caption breaks line up with the on-screen beats.
-  const sceneEnds = await sceneEndTimes(project);
   const cues = groupWords(words, sceneEnds);
   await writeCaptionFiles(project, cues);
+  await writeCaptionsManifest(project, { mode: "stt", inputHash, config, cues });
 }
 
 /**
@@ -78,35 +109,111 @@ export async function generateCaptionsOffline(
     await readJson(project.voiceManifestPath)
   );
   const durById = new Map(voice.scenes.map((s) => [s.id, s.durationMs]));
+  const config = captionConfig(voice.gapMs);
 
-  const words: Word[] = [];
-  const sceneEnds: number[] = [];
-  let cursor = 0; // ms into the assembled narration track
-  for (const scene of storyboard.scenes) {
+  // Per-scene caption identity = narration + this scene's measured duration (+
+  // grouping config). The scene-relative word timings depend on nothing else, so
+  // a scene whose identity is unchanged reuses its stored words — only a changed
+  // scene is re-derived (mirrors voice.ts's per-scene reuse).
+  type SceneMeta = { id: string; hash: string; durationMs: number };
+  const meta: SceneMeta[] = storyboard.scenes.map((scene) => {
     const durationMs = durById.get(scene.id);
     if (durationMs == null) {
       throw new Error(
         `voice.json has no scene "${scene.id}" — re-run: aidemo voice ${project.dir}`
       );
     }
-    const tokens = scene.narration.split(/\s+/).filter(Boolean);
-    // Weight each word by length (+1 for the following pause) so long words
-    // get proportionally more of the scene's duration.
-    const weights = tokens.map((t) => t.length + 1);
-    const total = weights.reduce((a, w) => a + w, 0);
-    let at = cursor;
-    tokens.forEach((t, i) => {
-      const wordMs = (weights[i] / total) * durationMs;
-      words.push({ word: t, start: at / 1000, end: (at + wordMs) / 1000 });
-      at += wordMs;
-    });
-    cursor += durationMs;
+    return {
+      id: scene.id,
+      durationMs,
+      hash: hashOf({ narration: scene.narration, durationMs, config }),
+    };
+  });
+
+  const prior = await readCaptionsManifest(project);
+  const priorOffline = prior && prior.mode === "offline" ? prior : null;
+  const inputHash = hashOf({ mode: "offline", config, meta });
+
+  // Fast path: every scene identical → reuse the stored cues verbatim, no
+  // derivation at all. This is the "cached; skipped transcription" 2nd-run case.
+  if (priorOffline && priorOffline.inputHash === inputHash) {
+    await writeCaptionFiles(project, priorOffline.cues);
+    ok(`captions unchanged, reusing (cached; skipped transcription)`);
+    return;
+  }
+
+  const priorById = new Map(
+    (priorOffline?.scenes ?? []).map((s) => [s.id, s])
+  );
+  const narrationById = new Map(
+    storyboard.scenes.map((s) => [s.id, s.narration])
+  );
+
+  const manifestScenes: NonNullable<CaptionsManifest["scenes"]> = [];
+  let derived = 0;
+  let reused = 0;
+  for (const m of meta) {
+    const prev = priorById.get(m.id);
+    if (prev && prev.hash === m.hash) {
+      manifestScenes.push({ ...m, words: prev.words });
+      log(`scene ${m.id}: unchanged, reusing caption timing`);
+      reused++;
+    } else {
+      const words = deriveSceneWords(narrationById.get(m.id) ?? "", m.durationMs);
+      manifestScenes.push({ ...m, words });
+      log(`scene ${m.id}: deriving caption timing`);
+      derived++;
+    }
+  }
+
+  // Assemble scene-relative words into the absolute narration timeline. Scene
+  // durations + gaps come from voice.json, so a change in one scene's duration
+  // correctly shifts later scenes without re-deriving their word *content*.
+  const words: Word[] = [];
+  const sceneEnds: number[] = [];
+  let cursor = 0; // ms into the assembled narration track
+  for (const s of manifestScenes) {
+    for (const w of s.words) {
+      words.push({
+        word: w.word,
+        start: cursor / 1000 + w.start,
+        end: cursor / 1000 + w.end,
+      });
+    }
+    cursor += s.durationMs;
     sceneEnds.push(cursor);
     cursor += voice.gapMs;
   }
 
   const cues = groupWords(words, sceneEnds);
   await writeCaptionFiles(project, cues);
+  await writeCaptionsManifest(project, {
+    mode: "offline",
+    inputHash,
+    config,
+    scenes: manifestScenes,
+    cues,
+  });
+  log(`captions: ${derived} derived, ${reused} reused`);
+}
+
+/**
+ * Scene-relative word timings for the offline path: each word starts at 0 within
+ * its scene. Weight by length (+1 for the following pause) so long words get
+ * proportionally more of the scene's measured duration.
+ */
+function deriveSceneWords(narration: string, durationMs: number): Word[] {
+  const tokens = narration.split(/\s+/).filter(Boolean);
+  const weights = tokens.map((t) => t.length + 1);
+  const total = weights.reduce((a, w) => a + w, 0) || 1;
+  const words: Word[] = [];
+  let at = 0; // ms, relative to the scene start
+  tokens.forEach((t, i) => {
+    const wordMs = (weights[i] / total) * durationMs;
+    words.push({ word: t, start: at / 1000, end: (at + wordMs) / 1000 });
+    at += wordMs;
+  });
+  return words;
 }
 
 /** Shared tail of both paths — same files, same formats, either way. */
@@ -116,6 +223,58 @@ async function writeCaptionFiles(project: Project, cues: Cue[]): Promise<void> {
   await writeJson(project.captionsCuesPath, cues);
   ok(`captions → ${project.captionsSrtPath} (${cues.length} cues)`);
   ok(`captions → ${project.captionsCuesPath}`);
+}
+
+// ---------------------------------------------------------------------------
+// Content-hash reuse (mirrors voice.ts): a caption manifest records the hash of
+// every caption-affecting input + the transcription result, so a re-run whose
+// inputs are unchanged skips Whisper/local transcription and reuses stored word
+// timings. A UI-only re-render (recompose) no longer re-transcribes.
+// ---------------------------------------------------------------------------
+
+/** Grouping parameters that affect cue segmentation — part of the cache key. */
+function captionConfig(gapMs: number): CaptionsManifest["config"] {
+  return { gapMs, maxWords: MAX_WORDS, maxCueMs: MAX_CUE_MS };
+}
+
+/** Inter-scene gap from voice.json (0 when absent — captions need voice.json). */
+async function loadGapMs(project: Project): Promise<number> {
+  if (!(await exists(project.voiceManifestPath))) return 0;
+  const v = VoiceManifestSchema.safeParse(
+    await readJson(project.voiceManifestPath)
+  );
+  return v.success ? v.data.gapMs : 0;
+}
+
+/** Short stable hash of any JSON-serializable input identity. */
+function hashOf(identity: unknown): string {
+  return createHash("sha256")
+    .update(JSON.stringify(identity))
+    .digest("hex")
+    .slice(0, 16);
+}
+
+/** sha256 of a file's bytes — the narration audio's content identity (STT path). */
+async function fileHash(path: string): Promise<string> {
+  const buf = await fs.readFile(path);
+  return createHash("sha256").update(buf).digest("hex").slice(0, 16);
+}
+
+async function readCaptionsManifest(
+  project: Project
+): Promise<CaptionsManifest | null> {
+  if (!(await exists(project.captionsManifestPath))) return null;
+  const parsed = CaptionsManifestSchema.safeParse(
+    await readJson(project.captionsManifestPath)
+  );
+  return parsed.success ? parsed.data : null;
+}
+
+async function writeCaptionsManifest(
+  project: Project,
+  manifest: CaptionsManifest
+): Promise<void> {
+  await writeJson(project.captionsManifestPath, manifest);
 }
 
 /** Cumulative end time (ms) of each scene's narration in the assembled track. */

@@ -11,6 +11,8 @@ import type {
   IdleSpan,
   FocusEvent,
   EasingPreset,
+  ProbeActionOutcome,
+  ProbeGoldenScene,
 } from "./types.js";
 import {
   easeInOutCubic,
@@ -69,6 +71,15 @@ export interface PlayerOptions {
    * timeline + kept footage).
    */
   signal?: AbortSignal;
+  /**
+   * Golden-probe capture. When present, the player records a normalized,
+   * timing-free outcome per action (op, resolved target, ok, found, goto final
+   * URL) into this array — and does NOT abort the run on an action failure
+   * (records ok:false and continues), so a broken selector yields a complete
+   * diffable projection rather than a truncated one. Absent → unchanged behavior
+   * (a failing action throws via failAction). See src/golden.ts.
+   */
+  probe?: ProbeGoldenScene[];
 }
 
 /** Per-scene mutable capture state threaded through actions. */
@@ -99,19 +110,39 @@ export async function runStoryboard(
     const capture: SceneCapture = { idleSpans: [], focusEvents: [] };
     log(`scene ${scene.id}: ${scene.actions.length} action(s)`);
     opts.onSceneStart?.(scene.id, si, total);
+    const probeOutcomes: ProbeActionOutcome[] = [];
 
     for (let i = 0; i < scene.actions.length; i++) {
       if (opts.signal?.aborted)
         throw new CanceledError(`canceled during scene ${scene.id}`);
+      const action = scene.actions[i];
+      const outcome = opts.probe ? initProbeOutcome(storyboard, action) : null;
       try {
-        await runAction(page, storyboard, scene.actions[i], mouse, capture, opts);
+        await runAction(page, storyboard, action, mouse, capture, opts);
+        if (outcome) outcome.ok = true;
       } catch (err) {
-        // Name the failing scene/action, screenshot the page, and dump the
-        // widget frames present — so a phantom click or a platform interruption
-        // is diagnosable from the log instead of by hand-extracting webm frames.
-        await failAction(page, storyboard, scene, i, scene.actions[i], opts, err);
+        if (outcome) {
+          // Golden probe: record the failure and keep going, so a broken
+          // selector shows up as a single flipped field in the diff instead of
+          // aborting the whole projection.
+          outcome.ok = false;
+          log(
+            `  ✗ probe: ${action.op} failed — ${firstLine(err)}`
+          );
+        } else {
+          // Name the failing scene/action, screenshot the page, and dump the
+          // widget frames present — so a phantom click or a platform
+          // interruption is diagnosable from the log instead of by
+          // hand-extracting webm frames.
+          await failAction(page, storyboard, scene, i, action, opts, err);
+        }
+      }
+      if (outcome) {
+        await enrichProbeOutcome(page, storyboard, action, outcome);
+        probeOutcomes.push(outcome);
       }
     }
+    if (opts.probe) opts.probe.push({ id: scene.id, actions: probeOutcomes });
 
     const tlScene: TimelineScene = {
       id: scene.id,
@@ -677,6 +708,116 @@ async function runAction(
       await sleep(action.ms);
       return;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Golden-probe outcome capture — a normalized, timing-free projection of each
+// action's result. Deterministic across runs by construction: op + resolved
+// selector (from the storyboard, not the clock) + ok + a page-side element-found
+// check + goto's final URL. See src/golden.ts for how these are diffed.
+// ---------------------------------------------------------------------------
+
+/** A stable, resolved description of a target: named→selector, frame-prefixed. */
+function describeProbeTarget(storyboard: Storyboard, target: Target): string {
+  const selector = target.named
+    ? NAMED_SELECTORS[target.named] ?? `named:${target.named}`
+    : target.selector ?? "<no-selector>";
+  const prefix = target.frame
+    ? `${storyboard.frames[target.frame] ?? target.frame} >> `
+    : "";
+  const suffix = target.last
+    ? " [last]"
+    : target.nth != null
+      ? ` [nth=${target.nth}]`
+      : "";
+  return `${prefix}${selector}${suffix}`;
+}
+
+/** Seed an outcome with the action's stable, storyboard-derived fields. */
+function initProbeOutcome(
+  storyboard: Storyboard,
+  action: Action
+): ProbeActionOutcome {
+  const o: ProbeActionOutcome = { op: action.op, ok: false };
+  switch (action.op) {
+    case "goto":
+      o.target = action.url;
+      break;
+    case "press":
+      o.key = action.key;
+      break;
+    case "pause":
+      o.ms = action.ms;
+      break;
+    case "scrollBy":
+      o.dy = action.dy;
+      break;
+    case "waitForReply":
+      o.target = action.selector ?? ASSISTANT_MESSAGE_SELECTOR;
+      o.label = action.label;
+      break;
+    case "waitForWidget":
+    case "waitForChange":
+      o.target = describeProbeTarget(storyboard, action.target);
+      o.label = action.label;
+      break;
+    case "click":
+    case "type":
+    case "hover":
+    case "scrollTo":
+    case "waitFor":
+    case "focus":
+      o.target = describeProbeTarget(storyboard, action.target);
+      break;
+  }
+  return o;
+}
+
+/** Add the post-run stable signals: goto's final URL, target element-found. */
+async function enrichProbeOutcome(
+  page: Page,
+  storyboard: Storyboard,
+  action: Action,
+  o: ProbeActionOutcome
+): Promise<void> {
+  if (action.op === "goto") {
+    o.finalUrl = page.url();
+    return;
+  }
+  if (action.op === "waitForReply") {
+    o.found = await selectorResolves(
+      page,
+      action.selector ?? ASSISTANT_MESSAGE_SELECTOR
+    );
+    return;
+  }
+  if ("target" in action) {
+    o.found = await targetResolves(page, storyboard, action.target);
+  }
+}
+
+/** Does `target` currently resolve to ≥1 element? Never throws (→ false). */
+async function targetResolves(
+  page: Page,
+  storyboard: Storyboard,
+  target: Target
+): Promise<boolean> {
+  try {
+    const loc = await resolveTargetLocator(page, storyboard, target);
+    return (await loc.count().catch(() => 0)) > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function selectorResolves(page: Page, selector: string): Promise<boolean> {
+  return (await page.locator(selector).count().catch(() => 0)) > 0;
+}
+
+/** First line of an error message — a compact reason for the probe log. */
+function firstLine(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  return msg.split("\n")[0];
 }
 
 /**

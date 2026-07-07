@@ -27,6 +27,7 @@ docs/internal/
 **/generated/captions.srt
 **/generated/captions.vtt
 **/generated/captions.cues.json
+**/generated/captions.manifest.json
 **/.compose-tmp/
 
 # Generated music beds — reproducible via `aidemo music` / make-music.mjs, and

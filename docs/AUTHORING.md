@@ -400,3 +400,36 @@ autoplay on GitHub; MP4s don't.
 - `doctor` checks Node, ffmpeg, Chrome, the TTS/STT endpoint (and flags
   LLM-only servers like Ollama, which have no audio endpoints — point
   `OPENAI_BASE_URL` at a speech server such as speaches instead).
+
+## Demo as regression test
+
+A probe run is a deterministic replay of the storyboard, so it doubles as a
+regression test for the UI it drives: if a selector moves, a page renames a
+`data-testid`, or a navigation breaks, the flow changes — catch it as a failed
+check, not a user complaint. This is the golden-file pattern (borrowed from
+vhs).
+
+`aidemo probe <dir> --update-golden` writes `golden/probe.json`: a **normalized,
+timing-free** projection of the probe — per scene, the ordered action outcomes
+(`op`, the resolved `target`/selector, `ok`, the element-`found` boolean, and
+each `goto`'s `finalUrl`). No wall-clock timings, coordinates, or anything
+volatile, so it is stable across runs. Commit it next to the storyboard.
+
+`aidemo probe <dir> --golden` re-runs the probe, normalizes it the same way, and
+deep-compares against `golden/probe.json`. On a match it exits 0; on drift it
+prints a readable field-level diff (`$.scenes[2].actions[0].found: expected
+true, got false`) and exits non-zero. A missing baseline is a clear error
+telling you to run `--update-golden` first. In golden mode a failing action is
+recorded (`ok:false`) and the run continues, so you get the full diff instead of
+an abort at the first break. (The MCP `probe` tool takes the same `updateGolden`
+/ `golden` params and returns `golden.match` + `golden.diffs` in its result.)
+
+Wire it into CI so a breaking UI change is a failed check:
+
+```yaml
+# after starting your app/fixture server on its expected URL
+- run: npx -y github:tandryukha/aidemo#stable probe path/to/demo --golden --headless
+```
+
+Regenerate the baseline (`--update-golden`) and re-commit `golden/probe.json`
+whenever the flow changes on purpose.

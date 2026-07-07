@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "title": "DemoFit Supplement Finder — local smoke test",
+  "video": {
+    "width": 1280,
+    "height": 720
+  },
+  "scenes": [
+    {
+      "id": "s1",
+      "actions": [
+        {
+          "op": "goto",
+          "target": "http://localhost:8787/",
+          "ok": true,
+          "finalUrl": "http://localhost:8787/"
+        },
+        {
+          "op": "pause",
+          "ok": true,
+          "ms": 600
+        },
+        {
+          "op": "type",
+          "target": "#search",
+          "ok": true,
+          "found": true
+        },
+        {
+          "op": "click",
+          "target": "#search-btn",
+          "ok": true,
+          "found": true
+        },
+        {
+          "op": "waitForWidget",
+          "target": "[data-testid=product-card]",
+          "ok": true,
+          "found": true,
+          "label": "thinking"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "actions": [
+        {
+          "op": "scrollTo",
+          "target": "[data-testid=product-card]",
+          "ok": true,
+          "found": true
+        },
+        {
+          "op": "pause",
+          "ok": true,
+          "ms": 1400
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "actions": [
+        {
+          "op": "click",
+          "target": "[data-testid=add-to-cart]",
+          "ok": true,
+          "found": true
+        },
+        {
+          "op": "pause",
+          "ok": true,
+          "ms": 1200
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "actions": [
+        {
+          "op": "click",
+          "target": "[data-testid=checkout]",
+          "ok": true,
+          "found": true
+        },
+        {
+          "op": "waitForWidget",
+          "target": "[data-testid=order-confirmed]",
+          "ok": true,
+          "found": true,
+          "label": "thinking"
+        },
+        {
+          "op": "scrollTo",
+          "target": "[data-testid=order-confirmed]",
+          "ok": true,
+          "found": true
+        },
+        {
+          "op": "pause",
+          "ok": true,
+          "ms": 900
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "actions": [
+        {
+          "op": "pause",
+          "ok": true,
+          "ms": 1500
+        }
+      ]
+    }
+  ]
+}
