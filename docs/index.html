@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>aidemo — your coding agent makes the demo video</title>
-<meta name="description" content="aidemo lets coding agents autonomously record polished, narrated, captioned product-demo videos — for landing pages, GitHub READMEs, and customer release notes. An open-source (MIT) alternative to Screen Studio, Clueso, or Demosmith. Works on localhost and auth-walled apps.">
+<meta name="description" content="aidemo lets coding agents autonomously record polished, narrated, captioned product-demo videos — for landing pages, GitHub READMEs, and customer release notes. Works with any MCP-capable agent (Claude Code, Codex CLI, Gemini CLI) via the built-in MCP server; voices by OpenAI, ElevenLabs, or a built-in local model — fully offline, no API key. An open-source (MIT) alternative to Screen Studio, Clueso, or Demosmith. Works on localhost and auth-walled apps.">
 <link rel="canonical" href="https://aidemo.top/">
 <meta property="og:title" content="aidemo — your coding agent makes the demo video">
-<meta property="og:description" content="Coding agents autonomously record narrated, captioned product demos — for landing pages, READMEs, release notes. Open-source alternative to Screen Studio / Clueso / Demosmith.">
+<meta property="og:description" content="Coding agents autonomously record narrated, captioned product demos — for landing pages, READMEs, release notes. Any MCP agent: Claude Code, Codex, Gemini. Offline with local models. Open-source alternative to Screen Studio / Clueso / Demosmith.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://aidemo.top/">
 <meta property="og:image" content="https://aidemo.top/hero-poster.jpg">
@@ -20,7 +20,7 @@
   "name": "aidemo",
   "operatingSystem": "macOS, Linux",
   "applicationCategory": "DeveloperApplication",
-  "description": "Open-source CLI built for coding agents to autonomously record product-demo videos — for landing pages, GitHub READMEs, and customer release notes. Turns an agent-authored storyboard.json into a narrated, captioned MP4: deterministic Chrome replay, OpenAI TTS voiceover, Whisper captions, ffmpeg compose with auto-zoom. Voice and captions also run against any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) for a fully offline, key-free render.",
+  "description": "Open-source CLI + MCP server built for coding agents to autonomously record product-demo videos — for landing pages, GitHub READMEs, and customer release notes. Any MCP-capable agent (Claude Code, Codex CLI, Gemini CLI) authors a storyboard.json; the engine turns it into a narrated, captioned MP4: deterministic Chrome replay, OpenAI or ElevenLabs voiceover, Whisper captions, ffmpeg compose with auto-zoom. Voice can also run fully in-process (Kokoro-82M via AIDEMO_TTS_PROVIDER=local — no server, no key) or against any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) for a fully offline, key-free render.",
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://github.com/tandryukha/aidemo",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -44,7 +44,7 @@
     {
       "@type": "Question",
       "name": "Can Claude Code record a demo video?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — with aidemo's bundled record-demo skill, Claude Code writes a storyboard.json (script, per-scene voice plan, browser actions) and runs aidemo render. The engine drives a real Chrome, records it, generates a voiceover, aligns captions, and exports a shareable MP4." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — with aidemo's bundled record-demo skill, Claude Code fetches the authoring guide from the built-in aidemo MCP server, writes a storyboard.json (script, per-scene voice plan, browser actions), and renders it as an MCP job. The engine drives a real Chrome, records it, generates a voiceover, aligns captions, and exports a shareable MP4." }
     },
     {
       "@type": "Question",
@@ -54,22 +54,32 @@
     {
       "@type": "Question",
       "name": "Does aidemo work on localhost or apps behind a login?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. aidemo drives your system Chrome locally, so it works against localhost and auth-walled apps using your own logged-in profile. Nothing is uploaded anywhere." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. aidemo drives your system Chrome locally, so it works against localhost, staging environments, and auth-walled apps using your own logged-in profile. Nothing leaves your machine except the two narration/caption API calls — and those can run locally too." }
     },
     {
       "@type": "Question",
       "name": "What leaves your machine?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Two API calls, nothing else: text-to-speech for the narration and speech-to-text for caption timing, sent with your own OpenAI key — or to any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) via OPENAI_BASE_URL, which makes the whole render offline with no API key at all. aidemo captions --offline skips speech-to-text entirely. No telemetry, no analytics: music is synthesized locally, captions and cards are rasterized locally, and the output MP4 never leaves your disk." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Nothing has to. The only two API calls in the pipeline are text-to-speech for the narration and speech-to-text for caption timing. Run TTS in-process with AIDEMO_TTS_PROVIDER=local (Kokoro-82M — no server, no API key; captions derive from the script automatically) and the whole render is offline. Or point OPENAI_BASE_URL at any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI). With the default config only those two calls go out, to OpenAI with your own key. No telemetry, no analytics: music is synthesized locally, captions and cards are rasterized locally, and the output MP4 never leaves your disk." }
     },
     {
       "@type": "Question",
       "name": "Which coding agents work with aidemo?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Claude Code today, via the bundled record-demo skill. Codex CLI and Gemini CLI are planned via an agent-neutral authoring doc and an MCP server. Any human or agent that can write a storyboard.json and run aidemo render can use it." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Any MCP-capable agent: Claude Code, Codex CLI, and Gemini CLI all work today via the built-in aidemo mcp stdio server. One repo-init registers it — .mcp.json for Claude Code (plus the bundled record-demo skill), .gemini/settings.json for Gemini CLI — and Codex is one codex mcp add line. Any human or agent that can write a storyboard.json and run aidemo render can use it too." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does aidemo have an MCP server?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — aidemo mcp runs a stdio MCP server built into the engine (no network listener). It exposes authoring tools — an engine-served authoring guide, the storyboard JSON Schema, structured validation — and pipeline tools that run as jobs: render returns a jobId immediately, job_status reports the stage, per-scene progress, and a log tail, and job_cancel aborts mid-take while keeping the partial footage." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can aidemo use ElevenLabs voices?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Set AIDEMO_TTS_PROVIDER=elevenlabs and ELEVENLABS_API_KEY, and your storyboard's voiceId becomes an ElevenLabs voice id. Captions keep using the OpenAI-compatible endpoint, so ElevenLabs narration works alongside local Whisper captions. Leave the variable unset and nothing changes — OpenAI gpt-4o-mini-tts stays the default." }
     },
     {
       "@type": "Question",
       "name": "Is aidemo free?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — MIT-licensed open source. The only runtime cost is your own OpenAI API key for narration and caption timing — and even that is optional: point OPENAI_BASE_URL at any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) and the render is free, key-free, and fully offline." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — MIT-licensed open source. With AIDEMO_TTS_PROVIDER=local the whole render is free, key-free, and fully offline (an in-process Kokoro-82M voice, captions derived from the script). Otherwise the only runtime cost is your own OpenAI or ElevenLabs API key for narration and caption timing — or point OPENAI_BASE_URL at any OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI)." }
     }
   ]
 }
@@ -385,14 +395,15 @@
 <header class="hero">
   <div class="grain" aria-hidden="true"></div>
   <div class="wrap">
-    <p class="type-line fade d1" aria-label='Terminal prompts, rotating: claude "record a 45s demo of our new checkout" — also works from Codex and Gemini (planned)'>
+    <p class="type-line fade d1" aria-label='Terminal prompts, rotating: claude "record a 45s demo of our new checkout" — also works from Codex and Gemini via the built-in MCP server'>
       <span class="ps1">$</span><span class="cmd" id="rot-cmd" aria-hidden="true">claude "record a 45s demo of our new checkout"</span><span class="note" id="rot-note" aria-hidden="true"></span>
     </p>
     <h1 class="fade d2">Your coding agent<br>makes the <em>demo video</em>.</h1>
     <p class="sub fade d3">
       <strong>aidemo</strong> is built for coding agents to <strong>autonomously record
       product demos</strong> — for your landing page, your GitHub README, release notes
-      for customers. The agent writes one <span class="mono">storyboard.json</span>; the
+      for customers. Any MCP-capable agent — <strong>Claude Code, Codex CLI, Gemini
+      CLI</strong> — writes one <span class="mono">storyboard.json</span>; the headless
       engine drives a real Chrome, records it, voices it, captions it, and exports a
       shareable MP4. An <strong>open-source alternative to Screen Studio, Clueso, or
       Demosmith</strong> — for when you'd rather your coding agent make the demo.
@@ -403,9 +414,10 @@
     </div>
     <div class="pills fade d4">
       <span class="pill">MIT licensed</span>
-      <span class="pill">Private by design — offline with local models</span>
+      <span class="pill">MCP-first — Claude Code · Codex · Gemini</span>
+      <span class="pill">OpenAI · ElevenLabs · local voices</span>
+      <span class="pill">Fully offline if you want — no API key</span>
       <span class="pill">Works on localhost &amp; auth-walled apps</span>
-      <span class="pill">Claude Code today · Codex / Gemini planned</span>
     </div>
 
     <div class="demo-shot fade d5">
@@ -509,7 +521,9 @@
         <h3>Private by design</h3>
         <p>Your system Chrome, your logged-in profile — localhost, staging, and auth-walled apps
           all work, no cloud browser. The only network calls are voice and captions, and even
-          those can hit a local OpenAI-compatible server for a fully offline render. No telemetry.</p>
+          those can run locally — an in-process voice model and script-timed captions — for a
+          fully offline, key-free render. Even the MCP server is stdio-only — no network
+          listener. No telemetry.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/clapper.webp" alt="" aria-hidden="true" width="44" height="44">
@@ -645,30 +659,32 @@
 <section id="agents">
   <div class="wrap">
     <h2 class="reveal">Use it from your coding agent</h2>
-    <p class="lead">aidemo ships as a CLI plus a <strong>Claude Code skill</strong>. The engine itself
-      is agent-neutral — anything that writes a <span class="mono">storyboard.json</span> and runs
-      <span class="mono">aidemo render</span> gets a video. Codex CLI (ChatGPT) and Gemini CLI
-      adapters are on the roadmap.</p>
+    <p class="lead">aidemo is <strong>MCP-first</strong>: the engine ships a built-in
+      <span class="mono">aidemo mcp</span> server (stdio — no network listener) exposing
+      authoring tools — an engine-served authoring guide, the storyboard JSON Schema,
+      structured validation — and pipeline tools that run as <strong>jobs with per-scene
+      progress, log tails, and cancel</strong>. One <span class="mono">repo-init</span>
+      registers it for Claude Code and Gemini CLI; Codex is one
+      <span class="mono">codex mcp add</span> away.</p>
     <div class="agent-tabs reveal" role="tablist" aria-label="Coding agents">
-      <button class="tab on" type="button" role="tab" aria-selected="true" data-tab="claude">claude <em class="today">today</em></button>
-      <button class="tab" type="button" role="tab" aria-selected="false" data-tab="codex">codex · ChatGPT <em>planned</em></button>
-      <button class="tab" type="button" role="tab" aria-selected="false" data-tab="gemini">gemini <em>planned</em></button>
+      <button class="tab on" type="button" role="tab" aria-selected="true" data-tab="claude">claude <em class="today">skill + mcp</em></button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-tab="codex">codex · ChatGPT <em class="today">mcp</em></button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-tab="gemini">gemini <em class="today">mcp</em></button>
     </div>
     <div class="term reveal">
-      <div class="bar"><i></i><i></i><i></i><span id="agent-title">claude — works today</span></div>
-      <pre data-pane="claude"><span class="g">$</span> npx -y github:tandryukha/aidemo#stable repo-init   <span class="c"># one-time: installs the record-demo skill</span>
+      <div class="bar"><i></i><i></i><i></i><span id="agent-title">claude — record-demo skill + MCP</span></div>
+      <pre data-pane="claude"><span class="g">$</span> npx -y github:tandryukha/aidemo#stable repo-init   <span class="c"># one-time: registers the MCP server (.mcp.json) + record-demo skill</span>
 <span class="g">$</span> claude <span class="a">"record a 45s demo of our new checkout"</span>
 <span class="c">  storyboard  ✓ demos/checkout/storyboard.json — plain JSON, review it, commit it</span>
-<span class="c">  render      ✓ voice → record → captions → compose</span>
+<span class="c">  render      ✓ voice → record → captions → compose  (job: per-scene progress)</span>
 <span class="g">  → demos/checkout/output/final-demo.mp4</span>  <span class="c">(45.1s, 1080p)</span></pre>
-      <pre data-pane="codex" hidden><span class="g">$</span> codex <span class="a">"record a demo of what we shipped this sprint"</span>   <span class="c"># planned</span>
-<span class="c">  # roadmap: agent-neutral authoring doc (AGENTS.md adapter) + MCP server</span>
-<span class="c">  # the engine already runs agent-neutral — storyboard.json in, MP4 out:</span>
-<span class="g">$</span> npx -y github:tandryukha/aidemo#stable render demos/sprint
+      <pre data-pane="codex" hidden><span class="g">$</span> codex mcp add aidemo -- npx -y github:tandryukha/aidemo#stable mcp   <span class="c"># one-time (Codex keeps MCP config globally)</span>
+<span class="g">$</span> codex <span class="a">"record a demo of what we shipped this sprint"</span>
+<span class="c">  mcp  ✓ get_authoring_guide → validate_storyboard → render (jobId) → job_status</span>
 <span class="g">  → demos/sprint/output/final-demo.mp4</span></pre>
-      <pre data-pane="gemini" hidden><span class="g">$</span> gemini <span class="a">"record our onboarding flow"</span>   <span class="c"># planned</span>
-<span class="c">  # roadmap: GEMINI.md adapter + MCP server exposing author / probe / render</span>
-<span class="g">$</span> npx -y github:tandryukha/aidemo#stable render demos/onboarding
+      <pre data-pane="gemini" hidden><span class="g">$</span> npx -y github:tandryukha/aidemo#stable repo-init   <span class="c"># one-time: writes .gemini/settings.json (and .mcp.json)</span>
+<span class="g">$</span> gemini <span class="a">"record our onboarding flow"</span>
+<span class="c">  mcp  ✓ authoring guide → probe selectors → render → poll job_status</span>
 <span class="g">  → demos/onboarding/output/final-demo.mp4</span></pre>
     </div>
   </div>
@@ -681,26 +697,29 @@
     <div class="cards">
       <div class="card reveal">
         <img class="ic" src="icons/robot.webp" alt="" aria-hidden="true" width="44" height="44">
-        <h3>Authoring — Claude</h3>
-        <p><strong>Claude Code today</strong>, via the bundled <code>record-demo</code> skill: it writes
-          the storyboard, confirms selectors, and runs the render. Codex CLI and Gemini CLI are
-          planned via an agent-neutral authoring doc + MCP server.</p>
+        <h3>Authoring — any MCP agent</h3>
+        <p><strong>Claude Code, Codex CLI, Gemini CLI</strong> — via the built-in
+          <code>aidemo mcp</code> stdio server: an engine-served authoring guide, the storyboard
+          JSON Schema, structured validation, and pipeline tools that run as jobs with per-scene
+          progress and cancel. One <code>repo-init</code> registers it; Claude Code also gets the
+          bundled <code>record-demo</code> skill.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/mic.webp" alt="" aria-hidden="true" width="44" height="44">
-        <h3>Voice — OpenAI TTS</h3>
-        <p>Realistic narration via <strong>OpenAI TTS</strong> (<code>gpt-4o-mini-tts</code>) — or
-          any OpenAI-compatible local server (speaches, Kokoro-FastAPI) via
-          <code>OPENAI_BASE_URL</code>, no API key needed. Synthesis sits behind a swappable
-          <code>VoiceProvider</code> interface, so other providers can plug in too.</p>
+        <h3>Voice — OpenAI · ElevenLabs · local</h3>
+        <p>Realistic narration via <strong>OpenAI TTS</strong> (<code>gpt-4o-mini-tts</code>) by
+          default; flip <code>AIDEMO_TTS_PROVIDER=elevenlabs</code> for <strong>ElevenLabs</strong>
+          voices, or <code>=local</code> for in-process <strong>Kokoro-82M</strong> — no server,
+          no key. Any OpenAI-compatible server (speaches, Kokoro-FastAPI) works too — all behind
+          one swappable <code>VoiceProvider</code> interface.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/captions.webp" alt="" aria-hidden="true" width="44" height="44">
         <h3>Captions — OpenAI Whisper</h3>
         <p>Word-level timestamps from <strong>Whisper</strong> keep captions in sync with the
           narration — from OpenAI, a local OpenAI-compatible server (LocalAI, speaches), or with
-          no STT at all via <code>aidemo captions --offline</code>. Exported as SRT/VTT plus
-          styled on-video overlays.</p>
+          no STT at all via <code>aidemo captions --offline</code> (automatic with local voice).
+          Exported as SRT/VTT plus styled on-video overlays.</p>
       </div>
       <div class="card reveal">
         <img class="ic" src="icons/filmstrip.webp" alt="" aria-hidden="true" width="44" height="44">
@@ -717,7 +736,8 @@
     <h2 class="reveal">Quickstart</h2>
     <p class="lead">A bundled fixture store renders a finished demo with zero external
       dependencies — <strong>under 5 minutes</strong> on a clean machine. Prereqs: Node 20+,
-      Google Chrome, ffmpeg, an OpenAI API key (or a local OpenAI-compatible server).</p>
+      Google Chrome, ffmpeg, an OpenAI API key — or none at all with the built-in local voice
+      (<span class="mono">AIDEMO_TTS_PROVIDER=local</span>).</p>
     <div class="term reveal">
       <div class="bar"><i></i><i></i><i></i><span>quickstart</span></div>
       <pre><span class="g">$</span> git clone https://github.com/tandryukha/aidemo &amp;&amp; cd aidemo
@@ -754,9 +774,10 @@
       <details class="reveal">
         <summary>Can Claude Code record a demo video?</summary>
         <p>Yes — with aidemo's bundled <a href="https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md">record-demo skill</a>,
-          Claude Code writes the <span class="mono">storyboard.json</span> (script, per-scene voice
-          plan, browser actions) and runs <span class="mono">aidemo render</span>. The engine does
-          the rest: recording, voiceover, captions, final MP4.</p>
+          Claude Code fetches the authoring guide from the built-in aidemo MCP server, writes the
+          <span class="mono">storyboard.json</span> (script, per-scene voice plan, browser
+          actions), and renders it as an MCP job. The engine does the rest: recording, voiceover,
+          captions, final MP4.</p>
       </details>
       <details class="reveal">
         <summary>How is aidemo different from Screen Studio or Clueso?</summary>
@@ -765,36 +786,61 @@
           cloud upload. And it's MIT-licensed open source.</p>
       </details>
       <details class="reveal">
-        <summary>Does it work on localhost or apps behind a login?</summary>
+        <summary>Does aidemo work on localhost or apps behind a login?</summary>
         <p>Yes. aidemo drives your system Chrome locally with your own profile, so localhost,
           staging environments, and auth-walled apps all work. Nothing leaves your machine except
-          the two narration/caption API calls — and those can go to a local OpenAI-compatible
-          server instead of OpenAI.</p>
+          the two narration/caption API calls — and those can run locally too.</p>
       </details>
       <details class="reveal">
         <summary>What leaves your machine?</summary>
-        <p>Two API calls, nothing else: text-to-speech for the narration and speech-to-text for
-          caption timing, sent with your own OpenAI key — or to any OpenAI-compatible local
-          server (speaches, Kokoro-FastAPI, LocalAI) via <span class="mono">OPENAI_BASE_URL</span>,
-          which makes the whole render offline with no API key at all.
-          <span class="mono">aidemo captions --offline</span> skips speech-to-text entirely.
-          No telemetry, no analytics: music is synthesized locally, captions and cards are
-          rasterized locally, and the output MP4 never leaves your disk.</p>
+        <p>Nothing has to. The only two API calls in the pipeline are text-to-speech for the
+          narration and speech-to-text for caption timing. Run TTS in-process with
+          <span class="mono">AIDEMO_TTS_PROVIDER=local</span> (Kokoro-82M — no server, no API
+          key; captions derive from the script automatically) and the whole render is offline.
+          Or point <span class="mono">OPENAI_BASE_URL</span> at any OpenAI-compatible local
+          server (speaches, Kokoro-FastAPI, LocalAI). With the default config only those two
+          calls go out, to OpenAI with your own key. No telemetry, no analytics: music is
+          synthesized locally, captions and cards are rasterized locally, and the output MP4
+          never leaves your disk.</p>
       </details>
       <details class="reveal">
         <summary>Which coding agents work with aidemo?</summary>
-        <p>Claude Code today, via the bundled skill. Codex CLI and Gemini CLI are planned via an
-          agent-neutral authoring doc and an MCP server. Any human or agent that can write a
+        <p>Any MCP-capable agent: Claude Code, Codex CLI, and Gemini CLI all work today via the
+          built-in <span class="mono">aidemo mcp</span> stdio server. One
+          <span class="mono">repo-init</span> registers it — <span class="mono">.mcp.json</span>
+          for Claude Code (plus the bundled record-demo skill),
+          <span class="mono">.gemini/settings.json</span> for Gemini CLI — and Codex is one
+          <span class="mono">codex mcp add</span> line. Any human or agent that can write a
           <span class="mono">storyboard.json</span> and run <span class="mono">aidemo render</span>
-          can use it.</p>
+          can use it too.</p>
       </details>
       <details class="reveal">
-        <summary>Is it free?</summary>
-        <p>Yes — MIT-licensed open source. The only runtime cost is your own OpenAI API key for
-          narration and caption timing — and even that is optional: point
+        <summary>Does aidemo have an MCP server?</summary>
+        <p>Yes — <span class="mono">aidemo mcp</span> runs a stdio MCP server built into the
+          engine (no network listener). It exposes authoring tools — an engine-served authoring
+          guide, the storyboard JSON Schema, structured validation — and pipeline tools that run
+          as jobs: <span class="mono">render</span> returns a <span class="mono">jobId</span>
+          immediately, <span class="mono">job_status</span> reports the stage, per-scene progress,
+          and a log tail, and <span class="mono">job_cancel</span> aborts mid-take while keeping
+          the partial footage.</p>
+      </details>
+      <details class="reveal">
+        <summary>Can aidemo use ElevenLabs voices?</summary>
+        <p>Yes. Set <span class="mono">AIDEMO_TTS_PROVIDER=elevenlabs</span> and
+          <span class="mono">ELEVENLABS_API_KEY</span>, and your storyboard's
+          <span class="mono">voiceId</span> becomes an ElevenLabs voice id. Captions keep using
+          the OpenAI-compatible endpoint, so ElevenLabs narration works alongside local Whisper
+          captions. Leave the variable unset and nothing changes — OpenAI
+          <span class="mono">gpt-4o-mini-tts</span> stays the default.</p>
+      </details>
+      <details class="reveal">
+        <summary>Is aidemo free?</summary>
+        <p>Yes — MIT-licensed open source. With <span class="mono">AIDEMO_TTS_PROVIDER=local</span>
+          the whole render is free, key-free, and fully offline (an in-process Kokoro-82M voice,
+          captions derived from the script). Otherwise the only runtime cost is your own OpenAI
+          or ElevenLabs API key for narration and caption timing — or point
           <span class="mono">OPENAI_BASE_URL</span> at any OpenAI-compatible local server
-          (speaches, Kokoro-FastAPI, LocalAI) and the render is free, key-free, and fully
-          offline.</p>
+          (speaches, Kokoro-FastAPI, LocalAI).</p>
       </details>
     </div>
   </div>
@@ -830,9 +876,9 @@
   const note = document.getElementById('rot-note');
   const PROMPTS = [
     { t: 'claude "record a 45s demo of our new checkout"' },
-    { t: 'codex "demo what we shipped this sprint"', n: '# planned' },
+    { t: 'codex "demo what we shipped this sprint"', n: '# via MCP' },
     { t: 'claude "make a walkthrough video for the README"' },
-    { t: 'gemini "record our onboarding flow"', n: '# planned' },
+    { t: 'gemini "record our onboarding flow"', n: '# via MCP' },
     { t: 'claude "re-voice scene 3, keep the recording"' }
   ];
   if (cmd && !reduced) {
@@ -873,7 +919,7 @@
   const tabs = [...document.querySelectorAll('.agent-tabs .tab')];
   if (tabs.length) {
     const title = document.getElementById('agent-title');
-    const TITLES = { claude: 'claude — works today', codex: 'codex — planned', gemini: 'gemini — planned' };
+    const TITLES = { claude: 'claude — record-demo skill + MCP', codex: 'codex — via MCP', gemini: 'gemini — via MCP' };
     const order = tabs.map(t => t.dataset.tab);
     let idx = 0, timer = null;
     const show = id => {

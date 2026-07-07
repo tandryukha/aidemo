@@ -11,16 +11,18 @@
 > real Chrome — no LLM in the loop during capture — records it, generates a
 > realistic voiceover (OpenAI TTS), aligns word-level captions (Whisper), trims
 > dead time, auto-zooms on interactions, and exports a shareable MP4. Runs
-> locally — fully offline if voice/captions point at an OpenAI-compatible local
-> server — and works against localhost and auth-walled apps using your own
-> Chrome profile.
+> locally — fully offline with the built-in in-process voice
+> (AIDEMO_TTS_PROVIDER=local, no API key, no server) or any OpenAI-compatible
+> local server — and works against localhost and auth-walled apps using your
+> own Chrome profile.
 
 Key facts:
 - Works with any MCP-capable agent — Claude Code, Codex CLI, Gemini CLI — via
   the built-in `aidemo mcp` stdio server: authoring tools (engine-served
   authoring guide, storyboard JSON Schema, structured validation) plus
   pipeline tools that run as polled jobs (probe/record/render return a jobId;
-  job_status reports per-scene progress, log tails, failure artifacts).
+  job_status reports per-scene progress, log tails, failure artifacts;
+  job_cancel aborts mid-take and keeps the partial footage).
   `aidemo repo-init` registers the server (.mcp.json, .gemini/settings.json;
   one-line codex mcp add for Codex). Any human or agent that can write a
   `storyboard.json` and run `aidemo render` can use it too.
@@ -30,10 +32,13 @@ Key facts:
   narration line re-voices only that scene; zoom choreography is compose-time,
   so a bad zoom is a recompose, never a re-record.
 - Private by design: the pipeline's only network calls are TTS narration and
-  caption transcription, sent with your own OpenAI key — or to any
-  OpenAI-compatible local server (speaches, Kokoro-FastAPI, LocalAI) via
-  OPENAI_BASE_URL, in which case no API key is needed and the whole render is
-  offline. `aidemo captions --offline` needs no speech-to-text at all
+  caption transcription, sent with your own OpenAI key — or skipped entirely:
+  AIDEMO_TTS_PROVIDER=local runs Kokoro-82M in-process (opt-in `npm install
+  kokoro-js`; ~90 MB model downloaded once, air-gapped after) and captions
+  derive from the script automatically, so the whole render is offline with no
+  API key and no server. Any OpenAI-compatible local server (speaches,
+  Kokoro-FastAPI, LocalAI) via OPENAI_BASE_URL also works, key-free.
+  `aidemo captions --offline` needs no speech-to-text at all
   (approximate script-based timing). No telemetry or analytics; music is
   synthesized locally from math, captions/cards are rasterized locally, and
   the output MP4 never leaves disk. Verified end-to-end both against a bundled
@@ -51,14 +56,17 @@ Key facts:
 - Integrations: authoring by any MCP-capable agent (Claude Code, Codex CLI,
   Gemini CLI) via the aidemo MCP server; narration voice by OpenAI TTS
   (gpt-4o-mini-tts) behind a swappable VoiceProvider interface, with an
-  opt-in ElevenLabs provider (AIDEMO_TTS_PROVIDER=elevenlabs); captions by
+  opt-in ElevenLabs provider (AIDEMO_TTS_PROVIDER=elevenlabs) and an
+  in-process local provider (AIDEMO_TTS_PROVIDER=local — Kokoro-82M via
+  kokoro-js, no server, no key); captions by
   OpenAI Whisper (word-level timestamps) — voice and captions both also work
   against any OpenAI-compatible local server (speaches, Kokoro-FastAPI,
   LocalAI) via OPENAI_BASE_URL; recording via Playwright + system Chrome;
   final compose via ffmpeg. All rendering is local.
 - Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, and an OpenAI API key
-  — or an OpenAI-compatible local server via OPENAI_BASE_URL (no key needed,
-  render is fully offline). Developed on macOS; Linux expected to work (default
+  — or none: AIDEMO_TTS_PROVIDER=local (built-in in-process voice) or an
+  OpenAI-compatible local server via OPENAI_BASE_URL make the render fully
+  offline and key-free. Developed on macOS; Linux expected to work (default
   capture path).
 - Made with aidemo (first customers, real-world examples): a 51-second
   self-narrated demo of the engine driving Wikipedia (the hero video on the
