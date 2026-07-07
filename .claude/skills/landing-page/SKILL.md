@@ -39,8 +39,11 @@ Commit straight to `main` and push (no PRs in this repo). GitHub Pages
 rebuilds in ~30–60 s. Always verify after pushing:
 
 ```bash
-until curl -s https://tandryukha.github.io/aidemo/ | grep -q "<distinctive new string>"; do sleep 6; done
+until curl -sL https://aidemo.top/ | grep -q "<distinctive new string>"; do sleep 6; done
 ```
+
+(`-L` matters: tandryukha.github.io/aidemo now 301s to aidemo.top, so a bare
+`curl -s` there greps a redirect stub and never matches.)
 
 Run that check with Bash `run_in_background: true`, never a bare foreground sleep.
 
