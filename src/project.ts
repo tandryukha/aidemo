@@ -16,12 +16,33 @@ import { ensureDir, exists, readJson, writeJson, log } from "./util.js";
  */
 export class Project {
   readonly dir: string;
-  constructor(dir: string) {
+  /**
+   * Optional language code for a multi-language render (see src/i18n.ts). When
+   * set, the per-LANGUAGE artifacts move under a language namespace so they
+   * don't clobber the default: audio → audio/<lang>/, captions →
+   * captions.<lang>.*, output → final-demo.<lang>.mp4. The SHARED take
+   * (recordings/raw.*, generated/timeline.json, generated/storyboard.json) is
+   * language-independent and stays put — that's what lets one recording feed N
+   * language renders. Unset → byte-for-byte the original single-language layout.
+   */
+  readonly lang?: string;
+  constructor(dir: string, lang?: string) {
     this.dir = isAbsolute(dir) ? dir : resolve(process.cwd(), dir);
+    this.lang = lang || undefined;
   }
 
   p(...parts: string[]): string {
     return resolve(this.dir, ...parts);
+  }
+
+  /** Language-scoped audio dir (audio/<lang>/ for a variant; audio/ by default). */
+  private audioDir(): string {
+    return this.lang ? this.p("audio", this.lang) : this.p("audio");
+  }
+
+  /** captions.<lang>.<ext> for a variant; captions.<ext> by default. */
+  private captionPath(ext: string): string {
+    return this.p("generated", this.lang ? `captions.${this.lang}.${ext}` : `captions.${ext}`);
   }
 
   get storyboardPath() {
@@ -39,13 +60,13 @@ export class Project {
     return this.p("generated", "params.json");
   }
   get captionsSrtPath() {
-    return this.p("generated", "captions.srt");
+    return this.captionPath("srt");
   }
   get captionsVttPath() {
-    return this.p("generated", "captions.vtt");
+    return this.captionPath("vtt");
   }
   get captionsCuesPath() {
-    return this.p("generated", "captions.cues.json");
+    return this.captionPath("cues.json");
   }
   /** Caption reuse manifest (per-scene input hashes + stored word timings). */
   get captionsManifestPath() {
@@ -69,26 +90,26 @@ export class Project {
       : this.rawVideoPath;
   }
   get narrationPath() {
-    return this.p("audio", "narration.mp3");
+    return resolve(this.audioDir(), "narration.mp3");
   }
   get voiceManifestPath() {
-    return this.p("audio", "voice.json");
+    return resolve(this.audioDir(), "voice.json");
   }
   sceneAudioPath(id: string) {
-    return this.p("audio", `scene-${id}.mp3`);
+    return resolve(this.audioDir(), `scene-${id}.mp3`);
   }
   get outputPath() {
-    return this.p("output", "final-demo.mp4");
+    return this.p("output", this.lang ? `final-demo.${this.lang}.mp4` : "final-demo.mp4");
   }
   get gifPath() {
-    return this.p("output", "final-demo.gif");
+    return this.p("output", this.lang ? `final-demo.${this.lang}.gif` : "final-demo.gif");
   }
   /** Directory for screenshot-mode stills (one PNG per named `still` marker). */
   get stillsDir() {
     return this.p("output", "stills");
   }
   get composeTmpDir() {
-    return this.p(".compose-tmp");
+    return this.p(this.lang ? `.compose-tmp-${this.lang}` : ".compose-tmp");
   }
   get gifTmpDir() {
     return this.p(".gif-tmp");
@@ -105,6 +126,8 @@ export class Project {
     ]) {
       await ensureDir(this.p(d));
     }
+    // Language-scoped audio lives in a per-lang subdir (audio/<lang>/).
+    if (this.lang) await ensureDir(this.audioDir());
   }
 
   /**

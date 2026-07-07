@@ -28,7 +28,12 @@ docs/internal/
 **/generated/captions.vtt
 **/generated/captions.cues.json
 **/generated/captions.manifest.json
+# Per-language caption variants (aidemo <stage> --lang <code>).
+**/generated/captions.*.srt
+**/generated/captions.*.vtt
+**/generated/captions.*.cues.json
 **/.compose-tmp/
+**/.compose-tmp-*/
 
 # Generated music beds — reproducible via `aidemo music` / make-music.mjs, and
 # heavy (~18MB). The generator script is tracked; the .wav it emits is not.

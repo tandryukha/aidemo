@@ -129,18 +129,45 @@ function planFor(storyboard: Storyboard, sceneVoice?: VoicePlan): VoicePlan {
 /**
  * Identity of a scene's audio = its narration + the resolved voice plan (+ the
  * TTS provider when non-default; for the local provider that includes the
- * model quantization). The provider is folded in only when it isn't "openai"
- * so every pre-existing manifest hash stays valid — but switching providers
- * (or requantizing the local model) still invalidates instead of silently
- * reusing the other backend's audio.
+ * model quantization; + the language code for a multi-language render). The
+ * provider and lang are folded in only when non-default so every pre-existing
+ * manifest hash stays valid — but switching providers (or requantizing the
+ * local model, or rendering a different language) still invalidates instead of
+ * silently reusing the wrong audio. (Per-language audio also lives in its own
+ * audio/<lang>/ dir, so caches can't physically collide; hashing the lang is
+ * belt-and-suspenders for two languages that happen to share narration text.)
  */
-function voiceHash(text: string, plan: VoicePlan, provider: string): string {
-  const identity =
-    provider === "openai" ? { text, plan } : { text, plan, provider };
+function voiceHash(
+  text: string,
+  plan: VoicePlan,
+  provider: string,
+  lang?: string
+): string {
+  const base = provider === "openai" ? { text, plan } : { text, plan, provider };
+  const identity = lang ? { ...base, lang } : base;
   return createHash("sha256")
     .update(JSON.stringify(identity))
     .digest("hex")
     .slice(0, 16);
+}
+
+/**
+ * Local Kokoro ships English voices only (en-US + en-GB accents — verified from
+ * kokoro-js's voice table). A non-English `--lang` would still be read by an
+ * English voice and mispronounced, so warn (don't fail): the caller may have
+ * authored English-appropriate variants, or accept it for a smoke test. Real
+ * non-English speech needs AIDEMO_TTS_PROVIDER=elevenlabs (multilingual) or
+ * OpenAI TTS.
+ */
+function warnLocalLangCoverage(lang: string | undefined): void {
+  if (!lang) return;
+  const family = lang.toLowerCase().split(/[-_]/)[0];
+  if (family === "en") return;
+  log(
+    `⚠ local Kokoro TTS speaks English only (en-US + en-GB accents) — "${lang}" ` +
+      `narration will be read by an English voice and mispronounced. For genuine ` +
+      `${lang} speech, render with AIDEMO_TTS_PROVIDER=elevenlabs or OpenAI TTS.`
+  );
 }
 
 export interface VoiceOptions {
@@ -173,6 +200,7 @@ export async function generateVoice(
   // The audio identity key: local audio also changes with the quantization.
   const providerKey =
     providerName === "local" ? `local:${kokoroDtype()}` : providerName;
+  if (providerName === "local") warnLocalLangCoverage(project.lang);
   const base = openAiBaseUrl();
   step(
     providerName === "elevenlabs"
@@ -213,7 +241,7 @@ export async function generateVoice(
         throw new CanceledError(`canceled before voicing scene ${scene.id}`);
       const outPath = project.sceneAudioPath(scene.id);
       const plan = planFor(storyboard, scene.voice);
-      const hash = voiceHash(scene.narration, plan, providerKey);
+      const hash = voiceHash(scene.narration, plan, providerKey, project.lang);
       const prev = priorById.get(scene.id);
       const scoped = opts.only != null; // --scene mode
       const targeted = scoped && scene.id === opts.only;

@@ -21,6 +21,7 @@ import { compose } from "../compose.js";
 import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
+import { localizeStoryboard } from "../i18n.js";
 import { scaffoldDemo, doctorReport } from "../distribute.js";
 import { readJson, log, CanceledError } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
@@ -111,6 +112,20 @@ const PARAMS_INPUT = z
     "storyboard template params (name → value); each must be declared in the " +
       "storyboard's params block. Substitutes {{name}} across all stages."
   );
+
+const LANG_INPUT = z
+  .string()
+  .optional()
+  .describe(
+    "render a language variant from scene.narrations[<code>] over the shared " +
+      "take (artifacts namespaced: audio/<code>/, captions.<code>.*, " +
+      "output/final-demo.<code>.mp4). Omit for the default single-language render."
+  );
+
+/** A language-scoped Project for a variant render (same dir, per-lang artifacts). */
+function langProject(project: Project, lang?: string): Project {
+  return lang ? new Project(project.dir, lang) : project;
+}
 
 const RECORD_INPUT_SHAPE = {
   dir: DIR_INPUT,
@@ -660,13 +675,18 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       ...RECORD_INPUT_SHAPE,
       forceVoice: z.boolean().optional(),
       gif: z.boolean().optional().describe("also export output/final-demo.gif"),
+      lang: LANG_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "render", async () => {
         const signal = job.controller.signal;
         const storyboard = await project.loadStoryboard({ params: args.params });
+        // Language variant (if any): voice/captions/compose run on a lang-scoped
+        // project + localized storyboard; the take is recorded ONCE on the base.
+        const lp = langProject(project, args.lang);
+        const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
         job.stage = "voice";
-        await generateVoice(project, storyboard, {
+        await generateVoice(lp, sb, {
           force: args.forceVoice,
           signal,
         });
@@ -677,17 +697,17 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         job.stage = "captions";
         if (captionsAutoOffline()) {
           log("local TTS and no STT endpoint/key — deriving captions offline from the script");
-          await generateCaptionsOffline(project, storyboard);
+          await generateCaptionsOffline(lp, sb);
         } else {
-          await generateCaptions(project);
+          await generateCaptions(lp);
         }
         throwIfAborted(signal);
         job.stage = "compose";
-        await compose(project, storyboard);
+        await compose(lp, sb);
         let gifPath: string | undefined;
         if (args.gif) {
           job.stage = "gif";
-          gifPath = await exportGif(project);
+          gifPath = await exportGif(lp);
         }
         // Screenshot mode: emit named stills from the clean take when the
         // storyboard declares any `still` markers (a re-extract, not a re-take).
@@ -697,11 +717,11 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           stills = await extractStills(project);
         }
         return {
-          output: project.outputPath,
+          output: lp.outputPath,
           ...(gifPath ? { gif: gifPath } : {}),
           ...(stills && stills.length ? { stills } : {}),
-          timeline: project.timelinePath,
-          captionsSrt: project.captionsSrtPath,
+          timeline: lp.timelinePath,
+          captionsSrt: lp.captionsSrtPath,
         };
       })
   );
@@ -714,18 +734,21 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       scene: z.string().optional().describe("regenerate only this scene id"),
       force: z.boolean().optional(),
       params: PARAMS_INPUT,
+      lang: LANG_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "voice", async () => {
+        const lp = langProject(project, args.lang);
         const storyboard = await project.loadStoryboard({ params: args.params });
-        const manifest = await generateVoice(project, storyboard, {
+        const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
+        const manifest = await generateVoice(lp, sb, {
           only: args.scene,
           force: args.force,
           signal: job.controller.signal,
         });
         return {
-          narration: project.narrationPath,
-          voiceManifest: project.voiceManifestPath,
+          narration: lp.narrationPath,
+          voiceManifest: lp.voiceManifestPath,
           scenes: manifest.scenes.map((s) => ({
             id: s.id,
             durationMs: s.durationMs,
@@ -744,19 +767,22 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         .optional()
         .describe("approximate captions from the script — no network/STT"),
       params: PARAMS_INPUT,
+      lang: LANG_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "captions", async () => {
+        const lp = langProject(project, args.lang);
         if (args.offline) {
           const storyboard = await project.loadStoryboard({ params: args.params });
-          await generateCaptionsOffline(project, storyboard);
+          const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
+          await generateCaptionsOffline(lp, sb);
         } else {
-          await generateCaptions(project);
+          await generateCaptions(lp);
         }
         return {
-          srt: project.captionsSrtPath,
-          vtt: project.captionsVttPath,
-          cues: project.captionsCuesPath,
+          srt: lp.captionsSrtPath,
+          vtt: lp.captionsVttPath,
+          cues: lp.captionsCuesPath,
         };
       })
   );
@@ -768,15 +794,18 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       dir: DIR_INPUT,
       gif: z.boolean().optional().describe("also export output/final-demo.gif"),
       params: PARAMS_INPUT,
+      lang: LANG_INPUT,
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "compose", async () => {
+        const lp = langProject(project, args.lang);
         const storyboard = await project.loadStoryboard({ params: args.params });
-        await compose(project, storyboard);
+        const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
+        await compose(lp, sb);
         let gifPath: string | undefined;
-        if (args.gif) gifPath = await exportGif(project);
+        if (args.gif) gifPath = await exportGif(lp);
         return {
-          output: project.outputPath,
+          output: lp.outputPath,
           ...(gifPath ? { gif: gifPath } : {}),
         };
       })

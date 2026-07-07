@@ -17,6 +17,7 @@ import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
 import { buildEmbed, formatEmbed } from "./embed.js";
 import { extractStills, storyboardHasStills } from "./stills.js";
+import { localizeStoryboard, missingNarrations } from "./i18n.js";
 import { synthesizeMusicBed } from "./music.js";
 import { loadVariants, renderVariants } from "./variants.js";
 import { ensureDir, ok, step, fail, log, setLogFile, closeLogFile } from "./util.js";
@@ -160,6 +161,37 @@ function parseParams(pairs?: string[]): Record<string, string> | undefined {
 const PARAM_OPT_DESC =
   "set a storyboard template param (key=value; repeatable; must be declared in the storyboard's params block)";
 
+const LANG_OPT_DESC =
+  "render a language variant from scene.narrations[<code>] over the shared take " +
+  "(artifacts namespaced: audio/<code>/, captions.<code>.*, output/final-demo.<code>.mp4)";
+const LANGS_OPT_DESC =
+  "comma-separated language matrix (e.g. de,fr) — each rendered like --lang";
+
+/**
+ * Languages to run this invocation, resolved from --lang / --langs. Returns
+ * `[undefined]` when neither is given — the default single-language render,
+ * byte-for-byte unchanged (undefined = the base storyboard, unsuffixed paths).
+ */
+function langsFrom(opts: { lang?: string; langs?: string }): Array<string | undefined> {
+  const list = [
+    ...(opts.langs ? opts.langs.split(",") : []),
+    ...(opts.lang ? [opts.lang] : []),
+  ]
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return list.length ? [...new Set(list)] : [undefined];
+}
+
+/** Warn (don't fail) when a language variant is only partially translated. */
+function warnPartialCoverage(storyboard: Parameters<typeof missingNarrations>[0], lang: string): void {
+  const missing = missingNarrations(storyboard, lang);
+  if (missing.length)
+    log(
+      `⚠ lang "${lang}": scene(s) ${missing.join(", ")} have no narrations[${lang}] — ` +
+        `using the base narration`
+    );
+}
+
 program
   .command("record")
   .argument("<dir>", "demo project directory")
@@ -286,13 +318,26 @@ program
   .option("--scene <id>", "regenerate only this scene's narration")
   .option("--force", "re-synthesize every scene even if unchanged", false)
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option("--lang <code>", LANG_OPT_DESC)
+  .option("--langs <codes>", LANGS_OPT_DESC)
   .description("generate per-scene TTS and assemble narration.mp3 + voice.json")
-  .action(async (dir: string, opts: { scene?: string; force?: boolean; param?: string[] }) => {
-    const project = new Project(dir);
-    await beginCommand(project, "voice");
-    const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
-    await generateVoice(project, storyboard, { only: opts.scene, force: opts.force });
-  });
+  .action(
+    async (
+      dir: string,
+      opts: { scene?: string; force?: boolean; param?: string[]; lang?: string; langs?: string }
+    ) => {
+      const storyboard = await new Project(dir).loadStoryboard({
+        params: parseParams(opts.param),
+      });
+      for (const lang of langsFrom(opts)) {
+        const project = new Project(dir, lang);
+        await beginCommand(project, "voice");
+        const sb = lang ? localizeStoryboard(storyboard, lang) : storyboard;
+        if (lang) warnPartialCoverage(storyboard, lang);
+        await generateVoice(project, sb, { only: opts.scene, force: opts.force });
+      }
+    }
+  );
 
 program
   .command("music")
@@ -316,31 +361,59 @@ program
     false
   )
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option("--lang <code>", LANG_OPT_DESC)
+  .option("--langs <codes>", LANGS_OPT_DESC)
   .description("transcribe narration.mp3 to captions.srt/vtt with word timing")
-  .action(async (dir: string, opts: { offline?: boolean; param?: string[] }) => {
-    const project = new Project(dir);
-    await beginCommand(project, "captions");
-    if (opts.offline) {
-      const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
-      await generateCaptionsOffline(project, storyboard);
-    } else {
-      await generateCaptions(project);
+  .action(
+    async (
+      dir: string,
+      opts: { offline?: boolean; param?: string[]; lang?: string; langs?: string }
+    ) => {
+      const langs = langsFrom(opts);
+      // Load once only when needed (offline captions or a localized variant);
+      // the default online path still touches no storyboard.
+      const needsStoryboard = opts.offline || langs.some((l) => l !== undefined);
+      const base = needsStoryboard
+        ? await new Project(dir).loadStoryboard({ params: parseParams(opts.param) })
+        : null;
+      for (const lang of langs) {
+        const project = new Project(dir, lang);
+        await beginCommand(project, "captions");
+        if (opts.offline) {
+          const sb = lang ? localizeStoryboard(base!, lang) : base!;
+          await generateCaptionsOffline(project, sb);
+        } else {
+          await generateCaptions(project);
+        }
+      }
     }
-  });
+  );
 
 program
   .command("compose")
   .argument("<dir>", "demo project directory")
   .option("--gif", "also export output/final-demo.gif after the mux", false)
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option("--lang <code>", LANG_OPT_DESC)
+  .option("--langs <codes>", LANGS_OPT_DESC)
   .description("trim, sync, mux and caption into output/final-demo.mp4")
-  .action(async (dir: string, opts: { gif?: boolean; param?: string[] }) => {
-    const project = new Project(dir);
-    await beginCommand(project, "compose");
-    const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
-    await compose(project, storyboard);
-    if (opts.gif) await exportGif(project);
-  });
+  .action(
+    async (
+      dir: string,
+      opts: { gif?: boolean; param?: string[]; lang?: string; langs?: string }
+    ) => {
+      const storyboard = await new Project(dir).loadStoryboard({
+        params: parseParams(opts.param),
+      });
+      for (const lang of langsFrom(opts)) {
+        const project = new Project(dir, lang);
+        await beginCommand(project, "compose");
+        const sb = lang ? localizeStoryboard(storyboard, lang) : storyboard;
+        await compose(project, sb);
+        if (opts.gif) await exportGif(project);
+      }
+    }
+  );
 
 program
   .command("gif")
@@ -420,6 +493,8 @@ program
     "--variants <file>",
     "render one full pipeline per entry of a variants JSON file → output/variants/<name>/"
   )
+  .option("--lang <code>", LANG_OPT_DESC)
+  .option("--langs <codes>", `${LANGS_OPT_DESC} — records ONCE, then renders each`)
   .description("run the full pipeline: voice → record → captions → compose")
   .action(
     async (
@@ -432,10 +507,13 @@ program
         gif?: boolean;
         param?: string[];
         variants?: string;
+        lang?: string;
+        langs?: string;
       }
     ) => {
-      const project = new Project(dir);
-      await beginCommand(project, "render");
+      const base = new Project(dir);
+      await beginCommand(base, "render");
+
       // Variants matrix: one isolated full render per entry (params differ).
       if (opts.variants) {
         const variants = await loadVariants(opts.variants);
@@ -448,30 +526,66 @@ program
           forceVoice: opts.forceVoice,
         });
         step("Done");
-        ok(`▶ ${results.length} variant(s) under ${project.p("output", "variants")}`);
+        ok(`▶ ${results.length} variant(s) under ${base.p("output", "variants")}`);
         return;
       }
-      const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
-      await generateVoice(project, storyboard, { force: opts.forceVoice });
-      await record(project, storyboard, {
+
+      const captionsFor = async (
+        project: Project,
+        sb: Awaited<ReturnType<Project["loadStoryboard"]>>
+      ) => {
+        if (captionsAutoOffline()) {
+          log("local TTS and no STT endpoint/key — deriving captions offline from the script");
+          await generateCaptionsOffline(project, sb);
+        } else {
+          await generateCaptions(project);
+        }
+      };
+
+      const storyboard = await base.loadStoryboard({ params: parseParams(opts.param) });
+      const langs = langsFrom(opts);
+      const multi = !(langs.length === 1 && langs[0] === undefined);
+
+      if (!multi) {
+        // Default single-language pipeline — voice → record → captions → compose.
+        await generateVoice(base, storyboard, { force: opts.forceVoice });
+        await record(base, storyboard, {
+          profileDir: opts.profile,
+          headed: !opts.headless,
+          capture: parseCapture(opts.capture),
+        });
+        await captionsFor(base, storyboard);
+        await compose(base, storyboard);
+        if (opts.gif) await exportGif(base);
+        // Screenshot mode: emit any `still` PNGs from the clean take (a
+        // re-extract, not a re-record).
+        if (storyboardHasStills(storyboard)) await extractStills(base);
+        step("Done");
+        ok(`▶ open ${base.outputPath}`);
+        return;
+      }
+
+      // Multi-language: record the SHARED take ONCE (language-independent), then
+      // voice + captions + compose per language over the same footage. Stills
+      // come from the shared clean take, so extract them once from the base.
+      await record(base, storyboard, {
         profileDir: opts.profile,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
       });
-      if (captionsAutoOffline()) {
-        log("local TTS and no STT endpoint/key — deriving captions offline from the script");
-        await generateCaptionsOffline(project, storyboard);
-      } else {
-        await generateCaptions(project);
+      if (storyboardHasStills(storyboard)) await extractStills(base);
+      for (const lang of langs) {
+        const project = new Project(dir, lang!);
+        await beginCommand(project, "render");
+        const sb = localizeStoryboard(storyboard, lang!);
+        warnPartialCoverage(storyboard, lang!);
+        await generateVoice(project, sb, { force: opts.forceVoice });
+        await captionsFor(project, sb);
+        await compose(project, sb);
+        if (opts.gif) await exportGif(project);
+        ok(`▶ open ${project.outputPath}`);
       }
-      await compose(project, storyboard);
-      if (opts.gif) await exportGif(project);
-      // Screenshot mode: if the storyboard declares any `still` markers, emit
-      // their PNGs from the clean take automatically (a re-extract, not a
-      // re-record).
-      if (storyboardHasStills(storyboard)) await extractStills(project);
       step("Done");
-      ok(`▶ open ${project.outputPath}`);
     }
   );
 

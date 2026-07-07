@@ -12,6 +12,9 @@
     {
       "id": "s1",
       "narration": "Looking for the right supplement? Just tell DemoFit what you need.",
+      "narrations": {
+        "en-GB": "Fancy the right supplement? Simply tell DemoFit exactly what you're after."
+      },
       "actions": [
         { "op": "goto", "url": "http://localhost:8787/" },
         { "op": "pause", "ms": 600 },
@@ -27,6 +30,9 @@
     {
       "id": "s2",
       "narration": "It finds matching products and shows price per serving, so the best value jumps right out.",
+      "narrations": {
+        "en-GB": "It pulls up matching products and shows the price per serving, so the best value stands out straight away."
+      },
       "actions": [
         { "op": "scrollTo", "target": { "selector": "[data-testid=product-card]" } },
         { "op": "still", "name": "hero", "comment": "search-results hero shot for READMEs/docs" },
@@ -36,6 +42,9 @@
     {
       "id": "s3",
       "narration": "Add the one you want, and it drops straight into your basket.",
+      "narrations": {
+        "en-GB": "Pop the one you fancy into your basket with a single tap."
+      },
       "actions": [
         { "op": "click", "target": { "selector": "[data-testid=add-to-cart]" } },
         { "op": "pause", "ms": 1200 }
@@ -44,6 +53,9 @@
     {
       "id": "s4",
       "narration": "Then check out in a single click. No forms, no friction.",
+      "narrations": {
+        "en-GB": "Then check out in one single click — no forms, no faff whatsoever."
+      },
       "actions": [
         { "op": "click", "target": { "selector": "[data-testid=checkout]" } },
         {
@@ -58,6 +70,9 @@
     {
       "id": "s5",
       "narration": "That's DemoFit — find, compare, and buy in seconds.",
+      "narrations": {
+        "en-GB": "That's DemoFit — find, compare and buy in a matter of mere seconds."
+      },
       "actions": [{ "op": "pause", "ms": 1500 }]
     }
   ]

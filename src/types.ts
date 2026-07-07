@@ -221,6 +221,15 @@ export const SceneSchema = z.object({
   id: z.string(),
   /** Spoken narration for this beat. Also the caption source of truth. */
   narration: z.string(),
+  /**
+   * Translated narration per language code (e.g. {"de":"…","fr":"…"}) for
+   * multi-language renders from ONE take (see src/i18n.ts). `render`/`voice`/
+   * `captions`/`compose --lang <code>` speak/caption `narrations[code]` instead
+   * of `narration` over the shared recording; the default (no `--lang`) always
+   * uses `narration`. Translations are authored — the pipeline never calls an
+   * LLM to translate. A code missing here falls back to `narration`.
+   */
+  narrations: z.record(z.string(), z.string()).optional(),
   voice: VoicePlanSchema.optional(),
   music: MusicCueSchema.optional(),
   /** Set false to suppress auto-zoom for this scene's clicks/typing. */
@@ -285,6 +294,18 @@ export const CardSchema = z.object({
   accent: z.string().optional(),
   /** Fade in/out length, ms. Default 350. */
   fadeMs: z.number().default(350),
+  /**
+   * Translated card copy per language code, for multi-language renders
+   * (`--lang <code>`). Each entry may override `title` and/or `subtitle`; an
+   * absent field falls back to the base card. Only narration + captions + card
+   * copy localize — the recorded UI itself is unchanged.
+   */
+  i18n: z
+    .record(
+      z.string(),
+      z.object({ title: z.string().optional(), subtitle: z.string().optional() })
+    )
+    .optional(),
 });
 export type Card = z.infer<typeof CardSchema>;
 

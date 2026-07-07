@@ -517,3 +517,88 @@ Wire it into CI so a breaking UI change is a failed check:
 
 Regenerate the baseline (`--update-golden`) and re-commit `golden/probe.json`
 whenever the flow changes on purpose.
+
+## Multi-language renders (one take, N languages)
+
+Record the browser flow **once**, then ship the same demo in several languages —
+each with its own voiceover and captions — without re-recording. The take (raw
+video + `timeline.json`) is language-independent: it replays your action-spec,
+which never mentions the spoken words. Only the **narration, captions, and
+intro/outro card copy** localize; `compose` already stretches each scene's video
+to its own narration length, so a longer or shorter translation just retimes the
+shared footage.
+
+Translations are **authored into the storyboard** — the pipeline never calls an
+LLM to translate (the capture loop and the render pipeline both stay LLM-free).
+
+**Authoring pattern.** Add a `narrations` map to any scene (language code →
+translated text) and, for title cards, an `i18n` map:
+
+```jsonc
+{
+  "intro": {
+    "title": "DemoFit",
+    "subtitle": "Find your supplement",
+    "i18n": { "de": { "subtitle": "Finde dein Supplement" } }
+  },
+  "scenes": [
+    {
+      "id": "s1",
+      "narration": "Just tell DemoFit what you need.",           // base language
+      "narrations": {                                            // per-language overrides
+        "de": "Sag DemoFit einfach, was du brauchst.",
+        "fr": "Dites simplement à DemoFit ce qu'il vous faut."
+      },
+      "actions": [ /* … shared across every language … */ ]
+    }
+  ]
+}
+```
+
+A code missing from a scene's `narrations` (or a card's `i18n`) falls back to the
+base `narration` / card copy, and the CLI warns which scenes fell back — partial
+translation is allowed.
+
+**One-take → N-renders flow.**
+
+1. `record` once (or a full default `render`) — produces the shared take and the
+   default-language MP4.
+2. For each extra language, run **only** the language-dependent stages against
+   the same take:
+   `aidemo voice <dir> --lang de` → `aidemo captions <dir> --lang de` →
+   `aidemo compose <dir> --lang de`. No re-record.
+3. Or use the convenience matrix: `aidemo render <dir> --langs de,fr` records
+   **once**, then voices + captions + composes each language. `aidemo compose
+   <dir> --langs de,fr` re-composes several languages from an existing take.
+
+**Artifacts are namespaced so a language never clobbers the default:**
+
+| Artifact | Default | `--lang de` |
+|---|---|---|
+| Per-scene + assembled audio | `audio/…` | `audio/de/…` |
+| Voice manifest | `audio/voice.json` | `audio/de/voice.json` |
+| Captions | `generated/captions.{srt,vtt,cues.json}` | `generated/captions.de.{srt,vtt,cues.json}` |
+| Final video | `output/final-demo.mp4` | `output/final-demo.de.mp4` |
+
+The **shared** take — `recordings/raw.*`, `generated/timeline.json`,
+`generated/storyboard.json` — is not namespaced (that's what one recording feeds
+every language). Running without `--lang` is byte-for-byte the old behavior.
+
+**MCP.** `voice`, `captions`, `compose`, and `render` each take an optional
+`lang` argument (same semantics; `render` records once then renders that
+language). Author the `narrations`/`i18n` maps, then submit one job per language.
+
+**Caveat (honest for v1): only the narration, captions, and card copy change —
+the recorded UI does not.** On-screen text stays in whatever language the app
+rendered during the take. That's the right tradeoff for a voiceover-led product
+demo; if the UI itself must be localized, record a separate take per locale (a
+different storyboard) rather than using `--lang`.
+
+**Local-voice reality check.** The in-process Kokoro provider
+(`AIDEMO_TTS_PROVIDER=local`) ships **English voices only** — en-US (`af_*`,
+`am_*`) and en-GB (`bf_*`, `bm_*`) accents. It's perfect for `en` / `en-GB`
+variants (and for validating the matrix offline), but a non-English `--lang`
+would be read by an English voice and mispronounced — `voice` warns when you do
+this. For genuine non-English speech, render that language with
+`AIDEMO_TTS_PROVIDER=elevenlabs` (multilingual) or OpenAI TTS. Set the storyboard
+`voice.voiceId` (globally, or per scene) if a language wants a different voice.
