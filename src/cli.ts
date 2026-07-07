@@ -8,6 +8,7 @@ import { generateVoice } from "./voice.js";
 import { generateCaptions, generateCaptionsOffline } from "./captions.js";
 import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
+import { buildEmbed, formatEmbed } from "./embed.js";
 import { synthesizeMusicBed } from "./music.js";
 import { ensureDir, ok, step, fail, log, setLogFile, closeLogFile } from "./util.js";
 import {
@@ -263,6 +264,36 @@ program
         fps: parsePositiveInt("--fps", opts.fps),
         out: opts.out,
       });
+    }
+  );
+
+program
+  .command("embed")
+  .argument("<dir>", "demo project directory (its basename is the demo name)")
+  .option(
+    "--repo <dir>",
+    "consuming repo to detect owner/repo from (default: current directory)"
+  )
+  .option("--still <name>", "still-frame basename under stills/", "poster")
+  .option("--json", "print machine-readable JSON instead of snippets", false)
+  .description(
+    "print ready-to-paste always-fresh embed snippets (stable raw GitHub URLs)"
+  )
+  .action(
+    async (
+      dir: string,
+      opts: { repo?: string; still?: string; json?: boolean }
+    ) => {
+      // Pure string generation — no logs/, no storyboard load, stdout only.
+      const result = await buildEmbed(dir, {
+        repoDir: opts.repo,
+        still: opts.still,
+      });
+      process.stdout.write(
+        opts.json
+          ? JSON.stringify(result, null, 2) + "\n"
+          : formatEmbed(result)
+      );
     }
   );
 

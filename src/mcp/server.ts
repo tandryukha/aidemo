@@ -12,6 +12,7 @@ import { record, type RecordOptions } from "../recorder.js";
 import { generateCaptions, generateCaptionsOffline } from "../captions.js";
 import { compose } from "../compose.js";
 import { exportGif } from "../gif.js";
+import { buildEmbed } from "../embed.js";
 import { scaffoldDemo, doctorReport } from "../distribute.js";
 import { readJson, log, CanceledError } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
@@ -326,6 +327,67 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       jsonResult(
         (await doctorReport(args.dir)) as unknown as Record<string, unknown>
       )
+  );
+
+  server.registerTool(
+    "embed",
+    {
+      title: "Always-fresh embed snippets",
+      description:
+        "Ready-to-paste embed snippets (markdown GIF, markdown still, HTML " +
+        "<video>) for a demo, using stable raw.githubusercontent URLs on the " +
+        "'demo-media' branch. Pure string generation — no network, no render. " +
+        "Owner/repo come from the repo's origin remote; the demo name from the " +
+        "directory basename. Pair with the demo-publish workflow so CI keeps " +
+        "the URLs fresh. See docs/EMBEDS.md.",
+      inputSchema: {
+        dir: DIR_INPUT,
+        repo: z
+          .string()
+          .optional()
+          .describe("consuming repo to detect owner/repo from (default: server cwd)"),
+        still: z
+          .string()
+          .optional()
+          .describe("still-frame basename under stills/ (default: poster)"),
+      },
+      outputSchema: {
+        owner: z.string(),
+        repo: z.string(),
+        demo: z.string(),
+        branch: z.string(),
+        still: z.string(),
+        urls: z.object({
+          gif: z.string(),
+          mp4: z.string(),
+          still: z.string(),
+          pagesMp4: z.string(),
+          pagesBase: z.string(),
+        }),
+        snippets: z.object({
+          markdownGif: z.string(),
+          markdownStill: z.string(),
+          htmlVideo: z.string(),
+        }),
+        workflow: z.object({
+          path: z.string(),
+          present: z.boolean(),
+          template: z.string(),
+        }),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async (args) => {
+      try {
+        const result = await buildEmbed(args.dir, {
+          repoDir: args.repo,
+          still: args.still,
+        });
+        return jsonResult(result as unknown as Record<string, unknown>);
+      } catch (err) {
+        return errorResult({ message: (err as Error).message });
+      }
+    }
   );
 
   server.registerTool(

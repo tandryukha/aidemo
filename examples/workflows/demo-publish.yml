@@ -1,0 +1,100 @@
+# Always-fresh embeds — re-render a demo in CI and force-publish its media to
+# the `demo-media` orphan branch at stable paths. The embed URL never changes;
+# the bytes behind it do. Drop this file into a CONSUMING repo at
+# `.github/workflows/demo-publish.yml`, then embed:
+#   https://raw.githubusercontent.com/<owner>/<repo>/demo-media/media/<demo>/latest.gif
+# Get the exact snippets with: npx -y github:tandryukha/aidemo#stable embed <demo-dir>
+# Full recipe + cache caveats: docs/EMBEDS.md in the aidemo repo.
+#
+# Zero spend: renders with the in-process local TTS provider + offline captions,
+# so NO OpenAI key and NO paid services are needed. Runs entirely on the free
+# GitHub-hosted runner; media is hosted on GitHub itself.
+name: demo-publish
+
+on:
+  # Re-render whenever a storyboard changes on the default branch.
+  push:
+    branches: [main]
+    paths:
+      - "demos/**"
+  # Manual re-render of one demo (e.g. after a UI change).
+  workflow_dispatch:
+    inputs:
+      demo:
+        description: "demo directory to render (relative to repo root)"
+        required: true
+        default: demos/example
+
+# Only the media push needs write; nothing else.
+permissions:
+  contents: write
+
+# One publish at a time — force-pushing the branch must not race itself.
+concurrency:
+  group: demo-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      # Single demo per run. For multiple demos, duplicate the publish step or
+      # loop over a matrix — the media tree is merged, not clobbered.
+      DEMO_DIR: ${{ github.event.inputs.demo || 'demos/example' }}
+      BRANCH: demo-media
+    steps:
+      - name: Checkout
+        # Third-party action → SHA-pinned (v4.2.2). Do not replace with a tag.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Render demo (aidemo composite action)
+        # First-party engine action, referenced by the moving `stable` tag —
+        # the same distribution mechanism as `npx github:tandryukha/aidemo#stable`.
+        # NOTE (integration): cross-check these input names against the action's
+        # own action.yml (authored separately) — expected inputs: demos, command,
+        # tts, gif.
+        uses: tandryukha/aidemo@stable
+        with:
+          demos: ${{ env.DEMO_DIR }}
+          command: render
+          tts: local # in-process kokoro-js TTS + offline captions → zero-key, zero-spend
+          gif: "true" # also emit output/final-demo.gif for the GIF embed
+
+      - name: Publish media to the demo-media branch
+        run: |
+          set -euo pipefail
+          DEMO_NAME="$(basename "$DEMO_DIR")"
+          SRC="$DEMO_DIR/output"
+          test -f "$SRC/final-demo.mp4" \
+            || { echo "::error::no rendered mp4 at $SRC/final-demo.mp4"; exit 1; }
+
+          # Assemble the FULL media tree in a scratch dir: start from whatever the
+          # branch already holds (so sibling demos survive), then overlay this demo.
+          PUB="$(mktemp -d)"
+          if git fetch --depth 1 origin "$BRANCH" 2>/dev/null; then
+            git archive FETCH_HEAD | tar -x -C "$PUB"
+          fi
+          mkdir -p "$PUB/media/$DEMO_NAME/stills"
+          cp -f "$SRC/final-demo.mp4" "$PUB/media/$DEMO_NAME/latest.mp4"
+          [ -f "$SRC/final-demo.gif" ] \
+            && cp -f "$SRC/final-demo.gif" "$PUB/media/$DEMO_NAME/latest.gif"
+          # Best-effort poster still (ffmpeg is preinstalled on ubuntu runners).
+          ffmpeg -y -loglevel error -i "$SRC/final-demo.mp4" -frames:v 1 -q:v 3 \
+            "$PUB/media/$DEMO_NAME/stills/poster.png" || true
+
+          # Commit the merged tree as a fresh single-commit orphan (no parent),
+          # then force-push — history never accumulates, the repo stays small.
+          # Pure plumbing: never touches the main working tree/checkout.
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          export GIT_DIR="$(git rev-parse --absolute-git-dir)"
+          export GIT_WORK_TREE="$PUB"
+          export GIT_INDEX_FILE="$RUNNER_TEMP/demo-media.index"
+          rm -f "$GIT_INDEX_FILE"
+          ( cd "$PUB" && git add -Af . )
+          TREE="$(git write-tree)"
+          COMMIT="$(git commit-tree "$TREE" -m "publish demo media ($DEMO_NAME) [skip ci]")"
+          git push --force origin "$COMMIT:refs/heads/$BRANCH"
+          echo "published → media/$DEMO_NAME/{latest.mp4,latest.gif,stills/poster.png}"
