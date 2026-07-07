@@ -139,6 +139,10 @@ Cinematic keys (all opt-in; omit for the plain look):
 - `output: {width, height, fit?="contain", background?}` — **render at a
   different size/aspect** than the recording, e.g. a vertical social clip (see
   below).
+- `motionBlur: {frames?=3}` — **subtle motion blur** on fast motion (cursor,
+  scroll, zoom pan); static UI stays sharp (see below).
+- `cursor: {hidden?, hideScenes?, scale?}` — **compose-time cursor control**:
+  hide or resize the cursor post-hoc instead of baking it (see below).
 
 Each scene: `id`, `narration`, `voice?`, `music?`, `zoom?` (false to disable),
 `actions[]`.
@@ -173,6 +177,35 @@ This seeds the **social-clips lane**: a vertical `{width:1080, height:1920}` (or
 `720×1280`) clip from a landscape 1280×720 take. Use even width/height (yuv420p).
 Only core scale/pad/crop filters are used, so it stays portable across ffmpeg
 builds.
+
+## Motion blur & cursor
+
+Two more compose-time polish keys, both opt-in and portable (baseline `tmix` /
+`overlay` — no `drawtext`/`subtitles`). Omit them and the render is byte-for-byte
+the old behavior.
+
+**`motionBlur: {frames?=3}`** — averages a small sliding window of frames so fast
+motion (the cursor gliding, an eased scroll, a zoom pan) gets a subtle trail.
+Static UI is untouched — identical frames average to themselves, so only moving
+pixels blur. `frames` is the window size (2 = whisper, 3 = default, up to 6 for a
+heavier smear). Pure post-processing over the content — recompose to tune it.
+
+**`cursor: {hidden?, hideScenes?, scale?}`** — moves the cursor from a *baked*
+record-time artifact to a *compose-time layer*, so you can style it **post-hoc,
+without re-recording**:
+- `hidden: true` — no cursor at all (clean product shots; a `still` grabbed in
+  this mode is cursor-free too).
+- `hideScenes: ["s5"]` — hide the cursor only on those scenes (e.g. a
+  full-screen result or confirmation).
+- `scale: 1.3` — resize the cursor (1 = the 24px baseline arrow).
+
+How it works: with a `cursor` block present, `record` leaves the take
+**cursor-free** and logs the cursor path into `timeline.json`; `compose` draws
+the cursor as an overlay along that path (over the content, so it zooms and pans
+with the frame, exactly like a baked cursor). This means the cursor block must be
+present **when you record** (so the clean take + path exist) — after that, every
+hide/resize is a recompose, never a re-record. Without the block, the cursor is
+baked at record time as before (the default).
 
 ## Action vocabulary
 

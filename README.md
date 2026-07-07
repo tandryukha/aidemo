@@ -35,13 +35,57 @@ scroll), authored by Claude from one `storyboard.json` and recorded as a
 deterministic replay. The preview GIF is silent;
 **[watch the full version with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)**.</sub>
 
+### From one sentence to a narrated MP4
+
+The whole loop, in order — you type a sentence, the agent writes an artifact you
+can read and edit, the engine records and cuts it:
+
+**1 · What you type** — one line to any MCP-capable agent (Claude Code here):
+
+```
+claude "record a 45s demo touring Wikipedia: search for Ada Lovelace,
+open the Analytical Engine, then glide down the article"
+```
+
+**2 · What the agent authors** — a plain, editable `storyboard.json` (excerpt:
+narration + a fixed browser action-spec, side by side — no generated code):
+
+```jsonc
+{
+  "title": "A quick tour of Wikipedia",
+  "zoom": {},                                  // Screen-Studio-style auto-zoom
+  "scenes": [
+    { "id": "search",
+      "narration": "Start at the Wikipedia portal and search for Ada Lovelace.",
+      "actions": [
+        { "op": "goto", "url": "https://www.wikipedia.org/" },
+        { "op": "type", "target": { "selector": "#searchInput" }, "text": "Ada Lovelace" },
+        { "op": "click", "target": { "selector": "button[type=submit]" } } ] },
+    { "id": "engine",
+      "narration": "Her notes on Babbage's Analytical Engine hold the first computer program.",
+      "actions": [
+        { "op": "focus", "target": { "selector": "#firstHeading" } },
+        { "op": "click", "target": { "selector": "a[href*='Analytical_Engine']" } },
+        { "op": "scrollBy", "dy": 900, "easing": "glide" } ] }
+  ]
+}
+```
+
+**3 · How it's recorded + cut** — `aidemo render` drives a real Chrome (smooth
+animated cursor, human-cadence typing, auto-zoom), then trims the dead time and
+syncs to the narration:
+
 ```
 storyboard.json
    → voice     OpenAI / ElevenLabs / local TTS → audio/narration.mp3 + voice.json
-   → record    drives Chrome, injected cursor  → recordings/raw.{webm,mp4} + timeline.json
+   → record    drives Chrome, animated cursor  → recordings/raw.{webm,mp4} + timeline.json
    → captions  Whisper word timestamps         → generated/captions.{srt,vtt,cues.json}
    → compose   trim idle · sync · auto-zoom · cards · caption · mux → output/final-demo.mp4
 ```
+
+**4 · What you get** — `output/final-demo.mp4` (the tour above), plus a
+README-ready GIF (`aidemo gif`) and named stills (`aidemo stills`) from the same
+take. UI changed? Re-run against the same storyboard — no re-recording by hand.
 
 The design goal: demos that look **human-made and snappy**, not like an AI
 clicking around and waiting between screenshots. It does that by separating
@@ -114,6 +158,16 @@ All opt-in via the storyboard; existing storyboards render exactly as before.
   `durationMs`, `background?`, `accent?`, `fadeMs?`) render as typographic
   title cards (headless-Chrome rasterized, like captions) with fade in/out.
   Narration and captions shift automatically; music plays under the cards.
+- **Motion blur.** `"motionBlur": {}` (opt `frames`, default 3) averages a small
+  sliding window of frames, so fast motion — the cursor, an eased scroll, a zoom
+  pan — trails subtly while static UI stays sharp. Compose-time `tmix`, so it's a
+  recompose to tune.
+- **Post-hoc cursor hide/resize.** `"cursor": {}` turns the cursor from a baked
+  record-time artifact into a compose-time layer: `hidden` drops it entirely (a
+  clean product shot — and any `still` grabbed then is cursor-free too),
+  `hideScenes: ["s5"]` hides it on chosen scenes, `scale` resizes it. Record once
+  with the block present (the take is captured cursor-free plus a cursor path);
+  every hide/resize after that is a recompose, never a re-record.
 
 ## Higher-fidelity capture (native / OBS)
 
@@ -394,7 +448,8 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
 - **Web UI**, project history, brand kits, changelog integrations.
 
 (Shipped from earlier roadmaps: cinematic polish — auto-zoom, scroll easing
-presets, sidechain music ducking, intro/outro cards — the native/OBS capture
+presets, sidechain music ducking, intro/outro cards, motion blur, and
+**post-hoc cursor hide/resize** — the native/OBS capture
 path, the agent-neutral authoring guide + **MCP server** for Codex CLI /
 Gemini CLI / any MCP client, the **ElevenLabs voice provider**
 (`AIDEMO_TTS_PROVIDER=elevenlabs`), and the **in-process local voice provider**
