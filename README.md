@@ -76,10 +76,10 @@ One engine, every demo a repo needs:
   `subtitles`/`drawtext` filters. We rasterize each caption to a transparent PNG
   with headless Chrome (full CSS control) and overlay it with time-gated
   `enable` — works on any ffmpeg with `overlay`.
-- **Swappable voice provider.** OpenAI `gpt-4o-mini-tts` by default, but any
-  OpenAI-compatible server works — see
-  [Local models & offline](#local-models--offline). The `VoiceProvider`
-  interface leaves room for ElevenLabs later.
+- **Swappable voice provider.** OpenAI `gpt-4o-mini-tts` by default; flip
+  `AIDEMO_TTS_PROVIDER=elevenlabs` for ElevenLabs voices, or point the
+  OpenAI-compatible endpoint at a local server for offline narration — see
+  [Local models & offline](#local-models--offline).
 - **Cinematic polish is compose-time, not record-time.** The player only
   *records* where attention went (clicks, typing, `focus` actions); the zoom
   choreography is rendered afterwards with ffmpeg `zoompan`, so a bad zoom is a
