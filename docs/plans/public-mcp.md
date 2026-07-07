@@ -178,7 +178,71 @@ constraint — abuse and concurrency are; these caps exist to distribute a fixed
 budget fairly and stop one abuser draining it in an afternoon. Voice is
 content-hashed per scene (`src/voice.ts`) so re-renders of the same narration
 cost ~$0 in TTS, and Kokoro-local TTS could drop the AI line to $0 entirely if
-the free tier ever wants to run key-free.
+the free tier ever wants to run key-free. Whether the cap actually holds in
+practice is a monitoring question — see [Observability](#observability).
+
+## Observability
+
+Two planes, kept **separate** — conflating them is exactly how a "$50 cap"
+silently leaks:
+
+- **Enforcement plane (exact, synchronous, before-dispatch):** the DynamoDB
+  budget meter and per-identity quota counters. This is what *guarantees* the
+  cap. Billing data and CloudWatch are far too laggy (hours) to enforce
+  anything — they never gate a render.
+- **Observation plane (eventually-consistent, for humans + alarms):**
+  CloudWatch metrics / logs / dashboards / alarms layered on top. Watches
+  trends, pages on anomalies, feeds the [launch gate](#launch-gate).
+
+**Emit per job** (structured JSON from each Fargate task → CloudWatch via
+Embedded Metric Format, so a log line doubles as a metric with no separate
+`PutMetricData` call):
+
+- `render.cost_usd`, **broken down by source** — TTS chars→$, STT seconds→$,
+  Fargate task-seconds × size→$, S3 egress bytes→$. This is the **actual** cost,
+  emitted *after* the job completes.
+- `render.duration_ms` per stage (record / voice / captions / compose), Fargate
+  cold-start time, output bytes.
+- Pseudonymous identity (hashed GitHub id), tier, queue wait, and outcome
+  (success / failed-stage / killed-by-timeout).
+
+**Estimate-vs-actual reconciliation — the subtle one.** The budget meter
+decrements by an *estimate* at dispatch (it must — you enforce *before* the job
+runs), then each completed job emits its *actual* cost. Track the drift as its
+own metric: if estimates consistently run low, the $50 cap leaks even though the
+meter says it's holding. Alarm when cumulative drift exceeds a few percent, and
+periodically true-up the estimate model.
+
+**Custom metrics + a single dashboard** (namespace `aidemo/hosted`, dimensioned
+by tier):
+
+- **Budget** — global spend vs $50, burn rate, projected exhaustion date, and
+  **count of times the cap tripped** (that last one is a direct paid-tier demand
+  signal for the launch gate).
+- **Users** — DAU/MAU by registered identity, new registrations,
+  anonymous-vs-registered split, and **renders-per-identity distribution**
+  (top-N heavy users — this is the "50 real users vs 1 abuser rendering 50×"
+  tell; a raw render count can't distinguish them).
+- **Health / SLO** — queue depth + *real* wait time (the honest "#N in queue,
+  ~3 min" number must be measured, not guessed), success/failure rate, render
+  latency p50/p95, error rate by stage.
+- **Abuse** — timeout-killed jobs, egress-allowlist denials, blocked
+  internal-address / IMDS attempts, WAF rate-blocks, registrations rejected by
+  the age gate.
+- **Funnel** — anonymous → registered → paid conversion.
+
+**Alarms → SNS → email/Slack:** budget ≥ 80% of $50; cap tripped; a single
+identity exceeding N renders/hour; error-rate or timeout-kill spike; queue wait
+past threshold; estimate-vs-actual drift past threshold.
+
+**Infra-cost cross-check (coarse, lagging):** AWS Cost Explorer with per-tier
+resource tags on Fargate/S3, plus the account-level AWS Budgets alarm — a
+sanity check *against* the app-emitted per-render numbers, never a real-time
+control.
+
+**Privacy:** identify users by a pseudonymous (hashed) GitHub id; never log
+storyboard content, and log the target only as its allowlisted **origin**, not
+full URLs + query strings — consistent with the copyright/SSRF posture above.
 
 ## Agent-first registration
 
@@ -276,7 +340,8 @@ the GitHub Action ships:
 - **Action adoption** — number of distinct repos actually using the GitHub
   Action (a proxy for "people who'd rather not run CI at all if they didn't
   have to").
-- **Free-tier usage** — once hosted is live: registered identities, renders/mo,
+- **Free-tier usage** — once hosted is live, straight off the
+  [Observability](#observability) dashboard: registered identities, renders/mo,
   and how often the global budget cap is actually hit (the cap tripping
   repeatedly is itself the demand signal that justifies a paid tier).
 
@@ -289,7 +354,7 @@ the gate; these counters are what it reviews.
 
 | Risk | Mitigation |
 |---|---|
-| **Free tier blows past $50 because per-user limits don't bound total spend.** | A **global monthly spend meter** (DynamoDB, atomic check-and-decrement before every dispatch) hard-stops the free tier at the cap; per-render caps make each decrement a known quantity; AWS Budgets + a spend-ceiling SCP on the dedicated account are coarse backstops (they lag, so they're not the primary control). |
+| **Free tier blows past $50 because per-user limits don't bound total spend.** | A **global monthly spend meter** (DynamoDB, atomic check-and-decrement before every dispatch) hard-stops the free tier at the cap; per-render caps make each decrement a known quantity; the meter decrements by *estimate*, so completed jobs emit actual cost and an alarm fires on estimate-vs-actual drift before the cap can silently leak (see [Observability](#observability)); AWS Budgets + a spend-ceiling SCP on the dedicated account are coarse backstops (they lag, so they're not the primary control). |
 | **Task-role credential theft on Fargate.** A hostile storyboard navigates the headless browser to the ECS task-metadata endpoint (`169.254.170.2`) or IMDS (`169.254.169.254`) and exfiltrates the render task's temporary AWS creds. | Block both endpoints at the network layer for the render task; least-privilege task role (write one S3 prefix, read its own job record, nothing else) so leaked creds buy almost nothing; IMDSv2 only. |
 | **Abuse: crypto-miner / arbitrary-compute URLs.** A "render this URL" primitive is a free compute-execution primitive if unbounded. | Per-job resource caps (CPU/memory/wall-clock) enforced by the Fargate runtime, ephemeral per-job tasks (no persistent workers to keep mining), no job runs longer than a demo plausibly needs (5-min hard timeout). |
 | **SSRF via internal URLs.** A job's headless browser could be pointed at cloud metadata endpoints or private/internal addresses reachable from the render network. | Deny-by-default egress allowlist scoped per registered project (public origins only), enforced by an egress proxy / Network Firewall; explicit block of link-local and RFC1918 ranges regardless of what's on an allowlist; resolve-once-and-pin DNS to defeat DNS-rebinding attacks against the allowlist check. |
