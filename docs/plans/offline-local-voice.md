@@ -1,7 +1,23 @@
 # Plan: in-process local voice (zero-infrastructure offline mode)
 
-**Status: proposed — not started.** Documented ahead of implementation; nothing
-in this file is built yet.
+**Status: implemented** (`src/voice-local.ts`; README → "Local models &
+offline"). Deviations from the plan as written, both following conventions the
+ElevenLabs provider established after this plan was drafted:
+
+- The selection env var is **`AIDEMO_TTS_PROVIDER=local`** (the existing
+  provider knob), not a new `AIDEMO_VOICE_PROVIDER`.
+- The schema-default `voiceId: "marin"` doesn't hard-fail: it maps to
+  `AIDEMO_KOKORO_VOICE` (default `af_heart`), mirroring
+  `AIDEMO_ELEVENLABS_VOICE` — this is also what lets the target UX below work
+  on an unmodified storyboard. Explicit non-Kokoro voice ids still fail with a
+  clear message listing the available voices.
+- kokoro-js's transitive tree **does** carry install scripts (onnxruntime-node,
+  protobufjs, sharp) — the mitigation is that kokoro-js is not in package.json
+  at all (verified working from an `--ignore-scripts` install), so the engine's
+  own install stays script-free and the cost is opt-in.
+- Auto-offline captions require *both* no `OPENAI_BASE_URL` and no
+  `OPENAI_API_KEY`: the reroute exists to avoid failing on a missing key, so a
+  user who has a key (or server) keeps word-timed Whisper captions.
 
 ## Where offline stands today
 

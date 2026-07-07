@@ -26,10 +26,12 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | Environment check | `node bin/aidemo.mjs doctor` |
 
 `render`, `voice`, and `captions` need `OPENAI_API_KEY` in `.env` (or
-`OPENAI_BASE_URL` pointing at a local OpenAI-compatible server); `probe`,
-`record`, and `compose` re-runs don't. Every engine change should keep the
-fixture rendering end-to-end (that's the smoke test CI can't run for you —
-it needs Chrome, ffmpeg, and a TTS/STT endpoint).
+`OPENAI_BASE_URL` pointing at a local OpenAI-compatible server, or
+`AIDEMO_TTS_PROVIDER=local` + `npm install kokoro-js` for in-process TTS with
+offline captions — no key at all); `probe`, `record`, and `compose` re-runs
+don't. Every engine change should keep the fixture rendering end-to-end
+(that's the smoke test CI can't run for you — it needs Chrome, ffmpeg, and a
+TTS/STT endpoint or the local provider).
 
 ## Layout
 

@@ -81,8 +81,9 @@ One engine, every demo a repo needs:
   with headless Chrome (full CSS control) and overlay it with time-gated
   `enable` — works on any ffmpeg with `overlay`.
 - **Swappable voice provider.** OpenAI `gpt-4o-mini-tts` by default; flip
-  `AIDEMO_TTS_PROVIDER=elevenlabs` for ElevenLabs voices, or point the
-  OpenAI-compatible endpoint at a local server for offline narration — see
+  `AIDEMO_TTS_PROVIDER=local` for in-process Kokoro-82M (no server, no key),
+  `elevenlabs` for ElevenLabs voices, or point the OpenAI-compatible endpoint
+  at a local server for offline narration — see
   [Local models & offline](#local-models--offline).
 - **Cinematic polish is compose-time, not record-time.** The player only
   *records* where attention went (clicks, typing, `focus` actions); the zoom
@@ -215,6 +216,36 @@ in the pipeline**, and both go through the OpenAI SDK — so both can be pointed
 at any OpenAI-compatible server. Everything else — recording, composing, music
 synthesis, caption/card rendering — is local Chrome + ffmpeg already.
 
+**Zero infrastructure — in-process TTS (no server, no Docker, no key).**
+`AIDEMO_TTS_PROVIDER=local` runs
+[Kokoro-82M](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX) on the
+CPU *inside the engine* via
+[kokoro-js](https://www.npmjs.com/package/kokoro-js) — the same model the
+speaches recipe below serves:
+
+```bash
+npm install kokoro-js     # opt-in, deliberately not bundled (~400 MB installed
+                          # with onnxruntime; `--ignore-scripts` works too)
+AIDEMO_TTS_PROVIDER=local aidemo render <dir> --headless
+```
+
+The first `voice` run downloads the model once from huggingface.co (~90 MB at
+the default `q8` quantization; `AIDEMO_TTS_MODEL_DTYPE=fp32` gets the ~330 MB
+best-quality build) into `~/.cache/huggingface/transformersjs` (`HF_HOME`
+respected; override with `AIDEMO_TTS_MODEL_CACHE`). Every run after is fully
+air-gapped — `HF_HUB_OFFLINE=1` is honored, and pre-seeding that directory
+skips the download entirely. Storyboard `voiceId`s are Kokoro voices
+(`af_heart`, `am_adam`, …); a storyboard that doesn't pick one gets
+`AIDEMO_KOKORO_VOICE` (default `af_heart`), and `voice.instructions` is
+OpenAI-only and ignored. With no STT endpoint or key configured, `render`
+derives captions offline from the script automatically — so the whole pipeline
+runs on Node + Chrome + ffmpeg alone. Synthesis is ~2.4× realtime on an
+M-series CPU; `aidemo doctor` reports whether kokoro-js and the model cache are
+in place.
+
+**Or run a local speech server** and point both halves (TTS *and* word-timed
+STT) at it:
+
 ```bash
 OPENAI_BASE_URL=http://localhost:8000/v1        # or AIDEMO_OPENAI_BASE_URL
 AIDEMO_TTS_MODEL=speaches-ai/Kokoro-82M-v1.0-ONNX   # default: gpt-4o-mini-tts
@@ -265,14 +296,17 @@ support `timestamp_granularities=word` — speaches does; whisper.cpp's compat
 layer may not. If yours doesn't (or you want zero network at all),
 `aidemo captions <dir> --offline` derives approximate captions from the script
 plus the per-scene timings in `voice.json` — no transcription call, close
-enough for most demos.
+enough for most demos. (`render` picks this path automatically when
+`AIDEMO_TTS_PROVIDER=local` and no STT endpoint or key is configured.)
 
 **What leaves the machine:** with the default config, the narration script goes
 to the TTS endpoint and the narration audio to the transcription endpoint —
 that's the whole surface, and only when you run `voice`/`captions`/`render`.
-Point the base URL at localhost and nothing leaves at all. There's no telemetry
-anywhere; `aidemo feedback` and `aidemo skill update` touch GitHub only when
-you explicitly invoke them.
+Point the base URL at localhost and nothing leaves at all. With
+`AIDEMO_TTS_PROVIDER=local`, nothing leaves either — bytes only come *down*
+from huggingface.co, once, for the model download (pre-seed the cache dir for
+true air-gapped installs). There's no telemetry anywhere; `aidemo feedback` and
+`aidemo skill update` touch GitHub only when you explicitly invoke them.
 
 ## Agent interface (MCP)
 
@@ -362,8 +396,10 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
 (Shipped from earlier roadmaps: cinematic polish — auto-zoom, scroll easing
 presets, sidechain music ducking, intro/outro cards — the native/OBS capture
 path, the agent-neutral authoring guide + **MCP server** for Codex CLI /
-Gemini CLI / any MCP client, and the **ElevenLabs voice provider**
-(`AIDEMO_TTS_PROVIDER=elevenlabs`); see above.)
+Gemini CLI / any MCP client, the **ElevenLabs voice provider**
+(`AIDEMO_TTS_PROVIDER=elevenlabs`), and the **in-process local voice provider**
+(`AIDEMO_TTS_PROVIDER=local`, zero-infrastructure offline rendering); see
+above.)
 
 ## Notes / limitations
 
@@ -382,7 +418,9 @@ Gemini CLI / any MCP client, and the **ElevenLabs voice provider**
   `api.openai.com` (only for `aidemo voice` / `aidemo captions`, with your own
   `OPENAI_API_KEY` — or a local server of your choice via `OPENAI_BASE_URL`,
   see [Local models & offline](#local-models--offline)), `api.elevenlabs.io`
-  (only if you opt in with `AIDEMO_TTS_PROVIDER=elevenlabs`), and `github.com`
+  (only if you opt in with `AIDEMO_TTS_PROVIDER=elevenlabs`), `huggingface.co`
+  (download-only, once, if you opt in with `AIDEMO_TTS_PROVIDER=local` — the
+  model cache is reused forever after), and `github.com`
   (only via your own locally-authenticated `gh` CLI, for `aidemo feedback`).
   Recording and composing are fully local — Playwright and ffmpeg spawned on
   your machine. The MCP server (`aidemo mcp`) is **stdio-only** — it opens no

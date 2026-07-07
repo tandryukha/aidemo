@@ -9,11 +9,13 @@ import {
   openAiBaseUrl,
   TTS_MODEL,
   ttsProvider,
+  kokoroDtype,
   requireElevenLabsKey,
   ELEVENLABS_MODEL,
   ELEVENLABS_VOICE,
   explainAudioEndpointError,
 } from "./config.js";
+import { LocalVoiceProvider } from "./voice-local.js";
 import { runFfmpeg, probeDurationMs } from "./ffmpeg.js";
 import {
   ensureDir,
@@ -40,6 +42,9 @@ export interface VoiceProvider {
     text: string;
     plan: VoicePlan;
   }): Promise<Buffer>;
+  /** Release provider resources (e.g. the local provider's ONNX session).
+   *  Called by generateVoice on providers it constructed itself. */
+  dispose?(): Promise<void>;
 }
 
 export class OpenAIVoiceProvider implements VoiceProvider {
@@ -123,10 +128,11 @@ function planFor(storyboard: Storyboard, sceneVoice?: VoicePlan): VoicePlan {
 
 /**
  * Identity of a scene's audio = its narration + the resolved voice plan (+ the
- * TTS provider when non-default). The provider is folded in only when it isn't
- * "openai" so every pre-existing manifest hash stays valid — but switching
- * providers still invalidates instead of silently reusing the other backend's
- * audio.
+ * TTS provider when non-default; for the local provider that includes the
+ * model quantization). The provider is folded in only when it isn't "openai"
+ * so every pre-existing manifest hash stays valid — but switching providers
+ * (or requantizing the local model) still invalidates instead of silently
+ * reusing the other backend's audio.
  */
 function voiceHash(text: string, plan: VoicePlan, provider: string): string {
   const identity =
@@ -164,23 +170,31 @@ export async function generateVoice(
   opts: VoiceOptions = {}
 ): Promise<VoiceManifest> {
   const providerName = ttsProvider();
+  // The audio identity key: local audio also changes with the quantization.
+  const providerKey =
+    providerName === "local" ? `local:${kokoroDtype()}` : providerName;
   const base = openAiBaseUrl();
   step(
     providerName === "elevenlabs"
       ? "Generating narration (ElevenLabs TTS)"
-      : base
-        ? `Generating narration (TTS @ ${base})`
-        : "Generating narration (OpenAI TTS)"
+      : providerName === "local"
+        ? "Generating narration (local Kokoro-82M, in-process)"
+        : base
+          ? `Generating narration (TTS @ ${base})`
+          : "Generating narration (OpenAI TTS)"
   );
   await ensureDir(dirname(project.narrationPath));
 
-  // Construct the provider lazily so a fully-cached run needs no API key.
+  // Construct the provider lazily so a fully-cached run needs no API key
+  // (and, for local, doesn't import onnxruntime or touch the model cache).
   let providerInst = opts.provider ?? null;
   const provider = () =>
     (providerInst ??=
       providerName === "elevenlabs"
         ? new ElevenLabsVoiceProvider()
-        : new OpenAIVoiceProvider());
+        : providerName === "local"
+          ? new LocalVoiceProvider()
+          : new OpenAIVoiceProvider());
 
   // Prior manifest lets us reuse audio for unchanged scenes.
   const prior = (await exists(project.voiceManifestPath))
@@ -193,62 +207,70 @@ export async function generateVoice(
   const manifest: VoiceManifest = { gapMs: GAP_MS, scenes: [] };
   let made = 0;
   let reused = 0;
-  for (const scene of storyboard.scenes) {
-    if (opts.signal?.aborted)
-      throw new CanceledError(`canceled before voicing scene ${scene.id}`);
-    const outPath = project.sceneAudioPath(scene.id);
-    const plan = planFor(storyboard, scene.voice);
-    const hash = voiceHash(scene.narration, plan, providerName);
-    const prev = priorById.get(scene.id);
-    const scoped = opts.only != null; // --scene mode
-    const targeted = scoped && scene.id === opts.only;
-    const unchanged = !opts.force && prev?.hash === hash;
-    const audioOk = await exists(outPath);
-    const reuse = audioOk && (scoped ? !targeted : unchanged);
+  try {
+    for (const scene of storyboard.scenes) {
+      if (opts.signal?.aborted)
+        throw new CanceledError(`canceled before voicing scene ${scene.id}`);
+      const outPath = project.sceneAudioPath(scene.id);
+      const plan = planFor(storyboard, scene.voice);
+      const hash = voiceHash(scene.narration, plan, providerKey);
+      const prev = priorById.get(scene.id);
+      const scoped = opts.only != null; // --scene mode
+      const targeted = scoped && scene.id === opts.only;
+      const unchanged = !opts.force && prev?.hash === hash;
+      const audioOk = await exists(outPath);
+      const reuse = audioOk && (scoped ? !targeted : unchanged);
 
-    if (reuse) {
-      const durationMs =
-        prev?.durationMs && prev.durationMs > 0
-          ? prev.durationMs
-          : await probeDurationMs(outPath).catch(() => 0);
-      // In --scene mode keep whatever hash was recorded; otherwise it matched.
-      manifest.scenes.push({
-        id: scene.id,
-        file: outPath,
-        durationMs,
-        hash: scoped ? prev?.hash : hash,
-      });
-      log(`scene ${scene.id}: unchanged, reusing narration`);
-      reused++;
-      continue;
+      if (reuse) {
+        const durationMs =
+          prev?.durationMs && prev.durationMs > 0
+            ? prev.durationMs
+            : await probeDurationMs(outPath).catch(() => 0);
+        // In --scene mode keep whatever hash was recorded; otherwise it matched.
+        manifest.scenes.push({
+          id: scene.id,
+          file: outPath,
+          durationMs,
+          hash: scoped ? prev?.hash : hash,
+        });
+        log(`scene ${scene.id}: unchanged, reusing narration`);
+        reused++;
+        continue;
+      }
+
+      log(
+        `scene ${scene.id}: "${scene.narration.slice(0, 48)}${
+          scene.narration.length > 48 ? "…" : ""
+        }" (${plan.voiceId})`
+      );
+      const audio = await provider().synthesize({ text: scene.narration, plan });
+      await fs.writeFile(outPath, audio);
+      const durationMs = await probeDurationMs(outPath);
+      manifest.scenes.push({ id: scene.id, file: outPath, durationMs, hash });
+      made++;
     }
 
-    log(
-      `scene ${scene.id}: "${scene.narration.slice(0, 48)}${
-        scene.narration.length > 48 ? "…" : ""
-      }" (${plan.voiceId})`
+    await assembleNarration(project, manifest);
+    await writeJson(project.voiceManifestPath, manifest);
+    const total = manifest.scenes.reduce((a, s) => a + s.durationMs + GAP_MS, 0);
+    ok(
+      `narration → ${project.narrationPath} (${manifest.scenes.length} scenes, ` +
+        `~${Math.round(total / 1000)}s; ${made} voiced, ${reused} reused)`
     );
-    const audio = await provider().synthesize({ text: scene.narration, plan });
-    await fs.writeFile(outPath, audio);
-    const durationMs = await probeDurationMs(outPath);
-    manifest.scenes.push({ id: scene.id, file: outPath, durationMs, hash });
-    made++;
+    ok(`voice.json → ${project.voiceManifestPath}`);
+    // Existing captions were timed against the OLD narration; compose would burn
+    // mismatched text. Say so now, not after a wasted compose.
+    if (made > 0 && (await exists(project.captionsCuesPath))) {
+      log(`⚠ narration changed — captions are now stale; re-run: aidemo captions ${project.dir}`);
+    }
+    return manifest;
+  } finally {
+    // A provider we constructed is ours to clean up. The local provider holds
+    // an ONNX session that makes an abrupt process exit abort noisily.
+    if (!opts.provider && providerInst?.dispose) {
+      await providerInst.dispose().catch(() => {});
+    }
   }
-
-  await assembleNarration(project, manifest);
-  await writeJson(project.voiceManifestPath, manifest);
-  const total = manifest.scenes.reduce((a, s) => a + s.durationMs + GAP_MS, 0);
-  ok(
-    `narration → ${project.narrationPath} (${manifest.scenes.length} scenes, ` +
-      `~${Math.round(total / 1000)}s; ${made} voiced, ${reused} reused)`
-  );
-  ok(`voice.json → ${project.voiceManifestPath}`);
-  // Existing captions were timed against the OLD narration; compose would burn
-  // mismatched text. Say so now, not after a wasted compose.
-  if (made > 0 && (await exists(project.captionsCuesPath))) {
-    log(`⚠ narration changed — captions are now stale; re-run: aidemo captions ${project.dir}`);
-  }
-  return manifest;
 }
 
 /** Concatenate scene clips with a trailing gap after each, in one ffmpeg pass. */

@@ -17,7 +17,8 @@ import { resolve, dirname, basename } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { platform, release } from "node:os";
-import { ENGINE_ROOT, engineVersion, openAiBaseUrl } from "./config.js";
+import { ENGINE_ROOT, engineVersion, openAiBaseUrl, ttsProvider } from "./config.js";
+import { localTtsStatus } from "./voice-local.js";
 import { Project } from "./project.js";
 import { STARTER_BRIEF, STARTER_STORYBOARD } from "./starter.js";
 import { ensureDir, exists, ok, step, fail, log } from "./util.js";
@@ -478,7 +479,18 @@ export interface DoctorReport {
   endpoint: { url: string; custom: boolean; warning?: string };
   apiKey: "set" | "not-required" | "missing";
   /** TTS backend (AIDEMO_TTS_PROVIDER); key status only reported when non-default. */
-  tts: { provider: string; elevenLabsKey?: "set" | "missing" };
+  tts: {
+    provider: string;
+    elevenLabsKey?: "set" | "missing";
+    /** Present when provider=local: is kokoro-js installed, is the model cached. */
+    local?: {
+      installed: boolean;
+      dtype: string;
+      modelDir: string;
+      modelCached: boolean;
+      cacheSizeMB: number | null;
+    };
+  };
   playwright: boolean;
   skill: {
     target: string;
@@ -512,6 +524,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
   const target = targetOf(dir);
   const manifest = await readManifest(target);
   const latest = engineVersion();
+  const localTts = ttsProvider() === "local" ? await localTtsStatus() : null;
   const report: DoctorReport = {
     engineVersion: latest,
     node: process.version,
@@ -528,6 +541,17 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
       provider: process.env.AIDEMO_TTS_PROVIDER || "openai",
       ...(process.env.AIDEMO_TTS_PROVIDER === "elevenlabs"
         ? { elevenLabsKey: process.env.ELEVENLABS_API_KEY ? "set" : "missing" }
+        : {}),
+      ...(localTts
+        ? {
+            local: {
+              installed: localTts.installed,
+              dtype: localTts.dtype,
+              modelDir: localTts.modelDir,
+              modelCached: localTts.modelCached,
+              cacheSizeMB: localTts.cacheSizeMB,
+            },
+          }
         : {}),
     },
     playwright: playwrightOk,
@@ -547,8 +571,11 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
     report.ffmpeg &&
       report.chrome &&
       report.playwright &&
-      report.apiKey !== "missing" &&
+      // Local TTS needs no key: voice is in-process, captions auto-fall-back
+      // to the offline derivation in `render`.
+      (report.apiKey !== "missing" || report.tts.provider === "local") &&
       report.tts.elevenLabsKey !== "missing" &&
+      (report.tts.local?.installed ?? true) &&
       !endpointWarning
   );
   return report;
@@ -569,7 +596,20 @@ export async function doctor(dir: string | undefined): Promise<void> {
     `voice/captions endpoint: ${r.endpoint.custom ? `${r.endpoint.url} (custom)` : "api.openai.com (default)"}`
   );
   if (r.endpoint.warning) fail(r.endpoint.warning);
-  if (r.tts.provider !== "openai") {
+  if (r.tts.provider === "local" && r.tts.local) {
+    const l = r.tts.local;
+    if (l.installed)
+      ok(`TTS provider: local (Kokoro-82M in-process, dtype ${l.dtype}) — kokoro-js installed`);
+    else
+      fail(`TTS provider: local — kokoro-js is not installed (run: npm install kokoro-js)`);
+    if (l.modelCached)
+      ok(`local TTS model: cached at ${l.modelDir} (${l.cacheSizeMB} MB)`);
+    else
+      log(
+        `local TTS model: not downloaded yet — first voice run fetches it once from ` +
+          `huggingface.co (~90 MB at q8) → ${l.modelDir}`
+      );
+  } else if (r.tts.provider !== "openai") {
     const line =
       `TTS provider: ${r.tts.provider} (captions still use the endpoint above)` +
       (r.tts.elevenLabsKey ? ` — ELEVENLABS_API_KEY ${r.tts.elevenLabsKey}` : "");
@@ -582,7 +622,9 @@ export async function doctor(dir: string | undefined): Promise<void> {
         ? "set"
         : r.apiKey === "not-required"
           ? "not required (custom endpoint set)"
-          : "MISSING (needed for voice/captions)"
+          : r.tts.provider === "local"
+            ? "not set — fine for local TTS (render derives captions offline)"
+            : "MISSING (needed for voice/captions)"
     }`
   );
   if (r.playwright) ok(`playwright: resolvable`);

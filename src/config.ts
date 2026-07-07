@@ -1,5 +1,6 @@
 import { promises as fs, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { homedir } from "node:os";
 
 /**
  * Engine install root = parent of src/. When the engine is run from its own
@@ -84,17 +85,60 @@ export const STT_MODEL = () => process.env.AIDEMO_STT_MODEL || "whisper-1";
 /**
  * TTS backend for `aidemo voice`. Unset → OpenAI (or whatever OPENAI_BASE_URL
  * points at), exactly as before this knob existed. Captions/STT are unaffected —
- * they always use the OpenAI-compatible endpoint.
+ * they always use the OpenAI-compatible endpoint (but see captionsAutoOffline).
  */
-export const ttsProvider = (): "openai" | "elevenlabs" => {
+export const ttsProvider = (): "openai" | "elevenlabs" | "local" => {
   const p = process.env.AIDEMO_TTS_PROVIDER || "openai";
-  if (p !== "openai" && p !== "elevenlabs") {
+  if (p !== "openai" && p !== "elevenlabs" && p !== "local") {
     throw new Error(
-      `AIDEMO_TTS_PROVIDER="${p}" is not a known provider — use "openai" (default) or "elevenlabs".`
+      `AIDEMO_TTS_PROVIDER="${p}" is not a known provider — use "openai" (default), "elevenlabs" or "local".`
     );
   }
   return p;
 };
+
+/** The one model the in-process local provider runs — same weights speaches serves. */
+export const KOKORO_MODEL_ID = "onnx-community/Kokoro-82M-v1.0-ONNX";
+
+const KOKORO_DTYPES = ["fp32", "fp16", "q8", "q4", "q4f16"] as const;
+export type KokoroDtype = (typeof KOKORO_DTYPES)[number];
+/** Quantization for the local model: q8 ≈ 90 MB (default), fp32 ≈ 330 MB (best). */
+export const kokoroDtype = (): KokoroDtype => {
+  const d = process.env.AIDEMO_TTS_MODEL_DTYPE || "q8";
+  if (!KOKORO_DTYPES.includes(d as KokoroDtype)) {
+    throw new Error(
+      `AIDEMO_TTS_MODEL_DTYPE="${d}" is not a Kokoro quantization — use one of: ${KOKORO_DTYPES.join(", ")}.`
+    );
+  }
+  return d as KokoroDtype;
+};
+
+/**
+ * Voice used when the storyboard keeps the schema default ("marin", an OpenAI
+ * name Kokoro doesn't know). Any explicitly authored voiceId is passed to the
+ * local model verbatim. Same convention as ELEVENLABS_VOICE.
+ */
+export const KOKORO_VOICE = () => process.env.AIDEMO_KOKORO_VOICE || "af_heart";
+
+/**
+ * Where the local provider caches the downloaded model. Defaults inside the
+ * HuggingFace home (HF_HOME or ~/.cache/huggingface) so it survives
+ * node_modules reinstalls and a pre-seeded copy makes installs air-gapped.
+ */
+export const ttsModelCacheDir = () =>
+  process.env.AIDEMO_TTS_MODEL_CACHE ||
+  resolve(
+    process.env.HF_HOME || resolve(homedir(), ".cache", "huggingface"),
+    "transformersjs"
+  );
+
+/**
+ * `render` auto-routes captions through the offline (script-timed) derivation
+ * when the voice is generated locally and the STT call would fail anyway —
+ * local voice shouldn't demand a cloud key just for caption timing.
+ */
+export const captionsAutoOffline = () =>
+  ttsProvider() === "local" && !openAiBaseUrl() && !process.env.OPENAI_API_KEY;
 
 export function requireElevenLabsKey(): string {
   const key = process.env.ELEVENLABS_API_KEY;

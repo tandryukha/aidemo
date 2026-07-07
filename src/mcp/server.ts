@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { ENGINE_ROOT, engineVersion } from "../config.js";
+import { ENGINE_ROOT, engineVersion, captionsAutoOffline } from "../config.js";
 import { Project, parseStoryboard } from "../project.js";
 import { StoryboardSchema } from "../types.js";
 import { generateVoice } from "../voice.js";
@@ -13,7 +13,7 @@ import { generateCaptions, generateCaptionsOffline } from "../captions.js";
 import { compose } from "../compose.js";
 import { exportGif } from "../gif.js";
 import { scaffoldDemo, doctorReport } from "../distribute.js";
-import { readJson, CanceledError } from "../util.js";
+import { readJson, log, CanceledError } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
 
 /**
@@ -529,7 +529,12 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         await record(project, storyboard, recordOpts(args, job));
         throwIfAborted(signal);
         job.stage = "captions";
-        await generateCaptions(project);
+        if (captionsAutoOffline()) {
+          log("local TTS and no STT endpoint/key — deriving captions offline from the script");
+          await generateCaptionsOffline(project, storyboard);
+        } else {
+          await generateCaptions(project);
+        }
         throwIfAborted(signal);
         job.stage = "compose";
         await compose(project, storyboard);

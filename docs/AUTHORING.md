@@ -103,8 +103,10 @@ network.
 - **End on a clear CTA.**
 - **Voice plan per scene**: pick `voiceId` (marin/alloy/verse/… on the default
   OpenAI TTS; an ElevenLabs voice id if the engine runs with
-  `AIDEMO_TTS_PROVIDER=elevenlabs`, where `instructions` is ignored) and
-  `instructions` to steer tone/emotion/pace. Keep it consistent across scenes.
+  `AIDEMO_TTS_PROVIDER=elevenlabs`; a Kokoro voice id — af_heart, am_adam, … —
+  if it runs with `AIDEMO_TTS_PROVIDER=local`; both non-default providers
+  ignore `instructions`) and `instructions` to steer tone/emotion/pace. Keep it
+  consistent across scenes.
 
 ## Storyboard schema (quick reference)
 

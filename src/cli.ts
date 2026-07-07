@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { resolve, dirname } from "node:path";
 import { readFile } from "node:fs/promises";
-import { loadEnv, engineVersion, ENGINE_ROOT } from "./config.js";
+import { loadEnv, engineVersion, ENGINE_ROOT, captionsAutoOffline } from "./config.js";
 import { Project } from "./project.js";
 import { record } from "./recorder.js";
 import { generateVoice } from "./voice.js";
@@ -9,7 +9,7 @@ import { generateCaptions, generateCaptionsOffline } from "./captions.js";
 import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
 import { synthesizeMusicBed } from "./music.js";
-import { ensureDir, ok, step, fail, setLogFile, closeLogFile } from "./util.js";
+import { ensureDir, ok, step, fail, log, setLogFile, closeLogFile } from "./util.js";
 import {
   scaffoldDemo,
   repoInit,
@@ -298,7 +298,12 @@ program
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
       });
-      await generateCaptions(project);
+      if (captionsAutoOffline()) {
+        log("local TTS and no STT endpoint/key — deriving captions offline from the script");
+        await generateCaptionsOffline(project, storyboard);
+      } else {
+        await generateCaptions(project);
+      }
       await compose(project, storyboard);
       if (opts.gif) await exportGif(project);
       step("Done");

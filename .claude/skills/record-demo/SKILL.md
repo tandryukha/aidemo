@@ -39,8 +39,9 @@ fetch it first, then follow it:
 
 If unsure, run `aidemo doctor` (or the MCP `doctor` tool) — it prints the
 engine version and checks prereqs (ffmpeg, Chrome, `OPENAI_API_KEY` — or
-`OPENAI_BASE_URL` pointing at a local OpenAI-compatible server, in which case
-no key is needed; doctor reports the resolved endpoint).
+`OPENAI_BASE_URL` pointing at a local OpenAI-compatible server, or
+`AIDEMO_TTS_PROVIDER=local` for in-process TTS + offline captions; in both
+cases no key is needed and doctor reports what's in effect).
 
 ## Distribution & updates
 
