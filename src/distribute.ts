@@ -138,13 +138,22 @@ const SETTINGS_TEMPLATE = (): string =>
 
 const POINTER_DOC = (): string => `# record-demo skill — how this got here & how to keep it fresh
 
-This repo carries a **copy** of the \`record-demo\` skill from the
+This repo carries a **copy** of the \`record-demo\` skill (a thin adapter) from
 [aidemo](https://github.com/${UPSTREAM_REPO}). The engine itself is
-**not** vendored — it is run on demand via npx from a pinned \`stable\` tag.
+**not** vendored — it runs on demand via npx from a pinned \`stable\` tag, and
+agents drive it through the **aidemo MCP server**, registered by \`repo-init\`
+in \`.mcp.json\` (Claude Code) and \`.gemini/settings.json\` (Gemini CLI).
+Codex CLI keeps MCP config globally — register once with:
+
+    codex mcp add aidemo -- npx -y ${UPSTREAM_SPEC} mcp
 
 Everywhere below, \`aidemo\` means:
 
     npx -y ${UPSTREAM_SPEC}
+
+## The authoring guide (never goes stale)
+The canonical guide is served by the engine itself, always version-matched:
+the MCP \`get_authoring_guide\` tool, or \`aidemo guide\` on the CLI.
 
 ## Stay up to date
 A \`SessionStart\` hook in \`.claude/settings.json\` runs \`aidemo skill check\` and
@@ -154,6 +163,9 @@ apply an update when you're ready:
     npx -y ${UPSTREAM_SPEC} skill update --dir .
 
 ## Record a demo
+Preferred: ask your agent — it uses the MCP tools (pipeline tools return job
+ids; \`job_status\` reports progress and failures). By hand:
+
     npx -y ${UPSTREAM_SPEC} init <name>            # scaffold demos/<name>/
     npx -y ${UPSTREAM_SPEC} render demos/<name>    # voice → record → captions → compose
 
@@ -164,6 +176,63 @@ Hit a broken selector, bad timing, or have an idea? File it on the engine:
 
     npx -y ${UPSTREAM_SPEC} feedback demos/<name>
 `;
+
+/** The one MCP server entry every client config gets. */
+const MCP_SERVER_ENTRY = () => ({
+  command: "npx",
+  args: ["-y", UPSTREAM_SPEC, "mcp"],
+});
+
+const AGENTS_SNIPPET = (): string => `## Recording product demos (aidemo)
+
+This repo is set up for [aidemo](https://github.com/${UPSTREAM_REPO}) — agents
+record narrated, captioned product-demo videos from a storyboard.
+
+- Preferred: the \`aidemo\` **MCP server** (registered in \`.mcp.json\` and
+  \`.gemini/settings.json\`; Codex CLI:
+  \`codex mcp add aidemo -- npx -y ${UPSTREAM_SPEC} mcp\`). Call the
+  \`get_authoring_guide\` tool first and follow it. Pipeline tools return a
+  jobId immediately — poll \`job_status\`. Pass absolute demo directories.
+- CLI fallback: \`npx -y ${UPSTREAM_SPEC} guide\` prints the same guide;
+  \`npx -y ${UPSTREAM_SPEC} render demos/<name>\` renders.
+`;
+
+/**
+ * Merge the aidemo entry into a JSON config holding an mcpServers map
+ * (.mcp.json for Claude Code, .gemini/settings.json for Gemini CLI). Never
+ * clobbers: absent → created; parseable → only the aidemo key is added
+ * (replaced with --force); unparseable → snippet printed for manual merge.
+ */
+async function registerMcpServer(
+  target: string,
+  rel: string,
+  force: boolean
+): Promise<void> {
+  const path = resolve(target, rel);
+  const entry = MCP_SERVER_ENTRY();
+  let config: Record<string, unknown> = {};
+  if (await exists(path)) {
+    try {
+      config = JSON.parse(await fs.readFile(path, "utf8")) as Record<string, unknown>;
+    } catch {
+      log(`${rel} exists but isn't valid JSON — merge this in manually:`);
+      log(JSON.stringify({ mcpServers: { aidemo: entry } }, null, 2));
+      return;
+    }
+  }
+  if (typeof config.mcpServers !== "object" || config.mcpServers == null) {
+    config.mcpServers = {};
+  }
+  const servers = config.mcpServers as Record<string, unknown>;
+  if (servers.aidemo && !force) {
+    ok(`${rel} already registers aidemo — leaving it`);
+    return;
+  }
+  servers.aidemo = entry;
+  await ensureDir(dirname(path));
+  await fs.writeFile(path, JSON.stringify(config, null, 2) + "\n");
+  ok(`registered aidemo MCP server → ${rel}`);
+}
 
 /** Scaffold demos/<name>/ under baseDir from the built-in starter templates. */
 export async function scaffoldDemo(
@@ -198,6 +267,23 @@ export async function repoInit(
 
   await installSkill(dir, { force: opts.force });
 
+  // MCP registration — the agent interface. Claude Code reads .mcp.json at
+  // the project root; Gemini CLI reads .gemini/settings.json. Codex CLI keeps
+  // MCP config globally, so that one is an instruction, not a file.
+  await registerMcpServer(target, ".mcp.json", opts.force ?? false);
+  await registerMcpServer(target, ".gemini/settings.json", opts.force ?? false);
+  log(`Codex CLI (global config): codex mcp add aidemo -- npx -y ${UPSTREAM_SPEC} mcp`);
+
+  // AGENTS.md so Codex/other AGENTS.md-reading agents discover the setup.
+  const agentsPath = resolve(target, "AGENTS.md");
+  if (!(await exists(agentsPath))) {
+    await fs.writeFile(agentsPath, `# Agent guide\n\n${AGENTS_SNIPPET()}`);
+    ok(`wrote AGENTS.md (demo-recording section)`);
+  } else if (!(await fs.readFile(agentsPath, "utf8")).includes("aidemo")) {
+    log(`AGENTS.md exists — add this section so agents discover aidemo:`);
+    log(AGENTS_SNIPPET().trim());
+  }
+
   // SessionStart update hook — never clobber an existing settings.json.
   const settingsPath = resolve(target, SETTINGS_REL);
   if ((await exists(settingsPath)) && !opts.force) {
@@ -218,7 +304,7 @@ export async function repoInit(
 
   await scaffoldDemo(target, "example", { force: false });
 
-  step(`Done — commit .claude/ and demos/example/`);
+  step(`Done — commit .claude/, .mcp.json, .gemini/, AGENTS.md and demos/example/`);
   ok(`next: npx -y ${UPSTREAM_SPEC} render demos/example  (needs Chrome + ffmpeg + OPENAI_API_KEY)`);
   ok(`feedback anytime: npx -y ${UPSTREAM_SPEC} feedback demos/example`);
 }
