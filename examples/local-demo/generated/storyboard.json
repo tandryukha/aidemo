@@ -29,6 +29,7 @@
       "narration": "It finds matching products and shows price per serving, so the best value jumps right out.",
       "actions": [
         { "op": "scrollTo", "target": { "selector": "[data-testid=product-card]" } },
+        { "op": "still", "name": "hero", "comment": "search-results hero shot for READMEs/docs" },
         { "op": "pause", "ms": 1400 }
       ]
     },

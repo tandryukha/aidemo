@@ -16,6 +16,7 @@ import { generateCaptions, generateCaptionsOffline } from "./captions.js";
 import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
 import { buildEmbed, formatEmbed } from "./embed.js";
+import { extractStills, storyboardHasStills } from "./stills.js";
 import { synthesizeMusicBed } from "./music.js";
 import { loadVariants, renderVariants } from "./variants.js";
 import { ensureDir, ok, step, fail, log, setLogFile, closeLogFile } from "./util.js";
@@ -391,6 +392,19 @@ program
   );
 
 program
+  .command("stills")
+  .argument("<dir>", "demo project directory")
+  .option("--out <dir>", "output directory (default: <dir>/output/stills)")
+  .description("extract named stills (screenshot mode) from the recorded take")
+  .action(async (dir: string, opts: { out?: string }) => {
+    const project = new Project(dir);
+    await beginCommand(project, "stills");
+    // Stills come straight from timeline.json + the raw take — no key, no
+    // storyboard reload, so this works against any existing recording.
+    await extractStills(project, { outDir: opts.out });
+  });
+
+program
   .command("render")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
@@ -452,6 +466,10 @@ program
       }
       await compose(project, storyboard);
       if (opts.gif) await exportGif(project);
+      // Screenshot mode: if the storyboard declares any `still` markers, emit
+      // their PNGs from the clean take automatically (a re-extract, not a
+      // re-record).
+      if (storyboardHasStills(storyboard)) await extractStills(project);
       step("Done");
       ok(`▶ open ${project.outputPath}`);
     }

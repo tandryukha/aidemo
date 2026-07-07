@@ -83,6 +83,10 @@ export class Project {
   get gifPath() {
     return this.p("output", "final-demo.gif");
   }
+  /** Directory for screenshot-mode stills (one PNG per named `still` marker). */
+  get stillsDir() {
+    return this.p("output", "stills");
+  }
   get composeTmpDir() {
     return this.p(".compose-tmp");
   }

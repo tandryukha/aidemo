@@ -174,6 +174,15 @@ export const ActionSchema = z.discriminatedUnion("op", [
     /** How long to stay zoomed, ms; defaults to the storyboard zoom hold. */
     holdMs: z.number().optional(),
   }),
+  /**
+   * Screenshot mode: mark a named still at this beat. Purely a timeline marker
+   * (like `focus`) — NO screenshot is taken at record time. `aidemo stills`
+   * (and `render`) extract the PNG at compose time from the CLEAN take, so a
+   * still is a re-extract away and never a re-record. `name` becomes the file
+   * name (`output/stills/<name>.png`) so keep it a simple slug; duplicate names
+   * across the storyboard are a hard error at extraction.
+   */
+  z.object({ ...BaseAction, op: z.literal("still"), name: z.string() }),
 ]);
 export type Action = z.infer<typeof ActionSchema>;
 
@@ -337,12 +346,24 @@ export const FocusEventSchema = z.object({
 });
 export type FocusEvent = z.infer<typeof FocusEventSchema>;
 
+/**
+ * A named still the player recorded (from a `still` action). tMs is timeline
+ * time; screenshot mode maps it to take-video time and extracts a PNG at
+ * compose time. Default [] keeps pre-screenshot-mode timelines valid.
+ */
+export const StillEventSchema = z.object({
+  tMs: z.number(),
+  name: z.string(),
+});
+export type StillEvent = z.infer<typeof StillEventSchema>;
+
 export const TimelineSceneSchema = z.object({
   id: z.string(),
   startMs: z.number(),
   endMs: z.number(),
   idleSpans: z.array(IdleSpanSchema).default([]),
   focusEvents: z.array(FocusEventSchema).default([]),
+  stillEvents: z.array(StillEventSchema).default([]),
 });
 export type TimelineScene = z.infer<typeof TimelineSceneSchema>;
 

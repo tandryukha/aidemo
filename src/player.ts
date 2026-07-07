@@ -10,6 +10,7 @@ import type {
   TimelineScene,
   IdleSpan,
   FocusEvent,
+  StillEvent,
   EasingPreset,
   ProbeActionOutcome,
   ProbeGoldenScene,
@@ -86,6 +87,7 @@ export interface PlayerOptions {
 interface SceneCapture {
   idleSpans: IdleSpan[];
   focusEvents: FocusEvent[];
+  stillEvents: StillEvent[];
 }
 
 export async function runStoryboard(
@@ -107,7 +109,7 @@ export async function runStoryboard(
   for (let si = 0; si < total; si++) {
     const scene = storyboard.scenes[si];
     const startMs = now();
-    const capture: SceneCapture = { idleSpans: [], focusEvents: [] };
+    const capture: SceneCapture = { idleSpans: [], focusEvents: [], stillEvents: [] };
     log(`scene ${scene.id}: ${scene.actions.length} action(s)`);
     opts.onSceneStart?.(scene.id, si, total);
     const probeOutcomes: ProbeActionOutcome[] = [];
@@ -150,6 +152,7 @@ export async function runStoryboard(
       endMs: now(),
       idleSpans: capture.idleSpans,
       focusEvents: capture.focusEvents,
+      stillEvents: capture.stillEvents,
     };
     scenes.push(tlScene);
     opts.onSceneComplete?.(tlScene, si, total);
@@ -630,6 +633,17 @@ async function runAction(
         holdMs: action.holdMs,
       });
       await sleep(150);
+      return;
+    }
+
+    case "still": {
+      // Screenshot mode: a pure timeline marker — no screenshot is taken now.
+      // Let the frame settle first, then record the marker at the settled
+      // moment so compose-time extraction lands on a clean frame (not mid-
+      // transition). The PNG is pulled from the CLEAN take by `aidemo stills`.
+      await sleep(120);
+      capture.stillEvents.push({ tMs: Date.now() - t0, name: action.name });
+      log(`  still "${action.name}" @ ${Date.now() - t0}ms`);
       return;
     }
 

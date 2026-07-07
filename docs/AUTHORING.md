@@ -31,6 +31,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | Full pipeline | `render` (job) | `aidemo render <dir>` |
 | One stage | `voice` / `record` / `captions` / `compose` (jobs) | `aidemo voice\|record\|captions\|compose <dir>` |
 | README GIF | `gif` (job) | `aidemo gif <dir>` |
+| Named stills (screenshot mode) | `stills` (job) | `aidemo stills <dir>` |
 | Job progress / result | `job_status`, `job_list`, `job_cancel` | (CLI runs block in the foreground) |
 
 **The job model (MCP).** Pipeline operations touch TTS/STT, a real Chrome, or
@@ -148,6 +149,10 @@ A `target` is `{selector}` or `{frame,selector}` or `{named:"composer"}`:
   `"glide"` | `"linear"`
 - `{op:"focus", target, scale?, holdMs?}` — deliberate zoom beat on an element
   without clicking it (needs top-level `zoom` enabled)
+- `{op:"still", name}` — **screenshot mode**: mark a named still at this beat.
+  A pure timeline marker (no screenshot at record time); `aidemo stills` /
+  `render` extract `output/stills/<name>.png` from the clean take. See *Stills /
+  screenshot mode* below.
 - `{op:"waitFor", target, timeoutMs?}` — normal wait (fires instantly if the
   selector already matches — no good for in-place changes)
 - `{op:"waitForWidget", target, textMatches?, label?, timeoutMs?}` — **records
@@ -189,6 +194,48 @@ High-fidelity capture: `capture: "native"` (macOS ffmpeg screen grab; terminal
 needs Screen Recording permission) or `"obs"` (OBS via obs-websocket; scene =
 Display Capture of the primary screen). Both require a headed browser. Default
 remains Playwright's built-in recorder.
+
+## Stills / screenshot mode
+
+One storyboard can also emit **named still images** — for READMEs, docs, blog
+posts, and app-store / listing media — from the *same* take that produces the
+video. No second tool, no separate capture pass.
+
+Drop a `still` marker wherever you want a frame:
+
+```json
+{ "op": "still", "name": "hero" }
+```
+
+It's a **pure timeline marker** — like `focus`, it records *when* (timeline
+time) but takes no screenshot during recording. The PNG is extracted at
+**compose time** from the recorded take:
+
+- `aidemo stills <dir>` (MCP `stills` job) extracts every marker from an
+  existing recording into `output/stills/<name>.png`. It reads only
+  `timeline.json` + the raw take — **no API key, no re-record** — so re-running
+  it (or adding a new marker + re-recording) is cheap. This mirrors the rest of
+  the engine's "polish is a re-extract, never a re-take" rule.
+- `aidemo render <dir>` (and the MCP `render` job) runs the extraction
+  automatically whenever the storyboard contains any `still` marker.
+
+**Stills come from the CLEAN take** — the raw recording, before captions, zoom,
+or title cards are burned in. That's deliberate: a still is the bare product UI
+at that instant, exactly what a README or a store listing wants, not a frame
+with a caption pill across it. They're written at the recording's native
+resolution — the storyboard `video` size (1280×720 by default); a `native`/`obs`
+retina capture yields correspondingly larger stills.
+
+The timeline→frame mapping is the same one compose uses to sync scenes:
+`frame_time = marker.tMs + timeline.leadInMs`. Place the marker **after the page
+settles** (e.g. right after a `scrollTo`, before a `pause`) so the extracted
+frame isn't mid-transition — the marker itself waits a short beat before
+recording its time for exactly this reason.
+
+**Names must be unique and file-safe.** Each `name` becomes `<name>.png`
+(letters, digits, dot, dash, underscore). Duplicate names across the storyboard
+are a **hard error** at extraction, so one still never silently clobbers
+another.
 
 ## ChatGPT Apps SDK recording — hard-won facts (READ before a ChatGPT demo)
 

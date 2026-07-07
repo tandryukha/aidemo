@@ -20,6 +20,7 @@ import { generateCaptions, generateCaptionsOffline } from "../captions.js";
 import { compose } from "../compose.js";
 import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
+import { extractStills, storyboardHasStills } from "../stills.js";
 import { scaffoldDemo, doctorReport } from "../distribute.js";
 import { readJson, log, CanceledError } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
@@ -688,9 +689,17 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           job.stage = "gif";
           gifPath = await exportGif(project);
         }
+        // Screenshot mode: emit named stills from the clean take when the
+        // storyboard declares any `still` markers (a re-extract, not a re-take).
+        let stills: string[] | undefined;
+        if (storyboardHasStills(storyboard)) {
+          job.stage = "stills";
+          stills = await extractStills(project);
+        }
         return {
           output: project.outputPath,
           ...(gifPath ? { gif: gifPath } : {}),
+          ...(stills && stills.length ? { stills } : {}),
           timeline: project.timelinePath,
           captionsSrt: project.captionsSrtPath,
         };
@@ -789,6 +798,24 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           fps: args.fps,
           out: args.out,
         }),
+      }))
+  );
+
+  registerJob(
+    "stills",
+    "Extract named stills (screenshot mode) from the recorded take into " +
+      "output/stills/ — one PNG per `still` marker, pulled from the CLEAN take " +
+      "(no captions/zoom). Needs only a recorded timeline (no key).",
+    {
+      dir: DIR_INPUT,
+      out: z
+        .string()
+        .optional()
+        .describe("output directory (default <dir>/output/stills)"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "stills", async () => ({
+        stills: await extractStills(project, { outDir: args.out }),
       }))
   );
 
