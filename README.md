@@ -9,8 +9,11 @@ a polished MP4 with voiceover, synced captions, and auto-zoom.** The agent
 voice/music plan, and a browser action-spec — and the engine drives a real
 Chrome, records a deterministic replay, generates a realistic voiceover,
 aligns captions, and trims the dead time. An **open-source alternative to Screen Studio, Clueso, or Demosmith**
-for when you'd rather your coding agent make the demo — no screen-recording
-session, no cloud upload, works against localhost and auth-walled apps.
+for when you'd rather your coding agent make the demo — a headless, fully
+automated pipeline: no screen-recording session, no cloud upload, works
+against localhost and auth-walled apps, and renders **fully offline** against
+local models if you want ([or with OpenAI / ElevenLabs
+voices](#local-models--offline)).
 
 [![Website](https://img.shields.io/badge/website-aidemo.top-1a7f37)](https://aidemo.top)
 [![ci](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml)
@@ -20,8 +23,9 @@ session, no cloud upload, works against localhost and auth-walled apps.
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
 
 **Works with:** any MCP-capable agent — Claude Code, Codex CLI, Gemini CLI —
-via the built-in [`aidemo mcp` server](#agent-interface-mcp) · any human or
-agent that can write a `storyboard.json` and run `aidemo render`.
+via the built-in [`aidemo mcp` server](#agent-interface-mcp) · voices from
+OpenAI, ElevenLabs, or a fully offline local TTS server · any human or agent
+that can write a `storyboard.json` and run `aidemo render`.
 
 [![aidemo demoing itself on Wikipedia — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)
 
@@ -33,7 +37,7 @@ deterministic replay. The preview GIF is silent;
 
 ```
 storyboard.json
-   → voice     OpenAI TTS per scene           → audio/narration.mp3 + voice.json
+   → voice     OpenAI / ElevenLabs / local TTS → audio/narration.mp3 + voice.json
    → record    drives Chrome, injected cursor  → recordings/raw.{webm,mp4} + timeline.json
    → captions  Whisper word timestamps         → generated/captions.{srt,vtt,cues.json}
    → compose   trim idle · sync · auto-zoom · cards · caption · mux → output/final-demo.mp4
