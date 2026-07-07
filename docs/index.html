@@ -339,6 +339,35 @@
   .step p code { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 13px; color: var(--text); }
   .step .term { margin-top: 12px; box-shadow: none; }
 
+  /* Inline example preview inside a step (real rendered output) */
+  .step-media {
+    display: block; position: relative; margin-top: 14px;
+    width: 100%; max-width: 480px; line-height: 0;
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    background: var(--code-bg); box-shadow: var(--shadow);
+  }
+  .step-media img { width: 100%; height: auto; display: block; }
+  a.step-media { transition: border-color .25s ease, transform .25s ease; }
+  a.step-media:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .step-media .play {
+    position: absolute; inset: 0; margin: auto; width: 54px; height: 54px;
+    display: grid; place-items: center; border-radius: 50%;
+    background: color-mix(in srgb, #05070a 48%, transparent);
+    border: 1.5px solid rgba(255,255,255,.9);
+    transition: background .25s ease, transform .25s ease;
+  }
+  a.step-media:hover .play { background: color-mix(in srgb, var(--accent) 82%, transparent); transform: scale(1.06); }
+  .step-media .play b {
+    width: 0; height: 0; border-style: solid;
+    border-width: 8px 0 8px 14px; border-color: transparent transparent transparent #fff;
+    transform: translateX(2px);
+  }
+  .step-media .cap {
+    position: absolute; left: 0; right: 0; bottom: 0; line-height: 1.3;
+    padding: 16px 12px 8px; font-size: 12px; color: #cfd6de;
+    background: linear-gradient(to top, rgba(5,7,10,.82), transparent);
+  }
+
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 26px; }
   .card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
@@ -597,6 +626,11 @@
           <h3>GitHub README demos</h3>
           <p>The autoplaying GIF at the top of the readme. Render once, export, commit — no
             screen-recording session.</p>
+          <a class="step-media" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4">
+            <img src="usecase-readme.gif" alt="aidemo quickstart demo rendered as a README GIF"
+              width="480" height="270" loading="lazy" decoding="async">
+            <span class="cap">aidemo's quickstart demo, rendered as a README GIF · watch narrated ▶</span>
+          </a>
           <div class="term">
             <div class="bar"><i></i><i></i><i></i><span>readme demo</span></div>
             <pre><span class="g">$</span> aidemo render demos/onboarding --headless &amp;&amp; aidemo gif demos/onboarding
@@ -611,6 +645,12 @@
           <h3>Landing-page hero videos</h3>
           <p>A muted, autoplaying MP4 for the marketing site. The hero video at the top of this
             page is aidemo output.</p>
+          <a class="step-media vid" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4">
+            <img src="hero-poster.jpg" alt="Wikipedia showcase demo — the hero video at the top of this page"
+              width="1280" height="720" loading="lazy" decoding="async">
+            <span class="play" aria-hidden="true"><b></b></span>
+            <span class="cap">the hero at the top of this page · watch narrated ▶</span>
+          </a>
           <div class="term">
             <div class="bar"><i></i><i></i><i></i><span>hero video</span></div>
             <pre><span class="g">$</span> claude <span class="a">"record a 45s hero demo of the app for the landing page"</span>
@@ -640,6 +680,12 @@
           <p>Personalized walkthroughs against your real app. The replay runs in your own
             logged-in Chrome — localhost, staging, and auth-walled flows all work, and nothing
             is uploaded anywhere.</p>
+          <a class="step-media vid" href="https://github.com/tandryukha/aidemo/releases/download/v0.3.0/maxfit-chatgpt-demo.mp4">
+            <img src="maxfit-poster.jpg" alt="MaxFit shopping demo recorded inside a live ChatGPT app"
+              width="800" height="500" loading="lazy" decoding="async">
+            <span class="play" aria-hidden="true"><b></b></span>
+            <span class="cap">MaxFit — shopping in a live ChatGPT app · narrated ▶</span>
+          </a>
           <div class="term">
             <div class="bar"><i></i><i></i><i></i><span>customer demo</span></div>
             <pre><span class="g">$</span> claude <span class="a">"record the reporting flow on staging, logged in as the Acme sandbox account"</span>
