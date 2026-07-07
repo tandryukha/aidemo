@@ -14,9 +14,11 @@ branding:
 #     actions/setup-node before this action for a pinned version)
 #   * Google Chrome / Chromium (recorder uses `channel: "chrome"`)
 #   * ffmpeg + ffprobe on PATH
-# ubuntu-latest (and macos-latest) ship Chrome and ffmpeg preinstalled. The only
-# network egress is github.com (engine), registry.npmjs.org (deps) and, for
-# tts=local, huggingface.co (one-time ~90 MB Kokoro model download, cacheable).
+# ubuntu-latest ships Chrome but NOT ffmpeg — add a step to install it before
+# this action (e.g. `sudo apt-get update && sudo apt-get install -y ffmpeg`); the
+# templates in examples/workflows/ show this. The only network egress is
+# github.com (engine), registry.npmjs.org (deps) and, for tts=local,
+# huggingface.co (one-time ~90 MB Kokoro model download, cacheable).
 
 inputs:
   demos:

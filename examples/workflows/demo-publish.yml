@@ -47,6 +47,10 @@ jobs:
         # Third-party action → SHA-pinned (v4.2.2). Do not replace with a tag.
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
+      # ubuntu-latest ships Chrome but not ffmpeg — the render + poster steps need it.
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Render demo (aidemo composite action)
         # First-party engine action, referenced by the moving `stable` tag —
         # the same distribution mechanism as `npx github:tandryukha/aidemo#stable`.
@@ -78,7 +82,7 @@ jobs:
           cp -f "$SRC/final-demo.mp4" "$PUB/media/$DEMO_NAME/latest.mp4"
           [ -f "$SRC/final-demo.gif" ] \
             && cp -f "$SRC/final-demo.gif" "$PUB/media/$DEMO_NAME/latest.gif"
-          # Best-effort poster still (ffmpeg is preinstalled on ubuntu runners).
+          # Best-effort poster still (ffmpeg installed in the step above).
           ffmpeg -y -loglevel error -i "$SRC/final-demo.mp4" -frames:v 1 -q:v 3 \
             "$PUB/media/$DEMO_NAME/stills/poster.png" || true
 

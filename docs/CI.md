@@ -93,13 +93,14 @@ The Action is **composite** — it runs on your job's runner, which must provide
   run `actions/setup-node` to pin a version.
 - **Google Chrome / Chromium** — the recorder launches Chrome via Playwright's
   `channel: "chrome"` (it does **not** download a Playwright browser).
-- **ffmpeg + ffprobe** on PATH.
+  `ubuntu-latest` ships Chrome.
+- **ffmpeg + ffprobe** on PATH. `ubuntu-latest` does **not** ship ffmpeg, so add
+  a step before the Action: `sudo apt-get update && sudo apt-get install -y
+  ffmpeg` (every template in `examples/workflows/` does this).
 
-`ubuntu-latest` (and `macos-latest`) ship Chrome and ffmpeg preinstalled, so no
-setup step is needed for them. The Action runs `aidemo doctor` as an
-informational preflight so you can see the detected Chrome/ffmpeg/voice-provider
-in the logs. Self-hosted or minimal runners must install Chrome + ffmpeg
-themselves.
+The Action runs `aidemo doctor` as an informational preflight so you can see the
+detected Chrome/ffmpeg/voice-provider in the logs. Self-hosted or minimal runners
+must install Chrome + ffmpeg themselves.
 
 ## How local voice resolves in CI (the mechanism)
 
