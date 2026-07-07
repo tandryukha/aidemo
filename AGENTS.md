@@ -21,6 +21,12 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
 | One pipeline stage | `node bin/aidemo.mjs voice\|record\|captions\|compose <dir>` |
+| Screenshot stills | `node bin/aidemo.mjs stills <dir>` — extract named PNGs from an existing take (also auto-runs in `render` when the storyboard has `still` markers) |
+| Golden regression check | `node bin/aidemo.mjs probe <dir> --update-golden` (write baseline) / `--golden` (CI guard, non-zero exit on drift) |
+| Multi-language matrix | `node bin/aidemo.mjs render <dir> --langs de,fr` — one take → N locales (also `--lang` on voice/captions/compose) |
+| Personalized variants | `node bin/aidemo.mjs render <dir> --variants variants.json` (or `--param k=v`) |
+| Always-fresh embed snippets | `node bin/aidemo.mjs embed <dir>` — stable raw-GitHub URLs for READMEs/PRs |
+| CI render (consumers) | `uses: tandryukha/aidemo@stable` (composite action, `action.yml`) — see `docs/CI.md` |
 | MCP server (agent interface) | `node bin/aidemo.mjs mcp` — stdio; smoke test: `npm run mcp-smoke` (needs Chrome) |
 | Print authoring guide | `node bin/aidemo.mjs guide` |
 | Environment check | `node bin/aidemo.mjs doctor` |
@@ -40,11 +46,18 @@ bin/aidemo.mjs        CLI entry (launches tsx → src/cli.ts)
 src/types.ts          storyboard schema (zod) — the contract everything shares
 src/                  pipeline stages: voice, recorder/player/cursor (record),
                       captions/caption-render, compose/zoom/cards/music/ffmpeg,
-                      capture (native/OBS), starter (init templates),
-                      distribute (skill install/update/feedback, doctor, repo-init)
+                      stills (screenshot mode), i18n (multi-language),
+                      params/variants (personalized renders), golden (probe
+                      regression), embed (always-fresh URLs), capture
+                      (native/OBS), starter (init templates), distribute
+                      (skill install/update/feedback, doctor, repo-init)
 src/mcp/              the MCP server (server = tools/resources, jobs = job model)
 docs/AUTHORING.md     canonical authoring guide — served by the engine
                       (MCP get_authoring_guide / `aidemo guide`)
+action.yml            composite GitHub Action (uses: tandryukha/aidemo@stable)
+docs/CI.md            CI render recipe; docs/EMBEDS.md always-fresh embeds
+docs/plans/           deferred designs (e.g. public-mcp.md); docs/recipes/ how-tos
+examples/workflows/   copy-paste consumer CI workflow templates
 .claude/skills/       record-demo (thin adapter → AUTHORING.md) + dev skills
 examples/local-demo/  self-contained fixture + storyboard — the smoke test
 test/mcp-smoke.mjs    MCP-surface smoke test (local, needs Chrome)
@@ -64,9 +77,11 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
 - **ffmpeg portability.** Many ffmpeg builds lack `subtitles`/`drawtext`.
   Captions and cards are headless-Chrome-rasterized PNGs overlaid with
   time-gated `enable`. Don't add filters beyond that baseline.
-- **Storyboards are backward compatible.** Cinematic features (zoom, scroll
-  easing, ducking, cards) are opt-in; existing storyboards must render
-  unchanged.
+- **Storyboards are backward compatible.** Cinematic and content features
+  (zoom, scroll easing, ducking, cards, scene `transition` crossfades, `output`
+  sizing/letterbox, `still` markers, `params`/placeholders, per-scene
+  `narrations`) are opt-in; existing storyboards must render unchanged, and a
+  run with no new flag must be byte-for-byte the old behavior.
 - **Polish is compose-time, not record-time.** A bad zoom must stay a
   recompose, never a re-record.
 

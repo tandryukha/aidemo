@@ -3,7 +3,7 @@
 **Status: planned, deliberately not started.** This is a deferred design, not
 a roadmap commitment. It costs real money to host (compute for headless
 Chrome, storage for artifacts, abuse handling); the [GitHub
-Action](CI.md) does not — it renders on the user's own CI minutes, with no
+Action](../CI.md) does not — it renders on the user's own CI minutes, with no
 server for anyone to run. The Action ships first and covers the CI-rendering
 use case at $0. This doc exists so that if/when the [launch gate](#launch-gate)
 trips, the design work is already done.
