@@ -16,14 +16,17 @@
   "scripts": {
     "aidemo": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
-    "serve-example": "node examples/local-demo/serve.mjs"
+    "serve-example": "node examples/local-demo/serve.mjs",
+    "mcp-smoke": "node test/mcp-smoke.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
     "commander": "^12.1.0",
     "openai": "^4.67.0",
     "playwright": "^1.48.0",
     "tsx": "^4.19.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "3.25.2"
   },
   "devDependencies": {
     "@types/node": "^22.7.0",

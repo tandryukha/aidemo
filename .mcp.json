@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "aidemo": {
+      "command": "node",
+      "args": ["bin/aidemo.mjs", "mcp"]
+    }
+  }
+}

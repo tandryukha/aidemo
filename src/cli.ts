@@ -82,6 +82,14 @@ skill
   });
 
 program
+  .command("mcp")
+  .description("run the stdio MCP server — the agent interface (stdout = JSON-RPC)")
+  .action(async () => {
+    const { runMcpServer } = await import("./mcp/server.js");
+    await runMcpServer();
+  });
+
+program
   .command("guide")
   .description("print the agent-neutral authoring guide (docs/AUTHORING.md)")
   .action(async () => {
