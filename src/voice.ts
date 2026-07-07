@@ -11,7 +11,16 @@ import {
   explainAudioEndpointError,
 } from "./config.js";
 import { runFfmpeg, probeDurationMs } from "./ffmpeg.js";
-import { ensureDir, writeJson, readJson, exists, log, ok, step } from "./util.js";
+import {
+  ensureDir,
+  writeJson,
+  readJson,
+  exists,
+  log,
+  ok,
+  step,
+  CanceledError,
+} from "./util.js";
 import { dirname } from "node:path";
 
 /** Silence inserted after each scene in the narration track. */
@@ -81,6 +90,8 @@ export interface VoiceOptions {
   only?: string;
   /** Re-synthesize every scene even if its narration + voice are unchanged. */
   force?: boolean;
+  /** Best-effort cancellation, checked between scenes (MCP job_cancel). */
+  signal?: AbortSignal;
 }
 
 /**
@@ -119,6 +130,8 @@ export async function generateVoice(
   let made = 0;
   let reused = 0;
   for (const scene of storyboard.scenes) {
+    if (opts.signal?.aborted)
+      throw new CanceledError(`canceled before voicing scene ${scene.id}`);
     const outPath = project.sceneAudioPath(scene.id);
     const plan = planFor(storyboard, scene.voice);
     const hash = voiceHash(scene.narration, plan);

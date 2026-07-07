@@ -19,6 +19,7 @@ import {
   sleep,
   log,
   ensureDir,
+  CanceledError,
 } from "./util.js";
 
 /** Semantic targets the player resolves without a raw selector. */
@@ -59,7 +60,15 @@ export interface PlayerOptions {
    * timeline if a later scene fails (a late failure otherwise discards minutes
    * of good recording).
    */
-  onSceneComplete?: (scene: TimelineScene) => void;
+  onSceneComplete?: (scene: TimelineScene, index: number, total: number) => void;
+  /** Called when a scene's first action is about to run (job progress). */
+  onSceneStart?: (sceneId: string, index: number, total: number) => void;
+  /**
+   * Best-effort cancellation, checked before every action. Aborting mid-scene
+   * throws CanceledError, which rides the recorder's salvage path (partial
+   * timeline + kept footage).
+   */
+  signal?: AbortSignal;
 }
 
 /** Per-scene mutable capture state threaded through actions. */
@@ -83,12 +92,17 @@ export async function runStoryboard(
   const now = () => Date.now() - opts.t0;
   const scenes: TimelineScene[] = [];
 
-  for (const scene of storyboard.scenes) {
+  const total = storyboard.scenes.length;
+  for (let si = 0; si < total; si++) {
+    const scene = storyboard.scenes[si];
     const startMs = now();
     const capture: SceneCapture = { idleSpans: [], focusEvents: [] };
     log(`scene ${scene.id}: ${scene.actions.length} action(s)`);
+    opts.onSceneStart?.(scene.id, si, total);
 
     for (let i = 0; i < scene.actions.length; i++) {
+      if (opts.signal?.aborted)
+        throw new CanceledError(`canceled during scene ${scene.id}`);
       try {
         await runAction(page, storyboard, scene.actions[i], mouse, capture, opts);
       } catch (err) {
@@ -107,7 +121,7 @@ export async function runStoryboard(
       focusEvents: capture.focusEvents,
     };
     scenes.push(tlScene);
-    opts.onSceneComplete?.(tlScene);
+    opts.onSceneComplete?.(tlScene, si, total);
   }
 
   // leadInMs is filled in by the recorder (it knows the video start).

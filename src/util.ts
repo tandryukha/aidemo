@@ -1,5 +1,6 @@
 import { promises as fs, createWriteStream, type WriteStream } from "node:fs";
 import { dirname } from "node:path";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 // Optional native log tee: when a command sets a log file, everything emitted
 // through log/step/ok/fail is mirrored (ANSI-stripped) into logs/<cmd>.log as
@@ -26,9 +27,44 @@ export async function closeLogFile(): Promise<void> {
   await new Promise<void>((res) => s.end(res));
 }
 
+/** A per-job log sink receiving every ANSI-stripped emitted chunk. */
+export type LogSink = (clean: string) => void;
+const logSinks = new AsyncLocalStorage<LogSink[]>();
+
+/**
+ * Run `fn` with additional log sinks that receive everything emitted through
+ * log/step/ok/fail — scoped to fn's async chain, so concurrent runs (MCP jobs
+ * vs. sync tool calls) don't interleave each other's log files. The CLI's
+ * setLogFile singleton is unaffected. Known blind spot: a line emitted from a
+ * detached event-loop callback (not awaited inside fn) misses the sinks and
+ * goes to stderr only.
+ */
+export function withLogSinks<T>(sinks: LogSink[], fn: () => Promise<T>): Promise<T> {
+  return logSinks.run(sinks, fn);
+}
+
+/** Thrown when a run is canceled via an AbortSignal (e.g. MCP job_cancel). */
+export class CanceledError extends Error {
+  constructor(msg = "canceled") {
+    super(msg);
+    this.name = "CanceledError";
+  }
+}
+
 function emit(s: string): void {
   process.stderr.write(s);
-  logStream?.write(s.replace(ANSI_RE, ""));
+  const clean = s.replace(ANSI_RE, "");
+  logStream?.write(clean);
+  const extra = logSinks.getStore();
+  if (extra) {
+    for (const sink of extra) {
+      try {
+        sink(clean);
+      } catch {
+        // a broken sink must never break a pipeline stage
+      }
+    }
+  }
 }
 
 export function log(msg: string): void {

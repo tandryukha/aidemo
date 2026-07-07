@@ -38,6 +38,10 @@ export interface RecordOptions {
    * to the viewport. Env default: AIDEMO_CAPTURE.
    */
   capture?: CaptureMode;
+  /** Progress hooks + best-effort cancellation for job runners (MCP). */
+  onSceneStart?: (sceneId: string, index: number, total: number) => void;
+  onSceneComplete?: (scene: TimelineScene, index: number, total: number) => void;
+  signal?: AbortSignal;
 }
 
 /**
@@ -147,7 +151,12 @@ export async function record(
       t0,
       video: { width, height },
       logsDir,
-      onSceneComplete: (s) => doneScenes.push(s),
+      signal: options.signal,
+      onSceneStart: options.onSceneStart,
+      onSceneComplete: (s, i, total) => {
+        doneScenes.push(s);
+        options.onSceneComplete?.(s, i, total);
+      },
     });
     if (capture) {
       // Stop immediately so the tail past the last scene stays small. Measure
