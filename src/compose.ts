@@ -6,7 +6,13 @@ import { TimelineSchema, VoiceManifestSchema } from "./types.js";
 import type { Cue } from "./captions.js";
 import { renderCaptionPngs } from "./caption-render.js";
 import { renderCardPng } from "./cards.js";
+import { renderCursorPng } from "./cursor.js";
 import { buildZoomFilter, type ZoomEvent } from "./zoom.js";
+import {
+  buildCursorFilter,
+  type CursorPoint,
+  type HideWindow,
+} from "./cursor-overlay.js";
 import { runFfmpeg, probeDurationMs, probeVideoDims } from "./ffmpeg.js";
 import { ensureDir, readJson, exists, log, ok, step } from "./util.js";
 
@@ -56,6 +62,15 @@ export async function compose(
     storyboard.zoom && storyboard.zoom.enabled !== false ? storyboard.zoom : null;
   const zoomEvents: ZoomEvent[] = [];
   let outCursorMs = 0;
+
+  // Compose-time cursor overlay accumulators (opt-in `cursor` block). We collect
+  // the recorded path — remapped into final content time + output pixels, like
+  // the focus events — plus the content-time windows of any `hideScenes`.
+  const cursorCfg = storyboard.cursor ?? null;
+  const hideSceneIds = new Set(cursorCfg?.hideScenes ?? []);
+  const cursorPts: CursorPoint[] = [];
+  const hideWindows: HideWindow[] = [];
+  let cursorSampleCount = 0;
 
   const sceneVideos: string[] = [];
   for (let i = 0; i < timeline.scenes.length; i++) {
@@ -114,6 +129,28 @@ export async function compose(
         });
       }
     }
+
+    // Cursor path for the compose-time overlay — same raw→content-time remap as
+    // the focus events, in output pixels. The scene's content-time span drives
+    // per-scene hide (`hideScenes`).
+    if (cursorCfg) {
+      const sceneStart = outCursorMs;
+      for (const s of tl.cursorSamples ?? []) {
+        const rawT = s.tMs + timeline.leadInMs;
+        const local = offsetInKeeps(keeps, rawT) * factor;
+        cursorPts.push({
+          t: (outCursorMs + Math.min(local, stretchedMs)) / 1000,
+          x: s.x * pxScale,
+          y: s.y * pxScale,
+        });
+      }
+      cursorSampleCount += (tl.cursorSamples ?? []).length;
+      if (hideSceneIds.has(tl.id)) {
+        const sceneEnd = outCursorMs + stretchedMs + (holdMs > 40 ? holdMs : 0);
+        hideWindows.push({ a: sceneStart / 1000, b: sceneEnd / 1000 });
+      }
+    }
+
     outCursorMs += stretchedMs + (holdMs > 40 ? holdMs : 0);
 
     const scenePath = resolve(tmp, `scene-${i}.mp4`);
@@ -169,6 +206,58 @@ export async function compose(
     );
   }
 
+  // Compose-time cursor overlay (opt-in `cursor` block). Draw the recorded
+  // cursor path onto the (cursor-free) content BEFORE the zoom pass, so the
+  // cursor zooms and pans with the frame exactly like a baked one would.
+  // `hidden` skips it entirely; `hideScenes` gates it off during those scenes.
+  if (cursorCfg) {
+    if (cursorSampleCount === 0) {
+      log(
+        "⚠ cursor: storyboard opts into the compose-time cursor, but this take " +
+          "has no recorded cursor path — re-run `record`/`render` with the cursor " +
+          "block present (the current recording may still show a baked cursor)."
+      );
+    } else if (cursorCfg.hidden) {
+      log("cursor: hidden (no overlay drawn)");
+    } else {
+      const filter = buildCursorFilter(cursorPts, hideWindows);
+      if (filter) {
+        const cScale = cursorCfg.scale ?? 1;
+        const png = resolve(tmp, "cursor.png");
+        await renderCursorPng(png, Math.round(32 * pxScale * cScale));
+        const withCursor = resolve(tmp, "content-cursor.mp4");
+        await runFfmpeg([
+          "-i",
+          content,
+          "-i",
+          png,
+          "-filter_complex",
+          filter,
+          "-map",
+          "[vout]",
+          "-an",
+          "-r",
+          String(FPS),
+          "-c:v",
+          "libx264",
+          "-preset",
+          "veryfast",
+          "-crf",
+          "20",
+          "-pix_fmt",
+          "yuv420p",
+          withCursor,
+        ]);
+        content = withCursor;
+        log(
+          `cursor overlay: ${cursorPts.length} path point(s)` +
+            (hideWindows.length ? `, ${hideWindows.length} scene(s) hidden` : "") +
+            (cScale !== 1 ? `, scale ${cScale}` : "")
+        );
+      }
+    }
+  }
+
   // Auto-zoom pass over the content (never over the cards or captions).
   if (zoomCfg && zoomEvents.length > 0) {
     const contentMs = await probeDurationMs(content);
@@ -194,6 +283,35 @@ export async function compose(
       ]);
       content = zoomed;
     }
+  }
+
+  // Motion blur (opt-in `motionBlur` block). Average a small sliding window of
+  // frames so fast motion — cursor glides, eased scrolls, zoom pans — trails
+  // subtly; static UI is untouched (identical frames average to themselves).
+  // Over the content only (not cards/captions). Portable: `tmix` is baseline.
+  if (storyboard.motionBlur && storyboard.motionBlur.enabled !== false) {
+    const frames = storyboard.motionBlur.frames ?? 3;
+    const blurred = resolve(tmp, "content-blur.mp4");
+    await runFfmpeg([
+      "-i",
+      content,
+      "-vf",
+      `tmix=frames=${frames}`,
+      "-an",
+      "-r",
+      String(FPS),
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "20",
+      "-pix_fmt",
+      "yuv420p",
+      blurred,
+    ]);
+    content = blurred;
+    log(`motion blur: tmix ${frames} frames`);
   }
 
   // Intro/outro title cards. Music runs under them; narration and captions

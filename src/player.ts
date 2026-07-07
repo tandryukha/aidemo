@@ -11,6 +11,7 @@ import type {
   IdleSpan,
   FocusEvent,
   StillEvent,
+  CursorSample,
   EasingPreset,
   ProbeActionOutcome,
   ProbeGoldenScene,
@@ -81,6 +82,12 @@ export interface PlayerOptions {
    * (a failing action throws via failAction). See src/golden.ts.
    */
   probe?: ProbeGoldenScene[];
+  /**
+   * Log the cursor's glide path into each scene's `cursorSamples` (for the
+   * compose-time cursor overlay). On only when the storyboard opts into `cursor`
+   * control; off by default so a plain take's timeline.json is unchanged.
+   */
+  captureCursorPath?: boolean;
 }
 
 /** Per-scene mutable capture state threaded through actions. */
@@ -88,7 +95,11 @@ interface SceneCapture {
   idleSpans: IdleSpan[];
   focusEvents: FocusEvent[];
   stillEvents: StillEvent[];
+  cursorSamples: CursorSample[];
 }
+
+/** Records a cursor position into the current scene (compose-cursor mode only). */
+type CursorSampler = (x: number, y: number) => void;
 
 export async function runStoryboard(
   page: Page,
@@ -109,7 +120,22 @@ export async function runStoryboard(
   for (let si = 0; si < total; si++) {
     const scene = storyboard.scenes[si];
     const startMs = now();
-    const capture: SceneCapture = { idleSpans: [], focusEvents: [], stillEvents: [] };
+    const capture: SceneCapture = {
+      idleSpans: [],
+      focusEvents: [],
+      stillEvents: [],
+      cursorSamples: [],
+    };
+    // Cursor path sampler — only records when the storyboard opts into the
+    // compose-time cursor overlay, so a plain take's timeline stays unchanged.
+    const sample: CursorSampler | undefined = opts.captureCursorPath
+      ? (x, y) =>
+          capture.cursorSamples.push({
+            tMs: now(),
+            x: Math.round(x),
+            y: Math.round(y),
+          })
+      : undefined;
     log(`scene ${scene.id}: ${scene.actions.length} action(s)`);
     opts.onSceneStart?.(scene.id, si, total);
     const probeOutcomes: ProbeActionOutcome[] = [];
@@ -120,7 +146,7 @@ export async function runStoryboard(
       const action = scene.actions[i];
       const outcome = opts.probe ? initProbeOutcome(storyboard, action) : null;
       try {
-        await runAction(page, storyboard, action, mouse, capture, opts);
+        await runAction(page, storyboard, action, mouse, capture, opts, sample);
         if (outcome) outcome.ok = true;
       } catch (err) {
         if (outcome) {
@@ -153,6 +179,7 @@ export async function runStoryboard(
       idleSpans: capture.idleSpans,
       focusEvents: capture.focusEvents,
       stillEvents: capture.stillEvents,
+      cursorSamples: capture.cursorSamples,
     };
     scenes.push(tlScene);
     opts.onSceneComplete?.(tlScene, si, total);
@@ -551,7 +578,8 @@ async function runAction(
   action: Action,
   mouse: MouseState,
   capture: SceneCapture,
-  opts: PlayerOptions
+  opts: PlayerOptions,
+  sample?: CursorSampler
 ): Promise<void> {
   const t0 = opts.t0;
   const markFocus = (x: number, y: number, kind: string) =>
@@ -565,7 +593,7 @@ async function runAction(
 
     case "click": {
       const loc = await resolveTargetLocator(page, storyboard, action.target);
-      const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame);
+      const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame, sample);
       markFocus(cx, cy, "click");
       return;
     }
@@ -596,7 +624,7 @@ async function runAction(
           log(`  idle "reply streaming": ${waitEnd - waitStart}ms (pre-type composer wait)`);
         }
       }
-      const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame);
+      const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame, sample);
       markFocus(cx, cy, "type");
       if (isComposer) {
         // Clear any residual text so a new prompt can't concatenate onto it.
@@ -615,7 +643,7 @@ async function runAction(
     case "hover": {
       const loc = await resolveTargetLocator(page, storyboard, action.target);
       const box = await boxOf(page, loc);
-      await moveMouseTo(page, mouse, box.cx, box.cy);
+      await moveMouseTo(page, mouse, box.cx, box.cy, sample);
       await sleep(300);
       return;
     }
@@ -1032,7 +1060,8 @@ async function moveMouseTo(
   page: Page,
   mouse: MouseState,
   targetX: number,
-  targetY: number
+  targetY: number,
+  sample?: CursorSampler
 ): Promise<void> {
   const startX = mouse.x;
   const startY = mouse.y;
@@ -1043,6 +1072,7 @@ async function moveMouseTo(
     const x = startX + (targetX - startX) * t;
     const y = startY + (targetY - startY) * t;
     await page.mouse.move(x, y);
+    sample?.(x, y);
     await sleep(8);
   }
   mouse.x = targetX;
@@ -1089,7 +1119,8 @@ async function humanClick(
   page: Page,
   loc: Locator,
   mouse: MouseState,
-  inFrame: boolean
+  inFrame: boolean,
+  sample?: CursorSampler
 ): Promise<{ cx: number; cy: number }> {
   let { cx, cy } = await boxOf(page, loc);
   // Dodge floating overlays: ChatGPT's scroll-to-bottom arrow only shows when
@@ -1104,7 +1135,7 @@ async function humanClick(
     await easedWheel(page, 240, { durationMs: 350 });
     ({ cx, cy } = await boxOf(page, loc));
   }
-  await moveMouseTo(page, mouse, cx, cy);
+  await moveMouseTo(page, mouse, cx, cy, sample);
   await sleep(120);
   await page.mouse.down();
   await sleep(60);

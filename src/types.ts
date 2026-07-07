@@ -282,6 +282,44 @@ export const ZoomConfigSchema = z.object({
 });
 export type ZoomConfig = z.infer<typeof ZoomConfigSchema>;
 
+/**
+ * Motion blur (opt-in, compose-time). Averages a small sliding window of frames
+ * (ffmpeg `tmix`), so fast motion — cursor glides, eased scrolls, zoom pans —
+ * gets a subtle trail while static UI stays sharp (identical frames average to
+ * themselves). Pure post-processing over the content: omit the key and compose
+ * behaves exactly as before. Portable — `tmix` is a baseline libavfilter filter,
+ * no drawtext/subtitles needed.
+ */
+export const MotionBlurSchema = z.object({
+  enabled: z.boolean().default(true),
+  /** Frames averaged in the sliding window. 2 = whisper, 3 = default, up to 6. */
+  frames: z.number().int().min(2).max(6).default(3),
+});
+export type MotionBlur = z.infer<typeof MotionBlurSchema>;
+
+/**
+ * Cursor rendering (opt-in, compose-time control). Omit the key for the default:
+ * the animated cursor is BAKED into the recording (unchanged, byte-for-byte).
+ *
+ * Add a `cursor` block and the cursor becomes a **compose-time layer**: the
+ * recorder leaves the take cursor-free while the player logs the cursor path,
+ * and compose draws the cursor as an overlay along that path (over the content,
+ * so it zooms/pans with the frame). Because it's now a compose layer, styling it
+ * is a recompose, never a re-record — hide it for the whole demo (`hidden`, for
+ * clean product shots), hide it only on certain scenes (`hideScenes`), or resize
+ * it (`scale`). Requires re-recording ONCE with the block present (so the clean,
+ * cursor-free take + path exist); after that, every hide/resize is compose-only.
+ */
+export const CursorConfigSchema = z.object({
+  /** Hide the cursor for the entire demo (no overlay drawn). */
+  hidden: z.boolean().optional(),
+  /** Hide the cursor only during these scene ids (e.g. a full-screen result). */
+  hideScenes: z.array(z.string()).optional(),
+  /** Cursor size multiplier (1 = the 24px baseline arrow). */
+  scale: z.number().min(0.5).max(4).optional(),
+});
+export type CursorConfig = z.infer<typeof CursorConfigSchema>;
+
 /** A rendered intro/outro title card. */
 export const CardSchema = z.object({
   title: z.string(),
@@ -373,6 +411,10 @@ export const StoryboardSchema = z.object({
   transition: TransitionSchema.optional(),
   /** Final output sizing (opt-in letterbox/crop). Omit to keep recording size. */
   output: OutputSchema.optional(),
+  /** Subtle motion blur on fast motion (opt-in, compose-time). Omit to disable. */
+  motionBlur: MotionBlurSchema.optional(),
+  /** Compose-time cursor control (hide/resize post-hoc). Omit to bake the cursor. */
+  cursor: CursorConfigSchema.optional(),
   scenes: z.array(SceneSchema).min(1),
 });
 export type Storyboard = z.infer<typeof StoryboardSchema>;
@@ -416,6 +458,19 @@ export const StillEventSchema = z.object({
 });
 export type StillEvent = z.infer<typeof StillEventSchema>;
 
+/**
+ * A cursor position the player sampled while gliding the mouse (viewport CSS px
+ * at `tMs` timeline time). Only recorded when the storyboard opts into
+ * compose-time cursor rendering (`cursor` block) — compose replays these as an
+ * overlay along the path. Default [] keeps pre-cursor-overlay timelines valid.
+ */
+export const CursorSampleSchema = z.object({
+  tMs: z.number(),
+  x: z.number(),
+  y: z.number(),
+});
+export type CursorSample = z.infer<typeof CursorSampleSchema>;
+
 export const TimelineSceneSchema = z.object({
   id: z.string(),
   startMs: z.number(),
@@ -423,6 +478,7 @@ export const TimelineSceneSchema = z.object({
   idleSpans: z.array(IdleSpanSchema).default([]),
   focusEvents: z.array(FocusEventSchema).default([]),
   stillEvents: z.array(StillEventSchema).default([]),
+  cursorSamples: z.array(CursorSampleSchema).default([]),
 });
 export type TimelineScene = z.infer<typeof TimelineSceneSchema>;
 

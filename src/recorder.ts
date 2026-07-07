@@ -129,8 +129,17 @@ export async function record(
     );
   }
 
-  // Inject the animated cursor into every frame before any page script runs.
-  await context.addInitScript({ content: cursorInitScript() });
+  // Cursor rendering. Default: BAKE the animated cursor into every frame before
+  // any page script runs. When the storyboard opts into compose-time cursor
+  // control (a `cursor` block), skip the bake and record a clean, cursor-free
+  // take instead — the player logs the cursor path and compose draws it as an
+  // overlay, so hide/resize becomes a recompose rather than a re-record.
+  const composeCursor = !!storyboard.cursor;
+  if (!composeCursor) {
+    await context.addInitScript({ content: cursorInitScript() });
+  } else {
+    log("cursor: compose-time overlay (recording cursor-free take + path)");
+  }
 
   const page = context.pages()[0] ?? (await context.newPage());
 
@@ -164,6 +173,7 @@ export async function record(
       logsDir,
       signal: options.signal,
       probe: options.probe,
+      captureCursorPath: composeCursor,
       onSceneStart: options.onSceneStart,
       onSceneComplete: (s, i, total) => {
         doneScenes.push(s);
