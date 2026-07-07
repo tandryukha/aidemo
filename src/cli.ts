@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { resolve, dirname } from "node:path";
-import { loadEnv, engineVersion } from "./config.js";
+import { readFile } from "node:fs/promises";
+import { loadEnv, engineVersion, ENGINE_ROOT } from "./config.js";
 import { Project } from "./project.js";
 import { record } from "./recorder.js";
 import { generateVoice } from "./voice.js";
@@ -78,6 +79,16 @@ skill
   .description("notify if a newer skill is available (used by the SessionStart hook)")
   .action(async (opts: { dir?: string; verbose?: boolean }) => {
     await checkSkill(opts.dir, { verbose: opts.verbose });
+  });
+
+program
+  .command("guide")
+  .description("print the agent-neutral authoring guide (docs/AUTHORING.md)")
+  .action(async () => {
+    // Deliberate stdout (not the stderr logger): the guide is the output.
+    process.stdout.write(
+      await readFile(resolve(ENGINE_ROOT, "docs/AUTHORING.md"), "utf8")
+    );
   });
 
 program

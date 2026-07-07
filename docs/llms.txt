@@ -65,8 +65,12 @@ Key facts:
 
 - [README](https://github.com/tandryukha/aidemo#readme): positioning, design
   decisions, quickstart, CLI reference, cinematic-polish options
+- [Authoring guide](https://aidemo.top/AUTHORING.md): the canonical agent-neutral
+  guide — storyboard schema, action vocabulary, demo-director principles,
+  ChatGPT-app recording facts; served by the engine itself via the MCP
+  `get_authoring_guide` tool and `aidemo guide`
 - [record-demo skill](https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md):
-  how the agent authors a storyboard and renders a demo
+  thin Claude Code adapter that fetches and follows the authoring guide
 - [Releases](https://github.com/tandryukha/aidemo/releases): versioned releases
   with real rendered MP4s as assets
 - [Example output (51s, narrated)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4):

@@ -48,9 +48,11 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
 
 - **No LLM in the capture loop.** The recording is a deterministic replay of a
   fixed action-spec. Agents author storyboards; they never steer a live take.
-- **Schema ↔ skill sync.** `src/types.ts` is the storyboard schema;
-  `.claude/skills/record-demo/SKILL.md` documents it for authoring agents.
-  Change one → update the other in the same commit.
+- **Schema ↔ authoring-doc sync.** `src/types.ts` is the storyboard schema;
+  `docs/AUTHORING.md` is the canonical authoring guide that documents it
+  (served to agents via the MCP `get_authoring_guide` tool and `aidemo guide`;
+  `.claude/skills/record-demo/SKILL.md` is a thin adapter with no schema
+  content). Change the schema → update `docs/AUTHORING.md` in the same commit.
 - **ffmpeg portability.** Many ffmpeg builds lack `subtitles`/`drawtext`.
   Captions and cards are headless-Chrome-rasterized PNGs overlaid with
   time-gated `enable`. Don't add filters beyond that baseline.
