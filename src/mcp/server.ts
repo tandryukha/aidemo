@@ -304,6 +304,10 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           warning: z.string().optional(),
         }),
         apiKey: z.enum(["set", "not-required", "missing"]),
+        tts: z.object({
+          provider: z.string(),
+          elevenLabsKey: z.enum(["set", "missing"]).optional(),
+        }),
         playwright: z.boolean(),
         skill: z.object({
           target: z.string(),

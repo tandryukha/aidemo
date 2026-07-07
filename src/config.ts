@@ -82,6 +82,40 @@ export const TTS_MODEL = () => process.env.AIDEMO_TTS_MODEL || "gpt-4o-mini-tts"
 export const STT_MODEL = () => process.env.AIDEMO_STT_MODEL || "whisper-1";
 
 /**
+ * TTS backend for `aidemo voice`. Unset → OpenAI (or whatever OPENAI_BASE_URL
+ * points at), exactly as before this knob existed. Captions/STT are unaffected —
+ * they always use the OpenAI-compatible endpoint.
+ */
+export const ttsProvider = (): "openai" | "elevenlabs" => {
+  const p = process.env.AIDEMO_TTS_PROVIDER || "openai";
+  if (p !== "openai" && p !== "elevenlabs") {
+    throw new Error(
+      `AIDEMO_TTS_PROVIDER="${p}" is not a known provider — use "openai" (default) or "elevenlabs".`
+    );
+  }
+  return p;
+};
+
+export function requireElevenLabsKey(): string {
+  const key = process.env.ELEVENLABS_API_KEY;
+  if (key) return key;
+  throw new Error(
+    "ELEVENLABS_API_KEY is not set but AIDEMO_TTS_PROVIDER=elevenlabs. Add the key " +
+      "to .env, or unset AIDEMO_TTS_PROVIDER to use the default OpenAI TTS."
+  );
+}
+
+export const ELEVENLABS_MODEL = () =>
+  process.env.AIDEMO_ELEVENLABS_MODEL || "eleven_multilingual_v2";
+/**
+ * Voice used when the storyboard keeps the schema default ("marin", an OpenAI
+ * name that means nothing to ElevenLabs). Any explicitly authored voiceId is
+ * passed to ElevenLabs verbatim instead. Default: Rachel.
+ */
+export const ELEVENLABS_VOICE = () =>
+  process.env.AIDEMO_ELEVENLABS_VOICE || "21m00Tcm4TlvDq8ikWAM";
+
+/**
  * LLM-only servers (Ollama, plain llama.cpp/vLLM) speak the OpenAI chat
  * protocol but 404 the audio routes — the only routes this engine calls.
  * Rethrow that specific failure with what's wrong and what to run instead.

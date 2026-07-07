@@ -391,6 +391,8 @@ export interface DoctorReport {
   gh: string | null;
   endpoint: { url: string; custom: boolean; warning?: string };
   apiKey: "set" | "not-required" | "missing";
+  /** TTS backend (AIDEMO_TTS_PROVIDER); key status only reported when non-default. */
+  tts: { provider: string; elevenLabsKey?: "set" | "missing" };
   playwright: boolean;
   skill: {
     target: string;
@@ -436,6 +438,12 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
       ...(endpointWarning ? { warning: endpointWarning } : {}),
     },
     apiKey: process.env.OPENAI_API_KEY ? "set" : base ? "not-required" : "missing",
+    tts: {
+      provider: process.env.AIDEMO_TTS_PROVIDER || "openai",
+      ...(process.env.AIDEMO_TTS_PROVIDER === "elevenlabs"
+        ? { elevenLabsKey: process.env.ELEVENLABS_API_KEY ? "set" : "missing" }
+        : {}),
+    },
     playwright: playwrightOk,
     skill: {
       target,
@@ -454,6 +462,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
       report.chrome &&
       report.playwright &&
       report.apiKey !== "missing" &&
+      report.tts.elevenLabsKey !== "missing" &&
       !endpointWarning
   );
   return report;
@@ -474,6 +483,13 @@ export async function doctor(dir: string | undefined): Promise<void> {
     `voice/captions endpoint: ${r.endpoint.custom ? `${r.endpoint.url} (custom)` : "api.openai.com (default)"}`
   );
   if (r.endpoint.warning) fail(r.endpoint.warning);
+  if (r.tts.provider !== "openai") {
+    const line =
+      `TTS provider: ${r.tts.provider} (captions still use the endpoint above)` +
+      (r.tts.elevenLabsKey ? ` — ELEVENLABS_API_KEY ${r.tts.elevenLabsKey}` : "");
+    if (r.tts.elevenLabsKey === "missing") fail(line);
+    else ok(line);
+  }
   ok(
     `OPENAI_API_KEY: ${
       r.apiKey === "set"

@@ -8,6 +8,10 @@ import {
   requireOpenAiKey,
   openAiBaseUrl,
   TTS_MODEL,
+  ttsProvider,
+  requireElevenLabsKey,
+  ELEVENLABS_MODEL,
+  ELEVENLABS_VOICE,
   explainAudioEndpointError,
 } from "./config.js";
 import { runFfmpeg, probeDurationMs } from "./ffmpeg.js";
@@ -27,8 +31,9 @@ import { dirname } from "node:path";
 const GAP_MS = 300;
 
 /**
- * Swap-in point for other TTS backends (ElevenLabs, local Piper). The pipeline
- * only depends on this interface, never on a concrete provider.
+ * Swap-in point for other TTS backends (local Piper, …). The pipeline only
+ * depends on this interface, never on a concrete provider. Selection is via
+ * AIDEMO_TTS_PROVIDER (see config.ts); OpenAI remains the default.
  */
 export interface VoiceProvider {
   synthesize(input: {
@@ -59,6 +64,46 @@ export class OpenAIVoiceProvider implements VoiceProvider {
   }
 }
 
+export class ElevenLabsVoiceProvider implements VoiceProvider {
+  private apiKey: string;
+  private warnedInstructions = false;
+  constructor() {
+    this.apiKey = requireElevenLabsKey();
+  }
+
+  async synthesize({ text, plan }: { text: string; plan: VoicePlan }): Promise<Buffer> {
+    if (plan.instructions && !this.warnedInstructions) {
+      this.warnedInstructions = true;
+      log(
+        "⚠ voice.instructions is a gpt-4o-mini-tts steering prompt — ElevenLabs ignores it"
+      );
+    }
+    // "marin" is the schema default (an OpenAI voice name); anything else the
+    // author chose deliberately and is passed to ElevenLabs verbatim.
+    const voiceId = plan.voiceId === "marin" ? ELEVENLABS_VOICE() : plan.voiceId;
+    const body: Record<string, unknown> = { text, model_id: ELEVENLABS_MODEL() };
+    if (plan.speed && plan.speed !== 1) {
+      // Storyboards allow 0.5–2; ElevenLabs accepts 0.7–1.2.
+      body.voice_settings = { speed: Math.min(1.2, Math.max(0.7, plan.speed)) };
+    }
+    const res = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_128`,
+      {
+        method: "POST",
+        headers: { "xi-api-key": this.apiKey, "content-type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(
+        `ElevenLabs TTS failed for voice "${voiceId}" (HTTP ${res.status}): ${detail.slice(0, 300)}`
+      );
+    }
+    return Buffer.from(await res.arrayBuffer());
+  }
+}
+
 /** Fold the speed hint into the steering instructions (gpt-4o-mini-tts is prompt-steered). */
 function buildInstructions(plan: VoicePlan): string {
   const parts: string[] = [];
@@ -76,10 +121,18 @@ function planFor(storyboard: Storyboard, sceneVoice?: VoicePlan): VoicePlan {
   };
 }
 
-/** Identity of a scene's audio = its narration + the resolved voice plan. */
-function voiceHash(text: string, plan: VoicePlan): string {
+/**
+ * Identity of a scene's audio = its narration + the resolved voice plan (+ the
+ * TTS provider when non-default). The provider is folded in only when it isn't
+ * "openai" so every pre-existing manifest hash stays valid — but switching
+ * providers still invalidates instead of silently reusing the other backend's
+ * audio.
+ */
+function voiceHash(text: string, plan: VoicePlan, provider: string): string {
+  const identity =
+    provider === "openai" ? { text, plan } : { text, plan, provider };
   return createHash("sha256")
-    .update(JSON.stringify({ text, plan }))
+    .update(JSON.stringify(identity))
     .digest("hex")
     .slice(0, 16);
 }
@@ -110,13 +163,24 @@ export async function generateVoice(
   storyboard: Storyboard,
   opts: VoiceOptions = {}
 ): Promise<VoiceManifest> {
+  const providerName = ttsProvider();
   const base = openAiBaseUrl();
-  step(base ? `Generating narration (TTS @ ${base})` : "Generating narration (OpenAI TTS)");
+  step(
+    providerName === "elevenlabs"
+      ? "Generating narration (ElevenLabs TTS)"
+      : base
+        ? `Generating narration (TTS @ ${base})`
+        : "Generating narration (OpenAI TTS)"
+  );
   await ensureDir(dirname(project.narrationPath));
 
   // Construct the provider lazily so a fully-cached run needs no API key.
   let providerInst = opts.provider ?? null;
-  const provider = () => (providerInst ??= new OpenAIVoiceProvider());
+  const provider = () =>
+    (providerInst ??=
+      providerName === "elevenlabs"
+        ? new ElevenLabsVoiceProvider()
+        : new OpenAIVoiceProvider());
 
   // Prior manifest lets us reuse audio for unchanged scenes.
   const prior = (await exists(project.voiceManifestPath))
@@ -134,7 +198,7 @@ export async function generateVoice(
       throw new CanceledError(`canceled before voicing scene ${scene.id}`);
     const outPath = project.sceneAudioPath(scene.id);
     const plan = planFor(storyboard, scene.voice);
-    const hash = voiceHash(scene.narration, plan);
+    const hash = voiceHash(scene.narration, plan, providerName);
     const prev = priorById.get(scene.id);
     const scoped = opts.only != null; // --scene mode
     const targeted = scoped && scene.id === opts.only;

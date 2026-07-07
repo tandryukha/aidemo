@@ -101,7 +101,9 @@ network.
   a scene that's mostly a pause should have shorter narration, and a busy scene
   more.
 - **End on a clear CTA.**
-- **Voice plan per scene**: pick `voiceId` (marin/alloy/verse/…) and
+- **Voice plan per scene**: pick `voiceId` (marin/alloy/verse/… on the default
+  OpenAI TTS; an ElevenLabs voice id if the engine runs with
+  `AIDEMO_TTS_PROVIDER=elevenlabs`, where `instructions` is ignored) and
   `instructions` to steer tone/emotion/pace. Keep it consistent across scenes.
 
 ## Storyboard schema (quick reference)
