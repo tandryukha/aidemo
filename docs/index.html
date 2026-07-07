@@ -43,6 +43,11 @@
     },
     {
       "@type": "Question",
+      "name": "Can a demo video re-render itself when the product changes?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The storyboard is committed to your repo, and the aidemo GitHub Action (uses: tandryukha/aidemo@stable) replays it in CI. Because the replay is deterministic and the voice model runs in-process, a re-render needs no API key and no LLM tokens, so it costs essentially nothing. CI can commit the fresh MP4/GIF, comment it on the pull request, or publish to a stable embed URL that never changes. One storyboard can also emit named stills and render narration in several languages from a single recorded take." }
+    },
+    {
+      "@type": "Question",
       "name": "Can Claude Code record a demo video?",
       "acceptedAnswer": { "@type": "Answer", "text": "Yes — with aidemo's bundled record-demo skill, Claude Code fetches the authoring guide from the built-in aidemo MCP server, writes a storyboard.json (script, per-scene voice plan, browser actions), and renders it as an MCP job. The engine drives a real Chrome, records it, generates a voiceover, aligns captions, and exports a shareable MP4." }
     },
@@ -382,6 +387,7 @@
     <a class="brand" href="#"><img src="icons/clapper.webp" alt="" aria-hidden="true" width="24" height="24">aidemo</a>
     <a class="hide-sm" href="#how">How it works</a>
     <a class="hide-sm" href="#use-cases">Use cases</a>
+    <a class="hide-sm" href="#ci">In CI</a>
     <a class="hide-sm" href="#examples">Examples</a>
     <a class="hide-sm" href="#agents">Agents</a>
     <a class="hide-sm" href="#integrations">Integrations</a>
@@ -622,6 +628,45 @@
   </div>
 </section>
 
+<section id="ci">
+  <div class="wrap">
+    <h2 class="reveal">The demo re-renders itself</h2>
+    <p class="lead reveal">The storyboard lives in your repo. A GitHub Action replays it in CI when your
+      product changes — <strong>deterministic replay + the in-process voice model means no API key and
+      no LLM tokens</strong>, so a re-render costs about nothing. A bad zoom is a recompose, never
+      another screen-recording session.</p>
+
+    <div class="term reveal">
+      <div class="bar"><i></i><i></i><i></i><span>.github/workflows/demo.yml</span></div>
+      <pre><span class="c"># re-render on every push that touches the demo, commit the fresh media</span>
+<span class="a">steps:</span>
+  - uses: actions/checkout@v4
+  - run: sudo apt-get install -y ffmpeg   <span class="c"># ubuntu ships Chrome, not ffmpeg</span>
+  - uses: tandryukha/aidemo@stable        <span class="c"># local voice → no keys, no tokens</span>
+    with: { demos: demos/onboarding, tts: local, gif: "true" }</pre>
+    </div>
+
+    <div class="cards" style="margin-top:22px">
+      <div class="card reveal">
+        <h3>Always-fresh embeds</h3>
+        <p>CI publishes to a stable raw URL, so the GIF in your README updates itself on the next
+          render — the embed markdown never changes. <code>aidemo embed &lt;dir&gt;</code> prints the
+          snippet.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Stills from the same take</h3>
+        <p>Mark beats with <code>still</code> and the same storyboard emits named PNGs for docs,
+          blog posts, and store listings — pulled from the clean take, no caption overlay.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Demo doubles as a test</h3>
+        <p><code>aidemo probe --golden</code> diffs the recorded flow against a committed baseline,
+          so a moved selector is a failed check — not a stale video nobody noticed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="examples">
   <div class="wrap">
     <h2 class="reveal">Made with aidemo</h2>
@@ -770,6 +815,15 @@
           --headless &amp;&amp; aidemo gif demos/onboarding</span> writes an autoplaying
           <span class="mono">final-demo.gif</span> next to the MP4 — commit it and embed it at the
           top of the readme. Regenerating after a release is re-running those two commands.</p>
+      </details>
+      <details class="reveal">
+        <summary>Can a demo video re-render itself when the product changes?</summary>
+        <p>Yes. The storyboard is committed to your repo, and the aidemo GitHub Action
+          (<span class="mono">uses: tandryukha/aidemo@stable</span>) replays it in CI. The replay is
+          deterministic and the voice model runs in-process, so a re-render needs no API key and no
+          LLM tokens — it costs essentially nothing. CI can commit the fresh MP4/GIF, comment it on
+          the pull request, or publish to a stable embed URL that never changes. One storyboard can
+          also emit named stills and render narration in several languages from a single take.</p>
       </details>
       <details class="reveal">
         <summary>Can Claude Code record a demo video?</summary>

@@ -31,6 +31,18 @@ Key facts:
 - Tweak loop without re-recording: per-scene TTS hash cache means editing one
   narration line re-voices only that scene; zoom choreography is compose-time,
   so a bad zoom is a recompose, never a re-record.
+- Self-updating in CI (no LLM tokens, no API key): the storyboard is committed,
+  and the aidemo GitHub Action (`uses: tandryukha/aidemo@stable`) replays it in
+  CI when the product changes. Deterministic replay plus the in-process voice
+  model mean a re-render needs no key and no tokens, so it costs ~nothing. CI
+  can auto-commit the fresh MP4/GIF, comment it on a pull request, or publish to
+  a stable raw-GitHub embed URL that never changes (`aidemo embed <dir>` prints
+  the snippet). The same storyboard also emits named stills at marked beats
+  (screenshot mode, `still` markers), renders narration in several languages
+  from a single recorded take (`--lang`/`--langs`), and renders per-prospect
+  variants (`--param`/`--variants`); `aidemo probe --golden` diffs the recorded
+  flow against a committed baseline so a broken selector fails CI instead of
+  shipping a stale video.
 - Private by design: the pipeline's only network calls are TTS narration and
   caption transcription, sent with your own OpenAI key — or skipped entirely:
   AIDEMO_TTS_PROVIDER=local runs Kokoro-82M in-process (opt-in `npm install
