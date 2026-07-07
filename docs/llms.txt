@@ -1,10 +1,12 @@
 # aidemo
 
-> aidemo is built for coding agents to autonomously record product demos — the
+> aidemo is built for coding agents to author product demos as code — the
 > hero video on a landing page, a walkthrough in a GitHub README, a
 > what-shipped video attached to release notes for customers. It turns an
 > agent-authored `storyboard.json` into a polished, narrated, captioned
-> product-demo video (MP4). It is an open-source (MIT) alternative to Screen
+> product-demo video (MP4); because the replay is deterministic, that video
+> re-renders itself in CI when the product changes — no re-recording, no API
+> key, about $0 a render. It is an open-source (MIT) alternative to Screen
 > Studio, Clueso, or Demosmith for when you'd rather your coding agent make
 > the demo: the agent writes the storyboard (script + per-scene voice/music
 > plan + declarative browser action-spec), then a deterministic player drives a
