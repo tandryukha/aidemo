@@ -16,9 +16,14 @@
 > Chrome profile.
 
 Key facts:
-- Works with Claude Code today via the bundled `record-demo` skill; Codex CLI /
-  Gemini CLI planned via an agent-neutral authoring doc + MCP server. Any human
-  or agent that can write a `storyboard.json` and run `aidemo render` can use it.
+- Works with any MCP-capable agent — Claude Code, Codex CLI, Gemini CLI — via
+  the built-in `aidemo mcp` stdio server: authoring tools (engine-served
+  authoring guide, storyboard JSON Schema, structured validation) plus
+  pipeline tools that run as polled jobs (probe/record/render return a jobId;
+  job_status reports per-scene progress, log tails, failure artifacts).
+  `aidemo repo-init` registers the server (.mcp.json, .gemini/settings.json;
+  one-line codex mcp add for Codex). Any human or agent that can write a
+  `storyboard.json` and run `aidemo render` can use it too.
 - Deterministic replay: recording runs a fixed action-spec at full speed; the
   agent only authors, it never drives the capture. Same input → same video.
 - Tweak loop without re-recording: per-scene TTS hash cache means editing one
@@ -43,12 +48,14 @@ Key facts:
   demos against localhost or auth-walled apps in your own logged-in Chrome,
   nothing uploaded anywhere; end-of-sprint progress demos — one prompt, the
   agent authors and renders in the background while you keep working.
-- Integrations: authoring by Claude (Claude Code) today, Codex CLI / Gemini CLI
-  planned; narration voice by OpenAI TTS (gpt-4o-mini-tts) behind a swappable
-  VoiceProvider interface; captions by OpenAI Whisper (word-level timestamps) —
-  voice and captions both also work against any OpenAI-compatible local server
-  (speaches, Kokoro-FastAPI, LocalAI) via OPENAI_BASE_URL; recording via
-  Playwright + system Chrome; final compose via ffmpeg. All rendering is local.
+- Integrations: authoring by any MCP-capable agent (Claude Code, Codex CLI,
+  Gemini CLI) via the aidemo MCP server; narration voice by OpenAI TTS
+  (gpt-4o-mini-tts) behind a swappable VoiceProvider interface, with an
+  opt-in ElevenLabs provider (AIDEMO_TTS_PROVIDER=elevenlabs); captions by
+  OpenAI Whisper (word-level timestamps) — voice and captions both also work
+  against any OpenAI-compatible local server (speaches, Kokoro-FastAPI,
+  LocalAI) via OPENAI_BASE_URL; recording via Playwright + system Chrome;
+  final compose via ffmpeg. All rendering is local.
 - Requirements: Node 20+, Google Chrome, ffmpeg/ffprobe, and an OpenAI API key
   — or an OpenAI-compatible local server via OPENAI_BASE_URL (no key needed,
   render is fully offline). Developed on macOS; Linux expected to work (default

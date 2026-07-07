@@ -21,6 +21,8 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
 | One pipeline stage | `node bin/aidemo.mjs voice\|record\|captions\|compose <dir>` |
+| MCP server (agent interface) | `node bin/aidemo.mjs mcp` — stdio; smoke test: `npm run mcp-smoke` (needs Chrome) |
+| Print authoring guide | `node bin/aidemo.mjs guide` |
 | Environment check | `node bin/aidemo.mjs doctor` |
 
 `render`, `voice`, and `captions` need `OPENAI_API_KEY` in `.env` (or
@@ -37,9 +39,13 @@ src/types.ts          storyboard schema (zod) — the contract everything shares
 src/                  pipeline stages: voice, recorder/player/cursor (record),
                       captions/caption-render, compose/zoom/cards/music/ffmpeg,
                       capture (native/OBS), starter (init templates),
-                      distribute (skill install/update/feedback, doctor)
-.claude/skills/       record-demo (authoring layer) + dev skills (verify, release)
+                      distribute (skill install/update/feedback, doctor, repo-init)
+src/mcp/              the MCP server (server = tools/resources, jobs = job model)
+docs/AUTHORING.md     canonical authoring guide — served by the engine
+                      (MCP get_authoring_guide / `aidemo guide`)
+.claude/skills/       record-demo (thin adapter → AUTHORING.md) + dev skills
 examples/local-demo/  self-contained fixture + storyboard — the smoke test
+test/mcp-smoke.mjs    MCP-surface smoke test (local, needs Chrome)
 demos/                untracked local working area
 docs/                 public docs + README media (docs/internal/ is gitignored, private)
 ```

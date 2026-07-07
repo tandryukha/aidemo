@@ -1,14 +1,14 @@
 # aidemo — your coding agent makes the demo video
 
-**[aidemo.top](https://aidemo.top)** · [showcase with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4) · [watch Claude author one](#authoring-a-storyboard) · [quick start](#quick-start-self-contained-smoke-test) · [the skill](.claude/skills/record-demo/SKILL.md)
+**[aidemo.top](https://aidemo.top)** · [showcase with narration ▶](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4) · [watch Claude author one](#authoring-a-storyboard) · [quick start](#quick-start-self-contained-smoke-test) · [authoring guide](docs/AUTHORING.md)
 
 **Tell your coding agent *"record a 45s demo of the checkout flow"* — get back
 a polished MP4 with voiceover, synced captions, and auto-zoom.** The agent
-(Claude Code today, via the bundled `record-demo` skill) writes one
-`storyboard.json` — the script, per-scene voice/music plan, and a browser
-action-spec — and the engine drives a real Chrome, records a deterministic
-replay, generates a realistic voiceover, aligns captions, and trims the dead
-time. An **open-source alternative to Screen Studio, Clueso, or Demosmith**
+(any MCP client — Claude Code, Codex CLI, Gemini CLI — via the built-in
+`aidemo mcp` server) writes one `storyboard.json` — the script, per-scene
+voice/music plan, and a browser action-spec — and the engine drives a real
+Chrome, records a deterministic replay, generates a realistic voiceover,
+aligns captions, and trims the dead time. An **open-source alternative to Screen Studio, Clueso, or Demosmith**
 for when you'd rather your coding agent make the demo — no screen-recording
 session, no cloud upload, works against localhost and auth-walled apps.
 
@@ -19,9 +19,9 @@ session, no cloud upload, works against localhost and auth-walled apps.
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](.claude/skills/record-demo/SKILL.md)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
 
-**Works with:** Claude Code (today) · Codex CLI / Gemini CLI (planned, via an
-agent-neutral authoring doc + MCP server) · any human or agent that can write a
-`storyboard.json` and run `aidemo render`.
+**Works with:** any MCP-capable agent — Claude Code, Codex CLI, Gemini CLI —
+via the built-in [`aidemo mcp` server](#agent-interface-mcp) · any human or
+agent that can write a `storyboard.json` and run `aidemo render`.
 
 [![aidemo demoing itself on Wikipedia — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)
 
@@ -270,13 +270,38 @@ Point the base URL at localhost and nothing leaves at all. There's no telemetry
 anywhere; `aidemo feedback` and `aidemo skill update` touch GitHub only when
 you explicitly invoke them.
 
+## Agent interface (MCP)
+
+`aidemo mcp` runs a **stdio** MCP server — no network listener — exposing the
+engine to any MCP client. `aidemo repo-init` registers it in a consumer repo:
+`.mcp.json` for Claude Code, `.gemini/settings.json` for Gemini CLI; Codex CLI
+keeps MCP config globally, so it's one command:
+`codex mcp add aidemo -- npx -y github:tandryukha/aidemo#stable mcp`.
+
+- **Authoring tools** — `get_authoring_guide` serves
+  [docs/AUTHORING.md](docs/AUTHORING.md) straight from the engine (always
+  version-matched, can't go stale); `get_storyboard_schema` emits JSON Schema
+  from the zod source of truth; `validate_storyboard` returns structured
+  issues; plus `init_demo` and `doctor`.
+- **Pipeline tools run as jobs** — `probe`, `record`, `render`, `voice`,
+  `captions`, `compose`, `gif` return a `jobId` immediately (a render runs for
+  minutes, longer than most MCP tool timeouts). `job_status` reports the
+  stage, per-scene progress, and a log tail; on failure it carries the
+  screenshot/frame-dump paths and what was salvaged. One job runs at a time —
+  a second submission is rejected with the running job's id. `job_cancel`
+  aborts mid-take and keeps the partial footage.
+- Smoke-test the whole surface with `npm run mcp-smoke` (needs Chrome, like
+  the render smoke test).
+
 ## Authoring a storyboard
 
-See `examples/local-demo/generated/storyboard.json` for a working example and the
-`record-demo` skill (`.claude/skills/record-demo/SKILL.md`) for the schema, the
-action vocabulary, and demo-director principles. In short: 4-6 scenes, one idea
-each, ~2.5 words/sec of narration, hook first, CTA last; use `waitForWidget` for
-every async "thinking" wait so it gets trimmed.
+See `examples/local-demo/generated/storyboard.json` for a working example and
+**[docs/AUTHORING.md](docs/AUTHORING.md)** — the canonical authoring guide
+(schema, action vocabulary, demo-director principles), served version-matched
+by the engine itself: the MCP `get_authoring_guide` tool, or `aidemo guide` on
+the CLI. In short: 4-6 scenes, one idea each, ~2.5 words/sec of narration, hook
+first, CTA last; use `waitForWidget` for every async "thinking" wait so it gets
+trimmed.
 
 The easiest way to make one: ask Claude — *"record a 45s demo of &lt;flow&gt;"* — and the
 `record-demo` skill drives the whole thing:
@@ -323,21 +348,18 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
 
 ## Roadmap
 
-- **Codex CLI / Gemini CLI support**: extract the skill's authoring knowledge
-  into an agent-neutral `docs/AUTHORING.md`, thin `AGENTS.md`/`GEMINI.md`
-  adapters, then an **MCP server** (`aidemo mcp`) exposing author/probe/render
-  as tools for any agent.
 - **GitHub Action**: attach a freshly rendered demo video to every release —
   "make a demo of what shipped since the last tag".
-- **ElevenLabs voice provider** behind the existing `VoiceProvider` interface
-  (higher-emotion narration).
 - **Comments on the video** (pause & comment) and **in-place transcript editing**:
   captions map to scenes, so editing a line marks that scene dirty and
   `aidemo voice --scene <id>` + `compose` regenerates only the delta.
 - **Web UI**, project history, brand kits, changelog integrations.
 
-(Cinematic polish — auto-zoom, scroll easing presets, sidechain music ducking,
-intro/outro cards — and the native/OBS capture path shipped; see above.)
+(Shipped from earlier roadmaps: cinematic polish — auto-zoom, scroll easing
+presets, sidechain music ducking, intro/outro cards — the native/OBS capture
+path, the agent-neutral authoring guide + **MCP server** for Codex CLI /
+Gemini CLI / any MCP client, and the **ElevenLabs voice provider**
+(`AIDEMO_TTS_PROVIDER=elevenlabs`); see above.)
 
 ## Notes / limitations
 
@@ -352,15 +374,20 @@ intro/outro cards — and the native/OBS capture path shipped; see above.)
 
 - **No telemetry, no analytics, no install-time scripts** (`package.json` has
   no `postinstall`/`preinstall`).
-- **Network access is exactly two endpoints, both user-initiated:**
+- **Network access is user-initiated and user-configured, nothing else:**
   `api.openai.com` (only for `aidemo voice` / `aidemo captions`, with your own
   `OPENAI_API_KEY` — or a local server of your choice via `OPENAI_BASE_URL`,
-  see [Local models & offline](#local-models--offline)) and `github.com` (only
-  via your own locally-authenticated `gh` CLI, for `aidemo feedback`).
+  see [Local models & offline](#local-models--offline)), `api.elevenlabs.io`
+  (only if you opt in with `AIDEMO_TTS_PROVIDER=elevenlabs`), and `github.com`
+  (only via your own locally-authenticated `gh` CLI, for `aidemo feedback`).
   Recording and composing are fully local — Playwright and ffmpeg spawned on
-  your machine.
-- **Small, auditable surface:** ~20 source files under `src/`, 5 runtime
-  dependencies (`commander`, `openai`, `playwright`, `tsx`, `zod`), MIT.
+  your machine. The MCP server (`aidemo mcp`) is **stdio-only** — it opens no
+  listener and adds no network surface.
+- **Small, auditable surface:** ~20 source files under `src/`, 7 direct
+  runtime dependencies (`commander`, `openai`, `playwright`, `tsx`, `zod`,
+  `@modelcontextprotocol/sdk`, `zod-to-json-schema` — the MCP SDK bundles
+  HTTP-transport helpers this engine never constructs; only the stdio
+  transport is used), MIT.
 - Wary of the moving `#stable` tag? Pin an immutable ref:
   `npx -y github:tandryukha/aidemo#v0.3.0` or a full commit SHA.
 - Found a vulnerability? See [SECURITY.md](SECURITY.md) — please report
