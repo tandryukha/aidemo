@@ -16,9 +16,10 @@ branding:
 #   * ffmpeg + ffprobe on PATH
 # ubuntu-latest ships Chrome but NOT ffmpeg — add a step to install it before
 # this action (e.g. `sudo apt-get update && sudo apt-get install -y ffmpeg`); the
-# templates in examples/workflows/ show this. The only network egress is
-# github.com (engine), registry.npmjs.org (deps) and, for tts=local,
-# huggingface.co (one-time ~90 MB Kokoro model download, cacheable).
+# templates in examples/workflows/ show this. Network egress is github.com
+# (engine), registry.npmjs.org (deps), Playwright's CDN (one-time ~2 MB ffmpeg
+# recording helper) and, for tts=local, huggingface.co (one-time ~90 MB Kokoro
+# model download, cacheable).
 
 inputs:
   demos:
@@ -101,7 +102,8 @@ runs:
         set -euo pipefail
         if [ -n "$ENGINE_PATH" ]; then
           # Dev / self-test mode: run the checked-out engine directly.
-          bin="$(cd "$ENGINE_PATH" && pwd)/bin/aidemo.mjs"
+          engine_root="$(cd "$ENGINE_PATH" && pwd)"
+          bin="$engine_root/bin/aidemo.mjs"
           if [ ! -f "$bin" ]; then
             echo "::error::engine-path has no bin/aidemo.mjs: $ENGINE_PATH"; exit 1
           fi
@@ -120,12 +122,30 @@ runs:
           if [ "$TTS" = "local" ]; then pkgs+=("kokoro-js"); fi
           echo "installing: ${pkgs[*]}"
           npm i --prefix "$home" --no-save --ignore-scripts --no-audit --no-fund "${pkgs[@]}"
+          engine_root="$home"
           bin="$home/node_modules/aidemo/bin/aidemo.mjs"
           if [ ! -f "$bin" ]; then
             echo "::error::engine install produced no bin at $bin"; exit 1
           fi
           echo "installed engine -> $bin"
         fi
+
+        # The recorder captures the take with Playwright's recordVideo, which
+        # needs Playwright's OWN bundled ffmpeg helper (distinct from the system
+        # ffmpeg the compose stage uses, and NOT a browser — the recorder drives
+        # system Chrome). The script-free install skips it, so fetch just that
+        # ~2 MB helper now (idempotent; from Playwright's CDN).
+        pw_cli="$engine_root/node_modules/playwright/cli.js"
+        if [ ! -f "$pw_cli" ]; then
+          pw_cli="$(find "$engine_root" -maxdepth 5 -path '*/playwright/cli.js' 2>/dev/null | head -1)"
+        fi
+        if [ -n "$pw_cli" ] && [ -f "$pw_cli" ]; then
+          echo "installing Playwright ffmpeg helper via $pw_cli"
+          node "$pw_cli" install ffmpeg
+        else
+          echo "::warning::could not find playwright/cli.js under $engine_root — take recording may fail without its ffmpeg helper"
+        fi
+
         echo "bin=$bin" >> "$GITHUB_OUTPUT"
 
     - name: Environment check (aidemo doctor)

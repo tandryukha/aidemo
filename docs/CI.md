@@ -159,8 +159,9 @@ These templates are meant to be safe to copy into a public repo:
   comment (let Dependabot bump them).
 - `demo-pr-comment.yml` uses **`pull_request`, never `pull_request_target`**.
 - `permissions:` is explicit and minimal on every workflow.
-- Network egress is limited to `github.com`, `registry.npmjs.org` and
-  `huggingface.co` (model download).
+- Network egress is limited to `github.com`, `registry.npmjs.org`, Playwright's
+  CDN (one-time ~2 MB ffmpeg recording helper) and `huggingface.co` (model
+  download, `tts=local` only).
 
 ## Fork-PR caveat
 
