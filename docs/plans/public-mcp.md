@@ -1,12 +1,16 @@
 # Plan: hosted public aidemo MCP service
 
-**Status: planned, deliberately not started.** This is a deferred design, not
-a roadmap commitment. It costs real money to host (compute for headless
-Chrome, storage for artifacts, abuse handling); the [GitHub
-Action](../CI.md) does not — it renders on the user's own CI minutes, with no
-server for anyone to run. The Action ships first and covers the CI-rendering
-use case at $0. This doc exists so that if/when the [launch gate](#launch-gate)
-trips, the design work is already done.
+**Status: committed to build (2026-07-07).** Targeting a dedicated **new AWS
+account**, hosted properly — scale-to-zero so idle cost is ~$0, and one clean
+blast-radius boundary. The free tier ships behind a hard **$50/month
+variable-cost cap** (see [Free-tier budget guarantee](#free-tier-budget-guarantee-the-50month-cap))
+so the downside is bounded and known before a single user shows up. The
+[GitHub Action](../CI.md) still ships first and still covers the CI-rendering
+case at **$0** — hosted *complements* it for the narrow slice with neither a
+local shell nor a CI repo (cloud chat clients, ephemeral agent sessions with no
+persistent disk). The old [launch gate](#launch-gate) no longer blocks
+*building* the bounded free tier; it now gates only when the **paid** tier
+turns on.
 
 ## Why
 
@@ -36,10 +40,16 @@ The job model already exists (`src/mcp/jobs.ts`, wrapped by `src/mcp/server.ts`)
 and this service reuses its shape rather than inventing a new one: a tool call
 starts a job and returns a `jobId` immediately; `job_status` polls stage,
 progress, and result. What changes for the hosted case is everything *around*
-that shape — multi-tenancy, isolation, and where the bytes end up.
+that shape — multi-tenancy, isolation, and where the bytes end up. It lives in
+its **own repo** and its **own dedicated AWS account** (an AWS Organizations
+member account, so a runaway bill or a compromised render worker is
+blast-radius-boxed away from everything else), with an account-level **AWS
+Budgets** alarm and, ideally, a spend-ceiling SCP as coarse backstops. Every
+choice below defaults to **scale-to-zero** so idle cost is ~$0.
 
-- **Transport.** [Streamable HTTP](https://modelcontextprotocol.io) is the MCP
-  spec's remote-server transport. The engine's one MCP dependency,
+- **Transport — the MCP control plane.**
+  [Streamable HTTP](https://modelcontextprotocol.io) is the MCP spec's
+  remote-server transport. The engine's one MCP dependency,
   `@modelcontextprotocol/sdk`, already bundles the HTTP-transport helpers —
   today's stdio-only server just never constructs them (see README → Security
   & trust). The hosted service is where they'd finally get used. This service
@@ -47,37 +57,59 @@ that shape — multi-tenancy, isolation, and where the bytes end up.
   per the open-core boundary this repo already draws (engine/CLI/skill/Action
   = open, in this repo; a hosted cloud layer = a separate service), it lives
   in its own repo and deploys independently. This plan doc describes that
-  future repo's design, not a change to `src/mcp/server.ts`.
-- **Sandboxed render workers.** Rendering means driving a real headless
-  Chrome against a URL the caller supplies — that's the hard security
-  problem here, not a footnote. Treat it like running arbitrary untrusted
-  code, because it is:
-  - **Per-job container.** Every job gets a fresh, ephemeral container/VM;
-    nothing persists between jobs. No shared browser profile, no shared
-    cookies, no shared disk — one job can never see another's state. This is
-    a hard requirement, not an optimization: the whole engine's local model
-    assumes a *private* Chrome profile, and hosted must not silently violate
-    that assumption.
-  - **Egress allowlist per registered project.** A job's browser gets network
-    access only to the origin(s) the registered project owner confirmed at
-    registration time — default deny-all otherwise. Anonymous/unregistered
-    jobs get an even smaller, pre-vetted allowlist (e.g. the bundled fixture
-    site), not "any URL," until there's an identity attached to the request.
-  - **Resource caps.** Wall-clock timeout per job (mirroring the per-scene
-    timeouts the recorder already enforces locally), CPU/memory ceilings
-    enforced by the container runtime (not the app, so a misbehaving job
-    can't talk its way out of them), and an output-size cap.
-- **Artifact storage.** Rendered MP4/GIF/stills land in object storage behind
-  **signed, expiring download URLs** — never a public-by-default bucket.
-  Retention window differs by tier (free short, paid longer); exact numbers
-  are a launch-time decision, not a design constraint here. This overlaps
+  future repo's design, not a change to `src/mcp/server.ts`. On AWS the control
+  plane is light (tool calls enqueue a job and return a jobId; `job_status` is
+  a poll), so it runs on the smallest **ECS Fargate** service behind an **ALB**
+  — or on **Lambda** (function URL) if the surface stays poll-based and never
+  needs long-lived SSE.
+- **Sandboxed render workers — one ephemeral Fargate task per job.**
+  Rendering means driving a real headless Chrome against a URL the caller
+  supplies — that's the hard security problem here, not a footnote. Treat it
+  like running arbitrary untrusted code, because it is:
+  - **Per-job container → a fresh Fargate task per job** (ECS `RunTask`),
+    which exits when the render finishes. Nothing persists between jobs — no
+    shared browser profile, no shared cookies, no shared disk; one job can
+    never see another's state. This is a hard requirement, not an optimization:
+    the whole engine's local model assumes a *private* Chrome profile, and
+    hosted must not silently violate that assumption.
+  - **Egress allowlist per registered project.** The render task runs in a
+    **private subnet with no route to the VPC's internal ranges**; all outbound
+    goes through an **egress-filtering proxy** (allowlisted origins only) or
+    **AWS Network Firewall** with domain rules — default deny-all. Access is
+    granted only to the origin(s) the registered project owner confirmed at
+    registration time. Anonymous/unregistered jobs get an even smaller,
+    pre-vetted allowlist (e.g. the bundled fixture site), not "any URL," until
+    there's an identity attached to the request. Link-local and RFC1918 ranges
+    are blocked regardless of what's on an allowlist, and DNS is
+    resolve-once-and-pin to defeat rebinding. **Also block the ECS
+    task-metadata endpoint (`169.254.170.2`) and IMDS (`169.254.169.254`)** so
+    a hostile storyboard can't navigate the browser to them and harvest the
+    task role's temporary credentials.
+  - **Resource caps.** Fargate task CPU/memory sizing is the hard ceiling (the
+    app can't talk its way past a runtime limit), plus a wall-clock
+    `stopTimeout` and an app-level **5-min job timeout** (mirroring the
+    per-scene timeouts the recorder already enforces locally), and an
+    output-size cap. The task role is **least-privilege**: write to one S3
+    prefix, read its own job record, nothing else — so even a credential leak
+    buys an attacker almost nothing.
+- **Artifact storage → S3.** Rendered MP4/GIF/stills land in an S3 bucket
+  behind **presigned, expiring download URLs** — never a public-by-default
+  bucket — with an **S3 lifecycle policy** for tier-based retention (free
+  short, paid longer; exact numbers are a launch-time decision). This overlaps
   with [docs/EMBEDS.md](../EMBEDS.md)'s always-fresh-embed story, with one
-  difference: embeds assume a stable URL that keeps serving a repo's own
-  latest render; hosted artifacts additionally need to *expire*, since nobody
-  is paying to keep everyone's renders forever.
-- **Job queue.** One logical queue, a priority lane for paid jobs, and
-  concurrency caps per tier (see [Tiering](#tiering)). Position is reported
-  honestly — "you're #4, ~3 min" — rather than hidden.
+  difference: embeds assume a stable URL that keeps serving a repo's own latest
+  render; hosted artifacts additionally need to *expire*, since nobody is
+  paying to keep everyone's renders forever.
+- **Job queue → SQS.** One logical queue, a small dispatcher (a Lambda on the
+  SQS trigger, or the control plane itself) that launches Fargate tasks up to
+  the concurrency cap (1 at launch), and a priority lane for paid jobs.
+  Position is reported honestly — "you're #4, ~3 min" — rather than hidden.
+- **Identity, keys, quota, budget → DynamoDB.** API keys bound to a GitHub
+  identity, per-identity daily/monthly quota counters (atomic, TTL-expiring
+  windows), and the **global monthly spend meter** all live in DynamoDB and are
+  checked atomically *before* dispatch. Secrets (GitHub OAuth app secret,
+  OpenAI key) live in **Secrets Manager / SSM Parameter Store**. Per-IP
+  limiting for the anonymous tier is **AWS WAF** rate-based rules on the ALB.
 
 ## Tiering
 
@@ -85,38 +117,123 @@ that shape — multi-tenancy, isolation, and where the bytes end up.
   [Agent-first registration](#agent-first-registration)), strictly
   rate-limited, and **queued**: jobs run when capacity is idle, and the
   caller is told its queue position rather than getting an instant render.
-  Honest "your job is #N in queue" UX beats a fake instant-render promise the
-  service can't actually keep at zero fixed cost.
+  Concrete launch limits: **5 renders/day, 25/month per GitHub identity**;
+  anonymous (no account) gets **2–3 renders/day/IP on pre-vetted origins
+  only**; global concurrency **1**. Honest "your job is #N in queue" UX beats a
+  fake instant-render promise the service can't keep at zero fixed cost.
 - **Paid tier** — priority queue placement, higher concurrency, longer
-  artifact retention. Subscription-priced **only if free-tier interest
-  proves demand first** — no numbers here, this is explicitly
-  decision-gated. The template to follow if/when that happens is Remotion's
-  own pivot: ship free/open, then introduce public, transparent pricing once
-  traction is real, rather than guessing a price up front.
+  artifact retention. **Priced flat (subscription or credit pack), never
+  per-token / per-render-minute** — per-render compute is predictable
+  (seconds-to-low-minutes), so metering pennies isn't worth the billing infra
+  or the buyer's per-call anxiety; a card on file also doubles as the paid
+  tier's uniqueness proof. Turned on **only if free-tier interest proves demand
+  first** — no numbers here, this is explicitly decision-gated. The template to
+  follow if/when that happens is Remotion's own pivot: ship free/open, then
+  introduce public, transparent pricing once traction is real, rather than
+  guessing a price up front. (Remotion's *metered* tier exists because its
+  renders are heavy synthetic compositions; ours are seconds of deterministic
+  replay, so a flat price fits.)
+
+## Free-tier budget guarantee (the $50/month cap)
+
+The hard promise: **total variable cost never exceeds ~$50/month ex-VAT**,
+known before a single user shows up. The trap to avoid up front: **per-user
+rate limits do not bound total spend** — cap each user at 25 renders/month and
+500 users still cost you 12,500 renders. Only a global meter guarantees the
+ceiling. So four nested limits, outermost is the guarantee:
+
+1. **Global monthly budget meter — the actual cap.** A counter in DynamoDB,
+   decremented by each render's estimated cost and checked atomically *before*
+   dispatch. At the ceiling the free tier closes until reset: `budget
+   exhausted, resets on the 1st — register a paid key to continue`. AWS Budgets
+   is only a coarse backstop here (it lags hours); the real-time hard stop is
+   this app-level counter.
+2. **Per-render bounds — make each render's cost a known ceiling.**
+   - Narration ≤ **~1,200 chars / ~90 s audio** (TTS cost is linear in this,
+     and it's the product's 30–60 s sweet spot anyway).
+   - Hard **5-min job timeout** (Fargate `stopTimeout` + app timeout) — kills
+     runaway / crypto-mining jobs.
+   - Max output **1080p** (4K is ~4× the encode + egress for no free-tier
+     benefit).
+3. **Per-identity quota — fair distribution.** 5 renders/day, 25/month per
+   GitHub identity → ~40 heavy or ~200 light users before the global cap trips.
+4. **Concurrency = 1 global at launch — worker + cost protection.** The whole
+   free tier shares one Fargate slot; queued with honest position reporting.
+
+Unit economics behind the numbers (plug in current OpenAI/AWS rates — these are
+order-of-magnitude, and note you must meter **total** variable cost, not just
+"AI spend": compute + egress are real and were the thing the original framing
+undercounted):
+
+| Component | Rate (assumed) | Per ~90 s render |
+|---|---|---|
+| TTS (OpenAI, ~90 s narration, HD-ish) | ~$15–30 / 1M chars | ~$0.02–0.04 |
+| STT (Whisper, 90 s) | $0.006 / min | ~$0.01 |
+| Compute (Fargate, ~3 min, ~2 vCPU / 4 GB) | ~$0.04 / vCPU-hr + mem | ~$0.005–0.02 |
+| Egress + S3 (≈10 MB MP4, expiring) | ~$0.09 / GB out | ~$0.001 |
+| **All-in worst case, with the caps above** | | **~$0.05–0.07** |
+
+So **$50 ≈ ~700–1,000 renders/month.** AI spend is *not* the binding
+constraint — abuse and concurrency are; these caps exist to distribute a fixed
+budget fairly and stop one abuser draining it in an afternoon. Voice is
+content-hashed per scene (`src/voice.ts`) so re-renders of the same narration
+cost ~$0 in TTS, and Kokoro-local TTS could drop the AI line to $0 entirely if
+the free tier ever wants to run key-free.
 
 ## Agent-first registration
 
 The one design constraint the owner cares about most: **registration must be
-completable by an agent, mid-session, without a human ever opening a
-browser tab on their own initiative.** Two paths:
+completable by an agent, mid-session, without a human ever opening a browser
+tab on their own initiative.** There are two auth layers — ship both, because
+MCP clients differ in what they support natively.
 
-1. **GitHub OAuth device flow (primary).** An MCP `register` tool starts the
-   standard device-authorization grant (RFC 8628) — the same mechanism `gh
-   auth login` and the Docker CLI already use for headless auth. The tool
-   returns `{ verification_uri, user_code, expires_in }`; the agent's job is
-   just to surface that one-time code and URL to its human in whatever
-   channel it has ("open https://github.com/login/device and enter
-   `ABCD-1234`") — something coding agents already do routinely. The agent
-   (or a background poll) then calls a follow-up tool with the device code
-   until the human approves; the server exchanges it for a GitHub identity
-   and mints an API key **bound to that identity**, returned once. No form,
-   no password, no human-only step beyond clicking "approve" on a page
-   GitHub itself renders.
-2. **Verified-email magic link (fallback).** For agents/humans without
-   GitHub: `register` accepts an email, sends a one-time link, and the agent
-   polls the same way until it's clicked. Strictly a fallback — device flow
-   is the primary path because it needs no email round-trip and ties
-   identity to an account most developers already have.
+**Layer 1 — transport-level OAuth (MCP-native; best UX where supported).** The
+MCP authorization spec treats a Streamable-HTTP server as an OAuth 2.1 resource
+server. A capable client (Claude Code/Desktop) discovers this, runs the OAuth
+handshake itself (authorization-code + PKCE, dynamic client registration per
+RFC 7591), and stores/refreshes the token — sending `Authorization: Bearer …`
+on every call. The human just clicks "approve" once and the agent writes zero
+auth code. *(The MCP auth spec is still moving; verify current discovery/grant
+requirements against the live spec at build time.)*
+
+**Layer 2 — tool-level device flow (universal fallback; works with every MCP
+client).** For clients with no built-in OAuth, an MCP `register` tool runs the
+OAuth 2.0 Device Authorization Grant (RFC 8628) — the same mechanism `gh auth
+login`, the Docker CLI, and AWS SSO already use for headless auth. Ship this
+**first**: it's the lowest common denominator and the whole quota/upsell ladder
+rides on it. Two identity paths:
+
+1. **GitHub OAuth device flow (primary).** The `register` tool starts the
+   standard device-authorization grant: it returns
+   `{ verification_uri, user_code, expires_in }`; the agent's job is just to
+   surface that one-time code and URL to its human in whatever channel it has
+   ("open https://github.com/login/device and enter `ABCD-1234`") — something
+   coding agents already do routinely. The agent (or a background poll) then
+   calls a follow-up tool with the device code until the human approves; the
+   server exchanges it for a GitHub identity, **applies the age gate below**,
+   and mints an API key **bound to that identity**, returned once. No form, no
+   password, no human-only step beyond clicking "approve" on a page GitHub
+   itself renders.
+2. **Verified-email magic link (fallback).** For agents/humans without GitHub:
+   `register` accepts an email, sends a one-time link, and the agent polls the
+   same way until it's clicked. Strictly a fallback — device flow is the
+   primary path because it needs no email round-trip and ties identity to an
+   account most developers already have.
+
+- **Sybil resistance — bind quota to a costly-to-farm identity.** You can't
+  prove "unique human"; you can only make fake identities cost more than the
+  free tier is worth. The ladder, and where we plant the flag:
+
+  | Signal | Cost to farm | Use |
+  |---|---|---|
+  | IP address | ~$0 (proxies, cloud IPs) | Anonymous-playground WAF rate-limit only — never the real key |
+  | Email | ~$0 (temp-mail) | Too weak alone; magic-link fallback only |
+  | **GitHub account + age gate** | Annoying at scale; GitHub throttles account creation | **Primary.** Require account age **≥30 days** and/or **≥1 public repo** — rejects throwaways |
+  | Phone / payment card | High | **Paid tier only** — a card on file *is* the uniqueness proof; too much friction for free |
+
+  **Quota lives on the identity, not the key**: re-registering the same GitHub
+  identity returns the *same* quota bucket, not a fresh 25 renders. That's the
+  whole game — a key is just a handle on an identity's bucket.
 - **Key scoping.** A key is bound to an identity and, once a project is
   registered, to that project's egress allowlist — the human confirms which
   origin(s) their storyboards may navigate to at registration time, not the
@@ -129,24 +246,29 @@ browser tab on their own initiative.** Two paths:
   → paid ladder is designed to be climbable from inside one MCP session: an
   anonymous job hitting its rate limit gets an error whose text says "call
   `register` to raise your limit"; a registered-free caller hitting the free
-  queue/quota ceiling gets a `quota` response that names the upgrade path (a
-  checkout link the agent can hand to its human). The agent never has to stop
-  and say "go install something" — every next step is another tool call.
+  queue/quota ceiling (or the global budget cap) gets a `quota` response that
+  names the upgrade path (a checkout link the agent can hand to its human). The
+  agent never has to stop and say "go install something" — every next step is
+  another tool call.
 
 ## Cost model at launch
 
-Target **$0 fixed cost**: a queue on one small always-on box, or a
-scale-to-zero container platform that pays for compute only while a job is
-actually rendering (a render is seconds-to-low-minutes of CPU). Free-tier
-concurrency is capped at **1** globally at launch — the entire free tier
-shares one worker slot. That's the cheapest possible "it actually works"
-while the launch gate is being evaluated, and it doubles as the honest
-queue-depth signal callers see.
+Target **$0 fixed cost**: the control plane is the smallest always-on Fargate
+task (or scale-to-zero Lambda), and render workers are **Fargate tasks launched
+per job** that pay for compute only while a job is actually rendering (a render
+is seconds-to-low-minutes of CPU). Free-tier concurrency is capped at **1**
+globally at launch — the entire free tier shares one worker slot. That's the
+cheapest possible "it actually works," it doubles as the honest queue-depth
+signal callers see, and it's bounded above by the
+[global budget meter](#free-tier-budget-guarantee-the-50month-cap) so the total
+monthly bill can't exceed ~$50 no matter how many callers show up.
 
 ## Launch gate
 
-Build this only when there's a concrete interest signal, not a hunch. Track,
-starting from when the GitHub Action ships:
+The bounded free tier ships (its downside is capped at ~$50/month by design).
+These counters now gate only **when the paid tier turns on** — build that only
+when there's a concrete interest signal, not a hunch. Track, starting from when
+the GitHub Action ships:
 
 - **Waitlist signups** — a simple form or a pinned "who wants hosted
   rendering" GitHub issue people can react to or comment on.
@@ -154,18 +276,23 @@ starting from when the GitHub Action ships:
 - **Action adoption** — number of distinct repos actually using the GitHub
   Action (a proxy for "people who'd rather not run CI at all if they didn't
   have to").
+- **Free-tier usage** — once hosted is live: registered identities, renders/mo,
+  and how often the global budget cap is actually hit (the cap tripping
+  repeatedly is itself the demand signal that justifies a paid tier).
 
 No specific threshold is pre-committed here on purpose — the owner reviews
 these counters periodically (e.g. each release) and decides when the trend,
-not a single magic number, justifies the hosting cost. That review is the
-gate; these three counters are what it reviews.
+not a single magic number, justifies standing up paid billing. That review is
+the gate; these counters are what it reviews.
 
 ## Risks + mitigations
 
 | Risk | Mitigation |
 |---|---|
-| **Abuse: crypto-miner / arbitrary-compute URLs.** A "render this URL" primitive is a free compute-execution primitive if unbounded. | Per-job resource caps (CPU/memory/wall-clock) enforced by the container runtime, ephemeral per-job containers (no persistent workers to keep mining), no job runs longer than a demo plausibly needs. |
-| **SSRF via internal URLs.** A job's headless browser could be pointed at cloud metadata endpoints (`169.254.169.254`) or private/internal addresses reachable from the render network. | Deny-by-default egress allowlist scoped per registered project (public origins only); explicit block of link-local and RFC1918 ranges regardless of what's on an allowlist; resolve-once-and-pin DNS to defeat DNS-rebinding attacks against the allowlist check. |
+| **Free tier blows past $50 because per-user limits don't bound total spend.** | A **global monthly spend meter** (DynamoDB, atomic check-and-decrement before every dispatch) hard-stops the free tier at the cap; per-render caps make each decrement a known quantity; AWS Budgets + a spend-ceiling SCP on the dedicated account are coarse backstops (they lag, so they're not the primary control). |
+| **Task-role credential theft on Fargate.** A hostile storyboard navigates the headless browser to the ECS task-metadata endpoint (`169.254.170.2`) or IMDS (`169.254.169.254`) and exfiltrates the render task's temporary AWS creds. | Block both endpoints at the network layer for the render task; least-privilege task role (write one S3 prefix, read its own job record, nothing else) so leaked creds buy almost nothing; IMDSv2 only. |
+| **Abuse: crypto-miner / arbitrary-compute URLs.** A "render this URL" primitive is a free compute-execution primitive if unbounded. | Per-job resource caps (CPU/memory/wall-clock) enforced by the Fargate runtime, ephemeral per-job tasks (no persistent workers to keep mining), no job runs longer than a demo plausibly needs (5-min hard timeout). |
+| **SSRF via internal URLs.** A job's headless browser could be pointed at cloud metadata endpoints or private/internal addresses reachable from the render network. | Deny-by-default egress allowlist scoped per registered project (public origins only), enforced by an egress proxy / Network Firewall; explicit block of link-local and RFC1918 ranges regardless of what's on an allowlist; resolve-once-and-pin DNS to defeat DNS-rebinding attacks against the allowlist check. |
 | **Copyright / recording someone else's site without the right to.** | Registration ties a project to a human-confirmed origin allowlist — an implicit assertion the registrant has the right to record it, the same posture any headless-browser screenshot service takes. Anonymous tier is restricted to a small pre-vetted playground, not arbitrary URLs, so this risk barely exists before an identity is attached. |
 | **A single free worker slot becomes a denial-of-service vector for other free users.** | Per-key/per-IP concurrency cap of 1 in addition to the global cap; honest queue-position reporting turns "why is nothing happening" into a visible, expected wait rather than a black box worth abusing. |
 
@@ -182,7 +309,10 @@ replay. In flywheel terms (see
 [docs/recipes/changelog-to-blog.md](../recipes/changelog-to-blog.md)), this
 is a second render substrate alongside local and CI, not a new place for
 tokens to get spent: the marginal cost here is *our* compute bill for running
-someone's already-written storyboard, not an LLM call.
+someone's already-written storyboard, not an LLM call. This is also why the
+budget math is tractable — the only per-job spend is bounded TTS/STT plus
+metered Fargate seconds, both of which the [caps](#free-tier-budget-guarantee-the-50month-cap)
+pin to a known ceiling.
 
 ## Non-goals (now)
 
