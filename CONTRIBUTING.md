@@ -12,7 +12,10 @@ Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`.
 git clone https://github.com/tandryukha/aidemo.git
 cd aidemo
 npm install
-cp .env.example .env      # add OPENAI_API_KEY (used for TTS + Whisper captions)
+cp .env.example .env      # add your OWN OPENAI_API_KEY (used for TTS + Whisper
+                          # captions) — a key dedicated to this engine, not one
+                          # borrowed from another project. It always overrides
+                          # a shell-exported OPENAI_API_KEY; see .env.example.
 ```
 
 No Playwright browser download is needed — the engine drives your system Chrome.

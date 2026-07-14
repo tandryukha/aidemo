@@ -21,13 +21,15 @@ export function engineVersion(): string {
   }
 }
 
-/** Parse one KEY=VALUE .env file into process.env without overriding existing keys. */
-async function loadEnvFile(envPath: string): Promise<void> {
+/** Parse one KEY=VALUE .env file into a plain object. No process.env side effects here —
+ *  see loadEnv() below for why the two files are read fully before anything is assigned. */
+async function readEnvFile(envPath: string): Promise<Record<string, string>> {
+  const values: Record<string, string> = {};
   let raw: string;
   try {
     raw = await fs.readFile(envPath, "utf8");
   } catch {
-    return; // no file — nothing to load
+    return values; // no file — nothing to load
   }
   for (const line of raw.split("\n")) {
     const trimmed = line.trim();
@@ -42,21 +44,39 @@ async function loadEnvFile(envPath: string): Promise<void> {
     ) {
       val = val.slice(1, -1);
     }
-    if (!(key in process.env)) process.env[key] = val;
+    values[key] = val;
   }
+  return values;
 }
 
 /**
- * Load .env for the CLI. Reads the *consumer's* cwd/.env first (so a repo that
- * installed the skill can keep its own OPENAI key next to its demos), then the
- * engine's own .env. Neither overrides a key already in the real environment,
- * and cwd wins over the engine dir. Called once at CLI startup.
+ * Load .env for the CLI. Reads the *consumer's* cwd/.env (so a repo that installed
+ * the skill can keep its own OpenAI key next to its demos) and the engine's own
+ * .env, then merges with cwd winning over the engine dir for any key both define.
+ *
+ * CRITICAL: a value found in EITHER .env file always OVERRIDES whatever is already
+ * in process.env — e.g. an OPENAI_API_KEY exported globally in a shell profile
+ * (~/.zshrc), possibly shared across several unrelated repos/projects. This is
+ * deliberate. The previous version of this function only assigned a var when it
+ * was not yet present in process.env at all, which is the exact "ambient wins"
+ * default that Node's `dotenv.config()` and Python's `load_dotenv()` also ship
+ * with — it LOOKS like a safe merge but actually means a repo's own .env is
+ * silently ignored whenever the key already happens to be set in the process
+ * environment, and the spend goes to whatever key that ambient value belongs to
+ * instead. See scripts/guard-openai-key.ts, which fails the build if this
+ * skip-if-already-set shape ever comes back. Ambient only wins here when
+ * NEITHER .env file defines the key at all (e.g. a deliberate one-off invocation
+ * like `OPENAI_API_KEY=sk-... aidemo record ...`). Called once at CLI startup.
  */
 export async function loadEnv(): Promise<void> {
   const cwdEnv = resolve(process.cwd(), ".env");
   const engineEnv = resolve(ENGINE_ROOT, ".env");
-  await loadEnvFile(cwdEnv);
-  if (engineEnv !== cwdEnv) await loadEnvFile(engineEnv);
+  const engineValues = await readEnvFile(engineEnv);
+  const cwdValues = cwdEnv === engineEnv ? {} : await readEnvFile(cwdEnv);
+  const merged = { ...engineValues, ...cwdValues }; // cwd wins per-key over the engine dir
+  for (const [key, val] of Object.entries(merged)) {
+    process.env[key] = val;
+  }
 }
 
 /**
