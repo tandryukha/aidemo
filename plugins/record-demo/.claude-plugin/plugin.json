@@ -1,0 +1,13 @@
+{
+  "name": "record-demo",
+  "description": "Record narrated, captioned product-demo videos with the aidemo engine — your coding agent authors a storyboard, the engine drives a real Chrome, voices it, captions it, and exports a shareable MP4.",
+  "version": "0.8.0",
+  "author": {
+    "name": "Andrii Taran",
+    "url": "https://github.com/tandryukha"
+  },
+  "homepage": "https://github.com/tandryukha/aidemo",
+  "repository": "https://github.com/tandryukha/aidemo",
+  "license": "MIT",
+  "keywords": ["demo", "video", "screen-recording", "product-demo", "mcp", "playwright", "ffmpeg", "tts"]
+}

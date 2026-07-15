@@ -59,6 +59,8 @@ docs/CI.md            CI render recipe; docs/EMBEDS.md always-fresh embeds
 docs/plans/           deferred designs (e.g. public-mcp.md); docs/recipes/ how-tos
 examples/workflows/   copy-paste consumer CI workflow templates
 .claude/skills/       record-demo (thin adapter → AUTHORING.md) + dev skills
+.claude-plugin/       marketplace.json — Claude Code plugin marketplace catalog
+plugins/record-demo/  published plugin (bundles record-demo skill + aidemo MCP)
 examples/local-demo/  self-contained fixture + storyboard — the smoke test
 test/mcp-smoke.mjs    MCP-surface smoke test (local, needs Chrome)
 demos/                untracked local working area
@@ -74,6 +76,12 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
   (served to agents via the MCP `get_authoring_guide` tool and `aidemo guide`;
   `.claude/skills/record-demo/SKILL.md` is a thin adapter with no schema
   content). Change the schema → update `docs/AUTHORING.md` in the same commit.
+- **Published plugin skill stays in sync.** The Claude Code plugin ships a copy
+  of the record-demo skill at `plugins/record-demo/skills/record-demo/SKILL.md`.
+  It must be byte-identical to `.claude/skills/record-demo/SKILL.md`. Edit the
+  canonical one, then `npm run sync:plugin-skill`; `npm run check:plugin-skill`
+  fails on drift. On a version bump, also bump `version` in
+  `plugins/record-demo/.claude-plugin/plugin.json`.
 - **ffmpeg portability.** Many ffmpeg builds lack `subtitles`/`drawtext`.
   Captions and cards are headless-Chrome-rasterized PNGs overlaid with
   time-gated `enable`. Don't add filters beyond that baseline.

@@ -26,8 +26,11 @@ Key facts:
   job_status reports per-scene progress, log tails, failure artifacts;
   job_cancel aborts mid-take and keeps the partial footage).
   `aidemo repo-init` registers the server (.mcp.json, .gemini/settings.json;
-  one-line codex mcp add for Codex). Any human or agent that can write a
-  `storyboard.json` and run `aidemo render` can use it too.
+  one-line codex mcp add for Codex). In Claude Code, the record-demo plugin
+  (`/plugin marketplace add tandryukha/aidemo` then `/plugin install
+  record-demo@aidemo`) bundles the skill and the MCP server in one step. Any
+  human or agent that can write a `storyboard.json` and run `aidemo render` can
+  use it too.
 - Deterministic replay: recording runs a fixed action-spec at full speed; the
   agent only authors, it never drives the capture. Same input → same video.
 - Tweak loop without re-recording: per-scene TTS hash cache means editing one
@@ -110,6 +113,13 @@ Key facts:
 
 ## Install
 
-- Clone + run: `git clone https://github.com/tandryukha/aidemo && npm install`,
-  then `node bin/aidemo.mjs render <demo-dir>`
-- Or via npx from a product repo: `npx -y github:tandryukha/aidemo#stable <cmd>`
+- Claude Code plugin (bundles the record-demo skill + the aidemo MCP server):
+  `/plugin marketplace add tandryukha/aidemo` then
+  `/plugin install record-demo@aidemo`
+- GitHub Action (render in CI, no key, ~$0): add `uses: tandryukha/aidemo@stable`
+  to a workflow (see docs/CI.md)
+- Any MCP agent (Codex CLI, Gemini CLI) or CLI use from a product repo:
+  `npx -y github:tandryukha/aidemo#stable repo-init` (registers the MCP server),
+  then `npx -y github:tandryukha/aidemo#stable <cmd>`
+- Clone + run the engine itself: `git clone https://github.com/tandryukha/aidemo
+  && npm install`, then `node bin/aidemo.mjs render <demo-dir>`

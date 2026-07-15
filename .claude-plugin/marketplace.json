@@ -1,0 +1,14 @@
+{
+  "name": "aidemo",
+  "owner": {
+    "name": "Andrii Taran",
+    "url": "https://github.com/tandryukha"
+  },
+  "plugins": [
+    {
+      "name": "record-demo",
+      "source": "./plugins/record-demo",
+      "description": "Record narrated, captioned product-demo videos with the aidemo engine. Bundles the record-demo skill and the aidemo MCP server."
+    }
+  ]
+}
