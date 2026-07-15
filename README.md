@@ -16,6 +16,7 @@ demo.
 [![ci](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/tandryukha/aidemo)](https://github.com/tandryukha/aidemo/releases)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-aidemo%20Demo%20Video-2ea44f?logo=githubactions&logoColor=white)](https://github.com/marketplace/actions/aidemo-demo-video)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](#three-ways-to-use-it)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
 
