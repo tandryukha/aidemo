@@ -1,8 +1,7 @@
-name: aidemo
+name: aidemo Demo Video
 description: >-
-  Your coding agent's demo video, re-rendered in CI. Replays a committed aidemo
-  storyboard into a narrated, captioned MP4 (+ optional GIF) with an in-process
-  local voice — deterministic replay means zero LLM tokens, no API key, ~$0 a run.
+  Re-render a narrated, captioned product-demo MP4 in CI from a committed
+  storyboard. Deterministic replay, no API key, ~$0.
 author: aidemo (github.com/tandryukha/aidemo)
 branding:
   icon: play-circle
