@@ -340,7 +340,23 @@ storyboard viewport, and **aborts** when the computed crop doesn't match the
 viewport instead of shipping a mis-cropped take
 (`AIDEMO_NATIVE_CROP_UNSAFE=1` downgrades the abort to a loud warning — only
 for debugging, and then review every frame). No automatic check can see
-everything, so eyeball the frames anyway. `record` also preserves the
+everything, so eyeball the frames anyway.
+
+**⚠ The wrong-window failure mode (and the guard against it).** Perfect
+geometry still doesn't prove the right *pixels* were recorded: a screen grab
+captures whatever is painted at the crop rectangle, so if the driven browser
+window is occluded by another window, sitting on a different display than the
+captured one, or covered by a notification, the take shows *someone else's
+window* — the automation itself succeeds (selectors match, timeline is
+written), so nothing else fails. That's both silent garbage and a privacy
+hazard (whatever was on screen — a password manager, DMs, an OTP page — ships
+in the "publish-ready" video). The recorder raises the browser window before
+capture and, after cropping, **verifies the captured content against a CDP
+screenshot of the page** taken at stop time, aborting on a mismatch (same
+`AIDEMO_NATIVE_CROP_UNSAFE=1` escape hatch). Keep the browser window
+front-most and unoccluded on the captured display for the whole take — or use
+the default `--capture playwright`, which records the page buffer directly
+and is immune to occlusion and to anything else on your screen. `record` also preserves the
 previous take as one `.prev` generation (`recordings/raw.prev.*` +
 `generated/timeline.prev.json`) instead of deleting it, so a bad re-record
 never destroys the last good take — copy the `.prev` files back over the

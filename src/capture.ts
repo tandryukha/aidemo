@@ -572,3 +572,116 @@ export async function cropCaptureToViewport(
     dst,
   ]);
 }
+
+// ---------------------------------------------------------------------------
+// post-capture content verification
+// ---------------------------------------------------------------------------
+
+/** Downscaled grayscale thumbnail size for the content comparison. */
+const VERIFY_W = 64;
+const VERIFY_H = 36;
+/** Mean |Δgray| below this = same content even before correlating. */
+const VERIFY_MAD_PASS = 15;
+/** Minimum Pearson correlation of the two thumbnails to pass. */
+const VERIFY_CORR_PASS = 0.7;
+
+/** Decode one frame of `input` to a raw grayscale VERIFY_W×VERIFY_H buffer. */
+async function grayThumb(input: string, preArgs: string[]): Promise<Buffer> {
+  const out = `${input}.gray`;
+  await runFfmpeg([
+    ...preArgs,
+    "-i",
+    input,
+    "-vf",
+    `scale=${VERIFY_W}:${VERIFY_H}:flags=area,format=gray`,
+    "-frames:v",
+    "1",
+    "-f",
+    "rawvideo",
+    out,
+  ]);
+  const buf = await fs.readFile(out);
+  await fs.rm(out, { force: true });
+  return buf;
+}
+
+/**
+ * Verify that the CONTENT of the cropped capture is the page that was driven
+ * (issue #21). The geometry gates above prove the crop *rectangle* is right,
+ * but not that the right *pixels* were under it: a display-region screen grab
+ * records whatever is painted at those coordinates, so a browser window that
+ * is occluded (another app raised mid-take), on another display, or behind a
+ * notification produces a take that passes every geometry check and still
+ * shows someone else's window — silent garbage, and a privacy hazard, since
+ * the leaked pixels ship in an otherwise "publish-ready" video.
+ *
+ * The reference is a CDP screenshot of the page taken at capture-stop time
+ * (the page's own buffer — immune to occlusion). Both it and the tail frame
+ * of the cropped capture are reduced to a small grayscale thumbnail (ffmpeg
+ * rawvideo — no image deps) and compared: near-identical mean gray delta
+ * passes outright; otherwise the Pearson correlation must clear a threshold
+ * (robust to the gamma/color-profile shift between a screen grab and a CDP
+ * screenshot). A mismatch ABORTS like the geometry gates
+ * (AIDEMO_NATIVE_CROP_UNSAFE=1 downgrades to a loud warning).
+ */
+export async function verifyCaptureMatchesPage(
+  croppedVideo: string,
+  referencePng: string
+): Promise<void> {
+  // Tail frame: the reference screenshot was taken just before capture stop,
+  // and the page is static by then (the last scene has ended).
+  const vid = await grayThumb(croppedVideo, ["-sseof", "-0.3"]);
+  const ref = await grayThumb(referencePng, []);
+  const n = Math.min(vid.length, ref.length);
+  if (n === 0) {
+    log("⚠ capture verification skipped (empty thumbnail) — frame-review the take");
+    return;
+  }
+  let sumAbs = 0;
+  let sumA = 0;
+  let sumB = 0;
+  for (let i = 0; i < n; i++) {
+    sumAbs += Math.abs(vid[i] - ref[i]);
+    sumA += vid[i];
+    sumB += ref[i];
+  }
+  const mad = sumAbs / n;
+  const meanA = sumA / n;
+  const meanB = sumB / n;
+  let cov = 0;
+  let varA = 0;
+  let varB = 0;
+  for (let i = 0; i < n; i++) {
+    const da = vid[i] - meanA;
+    const db = ref[i] - meanB;
+    cov += da * db;
+    varA += da * da;
+    varB += db * db;
+  }
+  // Degenerate (near-uniform) thumbnails make correlation meaningless — the
+  // MAD pass above is the only meaningful check for e.g. a blank white page.
+  const corr =
+    varA > 1e-6 && varB > 1e-6 ? cov / Math.sqrt(varA * varB) : NaN;
+  log(
+    `capture verification: mean |Δgray| ${mad.toFixed(1)} (pass ≤ ${VERIFY_MAD_PASS}), ` +
+      `correlation ${Number.isNaN(corr) ? "n/a (uniform frame)" : corr.toFixed(3)} (pass ≥ ${VERIFY_CORR_PASS})`
+  );
+  if (mad <= VERIFY_MAD_PASS || (!Number.isNaN(corr) && corr >= VERIFY_CORR_PASS)) {
+    return;
+  }
+  gateGeometryProblems(
+    [
+      `the captured pixels do not look like the page that was driven ` +
+        `(mean gray delta ${mad.toFixed(1)}, correlation ${Number.isNaN(corr) ? "n/a" : corr.toFixed(3)}) — ` +
+        `the browser window was likely occluded by another window, on a different ` +
+        `display than the captured one, or covered by a notification during the take`,
+    ],
+    `Native capture verification failed: the recording shows something other than ` +
+      `the driven page. The cropped take (${croppedVideo}) and the page reference ` +
+      `(${referencePng}) were kept — compare them side by side, and treat the take ` +
+      `as sensitive until reviewed (it may show other windows). Re-record with the ` +
+      `browser window front-most and unoccluded on the captured display, or use the ` +
+      `default --capture playwright (records the page buffer directly — immune to ` +
+      `occlusion).`
+  );
+}

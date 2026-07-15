@@ -24,6 +24,7 @@ import {
   ObsCapture,
   measureViewportGeometry,
   cropCaptureToViewport,
+  verifyCaptureMatchesPage,
 } from "./capture.js";
 import { ensureProfileUnlocked } from "./login.js";
 import { ensureDir, exists, writeJson, log, ok, step } from "./util.js";
@@ -192,6 +193,11 @@ export async function record(
         : new ObsCapture(obsUrl(), obsPassword());
     log(`starting ${capture.name}`);
     await capture.start();
+    // Re-assert front-most right before driving: the measure/start dance takes
+    // seconds, and a screen grab records whatever window is PAINTED at the
+    // crop rect — an occluded browser silently ships someone else's window
+    // into the take (issue #21).
+    await page.bringToFront();
   }
 
   const t0 = Date.now();
@@ -199,6 +205,7 @@ export async function record(
   const doneScenes: TimelineScene[] = [];
   let timeline: Timeline;
   let capFile: string | null = null;
+  let captureRefPath: string | null = null;
   let tailMs = 0;
   let recordErr: unknown = null;
   try {
@@ -216,6 +223,15 @@ export async function record(
       },
     });
     if (capture) {
+      // Reference frame for the post-crop content verification (issue #21):
+      // the CDP page buffer at stop time — immune to window occlusion, so if
+      // the cropped screen pixels don't match it, the grab recorded something
+      // other than the driven page. Taken BEFORE stopAt so its latency lands
+      // in the (trimmed) tail, not in the lead-in math.
+      captureRefPath = join(videoDir, "capture-ref.png");
+      await page
+        .screenshot({ path: captureRefPath, timeout: 5000 })
+        .catch(() => (captureRefPath = null));
       // Stop immediately so the tail past the last scene stays small. Measure
       // the tail at stop-initiation — the recorder stops taking frames at the
       // stop signal, not when it finishes flushing the file.
@@ -255,6 +271,18 @@ export async function record(
       FPS
     );
     await fs.rm(capFile!, { force: true });
+    // Content guard (issue #21): geometry can be perfect while the pixels are
+    // some other window's (occlusion / wrong display). On mismatch this throws
+    // and keeps both files for review; on pass the reference is cleaned up.
+    // A salvaged (failed) take skips it — the reference may not exist.
+    if (captureRefPath && !recordErr) {
+      await verifyCaptureMatchesPage(project.rawVideoMp4Path, captureRefPath);
+      await fs.rm(captureRefPath, { force: true });
+    } else if (!recordErr) {
+      log(
+        "⚠ no page reference screenshot — capture content not verified; frame-review the take"
+      );
+    }
     const videoMs = await probeDurationMs(project.rawVideoMp4Path);
     // Capture started before t0 and stopped ~tailMs after the last scene.
     timeline.leadInMs = Math.max(0, videoMs - tailMs - timeline.totalMs);
