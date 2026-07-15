@@ -97,6 +97,13 @@ network.
 - **One idea per scene.** 4–6 scenes for a 45s demo.
 - **Narration ≈ 2.5 words/sec.** A 6s scene ≈ 15 words. Keep it tight and
   spoken, not written ("here's the thing" > "the following functionality").
+  That figure is English-centric: non-English OpenAI TTS voices can read
+  30-40% slower — plan at ≈1.8-2.0 words/sec for morphology-rich languages
+  (Estonian, Finnish, German, …), or voice one scene first (`aidemo voice
+  <dir> --scene <id>`) to measure the actual pace before writing the rest. If
+  the storyboard declares `targetLengthSeconds`, `voice` compares the real
+  narration length against it and warns with a per-scene words/sec table when
+  it's over budget.
 - **Match narration to the action.** The engine time-stretches each scene's
   video to its narration and freeze-holds a static page for any remainder — so
   a scene that's mostly a pause should have shorter narration, and a busy scene

@@ -291,6 +291,7 @@ export async function generateVoice(
     if (made > 0 && (await exists(project.captionsCuesPath))) {
       log(`⚠ narration changed — captions are now stale; re-run: aidemo captions ${project.dir}`);
     }
+    warnTargetLength(storyboard, manifest, total);
     return manifest;
   } finally {
     // A provider we constructed is ours to clean up. The local provider holds
@@ -298,6 +299,76 @@ export async function generateVoice(
     if (!opts.provider && providerInst?.dispose) {
       await providerInst.dispose().catch(() => {});
     }
+  }
+}
+
+/** Whitespace word count — language-agnostic for the space-delimited scripts
+ *  storyboards are authored in (including Estonian, Finnish, German, …). */
+function countWords(text: string): number {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
+/**
+ * `targetLengthSeconds` is an authoring budget nothing else in the pipeline
+ * checks — docs/AUTHORING.md's "≈2.5 words/sec" planning figure is
+ * English-centric, and non-English OpenAI TTS voices can read 30-40% slower
+ * (Estonian `marin` measured at ≈1.8 w/s: 131 planned words, budgeted at 52s,
+ * came out at 71.8s — see aidemo#15). voice.json is the first point the
+ * pipeline knows the REAL narration length, so warn here — before record +
+ * compose spend a full render finding out. Advisory only: never throws, never
+ * changes the exit code.
+ */
+function warnTargetLength(
+  storyboard: Storyboard,
+  manifest: VoiceManifest,
+  narrationTotalMs: number
+): void {
+  const targetSec = storyboard.targetLengthSeconds;
+  if (targetSec == null) return;
+
+  const narrationSec = narrationTotalMs / 1000;
+  const introSec = (storyboard.intro?.durationMs ?? 0) / 1000;
+  const outroSec = (storyboard.outro?.durationMs ?? 0) / 1000;
+  const totalSec = narrationSec + introSec + outroSec;
+
+  const narrationById = new Map(storyboard.scenes.map((s) => [s.id, s.narration]));
+  const rows = manifest.scenes.map((s) => {
+    const words = countWords(narrationById.get(s.id) ?? "");
+    const sec = s.durationMs / 1000;
+    const wps = sec > 0 ? words / sec : 0;
+    return { id: s.id, words, sec, wps };
+  });
+  const totalWords = rows.reduce((a, r) => a + r.words, 0);
+  // Pace over the narration track itself (scenes + inter-scene gaps), which is
+  // what the author's word count actually bought them — cards are fixed
+  // overhead, not narration, so they're excluded from the rate.
+  const pace = narrationSec > 0 ? totalWords / narrationSec : 0;
+
+  const parts = [`narration ${narrationSec.toFixed(1)}s`];
+  if (introSec > 0) parts.push(`intro ${introSec.toFixed(1)}s`);
+  if (outroSec > 0) parts.push(`outro ${outroSec.toFixed(1)}s`);
+  const summary =
+    parts.length > 1 ? `${parts.join(" + ")} = ${totalSec.toFixed(1)}s` : parts[0];
+
+  const TOLERANCE = 1.05; // 5% slack before it's worth interrupting the author
+  if (totalSec > targetSec * TOLERANCE) {
+    const budgetWords = Math.round(targetSec * pace);
+    log(
+      `⚠ ${summary} exceeds targetLengthSeconds ${targetSec} ` +
+        `(measured pace ${pace.toFixed(1)} w/s — budget ≈ ${budgetWords} words)`
+    );
+    log(`  ${"scene".padEnd(10)}${"words".padStart(7)}${"sec".padStart(7)}${"w/s".padStart(6)}`);
+    for (const r of rows) {
+      log(
+        `  ${r.id.padEnd(10)}${String(r.words).padStart(7)}${r.sec.toFixed(1).padStart(7)}${r.wps.toFixed(1).padStart(6)}`
+      );
+    }
+  } else if (totalSec < targetSec) {
+    log(
+      `${summary} is under targetLengthSeconds ${targetSec} ` +
+        `(measured pace ${pace.toFixed(1)} w/s) — room to add narration if useful`
+    );
   }
 }
 
