@@ -15,12 +15,14 @@ demo.
 [![Website](https://img.shields.io/badge/website-aidemo.top-1a7f37)](https://aidemo.top)
 [![ci](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tandryukha/aidemo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/tandryukha/aidemo)](https://github.com/tandryukha/aidemo/releases)
+[![npm](https://img.shields.io/npm/v/%40tandryukha%2Faidemo?logo=npm&label=npm&color=cb3837)](https://www.npmjs.com/package/@tandryukha/aidemo)
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-aidemo%20Demo%20Video-2ea44f?logo=githubactions&logoColor=white)](https://github.com/marketplace/actions/aidemo-demo-video)
+[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-aidemo-1f6feb)](https://registry.modelcontextprotocol.io)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](#three-ways-to-use-it)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
 
-**Install:** `/plugin marketplace add tandryukha/aidemo` (Claude Code) · `uses: tandryukha/aidemo@stable` (CI) · `npx -y github:tandryukha/aidemo#stable` (CLI / any agent)
+**Install:** Claude Code `/plugin marketplace add tandryukha/aidemo` · CI `uses: tandryukha/aidemo@stable` · CLI `npx -y @tandryukha/aidemo`
+<br>Published on the [GitHub Marketplace](https://github.com/marketplace/actions/aidemo-demo-video), [npm](https://www.npmjs.com/package/@tandryukha/aidemo), and the [MCP Registry](https://registry.modelcontextprotocol.io).
 
 [![aidemo demoing itself on Wikipedia — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)
 
