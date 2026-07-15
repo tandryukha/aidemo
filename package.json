@@ -1,13 +1,22 @@
 {
-  "name": "aidemo",
+  "name": "@tandryukha/aidemo",
   "version": "0.8.0",
-  "private": true,
   "license": "MIT",
   "description": "AI Demo Engine — turn a storyboard into a narrated, captioned product demo video",
   "type": "module",
   "bin": {
     "aidemo": "./bin/aidemo.mjs"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "mcpName": "io.github.tandryukha/aidemo",
+  "files": [
+    "bin/",
+    "src/",
+    "docs/AUTHORING.md",
+    ".claude/skills/record-demo/SKILL.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tandryukha/aidemo.git"

@@ -1,8 +1,10 @@
 # Releasing aidemo
 
-The engine is **not published to a registry**. Consumer repos run it via
-`npx -y github:tandryukha/aidemo#stable`, so "release" here means: cut a
-semver tag and move the `stable` tag onto it.
+The engine's primary channel is the **git ref** — consumer repos run it via
+`npx -y github:tandryukha/aidemo#stable`, so "release" means: cut a semver tag
+and move the `stable` tag onto it. It's **additionally published to npm** as
+`@tandryukha/aidemo` (see [npm channel](#npm-channel) below); the git ref does
+not depend on npm, so everything below still works even if npm is skipped.
 
 - `stable` — the moving pointer consumer repos and the SessionStart hook resolve.
 - `vX.Y.Z` — an immutable semver tag (pin here for reproducibility).
@@ -53,6 +55,36 @@ If the workflow fails on permissions, enable
   `npx -y github:tandryukha/aidemo#stable skill check` and prints a notice
   when their installed skill is behind the new `stable`.
 - They apply it when ready: `npx -y github:tandryukha/aidemo#stable skill update --dir .`
+
+## npm channel
+
+Additive to the git ref. Package: **`@tandryukha/aidemo`** (public, scoped).
+`package.json` `files` ships only `bin/`, `src/`, `docs/AUTHORING.md`, and
+`.claude/skills/record-demo/SKILL.md` (see the `files`-allowlist invariant in
+AGENTS.md). Verify the tarball anytime with `npm pack --dry-run`.
+
+**One-time setup (maintainer, once):**
+
+1. Own the npm scope: the npm username `tandryukha` must exist (or change the
+   `name` in `package.json` to your actual scope).
+2. **First publish, manually** from a clean checkout:
+   `npm login` → `npm publish --access public`. Verify:
+   `npx -y @tandryukha/aidemo@latest --version` → `0.8.0`, and
+   `npx -y @tandryukha/aidemo@latest guide | head`.
+3. **Configure OIDC trusted publishing** on npmjs for the package
+   (npmjs.com → the package → Settings → Trusted Publishers → GitHub Actions →
+   repo `tandryukha/aidemo`, workflow `release.yml`). No token secret needed.
+4. **Turn on CI publishing**: repo → Settings → Secrets and variables → Actions
+   → Variables → add `NPM_PUBLISH` = `true`.
+
+**Ongoing:** after step 4, a version bump pushed to `main` publishes to npm
+(with provenance) alongside the tag/release — idempotent (skips a version already
+on npm). The `release.yml` npm step is a no-op while `NPM_PUBLISH` is unset.
+
+**MCP registry** (once npm is live): publish `server.json`
+(`io.github.tandryukha/aidemo`) with the `mcp-publisher` CLI:
+`mcp-publisher login github` → `mcp-publisher publish`. Bump `version` in
+`server.json` on each release you want listed.
 
 ## Caveat: npm caches moving tags
 

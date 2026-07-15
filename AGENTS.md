@@ -118,5 +118,14 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
 - CI is typecheck + gitleaks + dependency review. PRs must not add install
   scripts, new network endpoints, or unpinned GitHub Actions.
 - Canonical repo: `github.com/tandryukha/aidemo`. Consumers run the engine via
-  `npx -y github:tandryukha/aidemo#stable`; see RELEASING.md for how the
-  `stable` tag moves.
+  `npx -y github:tandryukha/aidemo#stable` (git ref, the primary channel) or
+  `npx -y @tandryukha/aidemo` (npm, additive — published from `release.yml` when
+  repo var `NPM_PUBLISH=true`, via OIDC trusted publishing + provenance);
+  `server.json` is the MCP-registry manifest. See RELEASING.md for how the
+  `stable` tag moves and the one-time npm setup.
+- **npm `files` allowlist tracks runtime reads.** `package.json` `files` ships
+  only `bin/`, `src/`, `docs/AUTHORING.md`, `.claude/skills/record-demo/SKILL.md`.
+  If you add code that reads a new file relative to `ENGINE_ROOT`/`REPO_ROOT`
+  (e.g. another served doc or template), add it to `files` too — else it works
+  from the git checkout but the npm package silently breaks. Verify with
+  `npm pack --dry-run` (and an install-from-tarball `aidemo guide` smoke).
