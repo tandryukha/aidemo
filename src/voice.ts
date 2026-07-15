@@ -26,6 +26,7 @@ import {
   ok,
   step,
   CanceledError,
+  type SceneProgress,
 } from "./util.js";
 import { dirname } from "node:path";
 
@@ -170,7 +171,7 @@ function warnLocalLangCoverage(lang: string | undefined): void {
   );
 }
 
-export interface VoiceOptions {
+export interface VoiceOptions extends SceneProgress {
   provider?: VoiceProvider;
   /** Regenerate only this scene id; reuse existing audio for the rest. */
   only?: string;
@@ -235,8 +236,11 @@ export async function generateVoice(
   const manifest: VoiceManifest = { gapMs: GAP_MS, scenes: [] };
   let made = 0;
   let reused = 0;
+  const sceneTotal = storyboard.scenes.length;
   try {
-    for (const scene of storyboard.scenes) {
+    for (let i = 0; i < storyboard.scenes.length; i++) {
+      const scene = storyboard.scenes[i];
+      opts.onSceneStart?.(scene.id, i, sceneTotal);
       if (opts.signal?.aborted)
         throw new CanceledError(`canceled before voicing scene ${scene.id}`);
       const outPath = project.sceneAudioPath(scene.id);
@@ -263,6 +267,7 @@ export async function generateVoice(
         });
         log(`scene ${scene.id}: unchanged, reusing narration`);
         reused++;
+        opts.onSceneComplete?.(scene.id, i, sceneTotal);
         continue;
       }
 
@@ -276,6 +281,7 @@ export async function generateVoice(
       const durationMs = await probeDurationMs(outPath);
       manifest.scenes.push({ id: scene.id, file: outPath, durationMs, hash });
       made++;
+      opts.onSceneComplete?.(scene.id, i, sceneTotal);
     }
 
     await assembleNarration(project, manifest);

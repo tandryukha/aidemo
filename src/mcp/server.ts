@@ -22,8 +22,8 @@ import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
 import { localizeStoryboard } from "../i18n.js";
-import { scaffoldDemo, doctorReport } from "../distribute.js";
-import { readJson, log, CanceledError } from "../util.js";
+import { scaffoldDemo, doctorReport, buildFeedback, fileFeedback } from "../distribute.js";
+import { readJson, log, CanceledError, type SceneProgress } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
 
 /**
@@ -36,8 +36,12 @@ const INSTRUCTIONS = `aidemo renders narrated, captioned product-demo videos fro
 Start by calling get_authoring_guide and follow it. Validate storyboard edits
 with validate_storyboard (cheap) before rendering. Pipeline operations (probe,
 record, render, voice, captions, compose, gif) return a jobId immediately —
-poll job_status for progress, results, and failure artifacts; only one job
-runs at a time. Always pass absolute demo directories.`;
+poll job_status for progress, per-scene counters, results, and failure
+artifacts; only one job runs at a time. Always pass absolute demo directories.
+Hit an engine bug, surprise, or workaround this session? Call the feedback
+tool (title + body — environment/log context is auto-attached) before you
+finish; skip if nothing came up. A failed job_status result also carries a
+feedbackHint pointing back here.`;
 
 type ToolResult = {
   content: Array<{ type: "text"; text: string }>;
@@ -88,6 +92,13 @@ const JOB_STATUS_SHAPE = {
       stage: z.string(),
       failureArtifacts: z.array(z.string()),
       logFile: z.string(),
+      feedbackHint: z
+        .string()
+        .optional()
+        .describe(
+          "present on a genuine failure (not a cancel) — nudges toward the " +
+            "feedback tool while context is fresh"
+        ),
       salvaged: z
         .object({ scenes: z.number(), timeline: z.string() })
         .optional(),
@@ -434,12 +445,73 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
   );
 
   server.registerTool(
+    "feedback",
+    {
+      title: "File engine feedback",
+      description:
+        "File a bug, surprise, or workaround you hit this session as a GitHub " +
+        "issue on the aidemo engine repo (github.com/tandryukha/aidemo) — the " +
+        "in-band equivalent of `aidemo feedback` on the CLI. Environment " +
+        "(engine version, OS, node, ffmpeg) and a recent-log tail from `dir` " +
+        "are auto-attached, same as the CLI. Uses `gh issue create` when " +
+        "available; falls back to a local docs/feedback-*.md plus a prefilled " +
+        "github.com New Issue URL when gh is missing or offline — no other " +
+        "network call. Call this whenever something felt broken, surprising, " +
+        "or needed a workaround; skip it if the session was clean. Set dryRun " +
+        "to preview the assembled title/body without filing anything.",
+      inputSchema: {
+        title: z.string().describe("short issue title"),
+        body: z
+          .string()
+          .describe(
+            "what happened / suggestion — the actual finding (broken selector, " +
+              "bad timing, confusing behavior, an idea). Environment/log context " +
+              "is appended automatically; don't duplicate it here."
+          ),
+        dir: z
+          .string()
+          .optional()
+          .describe("demo dir to pull storyboard/log context from (recommended)"),
+        web: z
+          .boolean()
+          .optional()
+          .describe("prefer a prefilled browser New Issue URL over filing via gh"),
+        dryRun: z
+          .boolean()
+          .optional()
+          .describe("assemble the title/body but don't file anything — preview only"),
+      },
+      outputSchema: {
+        filed: z.boolean(),
+        title: z.string(),
+        body: z.string(),
+        url: z.string().optional(),
+        localPath: z.string().optional(),
+        message: z.string(),
+      },
+    },
+    async (args) => {
+      const demoDir = args.dir ? resolve(args.dir) : null;
+      const ctx = await buildFeedback(demoDir, { title: args.title, description: args.body });
+      const result = await fileFeedback(ctx, {
+        web: args.web,
+        dryRun: args.dryRun,
+        cwd: demoDir ?? undefined,
+      });
+      return jsonResult({ ...result, title: ctx.title, body: ctx.body });
+    }
+  );
+
+  server.registerTool(
     "job_status",
     {
       title: "Poll a job",
       description:
-        "Status, stage, per-scene progress, log tail, and final result or " +
-        "error (with failure-artifact paths) of a pipeline job.",
+        "Status, stage, per-scene progress (scenesTotal/scenesDone/" +
+        "currentScene — populated for probe/record/render/voice/captions/" +
+        "compose), log tail, and final result or error (with failure-artifact " +
+        "paths and, on a genuine failure, a feedbackHint pointing at the " +
+        "feedback tool) of a pipeline job.",
       inputSchema: {
         jobId: z.string(),
         tailLines: z.number().optional().describe("log lines to return (default 40)"),
@@ -578,6 +650,26 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     };
   }
 
+  /**
+   * Per-scene progress hooks wired to a job's currentScene/scenesTotal/
+   * scenesDone fields — the voice/captions/compose equivalent of recordOpts
+   * above. voice.ts, captions.ts and compose.ts each loop per scene; this is
+   * what makes that loop visible to job_status pollers instead of only the
+   * log tail (aidemo#17).
+   */
+  function sceneProgress(job: Job): Required<SceneProgress> {
+    return {
+      onSceneStart: (sceneId, _index, total) => {
+        job.currentScene = sceneId;
+        job.scenesTotal = total;
+      },
+      onSceneComplete: (_sceneId, index, total) => {
+        job.scenesDone = index + 1;
+        job.scenesTotal = total;
+      },
+    };
+  }
+
   registerJob(
     "probe",
     "Record-only dry run to verify selectors/timing (narration optional). " +
@@ -685,36 +777,39 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         // project + localized storyboard; the take is recorded ONCE on the base.
         const lp = langProject(project, args.lang);
         const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
-        job.stage = "voice";
-        await generateVoice(lp, sb, {
-          force: args.forceVoice,
-          signal,
+        // Each sub-stage below is wrapped in runSubStage: it refreshes its OWN
+        // stable logs/<stage>.log (not just logs/render.log) and updates
+        // job.stage/currentScene/scenesTotal/scenesDone — same fields a
+        // standalone voice/captions/compose job would set — so a poller sees
+        // real progress for whichever stage is currently running, and a
+        // log-watcher never sees a stale logs/compose.log from an earlier run.
+        await jobs.runSubStage(job, "voice", () =>
+          generateVoice(lp, sb, { force: args.forceVoice, signal, ...sceneProgress(job) })
+        );
+        throwIfAborted(signal);
+        await jobs.runSubStage(job, "record", () =>
+          record(project, storyboard, recordOpts(args, job))
+        );
+        throwIfAborted(signal);
+        await jobs.runSubStage(job, "captions", async () => {
+          if (captionsAutoOffline()) {
+            log("local TTS and no STT endpoint/key — deriving captions offline from the script");
+            await generateCaptionsOffline(lp, sb, sceneProgress(job));
+          } else {
+            await generateCaptions(lp, sb, sceneProgress(job));
+          }
         });
         throwIfAborted(signal);
-        job.stage = "record";
-        await record(project, storyboard, recordOpts(args, job));
-        throwIfAborted(signal);
-        job.stage = "captions";
-        if (captionsAutoOffline()) {
-          log("local TTS and no STT endpoint/key — deriving captions offline from the script");
-          await generateCaptionsOffline(lp, sb);
-        } else {
-          await generateCaptions(lp, sb);
-        }
-        throwIfAborted(signal);
-        job.stage = "compose";
-        await compose(lp, sb);
+        await jobs.runSubStage(job, "compose", () => compose(lp, sb, sceneProgress(job)));
         let gifPath: string | undefined;
         if (args.gif) {
-          job.stage = "gif";
-          gifPath = await exportGif(lp);
+          gifPath = await jobs.runSubStage(job, "gif", () => exportGif(lp));
         }
         // Screenshot mode: emit named stills from the clean take when the
         // storyboard declares any `still` markers (a re-extract, not a re-take).
         let stills: string[] | undefined;
         if (storyboardHasStills(storyboard)) {
-          job.stage = "stills";
-          stills = await extractStills(project);
+          stills = await jobs.runSubStage(job, "stills", () => extractStills(project));
         }
         return {
           output: lp.outputPath,
@@ -745,6 +840,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           only: args.scene,
           force: args.force,
           signal: job.controller.signal,
+          ...sceneProgress(job),
         });
         return {
           narration: lp.narrationPath,
@@ -775,9 +871,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         const storyboard = await project.loadStoryboard({ params: args.params });
         const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
         if (args.offline) {
-          await generateCaptionsOffline(lp, sb);
+          await generateCaptionsOffline(lp, sb, sceneProgress(job));
         } else {
-          await generateCaptions(lp, sb);
+          await generateCaptions(lp, sb, sceneProgress(job));
         }
         return {
           srt: lp.captionsSrtPath,
@@ -801,7 +897,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         const lp = langProject(project, args.lang);
         const storyboard = await project.loadStoryboard({ params: args.params });
         const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
-        await compose(lp, sb);
+        await compose(lp, sb, sceneProgress(job));
         let gifPath: string | undefined;
         if (args.gif) gifPath = await exportGif(lp);
         return {

@@ -14,7 +14,16 @@ import {
   type Storyboard,
 } from "./types.js";
 import { resolveNarrationLanguage } from "./i18n.js";
-import { srtTime, readJson, writeJson, exists, ok, step, log } from "./util.js";
+import {
+  srtTime,
+  readJson,
+  writeJson,
+  exists,
+  ok,
+  step,
+  log,
+  type SceneProgress,
+} from "./util.js";
 
 export interface Cue {
   index: number;
@@ -37,8 +46,9 @@ const MAX_CUE_MS = 3000;
  *  request for no benefit beyond that window. */
 const MAX_PROMPT_CHARS = 900;
 
-/** Explicit per-run STT overrides (CLI `--stt-lang`, future MCP param). */
-export interface CaptionsSttOptions {
+/** Explicit per-run STT overrides (CLI `--stt-lang`, future MCP param) plus
+ *  the shared per-scene progress hooks. */
+export interface CaptionsSttOptions extends SceneProgress {
   /** ISO-639-1/BCP-47 language hint for Whisper, overriding --lang / storyboard.language. */
   language?: string;
 }
@@ -56,6 +66,11 @@ export interface CaptionsSttOptions {
  * transcribed as "aldab") and a language hint is sent when known (an active
  * `--lang` render, `opts.language`, or the storyboard's own `language`
  * field). See docs/AUTHORING.md "Captions: Whisper STT vs. offline".
+ *
+ * This path is a single Whisper/STT call, not a per-scene loop — so progress
+ * is coarse (best-effort): `onSceneStart` fires once up-front with the full
+ * scene count (so a poller at least sees scenesTotal), and `onSceneComplete`
+ * fires once per scene, all at once, right after transcription lands.
  */
 export async function generateCaptions(
   project: Project,
@@ -72,6 +87,12 @@ export async function generateCaptions(
   // Scene boundaries (ms) in the narration track keep a cue from spanning two
   // scenes, so caption breaks line up with the on-screen beats.
   const sceneEnds = await sceneEndTimes(project);
+  const ids = await sceneIdsFor(project);
+  const total = ids.length || sceneEnds.length;
+  const reportDone = () => {
+    for (let i = 0; i < total; i++) opts.onSceneComplete?.(ids[i] ?? "", i, total);
+  };
+  if (total > 0) opts.onSceneStart?.(ids[0] ?? "", 0, total);
   const config = captionConfig(await loadGapMs(project));
 
   const prompt = storyboard ? buildSttPrompt(storyboard) : undefined;
@@ -106,6 +127,7 @@ export async function generateCaptions(
   if (prior && prior.mode === "stt" && prior.inputHash === inputHash) {
     await writeCaptionFiles(project, prior.cues);
     ok(`captions unchanged, reusing (cached; skipped transcription)`);
+    reportDone();
     return;
   }
 
@@ -132,6 +154,7 @@ export async function generateCaptions(
   const cues = groupWords(words, sceneEnds);
   await writeCaptionFiles(project, cues);
   await writeCaptionsManifest(project, { mode: "stt", inputHash, config, cues });
+  reportDone();
 }
 
 /**
@@ -157,7 +180,8 @@ function buildSttPrompt(storyboard: Storyboard): string | undefined {
  */
 export async function generateCaptionsOffline(
   project: Project,
-  storyboard: Storyboard
+  storyboard: Storyboard,
+  opts: SceneProgress = {}
 ): Promise<void> {
   step("Generating captions (offline, from script + voice.json timings)");
   const voice = VoiceManifestSchema.parse(
@@ -188,12 +212,14 @@ export async function generateCaptionsOffline(
   const prior = await readCaptionsManifest(project);
   const priorOffline = prior && prior.mode === "offline" ? prior : null;
   const inputHash = hashOf({ mode: "offline", config, meta });
+  const total = meta.length;
 
   // Fast path: every scene identical → reuse the stored cues verbatim, no
   // derivation at all. This is the "cached; skipped transcription" 2nd-run case.
   if (priorOffline && priorOffline.inputHash === inputHash) {
     await writeCaptionFiles(project, priorOffline.cues);
     ok(`captions unchanged, reusing (cached; skipped transcription)`);
+    meta.forEach((m, i) => opts.onSceneComplete?.(m.id, i, total));
     return;
   }
 
@@ -207,7 +233,9 @@ export async function generateCaptionsOffline(
   const manifestScenes: NonNullable<CaptionsManifest["scenes"]> = [];
   let derived = 0;
   let reused = 0;
-  for (const m of meta) {
+  for (let i = 0; i < meta.length; i++) {
+    const m = meta[i];
+    opts.onSceneStart?.(m.id, i, total);
     const prev = priorById.get(m.id);
     if (prev && prev.hash === m.hash) {
       manifestScenes.push({ ...m, words: prev.words });
@@ -219,6 +247,7 @@ export async function generateCaptionsOffline(
       log(`scene ${m.id}: deriving caption timing`);
       derived++;
     }
+    opts.onSceneComplete?.(m.id, i, total);
   }
 
   // Assemble scene-relative words into the absolute narration timeline. Scene
@@ -346,6 +375,16 @@ async function sceneEndTimes(project: Project): Promise<number[]> {
     cum += voice.gapMs;
   }
   return ends;
+}
+
+/** Scene ids from voice.json, in order — used for the STT path's best-effort
+ *  progress reporting (there's no natural per-scene loop, unlike offline). */
+async function sceneIdsFor(project: Project): Promise<string[]> {
+  if (!(await exists(project.voiceManifestPath))) return [];
+  const voice = VoiceManifestSchema.safeParse(
+    await readJson(project.voiceManifestPath)
+  );
+  return voice.success ? voice.data.scenes.map((s) => s.id) : [];
 }
 
 function groupWords(words: Word[], sceneEnds: number[]): Cue[] {

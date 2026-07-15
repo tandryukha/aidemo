@@ -14,7 +14,15 @@ import {
   type HideWindow,
 } from "./cursor-overlay.js";
 import { runFfmpeg, probeDurationMs, probeVideoDims } from "./ffmpeg.js";
-import { ensureDir, readJson, exists, log, ok, step } from "./util.js";
+import {
+  ensureDir,
+  readJson,
+  exists,
+  log,
+  ok,
+  step,
+  type SceneProgress,
+} from "./util.js";
 
 /** Idle "thinking" spans are trimmed down to at most this, then time-stretched. */
 const IDLE_CAP_MS = 400;
@@ -33,7 +41,8 @@ const MIN_FACTOR = 0.5; // don't speed up beyond 2x
  */
 export async function compose(
   project: Project,
-  storyboard: Storyboard
+  storyboard: Storyboard,
+  opts: SceneProgress = {}
 ): Promise<void> {
   step("Composing final video (ffmpeg)");
 
@@ -73,12 +82,15 @@ export async function compose(
   let cursorSampleCount = 0;
 
   const sceneVideos: string[] = [];
+  const sceneTotal = timeline.scenes.length;
   for (let i = 0; i < timeline.scenes.length; i++) {
     const tl = timeline.scenes[i];
+    opts.onSceneStart?.(tl.id, i, sceneTotal);
     const narrMs = voiceById.get(tl.id) ?? 0;
     const targetMs = narrMs + voice.gapMs;
     if (targetMs <= 0) {
       log(`scene ${tl.id}: no narration, skipping`);
+      opts.onSceneComplete?.(tl.id, i, sceneTotal);
       continue;
     }
 
@@ -179,6 +191,7 @@ export async function compose(
           overrunTrimMs > 0 ? ` - ${Math.round(overrunTrimMs)}ms tail trim` : ""
         }, ${keeps.length} span(s))`
     );
+    opts.onSceneComplete?.(tl.id, i, sceneTotal);
   }
 
   if (sceneVideos.length === 0) throw new Error("No scenes to compose.");

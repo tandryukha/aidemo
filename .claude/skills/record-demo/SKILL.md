@@ -29,6 +29,12 @@ fetch it first, then follow it:
    rendering. Pass **absolute** demo directories.
 2. **Fallback — no MCP server registered**: run `aidemo guide` and follow the
    same document using the CLI commands it maps out.
+3. **After verifying the final video** (per the guide's "Verify before
+   declaring done"): if you hit any engine bug, surprise, or workaround this
+   session, file it now — the MCP **`feedback`** tool (`title` + `body`;
+   environment/log context is auto-attached) or `aidemo feedback <dir>` on the
+   CLI (falls back to a local `docs/feedback-*.md` offline). If nothing came
+   up, skip this step.
 
 ## Invoking the engine (`aidemo`)
 
@@ -53,7 +59,5 @@ runs `aidemo skill check` and prints a notice when a newer version is out.
 render time.)
 - **Update the skill** (when notified, or any time): `aidemo skill update --dir .`
   — rewrites this file and bumps `.claude/skills/record-demo/installed.json`.
-- **Send feedback upstream** at the end of a rough session — broken selector, bad
-  timing, or an idea: `aidemo feedback demos/<name>` files a context-rich GitHub
-  issue on the engine repo (falls back to a local `docs/feedback-*.md` offline).
+- **Send feedback upstream**: see step 3 above.
 - **Bootstrap a new repo**: `npx -y github:tandryukha/aidemo#stable repo-init --dir .`

@@ -7,7 +7,9 @@
 //
 // Covers: initialize handshake, tool listing, guide/schema tools, storyboard
 // validation (positive + negative), a canceled probe job, busy rejection
-// while a probe runs, a probe job polled to success, and resource reads.
+// while a probe runs, a probe job polled to success, a dry-run feedback body
+// assembly (NEVER files a real issue — see the feedback block below), and
+// resource reads.
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
@@ -114,6 +116,7 @@ try {
     "captions",
     "compose",
     "gif",
+    "feedback",
   ]) {
     check(names.has(expected), `tool registered: ${expected}`);
   }
@@ -152,6 +155,38 @@ try {
   check(
     invalid.valid === false && (invalid.issues?.length ?? 0) > 0,
     "bad storyboard yields structured issues"
+  );
+
+  // --- feedback tool: dry-run body assembly only ------------------------------
+  // NEVER exercise the real filing path here (gh issue create / prefilled URL)
+  // — dryRun short-circuits before either, so this can never create a real
+  // issue on tandryukha/aidemo.
+  const feedbackTitle = "mcp-smoke: dry-run probe (not a real issue)";
+  const feedbackBody = "Exercised by test/mcp-smoke.mjs — should never be filed.";
+  const feedbackDry = structured(
+    await client.callTool({
+      name: "feedback",
+      arguments: {
+        title: feedbackTitle,
+        body: feedbackBody,
+        dir: FIXTURE,
+        dryRun: true,
+      },
+    })
+  );
+  check(feedbackDry.filed === false, `dry-run feedback is not filed (${feedbackDry.filed})`);
+  check(feedbackDry.title === feedbackTitle, "dry-run feedback echoes the given title");
+  check(
+    typeof feedbackDry.body === "string" && feedbackDry.body.includes(feedbackBody),
+    "dry-run feedback body includes the given description"
+  );
+  check(
+    typeof feedbackDry.body === "string" && feedbackDry.body.includes("**Environment**"),
+    "dry-run feedback body auto-attaches environment context"
+  );
+  check(
+    typeof feedbackDry.body === "string" && feedbackDry.body.includes(FIXTURE),
+    "dry-run feedback body references the demo dir"
   );
 
   // --- job model: cancel round-trip ------------------------------------------

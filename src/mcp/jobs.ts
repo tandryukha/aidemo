@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createWriteStream, promises as fs } from "node:fs";
 import { join } from "node:path";
 import type { Project } from "../project.js";
-import { withLogSinks, CanceledError, type LogSink } from "../util.js";
+import { withLogSinks, teeStageLog, CanceledError, type LogSink } from "../util.js";
 
 /**
  * In-memory job manager for the MCP server. Pipeline operations (probe,
@@ -34,8 +34,18 @@ export interface JobError {
   stage: string;
   failureArtifacts: string[];
   logFile: string;
+  /** Nudge toward filing an engine-defect report — the moment of failure is
+   *  maximum context. Points at the MCP `feedback` tool / `aidemo feedback`.
+   *  Present on genuine failures only (not a deliberate job_cancel). */
+  feedbackHint?: string;
   salvaged?: { scenes: number; timeline: string };
 }
+
+/** Points a failed job's caller at the feedback tool while context is fresh. */
+export const FEEDBACK_HINT =
+  "if this looks like an engine defect, file it now while the context is " +
+  "fresh: the MCP `feedback` tool (title, body, dir) or `aidemo feedback " +
+  "<dir>` on the CLI.";
 
 export interface Job {
   jobId: string;
@@ -170,6 +180,27 @@ export class JobManager {
     }
   }
 
+  /**
+   * Like runStage, but for a stage nested inside an ALREADY-RUNNING outer
+   * stage — the `render` job's voice/record/captions/compose/gif/stills
+   * sub-stages, wrapped in an outer `runStage(job, "render", …)`. Reuses the
+   * outer stage's ring sink (withLogSinks composes additively, so no
+   * duplicate log-tail lines) while still refreshing THIS sub-stage's own
+   * stable logs/<stage>.log and updating job.stage/logFile/scene-progress so
+   * job_status reflects whichever sub-stage is currently running. Without
+   * this, `render` only ever wrote logs/render.log — logs/voice.log,
+   * logs/captions.log, logs/compose.log stayed stale from whatever standalone
+   * run last touched them (the DX papercut behind aidemo#17).
+   */
+  async runSubStage<T>(job: Job, stage: string, fn: () => Promise<T>): Promise<T> {
+    job.stage = stage;
+    job.logFile = join(job.demoDir, "logs", `${stage}.log`);
+    job.scenesTotal = null;
+    job.scenesDone = 0;
+    job.currentScene = null;
+    return teeStageLog(job.logFile, fn);
+  }
+
   /** Public status shape returned by the job_status/job_list tools. */
   statusOf(job: Job, tailLines = 40): Record<string, unknown> {
     return {
@@ -234,6 +265,9 @@ export class JobManager {
       stage: job.stage,
       failureArtifacts,
       logFile: job.logFile,
+      // A deliberate job_cancel isn't an engine defect — only nudge on a
+      // genuine failure.
+      ...(job.status === "failed" ? { feedbackHint: FEEDBACK_HINT } : {}),
       ...(salvaged ? { salvaged } : {}),
     };
   }

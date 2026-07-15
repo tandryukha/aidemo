@@ -365,7 +365,10 @@ async function recentLogTail(demoDir: string, lines = 40): Promise<string | null
   return `${basename(newest.path)} (last ${lines} lines):\n${tail}`;
 }
 
-async function assembleFeedbackBody(demoDir: string | null): Promise<string> {
+async function assembleFeedbackBody(
+  demoDir: string | null,
+  description?: string
+): Promise<string> {
   const ffmpeg = (await probeCmd("ffmpeg", ["-version"])) ?? "not found";
   let originUrl: string | null = null;
   try {
@@ -383,7 +386,7 @@ async function assembleFeedbackBody(demoDir: string | null): Promise<string> {
   return [
     `**What happened / suggestion**`,
     ``,
-    `<!-- describe the broken selector / bad timing / idea here -->`,
+    description?.trim() || `<!-- describe the broken selector / bad timing / idea here -->`,
     ``,
     `---`,
     `**Environment**`,
@@ -399,25 +402,54 @@ async function assembleFeedbackBody(demoDir: string | null): Promise<string> {
   ].join("\n");
 }
 
-/**
- * File demo-recording feedback as a GitHub issue on the engine repo. Uses `gh`
- * when available; `--web` opens a prefilled New Issue page; `--dry-run` prints
- * what would be sent. Falls back to a local docs/feedback-*.md when gh is
- * missing or offline.
- */
-export async function feedback(
-  dir: string | undefined,
-  opts: { web?: boolean; dryRun?: boolean } = {}
-): Promise<void> {
-  const demoDir = dir ? targetOf(dir) : null;
-  const body = await assembleFeedbackBody(demoDir);
-  const title = `Demo feedback: ${demoDir ? basename(demoDir) : basename(process.cwd())}`;
+/** Title + full body (environment/log context auto-attached) of a feedback issue. */
+export interface FeedbackContext {
+  title: string;
+  body: string;
+}
 
+/**
+ * Build the title + body for an aidemo feedback issue — environment (engine
+ * version, OS, node, ffmpeg, consuming repo) and a recent-log tail are
+ * auto-attached the same way for every caller. Shared by the CLI `aidemo
+ * feedback` command and the MCP `feedback` tool. `description`, when given
+ * (the MCP tool's `body` param — an agent's actual finding), replaces the
+ * CLI's "describe here" placeholder comment.
+ */
+export async function buildFeedback(
+  demoDir: string | null,
+  opts: { title?: string; description?: string } = {}
+): Promise<FeedbackContext> {
+  const body = await assembleFeedbackBody(demoDir, opts.description);
+  const title =
+    opts.title?.trim() ||
+    `Demo feedback: ${demoDir ? basename(demoDir) : basename(process.cwd())}`;
+  return { title, body };
+}
+
+export interface FileFeedbackResult {
+  filed: boolean;
+  url?: string;
+  localPath?: string;
+  message: string;
+}
+
+/**
+ * File a feedback issue on the engine repo, or preview it (dryRun). Uses `gh
+ * issue create` when available; `web` opens a prefilled New Issue page
+ * instead of filing directly; falls back to a local docs/feedback-*.md + a
+ * prefilled `github.com/.../issues/new` URL when `gh` is missing or offline.
+ * Shared by the CLI `aidemo feedback` command and the MCP `feedback` tool —
+ * intentionally no other network path (repo security policy: no new
+ * endpoints; `gh` or a plain github.com URL only).
+ */
+export async function fileFeedback(
+  ctx: FeedbackContext,
+  opts: { web?: boolean; dryRun?: boolean; cwd?: string } = {}
+): Promise<FileFeedbackResult> {
+  const { title, body } = ctx;
   if (opts.dryRun) {
-    step(`feedback (dry run) → ${UPSTREAM_REPO}`);
-    log(`title: ${title}`);
-    log(`body:\n${body}`);
-    return;
+    return { filed: false, message: "dry run — not filed" };
   }
 
   const ghPath = await probeCmd("gh", ["--version"]);
@@ -426,9 +458,12 @@ export async function feedback(
     if (opts.web) args.push("--web");
     try {
       const { stdout } = await execFileAsync("gh", args, { timeout: 30000 });
-      step(`filed feedback on ${UPSTREAM_REPO}`);
-      if (stdout.trim()) ok(stdout.trim());
-      return;
+      const out = stdout.trim();
+      return {
+        filed: true,
+        ...(out.startsWith("http") ? { url: out } : {}),
+        message: out || `filed feedback on ${UPSTREAM_REPO}`,
+      };
     } catch (err) {
       fail(`gh issue create failed: ${(err as Error).message}`);
       // fall through to local fallback
@@ -438,7 +473,7 @@ export async function feedback(
   }
 
   // Local fallback: write docs/feedback-<date>.md and print the prefilled URL.
-  const base = demoDir ?? process.cwd();
+  const base = opts.cwd ?? process.cwd();
   const stamp = new Date().toISOString().slice(0, 10);
   const outDir = resolve(base, "docs");
   await ensureDir(outDir);
@@ -447,8 +482,42 @@ export async function feedback(
   const url = `https://github.com/${UPSTREAM_REPO}/issues/new?title=${encodeURIComponent(
     title
   )}&body=${encodeURIComponent(body)}`;
-  step(`saved feedback → ${outPath}`);
-  ok(`file it upstream: ${url}`);
+  return { filed: false, url, localPath: outPath, message: `saved feedback → ${outPath}` };
+}
+
+/**
+ * File demo-recording feedback as a GitHub issue on the engine repo (CLI
+ * `aidemo feedback`). `--dry-run` prints the assembled title/body without
+ * filing. Thin wrapper over buildFeedback/fileFeedback — see the MCP
+ * `feedback` tool for the agent-facing equivalent (takes a real title/body).
+ */
+export async function feedback(
+  dir: string | undefined,
+  opts: { web?: boolean; dryRun?: boolean } = {}
+): Promise<void> {
+  const demoDir = dir ? targetOf(dir) : null;
+  const ctx = await buildFeedback(demoDir);
+
+  if (opts.dryRun) {
+    step(`feedback (dry run) → ${UPSTREAM_REPO}`);
+    log(`title: ${ctx.title}`);
+    log(`body:\n${ctx.body}`);
+    return;
+  }
+
+  const result = await fileFeedback(ctx, {
+    web: opts.web,
+    cwd: demoDir ?? process.cwd(),
+  });
+  if (result.filed) {
+    step(`filed feedback on ${UPSTREAM_REPO}`);
+    ok(result.message);
+  } else if (result.localPath) {
+    step(`saved feedback → ${result.localPath}`);
+    ok(`file it upstream: ${result.url}`);
+  } else {
+    fail(result.message);
+  }
 }
 
 /**

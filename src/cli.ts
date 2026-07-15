@@ -20,7 +20,16 @@ import { extractStills, storyboardHasStills } from "./stills.js";
 import { localizeStoryboard, missingNarrations } from "./i18n.js";
 import { synthesizeMusicBed } from "./music.js";
 import { loadVariants, renderVariants } from "./variants.js";
-import { ensureDir, ok, step, fail, log, setLogFile, closeLogFile } from "./util.js";
+import {
+  ensureDir,
+  ok,
+  step,
+  fail,
+  log,
+  setLogFile,
+  closeLogFile,
+  teeStageLog,
+} from "./util.js";
 import {
   scaffoldDemo,
   repoInit,
@@ -34,6 +43,19 @@ import {
 async function beginCommand(project: Project, name: string): Promise<void> {
   await project.ensureDirs();
   setLogFile(project.p("logs", `${name}.log`));
+}
+
+/**
+ * Tee one composite-pipeline stage's output into its OWN stable
+ * logs/<stage>.log (freshly truncated), in addition to the composite
+ * command's own log (`render` → logs/render.log via beginCommand/
+ * setLogFile). Without this, `aidemo render` never touches logs/voice.log,
+ * logs/record.log, logs/captions.log or logs/compose.log — a log-watcher
+ * polling one of those between renders sees a stale line (e.g. an old
+ * `✓ final video → …`) from whatever standalone command last ran that stage.
+ */
+function stageLog<T>(project: Project, stage: string, fn: () => Promise<T>): Promise<T> {
+  return teeStageLog(project.p("logs", `${stage}.log`), fn);
 }
 
 await loadEnv();
@@ -559,18 +581,26 @@ program
 
       if (!multi) {
         // Default single-language pipeline — voice → record → captions → compose.
-        await generateVoice(base, storyboard, { force: opts.forceVoice });
-        await record(base, storyboard, {
-          profileDir: opts.profile,
-          headed: !opts.headless,
-          capture: parseCapture(opts.capture),
-        });
-        await captionsFor(base, storyboard);
-        await compose(base, storyboard);
-        if (opts.gif) await exportGif(base);
+        // Each stage also gets its own stable logs/<stage>.log (in addition to
+        // this run's logs/render.log) — see stageLog's doc comment.
+        await stageLog(base, "voice", () =>
+          generateVoice(base, storyboard, { force: opts.forceVoice })
+        );
+        await stageLog(base, "record", () =>
+          record(base, storyboard, {
+            profileDir: opts.profile,
+            headed: !opts.headless,
+            capture: parseCapture(opts.capture),
+          })
+        );
+        await stageLog(base, "captions", () => captionsFor(base, storyboard));
+        await stageLog(base, "compose", () => compose(base, storyboard));
+        if (opts.gif) await stageLog(base, "gif", () => exportGif(base));
         // Screenshot mode: emit any `still` PNGs from the clean take (a
         // re-extract, not a re-record).
-        if (storyboardHasStills(storyboard)) await extractStills(base);
+        if (storyboardHasStills(storyboard)) {
+          await stageLog(base, "stills", () => extractStills(base));
+        }
         step("Done");
         ok(`▶ open ${base.outputPath}`);
         return;
@@ -579,21 +609,27 @@ program
       // Multi-language: record the SHARED take ONCE (language-independent), then
       // voice + captions + compose per language over the same footage. Stills
       // come from the shared clean take, so extract them once from the base.
-      await record(base, storyboard, {
-        profileDir: opts.profile,
-        headed: !opts.headless,
-        capture: parseCapture(opts.capture),
-      });
-      if (storyboardHasStills(storyboard)) await extractStills(base);
+      await stageLog(base, "record", () =>
+        record(base, storyboard, {
+          profileDir: opts.profile,
+          headed: !opts.headless,
+          capture: parseCapture(opts.capture),
+        })
+      );
+      if (storyboardHasStills(storyboard)) {
+        await stageLog(base, "stills", () => extractStills(base));
+      }
       for (const lang of langs) {
         const project = new Project(dir, lang!);
         await beginCommand(project, "render");
         const sb = localizeStoryboard(storyboard, lang!);
         warnPartialCoverage(storyboard, lang!);
-        await generateVoice(project, sb, { force: opts.forceVoice });
-        await captionsFor(project, sb);
-        await compose(project, sb);
-        if (opts.gif) await exportGif(project);
+        await stageLog(project, "voice", () =>
+          generateVoice(project, sb, { force: opts.forceVoice })
+        );
+        await stageLog(project, "captions", () => captionsFor(project, sb));
+        await stageLog(project, "compose", () => compose(project, sb));
+        if (opts.gif) await stageLog(project, "gif", () => exportGif(project));
         ok(`▶ open ${project.outputPath}`);
       }
       step("Done");

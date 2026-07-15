@@ -559,6 +559,11 @@ no dead air, and the key moment (e.g. checkout confirmed) is actually visible
 on screen. If the demo is headed for a README, run the `gif` job — GIFs
 autoplay on GitHub; MP4s don't.
 
+Then: if you hit any engine bug, surprise, or workaround this session, file
+it now while the context is fresh — the MCP `feedback` tool (title + body;
+environment/log context is auto-attached) or `aidemo feedback <dir>` on the
+CLI. If nothing came up, skip this.
+
 ## Debugging
 
 - Every run tees its output to `<demo>/logs/<command>.log`; a failed take also

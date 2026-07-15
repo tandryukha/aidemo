@@ -35,12 +35,47 @@ const logSinks = new AsyncLocalStorage<LogSink[]>();
  * Run `fn` with additional log sinks that receive everything emitted through
  * log/step/ok/fail — scoped to fn's async chain, so concurrent runs (MCP jobs
  * vs. sync tool calls) don't interleave each other's log files. The CLI's
- * setLogFile singleton is unaffected. Known blind spot: a line emitted from a
- * detached event-loop callback (not awaited inside fn) misses the sinks and
- * goes to stderr only.
+ * setLogFile singleton is unaffected. Composes with any sinks already active
+ * (additive, not a replace) so a stage nested inside a composite command
+ * (e.g. the `render` job's voice/record/captions/compose sub-stages) still
+ * feeds the outer command's log/ring buffer while ALSO getting its own sink.
+ * Known blind spot: a line emitted from a detached event-loop callback (not
+ * awaited inside fn) misses the sinks and goes to stderr only.
  */
 export function withLogSinks<T>(sinks: LogSink[], fn: () => Promise<T>): Promise<T> {
-  return logSinks.run(sinks, fn);
+  const outer = logSinks.getStore();
+  return logSinks.run(outer ? [...outer, ...sinks] : sinks, fn);
+}
+
+/**
+ * Tee subsequent log/step/ok/fail output into a freshly truncated file at
+ * `path`, composed with whatever log sinks (or the CLI's global log file) are
+ * already active. Used so a stage driven from inside a composite command —
+ * CLI `render`; the MCP `render` job — still refreshes its OWN stable
+ * logs/<stage>.log, not just the composite command's log. Fixes stale
+ * `logs/<command>.log` lines fooling log-watchers into probing half-written
+ * output (a poller sees an old `✓ final video → …` line from a previous
+ * standalone `compose` run while the current `render` is still composing).
+ */
+export async function teeStageLog<T>(path: string, fn: () => Promise<T>): Promise<T> {
+  const stream = createWriteStream(path, { flags: "w" });
+  stream.on("error", () => {});
+  try {
+    return await withLogSinks([(s) => void stream.write(s)], fn);
+  } finally {
+    await new Promise<void>((res) => stream.end(res));
+  }
+}
+
+/**
+ * Per-scene progress hooks, shared by every stage that loops over scenes
+ * (voice, captions, compose, and record's own RecordOptions) — the MCP job
+ * model wires these into job.currentScene/scenesTotal/scenesDone so pollers
+ * get structured progress instead of only a log tail.
+ */
+export interface SceneProgress {
+  onSceneStart?: (sceneId: string, index: number, total: number) => void;
+  onSceneComplete?: (sceneId: string, index: number, total: number) => void;
 }
 
 /** Thrown when a run is canceled via an AbortSignal (e.g. MCP job_cancel). */
