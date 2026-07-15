@@ -1,6 +1,6 @@
 {
   "name": "aidemo",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "private": true,
   "license": "MIT",
   "description": "AI Demo Engine — turn a storyboard into a narrated, captioned product demo video",
