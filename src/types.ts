@@ -362,23 +362,57 @@ export const TransitionSchema = z.object({
 export type Transition = z.infer<typeof TransitionSchema>;
 
 /**
- * Final output sizing (opt-in). Renders the composed video at a different
- * size/aspect than the recording — e.g. a vertical 1080x1920 social clip from
- * a 1280x720 take. Applied AFTER cards + captions, so the whole frame is
- * scaled as one. Omit to keep the recording size. width/height should be even
- * (yuv420p). Uses core scale/pad/crop filters only.
+ * Master loudness target for the final muxed audio (ffmpeg `loudnorm`). Lands
+ * the master at streaming/broadcast norms so it isn't quiet next to anything
+ * else the viewer plays. A single-pass `loudnorm` runs LAST over the muxed
+ * audio; it is default-ON only when a `music` block is present (the music mix
+ * otherwise leaves the master ~-29 LUFS) and OFF for a plain narration-only
+ * render. See `output.loudness` to override or disable. Partial overrides fill
+ * from these defaults.
  */
-export const OutputSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  /**
-   * "contain" (default) = scale to fit + pad the remainder (letterbox bars).
-   * "cover" = scale to fill + center-crop the overflow (no bars).
-   */
-  fit: z.enum(["contain", "cover"]).default("contain"),
-  /** Pad color for "contain" (ffmpeg color syntax, e.g. black, 0x1a1a1a). Default black. */
-  background: z.string().optional(),
+export const LoudnessSchema = z.object({
+  /** Integrated loudness target, LUFS. Default -16 (YouTube/podcast norm). */
+  integrated: z.number().default(-16),
+  /** Maximum true peak, dBTP. Default -1.5. */
+  truePeak: z.number().default(-1.5),
+  /** Loudness range target, LU. Default 11. */
+  lra: z.number().default(11),
 });
+export type Loudness = z.infer<typeof LoudnessSchema>;
+
+/**
+ * Final output sizing + loudness (opt-in). Renders the composed video at a
+ * different size/aspect than the recording — e.g. a vertical 1080x1920 social
+ * clip from a 1280x720 take. Applied AFTER cards + captions, so the whole frame
+ * is scaled as one. Omit to keep the recording size. width/height should be
+ * even (yuv420p) and are set together. Uses core scale/pad/crop filters only.
+ * `loudness` (independent of resize) tunes the master level; omit it entirely
+ * for the automatic default (loudnorm when there's music, none otherwise).
+ */
+export const OutputSchema = z
+  .object({
+    width: z.number().optional(),
+    height: z.number().optional(),
+    /**
+     * "contain" (default) = scale to fit + pad the remainder (letterbox bars).
+     * "cover" = scale to fill + center-crop the overflow (no bars).
+     */
+    fit: z.enum(["contain", "cover"]).default("contain"),
+    /** Pad color for "contain" (ffmpeg color syntax, e.g. black, 0x1a1a1a). Default black. */
+    background: z.string().optional(),
+    /**
+     * Master loudness normalization. `false` disables the final loudnorm pass;
+     * an object overrides the targets (partial objects fill from LoudnessSchema
+     * defaults) and also FORCES the pass on even for a narration-only master.
+     * Omit for the default: loudnorm when a `music` block is present, none for a
+     * plain narration render (so that path stays byte-for-byte unchanged).
+     */
+    loudness: z.union([z.literal(false), LoudnessSchema]).optional(),
+  })
+  // Resizing needs both dimensions or neither; loudness works on its own.
+  .refine((o) => (o.width == null) === (o.height == null), {
+    message: "output.width and output.height must be set together",
+  });
 export type Output = z.infer<typeof OutputSchema>;
 
 export const StoryboardSchema = z.object({

@@ -1,8 +1,8 @@
 import { promises as fs } from "node:fs";
 import { resolve, isAbsolute } from "node:path";
 import { Project } from "./project.js";
-import type { Storyboard, Timeline, IdleSpan, Card, Output } from "./types.js";
-import { TimelineSchema, VoiceManifestSchema } from "./types.js";
+import type { Storyboard, Timeline, IdleSpan, Card, Output, Loudness } from "./types.js";
+import { TimelineSchema, VoiceManifestSchema, LoudnessSchema } from "./types.js";
 import type { Cue } from "./captions.js";
 import { renderCaptionPngs } from "./caption-render.js";
 import { renderCardPng } from "./cards.js";
@@ -350,9 +350,12 @@ export async function compose(
   // Optional final resize/reframe (opt-in). Applied last, over the whole
   // composed frame (cards + captions included), so a 1280x720 take can render
   // as a vertical social clip. Audio is muxed after, so mux stays -c:v copy.
-  const finalVideo = storyboard.output
-    ? await resizeOutput(captioned, storyboard.output, tmp)
-    : captioned;
+  // `output` may carry only a `loudness` override (no width/height) — resize
+  // just when both dimensions are set.
+  const finalVideo =
+    storyboard.output?.width != null && storyboard.output?.height != null
+      ? await resizeOutput(captioned, storyboard.output, tmp)
+      : captioned;
   await muxAudio(project, storyboard, finalVideo, introMs);
   ok(`final video → ${project.outputPath}`);
   // AIDEMO_KEEP_TMP=1 keeps .compose-tmp for debugging intermediates.
@@ -810,6 +813,14 @@ async function muxAudio(
   const delay = introMs > 0 ? `,adelay=${Math.round(introMs)}:all=1` : "";
   const filters: string[] = [];
 
+  // Loudness normalization runs LAST over the muxed audio. Default-ON only when
+  // music is actually in the mix (the amix bed drops the master to ~-29 LUFS);
+  // an explicit `output.loudness` object forces it on (even narration-only) and
+  // `false` disables it. When it's off, the mix terminates directly in [aout]
+  // and the narration-only path is byte-for-byte the pre-loudness behavior.
+  const loudness = resolveLoudness(storyboard, !!musicPath);
+  const mixOut = loudness ? "amixed" : "aout";
+
   if (musicPath) {
     const m = storyboard.music!; // musicPath implies storyboard.music.track
     const ducking = m.ducking ?? "sidechain";
@@ -823,6 +834,10 @@ async function muxAudio(
     // NOTE: every apad uses whole_dur so the filtergraph is FINITE. An
     // unbounded apad never EOFs, and `-t` alone doesn't stop ffmpeg from
     // encoding the endless silence — it would run (and grow the file) forever.
+    // amix uses normalize=0: the default normalize=1 divides every input by the
+    // input count (2), silently attenuating the NARRATION by ~6 dB — the root of
+    // the too-quiet master. normalize=0 keeps each input at its authored level;
+    // the final loudnorm sets the absolute master level.
     if (ducking === "sidechain") {
       const threshold = m.duckThreshold ?? 0.02;
       const ratio = m.duckRatio ?? 8;
@@ -835,17 +850,31 @@ async function muxAudio(
         `[k0]apad=whole_dur=${durSec}[sckey]`,
         bed,
         `[mbed][sckey]sidechaincompress=threshold=${threshold}:ratio=${ratio}:attack=${attack}:release=${release}[mduck]`,
-        `[nar][mduck]amix=inputs=2:duration=longest:dropout_transition=2,apad=whole_dur=${durSec}[aout]`
+        `[nar][mduck]amix=inputs=2:normalize=0:duration=longest:dropout_transition=2,apad=whole_dur=${durSec}[${mixOut}]`
       );
     } else {
       filters.push(
         `[1:a]aresample=44100${delay}[nar]`,
         bed,
-        `[nar][mbed]amix=inputs=2:duration=longest:dropout_transition=2,apad=whole_dur=${durSec}[aout]`
+        `[nar][mbed]amix=inputs=2:normalize=0:duration=longest:dropout_transition=2,apad=whole_dur=${durSec}[${mixOut}]`
       );
     }
   } else {
-    filters.push(`[1:a]aresample=44100${delay},apad=whole_dur=${durSec}[aout]`);
+    filters.push(`[1:a]aresample=44100${delay},apad=whole_dur=${durSec}[${mixOut}]`);
+  }
+
+  // Final loudnorm to a fixed master target. Single-pass loudnorm resamples
+  // internally to 192 kHz, so pin the rate back to 44100 (the pipeline's
+  // canonical audio rate) — otherwise the muxed AAC balloons.
+  if (loudness) {
+    filters.push(
+      `[amixed]loudnorm=I=${loudness.integrated}:TP=${loudness.truePeak}:LRA=${loudness.lra},` +
+        `aresample=44100[aout]`
+    );
+    log(
+      `loudness: loudnorm I=${loudness.integrated} TP=${loudness.truePeak} ` +
+        `LRA=${loudness.lra}${musicPath ? "" : " (narration-only override)"}`
+    );
   }
 
   args.push("-filter_complex", filters.join(";"));
@@ -862,6 +891,24 @@ async function muxAudio(
     project.outputPath
   );
   await runFfmpeg(args);
+}
+
+/**
+ * Decide the final master-loudness target. Off (null) by default so a plain
+ * narration render stays byte-for-byte unchanged; on when a `music` block is in
+ * the mix (music otherwise leaves the master ~-29 LUFS) OR when the storyboard
+ * sets an explicit `output.loudness` object. `output.loudness: false` forces it
+ * off even with music. Explicit partial objects have already been filled from
+ * LoudnessSchema defaults by zod.
+ */
+function resolveLoudness(
+  storyboard: Storyboard,
+  hasMusic: boolean
+): Loudness | null {
+  const l = storyboard.output?.loudness;
+  if (l === false) return null; // explicitly disabled
+  if (l) return l; // explicit targets (defaults already applied)
+  return hasMusic ? LoudnessSchema.parse({}) : null; // default-on only with music
 }
 
 async function resolveMusic(

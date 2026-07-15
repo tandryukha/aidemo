@@ -147,12 +147,15 @@ Cinematic keys (all opt-in; omit for the plain look):
   ships with the repo (license provenance matters); generate a **license-free**
   one with `aidemo music assets/music.wav` and point `track` at it. Per-scene
   `music.cue` is informational only — it's ignored (the bed plays
-  continuously), and setting one logs a warning at load.
+  continuously), and setting one logs a warning at load. **Adding music
+  auto-normalizes the master** to ~−16 LUFS / −1.5 dBTP (a final `loudnorm`
+  pass) so it isn't quiet next to other clips — tune or disable it with
+  `output.loudness` (see below).
 - `transition: {type:"crossfade", durationMs?=400}` — **cross-dissolve every
   scene boundary** instead of hard-cutting (see below).
-- `output: {width, height, fit?="contain", background?}` — **render at a
-  different size/aspect** than the recording, e.g. a vertical social clip (see
-  below).
+- `output: {width?, height?, fit?="contain", background?, loudness?}` — **render
+  at a different size/aspect** (`width`+`height`, set together) and/or **set the
+  master loudness** (`loudness`), e.g. a vertical social clip (see below).
 - `motionBlur: {frames?=3}` — **subtle motion blur** on fast motion (cursor,
   scroll, zoom pan); static UI stays sharp (see below).
 - `cursor: {hidden?, hideScenes?, scale?}` — **compose-time cursor control**:
@@ -161,12 +164,12 @@ Cinematic keys (all opt-in; omit for the plain look):
 Each scene: `id`, `narration`, `voice?`, `music?`, `zoom?` (false to disable),
 `actions[]`.
 
-## Transitions & output sizing
+## Transitions, output sizing & loudness
 
-Two opt-in, compose-time polish keys. Both are pure post-processing — they never
+Opt-in, compose-time polish keys. All are pure post-processing — they never
 touch the recording, so tuning them is always a recompose, never a re-record.
 Omit them and compose behaves exactly as before (hard-cut scenes, recording-size
-output).
+output, no loudness pass on a narration-only render).
 
 **`transition: {type:"crossfade", durationMs?=400}`** — cross-dissolves the video
 across every scene boundary. Narration is a single continuous track and stays
@@ -190,7 +193,27 @@ step. `fit`:
 This seeds the **social-clips lane**: a vertical `{width:1080, height:1920}` (or
 `720×1280`) clip from a landscape 1280×720 take. Use even width/height (yuv420p).
 Only core scale/pad/crop filters are used, so it stays portable across ffmpeg
-builds.
+builds. `width` and `height` are set together (or both omitted) — an `output`
+block may carry only `loudness`.
+
+**`output: {loudness?}`** — master loudness normalization (a final `loudnorm`
+pass, portable core filter). This exists because **mixing a music bed drops the
+master to ~−29 LUFS** — far below streaming norms (YouTube/podcast sit around
+−14…−16 LUFS), so the video sounds quiet next to anything else. The fix runs
+automatically:
+- **With a `music` block:** the master is normalized to **−16 LUFS integrated /
+  −1.5 dBTP** by default (LRA 11). No `output` block needed.
+- **Narration only (no music):** no loudness pass runs — that path is
+  byte-for-byte unchanged.
+
+Override or disable via `loudness`:
+- `"loudness": false` — disable the pass entirely (even with music).
+- `"loudness": {integrated?=-16, truePeak?=-1.5, lra?=11}` — override any target
+  (partial objects fill from the defaults). Setting an object also **forces the
+  pass on for a narration-only render** (e.g. to hit a specific delivery target).
+
+Targets are the ffmpeg `loudnorm` `I` (LUFS), `TP` (dBTP), and `LRA` (LU). The
+pass runs last over the muxed audio and pins the rate back to 44.1 kHz.
 
 ## Motion blur & cursor
 
