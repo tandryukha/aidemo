@@ -1004,6 +1004,11 @@ export async function runMcpServer(): Promise<void> {
     // and break the next record.
     void (async () => {
       if (jobs.abortActive()) await jobs.waitForIdle(10_000);
+      // Grace for native addons: after a local-TTS job, onnxruntime's worker
+      // threads wind down asynchronously, and process.exit mid-teardown
+      // aborts with a shutdown-time "libc++abi: mutex lock failed" on macOS
+      // (issue #19). Half a second is invisible here — the client is gone.
+      await new Promise((r) => setTimeout(r, 500));
       process.exit(0);
     })();
   };

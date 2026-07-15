@@ -13,7 +13,7 @@ import {
   ttsModelCacheDir,
 } from "./config.js";
 import { runFfmpeg } from "./ffmpeg.js";
-import { exists, log } from "./util.js";
+import { exists, log, sleep } from "./util.js";
 
 /**
  * In-process TTS: Kokoro-82M ONNX on CPU via kokoro-js — no server, no key.
@@ -211,6 +211,12 @@ export class LocalVoiceProvider implements VoiceProvider {
     const tts = await this.tts.catch(() => null);
     await tts?.model?.dispose().catch(() => {});
     this.tts = null;
+    // The session release resolves before onnxruntime's native worker threads
+    // have fully wound down; a process exit that follows immediately (CLI end,
+    // MCP client close) can race that teardown and abort with a shutdown-time
+    // "libc++abi: mutex lock failed" on macOS (issue #19). Purely cosmetic —
+    // the run already succeeded — but a short grace keeps exits off the race.
+    await sleep(500);
   }
 }
 
