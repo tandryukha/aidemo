@@ -121,10 +121,17 @@ network.
 The precise contract is the JSON Schema from `get_storyboard_schema`
 (generated from the engine's own zod schema, `src/types.ts`).
 
-Top level: `title`, `targetLengthSeconds?`, `video{width,height}` (default
-1280x720), `frames{ name: iframeSelector }`, `voice{voiceId,instructions,speed}`
-(default, scenes may override), `music?`, `zoom?`, `intro?`, `outro?`,
-`transition?`, `output?`, `scenes[]`.
+Top level: `title`, `language?`, `targetLengthSeconds?`, `video{width,height}`
+(default 1280x720), `frames{ name: iframeSelector }`,
+`voice{voiceId,instructions,speed}` (default, scenes may override), `music?`,
+`zoom?`, `intro?`, `outro?`, `transition?`, `output?`, `scenes[]`.
+
+`language?` is a BCP-47/ISO-639-1 code (e.g. `"et"`) describing what language
+the base `narration` is already written in — set it for a monolingual
+non-English demo (no `narrations` translations at all). It's metadata, not a
+render switch: it only feeds the `captions` STT language hint (see below).
+Distinct from `--lang`, which *selects* a scene's `narrations[code]`
+translation (Multi-language renders, below).
 
 Cinematic keys (all opt-in; omit for the plain look):
 - `zoom: {scale?=1.55, easeMs?=600, holdMs?=1700}` — **auto-zoom on focus**:
@@ -557,6 +564,40 @@ Wire it into CI so a breaking UI change is a failed check:
 
 Regenerate the baseline (`--update-golden`) and re-commit `golden/probe.json`
 whenever the flow changes on purpose.
+
+## Captions: Whisper STT vs. offline (script-timed)
+
+Default `aidemo captions <dir>` transcribes the composed narration audio with
+Whisper word-level timestamps — real per-word timing, but a plain audio
+transcription can still misspell narration (this bit non-English demos hard:
+Estonian "uus kuub" came back "Scoop", "AI-treener" came back "EI treener").
+To keep the transcript honest, the request is biased with what the engine
+already knows about the script:
+
+- **Prompt bias (always on).** The storyboard's narration text (in scene
+  order) is sent as Whisper's `prompt`, nudging the transcript to converge on
+  the actual scripted words/spelling instead of guessing from audio phonetics
+  alone — while still keeping real word-level timing from the audio. This
+  changes STT output for every non-trivial demo (strictly for the better:
+  caption text lines up with the script); there's no flag to opt out of it
+  short of `--offline`.
+- **Language hint.** A BCP-47/ISO-639-1 code is sent as Whisper's `language`
+  param when known, in this priority order: an explicit `--stt-lang <code>`
+  → an active `--lang <code>` (multi-language render) → the storyboard's own
+  top-level `language` field → unset (auto-detect).
+- **`aidemo captions <dir> --stt-lang <code>`** sets the language hint
+  directly, independent of `--lang` — use it for a one-off STT fix (or a
+  monolingual non-English demo) without editing the storyboard.
+
+**Non-English narration:** prompt bias + a language hint fix the common case,
+but Whisper can still misspell unusual or compound words. If burned-in
+captions still look wrong, **`aidemo captions <dir> --offline` is the
+guaranteed-correct fallback** — cues are derived directly from the storyboard
+script (correct spelling by construction, since there's no transcription at
+all) using each scene's measured duration from `voice.json`; only the timing
+*within* a scene is approximate (words spread proportional to length, not
+measured speech rhythm). `captions` logs a one-line reminder of this whenever
+the resolved language isn't English.
 
 ## Multi-language renders (one take, N languages)
 

@@ -13,6 +13,7 @@ import {
   type CaptionsManifest,
   type Storyboard,
 } from "./types.js";
+import { resolveNarrationLanguage } from "./i18n.js";
 import { srtTime, readJson, writeJson, exists, ok, step, log } from "./util.js";
 
 export interface Cue {
@@ -31,12 +32,36 @@ interface Word {
 const MAX_WORDS = 6;
 const MAX_CUE_MS = 3000;
 
+/** Whisper's `prompt` is only used to bias roughly its first ~224 tokens of
+ *  context; cap what we send so a long demo's script doesn't balloon the
+ *  request for no benefit beyond that window. */
+const MAX_PROMPT_CHARS = 900;
+
+/** Explicit per-run STT overrides (CLI `--stt-lang`, future MCP param). */
+export interface CaptionsSttOptions {
+  /** ISO-639-1/BCP-47 language hint for Whisper, overriding --lang / storyboard.language. */
+  language?: string;
+}
+
 /**
  * Transcribes the composed narration track with word-level timestamps and
  * writes captions.srt + captions.vtt + captions.cues.json. Using the real audio
  * (not the script) means caption timing matches the actual voiceover.
+ *
+ * When `storyboard` is given (the already-localized storyboard for this
+ * render), the request is biased toward the known script: the narration text
+ * is sent as Whisper's `prompt` (nudges the transcript to converge on the
+ * scripted words/spelling instead of guessing from audio alone — this is the
+ * fix for non-English narration getting mangled, e.g. Estonian "algab"
+ * transcribed as "aldab") and a language hint is sent when known (an active
+ * `--lang` render, `opts.language`, or the storyboard's own `language`
+ * field). See docs/AUTHORING.md "Captions: Whisper STT vs. offline".
  */
-export async function generateCaptions(project: Project): Promise<void> {
+export async function generateCaptions(
+  project: Project,
+  storyboard?: Storyboard,
+  opts: CaptionsSttOptions = {}
+): Promise<void> {
   const base = openAiBaseUrl();
   step(
     base
@@ -49,9 +74,21 @@ export async function generateCaptions(project: Project): Promise<void> {
   const sceneEnds = await sceneEndTimes(project);
   const config = captionConfig(await loadGapMs(project));
 
+  const prompt = storyboard ? buildSttPrompt(storyboard) : undefined;
+  const language = opts.language ?? resolveNarrationLanguage(storyboard, project.lang);
+  if (language && !/^en\b/i.test(language)) {
+    log(
+      `⚠ non-English narration ("${language}") — Whisper is biased with the ` +
+        `script + language hint, but if burned-in captions still look wrong, ` +
+        `\`aidemo captions ${project.dir} --offline\` is the guaranteed-correct ` +
+        `fallback (cues derived from the storyboard script, no STT).`
+    );
+  }
+
   // Content-hash reuse (mirrors voice.ts): transcription is a pure function of
-  // the narration audio + model + endpoint + scene boundaries + grouping config.
-  // Unchanged → reuse the stored cues and skip the Whisper/STT call entirely.
+  // the narration audio + model + endpoint + scene boundaries + grouping config
+  // + prompt bias + language hint. Unchanged → reuse the stored cues and skip
+  // the Whisper/STT call entirely.
   const model = STT_MODEL();
   const endpoint = base ?? "openai";
   const narrationHash = await fileHash(project.narrationPath);
@@ -62,6 +99,8 @@ export async function generateCaptions(project: Project): Promise<void> {
     endpoint,
     sceneEnds,
     config,
+    prompt,
+    language,
   });
   const prior = await readCaptionsManifest(project);
   if (prior && prior.mode === "stt" && prior.inputHash === inputHash) {
@@ -81,6 +120,8 @@ export async function generateCaptions(project: Project): Promise<void> {
       model,
       response_format: "verbose_json",
       timestamp_granularities: ["word"],
+      ...(prompt ? { prompt } : {}),
+      ...(language ? { language } : {}),
     })
     .catch((err) => explainAudioEndpointError(err, "stt"));
 
@@ -91,6 +132,20 @@ export async function generateCaptions(project: Project): Promise<void> {
   const cues = groupWords(words, sceneEnds);
   await writeCaptionFiles(project, cues);
   await writeCaptionsManifest(project, { mode: "stt", inputHash, config, cues });
+}
+
+/**
+ * Whisper prompt bias: the known narration script, in scene order, so the
+ * transcript converges on the correctly-spelled words instead of guessing
+ * from audio phonetics alone. Capped to MAX_PROMPT_CHARS (see above).
+ */
+function buildSttPrompt(storyboard: Storyboard): string | undefined {
+  const text = storyboard.scenes
+    .map((s) => s.narration.trim())
+    .filter(Boolean)
+    .join(" ");
+  if (!text) return undefined;
+  return text.length > MAX_PROMPT_CHARS ? text.slice(0, MAX_PROMPT_CHARS) : text;
 }
 
 /**

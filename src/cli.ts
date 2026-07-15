@@ -363,27 +363,38 @@ program
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .option("--lang <code>", LANG_OPT_DESC)
   .option("--langs <codes>", LANGS_OPT_DESC)
+  .option(
+    "--stt-lang <code>",
+    "override the Whisper STT language hint (ISO-639-1, e.g. et) — defaults to " +
+      "--lang or the storyboard's own \"language\" field; ignored with --offline"
+  )
   .description("transcribe narration.mp3 to captions.srt/vtt with word timing")
   .action(
     async (
       dir: string,
-      opts: { offline?: boolean; param?: string[]; lang?: string; langs?: string }
+      opts: {
+        offline?: boolean;
+        param?: string[];
+        lang?: string;
+        langs?: string;
+        sttLang?: string;
+      }
     ) => {
       const langs = langsFrom(opts);
-      // Load once only when needed (offline captions or a localized variant);
-      // the default online path still touches no storyboard.
-      const needsStoryboard = opts.offline || langs.some((l) => l !== undefined);
-      const base = needsStoryboard
-        ? await new Project(dir).loadStoryboard({ params: parseParams(opts.param) })
-        : null;
+      // The storyboard is always needed now: --offline derives cues from it,
+      // and the default STT path biases the Whisper request with its
+      // narration text + language (see src/captions.ts).
+      const base = await new Project(dir).loadStoryboard({
+        params: parseParams(opts.param),
+      });
       for (const lang of langs) {
         const project = new Project(dir, lang);
         await beginCommand(project, "captions");
+        const sb = lang ? localizeStoryboard(base, lang) : base;
         if (opts.offline) {
-          const sb = lang ? localizeStoryboard(base!, lang) : base!;
           await generateCaptionsOffline(project, sb);
         } else {
-          await generateCaptions(project);
+          await generateCaptions(project, sb, { language: opts.sttLang });
         }
       }
     }
@@ -538,7 +549,7 @@ program
           log("local TTS and no STT endpoint/key — deriving captions offline from the script");
           await generateCaptionsOffline(project, sb);
         } else {
-          await generateCaptions(project);
+          await generateCaptions(project, sb);
         }
       };
 

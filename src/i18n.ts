@@ -68,3 +68,19 @@ export function localizeStoryboard(sb: Storyboard, lang: string): Storyboard {
     })),
   };
 }
+
+/**
+ * The spoken language of a given render, for STT purposes (Whisper's
+ * `language` hint in src/captions.ts) — NOT the same lookup as
+ * `localizeStoryboard`'s translation selection. An active `--lang <code>`
+ * render wins (it names the translation being spoken); otherwise the
+ * storyboard's own optional `language` field describes the base narration
+ * (e.g. a monolingual non-English demo with no `narrations` translations at
+ * all). Undefined when neither is set — Whisper auto-detects.
+ */
+export function resolveNarrationLanguage(
+  sb: Storyboard | undefined,
+  lang?: string
+): string | undefined {
+  return lang ?? sb?.language;
+}

@@ -102,7 +102,7 @@ export async function renderVariants(
       log("local TTS and no STT endpoint/key — deriving captions offline");
       await generateCaptionsOffline(project, storyboard);
     } else {
-      await generateCaptions(project);
+      await generateCaptions(project, storyboard);
     }
     await compose(project, storyboard);
     ok(`variant "${v.name}" → ${project.outputPath}`);

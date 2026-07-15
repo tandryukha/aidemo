@@ -699,7 +699,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           log("local TTS and no STT endpoint/key — deriving captions offline from the script");
           await generateCaptionsOffline(lp, sb);
         } else {
-          await generateCaptions(lp);
+          await generateCaptions(lp, sb);
         }
         throwIfAborted(signal);
         job.stage = "compose";
@@ -772,12 +772,12 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     (project, args) => async (job) =>
       jobs.runStage(job, "captions", async () => {
         const lp = langProject(project, args.lang);
+        const storyboard = await project.loadStoryboard({ params: args.params });
+        const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
         if (args.offline) {
-          const storyboard = await project.loadStoryboard({ params: args.params });
-          const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
           await generateCaptionsOffline(lp, sb);
         } else {
-          await generateCaptions(lp);
+          await generateCaptions(lp, sb);
         }
         return {
           srt: lp.captionsSrtPath,

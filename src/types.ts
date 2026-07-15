@@ -384,6 +384,18 @@ export type Output = z.infer<typeof OutputSchema>;
 export const StoryboardSchema = z.object({
   title: z.string(),
   /**
+   * BCP-47/ISO-639-1 code for the base `narration`'s spoken language (e.g.
+   * "et" for Estonian, "de" for German). Optional metadata — distinct from
+   * the `--lang` render-selection mechanism (src/i18n.ts), which picks a
+   * scene's `narrations[code]` translation; this field describes whatever
+   * language the DEFAULT `narration` is already written in (useful for a
+   * monolingual non-English demo with no translations at all). `captions`
+   * uses it (falling back to an active `--lang`) to hint Whisper's
+   * `language` param and to warn that `--offline` is the guaranteed-correct
+   * fallback for non-English narration. Omit for English / to auto-detect.
+   */
+  language: z.string().optional(),
+  /**
    * Declared template parameters: name → default value. Enables `{{name}}`
    * placeholders in any storyboard string (narration, action url, `type` text,
    * card title/subtitle, waitFor* textMatches, voice instructions, …). At load
