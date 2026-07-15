@@ -1,11 +1,21 @@
 # Plan: Homebrew distribution (custom tap)
 
-**Status: deferred (2026-07-15), ready to implement.** aidemo already ships via
-npm (`@tandryukha/aidemo`), the GitHub Marketplace, the MCP Registry, and the
-git ref — Homebrew is *additive* and low-priority. The one real upside is that a
-formula can `depends_on "ffmpeg"`, so `brew install aidemo` auto-installs the
-one prereq users most often miss. Do this only when there's demand for a
-`brew install aidemo` one-liner; nothing else depends on it.
+**Status: SHIPPED (2026-07-15).** Live at
+[`tandryukha/homebrew-aidemo`](https://github.com/tandryukha/homebrew-aidemo);
+`brew install tandryukha/aidemo/aidemo` works (validated: `brew style`, `brew
+audit --strict --new`, `--build-from-source` install, `brew test`, `aidemo
+--version`/`guide`/`doctor`, `ffmpeg` auto-pulled). README badge + install line
+added. The formula wraps the `@tandryukha/aidemo` npm package; its one real
+upside is `depends_on "ffmpeg"`, so `brew install` auto-installs the one prereq
+users most often miss.
+
+**Two API deviations from the example below (current Homebrew 6.x):**
+- Formula uses the `std_npm_args` Formula instance method (defaults `prefix:
+  libexec`, `ignore_scripts: true`), **not** `Language::Node.std_npm_install_args(libexec)`
+  — `brew style` now enforces this (`FormulaAudit/StdNpmArgs`). Because
+  `ignore_scripts` is on by default, Playwright's browser download is skipped
+  even without the env var (kept as belt-and-suspenders).
+- Audit flag is `brew audit --strict --new` (not `--new-formula`).
 
 ## Why a custom tap (not homebrew-core)
 
@@ -34,23 +44,21 @@ cask, `google-chrome`, not a formula — don't `depends_on` it).
 ### Example formula (`Formula/aidemo.rb`)
 
 ```ruby
-require "language/node"
-
 class Aidemo < Formula
-  desc "Your coding agent makes the demo video — narrated, captioned demo MP4 from a storyboard.json"
+  desc "Render narrated, captioned product-demo videos from a storyboard.json"
   homepage "https://github.com/tandryukha/aidemo"
   # Scoped-package tarball URL: .../@scope/name/-/<name>-<version>.tgz
   url "https://registry.npmjs.org/@tandryukha/aidemo/-/aidemo-0.8.0.tgz"
   sha256 "80597a32b5ef4bfda3adc913d84c2b6638a1899f3cec7ddeba046bf4fe9c7e38" # 0.8.0
   license "MIT"
 
-  depends_on "node"
   depends_on "ffmpeg"
+  depends_on "node"
 
   def install
     # aidemo drives system Chrome — no Playwright browser download needed.
     ENV["PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD"] = "1"
-    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
+    system "npm", "install", *std_npm_args
     bin.install_symlink Dir["#{libexec}/bin/*"]
   end
 
@@ -79,11 +87,13 @@ curl -sL "https://registry.npmjs.org/@tandryukha/aidemo/-/aidemo-<version>.tgz" 
 
 1. Create the public repo `tandryukha/homebrew-aidemo` with `Formula/aidemo.rb`
    (above), a short README (the two install commands), and MIT license.
-2. Local validation:
+2. Local validation (current Homebrew installs from a *tap*, not a file path —
+   scaffold one with `brew tap-new tandryukha/aidemo`, drop the formula in, then):
    ```bash
-   brew install --build-from-source ./Formula/aidemo.rb
-   brew audit --strict --new-formula ./Formula/aidemo.rb
-   brew test aidemo
+   brew style Formula/aidemo.rb
+   brew audit --strict --new tandryukha/aidemo/aidemo   # flag is --new, not --new-formula
+   brew install --build-from-source tandryukha/aidemo/aidemo
+   brew test tandryukha/aidemo/aidemo
    aidemo --version && aidemo doctor
    ```
    Confirm `ffmpeg` got pulled in and `aidemo guide` works (it reads
