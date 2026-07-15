@@ -108,6 +108,13 @@ network.
   video to its narration and freeze-holds a static page for any remainder — so
   a scene that's mostly a pause should have shorter narration, and a busy scene
   more.
+- **Pre-navigate: put nav clicks at the END of the prior scene.** In a
+  screen-tour where each scene starts with a navigation click, the destination
+  appears 2–3 s late (the cursor glides across the *old* screen before the
+  click lands), desyncing narration from visuals — the narration for screen N
+  plays over screen N−1. Instead, end each scene with the click that opens the
+  *next* scene's screen: every scene then opens already on the screen its
+  narration describes.
 - **End on a clear CTA.**
 - **Voice plan per scene**: pick `voiceId` (marin/alloy/verse/… on the default
   OpenAI TTS; an ElevenLabs voice id if the engine runs with
@@ -292,6 +299,16 @@ Target `last`/`nth` pick among matching **frames** on framed targets and among
 matching **elements** on plain (frameless) targets — e.g.
 `{selector:"[data-message-author-role=\"assistant\"]", last:true}` is the
 newest reply.
+
+**Selector gotcha — nested label text:** for buttons whose label sits in a
+nested text node (common in react-native-web, MUI, and icon+label buttons like
+`<button role="button"><svg/><div>Library</div></button>`), prefer
+`:has-text("Library")` over `:text-is("Library")`. Playwright's `:text-is`
+matches the *smallest* element whose text equals the string — the inner
+`<div>`, not the clickable wrapper — so
+`[role="button"]:text-is("Library")` matches **0 elements** and fails the
+take, while `[role="button"]:has-text("Library")` matches the button (the
+player takes `.first()`).
 
 Typing into the composer while the prior reply is still streaming is safe: the
 player waits the composer out and **records that wait as trimmable idle**, so a
