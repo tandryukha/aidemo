@@ -213,3 +213,10 @@ export const captureDevice = () =>
   process.env.AIDEMO_CAPTURE_DEVICE || "Capture screen 0";
 export const obsUrl = () => process.env.AIDEMO_OBS_URL || "ws://127.0.0.1:4455";
 export const obsPassword = () => process.env.AIDEMO_OBS_PASSWORD;
+/**
+ * Escape hatch for the native/OBS capture crop sanity gate: "1" downgrades
+ * the abort-on-geometry-mismatch to a loud warning. A wrong crop can ship the
+ * whole desktop into the video — frame-review any take recorded with this set.
+ */
+export const nativeCropUnsafe = () =>
+  process.env.AIDEMO_NATIVE_CROP_UNSAFE === "1";

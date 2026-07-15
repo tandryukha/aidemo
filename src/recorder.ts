@@ -22,10 +22,10 @@ import {
   type ViewportGeometry,
   AvfoundationCapture,
   ObsCapture,
-  viewportGeometry,
+  measureViewportGeometry,
   cropCaptureToViewport,
 } from "./capture.js";
-import { ensureDir, writeJson, log, ok, step } from "./util.js";
+import { ensureDir, exists, writeJson, log, ok, step } from "./util.js";
 import { probeDurationMs } from "./ffmpeg.js";
 import { dirname, join } from "node:path";
 
@@ -84,11 +84,32 @@ export async function record(
   log(`viewport: ${width}x${height}`);
   if (external) log(`capture mode: ${mode}`);
 
+  // Preserve the previous take as ONE `.prev` generation instead of deleting
+  // it: a bad new take (mid-run failure, wrong native-capture crop) must not
+  // destroy the last good recording. Roll back by copying raw.prev.* /
+  // timeline.prev.json over the current files.
+  const prevGeneration: Array<[string, string]> = [
+    [project.rawVideoPath, project.rawVideoPrevPath],
+    [project.rawVideoMp4Path, project.rawVideoMp4PrevPath],
+    [project.timelinePath, project.timelinePrevPath],
+  ];
+  for (const [, prev] of prevGeneration) await fs.rm(prev, { force: true });
+  const preserved: string[] = [];
+  for (const [current, prev] of prevGeneration) {
+    if (await exists(current)) {
+      await fs.rename(current, prev);
+      preserved.push(prev);
+    }
+  }
+  if (preserved.length) {
+    log(`previous take preserved → ${preserved.join(", ")}`);
+  }
   // Clear stray recordings so we can unambiguously pick the new one afterwards.
   for (const f of await fs.readdir(videoDir).catch(() => [])) {
-    if (f.endsWith(".webm")) await fs.rm(join(videoDir, f), { force: true });
+    if (f.endsWith(".webm") && !f.includes(".prev")) {
+      await fs.rm(join(videoDir, f), { force: true });
+    }
   }
-  await fs.rm(project.rawVideoMp4Path, { force: true });
   const screenCapPath = join(videoDir, "capture.mkv");
   await fs.rm(screenCapPath, { force: true });
 
@@ -97,7 +118,6 @@ export async function record(
     context = await chromium.launchPersistentContext(profileDir, {
       channel: "chrome",
       headless: options.headed === false,
-      viewport: { width, height },
       // Hide the automation fingerprint (navigator.webdriver=false) so
       // Cloudflare on chatgpt.com doesn't throw a "Verify you are human"
       // challenge mid-recording. The profile's real cf_clearance cookie is
@@ -107,11 +127,17 @@ export async function record(
         // Keep the window at a known spot on the primary screen for capture.
         ...(external ? ["--window-position=40,60"] : []),
       ],
-      // External capture uses the screen's own pixel density; the built-in
-      // recorder emulates 2x for crisper output.
+      // External capture records the REAL screen and needs real window
+      // geometry, so it runs UN-emulated (viewport: null — under emulation
+      // innerWidth/screen.width/devicePixelRatio all report fake values,
+      // which mis-scaled the crop to the whole screen on Retina displays,
+      // issue #13). measureViewportGeometry() below sizes the actual window
+      // to the storyboard viewport instead. The built-in recorder keeps the
+      // emulated viewport and 2x scale for crisper output.
       ...(external
-        ? {}
+        ? { viewport: null }
         : {
+            viewport: { width, height },
             deviceScaleFactor: 2,
             recordVideo: {
               dir: dirname(project.rawVideoPath),
@@ -150,7 +176,11 @@ export async function record(
   let geo: ViewportGeometry | null = null;
   if (external) {
     await page.bringToFront();
-    geo = await viewportGeometry(page);
+    // Size the real window to the storyboard viewport and measure where it
+    // sits on screen (CDP window bounds + un-emulated page metrics, re-read
+    // until stable). Throws BEFORE any screen pixels are captured when the
+    // geometry can't be made safe to crop (see capture.ts, issue #13).
+    geo = await measureViewportGeometry(page, { width, height });
     capture =
       mode === "native"
         ? new AvfoundationCapture(screenCapPath, captureDevice(), FPS)
@@ -234,9 +264,10 @@ export async function record(
     // connection), so locate the finalized .webm on disk and move it. A demo may
     // open a second tab (e.g. a checkout hand-off to an external site), which Playwright
     // records as its own short .webm — so pick the LARGEST file (the full main-page
-    // recording), not just the first one, then drop the strays.
-    const produced = (await fs.readdir(videoDir)).filter((f) =>
-      f.endsWith(".webm")
+    // recording), not just the first one, then drop the strays. The preserved
+    // previous take (raw.prev.webm) is not a candidate.
+    const produced = (await fs.readdir(videoDir)).filter(
+      (f) => f.endsWith(".webm") && !f.includes(".prev")
     );
     if (produced.length === 0) {
       throw new Error(`No video produced in ${videoDir}`);

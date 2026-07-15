@@ -302,6 +302,21 @@ needs Screen Recording permission) or `"obs"` (OBS via obs-websocket; scene =
 Display Capture of the primary screen). Both require a headed browser. Default
 remains Playwright's built-in recorder.
 
+**⚠ Frame-review every native/OBS take before publishing — a bad crop can
+leak your desktop.** These modes record the REAL screen and crop to the
+browser viewport afterwards; a wrong crop silently ships whatever else is on
+screen (desktop icons, notifications, permission dialogs, other windows) into
+the video. The recorder measures the window via CDP, sizes it to the
+storyboard viewport, and **aborts** when the computed crop doesn't match the
+viewport instead of shipping a mis-cropped take
+(`AIDEMO_NATIVE_CROP_UNSAFE=1` downgrades the abort to a loud warning — only
+for debugging, and then review every frame). No automatic check can see
+everything, so eyeball the frames anyway. `record` also preserves the
+previous take as one `.prev` generation (`recordings/raw.prev.*` +
+`generated/timeline.prev.json`) instead of deleting it, so a bad re-record
+never destroys the last good take — copy the `.prev` files back over the
+current ones to roll back.
+
 ## Stills / screenshot mode
 
 One storyboard can also emit **named still images** — for READMEs, docs, blog

@@ -23,6 +23,7 @@ docs/internal/
 **/output/
 **/logs/
 **/generated/timeline.json
+**/generated/timeline.prev.json
 **/generated/params.json
 **/generated/captions.srt
 **/generated/captions.vtt

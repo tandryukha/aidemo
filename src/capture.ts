@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import { createHash } from "node:crypto";
 import type { Page } from "playwright";
 import { runFfmpeg, probeVideoDims } from "./ffmpeg.js";
+import { nativeCropUnsafe } from "./config.js";
 import { log, sleep } from "./util.js";
 
 /**
@@ -14,7 +15,12 @@ import { log, sleep } from "./util.js";
  *   obs     — OBS Studio via obs-websocket v5 (any OS OBS supports)
  *
  * Both record the full screen; the recorder then crops the capture to the
- * Chrome viewport using window geometry measured from the page itself.
+ * Chrome viewport. Getting that crop right is a PRIVACY property, not just a
+ * correctness one — a wrong rectangle ships whatever else is on screen (the
+ * desktop, notifications, permission dialogs) into the rendered video. The
+ * geometry is therefore measured via CDP `Browser.getWindowBounds` plus real
+ * (un-emulated) in-page metrics, re-measured until stable, and sanity-gated
+ * against the storyboard viewport before any cropping happens.
  */
 
 export type CaptureMode = "playwright" | "native" | "obs";
@@ -27,41 +33,210 @@ export interface CaptureProvider {
   stop(): Promise<string>;
 }
 
-/** The browser viewport's position on screen, in CSS points. */
+/** The browser viewport's position on screen, in CSS points (DIP). */
 export interface ViewportGeometry {
+  /** Real screen size in points — the capture-pixels-per-point scale anchor. */
   screenW: number;
   screenH: number;
+  /** Page content area (the viewport) on screen, in points. */
   x: number;
   y: number;
   w: number;
   h: number;
+  /** Real devicePixelRatio of the display the window is on. */
+  dpr: number;
+}
+
+interface WindowMetrics {
+  screenW: number;
+  screenH: number;
+  winX: number;
+  winY: number;
+  outerW: number;
+  outerH: number;
+  innerW: number;
+  innerH: number;
+  dpr: number;
 }
 
 /**
- * Measure where the page's viewport sits on the screen. Standard trick: the
- * window chrome's side border is (outerWidth-innerWidth)/2 and the top bar is
- * what remains of (outerHeight-innerHeight).
+ * Measure where the page's viewport sits on the screen, in points.
+ *
+ * The context MUST run without viewport emulation (`viewport: null`): under
+ * Playwright's emulation, `window.innerWidth/innerHeight`, `screen.width/
+ * height` and `devicePixelRatio` all report the EMULATED values (viewport-
+ * sized screen, DPR 1) while `outerWidth`/`screenX` stay real — mixing them
+ * produced a wildly wrong physical-per-point scale on Retina displays and
+ * cropped the take to the whole screen (issue #13).
+ *
+ * Approach:
+ *   1. CDP `Browser.getWindowBounds` — real window bounds in DIP. Force
+ *      `windowState: "normal"` first (a maximized restore from the Chrome
+ *      profile ignores --window-position and breaks the inset math).
+ *   2. Resize the window (CDP `Browser.setWindowBounds`) until the REAL
+ *      content area (innerWidth/innerHeight, un-emulated) equals the
+ *      storyboard viewport — normally one iteration.
+ *   3. Re-measure after a settle delay until two consecutive measurements
+ *      agree (window placement/animation may still be in flight).
+ *   4. Content-area origin: side border is (outerWidth-innerWidth)/2, the
+ *      top bar (tab strip + toolbar + infobars) is the rest.
+ *   5. Sanity-gate the result against the storyboard viewport — on mismatch,
+ *      abort BEFORE any screen pixels are recorded (AIDEMO_NATIVE_CROP_UNSAFE=1
+ *      downgrades to a loud warning).
  */
-export async function viewportGeometry(page: Page): Promise<ViewportGeometry> {
-  const g = await page.evaluate(() => ({
-    screenW: screen.width,
-    screenH: screen.height,
-    winX: window.screenX,
-    winY: window.screenY,
-    outerW: window.outerWidth,
-    outerH: window.outerHeight,
-    innerW: window.innerWidth,
-    innerH: window.innerHeight,
-  }));
-  const border = Math.max(0, (g.outerW - g.innerW) / 2);
-  return {
-    screenW: g.screenW,
-    screenH: g.screenH,
-    x: g.winX + border,
-    y: g.winY + (g.outerH - g.innerH) - border,
-    w: g.innerW,
-    h: g.innerH,
-  };
+export async function measureViewportGeometry(
+  page: Page,
+  viewport: { width: number; height: number },
+  opts: { settleMs?: number; timeoutMs?: number } = {}
+): Promise<ViewportGeometry> {
+  const settleMs = opts.settleMs ?? 400;
+  const timeoutMs = opts.timeoutMs ?? 10000;
+  const cdp = await page.context().newCDPSession(page);
+  try {
+    const { windowId } = await cdp.send("Browser.getWindowForTarget");
+    const getBounds = async () =>
+      (await cdp.send("Browser.getWindowBounds", { windowId })).bounds;
+    const metrics = (): Promise<WindowMetrics> =>
+      page.evaluate(() => ({
+        screenW: screen.width,
+        screenH: screen.height,
+        winX: window.screenX,
+        winY: window.screenY,
+        outerW: window.outerWidth,
+        outerH: window.outerHeight,
+        innerW: window.innerWidth,
+        innerH: window.innerHeight,
+        dpr: window.devicePixelRatio,
+      }));
+
+    if ((await getBounds()).windowState !== "normal") {
+      log("window opened maximized/fullscreen — restoring to normal for capture");
+      await cdp.send("Browser.setWindowBounds", {
+        windowId,
+        bounds: { windowState: "normal" },
+      });
+      await sleep(settleMs);
+    }
+
+    // Converge the real content area onto the storyboard viewport: grow or
+    // shrink the outer window by the inner-size delta, keeping it on-screen.
+    for (let i = 0; i < 4; i++) {
+      const m = await metrics();
+      const dw = viewport.width - m.innerW;
+      const dh = viewport.height - m.innerH;
+      if (dw === 0 && dh === 0) break;
+      const b = await getBounds();
+      const width = (b.width ?? m.outerW) + dw;
+      const height = (b.height ?? m.outerH) + dh;
+      const left = Math.max(0, Math.min(b.left ?? m.winX, m.screenW - width));
+      const top = Math.max(0, Math.min(b.top ?? m.winY, m.screenH - height));
+      await cdp.send("Browser.setWindowBounds", {
+        windowId,
+        bounds: { left, top, width, height },
+      });
+      await sleep(settleMs);
+    }
+
+    // Measure twice until stable — accept only two identical consecutive reads.
+    let prev = { bounds: await getBounds(), m: await metrics() };
+    let stable = false;
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      await sleep(settleMs);
+      const cur = { bounds: await getBounds(), m: await metrics() };
+      if (
+        cur.bounds.left === prev.bounds.left &&
+        cur.bounds.top === prev.bounds.top &&
+        cur.bounds.width === prev.bounds.width &&
+        cur.bounds.height === prev.bounds.height &&
+        cur.bounds.windowState === prev.bounds.windowState &&
+        JSON.stringify(cur.m) === JSON.stringify(prev.m)
+      ) {
+        prev = cur;
+        stable = true;
+        break;
+      }
+      prev = cur;
+    }
+
+    const { bounds, m } = prev;
+    const side = Math.max(0, (m.outerW - m.innerW) / 2);
+    const topBar = Math.max(0, m.outerH - m.innerH - side);
+    const geo: ViewportGeometry = {
+      screenW: m.screenW,
+      screenH: m.screenH,
+      x: (bounds.left ?? m.winX) + side,
+      y: (bounds.top ?? m.winY) + topBar,
+      w: m.innerW,
+      h: m.innerH,
+      dpr: m.dpr,
+    };
+    log(
+      `window geometry: screen ${geo.screenW}x${geo.screenH}pt dpr ${geo.dpr}, ` +
+        `window ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top} ` +
+        `(${bounds.windowState}), viewport ${geo.w}x${geo.h}+${Math.round(geo.x)}+${Math.round(geo.y)}pt`
+    );
+
+    const problems: string[] = [];
+    if (!stable) {
+      problems.push(
+        `window geometry did not stabilize within ${timeoutMs}ms (placement animation or another process moving the window?)`
+      );
+    }
+    const tol = 4; // points of window-chrome rounding slack
+    if (
+      Math.abs(geo.w - viewport.width) > tol ||
+      Math.abs(geo.h - viewport.height) > tol
+    ) {
+      problems.push(
+        `measured content area ${geo.w}x${geo.h}pt does not match the storyboard viewport ` +
+          `${viewport.width}x${viewport.height} (is the screen large enough for the window?)`
+      );
+    }
+    if (
+      geo.x < 0 ||
+      geo.y < 0 ||
+      geo.x + geo.w > geo.screenW + tol ||
+      geo.y + geo.h > geo.screenH + tol
+    ) {
+      problems.push(
+        `viewport rect ${geo.w}x${geo.h}+${Math.round(geo.x)}+${Math.round(geo.y)}pt extends beyond ` +
+          `the ${geo.screenW}x${geo.screenH}pt screen`
+      );
+    }
+    gateGeometryProblems(
+      problems,
+      "Refusing to start the screen capture: the browser-window geometry is not safe to crop."
+    );
+    return geo;
+  } finally {
+    await cdp.detach().catch(() => {});
+  }
+}
+
+/**
+ * Enforce the crop-geometry sanity gate. A wrong crop silently ships whatever
+ * else is on screen into a rendered video, so mismatches ABORT by default;
+ * AIDEMO_NATIVE_CROP_UNSAFE=1 downgrades the abort to a loud warning.
+ */
+function gateGeometryProblems(problems: string[], headline: string): void {
+  if (problems.length === 0) return;
+  const detail = problems.map((p) => `  - ${p}`).join("\n");
+  if (nativeCropUnsafe()) {
+    log(`⚠⚠⚠ AIDEMO_NATIVE_CROP_UNSAFE=1 — continuing despite unsafe capture geometry:`);
+    for (const p of problems) log(`⚠ ${p}`);
+    log(`⚠ the resulting video may contain your desktop — frame-review it before publishing`);
+    return;
+  }
+  throw new Error(
+    `${headline}\n${detail}\n` +
+      `A wrong crop ships whatever else is on screen — your desktop, notifications, ` +
+      `other windows — into the rendered video (privacy risk, see issue #13). ` +
+      `Make sure the screen is large enough for the storyboard viewport and the ` +
+      `browser window sits fully on the captured display, then re-record. ` +
+      `Set AIDEMO_NATIVE_CROP_UNSAFE=1 to downgrade this error to a warning and ` +
+      `record anyway — if you do, frame-review the take before publishing.`
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -299,6 +474,12 @@ function obsAuth(
  * for compose. Retina screens yield ~2x the storyboard's logical size — that
  * density is kept (output at 2x) so the extra fidelity survives; compose is
  * resolution-aware and scales captions/cards/zoom to match.
+ *
+ * Before cropping, the computed rectangle is sanity-gated against the
+ * storyboard viewport (DPR-aware): if the crop doesn't match, the whole run
+ * ABORTS instead of shipping a mis-cropped — potentially desktop-leaking —
+ * video (AIDEMO_NATIVE_CROP_UNSAFE=1 downgrades to a loud warning). On abort
+ * the un-cropped full-screen capture is left at `src` for inspection.
  */
 export async function cropCaptureToViewport(
   src: string,
@@ -310,11 +491,62 @@ export async function cropCaptureToViewport(
 ): Promise<void> {
   const { width: capW, height: capH } = await probeVideoDims(src);
   const ratio = capW / geo.screenW; // physical px per CSS point
+  const ratioH = capH / geo.screenH;
   const even = (n: number) => Math.max(2, 2 * Math.round(n / 2));
-  const cw = Math.min(even(geo.w * ratio), capW);
-  const ch = Math.min(even(geo.h * ratio), capH);
-  const cx = Math.min(Math.max(0, Math.round(geo.x * ratio)), capW - cw);
-  const cy = Math.min(Math.max(0, Math.round(geo.y * ratio)), capH - ch);
+  const rawCw = even(geo.w * ratio);
+  const rawCh = even(geo.h * ratio);
+  const rawCx = Math.round(geo.x * ratio);
+  const rawCy = Math.round(geo.y * ratio);
+
+  // Sanity gate: the crop must be exactly the storyboard viewport, scaled by
+  // the physical-per-point ratio, and must fall fully inside the capture.
+  const problems: string[] = [];
+  const tolX = Math.max(8, Math.round(logicalW * ratio * 0.02));
+  const tolY = Math.max(8, Math.round(logicalH * ratio * 0.02));
+  if (Math.abs(ratio - ratioH) > ratio * 0.02) {
+    problems.push(
+      `capture ${capW}x${capH} is not a uniform scale of the ${geo.screenW}x${geo.screenH}pt ` +
+        `screen (x${ratio.toFixed(3)} vs x${ratioH.toFixed(3)}) — is the capture device a different display?`
+    );
+  }
+  if (Math.abs(ratio - geo.dpr) > geo.dpr * 0.05) {
+    problems.push(
+      `capture scale x${ratio.toFixed(3)} does not match the window's devicePixelRatio ` +
+        `${geo.dpr} — the browser window may sit on a different display than the one being captured`
+    );
+  }
+  if (
+    Math.abs(rawCw - logicalW * ratio) > tolX ||
+    Math.abs(rawCh - logicalH * ratio) > tolY
+  ) {
+    problems.push(
+      `crop ${rawCw}x${rawCh} does not match the storyboard viewport ${logicalW}x${logicalH} ` +
+        `at capture scale x${ratio.toFixed(3)} (expected ~${Math.round(logicalW * ratio)}x${Math.round(
+          logicalH * ratio
+        )})`
+    );
+  }
+  if (
+    rawCx < -tolX ||
+    rawCy < -tolY ||
+    rawCx + rawCw > capW + tolX ||
+    rawCy + rawCh > capH + tolY
+  ) {
+    problems.push(
+      `crop ${rawCw}x${rawCh}+${rawCx}+${rawCy} falls outside the ${capW}x${capH} capture`
+    );
+  }
+  gateGeometryProblems(
+    problems,
+    `Refusing to crop the screen capture: the crop rectangle does not match the ` +
+      `storyboard viewport. The un-cropped full-screen capture was kept at ${src} — ` +
+      `review or delete it (it may show your whole desktop).`
+  );
+
+  const cw = Math.min(rawCw, capW);
+  const ch = Math.min(rawCh, capH);
+  const cx = Math.min(Math.max(0, rawCx), capW - cw);
+  const cy = Math.min(Math.max(0, rawCy), capH - ch);
   const outScale = cw >= logicalW * 1.9 ? 2 : 1;
   log(
     `capture ${capW}x${capH} → crop ${cw}x${ch}+${cx}+${cy} → ` +

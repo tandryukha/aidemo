@@ -83,6 +83,21 @@ export class Project {
   get rawVideoMp4Path() {
     return this.p("recordings", "raw.mp4");
   }
+  /**
+   * One preserved previous-take generation: `record` rotates the existing
+   * take (raw video + timeline) to these paths instead of deleting it, so a
+   * bad new take never destroys the last good one. Roll back by copying the
+   * .prev files over the current ones.
+   */
+  get rawVideoPrevPath() {
+    return this.p("recordings", "raw.prev.webm");
+  }
+  get rawVideoMp4PrevPath() {
+    return this.p("recordings", "raw.prev.mp4");
+  }
+  get timelinePrevPath() {
+    return this.p("generated", "timeline.prev.json");
+  }
   /** The raw recording to compose from, whichever capture path produced it. */
   async resolveRawVideo(): Promise<string> {
     return (await exists(this.rawVideoMp4Path))

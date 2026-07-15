@@ -1044,7 +1044,15 @@ async function boxOf(page: Page, loc: Locator): Promise<{ cx: number; cy: number
   // focus beat inflated one scene's active video by 31s).
   await loc.scrollIntoViewIfNeeded({ timeout: 2000 }).catch(() => {});
   let box = await loc.boundingBox();
-  const vp = page.viewportSize();
+  // External capture runs un-emulated (viewport: null → viewportSize() is
+  // null); fall back to the real window content size, which the recorder has
+  // sized to the storyboard viewport.
+  const vp =
+    page.viewportSize() ??
+    (await page.evaluate(() => ({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    })));
   for (let i = 0; i < 3 && box && vp; i++) {
     const cy = box.y + box.height / 2;
     if (cy >= 80 && cy <= vp.height - 120) break;
