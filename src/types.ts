@@ -42,7 +42,21 @@ const TargetSchema = z.object({
 });
 export type Target = z.infer<typeof TargetSchema>;
 
-const BaseAction = { comment: z.string().optional() };
+const BaseAction = {
+  comment: z.string().optional(),
+  /**
+   * Best-effort action: when its target never appears or the interaction
+   * fails, log and continue instead of failing the take. For state-dependent
+   * one-time UI — e.g. collapsing the ChatGPT sidebar persists in the Chrome
+   * profile, so a re-run finds the close button absent and a required click
+   * would kill the run. Interaction ops (click/type/hover/scrollTo/focus)
+   * probe briefly for the target instead of stalling out the full action
+   * timeout; wait ops honor their own timeoutMs and then continue. Don't mark
+   * actions the demo's visuals depend on — a skipped optional action is only
+   * a log line.
+   */
+  optional: z.boolean().optional(),
+};
 
 /**
  * Scroll easing presets. All are eased wheel scrolls; they differ in feel:
@@ -642,6 +656,13 @@ export const ProbeActionOutcomeSchema = z.object({
   ms: z.number().optional(),
   dy: z.number().optional(),
   label: z.string().optional(),
+  /**
+   * The action is marked `optional` in the storyboard. Optional actions always
+   * record ok:true and no `found`: their real outcome is environment-dependent
+   * by design (that's what optional is for), so it's normalized out of the
+   * golden projection to keep it deterministic across runs.
+   */
+  optional: z.boolean().optional(),
 });
 export type ProbeActionOutcome = z.infer<typeof ProbeActionOutcomeSchema>;
 

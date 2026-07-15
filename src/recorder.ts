@@ -25,6 +25,7 @@ import {
   measureViewportGeometry,
   cropCaptureToViewport,
 } from "./capture.js";
+import { ensureProfileUnlocked } from "./login.js";
 import { ensureDir, exists, writeJson, log, ok, step } from "./util.js";
 import { probeDurationMs } from "./ffmpeg.js";
 import { dirname, join } from "node:path";
@@ -78,6 +79,10 @@ export async function record(
   }
 
   const profileDir = options.profileDir ?? chromeProfileDir();
+  // Fail fast with the actual fix when Chrome is still running on the profile
+  // (a live lock stalls Playwright and then dies with a raw ProcessSingleton
+  // error); clean up a stale lock from a crashed Chrome.
+  await ensureProfileUnlocked(profileDir);
   const { width, height } = storyboard.video;
   const videoDir = dirname(project.rawVideoPath);
   log(`profile: ${profileDir}`);

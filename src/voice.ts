@@ -119,6 +119,34 @@ function buildInstructions(plan: VoicePlan): string {
   return parts.join(" ") || "Clear, friendly, natural narration.";
 }
 
+/**
+ * Kokoro (local TTS) voice ids look like af_heart / am_adam / bf_emma — a
+ * two-letter language+gender prefix and an underscore. No OpenAI voice
+ * contains an underscore, so a storyboard authored for the local provider but
+ * run without AIDEMO_TTS_PROVIDER=local would otherwise reach api.openai.com
+ * and die mid-run on an opaque `400 Invalid value: 'af_heart'` (issue #22).
+ * Catch it up-front, before any scene is synthesized, with the actual fix.
+ * Custom OPENAI_BASE_URL servers are exempt: an OpenAI-compatible Kokoro
+ * server (Kokoro-FastAPI, speaches) legitimately serves these ids.
+ */
+const KOKORO_VOICE_ID_RE = /^[a-z]{2}_[a-z0-9_]+$/;
+
+function assertVoiceIdsMatchProvider(storyboard: Storyboard): void {
+  if (openAiBaseUrl()) return;
+  const offender = storyboard.scenes
+    .map((s) => planFor(storyboard, s.voice).voiceId)
+    .find((v) => KOKORO_VOICE_ID_RE.test(v));
+  if (!offender) return;
+  throw new Error(
+    `voiceId "${offender}" is a Kokoro voice, but the active TTS provider is ` +
+      `OpenAI — the request would fail with "400 Invalid value: '${offender}'". ` +
+      `Run with AIDEMO_TTS_PROVIDER=local (needs: npm install kokoro-js) to ` +
+      `synthesize it in-process, or pick an OpenAI voice (marin, alloy, verse, …). ` +
+      `The provider is selected by the AIDEMO_TTS_PROVIDER env var (or the ` +
+      `--tts flag on voice/render), not by the storyboard.`
+  );
+}
+
 function planFor(storyboard: Storyboard, sceneVoice?: VoicePlan): VoicePlan {
   return {
     voiceId: sceneVoice?.voiceId ?? storyboard.voice?.voiceId ?? "marin",
@@ -201,6 +229,7 @@ export async function generateVoice(
   // The audio identity key: local audio also changes with the quantization.
   const providerKey =
     providerName === "local" ? `local:${kokoroDtype()}` : providerName;
+  if (providerName === "openai") assertVoiceIdsMatchProvider(storyboard);
   if (providerName === "local") warnLocalLangCoverage(project.lang);
   const base = openAiBaseUrl();
   step(

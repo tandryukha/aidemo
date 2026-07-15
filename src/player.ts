@@ -146,10 +146,21 @@ export async function runStoryboard(
       const action = scene.actions[i];
       const outcome = opts.probe ? initProbeOutcome(storyboard, action) : null;
       try {
-        await runAction(page, storyboard, action, mouse, capture, opts, sample);
+        if (await optionalTargetAbsent(page, storyboard, action)) {
+          log(`  ⚠ optional ${action.op} skipped — target not present`);
+        } else {
+          await runAction(page, storyboard, action, mouse, capture, opts, sample);
+        }
         if (outcome) outcome.ok = true;
       } catch (err) {
-        if (outcome) {
+        if (action.optional) {
+          // Best-effort by authoring contract: log and continue. Counts as ok
+          // for the golden projection too (see ProbeActionOutcomeSchema) —
+          // an optional action's outcome varies by environment state, which
+          // is the point of marking it optional.
+          if (outcome) outcome.ok = true;
+          log(`  ⚠ optional ${action.op} skipped — ${firstLine(err)}`);
+        } else if (outcome) {
           // Golden probe: record the failure and keep going, so a broken
           // selector shows up as a single flipped field in the diff instead of
           // aborting the whole projection.
@@ -166,7 +177,12 @@ export async function runStoryboard(
         }
       }
       if (outcome) {
-        await enrichProbeOutcome(page, storyboard, action, outcome);
+        // Optional actions skip the found-enrichment: whether their target
+        // resolves is environment-dependent, and the golden projection must
+        // stay deterministic across runs.
+        if (!action.optional) {
+          await enrichProbeOutcome(page, storyboard, action, outcome);
+        }
         probeOutcomes.push(outcome);
       }
     }
@@ -572,6 +588,38 @@ async function waitForNewReply(
   }
 }
 
+/**
+ * Ops that interact with a target element. An absent target would stall these
+ * for the full Playwright action timeout (~30s of dead recording) before the
+ * optional-skip even triggers, so optional interactions get a short existence
+ * probe first. Wait ops are excluded — waiting is their whole job, and they
+ * carry their own timeoutMs.
+ */
+const INTERACTION_OPS = new Set(["click", "type", "hover", "scrollTo", "focus"]);
+const OPTIONAL_PROBE_MS = 3000;
+
+/**
+ * For an `optional` interaction, briefly probe whether the target is present
+ * (state-dependent UI may still be rendering, so give it a beat). Returns true
+ * when the action should be skipped. Non-optional actions and wait ops always
+ * return false — they run normally.
+ */
+async function optionalTargetAbsent(
+  page: Page,
+  storyboard: Storyboard,
+  action: Action
+): Promise<boolean> {
+  if (!action.optional || !INTERACTION_OPS.has(action.op) || !("target" in action)) {
+    return false;
+  }
+  try {
+    await waitForTargetVisible(page, storyboard, action.target, OPTIONAL_PROBE_MS);
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 async function runAction(
   page: Page,
   storyboard: Storyboard,
@@ -781,6 +829,7 @@ function initProbeOutcome(
   action: Action
 ): ProbeActionOutcome {
   const o: ProbeActionOutcome = { op: action.op, ok: false };
+  if (action.optional) o.optional = true;
   switch (action.op) {
     case "goto":
       o.target = action.url;

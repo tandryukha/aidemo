@@ -150,6 +150,21 @@ program
     await doctor(opts.dir);
   });
 
+/**
+ * `--tts <provider>` — a discoverable spelling of AIDEMO_TTS_PROVIDER (the env
+ * var is canonical; the flag just sets it before the pipeline reads it).
+ */
+function applyTtsFlag(value?: string): void {
+  if (value == null) return;
+  if (value !== "openai" && value !== "elevenlabs" && value !== "local") {
+    throw new Error(`--tts must be openai, elevenlabs or local (got "${value}")`);
+  }
+  process.env.AIDEMO_TTS_PROVIDER = value;
+}
+
+const TTS_OPT_DESC =
+  "TTS provider: openai (default) | elevenlabs | local (in-process Kokoro; needs `npm install kokoro-js`) — same as AIDEMO_TTS_PROVIDER";
+
 function parsePositiveInt(name: string, value: string): number {
   const n = Number(value);
   if (!Number.isInteger(n) || n <= 0)
@@ -213,6 +228,20 @@ function warnPartialCoverage(storyboard: Parameters<typeof missingNarrations>[0]
         `using the base narration`
     );
 }
+
+program
+  .command("login")
+  .argument("[profile]", "Chrome user-data dir (default: the engine's recording profile)")
+  .option("--url <url>", "page to open for the login", "https://chatgpt.com/")
+  .option("--no-wait", "launch Chrome and return without waiting for it to quit")
+  .description(
+    "open a manual-login Chrome on the recording profile (mock-keychain cookie " +
+      "store, same as record) and wait until you quit it"
+  )
+  .action(async (profile: string | undefined, opts: { url: string; wait: boolean }) => {
+    const { login } = await import("./login.js");
+    await login(profile, { url: opts.url, noWait: !opts.wait });
+  });
 
 program
   .command("record")
@@ -339,6 +368,7 @@ program
   .argument("<dir>", "demo project directory")
   .option("--scene <id>", "regenerate only this scene's narration")
   .option("--force", "re-synthesize every scene even if unchanged", false)
+  .option("--tts <provider>", TTS_OPT_DESC)
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .option("--lang <code>", LANG_OPT_DESC)
   .option("--langs <codes>", LANGS_OPT_DESC)
@@ -346,8 +376,16 @@ program
   .action(
     async (
       dir: string,
-      opts: { scene?: string; force?: boolean; param?: string[]; lang?: string; langs?: string }
+      opts: {
+        scene?: string;
+        force?: boolean;
+        tts?: string;
+        param?: string[];
+        lang?: string;
+        langs?: string;
+      }
     ) => {
+      applyTtsFlag(opts.tts);
       const storyboard = await new Project(dir).loadStoryboard({
         params: parseParams(opts.param),
       });
@@ -520,6 +558,7 @@ program
     "capture path: playwright (default) | native (ffmpeg screen grab) | obs"
   )
   .option("--force-voice", "re-synthesize narration even if unchanged", false)
+  .option("--tts <provider>", TTS_OPT_DESC)
   .option("--gif", "also export output/final-demo.gif after the mux", false)
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .option(
@@ -537,6 +576,7 @@ program
         headless?: boolean;
         capture?: string;
         forceVoice?: boolean;
+        tts?: string;
         gif?: boolean;
         param?: string[];
         variants?: string;
@@ -544,6 +584,7 @@ program
         langs?: string;
       }
     ) => {
+      applyTtsFlag(opts.tts);
       const base = new Project(dir);
       await beginCommand(base, "render");
 

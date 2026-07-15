@@ -310,6 +310,18 @@ matches the *smallest* element whose text equals the string — the inner
 take, while `[role="button"]:has-text("Library")` matches the button (the
 player takes `.first()`).
 
+Any action also accepts **`optional: true`** — best-effort: when its target
+never appears or the interaction fails, the player logs and continues instead
+of failing the take. Use it for state-dependent one-time UI, e.g. collapsing
+the ChatGPT sidebar persists in the Chrome profile, so a re-run finds the
+close button absent and a required click would kill the run. Optional
+interactions (click/type/hover/scrollTo/focus) probe ~3 s for the target
+instead of stalling out the full action timeout; optional waits honor their
+own `timeoutMs` and then continue. Don't mark actions the demo's visuals
+depend on — a skipped optional action is only a log line. (In `--golden`
+probes, optional actions always record `ok: true` and no `found`, keeping the
+baseline deterministic.)
+
 Typing into the composer while the prior reply is still streaming is safe: the
 player waits the composer out and **records that wait as trimmable idle**, so a
 long streaming turn can't blow the next scene past its narration.
@@ -390,14 +402,18 @@ correctly.
 **Login & profile (the crux).**
 - Use a dedicated Chrome profile logged into ChatGPT with the app's dev
   connector enabled (`AIDEMO_CHROME_PROFILE` or the `profile` option). Run
-  **headed**; quit any Chrome on that profile first (Playwright needs the lock).
+  **headed**; quit any Chrome on that profile first (Playwright needs the
+  lock — `record` detects a still-running Chrome on the profile and aborts
+  with a clear message, and cleans up a stale lock from a crashed Chrome).
 - You **cannot copy** an existing ChatGPT login in: real Chrome encrypts
   cookies with the macOS Keychain, but Playwright launches with
   `--use-mock-keychain --password-store=basic`, so copied cookies won't
   decrypt. Log in **once** in a Chrome that uses the *same* mock store, then
-  quit and record:
+  quit and record. **`aidemo login [profile]`** does this for you: it opens a
+  normal Chrome on the recording profile with those flags, waits for you to
+  log in and quit, then reports the profile ready. (Manual equivalent:
   `open -na "Google Chrome" --args --user-data-dir=<profile> --password-store=basic --use-mock-keychain https://chatgpt.com/`
-  (A normal window like this also dodges Google's SSO automation block.)
+  — a normal window like this also dodges Google's SSO automation block.)
 - Cloudflare: the engine launches with
   `--disable-blink-features=AutomationControlled` so `navigator.webdriver` is
   false and the profile's real `cf_clearance` is honored (otherwise you get a
@@ -439,10 +455,17 @@ Always set `"last": true` on widget targets (newest widget for this turn).
   End the scene on the visible hand-off CTA and let narration cover the jump.
   (Recorder keeps the largest `.webm` so the stray new-tab recording is
   discarded.)
-- Collapse the sidebar (`[data-testid="close-sidebar-button"]`, persist it in
-  the profile) to hide chat-history PII and clean the frame. Note the home
-  screen greets the account by first name for ~2 s — blur or accept per the
-  owner.
+- Collapse the sidebar (`[data-testid="close-sidebar-button"]`) to hide
+  chat-history PII and clean the frame — and mark that click **`optional:
+  true`**: the collapsed state persists in the Chrome profile, so on a re-run
+  the close button is absent and a required click would fail the take. Note
+  the home screen greets the account by first name for ~2 s — blur or accept
+  per the owner.
+- **Takes mutate real app state.** Every probe and take drives the live app —
+  a `log_meal` demo actually logs a meal, an `add_to_cart` demo actually fills
+  a cart. Probe + a few takes will drift your app's data; reset/re-seed your
+  fixture or test account between the probe and the take (and between takes)
+  if the demo depends on its starting state.
 - **Widget-side mutations render in the SAME widget, not a new one** (v2
   recording, 2026-07-06): click-Add renders a basket bar into the widget's
   `[data-cart-bar]` slot; the cart's `±` re-renders the row in place. Wait with
