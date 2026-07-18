@@ -36,6 +36,13 @@
       <description>The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</description>
     </item>
     <item>
+      <title>Camtasia alternatives for software demos and tutorials</title>
+      <link>https://aidemo.top/blog/camtasia-alternatives/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/camtasia-alternatives/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>TechSmith retired Camtasia&apos;s perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.</description>
+    </item>
+    <item>
       <title>Letting a coding agent make your demo video</title>
       <link>https://aidemo.top/blog/coding-agents-that-make-demo-videos/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/coding-agents-that-make-demo-videos/</guid>
@@ -92,11 +99,25 @@
       <description>The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</description>
     </item>
     <item>
+      <title>How to record your screen in high quality: the settings that matter</title>
+      <link>https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</description>
+    </item>
+    <item>
       <title>Interactive product demos vs video demos: when each wins</title>
       <link>https://aidemo.top/blog/interactive-demo-vs-video-demo/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/interactive-demo-vs-video-demo/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.</description>
+    </item>
+    <item>
+      <title>Loom alternatives for product demos after the Atlassian era</title>
+      <link>https://aidemo.top/blog/loom-alternatives-for-product-demos/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/loom-alternatives-for-product-demos/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Loom is async video messaging that Atlassian now owns, not a product-demo tool. Sort the alternatives by which of Loom&apos;s jobs you are actually replacing.</description>
     </item>
     <item>
       <title>Multi-language product demo videos from one recording</title>
@@ -153,6 +174,20 @@
       <guid isPermaLink="true">https://aidemo.top/blog/video-as-code-tools/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Remotion and Revideo draw every frame, editly stitches clips, vhs replays a terminal, real-UI capture films your product. Five models, one map.</description>
+    </item>
+    <item>
+      <title>Video documentation for software: when the medium earns its keep</title>
+      <link>https://aidemo.top/blog/video-documentation/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/video-documentation/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</description>
+    </item>
+    <item>
+      <title>Video marketing for software: one recording, every channel</title>
+      <link>https://aidemo.top/blog/video-marketing-for-software/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/video-marketing-for-software/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</description>
     </item>
     <item>
       <title>Why every product demo is out of date (and what rot costs)</title>

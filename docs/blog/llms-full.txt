@@ -385,6 +385,114 @@ They are the same mechanism pointed at two goals. A deterministic screenshot pip
 
 ---
 
+# Camtasia alternatives for software demos and tutorials
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/camtasia-alternatives/
+
+> TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.
+
+## What the Camtasia price tag is actually buying
+
+Camtasia has been the default answer to "make me a software tutorial" for two decades, and the reason is the timeline. It pairs a screen recorder with a full multi-track editor — cut clips, layer callouts, keyframe zooms, drop in transitions — inside one desktop app. The editor is the product; the recorder is the on-ramp. When people go shopping for an alternative, they are usually reacting to one of two things about that bundle: the price, or the hand-editing.
+
+Both got more pointed in 2025. TechSmith retired the perpetual license: the last date to buy a perpetual upgrade was January 1, 2025, and every release from Camtasia 2025 on is subscription-only and annual, with no monthly option ([TechSmith, 2025](https://support.techsmith.com/hc/en-us/articles/27009223314701-TechSmith-Transition-to-Annual-Subscription-Pricing-Model-in-2025)). The subscription runs across four tiers, from a $39/year Starter to a $599/year Pro ([TechSmith, 2026](https://www.techsmith.com/store/camtasia)). If you bought Camtasia once in 2019 expecting to own it, the 2026 upgrade is now a recurring bill — the specific event that put "camtasia alternative" and "camtasia alternative free" back in the search box.
+
+It is also a heavyweight install. Camtasia 2025 asks for 8GB of RAM at minimum and recommends 16GB, wants a GPU with 2GB of video memory (4GB recommended), and runs on Windows 10 20H2 or macOS 14 and newer ([TechSmith, 2026](https://www.techsmith.com/camtasia/system-requirements/)). That is unremarkable on a modern workstation and a genuine tax on a laptop already running your dev environment.
+
+The license and the RAM are the costs you can see. The one that compounds is the timeline itself: every tutorial is assembled by hand, and re-assembled by hand when the interface it shows moves. That is the number that decides which alternative is actually cheaper, and most comparison lists never name it.
+
+## Three lanes out of the timeline
+
+Most "Camtasia alternatives" roundups are a flat pile of fifteen recorders sorted by star rating. That ordering hides the only distinction that changes your week, which is where the editing labor goes. Camtasia puts all of it on you, at a timeline. The credible alternatives cut that labor in three structurally different ways, and you choose a lane before you choose a tool.
+
+- **Record-and-edit, lighter.** A recorder plus a simpler editor, cheaper and lighter to install. You still cut and caption by hand; there is just less program around the work. Cap and ScreenPal sit here.
+- **AI-assisted capture-to-docs.** You perform the flow once and the tool transcribes it, drafts a script, generates a voiceover, and auto-zooms. The assembly is done by software; you review a cut instead of building one. Guidde and Clueso sit here.
+- **Code-native render.** No take to perform and no editor to open. You, or a coding agent, describe the demo as a spec — the clicks, the narration, the captions — and an engine renders it, then re-renders when the spec changes. This is the [demos-as-code](/blog/demos-as-code) bet, and aidemo, which we build, is one open-source instance.
+
+The pillar [map of AI demo video generators](/blog/ai-demo-video-generators) splits the market by buyer job; this piece splits the record-and-edit-or-regenerate part of it by who does the editing. The three lanes trade off cleanly. Lane one keeps you in full manual control and demands the least trust. Lane two deletes most of the editing keystrokes and asks you to accept a machine's cut. Lane three deletes the editing entirely and asks you to write the demo in text instead of dragging it on a canvas. None wins in the abstract; each wins for a different kind of tutorial.
+
+## The alternatives, by who does the editing
+
+Here is the landscape with the labor axis made explicit, checked against each vendor's own pages in July 2026.
+
+| Tool | Lane | Who edits | Platforms | Price floor | Output |
+|---|---|---|---|---|---|
+| Camtasia | Record-and-edit (heavy) | You, full timeline | Windows, Mac | Subscription $39-$599/yr | MP4 |
+| ScreenPal | Record-and-edit (light) | You, simple editor | Windows, Mac, web | Free (15-min cap) / $4/mo | MP4 |
+| Cap | Record-and-edit (open) | You, simple editor | Windows, Mac, Linux | Free (5-min) / $29/yr | MP4 |
+| Guidde | AI-assisted docs | AI assembles, you review | Web (+ desktop on Business) | Free (25 videos, watermark) / $19/mo | MP4, GIF, PDF |
+| Clueso | AI-assisted docs | AI assembles, you review | Web, desktop | $120/mo | MP4 + docs |
+| aidemo (ours) | Code-native render | Nobody; you edit a spec | Web (browser) | Free, MIT | MP4, regenerable |
+
+**ScreenPal** (formerly Screencast-O-Matic) is the gentlest step down. Its free plan records up to 15 minutes with no watermark and hosts 10 videos; the $4/month Deluxe tier, billed annually, removes the length cap and opens the full editor with AI speech-to-text captions ([ScreenPal, 2026](https://screenpal.com/plans)). That is a lighter editor at a fraction of Camtasia's Essentials tier, which is exactly the trade a lot of searchers came for.
+
+**Cap** is the open-source option: AGPLv3, native on Windows, macOS, and Linux, free for personal use up to a 5-minute recording, $29/year for a commercial desktop license ([Cap, 2026](https://cap.so/pricing)). It also automates one thing Camtasia makes you keyframe — cursor auto-zoom on clicks — which is why it carries the polish comparison in our [Screen Studio alternatives](/blog/screen-studio-alternatives) map. In this lane its pitch is ownership: cross-platform, open, no tier to outgrow.
+
+**Guidde** is the popular AI-assisted entry. You record a web flow and it produces a narrated how-to with auto-generated steps; the free tier gives 25 videos with a watermark and your own recorded voiceover, Pro is $19/creator/month billed annually (unlimited videos, watermark off, export to MP4, GIF, PDF, and slides), and text-to-voice AI narration plus desktop-app recording arrive on the $39/creator/month Business plan ([Guidde, 2026](https://www.guidde.com/pricing)). What it removes is the assembly step; you never touch a timeline.
+
+**Clueso** sits at the produced end of the same lane, aimed at polished tutorials and product docs from a single take: automatic zooms, studio-grade AI voiceover, and turning that same recording into a step-by-step article, from a $120/month Starter plan billed yearly ([Clueso, 2026](https://www.clueso.io/pricing)). It is materially pricier than Guidde and buys a more finished, more branded result.
+
+**aidemo**, ours, is the code-native lane and inverts the bet of every row above. There is no take to perform and no timeline to open. You, or a coding agent, write the storyboard — the browser actions and the narration — and a deterministic engine replays it in real Chrome the same way on every run, then times captions from a transcript and assembles the MP4 with ffmpeg ([aidemo, 2026](https://github.com/tandryukha/aidemo)). It is MIT-licensed and renders for roughly nothing on a CI runner. Its limits are the exact inverse of Camtasia's strengths, and worth stating plainly: it records a web page and nothing else, so native-desktop and mobile-app tutorials are out; the storyboard is authored rather than performed; and there is no click-to-trim editor, because the edit is a diff on a text file, not a drag on a canvas. For tutorials of a web product you would rather regenerate than re-cut, that is the whole point. For a native app or a hands-on canvas, it is the wrong tool and Camtasia is not.
+
+## The cost Camtasia's tiers never quote: keeping tutorials current
+
+A subscription is a line item you can read off an invoice. The labor of the timeline is not, and for a tutorial library it is the larger of the two numbers.
+
+Follow it through. A screen recording captured and edited on a timeline freezes the interface at the instant you exported it. When a button moves, a screen is redesigned, or a flow gains a step, every tutorial that shows that screen is now wrong, and fixing one means re-recording the take and redoing the edit — the cuts, the zoom keyframes, the captions, the callouts. How often that fires is a property of your ship cadence, which the [rot-rate math on stale demos](/blog/why-product-demos-go-stale) works out; the point here is the per-fix labor, and on a hand-built timeline it lands close to the cost of making the tutorial the first time.
+
+That is the axis that actually separates the lanes.
+
+| Lane | Cost to keep one tutorial current | Why |
+|---|---|---|
+| Record-and-edit (Camtasia, ScreenPal, Cap) | High | Re-record the take, then re-cut and re-caption the timeline by hand |
+| AI-assisted (Guidde, Clueso) | Medium | Re-capture the flow, let the AI re-assemble, review the result |
+| Code-native (aidemo) | Low | Edit the affected spec line and re-render — CI can do it on the commit that moved the UI |
+
+For a single tutorial made once, the timeline tax is a one-time charge and Camtasia's control earns it. For a library of twenty how-tos on a product that ships every sprint, the tax is recurring, and it dwarfs the subscription whatever tier you are on. A lighter or free recorder lowers the license bill; only the code-native lane lowers the labor bill, because it is the only one where "the product changed" and "the tutorial changed" can be the same commit. The polish those manual timelines produce — the zoom punch-ins, the smoothed cursor path — is itself a set of [deterministic transforms you can automate](/blog/professional-screen-recordings) rather than keyframe.
+
+## Match the lane to how your tutorials change
+
+No lane wins on its own terms; the right one falls out of a single constraint. Take the first row that fits.
+
+| Your tutorials are… | Reach for | Why |
+|---|---|---|
+| One-off, high-craft, of a native desktop app | Record-and-edit: Camtasia or Cap | You need the timeline, and native windows rule out browser-only tools |
+| Occasional, a web app, on a tight budget | ScreenPal (free / Deluxe) or Cap | Lighter editor at a fraction of Camtasia's price |
+| A growing library you want a machine to assemble | Guidde or Clueso | The AI does the cut; you review instead of build |
+| A library on a fast-shipping web product | Code-native render: aidemo (ours) | Re-renders from a spec, so the demo updates when the code does |
+| Anything you want to own outright, no subscription | Cap (AGPLv3) or ours (MIT) | Open source, no per-seat tier, no renewal |
+
+Two honest closes. First, Camtasia still earns its keep for a specific job: a one-off, high-production tutorial of a native desktop app, where the timeline's control and true native capture are exactly what you need and re-recording later is a bill you pay once. The reasons to leave are the subscription shift and the recurring edit labor, not the editor's quality — it remains one of the better ones.
+
+Second, "free" here is three different deals: truly open source (Cap, and ours), free-tier-with-a-cap (ScreenPal's 15 minutes, Guidde's 25 watermarked videos), and free-trial. The [free demo video software](/blog/free-demo-video-software) rundown pulls those apart; read which deal you are being handed before you build a library on it.
+
+## Sources
+
+- [TechSmith — Transition to annual subscription pricing (2025)](https://support.techsmith.com/hc/en-us/articles/27009223314701-TechSmith-Transition-to-Annual-Subscription-Pricing-Model-in-2025)
+- [TechSmith — Camtasia store and plan pricing](https://www.techsmith.com/store/camtasia)
+- [TechSmith — Camtasia system requirements](https://www.techsmith.com/camtasia/system-requirements/)
+- [ScreenPal — plans and pricing](https://screenpal.com/plans)
+- [Cap — pricing](https://cap.so/pricing)
+- [Guidde — pricing](https://www.guidde.com/pricing)
+- [Clueso — pricing](https://www.clueso.io/pricing)
+- [aidemo — GitHub repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### Is there a free alternative to Camtasia?
+
+Yes, several, and they split by how much you edit. For a free recorder-plus-editor, Cap is open source (AGPLv3) with a 5-minute cap on personal recordings, and ScreenPal's free tier records up to 15 minutes with no watermark. For free AI-assisted how-tos, Guidde's free plan makes up to 25 videos with a watermark. And aidemo (ours) is MIT-licensed and renders web-product demos from a spec at no license cost. None of the free tiers is unlimited, so read the cap before you commit.
+
+### Is Camtasia still a one-time purchase?
+
+No. TechSmith discontinued Camtasia's perpetual license, with the last perpetual upgrade sold on January 1, 2025; every version from Camtasia 2025 onward is an annual subscription, priced from $39 to $599 per year across four tiers, with no monthly option. Older perpetual copies you already bought keep working, but they cannot upgrade to 2025 or later without a subscription. If a genuine one-time purchase is a hard requirement, that constraint alone rules Camtasia out.
+
+### What is the best Camtasia alternative for making software tutorials?
+
+It depends on whether your tutorials are native-app or web, and how often they change. For a native desktop app you want a real timeline, so Camtasia or Cap. For occasional web tutorials on a budget, ScreenPal or Cap. For a growing library where you would rather a machine assemble the cut, Guidde or Clueso. For a library on a fast-shipping web product, a code-native renderer like the one we build re-generates from a spec so the tutorial updates when the UI does.
+
+---
+
 # Letting a coding agent make your demo video
 
 July 18, 2026 · Demos as Code · https://aidemo.top/blog/coding-agents-that-make-demo-videos/
@@ -1239,6 +1347,105 @@ Yes. Text-to-speech renders the narration straight from your script, so no micro
 
 ---
 
+# How to record your screen in high quality: the settings that matter
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/
+
+> Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.
+
+## Quality is decided at capture, not in the editor
+
+"High quality" is not a slider you drag at export. It is a short list of settings you commit to the moment you press record, and every one of them fails in a specific, nameable way: text goes soft, motion stutters, a notification slides in, the voice clips. The good news is the same as the bad news. None of it is talent, so none of it is out of reach; each setting takes a number, and each has a one-line fix. The other half of the job, the zoom and the cursor glide and the trims that make a raw take look produced, is [editing you can redo without re-recording](/blog/professional-screen-recordings), so it is not on this list. This list is the part the editor cannot rescue: the properties baked into the pixels at capture time. Which recorder you use to apply them is a separate [platform-and-price question](/blog/screen-studio-alternatives); the settings below are tool-agnostic.
+
+| Setting | Why it decides quality | The one-line fix |
+|---|---|---|
+| Resolution | Grabbing scaled pixels instead of physical ones bakes in soft text | Capture the HiDPI grid at DPR 2, downscale to your 1x delivery size |
+| Frame rate | Too low stutters motion; too high doubles the file for nothing | 30 fps for UI, 60 fps only for animation or scrolling |
+| Bitrate / codec | A fixed bitrate over-spends on still scenes and starves busy ones | Encode to a quality target (CRF 18 to 20), H.264 in MP4 |
+| Cursor | A tiny, jittery pointer is the loudest amateur tell | Enlarge it, or hide it and draw a synthetic one |
+| Notifications | One toast leaks a name and dates the clip forever | Do Not Disturb, plus a clean recording profile |
+| Audio | Clipping or music over voice makes it unwatchable | Capture system and mic on separate tracks, keep the voice on top |
+| Aspect ratio | Cropping a 16:9 desktop later throws away most of the frame | Set the viewport to the destination aspect before recording |
+
+Read the table top to bottom before your next take and you will avoid the failures behind almost every "why does this look cheap" complaint. The rest of this page works one row at a time, with the number that makes it right. If you are producing the whole demo and not just the raw clip, [the script-first playbook](/blog/how-to-make-a-product-demo-video) is the wider frame; this is the capture layer underneath it.
+
+## Resolution: record the physical pixels, deliver at 1x
+
+Most blurry recordings are not a bitrate problem or a bad tool. They are a resolution mistake made before anything was recorded: the recorder captured scaled pixels instead of physical ones.
+
+Modern laptop and phone screens are high-density. MDN pegs a device-pixel-ratio of 1 to a classic 96-DPI screen and a ratio of 2 to a HiDPI or Retina panel ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio)). On a DPR-2 display, as Thilo Maier's screencast writeup puts it, "one scaled pixel consists of four physical pixels" ([Maier](https://maier.tech/posts/recording-screencasts-on-a-hidpi-display)). So a UI laid out at 1280x720 logical is actually painted across a 2560x1440 physical grid. If your recorder grabs the 1280x720 logical layer, it captures a quarter of the pixels the screen is really showing, and any text made of fine strokes turns soft. Recorders such as QuickTime and ScreenFlow instead capture the physical grid, recording 2560x1440 when you "record 1280 by 720 scaled pixels" ([Maier](https://maier.tech/posts/recording-screencasts-on-a-hidpi-display)).
+
+That is the anchor rule for this whole page: record at 2x, deliver at 1x. Capture the physical HiDPI grid, then downscale to your delivery target. The downscale averages every 2x2 block of four captured pixels into one delivered pixel, which is supersampling, the cheapest antialiasing there is, so the edges of text and icons come out crisp instead of aliased. Record natively at 1x and you skip that averaging pass entirely: you deliver exactly the pixels you captured, with no headroom to sharpen and none to punch into later, which is [the zoom-headroom argument](/blog/professional-screen-recordings) seen from the other side.
+
+The corollary is to match the source to the delivery, not to your monitor. Capturing a full 4K desktop for a 1080p embed spends four times the pixels and then discards three-quarters of them in a downscale nobody tuned, while a plain 1080p external panel plugged into a Retina laptop records at a flat 1920x1080 with none of the supersampling that made the built-in screen look sharp. [Pick the resolution from where the video will actually play](/blog/best-resolution-for-screen-recording), then find the 2x capture that feeds it.
+
+## Frame rate: 30 by default, 60 only when motion pays for it
+
+Twenty-four frames a second is the cinema floor, "the minimum speed needed to capture video while still maintaining realistic motion"; 30 and 60 are the rates "used for television and online content" ([TechSmith](https://www.techsmith.com/blog/frame-rate-beginners-guide/)). A product UI, all forms and dashboards and discrete clicks, has very little continuous motion, and 30 fps carries it cleanly. Sixty frames earns its keep only where motion is continuous: animation, fast scrolling, video playing inside the UI, a game. As TechSmith puts it, "anything higher than 30fps is usually reserved for recording busy scenes with lots of motion" ([TechSmith](https://www.techsmith.com/blog/frame-rate-beginners-guide/)).
+
+The cost of the extra frames is bits. Doubling the frame rate does not quite double the file, since consecutive frames are similar enough to compress against one another, but on footage that barely moves it still spends noticeably more to show the same thing. Paying that to render a cursor crossing a static form is a bad trade. Capturing high and producing lower can bank motion detail when a scene truly needs it, but for a walkthrough that ends up in an embed, 30 fps captured and delivered is the honest default. One capture-time rule reinforces it: Vimeo's compression guide says to "always choose a constant frame rate rather than a variable frame rate" ([Vimeo](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)), because the variable rate some tools default to drifts out of sync with narration and confuses every editor downstream. [The 30-versus-60 decision by content type](/blog/best-frame-rate-for-screen-recording) is worth its own table.
+
+## Bitrate and codec: target a quality, not a number
+
+There are two ways to control size, and for screen content only one is right. A fixed bitrate spends the same bits on a motionless login screen and a scrolling table: the still scene wastes them, the busy scene starves. Constant-quality encoding inverts that. You pick a quality and let the bitrate float to hold it, which OBS documents as CQP or CRF, where a "lower CRF will result in higher quality and larger file sizes" ([OBS Project, 2026](https://obsproject.com/kb/advanced-recording-settings-guide)). Screen recordings, long still stretches punctuated by bursts, are exactly the case constant quality was built for.
+
+The number to set is small and well documented. In x264 the constant rate factor runs 0 to 51 with a default of 23, "where lower values indicate better quality" ([FFmpeg](https://ffmpeg.org/ffmpeg-codecs.html)); OBS recommends a CQP or CRF of 16 to 23 for recording, with a keyframe interval of 2 seconds ([OBS Project, 2026](https://obsproject.com/kb/advanced-recording-settings-guide)). For crisp UI text, sit at the high-quality end, a CRF around 18 to 20, and choose a slower encoder preset, which spends more CPU to reach the same quality in a smaller file.
+
+Codec is a separate axis from container. H.264 inside an MP4 is the send-anywhere default; Vimeo, for one, recommends H.264 in its High Profile setting as the balance of "high visual quality with efficient file size," at roughly 10 to 20 Mbps for 1080p ([Vimeo](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)). VP9 or AV1 buy a meaningfully smaller web embed at the cost of compatibility, and [that container-versus-codec decision has its own table](/blog/best-video-format-for-screen-recording). The one universal rule: for a raw take you will edit later, record at near-lossless quality and compress once on export, never twice.
+
+## The three tells that date a recording: cursor, notifications, clutter
+
+These three change no bitrate. They change whether the clip reads as a product or as a desktop someone forgot to tidy, and each is set at record time.
+
+The cursor is the first tell. The system pointer is small, and its real path between clicks is high-frequency jitter that, rendered faithfully, screams that a human recorded this live. Two fixes exist: enlarge or hide the pointer in the recorder, or hide the operating-system cursor and draw a smooth synthetic one over the footage. [Cursor smoothing itself is a compose-time transform](/blog/professional-screen-recordings), but whether the OS cursor is captured at all is a switch you flip before recording.
+
+Notifications are the tell you cannot fix later. One Slack or Mail toast slides in with a real name attached, and no filter removes it from the pixels afterward. Turn on Do Not Disturb or Focus on whatever OS you are on, and, better still, record in a clean profile or a fresh window where nothing personal can fire at all. [The cross-OS Do-Not-Disturb setup](/blog/hide-notifications-while-recording) is the belt; a clean profile is the suspenders.
+
+Clutter is the slow tell: personal bookmarks, a half-dismissed cookie banner, a stray scrollbar, forty browser tabs. A recording profile with no extensions and hidden chrome keeps the frame about the product. It is also the reason capturing [a single browser tab rather than the whole screen](/blog/record-a-browser-tab) yields a cleaner result with far less to police.
+
+## Audio: capture two tracks, keep the voice on top
+
+If the recording carries sound, the quality bar is intelligibility, not loudness, and two failures dominate. The first is clipping: push the mic or system level past 0 dBFS and you bake in permanent distortion that no amount of later gain repairs. The second is burial: music or interface sound sitting on top of the narration so the words stop landing.
+
+Both have the same structural fix, which is to capture system audio and the microphone as two separate tracks rather than one pre-mixed one. Two tracks let you balance them after the fact; a single mixed track cannot be unmixed. Set the mic with headroom so its peaks stay well below clipping, and keep any background bed low enough under narration that a listener never strains for a word. The exact loudness targets belong to the mixing stage, but the capture rule is short: two tracks, a mic with headroom, and never a single already-clipped mix.
+
+## Aspect ratio: compose for the destination before you record
+
+A recording is 16:9 because monitors are. If it is bound for a vertical feed at 9:16 or a square post at 1:1, the honest move is to record for that shape, not to crop into it afterward, because cropping a landscape desktop to vertical [keeps only about a third of the width](/blog/professional-screen-recordings) and discards the rest. Set the capture viewport to the destination aspect up front: a narrow browser window for a 9:16 story, the full width for a 16:9 hero. Then the action already lives inside the frame you will ship, and there is no lossy reframe to regret.
+
+## The one rule under the checklist: capture is irreversible
+
+Every row above sorts into one of two columns. Resolution, frame rate, whether the cursor was captured, whether the profile was clean, the aspect the viewport was set to: these are properties written into the pixels, and no filter reverses them. Zoom, trims, captions, color, the synthetic cursor: these are re-derivable, applied to footage as many times as you like. The whole discipline is knowing which column a decision lives in, getting the left one right exactly once, and treating the right one as free to redo.
+
+The reliable way to "get it right once" is to stop performing the capture and start pinning it, so the viewport, device pixel ratio, frame rate, and profile are fixed values and [the same run produces the same footage every time](/blog/deterministic-browser-automation-for-video). In our own engine, aidemo, those capture settings live in a storyboard authored by a coding agent in code rather than dragged on a GUI timeline, so a demo re-renders at the identical resolution and frame rate on every run. The honest limits: aidemo captures a browser only, so it will not record a native desktop app, and for a single throwaway clip a GUI recorder is simply less setup.
+
+The last quality failure is the one that arrives months later. The recording stays perfectly sharp while the product moves, until it [quietly starts lying about a UI that shipped past it](/blog/why-product-demos-go-stale), and the cheap fix at that point is to [regenerate it from the spec rather than re-record the whole take](/blog/automated-product-demo-videos). High quality you cannot reproduce next quarter is a one-time result, not a setting.
+
+## Sources
+
+- [MDN — Window.devicePixelRatio](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio)
+- [Thilo Maier — Recording screencasts on a HiDPI display](https://maier.tech/posts/recording-screencasts-on-a-hidpi-display)
+- [TechSmith — Frame Rate: A Beginner's Guide](https://www.techsmith.com/blog/frame-rate-beginners-guide/)
+- [Vimeo — Video and audio compression guidelines](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)
+- [OBS Studio — Advanced Recording Settings Guide](https://obsproject.com/kb/advanced-recording-settings-guide)
+- [FFmpeg — Codecs documentation (libx264 crf, preset)](https://ffmpeg.org/ffmpeg-codecs.html)
+
+## FAQ
+
+### Why does my screen recording look blurry?
+
+Almost always because you captured scaled logical pixels on a HiDPI or Retina display instead of the physical ones. A layout shown as 1280x720 is actually painted across a 2560x1440 physical grid on a DPR-2 screen, so a recorder that grabs the logical layer keeps a quarter of the detail and fine text softens. The fix is to record the physical grid and downscale to your 1x delivery size; that downscale supersamples four pixels into one and sharpens the result. A 1080p external monitor on a Retina laptop is the other common culprit, since it records at a flat 1920x1080 with no density to spare.
+
+### What settings should I use to record my screen in high quality?
+
+Capture the physical HiDPI resolution at DPR 2 and downscale to your delivery size, run 30 fps for a normal UI (60 only for animation or scrolling), and encode to a quality target rather than a fixed bitrate, around CRF 18 to 20 for H.264 in an MP4. Then handle the three tells that no filter fixes later: enlarge or hide the cursor, switch on Do Not Disturb and record in a clean profile, and capture audio as separate system and mic tracks. Set the aspect ratio to the destination before you record, not after.
+
+### Should I record my screen in 1080p or 4K?
+
+Record whatever physical resolution is 2x your delivery target, not the biggest number your monitor offers. If the video ships at 1080p, capturing the HiDPI grid behind a 1080p layout already gives you the supersampling that makes text crisp, and a full 4K capture just spends four times the bits to throw most of them away. Reach for a true 4K capture only when you are delivering in 4K or you know you will punch deep into the frame during editing and need the extra pixels to survive the zoom.
+
+---
+
 # Interactive product demos vs video demos: when each wins
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/interactive-demo-vs-video-demo/
@@ -1337,6 +1544,97 @@ No. Interactive demos run on JavaScript inside an iframe, and email clients stri
 ### Should I build the interactive demo or the video first?
 
 Build for your highest-traffic surface and funnel stage first. If most of your qualified traffic hits a self-serve web page and wants to evaluate hands-on, the interactive demo earns its place first. If your demo has to travel through email, a README, social autoplay, or a slide deck to do its job, build the video first, because none of those surfaces can host the embed. Teams with both a product-led page and an outbound motion usually end up making one of each, for different surfaces.
+
+---
+
+# Loom alternatives for product demos after the Atlassian era
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/loom-alternatives-for-product-demos/
+
+> Loom is async video messaging that Atlassian now owns, not a product-demo tool. Sort the alternatives by which of Loom's jobs you are actually replacing.
+
+## What Atlassian bought, and what its free plan costs you now
+
+Loom is an async video-messaging tool. That is Atlassian's own framing from the day it bought the company: Loom is "an asynchronous (async) video messaging tool that helps users communicate through instantly shareable videos" ([Atlassian, October 2023](https://www.atlassian.com/blog/announcements/atlassian-acquires-loom)). Loom's homepage says the same thing in its own voice — "record and share AI-powered video messages," "the easiest screen recorder you'll ever use," record in a few clicks and share anywhere ([Loom, July 2026](https://www.loom.com/)). The whole product is designed around one loop: point a camera at your face, capture your screen in one take, get a link, drop it in Slack.
+
+Atlassian paid $975 million for that loop in October 2023, a real markdown from the $1.53 billion valuation Loom carried at its 2021 Series C ([TechCrunch, October 2023](https://techcrunch.com/2023/10/12/atlassian-to-acquire-former-unicorn-loom-for-975m/)). The reason "Loom alternatives" is still a live query two years on is where the free tier lands. The plan most people actually meet Loom on caps at 25 videos in your library and 5 minutes per recording ([Loom pricing, July 2026](https://www.loom.com/pricing)). Hit either wall and you delete old clips to make room, or you move to Business at $18 per user per month, or to Business + AI at $24 for the auto-editing and transcription ([Loom pricing, July 2026](https://www.loom.com/pricing)).
+
+Read those caps as what they are: a messaging trial. Twenty-five short clips is a healthy run of "here's how I'd fix this bug" notes to a teammate and nowhere near a library of maintained product demos. The five-minute ceiling is roomy for a quick reply and a hard wall for a training series. If you came to Loom to make a produced demo for your website, you are not being overcharged so much as sold the wrong tool and then billed for it.
+
+## Loom's defaults are messaging defaults
+
+Every default that makes Loom excellent for messaging is a small tax on a produced demo. This is the grain of the tool, and a polished external demo cuts across it.
+
+| Loom default | Why it is right for messaging | Why it fights a produced demo |
+|---|---|---|
+| Talking-head camera bubble | a face builds trust in a quick note | on a marketing page it competes with the UI you are trying to sell |
+| One continuous take | fast, with no edit step before you send | a demo wants dead time trimmed and weak moments cut |
+| Casual, unscripted delivery | the informality is the whole point | "um, let me just, one sec" reads as unfinished to a buyer |
+| 5-minute ceiling on free | keeps a note from sprawling into a meeting | a walkthrough that needs three tight minutes has no headroom to spare |
+| Share-by-link hosting | one URL, instant, no export | a Loom link will not sit in a README, a slide, or a muted autoplay hero |
+
+None of this is a knock on Loom. It is a description of a tool that optimized hard for a single job. The mistake is grabbing it for a different job and then blaming yourself when the result feels raw. The [craft of a real demo video](/blog/how-to-make-a-product-demo-video) — a written script, the dead time trimmed, a single task carried start to finish — is a different build from firing off a talking-head note, and Loom's ergonomics are tuned for the note.
+
+## Four jobs hiding under one search
+
+"Loom alternative" is four searches wearing one query. Before you compare a single tool, name which of these you are actually doing, because the honest replacement differs for each, and three of the four are not "another Loom" at all.
+
+1. **A better async recorder.** You liked what Loom does — record yourself, get a link — and you want it cheaper, less capped, or with nicer output. This is the only bucket where the answer is a Loom-shaped tool.
+2. **A produced product demo.** You were using Loom to make the polished thing it was never built for. The real replacement is a produced-polish recorder, not another messenger.
+3. **An interactive self-serve tour.** You want the prospect to click through your product themselves, not watch you narrate it.
+4. **A demo that regenerates.** You want a real-UI video that does not rot — rebuilt from a spec when the product changes, instead of re-recorded by hand.
+
+## The alternatives, by the job they replace
+
+| The job | Reach for | The verified detail |
+|---|---|---|
+| Better async recorder | Vidyard, Tella | Vidyard's free tier is async video messaging for revenue teams, capped at 5 videos a month up to 30 minutes each; Tella is a Mac/Windows/Chrome recorder with automatic click-zoom and transcript editing, paid from $13/month |
+| Produced product demo | Cap, Screen Studio, OBS | recorders that auto-zoom on clicks and smooth the cursor; the polish lane sorts by operating system and price |
+| Interactive self-serve tour | Storylane, Navattic, Arcade, Supademo | an HTML clone a prospect drives — a clickable embed, not a video file |
+| Demo that regenerates | aidemo (ours) | an agent writes a storyboard, a deterministic engine replays your real UI into a narrated, captioned MP4 |
+
+For the **async-recorder** bucket, the honest news is that the caps you left Loom over are the category norm. Vidyard's free plan is tighter on count than Loom's — 5 videos a month against Loom's 25 total — but far longer per clip at 30 minutes, and it is built around sales outreach rather than internal notes ([Vidyard, July 2026](https://www.vidyard.com/pricing/)). Tella keeps the record-and-share loop but pushes the output up a class: automatic zoom on clicks, swappable backgrounds, and editing the video "just like a document" from its transcript, from $13 a month ([Tella, July 2026](https://www.tella.com/)). If your real grievance with Loom was the price of the caps, price the caps of the replacement before you switch; ["free" hides three very different deals](/blog/free-demo-video-software).
+
+For the **produced-demo** bucket, you have left the messaging category entirely. What you want is a recorder that punches in on clicks, eases the jittery cursor path, and cuts dead time — the polish bar Screen Studio set. That lane sorts by platform and price, and the [per-platform alternatives map](/blog/screen-studio-alternatives) covers it: Cap for open-source cross-platform, Screen Studio for a macOS GUI, OBS plus a separate editor for zero dollars and manual work.
+
+For the **interactive-tour** bucket, you have left video entirely. A tour is an HTML clone the prospect clicks through, delivered as an embed, and it is the right object for a self-serve product page and the wrong one for an email or a README. That trade — a clickable embed versus a file that plays anywhere — is [its own decision](/blog/interactive-demo-vs-video-demo), and the pillar on [what the AI-demo-generator label actually covers](/blog/ai-demo-video-generators) maps the full tool landscape behind it.
+
+For the **regenerating** bucket, the whole point is upkeep. A Loom recording, like any hand-captured take, captures the UI as it looked the day you hit record, and a demo drifts out of date as soon as the product moves on. aidemo, which we build and disclose as ours, takes the opposite approach: a coding agent studies your app and authors the storyboard — narration plus the click-by-click browser steps — and a deterministic engine plays it back into real Chrome identically each time, then adds voiceover and word-timed captions and muxes an MP4. Because the demo is a committed file, [CI can re-render it](/blog/demo-videos-in-ci) on the same commit that changed the interface. The honest limits, since we build it: it only sees inside a browser tab, so native desktop apps and mobile screens are out; you write and diff a text file instead of nudging clips on a canvas; and there is no drag-to-edit timeline. It is a Loom alternative only in that both end in a video of your product — the workflow could not be more different.
+
+## Which one to reach for
+
+Walk the four in order and stop at the first match.
+
+- **Do you just need a faster, cheaper way to record yourself and send a link?** Stay in the messaging category: Vidyard if it is sales outreach, Tella if you want the output to look produced without opening an editor. Check the free-tier caps first — they bite sooner than the marketing suggests.
+- **Is this a polished demo bound for a website, a launch, or a docs page?** Leave Loom for a produced-polish recorder and accept an edit step as the cost of looking finished.
+- **Does the prospect need to click through it themselves on a page you control?** Build an interactive tour, and skip video for that surface.
+- **Will you have to keep this current as the product ships every week?** A spec-driven render is the only one of the four where the update is automatic instead of a full re-record.
+
+Loom is a good tool held wrong by half the people shopping for its alternatives. Name the job you are actually doing, and the shortlist stops being fifteen interchangeable screen recorders and becomes one obvious pick.
+
+## Sources
+
+- [Atlassian — Welcoming Loom to the Atlassian team](https://www.atlassian.com/blog/announcements/atlassian-acquires-loom)
+- [TechCrunch — Atlassian to acquire Loom for $975M](https://techcrunch.com/2023/10/12/atlassian-to-acquire-former-unicorn-loom-for-975m/)
+- [Loom — pricing](https://www.loom.com/pricing)
+- [Loom — homepage](https://www.loom.com/)
+- [Vidyard — pricing](https://www.vidyard.com/pricing/)
+- [Tella](https://www.tella.com/)
+- [aidemo — repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### Is Loom still worth it after the Atlassian acquisition?
+
+For its actual job — quick async video messages to teammates and customers — yes, Loom remains one of the smoothest tools for record-and-share, and the free plan covers light use. What changed for shoppers is the free-tier ceiling: 25 videos in your library and 5 minutes per recording, after which you move to Business at $18 per user per month or Business + AI at $24 ([Loom pricing, July 2026](https://www.loom.com/pricing)). If your use is a growing library of external product demos rather than one-off notes, those caps and per-seat prices are the reason to shop around.
+
+### What is the best free Loom alternative for recording yourself?
+
+It depends on what caps you hit. Vidyard's free plan does async video messaging for sales, capped at 5 videos a month up to 30 minutes each ([Vidyard, July 2026](https://www.vidyard.com/pricing/)) — fewer clips than Loom but much longer ones. If you want truly uncapped and open-source, OBS Studio records raw for free on any platform, at the cost of doing your own polish. Tella is not free but starts at $13 a month and produces a more finished clip out of the box with automatic zoom and transcript editing ([Tella, July 2026](https://www.tella.com/)).
+
+### Can I use Loom for a polished product demo on my website?
+
+You can, but you will be fighting the tool the whole way. Loom is built for a casual one-take talking-head note shared by link, so a website demo made in it tends to carry the camera bubble, the unscripted filler, and no clean way to embed the file where you need it. A produced-polish recorder (Cap, Screen Studio) or a spec-driven render will get you a finished, embeddable video with far less friction. Match the tool to the job: Loom for messaging, a demo tool for demos.
 
 ---
 
@@ -2199,6 +2497,183 @@ Partly. editly renders from a declarative JSON or JSON5 edit spec — an array o
 ### What is the difference between drawing frames and capturing them?
 
 Drawing means your code produces every pixel: Remotion and Revideo evaluate a component or scene per frame and screenshot the result, so the output is exactly what you programmed and nothing else. Capturing means a tool records a real session: vhs replays a shell and films its true output, and real-UI capture replays a flow in a browser and films the running app. The practical consequence is coupling. Drawn frames never react to a product change because the product is not present; captured frames break when the product changes, which is the signal that the demo needs a fresh render.
+
+---
+
+# Video documentation for software: when the medium earns its keep
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/video-documentation/
+
+> The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.
+
+## The evidence for video in docs is narrower than the enthusiasm
+
+The pitch for video documentation almost always opens with a preference statistic: some large share of people say they would rather watch than read. It is a real number and a weak argument, because it measures what people claim to enjoy, not which format teaches a task faster or leaves a reader stranded at the wrong moment. The same usability researchers who study video are quick to add that "not everyone enjoys watching videos" for learning, and that some readers cannot play audio at all. Documentation is not entertainment, and a medium that half your audience skips is not a default. The question worth answering is narrower: for which documentation jobs does a moving picture measurably beat a paragraph, and for which does it quietly lose.
+
+The software-engineering research is more careful than the marketing. When Oliver Karras surveyed software professionals on video as a documentation medium, 64 of 106 responded, and their attitude was positive but qualified: 59 believed video could improve how requirements get communicated, while 34 named real threats to using it ([Karras, 2018](https://arxiv.org/abs/1809.00804)). A companion paper is blunter about why that potential goes unrealized: "videos are one of the best documentation options for a rich and effective communication," yet the people who need to make them "are not directors" and lack the production skill ([Karras and Schneider, 2018](https://arxiv.org/abs/1808.04986)). Video is welcome in docs and chronically under-produced, which is a different situation entirely from video being the obvious default.
+
+Nielsen Norman Group's usability testing lands in the same place from the reader's side: video helps, as long as it never becomes the only way in. This pillar is the routing map for that judgment. The head-to-head [decision between video and written documentation](/blog/video-vs-written-documentation) gets a spoke of its own; here is the whole doc surface at once.
+
+## What a moving picture proves that a paragraph only asserts
+
+Some documentation jobs are spatial, temporal, or unfamiliar, and those are exactly where prose strains. A paragraph can tell you a panel slides in from the right when you drag a card onto a swimlane; a three-second clip shows it, and you never wonder which panel or which edge. NN/g's instructional-video research watched users reach for video on this kind of task specifically, complex, multistep, or unfamiliar work, as reading fatigue set in, one participant saying plainly, "This is too many words ... it's video time" ([Harley, NN/g, 2020](https://www.nngroup.com/articles/instructional-video-guidelines/)). Help Scout's knowledge-base guidance draws the same boundary for support content: reach for video when the thing is "easier to show than to describe" and the underlying UI "changes infrequently" ([Stoss, Help Scout, 2025](https://www.helpscout.com/blog/video-knowledge-base/)).
+
+Three jobs sit squarely in video's column. First-run and onboarding, where the reader has no mental model of the interface yet and a written tour reads as a list of nouns they cannot place. Anything motion-dependent, where the whole point is the transition: the drag, the reveal, the state before and after a click. And any task whose difficulty is spatial rather than conceptual: which of nine toolbar icons, in what order, with the cursor landing where. For those, the [craft of the walkthrough itself](/blog/how-to-make-a-product-demo-video), one task followed from start to finish and scripted before it is recorded, is the work. What video adds over a screenshot is time: it carries the sequence, not a frozen slice of it.
+
+Developer documentation adds a fourth job. Teaching an API or a command-line tool often means showing three surfaces moving in concert, a terminal, an editor, and the browser result, and no paragraph reconstructs that choreography as quickly as watching it run once. That has its own capture problem, worked through in [developer-education screencasts](/blog/developer-education-screencasts), but the underlying reason it works is the one Karras's respondents named: for rich, multi-surface communication a well-made video carries more per second than prose can, provided someone competent actually makes it.
+
+## What a paragraph proves that a moving picture buries
+
+The other column is larger than the enthusiasts admit. Amy Schade's NN/g work names the structural cost exactly: videos "force users to access the content sequentially" and "don't support rapid scanning for information," which is why they "require more of users' time than an equivalent piece of text" ([Schade, NN/g, 2014](https://www.nngroup.com/articles/video-usability/)). A reader looking up the fourth field in a config block does not want to watch ninety seconds to reach the eleven she needs. She wants to find the field name, copy the value, and leave.
+
+Everything a text layer gives you for free, a video withholds. You cannot search inside a frame, so the reference someone reaches for under deadline is invisible to their browser's find command. You cannot copy a command out of a pixel, so a quickstart that only plays the terminal makes the viewer retype it by eye, and retyping is where the typos come from. You cannot diff two versions of a video in a pull request the way you can diff two paragraphs, so a reviewer cannot see what a doc change actually changed, and a doc that resists review is a doc that drifts. And a search engine indexes the words on a page, not the frames of an MP4, so a video with no transcript is documentation your own users cannot search their way to. Reference tables, configuration options, error-message catalogs, and anything a reader hits mid-task already knowing the exact string they are hunting all stay text, and read better for it.
+
+## Routing each doc job to its format
+
+Decide not "video or text" per page but per documentation type. The Diataxis framework splits docs into four needs, tutorials, how-to guides, reference, and explanation, along an axis its authors frame as the difference between a user "at study" and a user "at work" ([Diataxis, accessed July 2026](https://diataxis.fr/)). Lay format over that axis and the routing falls out: the action-oriented, learning-heavy corners take motion well; the lookup corners refuse it.
+
+| Documentation job | Diataxis type | Default format | Why |
+|---|---|---|---|
+| First-run and getting started | Tutorial (at study) | Narrated 60-90s walkthrough | Unfamiliar and spatial; the reader has no map of the UI yet |
+| One discrete task ("how do I export?") | How-to guide | 10-20s silent microvideo, text steps beside it | A single action, shown once, with the words left searchable |
+| Reference: API fields, flags, config | Reference (at work) | Text, always | Pure lookup that must stay scannable, copyable, diffable |
+| Concept, why it works this way | Explanation | Text, optional diagram | Re-read and cross-referenced; there is nothing to move |
+| Changelog and release notes | cross-cutting | 20-30s clip plus written detail | Show the new UI once, let text carry the specifics |
+| Troubleshooting an error | How-to guide | Text first, clip only if spatial | Users arrive mid-panic and search for the exact message |
+
+One surface deserves a warning of its own. API and SDK quickstarts are the fastest-rotting video you can shoot, because a renamed field or a changed response breaks the clip silently while the written reference beside it still reads fine, which is the case for making an [API-docs video regenerate from the same fixtures the docs are tested against](/blog/api-documentation-videos). The rule that saves you is the same one across every row: a video shows the shape of a thing, and text carries the parts a reader has to copy, search, or trust exactly.
+
+The unit that survives contact with a real docs site is smaller than a full tutorial. A library of [short, single-action microvideos](/blog/microvideos-in-documentation), the ten-second silent clip that stands in for one paragraph, is both more useful and more maintainable than a handful of ten-minute screencasts, and NN/g's own guidance is to split one long video into per-step clips so viewers jump straight to the moment they need instead of scrubbing for it ([Harley, NN/g, 2020](https://www.nngroup.com/articles/instructional-video-guidelines/)). For onboarding, the live choice is often not video versus text but video versus an interactive product tour; [when each of those wins](/blog/interactive-demo-vs-video-demo) turns on where the doc lives and whether the reader wants to watch or to click. In a help center the bar is narrower still: a [knowledge-base video only pays for itself when it deflects a ticket](/blog/support-videos-knowledge-base), which the long, unscannable ones never do.
+
+## The maintenance tax that closes most video libraries
+
+The failure that sinks doc-video programs is not production quality. The highest-value doc videos show the exact first-run interface, which is precisely the surface a product reshapes most often. A first-run walkthrough is the fastest-rotting artifact you can make: every tweak to the signup flow falsifies it frame by frame.
+
+The arithmetic is unforgiving, and it is [worked out surface by surface elsewhere](/blog/why-product-demos-go-stale). A disciplined SaaS still changes something a user can see once or twice a week, which puts a typical walkthrough's half-life near two months between redesigns and at a single unannounced date when a redesign lands. Now multiply by a library. Two hundred tutorials against one navigation refresh is a re-record backlog no docs team gets funded to clear, which is why [keeping a tutorial library current at scale](/blog/keeping-tutorial-libraries-current) is the true ceiling on how much video a team should own. A stale text step is a small lie a reader routes around; a stale video is a lie in motion, cursor and narration pointing with confidence at a button that moved.
+
+The only maintenance model that outlasts ship velocity is regeneration. If the flow is a committed spec instead of a hand-captured take, a machine can replay it against today's build and emit a current video. A coding agent can even [write that spec by exploring the app first](/blog/coding-agents-that-make-demo-videos), so the re-render rides the same release that changed the UI, and the general [case for regenerating demos rather than re-recording them](/blog/automated-product-demo-videos) transfers to docs without a change. Our own engine, aidemo, is one instance of that pattern, disclosed as ours and honestly bounded: it captures a browser and nothing else, an agent writes the storyboard while a person edits text rather than nudging clips, and there is no drag-and-drop editor anywhere in the loop. The tool is not the point. The point is that a video library stays honest only if its videos rebuild from source, exactly as the rest of your docs already do.
+
+## Making a doc video earn its keep
+
+Once a job genuinely wants video, a short checklist separates a clip that documents from one that merely exists.
+
+Pair every video with text. NN/g's conclusion after years of testing is flat: video "must supplement, never replace" the written version, and users "resent" pages where a video is the sole route to an answer ([Schade, NN/g, 2014](https://www.nngroup.com/articles/video-usability/)). A transcript does triple duty. It satisfies accessibility, it hands search the words the MP4 hides, and it lets a hurried reader skip watching altogether. Captions are not optional either; the [captioning mechanics for muted, accessible playback](/blog/demo-video-captions) are a solved problem rather than a nicety. Keep each clip to one action, and show its duration up front so a reader can price the time cost before committing to it. When the loop is genuinely tiny and wordless, a GIF can beat a video, and the encoding and stable-embed tricks behind a [README GIF that updates itself](/blog/readme-gifs-that-update-themselves) carry straight onto a docs page. Above all, author the video the way you author the docs around it: scripted, scoped to one job, and rebuildable when the product moves. A doc video is documentation first and a video second.
+
+## Sources
+
+- [Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering](https://arxiv.org/abs/1809.00804)
+- [Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?](https://arxiv.org/abs/1808.04986)
+- [Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines](https://www.nngroup.com/articles/instructional-video-guidelines/)
+- [Schade, Nielsen Norman Group (2014) — Video Usability](https://www.nngroup.com/articles/video-usability/)
+- [Stoss, Help Scout (2025) — Creating Knowledge Base Videos: Tips, Tools, and Examples](https://www.helpscout.com/blog/video-knowledge-base/)
+- [Diataxis — A systematic framework for technical documentation](https://diataxis.fr/)
+
+## FAQ
+
+### When is a video the right format for documentation?
+
+When the thing you are documenting is spatial, motion-dependent, or unfamiliar: first-run onboarding, a drag-and-drop interaction, a multistep flow a newcomer cannot picture from words. NN/g's testing found users reach for video on exactly these complex, unfamiliar tasks. When the job is lookup instead, a config value, an API field, an error string, text wins, because the reader needs to scan, search, and copy, none of which a video allows.
+
+### Is video documentation bad for SEO and search?
+
+On its own, yes. Search engines index the words on a page, not the pixels in a video, and readers cannot search inside a frame, so a video with no text is documentation people struggle to find. The fix is a transcript beside every clip: it gives search something to index, satisfies accessibility, and lets a hurried reader jump to the one step they need. Treat the transcript as part of the doc, not an afterthought.
+
+### How many documentation videos should a small team maintain?
+
+As few as genuinely need motion, because each one is a maintenance liability. The highest-value doc videos show the first-run UI, which is the part of a product that changes most, so a large library rots faster than a small team can re-record. Keep video for the handful of jobs where showing beats telling, keep everything else in text, and make the videos you do keep regenerate from a spec so they rebuild when the product ships.
+
+---
+
+# Video marketing for software: one recording, every channel
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/video-marketing-for-software/
+
+> Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.
+
+## The master and its cuts: why a video is the wrong unit of production
+
+Ask a small software team how their video marketing is going and you will hear a count of videos: we shipped a landing clip, a couple of social posts, a YouTube walkthrough, an onboarding email. Count them as separate projects and the math is brutal, because each one is a script, a recording, a voice track, and an edit. That is the trap. The unit of production is not the video, it is the recording you cut many ways. One capture of the product doing its job becomes a landing hero, a square feed clip, a vertical Short, an email GIF, an app-store preview, and a YouTube upload, and the gap between the cheap version of that sentence and the expensive one is entirely whether you planned for it before you hit record.
+
+The channels are not optional, because your buyers are not on one surface. Wistia's 2026 State of Video, drawn from its hosting corpus, reports that 81% of teams share video on LinkedIn and 76% on YouTube, with about half on Instagram, just under half on Facebook, and under a quarter on TikTok ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). HubSpot's 2024 Video Marketing Report, surveying more than 500 marketers, found 83% naming social media as their highest-ROI video channel and 81% using it at all ([HubSpot, 2024](https://blog.hubspot.com/marketing/video-marketing-report)). Landing pages, email, and product docs sit on top of that. A demo that exists on exactly one of these surfaces has left most of its production cost unrecovered.
+
+Teams already feel the pull. Over half the companies in Wistia's data repurpose video into social clips, and nearly 90% reuse webinar footage as replays, cuts, and emails. What most lack is a spec that says which cut each channel actually wants, so the repurposing stays ad hoc and the awkward formats, portrait and square and the app-store preview, quietly get skipped. This is that spec. [The production playbook](/blog/how-to-make-a-product-demo-video) covers making the master; this pillar is what to do with it afterward.
+
+## The channel matrix: format, length, aspect, and the number each grades on
+
+Here is one recording, delivered to nine surfaces. Length is the retention math worked out [placement by placement elsewhere](/blog/how-long-should-a-demo-video-be); the columns that genuinely differ per channel, and that most guides leave out, are the container, the aspect ratio, and the single number that channel is judged on.
+
+| Channel | Format | Length | Aspect | Grades on |
+| --- | --- | --- | --- | --- |
+| Landing-page hero | MP4/H.264, muted autoplay loop | 30-60 s | 16:9 | Play rate, then time on page |
+| Product docs / README | MP4 or looping GIF, no audio | 10-30 s | 16:9 | Task completion |
+| YouTube | MP4, H.264 High Profile, AAC, 1080p | 1-5 min | 16:9 | Watch time, then click-through |
+| LinkedIn feed | Native MP4, not a pasted link | 15-30 s | 1:1 or 4:5 | Three-second views |
+| TikTok / Reels / Shorts | MP4, captions burned in | 15-30 s | 9:16 | Completion, replays |
+| Email | Animated GIF or poster linking out | first frame + 5-10 s | ~16:9 | Click-through to a hosted page |
+| Sales follow-up | MP4 link behind a poster | 45-90 s | 16:9 | Reply rate |
+| Product Hunt | YouTube link in the gallery | up to ~2 min | 16:9 | Upvotes, Product-of-the-Day |
+| App Store / Play preview | .mov or .mp4, H.264 | 15-30 s | 886x1920 portrait | Install conversion |
+
+A few of those cells are load-bearing and earn a source. YouTube treats 16:9 as its standard aspect and ingests an MP4 in H.264 with AAC without complaint, which is unremarkable precisely because that container is what MDN calls the industry standard for video, widely supported across devices and browsers ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)); a 16:9 H.264 file is the master you keep, and everything else on the table is a re-fit of it. LinkedIn accepts 4:5, 9:16, 16:9, and 1:1, and recommends 15-30 seconds so a clip qualifies for every feed placement ([LinkedIn, 2026](https://www.linkedin.com/help/lms/answer/a424737)), which is why a square or vertical native upload out-reaches a pasted YouTube link. Product Hunt is blunter than most: its gallery accepts only YouTube video links, and about 53% of Product-of-the-Day winners since 2021 included a video ([Product Hunt, 2026](https://www.producthunt.com/launch/preparing-for-launch)). And Apple's App Store Connect nails its corner of the table down hard: an app preview runs 15-30 seconds, ships as .mov/.m4v/.mp4 in H.264, sits at a portrait 886x1920 for current iPhones, allows up to three per language, and caps at 500 MB ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-preview-specifications/)).
+
+Read straight down the aspect column and the whole case for a master falls out. Five of these surfaces want 16:9, two want 9:16, one wants 1:1, and one wants a fixed 886x1920 portrait. That is not nine shoots. It is one recording and a handful of reframes, plus a [landing-hero placement that does not wreck load time](/blog/demo-video-on-landing-page), a [README loop that stays current](/blog/readme-gifs-that-update-themselves), and a [Product Hunt cut built the night before launch](/blog/product-hunt-launch-video).
+
+## What changes from the master, and what never does
+
+The invariant across every row above is the recording itself: the pixels of your product performing one real task, cursor and all. What varies is a short, bounded list of transforms applied after the fact.
+
+| Transform | What it does | Driven by |
+| --- | --- | --- |
+| Trim | Cut to the channel's length budget | Retention curve for the placement |
+| Reframe | Pad or crop to the target aspect | Feed vs hero vs store |
+| Caption burn | Bake word-timed captions into pixels | Muted autoplay |
+| Re-encode | Container and codec for the platform | Upload requirements |
+| CTA swap | The single ask, per funnel stage | Where the viewer sits |
+
+None of those is a reshoot. Trimming to length is a compose-time cut, not a re-record. Burning captions is mandatory the moment a clip autoplays muted, which on a feed is always, and it is [a rasterizing step, not a rewrite of the take](/blog/demo-video-captions). Reframing is the one with teeth: taking a 16:9 desktop capture to a 9:16 feed clip by cropping throws away two-thirds of the frame, and [the crop-versus-pad math is genuinely unkind](/blog/professional-screen-recordings), which is why the honest vertical answer is to record a narrow viewport rather than crop a wide one. That single exception aside, every channel deliverable is the master plus a transform.
+
+This is where treating the demo as a spec rather than a captured performance pays for itself. If the master is a storyboard, retargeting it to a new aspect is a re-render at a different output size instead of a new take, and the reframe problem dissolves because you render the flow into a portrait viewport rather than crop a landscape one. aidemo, our open-source engine, does this from an agent-authored storyboard; the honest limits are that it is browser-only and has no GUI timeline editor, so it is a poor fit for a one-off screencast and a good one when the same flow has to reach nine places and stay honest as the product ships. [Automated product demo videos](/blog/automated-product-demo-videos) is the general form of that argument.
+
+## The arithmetic of one recording across nine placements
+
+Put numbers on it. A hand-made 60-to-90-second demo is a two-to-three-hour job once you have scripted it, recorded a clean take, voiced it, and keyframed the polish. Treat each channel as its own project and nine placements is nine of those, call it twenty to thirty hours, and every one of them is atomic, so a single UI change reruns most of the bill.
+
+Now amortize. Record the master once, then produce each channel cut as trim plus reframe plus caption plus re-encode. Even done by hand in an editor that is ten to twenty minutes a cut, so nine cuts land in two or three hours on top of the one master, roughly a quarter of the bespoke cost. Generated from a spec, it is closer to a batch render than an editing session, and the marginal cost of the tenth placement rounds to the compute it takes to encode. The recurring bill is where the gap becomes decisive: when the UI moves, the bespoke shop re-performs nine takes and re-syncs nine sets of captions, while the master-and-cuts shop re-records one flow and re-renders nine outputs from the same storyboard. The distribution version of regenerate-rather-than-re-record is the same lever the [automation pillar](/blog/automated-product-demo-videos) pulls, applied across channels instead of across releases.
+
+## Read the metric the channel grades on, not "views"
+
+The matrix's last column is the one teams flatten and should not. "Views" is not a metric; it is nine different metrics wearing one label. A landing hero is graded on play rate and whether the clip lifts time-on-page and conversion, not on raw plays. A YouTube upload is graded on watch time first and click-through second, because the ranking runs on the former. A feed clip lives or dies on the three-second view, since a muted autoplay that fails to arrest the scroll in three seconds was never really watched. A sales follow-up is graded on a single reply. A Product Hunt video is graded in upvotes. Average all of those into one "views" number and you have hidden every signal that would tell you which cut to fix. [Which numbers to instrument, by goal](/blog/demo-video-metrics), is a spoke of its own, as is the honest read on [whether video actually lifts conversion](/blog/does-video-increase-conversion): the short version is that it helps when the clip is relevant and the page still loads fast, and backfires when a heavy hero tanks the load time it was meant to improve.
+
+## Where one recording genuinely isn't enough
+
+"One recording, every channel" is the default, and it holds for most of the matrix. Four places it breaks, named plainly so you can budget for them.
+
+First, the App Store. Apple's preview must be actual in-app footage at a fixed portrait resolution, so a landscape web-app demo cannot simply be letterboxed to fit; a mobile app earns its own capture. Second, hard vertical. A 9:16 cut of a wide desktop UI is the reframe with real loss, and when the crop would gut the content, you record a narrow viewport instead, which is a second take by design. Third, the interactive tour. A clickable product walkthrough is [a different artifact than a video, not a cut of one](/blog/interactive-demo-vs-video-demo); it captures HTML and replays clicks, and it cannot ride inside an email or a README the way an MP4 can. Fourth, depth. A 30-second hero loop and a ten-minute YouTube tutorial serve viewers with opposite amounts of attention to spend, and past a point that is a different script, sometimes a different recording, not a trim.
+
+These four are the exceptions that prove the rule: they are the only rows where the aspect, the source footage, or the medium is not something you can reach from the master with a mechanical pass. Everything else on the matrix is one master and a transform. The teams that win the distribution game are not the ones making the most videos; Wistia's data shows most are already shipping at least one a month. They are the ones making a single recording earn its cost nine times over, by deciding the cuts before they record and treating each channel deliverable as a render, not a reshoot. [Where to put the demo once you have it](/blog/where-to-use-your-demo-video) turns this matrix into a placement checklist.
+
+## Sources
+
+- [Wistia — State of Video Report: Video Marketing Statistics for 2026](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [HubSpot — 2024 Video Marketing Report](https://blog.hubspot.com/marketing/video-marketing-report)
+- [MDN — Media container formats (MP4 as the industry standard)](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Containers)
+- [LinkedIn Help — Video ads advertising specifications](https://www.linkedin.com/help/lms/answer/a424737)
+- [Product Hunt — Preparing for your launch](https://www.producthunt.com/launch/preparing-for-launch)
+- [Apple — App preview specifications (App Store Connect)](https://developer.apple.com/help/app-store-connect/reference/app-preview-specifications/)
+
+## FAQ
+
+### Do I need a different video for each marketing channel?
+
+No, you need one master recording and a different cut per channel. The flow you capture stays the same; what changes is the trim to length, the aspect (16:9 for a hero and YouTube, 1:1 or 4:5 on LinkedIn, 9:16 for Shorts), burned captions for muted feeds, and the container. Two genuine exceptions need their own capture: an App Store preview must be real in-app footage at 886x1920 portrait, and a deep YouTube tutorial is a different script than a 30-second hero loop.
+
+### What kinds of marketing videos does a software company actually need?
+
+Think in placements, not genres. The working set is a landing-page hero, a product or docs clip, a social cut, an email GIF, a sales follow-up, a Product Hunt video, an app-store preview if you have a mobile app, and a YouTube upload. Wistia's 2026 data shows where the audience is: 81% of teams post video on LinkedIn and 76% on YouTube. Each of those placements can be a cut of the same recorded flow rather than a separate shoot.
+
+### Is video marketing worth it for a small software startup?
+
+It is worth it when one recording serves many channels, and a money pit when every channel gets its own shoot. HubSpot found 83% of marketers name social media their highest-ROI video channel, and short-form the highest-ROI format, so the return is real. The cost that sinks small teams is per-channel re-recording, especially when the product keeps shipping. Solve distribution as a render matrix off one master, and a two-person team can cover nine surfaces.
 
 ---
 

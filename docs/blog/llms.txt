@@ -7,7 +7,9 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Demo Tools & Alternatives
 
 - [AI demo video generators: what the label actually covers](https://aidemo.top/blog/ai-demo-video-generators/index.md): Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.
+- [Camtasia alternatives for software demos and tutorials](https://aidemo.top/blog/camtasia-alternatives/index.md): TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.
 - [Interactive product demos vs video demos: when each wins](https://aidemo.top/blog/interactive-demo-vs-video-demo/index.md): One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.
+- [Loom alternatives for product demos after the Atlassian era](https://aidemo.top/blog/loom-alternatives-for-product-demos/index.md): Loom is async video messaging that Atlassian now owns, not a product-demo tool. Sort the alternatives by which of Loom's jobs you are actually replacing.
 - [Open-source demo video tools, scored by license and install reality](https://aidemo.top/blog/open-source-demo-video-tools/index.md): Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.
 - [Screen Studio alternatives for Windows, Linux, and CI](https://aidemo.top/blog/screen-studio-alternatives/index.md): Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.
 
@@ -37,6 +39,18 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [Multi-language product demo videos from one recording](https://aidemo.top/blog/multi-language-product-demo-videos/index.md): Localizing a demo doesn't mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.
 - [Personalized demo videos at scale: the template-render pattern](https://aidemo.top/blog/personalized-demo-videos-at-scale/index.md): A merge field with the prospect's name is not a demo that shows their data. Three depths of personalization, priced honestly for a fifty-prospect batch.
 - [Video-as-code tools: Remotion, Revideo, editly, vhs — and real-UI capture](https://aidemo.top/blog/video-as-code-tools/index.md): Remotion and Revideo draw every frame, editly stitches clips, vhs replays a terminal, real-UI capture films your product. Five models, one map.
+
+## Screen Recording
+
+- [How to record your screen in high quality: the settings that matter](https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/index.md): Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.
+
+## Video Documentation & Tutorials
+
+- [Video documentation for software: when the medium earns its keep](https://aidemo.top/blog/video-documentation/index.md): The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.
+
+## Video Marketing for Software
+
+- [Video marketing for software: one recording, every channel](https://aidemo.top/blog/video-marketing-for-software/index.md): Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.
 
 ## Optional
 

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video documentation: when it earns its keep | aidemo</title>
+<meta name="description" content="Where video documentation beats text (procedural, first-run, spatial UI) and where it loses (lookup, search, maintenance), with a format decision table.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/video-documentation/">
+<link rel="alternate" type="text/markdown" href="/blog/video-documentation/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Video documentation: when it earns its keep | aidemo">
+<meta property="og:description" content="Where video documentation beats text (procedural, first-run, spatial UI) and where it loses (lookup, search, maintenance), with a format decision table.">
+<meta property="og:url" content="https://aidemo.top/blog/video-documentation/">
+<meta property="og:image" content="https://aidemo.top/blog/images/video-documentation-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Video documentation: when it earns its keep | aidemo">
+<meta name="twitter:description" content="Where video documentation beats text (procedural, first-run, spatial UI) and where it loses (lookup, search, maintenance), with a format decision table.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/video-documentation-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Video documentation for software: when the medium earns its keep",
+  "description": "Where video documentation beats text (procedural, first-run, spatial UI) and where it loses (lookup, search, maintenance), with a format decision table.",
+  "image": [
+    "https://aidemo.top/blog/images/video-documentation-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/video-documentation/"
+  },
+  "wordCount": 2265,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering",
+      "url": "https://arxiv.org/abs/1809.00804"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?",
+      "url": "https://arxiv.org/abs/1808.04986"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines",
+      "url": "https://www.nngroup.com/articles/instructional-video-guidelines/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Schade, Nielsen Norman Group (2014) — Video Usability",
+      "url": "https://www.nngroup.com/articles/video-usability/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Stoss, Help Scout (2025) — Creating Knowledge Base Videos: Tips, Tools, and Examples",
+      "url": "https://www.helpscout.com/blog/video-knowledge-base/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Diataxis — A systematic framework for technical documentation",
+      "url": "https://diataxis.fr/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Video documentation for software: when the medium earns its keep",
+      "item": "https://aidemo.top/blog/video-documentation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "When is a video the right format for documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When the thing you are documenting is spatial, motion-dependent, or unfamiliar: first-run onboarding, a drag-and-drop interaction, a multistep flow a newcomer cannot picture from words. NN/g's testing found users reach for video on exactly these complex, unfamiliar tasks. When the job is lookup instead, a config value, an API field, an error string, text wins, because the reader needs to scan, search, and copy, none of which a video allows."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is video documentation bad for SEO and search?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On its own, yes. Search engines index the words on a page, not the pixels in a video, and readers cannot search inside a frame, so a video with no text is documentation people struggle to find. The fix is a transcript beside every clip: it gives search something to index, satisfies accessibility, and lets a hurried reader jump to the one step they need. Treat the transcript as part of the doc, not an afterthought."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many documentation videos should a small team maintain?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "As few as genuinely need motion, because each one is a maintenance liability. The highest-value doc videos show the first-run UI, which is the part of a product that changes most, so a large library rots faster than a small team can re-record. Keep video for the handful of jobs where showing beats telling, keep everything else in text, and make the videos you do keep regenerate from a spec so they rebuild when the product ships."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Video documentation for software: when the medium earns its keep</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Video documentation for software: when the medium earns its keep</h1>
+        <p class="article-dek">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>9 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-evidence-for-video-in-docs-is-narrower-than-the-enthusiasm">The evidence for video in docs is narrower than the enthusiasm</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-moving-picture-proves-that-a-paragraph-only-asserts">What a moving picture proves that a paragraph only asserts</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-paragraph-proves-that-a-moving-picture-buries">What a paragraph proves that a moving picture buries</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#routing-each-doc-job-to-its-format">Routing each doc job to its format</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-maintenance-tax-that-closes-most-video-libraries">The maintenance tax that closes most video libraries</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#making-a-doc-video-earn-its-keep">Making a doc video earn its keep</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/video-documentation-800.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."><figcaption>Documentation is a toolbox: video is the one compartment you open when showing beats telling, not the whole kit.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Video wins where a paragraph strains: procedural, spatial, first-run UI. NN/g testing saw users choose video for complex tasks; 59 of 64 pros in Karras's 2018 survey said video could improve docs.</li>
+    <li>Video loses at lookup: it forces sequential access and &quot;doesn't support rapid scanning&quot; (NN/g, 2014), so reference, config, and error strings stay text — searchable, copyable, diffable.</li>
+    <li>Route by Diataxis: tutorials and how-to lean video or microvideo; reference and explanation stay text. Never make a video the sole source of essential information.</li>
+    <li>The killer is maintenance, not production. A first-run walkthrough shows the exact UI that changes most, so a video library rots unless it regenerates from a spec.</li>
+    <li>Pair every doc video with a transcript: it satisfies accessibility, gives search the words the MP4 hides, and lets readers skip to the one step they need.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-evidence-for-video-in-docs-is-narrower-than-the-enthusiasm">The evidence for video in docs is narrower than the enthusiasm<a class="hanchor" href="#the-evidence-for-video-in-docs-is-narrower-than-the-enthusiasm" aria-label="Link to section: The evidence for video in docs is narrower than the enthusiasm">#</a></h2>
+<p>The pitch for video documentation almost always opens with a preference statistic: some large share of people say they would rather watch than read. It is a real number and a weak argument, because it measures what people claim to enjoy, not which format teaches a task faster or leaves a reader stranded at the wrong moment. The same usability researchers who study video are quick to add that &quot;not everyone enjoys watching videos&quot; for learning, and that some readers cannot play audio at all. Documentation is not entertainment, and a medium that half your audience skips is not a default. The question worth answering is narrower: for which documentation jobs does a moving picture measurably beat a paragraph, and for which does it quietly lose.</p>
+<p>The software-engineering research is more careful than the marketing. When Oliver Karras surveyed software professionals on video as a documentation medium, 64 of 106 responded, and their attitude was positive but qualified: 59 believed video could improve how requirements get communicated, while 34 named real threats to using it<sup class="article-cite"><a href="#src-1" title="Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering">1</a></sup>. A companion paper is blunter about why that potential goes unrealized: &quot;videos are one of the best documentation options for a rich and effective communication,&quot; yet the people who need to make them &quot;are not directors&quot; and lack the production skill<sup class="article-cite"><a href="#src-2" title="Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?">2</a></sup>. Video is welcome in docs and chronically under-produced, which is a different situation entirely from video being the obvious default.</p>
+<p>Nielsen Norman Group&#39;s usability testing lands in the same place from the reader&#39;s side: video helps, as long as it never becomes the only way in. This pillar is the routing map for that judgment. The head-to-head decision between video and written documentation gets a spoke of its own; here is the whole doc surface at once.</p>
+<h2 id="what-a-moving-picture-proves-that-a-paragraph-only-asserts">What a moving picture proves that a paragraph only asserts<a class="hanchor" href="#what-a-moving-picture-proves-that-a-paragraph-only-asserts" aria-label="Link to section: What a moving picture proves that a paragraph only asserts">#</a></h2>
+<p>Some documentation jobs are spatial, temporal, or unfamiliar, and those are exactly where prose strains. A paragraph can tell you a panel slides in from the right when you drag a card onto a swimlane; a three-second clip shows it, and you never wonder which panel or which edge. NN/g&#39;s instructional-video research watched users reach for video on this kind of task specifically, complex, multistep, or unfamiliar work, as reading fatigue set in, one participant saying plainly, &quot;This is too many words ... it&#39;s video time&quot;<sup class="article-cite"><a href="#src-3" title="Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines">3</a></sup>. Help Scout&#39;s knowledge-base guidance draws the same boundary for support content: reach for video when the thing is &quot;easier to show than to describe&quot; and the underlying UI &quot;changes infrequently&quot;<sup class="article-cite"><a href="#src-5" title="Stoss, Help Scout (2025) — Creating Knowledge Base Videos: Tips, Tools, and Examples">5</a></sup>.</p>
+<p>Three jobs sit squarely in video&#39;s column. First-run and onboarding, where the reader has no mental model of the interface yet and a written tour reads as a list of nouns they cannot place. Anything motion-dependent, where the whole point is the transition: the drag, the reveal, the state before and after a click. And any task whose difficulty is spatial rather than conceptual: which of nine toolbar icons, in what order, with the cursor landing where. For those, the <a href="/blog/how-to-make-a-product-demo-video/">craft of the walkthrough itself</a>, one task followed from start to finish and scripted before it is recorded, is the work. What video adds over a screenshot is time: it carries the sequence, not a frozen slice of it.</p>
+<p>Developer documentation adds a fourth job. Teaching an API or a command-line tool often means showing three surfaces moving in concert, a terminal, an editor, and the browser result, and no paragraph reconstructs that choreography as quickly as watching it run once. That has its own capture problem, worked through in developer-education screencasts, but the underlying reason it works is the one Karras&#39;s respondents named: for rich, multi-surface communication a well-made video carries more per second than prose can, provided someone competent actually makes it.</p>
+<h2 id="what-a-paragraph-proves-that-a-moving-picture-buries">What a paragraph proves that a moving picture buries<a class="hanchor" href="#what-a-paragraph-proves-that-a-moving-picture-buries" aria-label="Link to section: What a paragraph proves that a moving picture buries">#</a></h2>
+<p>The other column is larger than the enthusiasts admit. Amy Schade&#39;s NN/g work names the structural cost exactly: videos &quot;force users to access the content sequentially&quot; and &quot;don&#39;t support rapid scanning for information,&quot; which is why they &quot;require more of users&#39; time than an equivalent piece of text&quot;<sup class="article-cite"><a href="#src-4" title="Schade, Nielsen Norman Group (2014) — Video Usability">4</a></sup>. A reader looking up the fourth field in a config block does not want to watch ninety seconds to reach the eleven she needs. She wants to find the field name, copy the value, and leave.</p>
+<p>Everything a text layer gives you for free, a video withholds. You cannot search inside a frame, so the reference someone reaches for under deadline is invisible to their browser&#39;s find command. You cannot copy a command out of a pixel, so a quickstart that only plays the terminal makes the viewer retype it by eye, and retyping is where the typos come from. You cannot diff two versions of a video in a pull request the way you can diff two paragraphs, so a reviewer cannot see what a doc change actually changed, and a doc that resists review is a doc that drifts. And a search engine indexes the words on a page, not the frames of an MP4, so a video with no transcript is documentation your own users cannot search their way to. Reference tables, configuration options, error-message catalogs, and anything a reader hits mid-task already knowing the exact string they are hunting all stay text, and read better for it.</p>
+<h2 id="routing-each-doc-job-to-its-format">Routing each doc job to its format<a class="hanchor" href="#routing-each-doc-job-to-its-format" aria-label="Link to section: Routing each doc job to its format">#</a></h2>
+<p>Decide not &quot;video or text&quot; per page but per documentation type. The Diataxis framework splits docs into four needs, tutorials, how-to guides, reference, and explanation, along an axis its authors frame as the difference between a user &quot;at study&quot; and a user &quot;at work&quot;<sup class="article-cite"><a href="#src-6" title="Diataxis — A systematic framework for technical documentation">6</a></sup>. Lay format over that axis and the routing falls out: the action-oriented, learning-heavy corners take motion well; the lookup corners refuse it.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Documentation job</th>
+<th>Diataxis type</th>
+<th>Default format</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>First-run and getting started</td>
+<td>Tutorial (at study)</td>
+<td>Narrated 60-90s walkthrough</td>
+<td>Unfamiliar and spatial; the reader has no map of the UI yet</td>
+</tr>
+<tr>
+<td>One discrete task (&quot;how do I export?&quot;)</td>
+<td>How-to guide</td>
+<td>10-20s silent microvideo, text steps beside it</td>
+<td>A single action, shown once, with the words left searchable</td>
+</tr>
+<tr>
+<td>Reference: API fields, flags, config</td>
+<td>Reference (at work)</td>
+<td>Text, always</td>
+<td>Pure lookup that must stay scannable, copyable, diffable</td>
+</tr>
+<tr>
+<td>Concept, why it works this way</td>
+<td>Explanation</td>
+<td>Text, optional diagram</td>
+<td>Re-read and cross-referenced; there is nothing to move</td>
+</tr>
+<tr>
+<td>Changelog and release notes</td>
+<td>cross-cutting</td>
+<td>20-30s clip plus written detail</td>
+<td>Show the new UI once, let text carry the specifics</td>
+</tr>
+<tr>
+<td>Troubleshooting an error</td>
+<td>How-to guide</td>
+<td>Text first, clip only if spatial</td>
+<td>Users arrive mid-panic and search for the exact message</td>
+</tr>
+</tbody></table></div>
+<p>One surface deserves a warning of its own. API and SDK quickstarts are the fastest-rotting video you can shoot, because a renamed field or a changed response breaks the clip silently while the written reference beside it still reads fine, which is the case for making an API-docs video regenerate from the same fixtures the docs are tested against. The rule that saves you is the same one across every row: a video shows the shape of a thing, and text carries the parts a reader has to copy, search, or trust exactly.</p>
+<p>The unit that survives contact with a real docs site is smaller than a full tutorial. A library of short, single-action microvideos, the ten-second silent clip that stands in for one paragraph, is both more useful and more maintainable than a handful of ten-minute screencasts, and NN/g&#39;s own guidance is to split one long video into per-step clips so viewers jump straight to the moment they need instead of scrubbing for it<sup class="article-cite"><a href="#src-3" title="Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines">3</a></sup>. For onboarding, the live choice is often not video versus text but video versus an interactive product tour; <a href="/blog/interactive-demo-vs-video-demo/">when each of those wins</a> turns on where the doc lives and whether the reader wants to watch or to click. In a help center the bar is narrower still: a knowledge-base video only pays for itself when it deflects a ticket, which the long, unscannable ones never do.</p>
+<h2 id="the-maintenance-tax-that-closes-most-video-libraries">The maintenance tax that closes most video libraries<a class="hanchor" href="#the-maintenance-tax-that-closes-most-video-libraries" aria-label="Link to section: The maintenance tax that closes most video libraries">#</a></h2>
+<p>The failure that sinks doc-video programs is not production quality. The highest-value doc videos show the exact first-run interface, which is precisely the surface a product reshapes most often. A first-run walkthrough is the fastest-rotting artifact you can make: every tweak to the signup flow falsifies it frame by frame.</p>
+<p>The arithmetic is unforgiving, and it is <a href="/blog/why-product-demos-go-stale/">worked out surface by surface elsewhere</a>. A disciplined SaaS still changes something a user can see once or twice a week, which puts a typical walkthrough&#39;s half-life near two months between redesigns and at a single unannounced date when a redesign lands. Now multiply by a library. Two hundred tutorials against one navigation refresh is a re-record backlog no docs team gets funded to clear, which is why keeping a tutorial library current at scale is the true ceiling on how much video a team should own. A stale text step is a small lie a reader routes around; a stale video is a lie in motion, cursor and narration pointing with confidence at a button that moved.</p>
+<p>The only maintenance model that outlasts ship velocity is regeneration. If the flow is a committed spec instead of a hand-captured take, a machine can replay it against today&#39;s build and emit a current video. A coding agent can even <a href="/blog/coding-agents-that-make-demo-videos/">write that spec by exploring the app first</a>, so the re-render rides the same release that changed the UI, and the general <a href="/blog/automated-product-demo-videos/">case for regenerating demos rather than re-recording them</a> transfers to docs without a change. Our own engine, aidemo, is one instance of that pattern, disclosed as ours and honestly bounded: it captures a browser and nothing else, an agent writes the storyboard while a person edits text rather than nudging clips, and there is no drag-and-drop editor anywhere in the loop. The tool is not the point. The point is that a video library stays honest only if its videos rebuild from source, exactly as the rest of your docs already do.</p>
+<h2 id="making-a-doc-video-earn-its-keep">Making a doc video earn its keep<a class="hanchor" href="#making-a-doc-video-earn-its-keep" aria-label="Link to section: Making a doc video earn its keep">#</a></h2>
+<p>Once a job genuinely wants video, a short checklist separates a clip that documents from one that merely exists.</p>
+<p>Pair every video with text. NN/g&#39;s conclusion after years of testing is flat: video &quot;must supplement, never replace&quot; the written version, and users &quot;resent&quot; pages where a video is the sole route to an answer<sup class="article-cite"><a href="#src-4" title="Schade, Nielsen Norman Group (2014) — Video Usability">4</a></sup>. A transcript does triple duty. It satisfies accessibility, it hands search the words the MP4 hides, and it lets a hurried reader skip watching altogether. Captions are not optional either; the <a href="/blog/demo-video-captions/">captioning mechanics for muted, accessible playback</a> are a solved problem rather than a nicety. Keep each clip to one action, and show its duration up front so a reader can price the time cost before committing to it. When the loop is genuinely tiny and wordless, a GIF can beat a video, and the encoding and stable-embed tricks behind a <a href="/blog/readme-gifs-that-update-themselves/">README GIF that updates itself</a> carry straight onto a docs page. Above all, author the video the way you author the docs around it: scripted, scoped to one job, and rebuildable when the product moves. A doc video is documentation first and a video second.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://arxiv.org/abs/1809.00804" rel="noopener">Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering</a></li>
+<li id="src-2"><a href="https://arxiv.org/abs/1808.04986" rel="noopener">Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?</a></li>
+<li id="src-3"><a href="https://www.nngroup.com/articles/instructional-video-guidelines/" rel="noopener">Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines</a></li>
+<li id="src-4"><a href="https://www.nngroup.com/articles/video-usability/" rel="noopener">Schade, Nielsen Norman Group (2014) — Video Usability</a></li>
+<li id="src-5"><a href="https://www.helpscout.com/blog/video-knowledge-base/" rel="noopener">Stoss, Help Scout (2025) — Creating Knowledge Base Videos: Tips, Tools, and Examples</a></li>
+<li id="src-6"><a href="https://diataxis.fr/" rel="noopener">Diataxis — A systematic framework for technical documentation</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="when-is-a-video-the-right-format-for-documentation" class="blog-faq-q">When is a video the right format for documentation?<a class="hanchor" href="#when-is-a-video-the-right-format-for-documentation" aria-label="Link to section: When is a video the right format for documentation?">#</a></h3>
+<p>When the thing you are documenting is spatial, motion-dependent, or unfamiliar: first-run onboarding, a drag-and-drop interaction, a multistep flow a newcomer cannot picture from words. NN/g&#39;s testing found users reach for video on exactly these complex, unfamiliar tasks. When the job is lookup instead, a config value, an API field, an error string, text wins, because the reader needs to scan, search, and copy, none of which a video allows.</p>
+<h3 id="is-video-documentation-bad-for-seo-and-search" class="blog-faq-q">Is video documentation bad for SEO and search?<a class="hanchor" href="#is-video-documentation-bad-for-seo-and-search" aria-label="Link to section: Is video documentation bad for SEO and search?">#</a></h3>
+<p>On its own, yes. Search engines index the words on a page, not the pixels in a video, and readers cannot search inside a frame, so a video with no text is documentation people struggle to find. The fix is a transcript beside every clip: it gives search something to index, satisfies accessibility, and lets a hurried reader jump to the one step they need. Treat the transcript as part of the doc, not an afterthought.</p>
+<h3 id="how-many-documentation-videos-should-a-small-team-maintain" class="blog-faq-q">How many documentation videos should a small team maintain?<a class="hanchor" href="#how-many-documentation-videos-should-a-small-team-maintain" aria-label="Link to section: How many documentation videos should a small team maintain?">#</a></h3>
+<p>As few as genuinely need motion, because each one is a maintenance liability. The highest-value doc videos show the first-run UI, which is the part of a product that changes most, so a large library rots faster than a small team can re-record. Keep video for the handful of jobs where showing beats telling, keep everything else in text, and make the videos you do keep regenerate from a spec so they rebuild when the product ships.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">technical documentation</span>
+        <span class="article-tag">video tutorials</span>
+        <span class="article-tag">documentation strategy</span>
+        <span class="article-tag">developer docs</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-evidence-for-video-in-docs-is-narrower-than-the-enthusiasm">The evidence for video in docs is narrower than the enthusiasm</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-moving-picture-proves-that-a-paragraph-only-asserts">What a moving picture proves that a paragraph only asserts</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-paragraph-proves-that-a-moving-picture-buries">What a paragraph proves that a moving picture buries</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#routing-each-doc-job-to-its-format">Routing each doc job to its format</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-maintenance-tax-that-closes-most-video-libraries">The maintenance tax that closes most video libraries</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#making-a-doc-video-earn-its-keep">Making a doc video earn its keep</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to record your screen in high quality | aidemo</title>
+<meta name="description" content="The screen-recording quality checklist as one table: resolution, frame rate, bitrate, cursor, notifications, audio, and aspect, with the one-line fix for each.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/">
+<link rel="alternate" type="text/markdown" href="/blog/how-to-record-your-screen-in-high-quality/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="How to record your screen in high quality | aidemo">
+<meta property="og:description" content="The screen-recording quality checklist as one table: resolution, frame rate, bitrate, cursor, notifications, audio, and aspect, with the one-line fix for each.">
+<meta property="og:url" content="https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/">
+<meta property="og:image" content="https://aidemo.top/blog/images/how-to-record-your-screen-in-high-quality-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to record your screen in high quality | aidemo">
+<meta name="twitter:description" content="The screen-recording quality checklist as one table: resolution, frame rate, bitrate, cursor, notifications, audio, and aspect, with the one-line fix for each.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/how-to-record-your-screen-in-high-quality-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to record your screen in high quality: the settings that matter",
+  "description": "The screen-recording quality checklist as one table: resolution, frame rate, bitrate, cursor, notifications, audio, and aspect, with the one-line fix for each.",
+  "image": [
+    "https://aidemo.top/blog/images/how-to-record-your-screen-in-high-quality-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/"
+  },
+  "wordCount": 2480,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Window.devicePixelRatio",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Thilo Maier — Recording screencasts on a HiDPI display",
+      "url": "https://maier.tech/posts/recording-screencasts-on-a-hidpi-display"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "TechSmith — Frame Rate: A Beginner's Guide",
+      "url": "https://www.techsmith.com/blog/frame-rate-beginners-guide/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vimeo — Video and audio compression guidelines",
+      "url": "https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — Advanced Recording Settings Guide",
+      "url": "https://obsproject.com/kb/advanced-recording-settings-guide"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Codecs documentation (libx264 crf, preset)",
+      "url": "https://ffmpeg.org/ffmpeg-codecs.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to record your screen in high quality: the settings that matter",
+      "item": "https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does my screen recording look blurry?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost always because you captured scaled logical pixels on a HiDPI or Retina display instead of the physical ones. A layout shown as 1280x720 is actually painted across a 2560x1440 physical grid on a DPR-2 screen, so a recorder that grabs the logical layer keeps a quarter of the detail and fine text softens. The fix is to record the physical grid and downscale to your 1x delivery size; that downscale supersamples four pixels into one and sharpens the result. A 1080p external monitor on a Retina laptop is the other common culprit, since it records at a flat 1920x1080 with no density to spare."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What settings should I use to record my screen in high quality?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Capture the physical HiDPI resolution at DPR 2 and downscale to your delivery size, run 30 fps for a normal UI (60 only for animation or scrolling), and encode to a quality target rather than a fixed bitrate, around CRF 18 to 20 for H.264 in an MP4. Then handle the three tells that no filter fixes later: enlarge or hide the cursor, switch on Do Not Disturb and record in a clean profile, and capture audio as separate system and mic tracks. Set the aspect ratio to the destination before you record, not after."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I record my screen in 1080p or 4K?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Record whatever physical resolution is 2x your delivery target, not the biggest number your monitor offers. If the video ships at 1080p, capturing the HiDPI grid behind a 1080p layout already gives you the supersampling that makes text crisp, and a full 4K capture just spends four times the bits to throw most of them away. Reach for a true 4K capture only when you are delivering in 4K or you know you will punch deep into the frame during editing and need the extra pixels to survive the zoom."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>How to record your screen in high quality: the settings that matter</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">How to record your screen in high quality: the settings that matter</h1>
+        <p class="article-dek">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>10 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#quality-is-decided-at-capture-not-in-the-editor">Quality is decided at capture, not in the editor</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#resolution-record-the-physical-pixels-deliver-at-1x">Resolution: record the physical pixels, deliver at 1x</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#frame-rate-30-by-default-60-only-when-motion-pays-for-it">Frame rate: 30 by default, 60 only when motion pays for it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#bitrate-and-codec-target-a-quality-not-a-number">Bitrate and codec: target a quality, not a number</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-three-tells-that-date-a-recording-cursor-notifications-clutter">The three tells that date a recording: cursor, notifications, clutter</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#audio-capture-two-tracks-keep-the-voice-on-top">Audio: capture two tracks, keep the voice on top</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#aspect-ratio-compose-for-the-destination-before-you-record">Aspect ratio: compose for the destination before you record</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-one-rule-under-the-checklist-capture-is-irreversible">The one rule under the checklist: capture is irreversible</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/how-to-record-your-screen-in-high-quality-800.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay camera lens with a knurled focus ring, standing upright"><figcaption>A blurry recording is never bad luck; it is a dial left in the wrong position, and every dial turns back.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Record at 2x and deliver at 1x: capture the physical HiDPI grid (a 1280x720 layout is 2560x1440 at DPR 2), then downscale, and that supersample is what makes text crisp.</li>
+    <li>Frame rate is a content decision: 30 fps for UI and forms, 60 fps only for animation or scrolling, because the extra frames cost bitrate a static screen never earns back.</li>
+    <li>Target a quality, not a bitrate: encode with CRF 18 to 20 (x264) or CQP 18 to 20 (OBS); ffmpeg's default is CRF 23 on a 0-51 scale where lower is better.</li>
+    <li>Match delivery to reach, not your monitor: H.264 High Profile in an MP4 plays anywhere, and Vimeo's roughly 10 to 20 Mbps for 1080p is a sane export target, at a constant frame rate.</li>
+    <li>Capture is irreversible, polish is not: resolution, frame rate, cursor capture, and a clean profile must be right at record time; no filter adds back pixels or deletes a toast.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="quality-is-decided-at-capture-not-in-the-editor">Quality is decided at capture, not in the editor<a class="hanchor" href="#quality-is-decided-at-capture-not-in-the-editor" aria-label="Link to section: Quality is decided at capture, not in the editor">#</a></h2>
+<p>&quot;High quality&quot; is not a slider you drag at export. It is a short list of settings you commit to the moment you press record, and every one of them fails in a specific, nameable way: text goes soft, motion stutters, a notification slides in, the voice clips. The good news is the same as the bad news. None of it is talent, so none of it is out of reach; each setting takes a number, and each has a one-line fix. The other half of the job, the zoom and the cursor glide and the trims that make a raw take look produced, is <a href="/blog/professional-screen-recordings/">editing you can redo without re-recording</a>, so it is not on this list. This list is the part the editor cannot rescue: the properties baked into the pixels at capture time. Which recorder you use to apply them is a separate <a href="/blog/screen-studio-alternatives/">platform-and-price question</a>; the settings below are tool-agnostic.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Why it decides quality</th>
+<th>The one-line fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Resolution</td>
+<td>Grabbing scaled pixels instead of physical ones bakes in soft text</td>
+<td>Capture the HiDPI grid at DPR 2, downscale to your 1x delivery size</td>
+</tr>
+<tr>
+<td>Frame rate</td>
+<td>Too low stutters motion; too high doubles the file for nothing</td>
+<td>30 fps for UI, 60 fps only for animation or scrolling</td>
+</tr>
+<tr>
+<td>Bitrate / codec</td>
+<td>A fixed bitrate over-spends on still scenes and starves busy ones</td>
+<td>Encode to a quality target (CRF 18 to 20), H.264 in MP4</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>A tiny, jittery pointer is the loudest amateur tell</td>
+<td>Enlarge it, or hide it and draw a synthetic one</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>One toast leaks a name and dates the clip forever</td>
+<td>Do Not Disturb, plus a clean recording profile</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>Clipping or music over voice makes it unwatchable</td>
+<td>Capture system and mic on separate tracks, keep the voice on top</td>
+</tr>
+<tr>
+<td>Aspect ratio</td>
+<td>Cropping a 16:9 desktop later throws away most of the frame</td>
+<td>Set the viewport to the destination aspect before recording</td>
+</tr>
+</tbody></table></div>
+<p>Read the table top to bottom before your next take and you will avoid the failures behind almost every &quot;why does this look cheap&quot; complaint. The rest of this page works one row at a time, with the number that makes it right. If you are producing the whole demo and not just the raw clip, <a href="/blog/how-to-make-a-product-demo-video/">the script-first playbook</a> is the wider frame; this is the capture layer underneath it.</p>
+<h2 id="resolution-record-the-physical-pixels-deliver-at-1x">Resolution: record the physical pixels, deliver at 1x<a class="hanchor" href="#resolution-record-the-physical-pixels-deliver-at-1x" aria-label="Link to section: Resolution: record the physical pixels, deliver at 1x">#</a></h2>
+<p>Most blurry recordings are not a bitrate problem or a bad tool. They are a resolution mistake made before anything was recorded: the recorder captured scaled pixels instead of physical ones.</p>
+<p>Modern laptop and phone screens are high-density. MDN pegs a device-pixel-ratio of 1 to a classic 96-DPI screen and a ratio of 2 to a HiDPI or Retina panel<sup class="article-cite"><a href="#src-1" title="MDN — Window.devicePixelRatio">1</a></sup>. On a DPR-2 display, as Thilo Maier&#39;s screencast writeup puts it, &quot;one scaled pixel consists of four physical pixels&quot;<sup class="article-cite"><a href="#src-2" title="Thilo Maier — Recording screencasts on a HiDPI display">2</a></sup>. So a UI laid out at 1280x720 logical is actually painted across a 2560x1440 physical grid. If your recorder grabs the 1280x720 logical layer, it captures a quarter of the pixels the screen is really showing, and any text made of fine strokes turns soft. Recorders such as QuickTime and ScreenFlow instead capture the physical grid, recording 2560x1440 when you &quot;record 1280 by 720 scaled pixels&quot;<sup class="article-cite"><a href="#src-2" title="Thilo Maier — Recording screencasts on a HiDPI display">2</a></sup>.</p>
+<p>That is the anchor rule for this whole page: record at 2x, deliver at 1x. Capture the physical HiDPI grid, then downscale to your delivery target. The downscale averages every 2x2 block of four captured pixels into one delivered pixel, which is supersampling, the cheapest antialiasing there is, so the edges of text and icons come out crisp instead of aliased. Record natively at 1x and you skip that averaging pass entirely: you deliver exactly the pixels you captured, with no headroom to sharpen and none to punch into later, which is <a href="/blog/professional-screen-recordings/">the zoom-headroom argument</a> seen from the other side.</p>
+<p>The corollary is to match the source to the delivery, not to your monitor. Capturing a full 4K desktop for a 1080p embed spends four times the pixels and then discards three-quarters of them in a downscale nobody tuned, while a plain 1080p external panel plugged into a Retina laptop records at a flat 1920x1080 with none of the supersampling that made the built-in screen look sharp. Pick the resolution from where the video will actually play, then find the 2x capture that feeds it.</p>
+<h2 id="frame-rate-30-by-default-60-only-when-motion-pays-for-it">Frame rate: 30 by default, 60 only when motion pays for it<a class="hanchor" href="#frame-rate-30-by-default-60-only-when-motion-pays-for-it" aria-label="Link to section: Frame rate: 30 by default, 60 only when motion pays for it">#</a></h2>
+<p>Twenty-four frames a second is the cinema floor, &quot;the minimum speed needed to capture video while still maintaining realistic motion&quot;; 30 and 60 are the rates &quot;used for television and online content&quot;<sup class="article-cite"><a href="#src-3" title="TechSmith — Frame Rate: A Beginner's Guide">3</a></sup>. A product UI, all forms and dashboards and discrete clicks, has very little continuous motion, and 30 fps carries it cleanly. Sixty frames earns its keep only where motion is continuous: animation, fast scrolling, video playing inside the UI, a game. As TechSmith puts it, &quot;anything higher than 30fps is usually reserved for recording busy scenes with lots of motion&quot;<sup class="article-cite"><a href="#src-3" title="TechSmith — Frame Rate: A Beginner's Guide">3</a></sup>.</p>
+<p>The cost of the extra frames is bits. Doubling the frame rate does not quite double the file, since consecutive frames are similar enough to compress against one another, but on footage that barely moves it still spends noticeably more to show the same thing. Paying that to render a cursor crossing a static form is a bad trade. Capturing high and producing lower can bank motion detail when a scene truly needs it, but for a walkthrough that ends up in an embed, 30 fps captured and delivered is the honest default. One capture-time rule reinforces it: Vimeo&#39;s compression guide says to &quot;always choose a constant frame rate rather than a variable frame rate&quot;<sup class="article-cite"><a href="#src-4" title="Vimeo — Video and audio compression guidelines">4</a></sup>, because the variable rate some tools default to drifts out of sync with narration and confuses every editor downstream. The 30-versus-60 decision by content type is worth its own table.</p>
+<h2 id="bitrate-and-codec-target-a-quality-not-a-number">Bitrate and codec: target a quality, not a number<a class="hanchor" href="#bitrate-and-codec-target-a-quality-not-a-number" aria-label="Link to section: Bitrate and codec: target a quality, not a number">#</a></h2>
+<p>There are two ways to control size, and for screen content only one is right. A fixed bitrate spends the same bits on a motionless login screen and a scrolling table: the still scene wastes them, the busy scene starves. Constant-quality encoding inverts that. You pick a quality and let the bitrate float to hold it, which OBS documents as CQP or CRF, where a &quot;lower CRF will result in higher quality and larger file sizes&quot;<sup class="article-cite"><a href="#src-5" title="OBS Studio — Advanced Recording Settings Guide">5</a></sup>. Screen recordings, long still stretches punctuated by bursts, are exactly the case constant quality was built for.</p>
+<p>The number to set is small and well documented. In x264 the constant rate factor runs 0 to 51 with a default of 23, &quot;where lower values indicate better quality&quot;<sup class="article-cite"><a href="#src-6" title="FFmpeg — Codecs documentation (libx264 crf, preset)">6</a></sup>; OBS recommends a CQP or CRF of 16 to 23 for recording, with a keyframe interval of 2 seconds<sup class="article-cite"><a href="#src-5" title="OBS Studio — Advanced Recording Settings Guide">5</a></sup>. For crisp UI text, sit at the high-quality end, a CRF around 18 to 20, and choose a slower encoder preset, which spends more CPU to reach the same quality in a smaller file.</p>
+<p>Codec is a separate axis from container. H.264 inside an MP4 is the send-anywhere default; Vimeo, for one, recommends H.264 in its High Profile setting as the balance of &quot;high visual quality with efficient file size,&quot; at roughly 10 to 20 Mbps for 1080p<sup class="article-cite"><a href="#src-4" title="Vimeo — Video and audio compression guidelines">4</a></sup>. VP9 or AV1 buy a meaningfully smaller web embed at the cost of compatibility, and that container-versus-codec decision has its own table. The one universal rule: for a raw take you will edit later, record at near-lossless quality and compress once on export, never twice.</p>
+<h2 id="the-three-tells-that-date-a-recording-cursor-notifications-clutter">The three tells that date a recording: cursor, notifications, clutter<a class="hanchor" href="#the-three-tells-that-date-a-recording-cursor-notifications-clutter" aria-label="Link to section: The three tells that date a recording: cursor, notifications, clutter">#</a></h2>
+<p>These three change no bitrate. They change whether the clip reads as a product or as a desktop someone forgot to tidy, and each is set at record time.</p>
+<p>The cursor is the first tell. The system pointer is small, and its real path between clicks is high-frequency jitter that, rendered faithfully, screams that a human recorded this live. Two fixes exist: enlarge or hide the pointer in the recorder, or hide the operating-system cursor and draw a smooth synthetic one over the footage. <a href="/blog/professional-screen-recordings/">Cursor smoothing itself is a compose-time transform</a>, but whether the OS cursor is captured at all is a switch you flip before recording.</p>
+<p>Notifications are the tell you cannot fix later. One Slack or Mail toast slides in with a real name attached, and no filter removes it from the pixels afterward. Turn on Do Not Disturb or Focus on whatever OS you are on, and, better still, record in a clean profile or a fresh window where nothing personal can fire at all. The cross-OS Do-Not-Disturb setup is the belt; a clean profile is the suspenders.</p>
+<p>Clutter is the slow tell: personal bookmarks, a half-dismissed cookie banner, a stray scrollbar, forty browser tabs. A recording profile with no extensions and hidden chrome keeps the frame about the product. It is also the reason capturing a single browser tab rather than the whole screen yields a cleaner result with far less to police.</p>
+<h2 id="audio-capture-two-tracks-keep-the-voice-on-top">Audio: capture two tracks, keep the voice on top<a class="hanchor" href="#audio-capture-two-tracks-keep-the-voice-on-top" aria-label="Link to section: Audio: capture two tracks, keep the voice on top">#</a></h2>
+<p>If the recording carries sound, the quality bar is intelligibility, not loudness, and two failures dominate. The first is clipping: push the mic or system level past 0 dBFS and you bake in permanent distortion that no amount of later gain repairs. The second is burial: music or interface sound sitting on top of the narration so the words stop landing.</p>
+<p>Both have the same structural fix, which is to capture system audio and the microphone as two separate tracks rather than one pre-mixed one. Two tracks let you balance them after the fact; a single mixed track cannot be unmixed. Set the mic with headroom so its peaks stay well below clipping, and keep any background bed low enough under narration that a listener never strains for a word. The exact loudness targets belong to the mixing stage, but the capture rule is short: two tracks, a mic with headroom, and never a single already-clipped mix.</p>
+<h2 id="aspect-ratio-compose-for-the-destination-before-you-record">Aspect ratio: compose for the destination before you record<a class="hanchor" href="#aspect-ratio-compose-for-the-destination-before-you-record" aria-label="Link to section: Aspect ratio: compose for the destination before you record">#</a></h2>
+<p>A recording is 16:9 because monitors are. If it is bound for a vertical feed at 9:16 or a square post at 1:1, the honest move is to record for that shape, not to crop into it afterward, because cropping a landscape desktop to vertical <a href="/blog/professional-screen-recordings/">keeps only about a third of the width</a> and discards the rest. Set the capture viewport to the destination aspect up front: a narrow browser window for a 9:16 story, the full width for a 16:9 hero. Then the action already lives inside the frame you will ship, and there is no lossy reframe to regret.</p>
+<h2 id="the-one-rule-under-the-checklist-capture-is-irreversible">The one rule under the checklist: capture is irreversible<a class="hanchor" href="#the-one-rule-under-the-checklist-capture-is-irreversible" aria-label="Link to section: The one rule under the checklist: capture is irreversible">#</a></h2>
+<p>Every row above sorts into one of two columns. Resolution, frame rate, whether the cursor was captured, whether the profile was clean, the aspect the viewport was set to: these are properties written into the pixels, and no filter reverses them. Zoom, trims, captions, color, the synthetic cursor: these are re-derivable, applied to footage as many times as you like. The whole discipline is knowing which column a decision lives in, getting the left one right exactly once, and treating the right one as free to redo.</p>
+<p>The reliable way to &quot;get it right once&quot; is to stop performing the capture and start pinning it, so the viewport, device pixel ratio, frame rate, and profile are fixed values and <a href="/blog/deterministic-browser-automation-for-video/">the same run produces the same footage every time</a>. In our own engine, aidemo, those capture settings live in a storyboard authored by a coding agent in code rather than dragged on a GUI timeline, so a demo re-renders at the identical resolution and frame rate on every run. The honest limits: aidemo captures a browser only, so it will not record a native desktop app, and for a single throwaway clip a GUI recorder is simply less setup.</p>
+<p>The last quality failure is the one that arrives months later. The recording stays perfectly sharp while the product moves, until it <a href="/blog/why-product-demos-go-stale/">quietly starts lying about a UI that shipped past it</a>, and the cheap fix at that point is to <a href="/blog/automated-product-demo-videos/">regenerate it from the spec rather than re-record the whole take</a>. High quality you cannot reproduce next quarter is a one-time result, not a setting.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio" rel="noopener">MDN — Window.devicePixelRatio</a></li>
+<li id="src-2"><a href="https://maier.tech/posts/recording-screencasts-on-a-hidpi-display" rel="noopener">Thilo Maier — Recording screencasts on a HiDPI display</a></li>
+<li id="src-3"><a href="https://www.techsmith.com/blog/frame-rate-beginners-guide/" rel="noopener">TechSmith — Frame Rate: A Beginner's Guide</a></li>
+<li id="src-4"><a href="https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines" rel="noopener">Vimeo — Video and audio compression guidelines</a></li>
+<li id="src-5"><a href="https://obsproject.com/kb/advanced-recording-settings-guide" rel="noopener">OBS Studio — Advanced Recording Settings Guide</a></li>
+<li id="src-6"><a href="https://ffmpeg.org/ffmpeg-codecs.html" rel="noopener">FFmpeg — Codecs documentation (libx264 crf, preset)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="why-does-my-screen-recording-look-blurry" class="blog-faq-q">Why does my screen recording look blurry?<a class="hanchor" href="#why-does-my-screen-recording-look-blurry" aria-label="Link to section: Why does my screen recording look blurry?">#</a></h3>
+<p>Almost always because you captured scaled logical pixels on a HiDPI or Retina display instead of the physical ones. A layout shown as 1280x720 is actually painted across a 2560x1440 physical grid on a DPR-2 screen, so a recorder that grabs the logical layer keeps a quarter of the detail and fine text softens. The fix is to record the physical grid and downscale to your 1x delivery size; that downscale supersamples four pixels into one and sharpens the result. A 1080p external monitor on a Retina laptop is the other common culprit, since it records at a flat 1920x1080 with no density to spare.</p>
+<h3 id="what-settings-should-i-use-to-record-my-screen-in-high-quality" class="blog-faq-q">What settings should I use to record my screen in high quality?<a class="hanchor" href="#what-settings-should-i-use-to-record-my-screen-in-high-quality" aria-label="Link to section: What settings should I use to record my screen in high quality?">#</a></h3>
+<p>Capture the physical HiDPI resolution at DPR 2 and downscale to your delivery size, run 30 fps for a normal UI (60 only for animation or scrolling), and encode to a quality target rather than a fixed bitrate, around CRF 18 to 20 for H.264 in an MP4. Then handle the three tells that no filter fixes later: enlarge or hide the cursor, switch on Do Not Disturb and record in a clean profile, and capture audio as separate system and mic tracks. Set the aspect ratio to the destination before you record, not after.</p>
+<h3 id="should-i-record-my-screen-in-1080p-or-4k" class="blog-faq-q">Should I record my screen in 1080p or 4K?<a class="hanchor" href="#should-i-record-my-screen-in-1080p-or-4k" aria-label="Link to section: Should I record my screen in 1080p or 4K?">#</a></h3>
+<p>Record whatever physical resolution is 2x your delivery target, not the biggest number your monitor offers. If the video ships at 1080p, capturing the HiDPI grid behind a 1080p layout already gives you the supersampling that makes text crisp, and a full 4K capture just spends four times the bits to throw most of them away. Reach for a true 4K capture only when you are delivering in 4K or you know you will punch deep into the frame during editing and need the extra pixels to survive the zoom.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">recording quality</span>
+        <span class="article-tag">resolution</span>
+        <span class="article-tag">frame rate</span>
+        <span class="article-tag">encoding</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#quality-is-decided-at-capture-not-in-the-editor">Quality is decided at capture, not in the editor</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#resolution-record-the-physical-pixels-deliver-at-1x">Resolution: record the physical pixels, deliver at 1x</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#frame-rate-30-by-default-60-only-when-motion-pays-for-it">Frame rate: 30 by default, 60 only when motion pays for it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#bitrate-and-codec-target-a-quality-not-a-number">Bitrate and codec: target a quality, not a number</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-three-tells-that-date-a-recording-cursor-notifications-clutter">The three tells that date a recording: cursor, notifications, clutter</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#audio-capture-two-tracks-keep-the-voice-on-top">Audio: capture two tracks, keep the voice on top</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#aspect-ratio-compose-for-the-destination-before-you-record">Aspect ratio: compose for the destination before you record</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-one-rule-under-the-checklist-capture-is-irreversible">The one rule under the checklist: capture is irreversible</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
