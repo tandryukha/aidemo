@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Record a terminal session: text, GIF, or tape | aidemo</title>
+<meta name="description" content="A terminal is text, not pixels. Record it as a copyable asciicast, a screen-recorded GIF, or a committed vhs tape, with a table of which fits each destination.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/record-a-terminal-session/">
+<link rel="alternate" type="text/markdown" href="/blog/record-a-terminal-session/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Record a terminal session: text, GIF, or tape | aidemo">
+<meta property="og:description" content="A terminal is text, not pixels. Record it as a copyable asciicast, a screen-recorded GIF, or a committed vhs tape, with a table of which fits each destination.">
+<meta property="og:url" content="https://aidemo.top/blog/record-a-terminal-session/">
+<meta property="og:image" content="https://aidemo.top/blog/images/record-a-terminal-session-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Record a terminal session: text, GIF, or tape | aidemo">
+<meta name="twitter:description" content="A terminal is text, not pixels. Record it as a copyable asciicast, a screen-recorded GIF, or a committed vhs tape, with a table of which fits each destination.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/record-a-terminal-session-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to record a terminal session (and when to skip the video)",
+  "description": "A terminal is text, not pixels. Record it as a copyable asciicast, a screen-recorded GIF, or a committed vhs tape, with a table of which fits each destination.",
+  "image": [
+    "https://aidemo.top/blog/images/record-a-terminal-session-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/record-a-terminal-session/"
+  },
+  "wordCount": 1944,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "asciinema — asciicast v2 file format (newline-delimited JSON header plus event lines of terminal text)",
+      "url": "https://docs.asciinema.org/manual/asciicast/v2/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "asciinema — asciicast v3 file format (relative-interval event stream, not backward compatible with v2)",
+      "url": "https://docs.asciinema.org/manual/asciicast/v3/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "asciinema — CLI repository (Rust 3.x rewrite, zstd casts ~8% of the original size)",
+      "url": "https://github.com/asciinema/asciinema"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "charmbracelet/vhs — write terminal GIFs as code (.tape commands, ttyd + ffmpeg dependencies)",
+      "url": "https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "asciinema/agg — asciicast to animated GIF generator",
+      "url": "https://github.com/asciinema/agg"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "nbedos/termtosvg — record terminal sessions as standalone SVG animations (archived)",
+      "url": "https://github.com/nbedos/termtosvg"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "man7 — script(1), util-linux (typescript of a terminal session; --log-timing for scriptreplay)",
+      "url": "https://man7.org/linux/man-pages/man1/script.1.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — attaching files (10 MB image/GIF cap; MP4, MOV, WebM video types)",
+      "url": "https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to record a terminal session (and when to skip the video)",
+      "item": "https://aidemo.top/blog/record-a-terminal-session/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I record a terminal session without installing anything?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On Linux, the util-linux script command records a typescript of everything printed to your terminal, and adding --log-timing timing.log captures the delays so scriptreplay can play it back at the original speed. Both are already on the machine. macOS and BSD ship a script too, but with different flags, so the built-in replay is most reliable on Linux. For a portable, shareable recording, install asciinema and record a .cast instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can readers copy the commands out of an asciinema recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. An asciicast is a text file of the characters your terminal printed, so the asciinema web player lets a viewer pause and select the commands straight out of the playback. That is the one thing a text cast gives you that a screen recording cannot: an MP4 or GIF turns the same terminal into pixels, and every command becomes unselectable. If copy-paste matters, record text, not video."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I use an asciinema cast or a GIF in my README?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A GIF, but generate it from the cast. GitHub only autoplays a committed GIF inline and has no asciicast player, so a raw .cast will not move on the page. Record the session as a lightweight cast for the copyable source of truth, then convert it to a GIF with agg, or render a .tape with vhs, for the README itself, keeping the GIF under GitHub's 10 MB image cap."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>How to record a terminal session (and when to skip the video)</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">How to record a terminal session (and when to skip the video)</h1>
+        <p class="article-dek">A terminal is characters, not pixels, so you can record it as copyable text, a GIF, or a re-renderable tape. Pick by where the demo has to live.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 8 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#record-the-characters-or-photograph-them">Record the characters, or photograph them</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-demo-you-can-skip-recording-entirely">The demo you can skip recording entirely</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#text-stream-capture-asciinema-and-the-built-in-script-command">Text-stream capture: asciinema and the built-in script command</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pixel-capture-a-real-screen-recording-of-the-terminal">Pixel capture: a real screen recording of the terminal</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#scripted-replay-a-tape-you-commit-and-re-render">Scripted replay: a tape you commit and re-render</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-three-capture-modes-side-by-side">The three capture modes, side by side</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-artifact-each-destination-wants">Which artifact each destination wants</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/record-a-terminal-session-800.webp" srcset="/blog/images/record-a-terminal-session-400.webp 400w, /blog/images/record-a-terminal-session-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A brass music box cylinder studded with tiny raised pins"><figcaption>A music box cylinder stores the tune as pins, not a recording of the room, which is exactly why a terminal cast weighs kilobytes and stays copyable.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A terminal is characters, not pixels: an asciicast stores the text (kilobytes, copy-pasteable), a screen recording stores pixels (megabytes, uncopyable), a vhs tape regenerates on demand.</li>
+    <li>Skip recording when the value is the commands: a fenced code block is copyable, diffable, greppable, weightless, and screen-reader friendly. Record only when timing or output is the point.</li>
+    <li>asciinema's Rust 3.x CLI writes zstd casts at ~8% of the original size, so a multi-minute session is a few KB versus a multi-MB GIF of the same run.</li>
+    <li>A GitHub README has no asciicast player, so convert the cast to a GIF with agg or vhs and keep it under GitHub's 10 MB image cap.</li>
+    <li>On Linux, util-linux `script` plus `--log-timing` records a replayable session with zero installs; scriptreplay plays it back at the original speed.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="record-the-characters-or-photograph-them">Record the characters, or photograph them<a class="hanchor" href="#record-the-characters-or-photograph-them" aria-label="Link to section: Record the characters, or photograph them">#</a></h2>
+<p>Almost everything on your screen can only be captured as pixels. A terminal is the exception. What scrolls past in a shell is a stream of characters and a handful of control codes, and you get to decide whether to preserve that stream as text or flatten it into a picture the way a screen recorder flattens a window. That single choice, made before you press record, decides whether the demo weighs kilobytes or megabytes, whether a reader can select and paste the commands, and whether the recording still works the next time the tool changes.</p>
+<p>Three capture modes fall out of it. You can record the text stream itself and replay it in a player. You can point a screen recorder at the terminal and get an MP4 or GIF like any other window. Or you can skip live capture entirely and drive a scripted terminal from a committed file that re-renders on demand. Each is right for a different destination, and a fourth option beats all three more often than people admit: not recording at all.</p>
+<h2 id="the-demo-you-can-skip-recording-entirely">The demo you can skip recording entirely<a class="hanchor" href="#the-demo-you-can-skip-recording-entirely" aria-label="Link to section: The demo you can skip recording entirely">#</a></h2>
+<p>Before reaching for any recorder, ask what the reader actually needs from the terminal. If the value is the commands themselves, the correct artifact is usually a fenced code block, not a video of you typing it. A code block is copy-pasteable, diffable in review, greppable by search engines and by the reader&#39;s own browser, weightless, and legible to a screen reader. No recorder produces an artifact with all five of those properties. A recording of a command someone then has to retype by squinting at pixels is strictly worse than the two lines of text it depicts.</p>
+<p>Motion earns its place only when the value is in the timing or the output, not the input: a long-running build whose progress bar you want to show crossing the finish line, a TUI whose layout redraws as you move, an interactive prompt, the felt speed of a command that returns instantly. When the terminal does something over time that a static block cannot convey, you have a real reason to record. Everything below assumes you have one.</p>
+<h2 id="text-stream-capture-asciinema-and-the-built-in-script-command">Text-stream capture: asciinema and the built-in script command<a class="hanchor" href="#text-stream-capture-asciinema-and-the-built-in-script-command" aria-label="Link to section: Text-stream capture: asciinema and the built-in script command">#</a></h2>
+<p>The lightest recording keeps the terminal as text. asciinema writes each session to an asciicast file: a header line of metadata, then one JSON line per event, each holding a timestamp and the bytes your terminal printed<sup class="article-cite"><a href="#src-1" title="asciinema — asciicast v2 file format (newline-delimited JSON header plus event lines of terminal text)">1</a></sup>. Because it stores the characters rather than a grid of pixels, the file is small and the text stays real, so a viewer can pause the web player and select the commands straight out of it. The current CLI is a 3.x rewrite in Rust that can also write zstd-compressed casts at, by its own measurement, &quot;8% of the original size on average&quot;<sup class="article-cite"><a href="#src-3" title="asciinema — CLI repository (Rust 3.x rewrite, zstd casts ~8% of the original size)">3</a></sup>, which puts a multi-minute session at a handful of kilobytes on disk. The newer asciicast v3 format keeps the same one-line-per-event shape but switches to relative intervals between events and is deliberately not backward compatible with v1 and v2<sup class="article-cite"><a href="#src-2" title="asciinema — asciicast v3 file format (relative-interval event stream, not backward compatible with v2)">2</a></sup>.</p>
+<p>You do not have to install anything to get the same idea on a Linux box. The util-linux <code>script</code> command &quot;makes a typescript of everything on your terminal session,&quot; and with <code>--log-timing</code> it writes the timing data that is &quot;necessary to replay the session later by scriptreplay(1)&quot;<sup class="article-cite"><a href="#src-7" title="man7 — script(1), util-linux (typescript of a terminal session; --log-timing for scriptreplay)">7</a></sup>. macOS and the BSDs ship their own <code>script</code> with different flags, so the replay story is cleanest on Linux, but the typescript file is plain text everywhere.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">  # zero-install text capture on Linux, replayable at the original speed</span></span>
+<span class="line"><span style="color:#4078F2">script</span><span style="color:#986801"> --log-timing</span><span style="color:#50A14F"> timing.log</span><span style="color:#50A14F"> session.log</span></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">  #   ...run your commands, then: exit</span></span>
+<span class="line"><span style="color:#4078F2">scriptreplay</span><span style="color:#986801"> --log-timing</span><span style="color:#50A14F"> timing.log</span><span style="color:#50A14F"> session.log</span></span></code></pre>
+</div>
+<p>The honest limit of every text cast: it is not something a reader can watch without a player. A <code>.cast</code> inlines nowhere on its own, so you either link out to a hosted player or convert it to pixels for embedding, which is what the next two sections are about.</p>
+<h2 id="pixel-capture-a-real-screen-recording-of-the-terminal">Pixel capture: a real screen recording of the terminal<a class="hanchor" href="#pixel-capture-a-real-screen-recording-of-the-terminal" aria-label="Link to section: Pixel capture: a real screen recording of the terminal">#</a></h2>
+<p>Sometimes you want the terminal to look exactly like your terminal: your font, your color theme, a TUI&#39;s box-drawing, or the window sitting beside a browser. That means a normal screen recording, captured with the same tools and <a href="/blog/how-to-record-your-screen-in-high-quality/">capture settings that decide whether any recording reads sharp</a>. On a desktop you grab the terminal window like any other, which on Linux means <a href="/blog/record-screen-on-linux/">the display server decides which recorder even works</a>; the output is an MP4 or, for a short loop, a GIF, and <a href="/blog/best-video-format-for-screen-recording/">the container-versus-codec choice there is its own decision</a>.</p>
+<p>Pixels buy fidelity and cost three things. The text is now a picture, so nobody can copy a command out of it; small monospace fonts smear under a codec&#39;s color subsampling unless you record at a large font size, the same legibility trap that governs any <a href="/blog/developer-education-screencasts/">screencast putting a terminal on one timeline with code and a browser</a>; and the file is heavy, because a GIF stores indexed frames with no compression between them, so even a mostly-static terminal loop runs far larger than the equivalent MP4, with <a href="/blog/readme-gifs-that-update-themselves/">the full GIF-versus-MP4 size math worked out for READMEs elsewhere</a>. Pixel capture is the right call when the look is the point and copyability is not.</p>
+<h2 id="scripted-replay-a-tape-you-commit-and-re-render">Scripted replay: a tape you commit and re-render<a class="hanchor" href="#scripted-replay-a-tape-you-commit-and-re-render" aria-label="Link to section: Scripted replay: a tape you commit and re-render">#</a></h2>
+<p>The third mode does not capture a live session at all. You write the session as a script and a tool replays it into a fresh recording every time. vhs is the standard here, and its own tagline is blunt: &quot;terminal GIFs as code.&quot; It reads a <code>.tape</code> file of commands like <code>Set FontSize</code>, <code>Type</code>, <code>Sleep</code>, and <code>Enter</code> and renders to GIF, MP4, WebM, or even a plain-text frame, given <code>ttyd</code> and <code>ffmpeg</code> on the PATH<sup class="article-cite"><a href="#src-4" title="charmbracelet/vhs — write terminal GIFs as code (.tape commands, ttyd + ffmpeg dependencies)">4</a></sup>. Because the tape is the source of truth, the demo is diffable, reviewable, and regenerable: change the CLI, replay the same tape, and the recording updates with nobody re-typing it. That runs unattended, which is why the tape pattern fits <a href="/blog/headless-screen-recording/">rendering a demo on a machine with no display attached</a>.</p>
+<div class="code-block">
+<div class="code-block-bar"><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>  # demo.tape, committed next to the CLI
+Output demo.gif
+Set FontSize 22
+Type &quot;mytool build ./app&quot; Enter
+Sleep 3s</code></pre>
+</div>
+<p>You can also turn a text cast into pixels after the fact: agg renders an asciinema <code>.cast</code> into an animated GIF<sup class="article-cite"><a href="#src-5" title="asciinema/agg — asciicast to animated GIF generator">5</a></sup>, and the now-archived termtosvg renders a session, including an asciicast, as a &quot;standalone SVG animation&quot; whose vector text stays crisp at any zoom<sup class="article-cite"><a href="#src-6" title="nbedos/termtosvg — record terminal sessions as standalone SVG animations (archived)">6</a></sup>. This regenerate-from-source discipline is the terminal cousin of committing a browser demo as a spec. Our own engine, aidemo, does that for web UIs, but it is browser-only by design, so a terminal is exactly the case where you reach for vhs instead of us.</p>
+<h2 id="the-three-capture-modes-side-by-side">The three capture modes, side by side<a class="hanchor" href="#the-three-capture-modes-side-by-side" aria-label="Link to section: The three capture modes, side by side">#</a></h2>
+<p>Scored on the things that actually differ: how big the artifact is, whether a reader can copy the commands, how you edit it later, and whether it survives the next release.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Text cast (asciinema, script)</th>
+<th>Pixel recording (MP4/GIF)</th>
+<th>Scripted replay (vhs tape)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Artifact</td>
+<td><code>.cast</code> / typescript text</td>
+<td>MP4 or GIF</td>
+<td><code>.tape</code> to GIF/MP4/text</td>
+</tr>
+<tr>
+<td>Size, short session</td>
+<td>kilobytes</td>
+<td>MP4 sub-MB, GIF megabytes</td>
+<td>as its chosen output</td>
+</tr>
+<tr>
+<td>Copy the commands?</td>
+<td>yes, it is text</td>
+<td>no, pixels</td>
+<td>no, unless text output</td>
+</tr>
+<tr>
+<td>Edit after recording</td>
+<td>re-record or hand-edit JSON</td>
+<td>a video editor</td>
+<td>edit the tape, re-render</td>
+</tr>
+<tr>
+<td>Stays current by</td>
+<td>re-recording</td>
+<td>re-recording</td>
+<td>replaying the tape</td>
+</tr>
+<tr>
+<td>Inlines in a README</td>
+<td>needs a player, or convert</td>
+<td>GIF autoplays</td>
+<td>renders to a GIF</td>
+</tr>
+<tr>
+<td>Best when</td>
+<td>the commands matter</td>
+<td>the look matters</td>
+<td>a maintained demo</td>
+</tr>
+</tbody></table></div>
+<p>The row that catches people out is the second-to-last. A text cast is the smallest and most copyable artifact, yet it is the one thing that does not simply drop into a GitHub README, because a README has no asciicast player. That is why so many terminal demos are text-captured and then run through agg or vhs into a GIF for the front page: you keep the tiny, copyable source and still get inline motion, from two artifacts instead of one.</p>
+<h2 id="which-artifact-each-destination-wants">Which artifact each destination wants<a class="hanchor" href="#which-artifact-each-destination-wants" aria-label="Link to section: Which artifact each destination wants">#</a></h2>
+<p>There is no single best capture; there is a best one per place the demo has to live.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Destination</th>
+<th>Reach for</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Docs where copying matters</td>
+<td>fenced code block, or asciicast</td>
+<td>the reader pastes the commands</td>
+</tr>
+<tr>
+<td>A blog or docs page you host</td>
+<td>asciicast player, or vhs GIF/MP4</td>
+<td>you control the embed and headers</td>
+</tr>
+<tr>
+<td>GitHub README</td>
+<td>GIF, from vhs or agg</td>
+<td>the only motion GitHub autoplays inline</td>
+</tr>
+<tr>
+<td>Bug report or support thread</td>
+<td>asciicast link, or a short GIF</td>
+<td>reproducible and copyable</td>
+</tr>
+<tr>
+<td>Conference slide</td>
+<td>MP4 or GIF at a big font</td>
+<td>plays offline, needs no player</td>
+</tr>
+<tr>
+<td>A CLI demo you must keep current</td>
+<td>vhs tape in CI</td>
+<td>regenerates on every release</td>
+</tr>
+</tbody></table></div>
+<p>Read down the table and the pattern is the one the whole page turns on: choose text when the value is the commands, pixels when the value is the look, and a committed tape when the value is a demo that cannot be allowed to go stale.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://docs.asciinema.org/manual/asciicast/v2/" rel="noopener">asciinema — asciicast v2 file format (newline-delimited JSON header plus event lines of terminal text)</a></li>
+<li id="src-2"><a href="https://docs.asciinema.org/manual/asciicast/v3/" rel="noopener">asciinema — asciicast v3 file format (relative-interval event stream, not backward compatible with v2)</a></li>
+<li id="src-3"><a href="https://github.com/asciinema/asciinema" rel="noopener">asciinema — CLI repository (Rust 3.x rewrite, zstd casts ~8% of the original size)</a></li>
+<li id="src-4"><a href="https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md" rel="noopener">charmbracelet/vhs — write terminal GIFs as code (.tape commands, ttyd + ffmpeg dependencies)</a></li>
+<li id="src-5"><a href="https://github.com/asciinema/agg" rel="noopener">asciinema/agg — asciicast to animated GIF generator</a></li>
+<li id="src-6"><a href="https://github.com/nbedos/termtosvg" rel="noopener">nbedos/termtosvg — record terminal sessions as standalone SVG animations (archived)</a></li>
+<li id="src-7"><a href="https://man7.org/linux/man-pages/man1/script.1.html" rel="noopener">man7 — script(1), util-linux (typescript of a terminal session; --log-timing for scriptreplay)</a></li>
+<li id="src-8"><a href="https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files" rel="noopener">GitHub Docs — attaching files (10 MB image/GIF cap; MP4, MOV, WebM video types)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-record-a-terminal-session-without-installing-anything" class="blog-faq-q">How do I record a terminal session without installing anything?<a class="hanchor" href="#how-do-i-record-a-terminal-session-without-installing-anything" aria-label="Link to section: How do I record a terminal session without installing anything?">#</a></h3>
+<p>On Linux, the util-linux <code>script</code> command records a typescript of everything printed to your terminal, and adding <code>--log-timing timing.log</code> captures the delays so <code>scriptreplay</code> can play it back at the original speed. Both are already on the machine. macOS and BSD ship a <code>script</code> too, but with different flags, so the built-in replay is most reliable on Linux. For a portable, shareable recording, install asciinema and record a <code>.cast</code> instead.</p>
+<h3 id="can-readers-copy-the-commands-out-of-an-asciinema-recording" class="blog-faq-q">Can readers copy the commands out of an asciinema recording?<a class="hanchor" href="#can-readers-copy-the-commands-out-of-an-asciinema-recording" aria-label="Link to section: Can readers copy the commands out of an asciinema recording?">#</a></h3>
+<p>Yes. An asciicast is a text file of the characters your terminal printed, so the asciinema web player lets a viewer pause and select the commands straight out of the playback. That is the one thing a text cast gives you that a screen recording cannot: an MP4 or GIF turns the same terminal into pixels, and every command becomes unselectable. If copy-paste matters, record text, not video.</p>
+<h3 id="should-i-use-an-asciinema-cast-or-a-gif-in-my-readme" class="blog-faq-q">Should I use an asciinema cast or a GIF in my README?<a class="hanchor" href="#should-i-use-an-asciinema-cast-or-a-gif-in-my-readme" aria-label="Link to section: Should I use an asciinema cast or a GIF in my README?">#</a></h3>
+<p>A GIF, but generate it from the cast. GitHub only autoplays a committed GIF inline and has no asciicast player, so a raw <code>.cast</code> will not move on the page. Record the session as a lightweight cast for the copyable source of truth, then convert it to a GIF with agg, or render a <code>.tape</code> with vhs, for the README itself, keeping the GIF under GitHub&#39;s 10 MB image cap.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">terminal recording</span>
+        <span class="article-tag">asciinema</span>
+        <span class="article-tag">vhs</span>
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">cli demo</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#record-the-characters-or-photograph-them">Record the characters, or photograph them</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-demo-you-can-skip-recording-entirely">The demo you can skip recording entirely</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#text-stream-capture-asciinema-and-the-built-in-script-command">Text-stream capture: asciinema and the built-in script command</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pixel-capture-a-real-screen-recording-of-the-terminal">Pixel capture: a real screen recording of the terminal</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#scripted-replay-a-tape-you-commit-and-re-render">Scripted replay: a tape you commit and re-render</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-three-capture-modes-side-by-side">The three capture modes, side by side</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-artifact-each-destination-wants">Which artifact each destination wants</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Developer screencasts: terminal, code, browser | aidemo</title>
+<meta name="description" content="Developer-education screencasts put terminal, code, and browser on one timeline. How to size code so a codec can't blur it, and keep it current next release.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/developer-education-screencasts/">
+<link rel="alternate" type="text/markdown" href="/blog/developer-education-screencasts/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Developer screencasts: terminal, code, browser | aidemo">
+<meta property="og:description" content="Developer-education screencasts put terminal, code, and browser on one timeline. How to size code so a codec can't blur it, and keep it current next release.">
+<meta property="og:url" content="https://aidemo.top/blog/developer-education-screencasts/">
+<meta property="og:image" content="https://aidemo.top/blog/images/developer-education-screencasts-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Developer screencasts: terminal, code, browser | aidemo">
+<meta name="twitter:description" content="Developer-education screencasts put terminal, code, and browser on one timeline. How to size code so a codec can't blur it, and keep it current next release.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/developer-education-screencasts-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Developer-education screencasts: terminal, code, and browser together",
+  "description": "Developer-education screencasts put terminal, code, and browser on one timeline. How to size code so a codec can't blur it, and keep it current next release.",
+  "image": [
+    "https://aidemo.top/blog/images/developer-education-screencasts-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/developer-education-screencasts/"
+  },
+  "wordCount": 1755,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Google / YouTube Help — Recommended upload encoding settings (H.264, 8 Mbps for 1080p SDR)",
+      "url": "https://support.google.com/youtube/answer/1722171"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wikipedia — Chroma subsampling (4:2:0 subsamples Cb and Cr by a factor of 2 in both directions)",
+      "url": "https://en.wikipedia.org/wiki/Chroma_subsampling"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Understanding SC 1.4.3 Contrast (Minimum): 4.5:1 normal, 3:1 large text, 18pt large-text threshold",
+      "url": "https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "asciinema — Record and share terminal sessions, the simple way (text, not blurry video; copy-paste from the player)",
+      "url": "https://asciinema.org/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "asciinema docs — asciicast v2 file format (newline-delimited JSON, records terminal text)",
+      "url": "https://docs.asciinema.org/manual/asciicast/v2/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "charmbracelet/vhs — Write terminal GIFs as code (.tape scripts, Set FontSize, GIF/MP4/WebM output)",
+      "url": "https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Developer-education screencasts: terminal, code, and browser together",
+      "item": "https://aidemo.top/blog/developer-education-screencasts/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What font size should I use for a coding screencast?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Big enough that the smallest glyph survives the codec, not the size you code at. On a 2560px display recorded full-screen, a 14px editor font lands near 10.5px in a 1080p player and about 3.5px in a 640px blog embed, well past legible. Raise the editor to 18 to 22px and zoom to 60 to 80 columns so the delivered glyph sits near WCAG's 18pt large-text mark, which is roughly where H.264 stops smearing the strokes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can viewers copy the commands out of a terminal screencast?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not out of a video; a codec turns your terminal into pixels. If copyable commands matter, record the terminal with asciinema, which stores the session as text and lets a viewer pause and copy-paste straight from the player. If you need the terminal inside a single MP4 alongside browser footage, render it with vhs at a font size you control and accept the commands are now unselectable, or embed the asciinema cast beside the video as the copyable companion."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I keep a programming tutorial video up to date?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Treat it as something that rebuilds, not something you re-shoot. A code screencast drifts on two fronts, the UI it shows and the code it runs, and the code half fails silently when a flag or response changes. Derive each surface from source: the browser from a committed storyboard, the terminal from a vhs tape, the code from the same fixtures your tests use, so a change that breaks the demo either regenerates it or turns the build red."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Developer-education screencasts: terminal, code, and browser together</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Developer-education screencasts: terminal, code, and browser together</h1>
+        <p class="article-dek">Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-a-generic-recorder-meets-a-page-of-code">When a generic recorder meets a page of code</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-a-codec-eats-your-code-before-your-reader-does">Why a codec eats your code before your reader does</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-terminal-is-text-so-capture-it-as-text">The terminal is text, so capture it as text</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#show-the-code-or-say-the-code-one-rule-per-line">Show the code or say the code, one rule per line</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#one-timeline-three-surfaces">One timeline, three surfaces</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#keeping-a-code-screencast-from-lying-next-release">Keeping a code screencast from lying next release</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/developer-education-screencasts-800.webp" srcset="/blog/images/developer-education-screencasts-400.webp 400w, /blog/images/developer-education-screencasts-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A tall triple-decker sandwich with three distinct layers held together by a pick, on a wooden board."><figcaption>A developer screencast is a triple-decker: terminal, code, and browser only teach when all three stack in one legible bite.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>On a 2560px screen recorded full-screen, a 14px editor font lands near 10.5px in a 1080p player and ~3.5px in a 640px embed. Record code at 18-22px and zoom to 60-80 columns.</li>
+    <li>H.264's 4:2:0 subsampling discards 75% of color samples, so syntax highlighting blurs first. Pick a theme whose colors clear WCAG's 4.5:1 so they survive the codec.</li>
+    <li>Record the terminal as text: asciinema stores a session as newline-delimited JSON viewers can copy-paste; vhs replays a .tape script to GIF or MP4 at a font size you set.</li>
+    <li>Never read code aloud line by line. Show the one or two lines that change, zoomed, and narrate the decision, not the syntax.</li>
+    <li>A code screencast breaks on two fronts: the UI and the code. A renamed flag makes the narration lie while the frame looks fine, so regenerate from the fixtures your tests use.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="when-a-generic-recorder-meets-a-page-of-code">When a generic recorder meets a page of code<a class="hanchor" href="#when-a-generic-recorder-meets-a-page-of-code" aria-label="Link to section: When a generic recorder meets a page of code">#</a></h2>
+<p>Teaching a developer something means putting three surfaces on screen that most screen recorders were never tuned for: an editor packed with small colored text, a terminal that is really a stream of characters pretending to be a picture, and a browser showing the result. A recorder built for a webinar or a talking head treats all three as generic pixels, and all three fall apart in their own way. This is the format problem specific to a developer-education screencast, and it sits downstream of the pillar question of <a href="/blog/video-documentation/">when video earns a place in docs at all</a>. Assume it has earned one. The next question is how to capture code so it still teaches after it has been through a codec.</p>
+<h2 id="why-a-codec-eats-your-code-before-your-reader-does">Why a codec eats your code before your reader does<a class="hanchor" href="#why-a-codec-eats-your-code-before-your-reader-does" aria-label="Link to section: Why a codec eats your code before your reader does">#</a></h2>
+<p>Start with the compression, because it decides everything else. YouTube&#39;s own recommendation for a 1080p SDR upload at 30fps is H.264 in an MP4 at 8 Mbps<sup class="article-cite"><a href="#src-1" title="Google / YouTube Help — Recommended upload encoding settings (H.264, 8 Mbps for 1080p SDR)">1</a></sup>. H.264 stores color at 4:2:0, which means the two chroma channels are &quot;each subsampled at a factor of 2 both horizontally and vertically&quot;<sup class="article-cite"><a href="#src-2" title="Wikipedia — Chroma subsampling (4:2:0 subsamples Cb and Cr by a factor of 2 in both directions)">2</a></sup>, discarding three quarters of the color samples and bleeding color across borders. Syntax highlighting is precisely the content that suffers: fine, saturated, high-contrast-edged text, where the purple that marks a keyword and the green that marks a string differ mostly in the channel the codec throws away first. Your theme looks crisp in the editor and muddy in the export, and nothing about your recorder caused it.</p>
+<p>Font size compounds the loss. Editors run at 12 to 14px on the author&#39;s high-DPI display, and the reader almost never watches at the size the author saw.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Recorded on</th>
+<th>Delivered at</th>
+<th>A 14px glyph becomes</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2560px display, full screen</td>
+<td>1920px player</td>
+<td>~10.5px</td>
+<td>marginal, thin stems smear</td>
+</tr>
+<tr>
+<td>2560px display, full screen</td>
+<td>640px blog embed</td>
+<td>~3.5px</td>
+<td>unreadable</td>
+</tr>
+<tr>
+<td>Zoomed to a ~900px region</td>
+<td>1920px player</td>
+<td>~30px</td>
+<td>survives compression</td>
+</tr>
+</tbody></table></div>
+<p>Two moves fix it, and both happen before you record. Raise the editor font to 18 to 22px, and zoom to the region so a 1080p frame carries 60 to 80 columns instead of 200. WCAG treats 18pt (about 24px) as &quot;large text,&quot; the size at which a 3:1 contrast ratio is enough where smaller text needs 4.5:1<sup class="article-cite"><a href="#src-3" title="W3C — Understanding SC 1.4.3 Contrast (Minimum): 4.5:1 normal, 3:1 large text, 18pt large-text threshold">3</a></sup>. That threshold is a useful target for a screencast too, because it is roughly the size at which H.264 keeps a glyph&#39;s strokes intact. While you are there, choose a theme whose token colors clear 4.5:1 against the background; the low-contrast pairs a designer reaches for are the first casualties of 4:2:0.</p>
+<h2 id="the-terminal-is-text-so-capture-it-as-text">The terminal is text, so capture it as text<a class="hanchor" href="#the-terminal-is-text-so-capture-it-as-text" aria-label="Link to section: The terminal is text, so capture it as text">#</a></h2>
+<p>The terminal is the one surface you can escape the codec on entirely. asciinema records a session as newline-delimited JSON<sup class="article-cite"><a href="#src-5" title="asciinema docs — asciicast v2 file format (newline-delimited JSON, records terminal text)">5</a></sup>, storing the characters and control sequences rather than pixels, so a reader can &quot;pause the player and copy-paste the content you want. It&#39;s just text after all&quot;<sup class="article-cite"><a href="#src-4" title="asciinema — Record and share terminal sessions, the simple way (text, not blurry video; copy-paste from the player)">4</a></sup>. vhs takes the scripted route: a <code>.tape</code> file it bills as &quot;terminal GIFs as code,&quot; replaying typed commands and rendering to GIF, MP4, or WebM at a font size you <code>Set</code> yourself<sup class="article-cite"><a href="#src-6" title="charmbracelet/vhs — Write terminal GIFs as code (.tape scripts, Set FontSize, GIF/MP4/WebM output)">6</a></sup>. The full tradeoff among asciinema, a raw recording, and tape-driven replay, scored on file size, editability, and whether viewers can copy the commands, is <a href="/blog/record-a-terminal-session/">a decision of its own</a>.</p>
+<p>For a screencast the binding constraint is compositional. An asciinema player is a web widget, not a video track, so it will not live inside the same MP4 as your browser footage. That leaves two honest paths: render the terminal with vhs and cut the clip into the timeline, where you control the font and it survives compression, or keep the browser as video and place the asciinema cast beside it as the copyable companion. What you should not do is point a <a href="/blog/camtasia-alternatives/">general-purpose recorder from a Camtasia-alternatives roundup</a> at a 12px terminal and hope the prompt reads; those tools capture a talking head well and a wall of monospace poorly.</p>
+<h2 id="show-the-code-or-say-the-code-one-rule-per-line">Show the code or say the code, one rule per line<a class="hanchor" href="#show-the-code-or-say-the-code-one-rule-per-line" aria-label="Link to section: Show the code or say the code, one rule per line">#</a></h2>
+<p>The habit that quietly wrecks coding screencasts is reading the code out loud. When narration recites text the viewer is already reading, the two channels compete instead of combine, and both slow down. The voice should carry what the frame cannot: intent, the reason for a choice, the one number in the output that matters.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>On screen</th>
+<th>What the voice does</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The one or two lines that change, zoomed and held</td>
+<td>names the change and its purpose</td>
+<td>the eye reads syntax faster than you can speak it</td>
+</tr>
+<tr>
+<td>Imports, boilerplate, unchanged context</td>
+<td>one sentence, then scroll past</td>
+<td>dwelling on it teaches nothing</td>
+</tr>
+<tr>
+<td>A command and the output it prints</td>
+<td>shows both, narrates the effect</td>
+<td>the lesson is the result, not the keystrokes</td>
+</tr>
+<tr>
+<td>The reasoning behind a decision</td>
+<td>holds the frame still</td>
+<td>let the ear take the concept while the eye rests</td>
+</tr>
+<tr>
+<td>A long file</td>
+<td>shows the diff, not the whole file</td>
+<td>the change is the content, the file is context</td>
+</tr>
+</tbody></table></div>
+<p>The rule underneath the table: show what is faster to see than to say, and say what is faster to hear than to read.</p>
+<h2 id="one-timeline-three-surfaces">One timeline, three surfaces<a class="hanchor" href="#one-timeline-three-surfaces" aria-label="Link to section: One timeline, three surfaces">#</a></h2>
+<p>A dev screencast teaches in an order: set the stage in the terminal, show the code that does the work, cut to the browser result. Move between surfaces with a hard cut, not a pan or a zoom across the desktop. A cut reads as &quot;new context, look here,&quot; while a slow pan reads as &quot;same thing, keep watching&quot; and spends the viewer&#39;s attention on travel. Zoom each surface to the region that matters and never show the full desktop, both because the desktop is where notifications and clutter live and because a full-screen 1080p editor is exactly the unreadable case the compression section warned about. Move fast through the mechanical parts, the typing and the waiting, and slow down on the moment a decision becomes visible.</p>
+<p>Our own engine, aidemo, captures the browser surface deterministically from a storyboard, which covers the third of those three layers but not the first two: it is browser-only, so a terminal or a native editor never enters its frame, and you would pair it with vhs for those. It is worth naming that limit plainly, because a tool that captures one surface well is not a tool that captures a whole screencast.</p>
+<h2 id="keeping-a-code-screencast-from-lying-next-release">Keeping a code screencast from lying next release<a class="hanchor" href="#keeping-a-code-screencast-from-lying-next-release" aria-label="Link to section: Keeping a code screencast from lying next release">#</a></h2>
+<p>A code screencast can break in two places a UI-only demo cannot. The browser layer drifts like any product footage when the interface moves. The code layer drifts on its own: a renamed flag, a changed response shape, or a new default breaks the terminal and editor content silently, and the frame still looks plausible while the narration now describes a command that errors. That second failure is the worse one, because it is invisible in review; a stale button at least looks wrong on sight.</p>
+<p>API and SDK quickstarts rot fastest of all, which is the argument for making an API-docs video regenerate from the same fixtures the docs are tested against. The model that holds once you have more than a handful of tutorials is regeneration rather than re-recording (<a href="/blog/keeping-tutorial-libraries-current/">keeping a tutorial library current</a>), and a <a href="/blog/coding-agents-that-make-demo-videos/">coding agent can author the spec so the re-render rides the same release that changed the code</a>. aidemo regenerates its browser layer from a committed storyboard instead of a fresh take, though the storyboard is agent-authored and edited as text, with no drag-and-drop timeline anywhere in the loop. Extend the same discipline to the other two surfaces: drive the terminal from a vhs tape and pull the code from the same fixtures your tests run, so all three layers rebuild together on the commit that changed them, or fail loudly instead of shipping a screencast that teaches a command that no longer exists.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://support.google.com/youtube/answer/1722171" rel="noopener">Google / YouTube Help — Recommended upload encoding settings (H.264, 8 Mbps for 1080p SDR)</a></li>
+<li id="src-2"><a href="https://en.wikipedia.org/wiki/Chroma_subsampling" rel="noopener">Wikipedia — Chroma subsampling (4:2:0 subsamples Cb and Cr by a factor of 2 in both directions)</a></li>
+<li id="src-3"><a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" rel="noopener">W3C — Understanding SC 1.4.3 Contrast (Minimum): 4.5:1 normal, 3:1 large text, 18pt large-text threshold</a></li>
+<li id="src-4"><a href="https://asciinema.org/" rel="noopener">asciinema — Record and share terminal sessions, the simple way (text, not blurry video; copy-paste from the player)</a></li>
+<li id="src-5"><a href="https://docs.asciinema.org/manual/asciicast/v2/" rel="noopener">asciinema docs — asciicast v2 file format (newline-delimited JSON, records terminal text)</a></li>
+<li id="src-6"><a href="https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md" rel="noopener">charmbracelet/vhs — Write terminal GIFs as code (.tape scripts, Set FontSize, GIF/MP4/WebM output)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-font-size-should-i-use-for-a-coding-screencast" class="blog-faq-q">What font size should I use for a coding screencast?<a class="hanchor" href="#what-font-size-should-i-use-for-a-coding-screencast" aria-label="Link to section: What font size should I use for a coding screencast?">#</a></h3>
+<p>Big enough that the smallest glyph survives the codec, not the size you code at. On a 2560px display recorded full-screen, a 14px editor font lands near 10.5px in a 1080p player and about 3.5px in a 640px blog embed, well past legible. Raise the editor to 18 to 22px and zoom to 60 to 80 columns so the delivered glyph sits near WCAG&#39;s 18pt large-text mark, which is roughly where H.264 stops smearing the strokes.</p>
+<h3 id="can-viewers-copy-the-commands-out-of-a-terminal-screencast" class="blog-faq-q">Can viewers copy the commands out of a terminal screencast?<a class="hanchor" href="#can-viewers-copy-the-commands-out-of-a-terminal-screencast" aria-label="Link to section: Can viewers copy the commands out of a terminal screencast?">#</a></h3>
+<p>Not out of a video; a codec turns your terminal into pixels. If copyable commands matter, record the terminal with asciinema, which stores the session as text and lets a viewer pause and copy-paste straight from the player. If you need the terminal inside a single MP4 alongside browser footage, render it with vhs at a font size you control and accept the commands are now unselectable, or embed the asciinema cast beside the video as the copyable companion.</p>
+<h3 id="how-do-i-keep-a-programming-tutorial-video-up-to-date" class="blog-faq-q">How do I keep a programming tutorial video up to date?<a class="hanchor" href="#how-do-i-keep-a-programming-tutorial-video-up-to-date" aria-label="Link to section: How do I keep a programming tutorial video up to date?">#</a></h3>
+<p>Treat it as something that rebuilds, not something you re-shoot. A code screencast drifts on two fronts, the UI it shows and the code it runs, and the code half fails silently when a flag or response changes. Derive each surface from source: the browser from a committed storyboard, the terminal from a vhs tape, the code from the same fixtures your tests use, so a change that breaks the demo either regenerates it or turns the build red.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">developer screencast</span>
+        <span class="article-tag">coding tutorial</span>
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">developer education</span>
+        <span class="article-tag">terminal recording</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/gifs-in-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/gifs-in-documentation-400.webp" srcset="/blog/images/gifs-in-documentation-400.webp 400w, /blog/images/gifs-in-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A slotted zoetrope drum on a small wooden base, caught mid-spin."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">GIFs in documentation: when a loop beats a screenshot</h3>
+    <p class="article-card-excerpt">An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/keeping-tutorial-libraries-current/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/keeping-tutorial-libraries-current-400.webp" srcset="/blog/images/keeping-tutorial-libraries-current-400.webp 400w, /blog/images/keeping-tutorial-libraries-current-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A rounded purple toy truck with snow piled on top, plowing through fresh snow."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Keeping a tutorial video library current at scale</h3>
+    <p class="article-card-excerpt">Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-a-generic-recorder-meets-a-page-of-code">When a generic recorder meets a page of code</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-a-codec-eats-your-code-before-your-reader-does">Why a codec eats your code before your reader does</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-terminal-is-text-so-capture-it-as-text">The terminal is text, so capture it as text</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#show-the-code-or-say-the-code-one-rule-per-line">Show the code or say the code, one rule per line</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#one-timeline-three-surfaces">One timeline, three surfaces</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#keeping-a-code-screencast-from-lying-next-release">Keeping a code screencast from lying next release</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

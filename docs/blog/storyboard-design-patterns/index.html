@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storyboard design patterns for demos | aidemo</title>
+<meta name="description" content="A pattern catalog for demo storyboards: separate narration from action-spec, one idea per scene, and wait on a condition instead of a fixed clock.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/storyboard-design-patterns/">
+<link rel="alternate" type="text/markdown" href="/blog/storyboard-design-patterns/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Storyboard design patterns for demos | aidemo">
+<meta property="og:description" content="A pattern catalog for demo storyboards: separate narration from action-spec, one idea per scene, and wait on a condition instead of a fixed clock.">
+<meta property="og:url" content="https://aidemo.top/blog/storyboard-design-patterns/">
+<meta property="og:image" content="https://aidemo.top/blog/images/storyboard-design-patterns-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Storyboard design patterns for demos | aidemo">
+<meta name="twitter:description" content="A pattern catalog for demo storyboards: separate narration from action-spec, one idea per scene, and wait on a condition instead of a fixed clock.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/storyboard-design-patterns-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Storyboard design patterns for demos as code",
+  "description": "A pattern catalog for demo storyboards: separate narration from action-spec, one idea per scene, and wait on a condition instead of a fixed clock.",
+  "image": [
+    "https://aidemo.top/blog/images/storyboard-design-patterns-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/storyboard-design-patterns/"
+  },
+  "wordCount": 2453,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "aidemo — AUTHORING.md, the storyboard schema and demo-director principles (ours)",
+      "url": "https://github.com/tandryukha/aidemo/blob/main/docs/AUTHORING.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion — Parameterized rendering (input props merge over default props)",
+      "url": "https://www.remotion.dev/docs/parameterized-rendering"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion — Series (stitch scenes that play sequentially, each with durationInFrames)",
+      "url": "https://www.remotion.dev/docs/series"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Charmbracelet vhs — tape command vocabulary: Wait takes a regex, Sleep pauses capture, golden-file testing",
+      "url": "https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Actionability (auto-waits for visible, stable, receives-events, enabled checks)",
+      "url": "https://playwright.dev/docs/actionability"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Martin Fowler — CodeSmell (a surface indication of a deeper problem; a heuristic, not a certainty)",
+      "url": "https://martinfowler.com/bliki/CodeSmell.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Storyboard design patterns for demos as code",
+      "item": "https://aidemo.top/blog/storyboard-design-patterns/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a demo storyboard?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A demo storyboard is a structured text file, usually JSON, that describes a demo as data instead of footage: an ordered list of scenes, each carrying the narration to speak and an action-spec of browser operations to perform. A deterministic player turns that file into a video, so the storyboard is the source and the MP4 is build output. Because it is text, it diffs in a pull request, regenerates when the product changes, and can be authored by a coding agent rather than performed by a person."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many scenes should a demo storyboard have?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Roughly one scene per idea, which for a 45-second demo lands at four to six scenes. The arithmetic behind that: spoken narration runs near 2.5 words per second in English, so a 6-second scene is about 15 words, which is enough for exactly one claim and its supporting action. If a scene's narration carries three claims or its action list runs past a handful of steps, it is a mega-scene and wants splitting, both so a viewer can follow it and so a reviewer can diff one beat at a time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why shouldn't I put a fixed sleep in a demo script?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because a fixed pause is a bet on timing that the demo loses silently. A Sleep 2 that covers a load on your laptop can fall short on a slower CI runner, and the result is not a crash but a video where the next step fires before the screen is ready, which only a careful viewer catches. Both vhs and Playwright are built to avoid it: vhs offers a Wait keyed to a regex on screen, and Playwright auto-waits for an element to be actionable before acting. Encode the condition you are actually waiting for, and keep a deliberate pause only for an intentional on-screen beat."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Storyboard design patterns for demos as code</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Storyboard design patterns for demos as code</h1>
+        <p class="article-dek">When the demo is a JSON file, authoring becomes a design-patterns problem: the moves that keep a storyboard readable, and the smells that wreck it.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-two-channels-every-storyboard-keeps-apart">The two channels every storyboard keeps apart</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-pattern-catalog-for-demo-storyboards">A pattern catalog for demo storyboards</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#anti-patterns-ranked-by-what-they-cost">Anti-patterns, ranked by what they cost</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#refactor-one-mega-scene-split-into-beats">Refactor: one mega-scene, split into beats</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-reaching-for-a-pattern-is-the-mistake">When reaching for a pattern is the mistake</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/storyboard-design-patterns-800.webp" srcset="/blog/images/storyboard-design-patterns-400.webp 400w, /blog/images/storyboard-design-patterns-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A short wall of interlocking toy building bricks stacked together with studs on top"><figcaption>The studs are the whole point: shape each beat as a block that snaps onto the next, and anyone can take the storyboard apart and rebuild it.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Keep two channels apart: a scene's narration (what's heard) and its action-spec (what's clicked). That wall is what lets one recorded take render in five languages with no re-record.</li>
+    <li>Seven patterns recur across vhs, Remotion, and browser storyboards; the two most underused are wait-on-a-condition (not a fixed sleep) and pre-navigate (end a scene on the click that opens the next).</li>
+    <li>Rank the anti-patterns: the mega-scene forfeits the diff; the sleep-driven wait flakes in the least reviewable way, rendering a beat early on a slow runner instead of crashing.</li>
+    <li>Worked refactor: split one mega-scene into three one-claim beats, and a copy edit becomes a one-scene diff, the pause becomes a condition wait, and role selectors survive a redesign.</li>
+    <li>A pattern is a heuristic, not a rule (Kent Beck's 'code smell'): don't parameterize a one-off, and a 15-second single-screen clip needs one scene, not four.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-two-channels-every-storyboard-keeps-apart">The two channels every storyboard keeps apart<a class="hanchor" href="#the-two-channels-every-storyboard-keeps-apart" aria-label="Link to section: The two channels every storyboard keeps apart">#</a></h2>
+<p>A demo storyboard is a text file a machine executes, and like any such file it carries more than one kind of information at once. The most consequential design choice in the format is which kinds you let touch.</p>
+<p>The declarative demo formats that hold up over time keep two channels strictly apart: the narration, meaning what a viewer hears, and the action-spec, meaning what the browser is driven to do. In the storyboard format for aidemo, the engine we build, a scene is a <code>narration</code> string sitting next to an <code>actions</code> array, and the actions never name the spoken words. That wall is not cosmetic. It is the reason one recorded take can ship in several languages at once: the take replays the action-spec, which mentions no words, so only the narration and captions have to localize, which is what turns <a href="/blog/multi-language-product-demo-videos/">one recording into a matrix of localized renders</a><sup class="article-cite"><a href="#src-1" title="aidemo — AUTHORING.md, the storyboard schema and demo-director principles (ours)">1</a></sup>. Weld the sentence to the click and that property is gone.</p>
+<p>Remotion draws the same boundary from the opposite direction. A Remotion composition is a reusable structure, and the data it renders arrives separately as input props that &quot;will be merged together with default props, where input props have priority&quot;<sup class="article-cite"><a href="#src-2" title="Remotion — Parameterized rendering (input props merge over default props)">2</a></sup>. The composition is the how, the props are the what, and changing the props renders a different video from the same structure, which is the working definition of a template. Whether the pixels are captured from a real browser or drawn by React, the lesson holds: the thing you say and the thing you show are different data, and a storyboard that stores them as different data can be localized, personalized, and reviewed one channel at a time.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Holds</th>
+<th>Never holds</th>
+<th>What the wall buys</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Narration</td>
+<td>the spoken script, per scene</td>
+<td>selectors, timing, URLs</td>
+<td>rewrite or translate the words with no re-record</td>
+</tr>
+<tr>
+<td>Action-spec</td>
+<td>ordered browser operations and waits</td>
+<td>the sentences being spoken</td>
+<td>replay the same flow under any narration</td>
+</tr>
+</tbody></table></div>
+<p>Once you read a storyboard as channels instead of a screenplay, a small set of reusable patterns falls out, and so do their opposites.</p>
+<h2 id="a-pattern-catalog-for-demo-storyboards">A pattern catalog for demo storyboards<a class="hanchor" href="#a-pattern-catalog-for-demo-storyboards" aria-label="Link to section: A pattern catalog for demo storyboards">#</a></h2>
+<p>The moves below recur across three unrelated declarative formats: Charmbracelet&#39;s vhs (terminal tapes), Remotion (React video), and browser-capture storyboards. A pattern earns a name when the same move solves the same problem in formats that never talked to each other.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>The problem it solves</th>
+<th>How the formats express it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One idea per scene</td>
+<td>a viewer holds one claim at a time; a reviewer diffs one beat</td>
+<td>a single narrated claim per scene, four to six scenes for a 45-second demo</td>
+</tr>
+<tr>
+<td>Wait on a condition</td>
+<td>timing varies run to run, so a fixed pause is a race</td>
+<td><code>Wait /regex/</code> over <code>Sleep</code>; a wait that fires when the element actually appears</td>
+</tr>
+<tr>
+<td>Pre-navigate the next scene</td>
+<td>narration for screen N plays over screen N-1</td>
+<td>put the navigation click at the end of scene N-1</td>
+</tr>
+<tr>
+<td>Address by intent</td>
+<td>a redesign rewrites classes and layout, not roles and labels</td>
+<td>role and accessible name over <code>nth-child</code> or a hashed class</td>
+</tr>
+<tr>
+<td>Parameterize the variable</td>
+<td>one flow, many prospects or locales</td>
+<td>Remotion input props; storyboard <code>{{placeholders}}</code> with declared defaults</td>
+</tr>
+<tr>
+<td>Mark idle explicitly</td>
+<td>a loading beat should be trimmed, not narrated over</td>
+<td>tag the wait as trimmable idle so compose speeds or cuts it</td>
+</tr>
+<tr>
+<td>Polish at compose time</td>
+<td>a zoom or caption tweak should not cost a new take</td>
+<td>keep zoom, transitions, and captions as post-processing over one recording</td>
+</tr>
+</tbody></table></div>
+<p>The sequential-scene shape is not unique to captured demos. Remotion ships a <code>&lt;Series&gt;</code> component precisely to &quot;stitch together scenes that should play sequentially,&quot; each <code>&lt;Series.Sequence&gt;</code> given its own <code>durationInFrames</code> before the next mounts<sup class="article-cite"><a href="#src-3" title="Remotion — Series (stitch scenes that play sequentially, each with durationInFrames)">3</a></sup>. One-idea-per-scene is that same discretization applied to meaning rather than time: a scene is the unit a viewer can absorb and a reviewer can approve in one read.</p>
+<p>Two patterns are underused enough to earn a sentence each. <em>Wait on a condition</em> is the one every imperative recorder gets wrong. vhs, whose tapes are otherwise a linear script of <code>Type</code> and <code>Enter</code>, still ships a <code>Wait</code> command that &quot;takes a regular expression as an argument&quot; and blocks until the pattern appears on screen, exactly so a tape does not depend on a <code>Sleep</code> landing on the right frame<sup class="article-cite"><a href="#src-4" title="Charmbracelet vhs — tape command vocabulary: Wait takes a regex, Sleep pauses capture, golden-file testing">4</a></sup>. Playwright makes the point structurally: it &quot;auto-waits for all the relevant checks to pass and only then performs the requested action,&quot; confirming an element is visible, stable, and hit-testable before it clicks<sup class="article-cite"><a href="#src-5" title="Playwright — Actionability (auto-waits for visible, stable, receives-events, enabled checks)">5</a></sup>. A storyboard should encode the same intent, a wait keyed to a condition, and reserve a fixed pause for a deliberate on-screen beat only. Making the browser replay identically under those waits is <a href="/blog/deterministic-browser-automation-for-video/">its own determinism problem</a>, but the authoring move is simply to name the condition.</p>
+<p><em>Pre-navigate</em> is unique to narrated demos and invisible until it bites. If every scene opens by clicking its own way in, the cursor spends the first two or three seconds gliding across the previous screen, so scene N&#39;s narration plays over screen N-1. The fix is a reordering, not a feature: end each scene with the click that opens the next one, and every scene starts already on the screen its words describe. It is the storyboard equivalent of prefetching.</p>
+<h2 id="anti-patterns-ranked-by-what-they-cost">Anti-patterns, ranked by what they cost<a class="hanchor" href="#anti-patterns-ranked-by-what-they-cost" aria-label="Link to section: Anti-patterns, ranked by what they cost">#</a></h2>
+<p>Kent Beck coined &quot;code smell&quot; while helping Martin Fowler with the Refactoring book, for &quot;a surface indication that usually corresponds to a deeper problem in the system,&quot; with the caveat that smells &quot;don&#39;t always indicate a problem&quot;<sup class="article-cite"><a href="#src-6" title="Martin Fowler — CodeSmell (a surface indication of a deeper problem; a heuristic, not a certainty)">6</a></sup>. Storyboards have smells with the same character: each one usually, not always, marks a coupling you will regret the week the product ships next.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>The smell</th>
+<th>What it breaks</th>
+<th>The refactor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The mega-scene</td>
+<td>one scene, a paragraph of narration, eight actions</td>
+<td>can&#39;t diff to a beat, can&#39;t retime, narration drifts from action</td>
+<td>split into one-claim scenes</td>
+</tr>
+<tr>
+<td>The sleep-driven wait</td>
+<td>a fixed pause where a load should be awaited</td>
+<td>flakes on a slow runner; races the server</td>
+<td>wait on the condition, mark it idle</td>
+</tr>
+<tr>
+<td>The hardcoded index</td>
+<td><code>nth-child(3)</code>, a magic scene index, a positional handle</td>
+<td>a relayout moves the target; the cursor clicks empty space</td>
+<td>address by role and accessible name</td>
+</tr>
+<tr>
+<td>Narration welded to timing</td>
+<td>hand-authored per-step durations</td>
+<td>a two-word script edit desyncs the scene</td>
+<td>let the engine time video to narration length</td>
+</tr>
+<tr>
+<td>Selectors in the prose</td>
+<td>a URL or class name inside the narration string</td>
+<td>the demo can&#39;t localize; the channels are fused</td>
+<td>move it to the action-spec</td>
+</tr>
+</tbody></table></div>
+<p>The sleep-driven wait sits at the top of the flaky pile because it fails in the least reviewable way. A fixed two-second pause that passed on your laptop is a bet that two seconds also covers the load on a slower CI runner, and when the bet loses the video does not crash. It renders the flow arriving a beat early, which nobody notices until a buyer does. Both vhs and Playwright treat that fixed pause as the thing to design out, and the fix is always to name the condition you were really waiting for.</p>
+<p>The mega-scene tops the overall list because it forfeits the entire reason to hold a demo as text. The payoff of a committed spec is that a change is a small diff a reviewer can read; a scene that does eight things at once diffs as a wall no reviewer can rule on. It is the storyboard version of the thousand-line function.</p>
+<h2 id="refactor-one-mega-scene-split-into-beats">Refactor: one mega-scene, split into beats<a class="hanchor" href="#refactor-one-mega-scene-split-into-beats" aria-label="Link to section: Refactor: one mega-scene, split into beats">#</a></h2>
+<p>Here is the mega-scene, from a supplement-finder demo (the format here is ours, and browser-only):</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">{</span></span>
+<span class="line"><span style="color:#E45649">  "id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"s1"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "narration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Welcome to DemoFit, the supplement finder that searches your whole catalog, so just type what you want, hit search, open the first result, check the price, and add it to your cart."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "actions"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"goto"</span><span style="color:#383A42">, </span><span style="color:#E45649">"url"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"http://localhost:8787/"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"type"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"#search"</span><span style="color:#383A42"> }, </span><span style="color:#E45649">"text"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"whey isolate under 30 euros"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">".btn:nth-child(2)"</span><span style="color:#383A42"> } },</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"pause"</span><span style="color:#383A42">, </span><span style="color:#E45649">"ms"</span><span style="color:#383A42">: </span><span style="color:#986801">2000</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">".result:nth-child(1) a"</span><span style="color:#383A42"> } },</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">".card > button:nth-child(3)"</span><span style="color:#383A42"> } }</span></span>
+<span class="line"><span style="color:#383A42">  ]</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
+<p>Five smells in one object: a run-on narration carrying four claims, an <code>nth-child</code> search button, a <code>pause</code> standing in for a load, a positional result link, and a positional add-to-cart button. Split it into beats, name the conditions, address by intent:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">[</span></span>
+<span class="line"><span style="color:#383A42">  {</span></span>
+<span class="line"><span style="color:#E45649">    "id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"search"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "narration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Tell DemoFit what you need in plain words."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "actions"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"goto"</span><span style="color:#383A42">, </span><span style="color:#E45649">"url"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"http://localhost:8787/"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"type"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"#search"</span><span style="color:#383A42"> }, </span><span style="color:#E45649">"text"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"whey isolate under 30 euros"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"[role=</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">button</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">][name=</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">Search</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">]"</span><span style="color:#383A42"> } }</span></span>
+<span class="line"><span style="color:#383A42">    ]</span></span>
+<span class="line"><span style="color:#383A42">  },</span></span>
+<span class="line"><span style="color:#383A42">  {</span></span>
+<span class="line"><span style="color:#E45649">    "id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"result"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "narration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"It ranks the whole catalog and opens the best match."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "actions"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"waitForWidget"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"[data-testid=</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">result</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">]"</span><span style="color:#383A42"> } },</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"[data-testid=</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">result</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">]"</span><span style="color:#383A42">, </span><span style="color:#E45649">"first"</span><span style="color:#383A42">: </span><span style="color:#0184BC">true</span><span style="color:#383A42"> } }</span></span>
+<span class="line"><span style="color:#383A42">    ]</span></span>
+<span class="line"><span style="color:#383A42">  },</span></span>
+<span class="line"><span style="color:#383A42">  {</span></span>
+<span class="line"><span style="color:#E45649">    "id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"cart"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "narration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"One click adds it, price and all."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "actions"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"[role=</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">button</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">][name=</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">Add to cart</span><span style="color:#0184BC">\"</span><span style="color:#50A14F">]"</span><span style="color:#383A42"> } },</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"waitForChange"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"[data-cart-bar]"</span><span style="color:#383A42"> }, </span><span style="color:#E45649">"textMatches"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"1 item"</span><span style="color:#383A42"> }</span></span>
+<span class="line"><span style="color:#383A42">    ]</span></span>
+<span class="line"><span style="color:#383A42">  }</span></span>
+<span class="line"><span style="color:#383A42">]</span></span></code></pre>
+</div>
+<p>Three things are now true that were false before. A copy edit lands in one scene&#39;s <code>narration</code> and touches nothing else. The <code>pause</code> is gone, so the demo no longer bets on a fixed two seconds. And every selector names its control the way a user would, so a redesign that reshuffles the markup leaves the flow intact. That last property is a discipline of its own, ranked in the <a href="/blog/selectors-that-survive-redesigns/">selector-resilience ladder</a>; the point here is that the split is what made room to apply it.</p>
+<p>The split unlocks the demo&#39;s second job too. Because each scene&#39;s actions are now a clean, condition-gated flow, running them against tomorrow&#39;s build with no voice and no encode is a fast check: a selector that stopped resolving is a failed step, which is how a storyboard doubles as <a href="/blog/testing-demos-like-code/">a golden-file regression test of the UI it depicts</a>.</p>
+<h2 id="when-reaching-for-a-pattern-is-the-mistake">When reaching for a pattern is the mistake<a class="hanchor" href="#when-reaching-for-a-pattern-is-the-mistake" aria-label="Link to section: When reaching for a pattern is the mistake">#</a></h2>
+<p>Fowler&#39;s caveat is load-bearing: a smell is a prompt to look, not a verdict. Every pattern above has a cost, and a demo with no future rarely earns it.</p>
+<ul>
+<li>A 15-second, single-screen clip does not need four scenes. One scene with one claim is the whole storyboard, and splitting it buys nothing.</li>
+<li>Do not parameterize a demo you will render once. Declaring <code>{{customer}}</code> and a defaults map is pure overhead until a second variant exists; add it the day you render the second prospect, not before, which is when the per-render abstraction finally pays for itself.</li>
+<li>A demo you will throw away next week does not need role-based selectors or a golden baseline. If the flow never re-runs, its selectors only have to survive one take.</li>
+</ul>
+<p>The patterns earn their keep on the demo you keep: the one bound to a product that ships weekly, rebuilt in CI, reviewed like code, and increasingly <a href="/blog/coding-agents-that-make-demo-videos/">authored by a coding agent</a> that does its best work when the storyboard has a clean, channel-separated shape to fill in. On that demo, every pattern here is the gap between a spec a person can read and a wall nobody will. On a throwaway, a screen recording is faster and fine. The format behind these examples has real limits worth naming: it records a browser and nothing native, an agent writes the storyboard as text with no drag-and-drop timeline, and it ships no visual editor. Those constraints are also what make a storyboard the kind of text these patterns apply to. Deciding whether your demo is <a href="/blog/demos-as-code/">a document you commit or a performance you record</a> is the choice upstream of every pattern in this catalog.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://github.com/tandryukha/aidemo/blob/main/docs/AUTHORING.md" rel="noopener">aidemo — AUTHORING.md, the storyboard schema and demo-director principles (ours)</a></li>
+<li id="src-2"><a href="https://www.remotion.dev/docs/parameterized-rendering" rel="noopener">Remotion — Parameterized rendering (input props merge over default props)</a></li>
+<li id="src-3"><a href="https://www.remotion.dev/docs/series" rel="noopener">Remotion — Series (stitch scenes that play sequentially, each with durationInFrames)</a></li>
+<li id="src-4"><a href="https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md" rel="noopener">Charmbracelet vhs — tape command vocabulary: Wait takes a regex, Sleep pauses capture, golden-file testing</a></li>
+<li id="src-5"><a href="https://playwright.dev/docs/actionability" rel="noopener">Playwright — Actionability (auto-waits for visible, stable, receives-events, enabled checks)</a></li>
+<li id="src-6"><a href="https://martinfowler.com/bliki/CodeSmell.html" rel="noopener">Martin Fowler — CodeSmell (a surface indication of a deeper problem; a heuristic, not a certainty)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-a-demo-storyboard" class="blog-faq-q">What is a demo storyboard?<a class="hanchor" href="#what-is-a-demo-storyboard" aria-label="Link to section: What is a demo storyboard?">#</a></h3>
+<p>A demo storyboard is a structured text file, usually JSON, that describes a demo as data instead of footage: an ordered list of scenes, each carrying the narration to speak and an action-spec of browser operations to perform. A deterministic player turns that file into a video, so the storyboard is the source and the MP4 is build output. Because it is text, it diffs in a pull request, regenerates when the product changes, and can be authored by a coding agent rather than performed by a person.</p>
+<h3 id="how-many-scenes-should-a-demo-storyboard-have" class="blog-faq-q">How many scenes should a demo storyboard have?<a class="hanchor" href="#how-many-scenes-should-a-demo-storyboard-have" aria-label="Link to section: How many scenes should a demo storyboard have?">#</a></h3>
+<p>Roughly one scene per idea, which for a 45-second demo lands at four to six scenes. The arithmetic behind that: spoken narration runs near 2.5 words per second in English, so a 6-second scene is about 15 words, which is enough for exactly one claim and its supporting action. If a scene&#39;s narration carries three claims or its action list runs past a handful of steps, it is a mega-scene and wants splitting, both so a viewer can follow it and so a reviewer can diff one beat at a time.</p>
+<h3 id="why-shouldnt-i-put-a-fixed-sleep-in-a-demo-script" class="blog-faq-q">Why shouldn&#39;t I put a fixed sleep in a demo script?<a class="hanchor" href="#why-shouldnt-i-put-a-fixed-sleep-in-a-demo-script" aria-label="Link to section: Why shouldn't I put a fixed sleep in a demo script?">#</a></h3>
+<p>Because a fixed pause is a bet on timing that the demo loses silently. A <code>Sleep 2</code> that covers a load on your laptop can fall short on a slower CI runner, and the result is not a crash but a video where the next step fires before the screen is ready, which only a careful viewer catches. Both vhs and Playwright are built to avoid it: vhs offers a <code>Wait</code> keyed to a regex on screen, and Playwright auto-waits for an element to be actionable before acting. Encode the condition you are actually waiting for, and keep a deliberate pause only for an intentional on-screen beat.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demo storyboard</span>
+        <span class="article-tag">storyboard json</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">design patterns</span>
+        <span class="article-tag">declarative</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/deterministic-browser-automation-for-video-400.webp" srcset="/blog/images/deterministic-browser-automation-for-video-400.webp 400w, /blog/images/deterministic-browser-automation-for-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Two stacked filmstrips of one demo flow, the pinned one identical frame for frame, the unpinned one drifting on a spinner, a font swap, and a layout column"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-two-channels-every-storyboard-keeps-apart">The two channels every storyboard keeps apart</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-pattern-catalog-for-demo-storyboards">A pattern catalog for demo storyboards</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#anti-patterns-ranked-by-what-they-cost">Anti-patterns, ranked by what they cost</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#refactor-one-mega-scene-split-into-beats">Refactor: one mega-scene, split into beats</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-reaching-for-a-pattern-is-the-mistake">When reaching for a pattern is the mistake</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

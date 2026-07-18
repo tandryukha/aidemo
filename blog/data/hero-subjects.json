@@ -250,5 +250,21 @@
   "onboarding-walkthrough-videos": {
     "subject": "a brass pocket compass with its needle settled on north",
     "seedOffset": 1
+  },
+  "product-demo-storytelling": {
+    "subject": "a smooth stone arch bridge cresting to a single high point"
+  },
+  "record-a-terminal-session": {
+    "subject": "a brass music box cylinder studded with tiny pins"
+  },
+  "linkedin-video-for-b2b-software": {
+    "subject": "a curved wooden boomerang resting on a smooth flat surface"
+  },
+  "storyboard-design-patterns": {
+    "subject": "a short wall of interlocking toy building bricks",
+    "seedOffset": 2
+  },
+  "developer-education-screencasts": {
+    "subject": "a triple-decker sandwich stacked tall on a wooden board"
   }
 }

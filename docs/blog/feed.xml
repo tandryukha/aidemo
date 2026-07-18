@@ -204,18 +204,18 @@
       <description>A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</description>
     </item>
     <item>
+      <title>Developer-education screencasts: terminal, code, and browser together</title>
+      <link>https://aidemo.top/blog/developer-education-screencasts/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/developer-education-screencasts/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.</description>
+    </item>
+    <item>
       <title>Does video actually increase conversion? Tracing the 80% claim</title>
       <link>https://aidemo.top/blog/does-video-increase-conversion/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/does-video-increase-conversion/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</description>
-    </item>
-    <item>
-      <title>How to embed video on a website: self-host vs YouTube vs streaming host</title>
-      <link>https://aidemo.top/blog/embed-video-on-website/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/embed-video-on-website/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Paste the YouTube iframe and you ship 540 KB of someone else&apos;s JavaScript. Self-host and you own the egress bill. Here is how to choose, with the arithmetic.</description>
     </item>
   </channel>
 </rss>

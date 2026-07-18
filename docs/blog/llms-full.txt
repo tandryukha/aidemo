@@ -2713,6 +2713,87 @@ A spinner is a timer-and-animation effect, so it lands at a different phase ever
 
 ---
 
+# Developer-education screencasts: terminal, code, and browser together
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/developer-education-screencasts/
+
+> Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.
+
+## When a generic recorder meets a page of code
+
+Teaching a developer something means putting three surfaces on screen that most screen recorders were never tuned for: an editor packed with small colored text, a terminal that is really a stream of characters pretending to be a picture, and a browser showing the result. A recorder built for a webinar or a talking head treats all three as generic pixels, and all three fall apart in their own way. This is the format problem specific to a developer-education screencast, and it sits downstream of the pillar question of [when video earns a place in docs at all](/blog/video-documentation). Assume it has earned one. The next question is how to capture code so it still teaches after it has been through a codec.
+
+## Why a codec eats your code before your reader does
+
+Start with the compression, because it decides everything else. YouTube's own recommendation for a 1080p SDR upload at 30fps is H.264 in an MP4 at 8 Mbps ([Google, accessed July 2026](https://support.google.com/youtube/answer/1722171)). H.264 stores color at 4:2:0, which means the two chroma channels are "each subsampled at a factor of 2 both horizontally and vertically" ([Wikipedia, accessed July 2026](https://en.wikipedia.org/wiki/Chroma_subsampling)), discarding three quarters of the color samples and bleeding color across borders. Syntax highlighting is precisely the content that suffers: fine, saturated, high-contrast-edged text, where the purple that marks a keyword and the green that marks a string differ mostly in the channel the codec throws away first. Your theme looks crisp in the editor and muddy in the export, and nothing about your recorder caused it.
+
+Font size compounds the loss. Editors run at 12 to 14px on the author's high-DPI display, and the reader almost never watches at the size the author saw.
+
+| Recorded on | Delivered at | A 14px glyph becomes | Verdict |
+|---|---|---|---|
+| 2560px display, full screen | 1920px player | ~10.5px | marginal, thin stems smear |
+| 2560px display, full screen | 640px blog embed | ~3.5px | unreadable |
+| Zoomed to a ~900px region | 1920px player | ~30px | survives compression |
+
+Two moves fix it, and both happen before you record. Raise the editor font to 18 to 22px, and zoom to the region so a 1080p frame carries 60 to 80 columns instead of 200. WCAG treats 18pt (about 24px) as "large text," the size at which a 3:1 contrast ratio is enough where smaller text needs 4.5:1 ([W3C, accessed July 2026](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)). That threshold is a useful target for a screencast too, because it is roughly the size at which H.264 keeps a glyph's strokes intact. While you are there, choose a theme whose token colors clear 4.5:1 against the background; the low-contrast pairs a designer reaches for are the first casualties of 4:2:0.
+
+## The terminal is text, so capture it as text
+
+The terminal is the one surface you can escape the codec on entirely. asciinema records a session as newline-delimited JSON ([asciinema docs, accessed July 2026](https://docs.asciinema.org/manual/asciicast/v2/)), storing the characters and control sequences rather than pixels, so a reader can "pause the player and copy-paste the content you want. It's just text after all" ([asciinema, accessed July 2026](https://asciinema.org/)). vhs takes the scripted route: a `.tape` file it bills as "terminal GIFs as code," replaying typed commands and rendering to GIF, MP4, or WebM at a font size you `Set` yourself ([charmbracelet/vhs, accessed July 2026](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)). The full tradeoff among asciinema, a raw recording, and tape-driven replay, scored on file size, editability, and whether viewers can copy the commands, is [a decision of its own](/blog/record-a-terminal-session).
+
+For a screencast the binding constraint is compositional. An asciinema player is a web widget, not a video track, so it will not live inside the same MP4 as your browser footage. That leaves two honest paths: render the terminal with vhs and cut the clip into the timeline, where you control the font and it survives compression, or keep the browser as video and place the asciinema cast beside it as the copyable companion. What you should not do is point a [general-purpose recorder from a Camtasia-alternatives roundup](/blog/camtasia-alternatives) at a 12px terminal and hope the prompt reads; those tools capture a talking head well and a wall of monospace poorly.
+
+## Show the code or say the code, one rule per line
+
+The habit that quietly wrecks coding screencasts is reading the code out loud. When narration recites text the viewer is already reading, the two channels compete instead of combine, and both slow down. The voice should carry what the frame cannot: intent, the reason for a choice, the one number in the output that matters.
+
+| On screen | What the voice does | Why |
+|---|---|---|
+| The one or two lines that change, zoomed and held | names the change and its purpose | the eye reads syntax faster than you can speak it |
+| Imports, boilerplate, unchanged context | one sentence, then scroll past | dwelling on it teaches nothing |
+| A command and the output it prints | shows both, narrates the effect | the lesson is the result, not the keystrokes |
+| The reasoning behind a decision | holds the frame still | let the ear take the concept while the eye rests |
+| A long file | shows the diff, not the whole file | the change is the content, the file is context |
+
+The rule underneath the table: show what is faster to see than to say, and say what is faster to hear than to read.
+
+## One timeline, three surfaces
+
+A dev screencast teaches in an order: set the stage in the terminal, show the code that does the work, cut to the browser result. Move between surfaces with a hard cut, not a pan or a zoom across the desktop. A cut reads as "new context, look here," while a slow pan reads as "same thing, keep watching" and spends the viewer's attention on travel. Zoom each surface to the region that matters and never show the full desktop, both because the desktop is where notifications and clutter live and because a full-screen 1080p editor is exactly the unreadable case the compression section warned about. Move fast through the mechanical parts, the typing and the waiting, and slow down on the moment a decision becomes visible.
+
+Our own engine, aidemo, captures the browser surface deterministically from a storyboard, which covers the third of those three layers but not the first two: it is browser-only, so a terminal or a native editor never enters its frame, and you would pair it with vhs for those. It is worth naming that limit plainly, because a tool that captures one surface well is not a tool that captures a whole screencast.
+
+## Keeping a code screencast from lying next release
+
+A code screencast can break in two places a UI-only demo cannot. The browser layer drifts like any product footage when the interface moves. The code layer drifts on its own: a renamed flag, a changed response shape, or a new default breaks the terminal and editor content silently, and the frame still looks plausible while the narration now describes a command that errors. That second failure is the worse one, because it is invisible in review; a stale button at least looks wrong on sight.
+
+API and SDK quickstarts rot fastest of all, which is the argument for making an [API-docs video regenerate from the same fixtures the docs are tested against](/blog/api-documentation-videos). The model that holds once you have more than a handful of tutorials is regeneration rather than re-recording ([keeping a tutorial library current](/blog/keeping-tutorial-libraries-current)), and a [coding agent can author the spec so the re-render rides the same release that changed the code](/blog/coding-agents-that-make-demo-videos). aidemo regenerates its browser layer from a committed storyboard instead of a fresh take, though the storyboard is agent-authored and edited as text, with no drag-and-drop timeline anywhere in the loop. Extend the same discipline to the other two surfaces: drive the terminal from a vhs tape and pull the code from the same fixtures your tests run, so all three layers rebuild together on the commit that changed them, or fail loudly instead of shipping a screencast that teaches a command that no longer exists.
+
+## Sources
+
+- [Google / YouTube Help — Recommended upload encoding settings (H.264, 8 Mbps for 1080p SDR)](https://support.google.com/youtube/answer/1722171)
+- [Wikipedia — Chroma subsampling (4:2:0 subsamples Cb and Cr by a factor of 2 in both directions)](https://en.wikipedia.org/wiki/Chroma_subsampling)
+- [W3C — Understanding SC 1.4.3 Contrast (Minimum): 4.5:1 normal, 3:1 large text, 18pt large-text threshold](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)
+- [asciinema — Record and share terminal sessions, the simple way (text, not blurry video; copy-paste from the player)](https://asciinema.org/)
+- [asciinema docs — asciicast v2 file format (newline-delimited JSON, records terminal text)](https://docs.asciinema.org/manual/asciicast/v2/)
+- [charmbracelet/vhs — Write terminal GIFs as code (.tape scripts, Set FontSize, GIF/MP4/WebM output)](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)
+
+## FAQ
+
+### What font size should I use for a coding screencast?
+
+Big enough that the smallest glyph survives the codec, not the size you code at. On a 2560px display recorded full-screen, a 14px editor font lands near 10.5px in a 1080p player and about 3.5px in a 640px blog embed, well past legible. Raise the editor to 18 to 22px and zoom to 60 to 80 columns so the delivered glyph sits near WCAG's 18pt large-text mark, which is roughly where H.264 stops smearing the strokes.
+
+### Can viewers copy the commands out of a terminal screencast?
+
+Not out of a video; a codec turns your terminal into pixels. If copyable commands matter, record the terminal with asciinema, which stores the session as text and lets a viewer pause and copy-paste straight from the player. If you need the terminal inside a single MP4 alongside browser footage, render it with vhs at a font size you control and accept the commands are now unselectable, or embed the asciinema cast beside the video as the copyable companion.
+
+### How do I keep a programming tutorial video up to date?
+
+Treat it as something that rebuilds, not something you re-shoot. A code screencast drifts on two fronts, the UI it shows and the code it runs, and the code half fails silently when a flag or response changes. Derive each surface from source: the browser from a committed storyboard, the terminal from a vhs tape, the code from the same fixtures your tests use, so a change that breaks the demo either regenerates it or turns the build red.
+
+---
+
 # Does video actually increase conversion? Tracing the 80% claim
 
 July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/does-video-increase-conversion/
@@ -3866,6 +3947,83 @@ More than teams budget. A short tutorial clip takes roughly one to two hours to 
 
 ---
 
+# LinkedIn video for B2B software: native, captioned, and square
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/linkedin-video-for-b2b-software/
+
+> Paste a YouTube link and the LinkedIn feed buries the post. Upload native, size it square, burn the captions: the B2B feed mechanics, with the specs.
+
+## A pasted YouTube link is a tax on your own reach
+
+For B2B software, LinkedIn is not one channel among several; it is the channel. Wistia's 2026 State of Video, built from the videos it hosts, puts 81% of teams posting video to LinkedIn, ahead of YouTube at 76%, and names LinkedIn B2B's top video-sharing channel ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). That is where your buyers already scroll. The mistake is in how most teams put a video in front of them: they paste a YouTube link into the post and call it done.
+
+That link is a reach tax, and the reason is in LinkedIn's own feed mechanics. Since 2020 the feed has ranked updates partly on dwell time, the seconds a member spends on an update, through a model that predicts the probability of a skip ([LinkedIn Engineering, 2020](https://www.linkedin.com/blog/engineering/feed/understanding-feed-dwell-time)). LinkedIn's engineers spelled out why they trust dwell over likes and clicks: most members view an update without ever clicking, liking, or commenting, so those actions are missing for the silent majority; they are binary rather than graduated; and a click can be a "click bounce" that means the opposite of interest. Dwell time, by contrast, is "always measurable" and a "real-valued measure of engagement."
+
+Read that back with a YouTube link in hand. The best case for a pasted link is a click, and a click sends the viewer off LinkedIn to youtube.com, ending the dwell the post is ranked on. A native upload does the opposite: it autoplays in place, and every second watched is dwell the feed counts in your favor. The pillar's [channel matrix](/blog/video-marketing-for-software) already flags that a native upload out-reaches a pasted link; the dwell model is why. Upload the file. If you need the YouTube version discoverable, drop that link in the first comment, where it will not compete with the clip for reach.
+
+## The LinkedIn upload spec, in one table
+
+LinkedIn accepts a wide envelope and rewards a narrow part of it. The full spec, current as of July 2026, with the B2B in-feed pick called out:
+
+| Property | What LinkedIn accepts | The B2B in-feed pick |
+| --- | --- | --- |
+| Aspect ratio | 16:9, 1:1, 4:5, 9:16 | 1:1 or 4:5 |
+| Length | 3 seconds to 30 minutes | 15-30 seconds |
+| Resolution (square) | 360x360 to 1920x1920 | 1080x1080 |
+| Resolution (4:5) | 360x450 to 1080x1350 | 1080x1350 |
+| File size | 75 KB to 500 MB | comfortably under |
+| Container / codec | MP4, H.264 or VP8 | MP4 / H.264 |
+| Frame rate | under 30 fps | 30 fps |
+
+Those numbers are LinkedIn's ([LinkedIn, accessed July 2026](https://www.linkedin.com/help/lms/answer/a424737)); the right-hand column is the opinion. Two cells decide the reach. Length first: LinkedIn recommends 15 to 30 seconds so a clip qualifies for every placement, and the retention data agrees that a short clip is watched while a long one is merely sampled. Vidyard's 2024 benchmark of 943,305 videos found 65% of viewers stay to the end of a sub-minute clip against 20% past twenty minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)).
+
+Aspect is the cell teams get wrong. A 16:9 clip is the shape of a YouTube master, not a feed clip. At the fixed width of the feed column, a 1:1 or 4:5 video is simply taller than a 16:9 one, so it occupies more of a vertical phone screen and holds the scroll a beat longer, which the dwell model rewards directly. The square cut is not a matter of taste; it is more pixels of screen time per scroll. [The launch-clips piece](/blog/social-cuts-for-product-launch) carries the full cross-platform cut table; this is its LinkedIn column, with the reasoning laid under it.
+
+## Muted autoplay makes your first two lines the pitch
+
+A LinkedIn video autoplays in the feed with the sound off. LinkedIn says so plainly and, for that reason, calls captions strongly recommended because "videos autoplay without sound" ([LinkedIn, accessed July 2026](https://business.linkedin.com/marketing-solutions/native-advertising/video-ads)). So the first view of your demo is silent, and two things carry it.
+
+The first is the post copy above the video. LinkedIn collapses that text after the first two or three lines behind a "see more" fold, so those lines are not a caption on the video, they are the headline that decides whether the muted clip gets watched at all. Lead them with the outcome or the problem in a plain sentence, not with "excited to share." The second thing carrying the silent view is the video itself: its opening frame and its burned-in captions. The wind-up open, a logo card and a face promising to walk you through it, spends the one silent second the feed grants you; open on the product mid-task instead, with the words already on screen.
+
+Those words have to be burned into the pixels. LinkedIn re-encodes what you upload and a reshare can strip a sidecar caption file, so the only text that reliably survives is the text rendered into the frame, and [the case for captions as pixels](/blog/demo-video-captions) covers the timing and the rendering in full. The opening move is its own small craft, and [the catalog of hooks that survive a muted scroll](/blog/demo-video-hook) applies to the LinkedIn frame as much as to any feed.
+
+## The document post for the weeks you don't film
+
+Not every week produces a new recording, and LinkedIn has a native format for the gap that most B2B teams underuse: the document post. Upload a PDF and LinkedIn lets members read it inside the feed, page by page, without leaving the platform to do it ([LinkedIn, accessed July 2026](https://business.linkedin.com/marketing-solutions/native-advertising/document-ads)). It is not video, but it plays by the same ranking rule. Every page a reader turns is another second spent on the update, so a multi-page document banks dwell the way a native clip does and never sends the reader off-platform to do it.
+
+For software, the document post has a quiet advantage: it is made of the stills you already have. A demo pipeline that captures named screenshots of each step, the empty state, the one action, the populated result, has a five-page document sitting in its output folder. Turn "here is the workflow" into five frames with a line of text on each and you have a post that carries a product story with no narration, no audio, and nothing to mute. On a week with no new feature to film, that is the format that keeps the account posting without a shoot, and it feeds the same dwell signal the video cut does. It is the answer to the false choice between filming every week and going quiet.
+
+## One recording feeds every LinkedIn slot
+
+Line up what LinkedIn actually wants from a single demo of one workflow: a native square or 4:5 cut, 15 to 30 seconds, captions burned in, for the in-feed post; a 16:9 master for the YouTube link you drop in the comments; and a document post of that same flow's still frames for the weeks between films. Three deliverables, one capture.
+
+Cutting those three by hand is three exports every time, and it is worse than that, because LinkedIn keeps adjusting what the feed rewards and your product keeps shipping, so each deliverable is re-made on both clocks. Treat the demo as a spec instead of a captured file and the arithmetic changes: a square reframe becomes a render at a different output size rather than a crop that discards a third of the frame, and the document-post stills regenerate from the same flow when the UI moves. This is how aidemo, our open-source engine, is built: an agent authors the storyboard, a deterministic run replays it in real Chrome, and one take renders at whatever aspect a slot asks for and exports the named stills a document post needs. Its honest limits are real: it captures a browser tab and nothing outside one; the storyboard is written as text by an agent, not clicked together in an editor; and there is no visual timeline to nudge clips on. That makes it the wrong tool for a one-off phone-shot clip and the right one when the same workflow has to fill three LinkedIn slots and stay current for a year. Who is watching still sets the edit, and on LinkedIn that is usually a buying committee; [the seven axes that separate a B2B cut from a self-serve one](/blog/b2b-demo-video) decide the tone before any of this spec work begins.
+
+## Sources
+
+- [LinkedIn Engineering - Understanding LinkedIn's use of dwell time for feed ranking (2020)](https://www.linkedin.com/blog/engineering/feed/understanding-feed-dwell-time)
+- [LinkedIn Help - Video ad specifications (aspect ratios, length, resolution, file size)](https://www.linkedin.com/help/lms/answer/a424737)
+- [LinkedIn Marketing - Video ads (autoplay muted, captions strongly recommended)](https://business.linkedin.com/marketing-solutions/native-advertising/video-ads)
+- [LinkedIn Marketing - Document ads (read documents directly in the feed)](https://business.linkedin.com/marketing-solutions/native-advertising/document-ads)
+- [Vidyard - Video in Business Benchmark Report (sub-minute completion 65%)](https://www.vidyard.com/business-video-benchmarks/)
+- [Wistia - State of Video: video marketing statistics (81% of teams post to LinkedIn)](https://wistia.com/learn/marketing/video-marketing-statistics)
+
+## FAQ
+
+### Should I upload video natively to LinkedIn or post a YouTube link?
+
+Upload it natively. LinkedIn's feed has ranked partly on dwell time since 2020, and a pasted YouTube link's best outcome is a click that sends the viewer off LinkedIn, ending the dwell the post is measured on. A native upload autoplays in the feed and every second watched counts in your favor. If the YouTube version needs to be findable, put that link in the first comment rather than the post body, so it does not compete with the native clip for reach.
+
+### What size should a LinkedIn video be for B2B software?
+
+Square 1:1 or 4:5, not 16:9, for the in-feed post. At the feed's fixed column width a square or vertical clip is taller than a widescreen one, so it fills more of a phone screen and holds the scroll longer. Keep it to 15 to 30 seconds, ship it as an MP4 in H.264 under 500 MB, and save the 16:9 version for the YouTube master. LinkedIn accepts anything from 360x360 up to 1920x1920 for a square clip.
+
+### Do LinkedIn videos need captions?
+
+Yes. LinkedIn video autoplays in the feed with the sound muted, so the first view is silent and the on-screen text is the whole message. Burn the captions into the pixels rather than relying on a sidecar file, because LinkedIn re-encodes uploads and a reshare can drop a separate caption track. A clip that depends on its audio to make sense is a clip most of the feed will scroll past without ever hearing it.
+
+---
+
 # Loom alternatives for product demos after the Atlassian era
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/loom-alternatives-for-product-demos/
@@ -4632,6 +4790,111 @@ Two things the shallower tiers skip: an app that can be seeded with prospect-rel
 
 ---
 
+# Product demo storytelling: three frameworks on one timeline
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/product-demo-storytelling/
+
+> A feature tour leaks viewers. Three named story frameworks on one 60-second timeline, with per-beat second budgets and the payoff placed on purpose.
+
+## The feature tour is the structure that loses viewers
+
+Open the recorder, click through the product in menu order, and narrate each panel as you reach it: here's the dashboard, here's settings, here's the reports tab, here are the integrations. That is a feature tour, and it is the shape a demo defaults to when nobody chose one first. It fails for a reason that is structural, not a matter of polish. A tour is a list, and a list gives the viewer no reason to watch it in order. Panel two does not depend on panel one, panel four makes no promise worth waiting for, and every item is independently skippable because none of them are owed a payoff.
+
+A story is the opposite of a list, because a story withholds. It raises a question in the first beat and settles it in the last, so the viewer stays to learn how it comes out. That forward pull is exactly what a feature tour has none of, and the retention math shows the bill. YouTube's own guidance names the failure: audiences only thin out as a video runs on, so when the top moments land late, its advice is to "consider introducing the compelling content earlier" ([YouTube Help](https://support.google.com/youtube/answer/9314415)). A tour either buries its best moment or has none, and lets the curve decay from the first second. Wistia, across more than 13 million videos, puts sub-minute clips at about a 52% engagement rate and product videos near 50% ([Wistia, 2026](https://wistia.com/learn/marketing/optimal-video-length)), so half the audience is gone by design, and a tour spends that half on housekeeping. Pick the runtime the channel wants first, since [how long the video should run](/blog/how-long-should-a-demo-video-be) sets how much arc you can afford, then give it an arc.
+
+The cost lands twice, and the second time is after the video ends. People do not store an experience as an average of its moments; they store its most intense moment and its final one. That is the peak-end rule, from Kahneman and Fredrickson's 1993 study of how memory compresses an experience down to its peak and its ending ([Kahneman & Fredrickson, 1993](https://en.wikipedia.org/wiki/Peak%E2%80%93end_rule)). A feature tour has no engineered peak and no engineered ending; it runs out of panels and stops, so it leaves nothing behind to remember. Fixing that means imposing an arc: a beat that raises the stakes, a peak where the product answers them, and a close you chose on purpose. Three named frameworks do exactly that, and they differ only in how they order the beats and where they park the payoff.
+
+## Three story frameworks, one timeline
+
+Problem-agitate-solve, before-after-bridge, and the job-to-be-done hero are the same arc, tension then release, sequenced three different ways. Choosing among them is choosing where the viewer feels the pressure and where they get the relief. Below is one 60-second runtime read through all three at once. The seconds convert to words at about 2.5 per second, so every column is still the roughly 150-word budget the [problem, walkthrough, proof script template](/blog/demo-video-script-template) sizes line by line; what changes across the columns is the shape, not the count.
+
+| Beat role | Problem-agitate-solve | Before-after-bridge | Job-to-be-done hero |
+| --- | --- | --- | --- |
+| First frame | the painful status quo | the finished result | the viewer and their goal |
+| Tension beat | agitate the recurring cost | the gap between old and new | the obstacle and its stakes |
+| Body (walkthrough) | solve: the product does the job | bridge: how you cross to the result | the guide's plan, step by step |
+| Close | proof, then one ask | one ask | the viewer wins, then one ask |
+| Where the payoff sits | at the end | in frame one, then re-earned | the moment the viewer succeeds |
+
+Read across any row and the three quarrel over one decision: when to show the payoff. Problem-agitate-solve makes the viewer wait for it, before-after-bridge hands it over in the first frame and spends the rest earning it back, and the hero frame delivers it as the viewer's own win. Everything else is beat budgeting, which is where the per-framework numbers below come in.
+
+## Problem, agitate, solve: make the cost visible before the fix
+
+Problem-agitate-solve is the classic direct-response arc, and it is what the familiar "problem, walkthrough, proof" skeleton becomes once you stop skipping the middle beat. The agitate step is the one most demos drop, and it is the one that earns the walkthrough. The problem beat states the pain; the agitate beat makes its price felt, the recurring tax of living with it, so that by the time the product appears the viewer already wants it gone.
+
+| Beat | Budget (of 60s) | What it does |
+| --- | --- | --- |
+| Problem | 0:00–0:07 | one concrete scene of the pain, product unnamed |
+| Agitate | 0:07–0:15 | the cost that recurs: every week, already stale, again tomorrow |
+| Solve | 0:15–0:52 | the product does the job in three visible steps |
+| Proof + CTA | 0:52–0:60 | the result as a number, then exactly one action |
+
+The eight seconds of agitation are the whole trick. On a weekly-report demo, the problem beat shows the spreadsheet; the agitate beat says the numbers are stale by Wednesday and the team argues over which copy is real. That is one honest cost, not three, and the line to hold is that agitation earns attention only while it stays true. Push it into invented dread and the viewer smells the sell. Reach for this frame when the pain is real but under-felt, which is common in outcome-framed B2B, where the buyer has normalized a cost they stopped noticing.
+
+## Before, after, bridge: open on the destination
+
+Before-after-bridge inverts the wait. It shows the "after," the finished result, in the opening seconds, then rewinds to the "before" long enough to make the contrast land, then spends the body as the "bridge" that connects them. It is the outcome-first cold open with a name, and it is the right arc for anywhere the payoff is visual and the surface plays muted.
+
+| Beat | Budget (of 60s) | What it does |
+| --- | --- | --- |
+| Before | 0:00–0:06 | the old way, in one shot |
+| After | 0:06–0:14 | the destination on screen, done, before any how |
+| Bridge | 0:14–0:52 | the three steps that connect old to new |
+| CTA | 0:52–0:60 | one action, one destination |
+
+Opening on the after is why this frame survives autoplay. A viewer who leaves at four seconds still saw where the product ends up, and a viewer who stays now watches the bridge to confirm a result they have already been shown, which is a stronger reason to keep watching than curiosity about a feature. That is also why this is the safest structure for the first frames a muted hero shows; it makes [the opening five seconds](/blog/demo-video-hook) carry the whole pitch as silent motion. Use before-after-bridge when the contrast reads at a glance: a cluttered board becoming one clean view, a red build turning green.
+
+## The job-to-be-done hero: cast the viewer, not the product
+
+The third frame changes who the story is about. Clayton Christensen's jobs-to-be-done lens holds that customers do not buy a product so much as "hire" it to make progress in a particular circumstance ([Christensen et al., HBR, 2016](https://hbr.org/2016/09/know-your-customers-jobs-to-be-done)). Donald Miller's StoryBrand pushes the same idea into structure: the customer is the hero, and the brand is the guide who hands them a plan, not the hero itself ([The Customer Is the Hero](https://thecustomeristhehero.com/)). A hero-frame demo casts the viewer as the protagonist with a job to finish, and the product enters as the tool that makes the finishing possible.
+
+| Beat | Budget (of 60s) | What it does |
+| --- | --- | --- |
+| Character + job | 0:00–0:06 | the viewer and what they are trying to get done |
+| Stakes | 0:06–0:13 | what is in the way and what it costs them |
+| Guide + plan | 0:13–0:48 | the product enters as helper and hands over a plan |
+| Success | 0:48–0:55 | the job done, framed as the viewer's win |
+| CTA | 0:55–0:60 | one next step |
+
+The register gives it away: the narration is second person, "you connect your data, you ask the question, you get the chart," because the viewer is meant to picture their own hands on the interface. That makes it the natural frame for onboarding and product-led surfaces, where the sale is the viewer imagining themselves succeeding in the next minute. It also inverts cleanly for a sales-led cut, where the hero becomes the buyer's organization and the plan becomes an outcome a champion can carry into a room; [which register a B2B versus a PLG audience wants](/blog/b2b-demo-video) is set by who has to say yes. The failure to avoid is the common one: letting the product be the hero, all capability and no protagonist, which is just a feature tour wearing a story's clothes.
+
+## Pick the frame by what the payoff looks like
+
+The choice is not taste, it is a reading of your payoff and your surface. One honest cost the buyer has stopped noticing wants problem-agitate-solve. A result that reads in a single frame wants before-after-bridge. A viewer who has to see themselves doing the job wants the hero frame. The table collapses it.
+
+| Framework | Reach for it when | Payoff placement | The failure to avoid |
+| --- | --- | --- | --- |
+| Problem-agitate-solve | the pain is expensive but under-felt; outcome-framed B2B | at the end | agitation curdling into fear; keep it to one true cost |
+| Before-after-bridge | a muted autoplay hero or social clip; the result is visually obvious | frame one | a "before" that overstays; cap it at one beat |
+| Job-to-be-done hero | onboarding, PLG, self-serve; the viewer must picture themselves | the viewer's win | letting the product be the hero instead of the guide |
+
+Here is the part the framework debate usually misses: these are not three recordings. They are one take of one workflow, re-sequenced and re-voiced, the same clicks with a different beat order and a different narration laid over them. Testing whether the before-after cut beats the problem-first cut should cost an edit, not a re-shoot, and it only does when the demo is a spec instead of a performance. Our own engine, aidemo, is built on exactly that premise, and it comes with real limits: it drives a real browser and nothing else, a coding agent writes the storyboard as text rather than a person cutting clips, and it offers no visual timeline for tweaking a beat by hand. Decide the frame before you record, because the beat order is the earliest and cheapest choice in [the whole production playbook](/blog/how-to-make-a-product-demo-video), and [reusable storyboard patterns](/blog/storyboard-design-patterns) are how a chosen frame becomes a thing you can re-cut instead of re-perform.
+
+## Sources
+
+- [YouTube Help — Audience retention (intro percentage and drop-off)](https://support.google.com/youtube/answer/9314415)
+- [Wistia — How to Choose the Right Marketing Video Length (2026 State of Video)](https://wistia.com/learn/marketing/optimal-video-length)
+- [Kahneman & Fredrickson — the peak-end rule (1993)](https://en.wikipedia.org/wiki/Peak%E2%80%93end_rule)
+- [Christensen, Hall, Dillon & Duncan — Know Your Customers' Jobs to Be Done (HBR, 2016)](https://hbr.org/2016/09/know-your-customers-jobs-to-be-done)
+- [Donald Miller / StoryBrand — The Customer Is the Hero](https://thecustomeristhehero.com/)
+- [Tools for Clear Speech, Baruch College — Speaking Rate](https://tfcs.baruch.cuny.edu/speaking-rate/)
+
+## FAQ
+
+### What is the best storytelling framework for a product demo?
+
+There is no single best one; there is a best fit for your payoff. Reach for problem-agitate-solve when the pain is real but the buyer has stopped noticing its cost, before-after-bridge when the result reads in a single frame and the surface plays muted, and the job-to-be-done hero frame when the viewer has to picture themselves finishing the task, as in onboarding. All three impose the same tension-then-release arc a feature tour lacks; they only disagree about where to place the payoff.
+
+### What is the difference between problem-agitate-solve and before-after-bridge?
+
+Where the payoff sits. Problem-agitate-solve withholds the result: it opens on the pain, agitates the recurring cost, and delivers the solution at the end, so the viewer waits for relief. Before-after-bridge opens on the "after," the finished result in the first frame, then rewinds to the "before" and spends the body bridging the two. Because it front-loads the payoff, before-after-bridge is the safer choice for a muted autoplay hero, where a viewer who leaves at four seconds still saw the destination.
+
+### Why does a feature tour lose viewers?
+
+A feature tour is a list, and a list has no arc, so nothing pulls a viewer from one panel to the next. Retention decays from the first second because no beat is owed a payoff, which matches YouTube's finding that audiences only shrink over a video's length. It also fails the peak-end rule: with no engineered peak and no chosen ending, the video runs out of features and stops, leaving the viewer nothing to remember. A named story frame fixes both by raising stakes, resolving them at a peak, and closing on purpose.
+
+---
+
 # The Product Hunt launch video: spec, format, and the first five seconds
 
 July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/product-hunt-launch-video/
@@ -5278,6 +5541,117 @@ Not the operating-system ones. A tab capture is "the entire contents of a single
 ### Can I record a browser tab together with its audio?
 
 Yes. Chrome can capture tab audio through `getDisplayMedia()` or `chrome.tabCapture`, though capturing a tab means "audio in that tab will no longer be played to the user," so recorder extensions route the stream back to your speakers so you still hear it while recording. Chrome's `systemAudio` control (Chrome 105) governs whether whole-screen shares are offered audio at all; tab and window shares are offered audio, and screens can be excluded.
+
+---
+
+# How to record a terminal session (and when to skip the video)
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/record-a-terminal-session/
+
+> A terminal is characters, not pixels, so you can record it as copyable text, a GIF, or a re-renderable tape. Pick by where the demo has to live.
+
+## Record the characters, or photograph them
+
+Almost everything on your screen can only be captured as pixels. A terminal is the exception. What scrolls past in a shell is a stream of characters and a handful of control codes, and you get to decide whether to preserve that stream as text or flatten it into a picture the way a screen recorder flattens a window. That single choice, made before you press record, decides whether the demo weighs kilobytes or megabytes, whether a reader can select and paste the commands, and whether the recording still works the next time the tool changes.
+
+Three capture modes fall out of it. You can record the text stream itself and replay it in a player. You can point a screen recorder at the terminal and get an MP4 or GIF like any other window. Or you can skip live capture entirely and drive a scripted terminal from a committed file that re-renders on demand. Each is right for a different destination, and a fourth option beats all three more often than people admit: not recording at all.
+
+## The demo you can skip recording entirely
+
+Before reaching for any recorder, ask what the reader actually needs from the terminal. If the value is the commands themselves, the correct artifact is usually a fenced code block, not a video of you typing it. A code block is copy-pasteable, diffable in review, greppable by search engines and by the reader's own browser, weightless, and legible to a screen reader. No recorder produces an artifact with all five of those properties. A recording of a command someone then has to retype by squinting at pixels is strictly worse than the two lines of text it depicts.
+
+Motion earns its place only when the value is in the timing or the output, not the input: a long-running build whose progress bar you want to show crossing the finish line, a TUI whose layout redraws as you move, an interactive prompt, the felt speed of a command that returns instantly. When the terminal does something over time that a static block cannot convey, you have a real reason to record. Everything below assumes you have one.
+
+## Text-stream capture: asciinema and the built-in script command
+
+The lightest recording keeps the terminal as text. asciinema writes each session to an asciicast file: a header line of metadata, then one JSON line per event, each holding a timestamp and the bytes your terminal printed ([asciinema, 2026](https://docs.asciinema.org/manual/asciicast/v2/)). Because it stores the characters rather than a grid of pixels, the file is small and the text stays real, so a viewer can pause the web player and select the commands straight out of it. The current CLI is a 3.x rewrite in Rust that can also write zstd-compressed casts at, by its own measurement, "8% of the original size on average" ([asciinema, 2026](https://github.com/asciinema/asciinema)), which puts a multi-minute session at a handful of kilobytes on disk. The newer asciicast v3 format keeps the same one-line-per-event shape but switches to relative intervals between events and is deliberately not backward compatible with v1 and v2 ([asciinema, 2026](https://docs.asciinema.org/manual/asciicast/v3/)).
+
+You do not have to install anything to get the same idea on a Linux box. The util-linux `script` command "makes a typescript of everything on your terminal session," and with `--log-timing` it writes the timing data that is "necessary to replay the session later by scriptreplay(1)" ([man7, 2026](https://man7.org/linux/man-pages/man1/script.1.html)). macOS and the BSDs ship their own `script` with different flags, so the replay story is cleanest on Linux, but the typescript file is plain text everywhere.
+
+```sh
+  # zero-install text capture on Linux, replayable at the original speed
+script --log-timing timing.log session.log
+  #   ...run your commands, then: exit
+scriptreplay --log-timing timing.log session.log
+```
+
+The honest limit of every text cast: it is not something a reader can watch without a player. A `.cast` inlines nowhere on its own, so you either link out to a hosted player or convert it to pixels for embedding, which is what the next two sections are about.
+
+## Pixel capture: a real screen recording of the terminal
+
+Sometimes you want the terminal to look exactly like your terminal: your font, your color theme, a TUI's box-drawing, or the window sitting beside a browser. That means a normal screen recording, captured with the same tools and [capture settings that decide whether any recording reads sharp](/blog/how-to-record-your-screen-in-high-quality). On a desktop you grab the terminal window like any other, which on Linux means [the display server decides which recorder even works](/blog/record-screen-on-linux); the output is an MP4 or, for a short loop, a GIF, and [the container-versus-codec choice there is its own decision](/blog/best-video-format-for-screen-recording).
+
+Pixels buy fidelity and cost three things. The text is now a picture, so nobody can copy a command out of it; small monospace fonts smear under a codec's color subsampling unless you record at a large font size, the same legibility trap that governs any [screencast putting a terminal on one timeline with code and a browser](/blog/developer-education-screencasts); and the file is heavy, because a GIF stores indexed frames with no compression between them, so even a mostly-static terminal loop runs far larger than the equivalent MP4, with [the full GIF-versus-MP4 size math worked out for READMEs elsewhere](/blog/readme-gifs-that-update-themselves). Pixel capture is the right call when the look is the point and copyability is not.
+
+## Scripted replay: a tape you commit and re-render
+
+The third mode does not capture a live session at all. You write the session as a script and a tool replays it into a fresh recording every time. vhs is the standard here, and its own tagline is blunt: "terminal GIFs as code." It reads a `.tape` file of commands like `Set FontSize`, `Type`, `Sleep`, and `Enter` and renders to GIF, MP4, WebM, or even a plain-text frame, given `ttyd` and `ffmpeg` on the PATH ([Charmbracelet, 2026](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)). Because the tape is the source of truth, the demo is diffable, reviewable, and regenerable: change the CLI, replay the same tape, and the recording updates with nobody re-typing it. That runs unattended, which is why the tape pattern fits [rendering a demo on a machine with no display attached](/blog/headless-screen-recording).
+
+```
+  # demo.tape, committed next to the CLI
+Output demo.gif
+Set FontSize 22
+Type "mytool build ./app" Enter
+Sleep 3s
+```
+
+You can also turn a text cast into pixels after the fact: agg renders an asciinema `.cast` into an animated GIF ([asciinema, 2026](https://github.com/asciinema/agg)), and the now-archived termtosvg renders a session, including an asciicast, as a "standalone SVG animation" whose vector text stays crisp at any zoom ([nbedos, 2026](https://github.com/nbedos/termtosvg)). This regenerate-from-source discipline is the terminal cousin of committing a browser demo as a spec. Our own engine, aidemo, does that for web UIs, but it is browser-only by design, so a terminal is exactly the case where you reach for vhs instead of us.
+
+## The three capture modes, side by side
+
+Scored on the things that actually differ: how big the artifact is, whether a reader can copy the commands, how you edit it later, and whether it survives the next release.
+
+| | Text cast (asciinema, script) | Pixel recording (MP4/GIF) | Scripted replay (vhs tape) |
+|---|---|---|---|
+| Artifact | `.cast` / typescript text | MP4 or GIF | `.tape` to GIF/MP4/text |
+| Size, short session | kilobytes | MP4 sub-MB, GIF megabytes | as its chosen output |
+| Copy the commands? | yes, it is text | no, pixels | no, unless text output |
+| Edit after recording | re-record or hand-edit JSON | a video editor | edit the tape, re-render |
+| Stays current by | re-recording | re-recording | replaying the tape |
+| Inlines in a README | needs a player, or convert | GIF autoplays | renders to a GIF |
+| Best when | the commands matter | the look matters | a maintained demo |
+
+The row that catches people out is the second-to-last. A text cast is the smallest and most copyable artifact, yet it is the one thing that does not simply drop into a GitHub README, because a README has no asciicast player. That is why so many terminal demos are text-captured and then run through agg or vhs into a GIF for the front page: you keep the tiny, copyable source and still get inline motion, from two artifacts instead of one.
+
+## Which artifact each destination wants
+
+There is no single best capture; there is a best one per place the demo has to live.
+
+| Destination | Reach for | Why |
+|---|---|---|
+| Docs where copying matters | fenced code block, or asciicast | the reader pastes the commands |
+| A blog or docs page you host | asciicast player, or vhs GIF/MP4 | you control the embed and headers |
+| GitHub README | GIF, from vhs or agg | the only motion GitHub autoplays inline |
+| Bug report or support thread | asciicast link, or a short GIF | reproducible and copyable |
+| Conference slide | MP4 or GIF at a big font | plays offline, needs no player |
+| A CLI demo you must keep current | vhs tape in CI | regenerates on every release |
+
+Read down the table and the pattern is the one the whole page turns on: choose text when the value is the commands, pixels when the value is the look, and a committed tape when the value is a demo that cannot be allowed to go stale.
+
+## Sources
+
+- [asciinema — asciicast v2 file format (newline-delimited JSON header plus event lines of terminal text)](https://docs.asciinema.org/manual/asciicast/v2/)
+- [asciinema — asciicast v3 file format (relative-interval event stream, not backward compatible with v2)](https://docs.asciinema.org/manual/asciicast/v3/)
+- [asciinema — CLI repository (Rust 3.x rewrite, zstd casts ~8% of the original size)](https://github.com/asciinema/asciinema)
+- [charmbracelet/vhs — write terminal GIFs as code (.tape commands, ttyd + ffmpeg dependencies)](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)
+- [asciinema/agg — asciicast to animated GIF generator](https://github.com/asciinema/agg)
+- [nbedos/termtosvg — record terminal sessions as standalone SVG animations (archived)](https://github.com/nbedos/termtosvg)
+- [man7 — script(1), util-linux (typescript of a terminal session; --log-timing for scriptreplay)](https://man7.org/linux/man-pages/man1/script.1.html)
+- [GitHub Docs — attaching files (10 MB image/GIF cap; MP4, MOV, WebM video types)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+
+## FAQ
+
+### How do I record a terminal session without installing anything?
+
+On Linux, the util-linux `script` command records a typescript of everything printed to your terminal, and adding `--log-timing timing.log` captures the delays so `scriptreplay` can play it back at the original speed. Both are already on the machine. macOS and BSD ship a `script` too, but with different flags, so the built-in replay is most reliable on Linux. For a portable, shareable recording, install asciinema and record a `.cast` instead.
+
+### Can readers copy the commands out of an asciinema recording?
+
+Yes. An asciicast is a text file of the characters your terminal printed, so the asciinema web player lets a viewer pause and select the commands straight out of the playback. That is the one thing a text cast gives you that a screen recording cannot: an MP4 or GIF turns the same terminal into pixels, and every command becomes unselectable. If copy-paste matters, record text, not video.
+
+### Should I use an asciinema cast or a GIF in my README?
+
+A GIF, but generate it from the cast. GitHub only autoplays a committed GIF inline and has no asciicast player, so a raw `.cast` will not move on the page. Record the session as a lightweight cast for the copyable source of truth, then convert it to a GIF with agg, or render a `.tape` with vhs, for the README itself, keeping the GIF under GitHub's 10 MB image cap.
 
 ---
 
@@ -6226,6 +6600,153 @@ Short: aim for 10 to 20 seconds on TikTok and Reels, and 15 to 45 on a YouTube S
 ### How many social clips should a product launch produce?
 
 More than one per platform, fewer than one per idea. A five-day launch across LinkedIn, X, and one vertical feed can want fifteen to twenty posts, but those come from six or seven distinct clips cut from a single recording and reframed per network, not from twenty separate shoots. Prioritize by where your audience is: Wistia reports 81% of teams post video to LinkedIn and 76% to YouTube, so B2B software earns a LinkedIn native cut and a Short before it spends a minute on TikTok.
+
+---
+
+# Storyboard design patterns for demos as code
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/storyboard-design-patterns/
+
+> When the demo is a JSON file, authoring becomes a design-patterns problem: the moves that keep a storyboard readable, and the smells that wreck it.
+
+## The two channels every storyboard keeps apart
+
+A demo storyboard is a text file a machine executes, and like any such file it carries more than one kind of information at once. The most consequential design choice in the format is which kinds you let touch.
+
+The declarative demo formats that hold up over time keep two channels strictly apart: the narration, meaning what a viewer hears, and the action-spec, meaning what the browser is driven to do. In the storyboard format for aidemo, the engine we build, a scene is a `narration` string sitting next to an `actions` array, and the actions never name the spoken words. That wall is not cosmetic. It is the reason one recorded take can ship in several languages at once: the take replays the action-spec, which mentions no words, so only the narration and captions have to localize, which is what turns [one recording into a matrix of localized renders](/blog/multi-language-product-demo-videos) ([aidemo, accessed July 2026](https://github.com/tandryukha/aidemo/blob/main/docs/AUTHORING.md)). Weld the sentence to the click and that property is gone.
+
+Remotion draws the same boundary from the opposite direction. A Remotion composition is a reusable structure, and the data it renders arrives separately as input props that "will be merged together with default props, where input props have priority" ([Remotion, accessed July 2026](https://www.remotion.dev/docs/parameterized-rendering)). The composition is the how, the props are the what, and changing the props renders a different video from the same structure, which is the working definition of a template. Whether the pixels are captured from a real browser or drawn by React, the lesson holds: the thing you say and the thing you show are different data, and a storyboard that stores them as different data can be localized, personalized, and reviewed one channel at a time.
+
+| Channel | Holds | Never holds | What the wall buys |
+|---|---|---|---|
+| Narration | the spoken script, per scene | selectors, timing, URLs | rewrite or translate the words with no re-record |
+| Action-spec | ordered browser operations and waits | the sentences being spoken | replay the same flow under any narration |
+
+Once you read a storyboard as channels instead of a screenplay, a small set of reusable patterns falls out, and so do their opposites.
+
+## A pattern catalog for demo storyboards
+
+The moves below recur across three unrelated declarative formats: Charmbracelet's vhs (terminal tapes), Remotion (React video), and browser-capture storyboards. A pattern earns a name when the same move solves the same problem in formats that never talked to each other.
+
+| Pattern | The problem it solves | How the formats express it |
+|---|---|---|
+| One idea per scene | a viewer holds one claim at a time; a reviewer diffs one beat | a single narrated claim per scene, four to six scenes for a 45-second demo |
+| Wait on a condition | timing varies run to run, so a fixed pause is a race | `Wait /regex/` over `Sleep`; a wait that fires when the element actually appears |
+| Pre-navigate the next scene | narration for screen N plays over screen N-1 | put the navigation click at the end of scene N-1 |
+| Address by intent | a redesign rewrites classes and layout, not roles and labels | role and accessible name over `nth-child` or a hashed class |
+| Parameterize the variable | one flow, many prospects or locales | Remotion input props; storyboard `{{placeholders}}` with declared defaults |
+| Mark idle explicitly | a loading beat should be trimmed, not narrated over | tag the wait as trimmable idle so compose speeds or cuts it |
+| Polish at compose time | a zoom or caption tweak should not cost a new take | keep zoom, transitions, and captions as post-processing over one recording |
+
+The sequential-scene shape is not unique to captured demos. Remotion ships a `<Series>` component precisely to "stitch together scenes that should play sequentially," each `<Series.Sequence>` given its own `durationInFrames` before the next mounts ([Remotion, accessed July 2026](https://www.remotion.dev/docs/series)). One-idea-per-scene is that same discretization applied to meaning rather than time: a scene is the unit a viewer can absorb and a reviewer can approve in one read.
+
+Two patterns are underused enough to earn a sentence each. *Wait on a condition* is the one every imperative recorder gets wrong. vhs, whose tapes are otherwise a linear script of `Type` and `Enter`, still ships a `Wait` command that "takes a regular expression as an argument" and blocks until the pattern appears on screen, exactly so a tape does not depend on a `Sleep` landing on the right frame ([Charmbracelet, accessed July 2026](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)). Playwright makes the point structurally: it "auto-waits for all the relevant checks to pass and only then performs the requested action," confirming an element is visible, stable, and hit-testable before it clicks ([Playwright, accessed July 2026](https://playwright.dev/docs/actionability)). A storyboard should encode the same intent, a wait keyed to a condition, and reserve a fixed pause for a deliberate on-screen beat only. Making the browser replay identically under those waits is [its own determinism problem](/blog/deterministic-browser-automation-for-video), but the authoring move is simply to name the condition.
+
+*Pre-navigate* is unique to narrated demos and invisible until it bites. If every scene opens by clicking its own way in, the cursor spends the first two or three seconds gliding across the previous screen, so scene N's narration plays over screen N-1. The fix is a reordering, not a feature: end each scene with the click that opens the next one, and every scene starts already on the screen its words describe. It is the storyboard equivalent of prefetching.
+
+## Anti-patterns, ranked by what they cost
+
+Kent Beck coined "code smell" while helping Martin Fowler with the Refactoring book, for "a surface indication that usually corresponds to a deeper problem in the system," with the caveat that smells "don't always indicate a problem" ([Fowler, accessed July 2026](https://martinfowler.com/bliki/CodeSmell.html)). Storyboards have smells with the same character: each one usually, not always, marks a coupling you will regret the week the product ships next.
+
+| Anti-pattern | The smell | What it breaks | The refactor |
+|---|---|---|---|
+| The mega-scene | one scene, a paragraph of narration, eight actions | can't diff to a beat, can't retime, narration drifts from action | split into one-claim scenes |
+| The sleep-driven wait | a fixed pause where a load should be awaited | flakes on a slow runner; races the server | wait on the condition, mark it idle |
+| The hardcoded index | `nth-child(3)`, a magic scene index, a positional handle | a relayout moves the target; the cursor clicks empty space | address by role and accessible name |
+| Narration welded to timing | hand-authored per-step durations | a two-word script edit desyncs the scene | let the engine time video to narration length |
+| Selectors in the prose | a URL or class name inside the narration string | the demo can't localize; the channels are fused | move it to the action-spec |
+
+The sleep-driven wait sits at the top of the flaky pile because it fails in the least reviewable way. A fixed two-second pause that passed on your laptop is a bet that two seconds also covers the load on a slower CI runner, and when the bet loses the video does not crash. It renders the flow arriving a beat early, which nobody notices until a buyer does. Both vhs and Playwright treat that fixed pause as the thing to design out, and the fix is always to name the condition you were really waiting for.
+
+The mega-scene tops the overall list because it forfeits the entire reason to hold a demo as text. The payoff of a committed spec is that a change is a small diff a reviewer can read; a scene that does eight things at once diffs as a wall no reviewer can rule on. It is the storyboard version of the thousand-line function.
+
+## Refactor: one mega-scene, split into beats
+
+Here is the mega-scene, from a supplement-finder demo (the format here is ours, and browser-only):
+
+```json
+{
+  "id": "s1",
+  "narration": "Welcome to DemoFit, the supplement finder that searches your whole catalog, so just type what you want, hit search, open the first result, check the price, and add it to your cart.",
+  "actions": [
+    { "op": "goto", "url": "http://localhost:8787/" },
+    { "op": "type", "target": { "selector": "#search" }, "text": "whey isolate under 30 euros" },
+    { "op": "click", "target": { "selector": ".btn:nth-child(2)" } },
+    { "op": "pause", "ms": 2000 },
+    { "op": "click", "target": { "selector": ".result:nth-child(1) a" } },
+    { "op": "click", "target": { "selector": ".card > button:nth-child(3)" } }
+  ]
+}
+```
+
+Five smells in one object: a run-on narration carrying four claims, an `nth-child` search button, a `pause` standing in for a load, a positional result link, and a positional add-to-cart button. Split it into beats, name the conditions, address by intent:
+
+```json
+[
+  {
+    "id": "search",
+    "narration": "Tell DemoFit what you need in plain words.",
+    "actions": [
+      { "op": "goto", "url": "http://localhost:8787/" },
+      { "op": "type", "target": { "selector": "#search" }, "text": "whey isolate under 30 euros" },
+      { "op": "click", "target": { "selector": "[role=\"button\"][name=\"Search\"]" } }
+    ]
+  },
+  {
+    "id": "result",
+    "narration": "It ranks the whole catalog and opens the best match.",
+    "actions": [
+      { "op": "waitForWidget", "target": { "selector": "[data-testid=\"result\"]" } },
+      { "op": "click", "target": { "selector": "[data-testid=\"result\"]", "first": true } }
+    ]
+  },
+  {
+    "id": "cart",
+    "narration": "One click adds it, price and all.",
+    "actions": [
+      { "op": "click", "target": { "selector": "[role=\"button\"][name=\"Add to cart\"]" } },
+      { "op": "waitForChange", "target": { "selector": "[data-cart-bar]" }, "textMatches": "1 item" }
+    ]
+  }
+]
+```
+
+Three things are now true that were false before. A copy edit lands in one scene's `narration` and touches nothing else. The `pause` is gone, so the demo no longer bets on a fixed two seconds. And every selector names its control the way a user would, so a redesign that reshuffles the markup leaves the flow intact. That last property is a discipline of its own, ranked in the [selector-resilience ladder](/blog/selectors-that-survive-redesigns); the point here is that the split is what made room to apply it.
+
+The split unlocks the demo's second job too. Because each scene's actions are now a clean, condition-gated flow, running them against tomorrow's build with no voice and no encode is a fast check: a selector that stopped resolving is a failed step, which is how a storyboard doubles as [a golden-file regression test of the UI it depicts](/blog/testing-demos-like-code).
+
+## When reaching for a pattern is the mistake
+
+Fowler's caveat is load-bearing: a smell is a prompt to look, not a verdict. Every pattern above has a cost, and a demo with no future rarely earns it.
+
+- A 15-second, single-screen clip does not need four scenes. One scene with one claim is the whole storyboard, and splitting it buys nothing.
+- Do not parameterize a demo you will render once. Declaring `{{customer}}` and a defaults map is pure overhead until a second variant exists; add it the day you render the second prospect, not before, which is when the per-render abstraction finally pays for itself.
+- A demo you will throw away next week does not need role-based selectors or a golden baseline. If the flow never re-runs, its selectors only have to survive one take.
+
+The patterns earn their keep on the demo you keep: the one bound to a product that ships weekly, rebuilt in CI, reviewed like code, and increasingly [authored by a coding agent](/blog/coding-agents-that-make-demo-videos) that does its best work when the storyboard has a clean, channel-separated shape to fill in. On that demo, every pattern here is the gap between a spec a person can read and a wall nobody will. On a throwaway, a screen recording is faster and fine. The format behind these examples has real limits worth naming: it records a browser and nothing native, an agent writes the storyboard as text with no drag-and-drop timeline, and it ships no visual editor. Those constraints are also what make a storyboard the kind of text these patterns apply to. Deciding whether your demo is [a document you commit or a performance you record](/blog/demos-as-code) is the choice upstream of every pattern in this catalog.
+
+## Sources
+
+- [aidemo — AUTHORING.md, the storyboard schema and demo-director principles (ours)](https://github.com/tandryukha/aidemo/blob/main/docs/AUTHORING.md)
+- [Remotion — Parameterized rendering (input props merge over default props)](https://www.remotion.dev/docs/parameterized-rendering)
+- [Remotion — Series (stitch scenes that play sequentially, each with durationInFrames)](https://www.remotion.dev/docs/series)
+- [Charmbracelet vhs — tape command vocabulary: Wait takes a regex, Sleep pauses capture, golden-file testing](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)
+- [Playwright — Actionability (auto-waits for visible, stable, receives-events, enabled checks)](https://playwright.dev/docs/actionability)
+- [Martin Fowler — CodeSmell (a surface indication of a deeper problem; a heuristic, not a certainty)](https://martinfowler.com/bliki/CodeSmell.html)
+
+## FAQ
+
+### What is a demo storyboard?
+
+A demo storyboard is a structured text file, usually JSON, that describes a demo as data instead of footage: an ordered list of scenes, each carrying the narration to speak and an action-spec of browser operations to perform. A deterministic player turns that file into a video, so the storyboard is the source and the MP4 is build output. Because it is text, it diffs in a pull request, regenerates when the product changes, and can be authored by a coding agent rather than performed by a person.
+
+### How many scenes should a demo storyboard have?
+
+Roughly one scene per idea, which for a 45-second demo lands at four to six scenes. The arithmetic behind that: spoken narration runs near 2.5 words per second in English, so a 6-second scene is about 15 words, which is enough for exactly one claim and its supporting action. If a scene's narration carries three claims or its action list runs past a handful of steps, it is a mega-scene and wants splitting, both so a viewer can follow it and so a reviewer can diff one beat at a time.
+
+### Why shouldn't I put a fixed sleep in a demo script?
+
+Because a fixed pause is a bet on timing that the demo loses silently. A `Sleep 2` that covers a load on your laptop can fall short on a slower CI runner, and the result is not a crash but a video where the next step fires before the screen is ready, which only a careful viewer catches. Both vhs and Playwright are built to avoid it: vhs offers a `Wait` keyed to a regex on screen, and Playwright auto-waits for an element to be actionable before acting. Encode the condition you are actually waiting for, and keep a deliberate pause only for an intentional on-screen beat.
 
 ---
 
