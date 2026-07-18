@@ -1,0 +1,99 @@
+# Free demo video software: what the free tier actually gives you
+
+July 18, 2026 · Demo Tools & Alternatives · 7 min read · https://aidemo.top/blog/free-demo-video-software/
+
+> Some free demo tools are free forever, some stop you at 5 minutes, and some brand every export. A field guide to which paywall is waiting for you.
+
+**Key takeaways**
+
+- 'Free' means three deals: truly free/open (OBS, GPLv2, no caps), a capped free tier (Loom: 25 videos, 5 min, 720p), or a watermark-until-you-pay editor (Camtasia, Descript).
+- OBS Studio is the only fully uncapped, watermark-free, commercial-use recorder at $0; the trade is you do the zooming and trimming yourself.
+- Open source is not the same as unlimited: Cap is AGPLv3, but its free tier caps local recordings at 5 minutes and personal use; $29/yr lifts it.
+- Match the cap to the job: a 5-minute limit kills a walkthrough, a watermark kills anything public, and a 720p ceiling smears UI text full-screen.
+- Screen Studio has no free tier ($9-20/mo, macOS only); ScreenPal free has no watermark but caps at 15 min and 720p; Vidyard free is 5 videos/mo up to 30 min.
+
+## Three bargains wear the same word
+
+"Free" on a demo-tool pricing page is not one offer. It is at least three, and each one fails you at a different moment. The first is software that is genuinely free: OBS Studio is "free and open source software for video recording and live streaming" ([OBS, July 2026](https://obsproject.com/)), shipped under the GNU General Public License v2 ([OBS Studio, July 2026](https://github.com/obsproject/obs-studio)), with no time cap, no watermark, and no export ceiling, now or ever. The second is a free tier of a paid product: you record for nothing until you hit a wall the pricing page prints in gray, a five-minute clip limit, a twenty-five-video library, a 720p export ceiling. The third is a free trial, or a free-to-use editor that brands every export until you pay to take the mark off.
+
+The catch is when you find out which bargain you took. You learn it after you have scripted the demo, learned the tool, recorded the take, and gone to export, which is the one point in the project where switching tools means starting over. This piece sorts the free options by the limit that actually bites, so you can choose before you record instead of after. It is the free slice of the [landscape the pillar maps by mechanism rather than price](/blog/ai-demo-video-generators).
+
+## What actually runs out, and when
+
+The three deals expire on three different clocks.
+
+A truly free, open-source tool never expires. OBS records at your source resolution, for as long as your disk holds out, with nothing stamped on the output, because there is no paid tier upstream whose caps trickle down. The [genuinely open landscape, scored by license](/blog/open-source-demo-video-tools), is a short list, but for the tools on it "free" means free.
+
+A free tier expires by consumption. Loom's Starter plan gives you up to 25 videos per person at 5 minutes each, capped at 720p, and reserves "Remove Loom branding" for its paid tiers, so free recordings carry Loom's mark; the Business plan runs $18 per user per month ([Loom pricing, July 2026](https://www.loom.com/pricing)). The wall is the count and the clock, and you meet it in the middle of building a library, not on day one. [Loom's caps are the category norm, not an outlier](/blog/loom-alternatives-for-product-demos).
+
+A free trial, or a watermark-gated editor, expires on export. Camtasia now lets you "download and use the full Camtasia Editor for free," but "exported videos will include a watermark until you upgrade" to a paid plan ([TechSmith, July 2026](https://www.techsmith.com/camtasia/)). You can do all the work; you just cannot ship the result until you pay. Descript's free plan works the same way: watermarked exports capped at 720p, plus 60 minutes of transcription a month, cleared by the $16-a-month Hobbyist tier billed yearly ([Descript, July 2026](https://www.descript.com/pricing)).
+
+## Every free tool's real limit, in one table
+
+Here is the field, normalized to the four limits that actually decide a project: the per-clip time cap, whether the output is branded, the export-resolution ceiling, and what it costs to remove all of it. Every figure was read off the vendor's own page in July 2026.
+
+| Tool | Which "free" | Per-clip time cap | Watermark | Max export | To remove the limits |
+|---|---|---|---|---|---|
+| OBS Studio | free and open (GPLv2) | none | none | your source resolution | nothing; it is free |
+| aidemo (ours) | free and open (MIT) | none | none | your render, uncapped | nothing; it is free |
+| Camtasia editor | free to use, paid to export | none | yes, on every export until you pay | your source resolution | any paid tier |
+| Descript | free tier | none stated | yes, on free exports | 720p | Hobbyist, $16/mo billed yearly |
+| Cap | open source, capped app tier | 5 min, personal use only | none | not capped | Desktop License, $29/yr |
+| ScreenPal | free tier | 15 min | none | 720p | Deluxe, from $4/mo billed yearly |
+| Vidyard | free tier | 30 min, 5 videos/month | not stated | not stated | paid tiers |
+| Loom | free (Starter) tier | 5 min, 25-video library | Loom branding | 720p | Business, $18/user/mo |
+
+One row is ours to disclose: aidemo is our own MIT-licensed engine, free with no cap and no watermark, and its honest limits get their own paragraph below. Read down the last column and the three bargains separate cleanly: the top rows cost nothing, the watermark rows cost you at export, and the freemium rows cost you a consumption wall you will hit later than you expect.
+
+## When open source still ships a capped free tier
+
+"Open source" and "unlimited free" are not the same promise, and Cap is the case that proves it. Cap is genuinely open source, released under AGPLv3 with its capture crates under MIT ([Cap, July 2026](https://github.com/CapSoftware/Cap)). But the shipped free tier is not unlimited: it "caps local recordings at 5 minutes" and is "for personal use only," with commercial rights and the cap lifted by a $29-a-year Desktop License ([Cap pricing, July 2026](https://cap.so/pricing)). The source is free; the packaged free product is metered.
+
+That is the distinction the word "free" hides. A permissive license tells you what you may legally do with the code. It does not tell you what the download hands you at no charge. OBS is the tool where the two coincide: GPLv2 code and a free build with no meter on it. If your hard requirement is a recorder that never asks for a card and never brands the output, OBS is where "free" holds all the way down; most of the freemium field gives you a taste and a wall.
+
+## Which cap you can ignore depends on the demo
+
+No single free tool wins outright, because the four limits hurt different jobs. Match the cap you will never hit to the demo you are making.
+
+- A **five-minute per-clip limit** (Loom, Cap free) is invisible for a quick feature clip and fatal for a multi-step walkthrough. If [the demo carries one full task end to end](/blog/how-to-make-a-product-demo-video), that ceiling is the first thing you hit.
+- A **watermark** (Camtasia editor, Descript free) is fine for an internal review and unusable for anything public: a landing hero, a README, a launch. Someone else's brand on your marketing page is not the look you paid nothing for.
+- A **720p export ceiling** (Loom, ScreenPal, Descript free) reads acceptably in a small embed and turns text mushy the moment the video goes full-screen on a retina display. Product UI is mostly small type, which is exactly what 720p smears.
+- A **video-count cap** (Loom's 25, Vidyard's 5 a month, ScreenPal's 10 hosted) is a non-issue for one demo and a slow strangle on a growing tutorial library.
+
+ScreenPal is the honest middle of the freemium field: no watermark, but a 15-minute recording limit, a 10-video hosting cap, and 720p playback, with the Deluxe tier from $4 a month billed yearly ([ScreenPal, July 2026](https://screenpal.com/plans)). Vidyard's free plan makes the opposite trade, count for length: 5 videos a month at up to 30 minutes each ([Vidyard, July 2026](https://www.vidyard.com/pricing/)), against Loom's many-short-clips ceiling.
+
+## Pick the free tool by the limit you'll never hit
+
+Walk the caps in order of what would end your project soonest.
+
+If you need a public, full-resolution, unbranded demo for nothing, the free tier is the trap and the free-and-open tools are the answer: OBS to record. If you can live with 720p and short clips and just want the fastest record-and-share loop, a freemium recorder is fine, but price its wall before you commit, because [the full paid picture](/blog/demo-video-cost) is where the real bill lives. Screen Studio, worth naming because people expect it in this comparison, has no free tier at all: it is $20 a month, or $9 a month billed yearly, macOS only ([Screen Studio, July 2026](https://screen.studio/)).
+
+The limit no free tier removes is staleness. A recorded demo, on any tool, captures the interface exactly as it looked on record day, then quietly goes wrong the next time the product ships. aidemo, which we build and disclose as ours, is MIT-licensed and free ([aidemo, July 2026](https://github.com/tandryukha/aidemo)): an agent authors the storyboard, then a deterministic player drives your live product through it and adds voiceover and word-timed captions, so [CI can re-render it](/blog/demo-videos-in-ci) on the commit that changed the interface. The honest trade, since it is ours: it captures a browser tab and nothing else, so native desktop and phone apps are out; you author a text storyboard rather than nudge clips on a canvas; and there is no drag-to-edit GUI. Free removes the price. Only a spec removes the rot.
+
+## Sources
+
+- [OBS Studio — homepage (free and open source)](https://obsproject.com/)
+- [OBS Studio — GitHub repository (GPL v2)](https://github.com/obsproject/obs-studio)
+- [Loom — pricing (free-plan caps)](https://www.loom.com/pricing)
+- [TechSmith — Camtasia (free editor, watermark on export)](https://www.techsmith.com/camtasia/)
+- [Descript — pricing (free-plan watermark and 720p cap)](https://www.descript.com/pricing)
+- [Cap — pricing (free-tier caps)](https://cap.so/pricing)
+- [Cap — GitHub repository (AGPLv3 + MIT crates)](https://github.com/CapSoftware/Cap)
+- [ScreenPal — plans (free-plan limits)](https://screenpal.com/plans)
+- [Vidyard — pricing (free-plan limits)](https://www.vidyard.com/pricing/)
+- [Screen Studio — pricing (no free tier)](https://screen.studio/)
+- [aidemo — GitHub repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### What is the best free demo video maker with no watermark?
+
+OBS Studio is the strongest no-watermark option: free, open source under GPL v2, with no time or resolution cap, on Windows, macOS, and Linux ([OBS, July 2026](https://obsproject.com/)). The trade is that you do your own zooming and trimming. Among the freemium recorders, ScreenPal's free plan also carries no watermark, but it caps recordings at 15 minutes and exports at 720p ([ScreenPal, July 2026](https://screenpal.com/plans)). Loom's free videos carry Loom branding, and Descript and the Camtasia editor watermark free exports until you pay.
+
+### Is OBS Studio free for commercial use?
+
+Yes. OBS Studio is distributed under the GNU General Public License v2 ([OBS Studio, July 2026](https://github.com/obsproject/obs-studio)), which places no restriction on commercial use, adds no watermark, and imposes no time or export cap. You can record client work, product demos, or paid courses with it at no charge. The only real cost is effort: OBS is a raw recorder, so the polish other tools automate, click-zoom, cursor smoothing, and dead-time trimming, is on you.
+
+### Which free screen recorder has no recording time limit?
+
+OBS Studio and the free Camtasia editor have no per-clip time cap: OBS records for as long as your disk allows, and Camtasia's editor is unlimited but watermarks the export until you pay ([TechSmith, July 2026](https://www.techsmith.com/camtasia/)). The common freemium recorders all meter length: Loom and Cap's free tier stop at 5 minutes a clip, ScreenPal at 15, and Vidyard's free plan at 30 minutes with only 5 videos a month ([Vidyard, July 2026](https://www.vidyard.com/pricing/)). Match the cap to your longest planned demo before you record, not after.

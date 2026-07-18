@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Record your screen with audio (system or mic) | aidemo</title>
+<meta name="description" content="Capture system audio vs microphone vs both, per OS: macOS needs a loopback driver like BlackHole, Windows has WASAPI loopback, Linux records a sink monitor.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/record-screen-with-audio/">
+<link rel="alternate" type="text/markdown" href="/blog/record-screen-with-audio/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Record your screen with audio (system or mic) | aidemo">
+<meta property="og:description" content="Capture system audio vs microphone vs both, per OS: macOS needs a loopback driver like BlackHole, Windows has WASAPI loopback, Linux records a sink monitor.">
+<meta property="og:url" content="https://aidemo.top/blog/record-screen-with-audio/">
+<meta property="og:image" content="https://aidemo.top/blog/images/record-screen-with-audio-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Record your screen with audio (system or mic) | aidemo">
+<meta name="twitter:description" content="Capture system audio vs microphone vs both, per OS: macOS needs a loopback driver like BlackHole, Windows has WASAPI loopback, Linux records a sink monitor.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/record-screen-with-audio-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to record your screen with audio (system, mic, or both)",
+  "description": "Capture system audio vs microphone vs both, per OS: macOS needs a loopback driver like BlackHole, Windows has WASAPI loopback, Linux records a sink monitor.",
+  "image": [
+    "https://aidemo.top/blog/images/record-screen-with-audio-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/record-screen-with-audio/"
+  },
+  "wordCount": 2104,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — Take screenshots or record your screen on Mac (Microphone option, no system audio)",
+      "url": "https://support.apple.com/guide/mac-help/take-screenshots-or-record-your-screen-mh26782/mac"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Existential Audio — BlackHole virtual audio loopback driver (README)",
+      "url": "https://github.com/ExistentialAudio/BlackHole"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Microsoft — Loopback Recording (WASAPI, Stereo Mix / What You Hear)",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/coreaudio/loopback-recording"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Device documentation (pulse input, pactl list sources)",
+      "url": "https://ffmpeg.org/ffmpeg-devices.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "PipeWire — pw-cat / pw-record manual (--record, --target)",
+      "url": "https://docs.pipewire.org/page_man_pw-cat_1.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Project — Audio sources (Audio Input/Output Capture, Linux PulseAudio)",
+      "url": "https://obsproject.com/kb/audio-sources"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — MediaDevices.getDisplayMedia() (audio, systemAudio)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "EBU — R 128 loudness recommendation (-23 LUFS)",
+      "url": "https://tech.ebu.ch/publications/r128"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to record your screen with audio (system, mic, or both)",
+      "item": "https://aidemo.top/blog/record-screen-with-audio/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I record my screen with system audio on a Mac?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "macOS blocks apps from reading the audio it plays, and the built-in Screenshot toolbar and QuickTime only let you pick a microphone, with no system-audio option. To capture what the Mac is playing, install a virtual loopback driver such as BlackHole, then create a Multi-Output Device in Audio MIDI Setup that sends sound to both your speakers and BlackHole at once, so you still hear it while your recorder reads it from BlackHole. Point OBS's or QuickTime's audio input at BlackHole and record."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why can't my computer record its own system audio directly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the operating system treats the audio leaving your speakers as an output, not a capture device, and lets an app read it only through a deliberate path. Windows exposes that path natively as WASAPI loopback, so recorders like OBS grab desktop audio with no extra software. Linux publishes each output as a monitor source you can record. macOS seals the output for privacy and content-rights reasons, which is why it alone needs a third-party loopback driver."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I capture my microphone and system audio as one track or two?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two, always, if your recorder allows it. A single mixed track is a sum you cannot un-add, so if a notification chime lands on top of a word you are stuck with it. Two tracks let you balance the voice and the interface sound after the take, duck one under the other, and re-export until the mix is right. Keep the mic peaking around -6 to -12 dBFS for headroom and set the system audio well below the narration."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>How to record your screen with audio (system, mic, or both)</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">How to record your screen with audio (system, mic, or both)</h1>
+        <p class="article-dek">Your OS won't let an app read its own output, which is why system audio is the hard part. The routing map per OS for system, mic, or both, plus the levels rule.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 8 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#your-os-wont-let-an-app-tap-its-own-output">Your OS won't let an app tap its own output</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-sources-and-which-one-your-video-actually-needs">Three sources, and which one your video actually needs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-per-os-routing-table-where-system-audio-comes-from">The per-OS routing table: where system audio comes from</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-tracks-beat-one-mix-and-the-reason-is-subtraction">Two tracks beat one mix, and the reason is subtraction</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#setting-levels-so-the-voice-never-fights-the-interface">Setting levels so the voice never fights the interface</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-routing-problem-vanishes-when-you-stop-capturing-live">The routing problem vanishes when you stop capturing live</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/record-screen-with-audio-800.webp" srcset="/blog/images/record-screen-with-audio-400.webp 400w, /blog/images/record-screen-with-audio-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay three-way brass pipe junction with two inlet arms feeding one outlet"><figcaption>System sound and your voice arrive on two lines; the recording is one line, and everything hard about screen audio happens at the join.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>System audio is hard because the OS won't let an app read its own output: macOS records mic only (Screenshot, QuickTime), so you need a loopback driver like BlackHole plus a Multi-Output Device to still hear it.</li>
+    <li>Windows exposes system audio natively via WASAPI loopback (OBS 'Desktop Audio'), no install; legacy 'Stereo Mix' / 'What You Hear' devices do the same job.</li>
+    <li>Linux records the output through a PulseAudio/PipeWire sink monitor: enumerate with pactl list sources, capture with ffmpeg -f pulse or pw-record.</li>
+    <li>Capture mic and system on two separate tracks, never one mix: a mix is a sum you cannot un-add, and a too-loud chime lands on a word forever.</li>
+    <li>Levels rule: keep peaks under 0 dBFS (mic near -6 to -12), anchor loudness toward EBU R128's -23 LUFS reference, and duck system or music ~15-20 dB below the voice.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="your-os-wont-let-an-app-tap-its-own-output">Your OS won&#39;t let an app tap its own output<a class="hanchor" href="#your-os-wont-let-an-app-tap-its-own-output" aria-label="Link to section: Your OS won't let an app tap its own output">#</a></h2>
+<p>Recording system audio feels harder than it should, and the reason is not your recorder. It is a wall built into the operating system: by default, an application cannot capture the mix of sound your computer is playing. A microphone is an input the OS hands to any app that asks, but the audio leaving your speakers is an output, and letting arbitrary software read that stream is a privacy and content-rights problem the platform vendors chose to block. So &quot;how do I record my screen with audio&quot; is really three questions wearing one coat. Do you want the <em>system</em> audio (app sounds, a video playing in the tab), the <em>microphone</em> (your live narration), or <em>both</em>, and each takes a different route to the file.</p>
+<p>Get the routing right and everything after it is easy. Get it wrong and you find out only after the take: a silent clip where you expected the app&#39;s sound, or a voice buried under interface noise you can no longer pull apart. This page is the routing map, per operating system, plus the one levels rule that keeps the voice and the interface from clipping into each other. The rest of the capture settings around the audio, resolution and frame rate and a clean profile, are <a href="/blog/how-to-record-your-screen-in-high-quality/">their own checklist</a>; this is the audio lane of it.</p>
+<h2 id="three-sources-and-which-one-your-video-actually-needs">Three sources, and which one your video actually needs<a class="hanchor" href="#three-sources-and-which-one-your-video-actually-needs" aria-label="Link to section: Three sources, and which one your video actually needs">#</a></h2>
+<p>Before any tool, decide what the video is made of. There are exactly three audio sources, and the right one falls straight out of what you are demoing.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>What it is</th>
+<th>When a demo needs it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System audio</td>
+<td>the mix your computer plays: app sounds, a chime, a video inside the UI</td>
+<td>a product whose sound is the point: a media app, a game, a call tool</td>
+</tr>
+<tr>
+<td>Microphone</td>
+<td>your live voice, captured as you record</td>
+<td>a walkthrough you narrate live at the keyboard</td>
+</tr>
+<tr>
+<td>Both, mixed</td>
+<td>system and mic together on the timeline</td>
+<td>a reaction or teaching clip where you talk over app sound</td>
+</tr>
+</tbody></table></div>
+<p>Most product demos need neither in the way people assume. A silent screen recording with narration added afterward, as a separate rendered track, sidesteps the routing problem entirely, and it is what most polished demos actually do. If the voice is <a href="/blog/ai-voiceover-for-demo-videos/">synthetic narration generated from the script</a>, there is no microphone in the pipeline at all, and system audio becomes something you add on purpose rather than fight to capture. The routing map below is for the case where the sound genuinely happens live on screen and has to be caught in real time.</p>
+<h2 id="the-per-os-routing-table-where-system-audio-comes-from">The per-OS routing table: where system audio comes from<a class="hanchor" href="#the-per-os-routing-table-where-system-audio-comes-from" aria-label="Link to section: The per-OS routing table: where system audio comes from">#</a></h2>
+<p>The microphone path is boring and identical everywhere: pick the input device, set a level, record. The interesting column is system audio, because each OS answers the &quot;apps can&#39;t read the output&quot; wall differently. Here is the whole landscape.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Built-in tool records</th>
+<th>Get system audio via</th>
+<th>Extra install?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>macOS</td>
+<td>microphone only (Screenshot, QuickTime)</td>
+<td>a virtual loopback driver (e.g. BlackHole) plus a Multi-Output Device so you still hear it</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>mic; Game Bar also grabs the foreground app&#39;s sound</td>
+<td>WASAPI loopback (OBS &quot;Desktop Audio&quot;); legacy &quot;Stereo Mix&quot; / &quot;What You Hear&quot;</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>depends on the recorder</td>
+<td>a PulseAudio/PipeWire sink monitor, via ffmpeg <code>-f pulse</code> or <code>pw-record</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td>Browser tab</td>
+<td>n/a</td>
+<td><code>getDisplayMedia</code> with <code>systemAudio: &quot;include&quot;</code> (Chrome)</td>
+<td>no</td>
+</tr>
+</tbody></table></div>
+<p><strong>macOS is the one that fights you.</strong> The built-in Screenshot toolbar (Shift-Command-5) and QuickTime record the microphone and offer no system-audio option at all; the only audio setting is which mic to use, or None<sup class="article-cite"><a href="#src-1" title="Apple — Take screenshots or record your screen on Mac (Microphone option, no system audio)">1</a></sup>. To capture what the Mac is playing you install a virtual loopback driver. BlackHole is the common one, &quot;a modern macOS virtual audio loopback driver that allows applications to pass audio to other applications with zero additional latency&quot;; because &quot;macOS applications cannot directly capture system output,&quot; the trick is a Multi-Output Device that plays to your speakers and BlackHole at once, so you hear the sound while your recorder reads it off BlackHole&#39;s channels<sup class="article-cite"><a href="#src-2" title="Existential Audio — BlackHole virtual audio loopback driver (README)">2</a></sup>. OBS on macOS leans on the same driver for its desktop-audio source.</p>
+<p><strong>Windows exposes it natively.</strong> In loopback mode &quot;a client of WASAPI can capture the audio stream that is being played by a rendering endpoint device&quot;<sup class="article-cite"><a href="#src-3" title="Microsoft — Loopback Recording (WASAPI, Stereo Mix / What You Hear)">3</a></sup>, which is exactly what OBS&#39;s &quot;Desktop Audio&quot; source and most Windows recorders use under the hood, no extra install. Some sound hardware also ships a capture device under names like &quot;Stereo Mix,&quot; &quot;What You Hear,&quot; or &quot;Waveout Mix&quot; that you enable in the Sound control panel<sup class="article-cite"><a href="#src-3" title="Microsoft — Loopback Recording (WASAPI, Stereo Mix / What You Hear)">3</a></sup>, and the Xbox Game Bar (Win+G) records the foreground app&#39;s audio out of the box.</p>
+<p><strong>Linux models it as a source.</strong> PulseAudio and PipeWire expose every output sink together with a companion capture source, the sink&#39;s monitor, so &quot;record what is playing&quot; is just recording from that monitor. Enumerate them with <code>pactl list sources</code>, then capture. FFmpeg&#39;s pulse device takes a source or the string <code>default</code>, so <code>ffmpeg -f pulse -i default out.wav</code> records the default input and pointing <code>-i</code> at a sink monitor records the playback<sup class="article-cite"><a href="#src-4" title="FFmpeg — Device documentation (pulse input, pactl list sources)">4</a></sup>. On PipeWire the same job is <code>pw-record</code>, which captures to a file and takes a <code>--target</code> node<sup class="article-cite"><a href="#src-5" title="PipeWire — pw-cat / pw-record manual (--record, --target)">5</a></sup>. OBS on Linux adds system sound through a PulseAudio audio-capture source rather than the Windows/macOS output-capture source<sup class="article-cite"><a href="#src-6" title="OBS Project — Audio sources (Audio Input/Output Capture, Linux PulseAudio)">6</a></sup>.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#4078F2">pactl</span><span style="color:#50A14F"> list</span><span style="color:#50A14F"> sources</span><span style="color:#383A42"> | </span><span style="color:#4078F2">grep</span><span style="color:#986801"> -e</span><span style="color:#50A14F"> Name</span><span style="color:#986801"> -e</span><span style="color:#50A14F"> monitor</span></span>
+<span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -f</span><span style="color:#50A14F"> pulse</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> alsa_output.pci-0000_00_1f.3.analog-stereo.monitor</span><span style="color:#50A14F"> system.wav</span></span>
+<span class="line"><span style="color:#4078F2">pw-record</span><span style="color:#986801"> --target</span><span style="color:#383A42"> &#x3C;</span><span style="color:#50A14F">nod</span><span style="color:#383A42">e> </span><span style="color:#50A14F">system.wav</span></span></code></pre>
+</div>
+<p><strong>If the sound lives in a web page, skip the OS entirely.</strong> <code>getDisplayMedia()</code> can return an audio track &quot;if audio is supported and available for the display surface chosen by the user,&quot; and Chrome&#39;s <code>systemAudio: &quot;include&quot;</code> asks the browser to offer the tab&#39;s sound in the picker<sup class="article-cite"><a href="#src-7" title="MDN — MediaDevices.getDisplayMedia() (audio, systemAudio)">7</a></sup>. That path, and why a tab surface can never film a notification, is <a href="/blog/record-a-browser-tab/">the browser-tab capture story</a> in full.</p>
+<p>The pattern is worth naming. Windows and Linux publish the output mix as something a program can read, so you add nothing; macOS treats the output as sealed and makes you install a bridge. That single fact is behind almost every &quot;why can&#39;t I record system sound on my Mac&quot; thread on the internet.</p>
+<h2 id="two-tracks-beat-one-mix-and-the-reason-is-subtraction">Two tracks beat one mix, and the reason is subtraction<a class="hanchor" href="#two-tracks-beat-one-mix-and-the-reason-is-subtraction" aria-label="Link to section: Two tracks beat one mix, and the reason is subtraction">#</a></h2>
+<p>Once you are capturing both the microphone and the system, record them onto two separate tracks, not one already-combined one. The reason is arithmetic that does not run backward: a mix is a sum, and no later operation recovers the parts from the total. Capture the voice and the app sound already welded together and a too-loud notification sits on top of a word forever; capture them apart and you slide one under the other after the fact. Every serious recorder supports this, OBS routes each source to its own track, and the pillar states the capture rule in a line: <a href="/blog/how-to-record-your-screen-in-high-quality/">two tracks, a mic with headroom, never a single already-clipped mix</a>. The routing table above is what feeds those two tracks. Keeping them separate is what makes the levels work below possible at all.</p>
+<h2 id="setting-levels-so-the-voice-never-fights-the-interface">Setting levels so the voice never fights the interface<a class="hanchor" href="#setting-levels-so-the-voice-never-fights-the-interface" aria-label="Link to section: Setting levels so the voice never fights the interface">#</a></h2>
+<p>Two failures dominate any recording that carries sound, and both are levels, not routing. The first is clipping. Digital audio has a hard ceiling at 0 dBFS, and any peak that touches it is squared off into permanent distortion no later gain repairs. Set the microphone so its loudest peaks land well under that ceiling, roughly -6 to -12 dBFS, and you keep the headroom to raise the whole track cleanly afterward. The second failure is burial: interface sound sitting at the same level as the voice until the words stop landing.</p>
+<p>The fix is a target and a gap. Broadcasters settled the &quot;how loud overall&quot; question with EBU R128, which normalizes an average programme loudness to -23 LUFS<sup class="article-cite"><a href="#src-8" title="EBU — R 128 loudness recommendation (-23 LUFS)">8</a></sup>. You do not need the broadcast figure exactly; you need its idea, a single integrated loudness you mix the whole piece toward, with the voice as the anchor and everything else placed relative to it. Put the narration at the reference and duck any system-audio or music bed to roughly 15 to 20 dB under it, quiet enough that a listener never strains for a word. That ducking math, and the licensing a music bed drags in, is its own topic; the capture-time version is short. Leave headroom on the mic, keep the interface under the voice, and normalize once at the very end rather than fighting levels live.</p>
+<h2 id="the-routing-problem-vanishes-when-you-stop-capturing-live">The routing problem vanishes when you stop capturing live<a class="hanchor" href="#the-routing-problem-vanishes-when-you-stop-capturing-live" aria-label="Link to section: The routing problem vanishes when you stop capturing live">#</a></h2>
+<p>Every wall in this piece, the sealed macOS output, the two-track discipline, the levels balancing act, exists because the audio is captured live, in real time, as one performance. Change that model and the walls fall away. If the narration is a rendered track and the only &quot;system audio&quot; you want is a music bed or a specific sound effect, you are not capturing a mix at all. You are compositing known tracks at known levels, with no loopback driver, no monitor source, and no clipping risk from a notification you forgot to silence.</p>
+<p>That is how our engine, aidemo (disclosed as ours), handles sound: it records the browser silently, generates narration from the script as its own track, and mixes music in at a fixed level below the voice, so the balance is set in the spec instead of ridden on a fader. The honest limits are real. aidemo captures a browser tab only, so it will not record a native app&#39;s audio or your live microphone; the storyboard is authored in code by an agent, not dragged on a GUI timeline; and if the whole point of your clip is the live sound of an app, you are back to the routing table above. For a narrated walkthrough, though, the best answer to &quot;how do I record system audio and my voice together&quot; is often to not record them together, and to add each as a track you fully control. The same silent-capture-plus-tracks split is the sane default on Linux too, whether you record under X11 or Wayland.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://support.apple.com/guide/mac-help/take-screenshots-or-record-your-screen-mh26782/mac" rel="noopener">Apple — Take screenshots or record your screen on Mac (Microphone option, no system audio)</a></li>
+<li id="src-2"><a href="https://github.com/ExistentialAudio/BlackHole" rel="noopener">Existential Audio — BlackHole virtual audio loopback driver (README)</a></li>
+<li id="src-3"><a href="https://learn.microsoft.com/en-us/windows/win32/coreaudio/loopback-recording" rel="noopener">Microsoft — Loopback Recording (WASAPI, Stereo Mix / What You Hear)</a></li>
+<li id="src-4"><a href="https://ffmpeg.org/ffmpeg-devices.html" rel="noopener">FFmpeg — Device documentation (pulse input, pactl list sources)</a></li>
+<li id="src-5"><a href="https://docs.pipewire.org/page_man_pw-cat_1.html" rel="noopener">PipeWire — pw-cat / pw-record manual (--record, --target)</a></li>
+<li id="src-6"><a href="https://obsproject.com/kb/audio-sources" rel="noopener">OBS Project — Audio sources (Audio Input/Output Capture, Linux PulseAudio)</a></li>
+<li id="src-7"><a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia" rel="noopener">MDN — MediaDevices.getDisplayMedia() (audio, systemAudio)</a></li>
+<li id="src-8"><a href="https://tech.ebu.ch/publications/r128" rel="noopener">EBU — R 128 loudness recommendation (-23 LUFS)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-record-my-screen-with-system-audio-on-a-mac" class="blog-faq-q">How do I record my screen with system audio on a Mac?<a class="hanchor" href="#how-do-i-record-my-screen-with-system-audio-on-a-mac" aria-label="Link to section: How do I record my screen with system audio on a Mac?">#</a></h3>
+<p>macOS blocks apps from reading the audio it plays, and the built-in Screenshot toolbar and QuickTime only let you pick a microphone, with no system-audio option. To capture what the Mac is playing, install a virtual loopback driver such as BlackHole, then create a Multi-Output Device in Audio MIDI Setup that sends sound to both your speakers and BlackHole at once, so you still hear it while your recorder reads it from BlackHole. Point OBS&#39;s or QuickTime&#39;s audio input at BlackHole and record.</p>
+<h3 id="why-cant-my-computer-record-its-own-system-audio-directly" class="blog-faq-q">Why can&#39;t my computer record its own system audio directly?<a class="hanchor" href="#why-cant-my-computer-record-its-own-system-audio-directly" aria-label="Link to section: Why can't my computer record its own system audio directly?">#</a></h3>
+<p>Because the operating system treats the audio leaving your speakers as an output, not a capture device, and lets an app read it only through a deliberate path. Windows exposes that path natively as WASAPI loopback, so recorders like OBS grab desktop audio with no extra software. Linux publishes each output as a monitor source you can record. macOS seals the output for privacy and content-rights reasons, which is why it alone needs a third-party loopback driver.</p>
+<h3 id="should-i-capture-my-microphone-and-system-audio-as-one-track-or-two" class="blog-faq-q">Should I capture my microphone and system audio as one track or two?<a class="hanchor" href="#should-i-capture-my-microphone-and-system-audio-as-one-track-or-two" aria-label="Link to section: Should I capture my microphone and system audio as one track or two?">#</a></h3>
+<p>Two, always, if your recorder allows it. A single mixed track is a sum you cannot un-add, so if a notification chime lands on top of a word you are stuck with it. Two tracks let you balance the voice and the interface sound after the take, duck one under the other, and re-export until the mix is right. Keep the mic peaking around -6 to -12 dBFS for headroom and set the system audio well below the narration.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">system audio</span>
+        <span class="article-tag">audio capture</span>
+        <span class="article-tag">loopback</span>
+        <span class="article-tag">microphone</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#your-os-wont-let-an-app-tap-its-own-output">Your OS won't let an app tap its own output</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-sources-and-which-one-your-video-actually-needs">Three sources, and which one your video actually needs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-per-os-routing-table-where-system-audio-comes-from">The per-OS routing table: where system audio comes from</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-tracks-beat-one-mix-and-the-reason-is-subtraction">Two tracks beat one mix, and the reason is subtraction</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#setting-levels-so-the-voice-never-fights-the-interface">Setting levels so the voice never fights the interface</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-routing-problem-vanishes-when-you-stop-capturing-live">The routing problem vanishes when you stop capturing live</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

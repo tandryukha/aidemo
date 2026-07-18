@@ -316,7 +316,7 @@
 <span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">video</span><span style="color:#383A42">></span></span></code></pre>
 </div>
 <p>Mind one caveat here: <code>autoplay</code> takes precedence over <code>preload</code>, so the browser will fetch what it needs to play regardless of the hint<sup class="article-cite"><a href="#src-4" title="MDN — The Video Embed element (&lt;video&gt;)">4</a></sup>. The defense is a genuinely small file, seconds not minutes. For a loop that lives <em>below</em> the fold, add <code>loading=&quot;lazy&quot;</code> (or toggle <code>autoplay</code> with an IntersectionObserver) so it does not download until it is near the viewport at all.</p>
-<p>For a YouTube or Vimeo clip, do not paste the stock iframe. A cold embed executes hundreds of kilobytes of JavaScript before a visitor clicks anything. The facade pattern renders a thumbnail and swaps in the real iframe on click; paulirish&#39;s lite-youtube-embed reports rendering &quot;approximately 224x faster&quot; than the native iframe<sup class="article-cite"><a href="#src-7" title="paulirish — lite-youtube-embed">7</a></sup>. Whether to self-host or lean on a hosted player is its own decision; the facade is what makes the hosted choice affordable on a landing page.</p>
+<p>For a YouTube or Vimeo clip, do not paste the stock iframe. A cold embed executes hundreds of kilobytes of JavaScript before a visitor clicks anything. The facade pattern renders a thumbnail and swaps in the real iframe on click; paulirish&#39;s lite-youtube-embed reports rendering &quot;approximately 224x faster&quot; than the native iframe<sup class="article-cite"><a href="#src-7" title="paulirish — lite-youtube-embed">7</a></sup>. Whether to self-host or lean on a hosted player is <a href="/blog/embed-video-on-website/">its own decision</a>; the facade is what makes the hosted choice affordable on a landing page.</p>
 <p>One honest limit binds all three: <code>preload</code> is a hint, and &quot;the specification does not force the browser to follow the value of this attribute&quot;<sup class="article-cite"><a href="#src-4" title="MDN — The Video Embed element (&lt;video&gt;)">4</a></sup>. Test the finished page on a throttled connection instead of trusting the markup, and confirm the exact autoplay-muted-loop attribute set behaves the same across browsers.</p>
 <p>One production note that makes the recipe cheaper to follow: the hero loop and the click-to-play cut are the same flow at two weights, a trimmed silent version for the fold and a full captioned version behind the click. Producing the demo from a spec you can re-encode, rather than a single exported file, gives you both without a second recording. aidemo, the open-source engine we build, works this way: an agent writes a storyboard, the engine replays it, and one flow re-exports as both a lean loop and a full narrated cut. Its constraints are worth stating plainly: capture is browser-only, the storyboard is authored by an agent rather than a person at a timeline, and there is no GUI editor for hand-tweaking the result.</p>
 <h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
@@ -383,13 +383,13 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>
-<a class="article-card" href="/blog/product-hunt-launch-video/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/product-hunt-launch-video-400.webp" srcset="/blog/images/product-hunt-launch-video-400.webp 400w, /blog/images/product-hunt-launch-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A small rounded toy rocket standing on a circular launchpad with a curl of smoke at its base"></div>
+<a class="article-card" href="/blog/embed-video-on-website/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/embed-video-on-website-400.webp" srcset="/blog/images/embed-video-on-website-400.webp 400w, /blog/images/embed-video-on-website-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A round brass ship's porthole set into a plain wall"></div>
   <div class="article-card-content">
     <div class="article-card-category">Video Marketing for Software</div>
-    <h3 class="article-card-title">The Product Hunt launch video: spec, format, and the first five seconds</h3>
-    <p class="article-card-excerpt">The Product Hunt feed shows a 240x240 thumbnail, not your video. The real asset spec, an honest read on the 53% stat, and a shot-list for the night before.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+    <h3 class="article-card-title">How to embed video on a website: self-host vs YouTube vs streaming host</h3>
+    <p class="article-card-excerpt">Paste the YouTube iframe and you ship 540 KB of someone else's JavaScript. Self-host and you own the egress bill. Here is how to choose, with the arithmetic.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
   </div>
 </a>
   </div>

@@ -135,5 +135,20 @@
   "keeping-tutorial-libraries-current": {
     "subject": "a chunky toy ice resurfacer leaving a smooth glossy trail on ice",
     "seedOffset": 2
+  },
+  "demo-video-hook": {
+    "subject": "a glinting fishing lure with a single sharp hook"
+  },
+  "record-screen-with-audio": {
+    "subject": "a polished brass three-way pipe junction fitting"
+  },
+  "embed-video-on-website": {
+    "subject": "a round brass ship's porthole set into a plain wall"
+  },
+  "visual-regression-testing-tools": {
+    "subject": "a round brass kitchen sieve with a fine mesh"
+  },
+  "free-demo-video-software": {
+    "subject": "an iceberg floating with most of its mass below the waterline"
   }
 }

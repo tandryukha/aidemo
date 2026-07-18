@@ -66,7 +66,7 @@ Clutter is the slow tell: personal bookmarks, a half-dismissed cookie banner, a 
 
 If the recording carries sound, the quality bar is intelligibility, not loudness, and two failures dominate. The first is clipping: push the mic or system level past 0 dBFS and you bake in permanent distortion that no amount of later gain repairs. The second is burial: music or interface sound sitting on top of the narration so the words stop landing.
 
-Both have the same structural fix, which is to capture system audio and the microphone as two separate tracks rather than one pre-mixed one. Two tracks let you balance them after the fact; a single mixed track cannot be unmixed. Set the mic with headroom so its peaks stay well below clipping, and keep any background bed low enough under narration that a listener never strains for a word. The exact loudness targets belong to the mixing stage, but the capture rule is short: two tracks, a mic with headroom, and never a single already-clipped mix.
+Both have the same structural fix, which is to capture system audio and the microphone as two separate tracks rather than one pre-mixed one. Two tracks let you balance them after the fact; a single mixed track cannot be unmixed. Set the mic with headroom so its peaks stay well below clipping, and keep any background bed low enough under narration that a listener never strains for a word. The exact loudness targets belong to the mixing stage, and [routing system sound and the mic into those two tracks](/blog/record-screen-with-audio) is its own page, but the capture rule is short: two tracks, a mic with headroom, and never a single already-clipped mix.
 
 ## Aspect ratio: compose for the destination before you record
 

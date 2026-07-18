@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free demo video software: the real limits | aidemo</title>
+<meta name="description" content="OBS is free forever; Loom's free plan caps at 25 videos and 720p, and Camtasia brands every export. Which 'free' demo tool has a paywall waiting.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/free-demo-video-software/">
+<link rel="alternate" type="text/markdown" href="/blog/free-demo-video-software/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Free demo video software: the real limits | aidemo">
+<meta property="og:description" content="OBS is free forever; Loom's free plan caps at 25 videos and 720p, and Camtasia brands every export. Which 'free' demo tool has a paywall waiting.">
+<meta property="og:url" content="https://aidemo.top/blog/free-demo-video-software/">
+<meta property="og:image" content="https://aidemo.top/blog/images/free-demo-video-software-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free demo video software: the real limits | aidemo">
+<meta name="twitter:description" content="OBS is free forever; Loom's free plan caps at 25 videos and 720p, and Camtasia brands every export. Which 'free' demo tool has a paywall waiting.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/free-demo-video-software-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Free demo video software: what the free tier actually gives you",
+  "description": "OBS is free forever; Loom's free plan caps at 25 videos and 720p, and Camtasia brands every export. Which 'free' demo tool has a paywall waiting.",
+  "image": [
+    "https://aidemo.top/blog/images/free-demo-video-software-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/free-demo-video-software/"
+  },
+  "wordCount": 1831,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — homepage (free and open source)",
+      "url": "https://obsproject.com/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — GitHub repository (GPL v2)",
+      "url": "https://github.com/obsproject/obs-studio"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Loom — pricing (free-plan caps)",
+      "url": "https://www.loom.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "TechSmith — Camtasia (free editor, watermark on export)",
+      "url": "https://www.techsmith.com/camtasia/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Descript — pricing (free-plan watermark and 720p cap)",
+      "url": "https://www.descript.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — pricing (free-tier caps)",
+      "url": "https://cap.so/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — GitHub repository (AGPLv3 + MIT crates)",
+      "url": "https://github.com/CapSoftware/Cap"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "ScreenPal — plans (free-plan limits)",
+      "url": "https://screenpal.com/plans"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vidyard — pricing (free-plan limits)",
+      "url": "https://www.vidyard.com/pricing/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — pricing (no free tier)",
+      "url": "https://screen.studio/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "aidemo — GitHub repository (our engine, disclosed as ours)",
+      "url": "https://github.com/tandryukha/aidemo"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Free demo video software: what the free tier actually gives you",
+      "item": "https://aidemo.top/blog/free-demo-video-software/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the best free demo video maker with no watermark?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OBS Studio is the strongest no-watermark option: free, open source under GPL v2, with no time or resolution cap, on Windows, macOS, and Linux (OBS, July 2026). The trade is that you do your own zooming and trimming. Among the freemium recorders, ScreenPal's free plan also carries no watermark, but it caps recordings at 15 minutes and exports at 720p (ScreenPal, July 2026). Loom's free videos carry Loom branding, and Descript and the Camtasia editor watermark free exports until you pay."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is OBS Studio free for commercial use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. OBS Studio is distributed under the GNU General Public License v2 (OBS Studio, July 2026), which places no restriction on commercial use, adds no watermark, and imposes no time or export cap. You can record client work, product demos, or paid courses with it at no charge. The only real cost is effort: OBS is a raw recorder, so the polish other tools automate, click-zoom, cursor smoothing, and dead-time trimming, is on you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which free screen recorder has no recording time limit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OBS Studio and the free Camtasia editor have no per-clip time cap: OBS records for as long as your disk allows, and Camtasia's editor is unlimited but watermarks the export until you pay (TechSmith, July 2026). The common freemium recorders all meter length: Loom and Cap's free tier stop at 5 minutes a clip, ScreenPal at 15, and Vidyard's free plan at 30 minutes with only 5 videos a month (Vidyard, July 2026). Match the cap to your longest planned demo before you record, not after."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>Free demo video software: what the free tier actually gives you</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">Free demo video software: what the free tier actually gives you</h1>
+        <p class="article-dek">Some free demo tools are free forever, some stop you at 5 minutes, and some brand every export. A field guide to which paywall is waiting for you.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 11 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-bargains-wear-the-same-word">Three bargains wear the same word</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-actually-runs-out-and-when">What actually runs out, and when</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#every-free-tools-real-limit-in-one-table">Every free tool's real limit, in one table</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-open-source-still-ships-a-capped-free-tier">When open source still ships a capped free tier</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-cap-you-can-ignore-depends-on-the-demo">Which cap you can ignore depends on the demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pick-the-free-tool-by-the-limit-youll-never-hit">Pick the free tool by the limit you'll never hit</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/free-demo-video-software-800.webp" srcset="/blog/images/free-demo-video-software-400.webp 400w, /blog/images/free-demo-video-software-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="An iceberg with a small tip above the water and a large hidden mass below"><figcaption>The free tier is the tip; the caps, watermarks, and paywalls are the nine-tenths below the surface.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>'Free' means three deals: truly free/open (OBS, GPLv2, no caps), a capped free tier (Loom: 25 videos, 5 min, 720p), or a watermark-until-you-pay editor (Camtasia, Descript).</li>
+    <li>OBS Studio is the only fully uncapped, watermark-free, commercial-use recorder at $0; the trade is you do the zooming and trimming yourself.</li>
+    <li>Open source is not the same as unlimited: Cap is AGPLv3, but its free tier caps local recordings at 5 minutes and personal use; $29/yr lifts it.</li>
+    <li>Match the cap to the job: a 5-minute limit kills a walkthrough, a watermark kills anything public, and a 720p ceiling smears UI text full-screen.</li>
+    <li>Screen Studio has no free tier ($9-20/mo, macOS only); ScreenPal free has no watermark but caps at 15 min and 720p; Vidyard free is 5 videos/mo up to 30 min.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="three-bargains-wear-the-same-word">Three bargains wear the same word<a class="hanchor" href="#three-bargains-wear-the-same-word" aria-label="Link to section: Three bargains wear the same word">#</a></h2>
+<p>&quot;Free&quot; on a demo-tool pricing page is not one offer. It is at least three, and each one fails you at a different moment. The first is software that is genuinely free: OBS Studio is &quot;free and open source software for video recording and live streaming&quot;<sup class="article-cite"><a href="#src-1" title="OBS Studio — homepage (free and open source)">1</a></sup>, shipped under the GNU General Public License v2<sup class="article-cite"><a href="#src-2" title="OBS Studio — GitHub repository (GPL v2)">2</a></sup>, with no time cap, no watermark, and no export ceiling, now or ever. The second is a free tier of a paid product: you record for nothing until you hit a wall the pricing page prints in gray, a five-minute clip limit, a twenty-five-video library, a 720p export ceiling. The third is a free trial, or a free-to-use editor that brands every export until you pay to take the mark off.</p>
+<p>The catch is when you find out which bargain you took. You learn it after you have scripted the demo, learned the tool, recorded the take, and gone to export, which is the one point in the project where switching tools means starting over. This piece sorts the free options by the limit that actually bites, so you can choose before you record instead of after. It is the free slice of the <a href="/blog/ai-demo-video-generators/">landscape the pillar maps by mechanism rather than price</a>.</p>
+<h2 id="what-actually-runs-out-and-when">What actually runs out, and when<a class="hanchor" href="#what-actually-runs-out-and-when" aria-label="Link to section: What actually runs out, and when">#</a></h2>
+<p>The three deals expire on three different clocks.</p>
+<p>A truly free, open-source tool never expires. OBS records at your source resolution, for as long as your disk holds out, with nothing stamped on the output, because there is no paid tier upstream whose caps trickle down. The <a href="/blog/open-source-demo-video-tools/">genuinely open landscape, scored by license</a>, is a short list, but for the tools on it &quot;free&quot; means free.</p>
+<p>A free tier expires by consumption. Loom&#39;s Starter plan gives you up to 25 videos per person at 5 minutes each, capped at 720p, and reserves &quot;Remove Loom branding&quot; for its paid tiers, so free recordings carry Loom&#39;s mark; the Business plan runs $18 per user per month<sup class="article-cite"><a href="#src-3" title="Loom — pricing (free-plan caps)">3</a></sup>. The wall is the count and the clock, and you meet it in the middle of building a library, not on day one. <a href="/blog/loom-alternatives-for-product-demos/">Loom&#39;s caps are the category norm, not an outlier</a>.</p>
+<p>A free trial, or a watermark-gated editor, expires on export. Camtasia now lets you &quot;download and use the full Camtasia Editor for free,&quot; but &quot;exported videos will include a watermark until you upgrade&quot; to a paid plan<sup class="article-cite"><a href="#src-4" title="TechSmith — Camtasia (free editor, watermark on export)">4</a></sup>. You can do all the work; you just cannot ship the result until you pay. Descript&#39;s free plan works the same way: watermarked exports capped at 720p, plus 60 minutes of transcription a month, cleared by the $16-a-month Hobbyist tier billed yearly<sup class="article-cite"><a href="#src-5" title="Descript — pricing (free-plan watermark and 720p cap)">5</a></sup>.</p>
+<h2 id="every-free-tools-real-limit-in-one-table">Every free tool&#39;s real limit, in one table<a class="hanchor" href="#every-free-tools-real-limit-in-one-table" aria-label="Link to section: Every free tool's real limit, in one table">#</a></h2>
+<p>Here is the field, normalized to the four limits that actually decide a project: the per-clip time cap, whether the output is branded, the export-resolution ceiling, and what it costs to remove all of it. Every figure was read off the vendor&#39;s own page in July 2026.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Which &quot;free&quot;</th>
+<th>Per-clip time cap</th>
+<th>Watermark</th>
+<th>Max export</th>
+<th>To remove the limits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OBS Studio</td>
+<td>free and open (GPLv2)</td>
+<td>none</td>
+<td>none</td>
+<td>your source resolution</td>
+<td>nothing; it is free</td>
+</tr>
+<tr>
+<td>aidemo (ours)</td>
+<td>free and open (MIT)</td>
+<td>none</td>
+<td>none</td>
+<td>your render, uncapped</td>
+<td>nothing; it is free</td>
+</tr>
+<tr>
+<td>Camtasia editor</td>
+<td>free to use, paid to export</td>
+<td>none</td>
+<td>yes, on every export until you pay</td>
+<td>your source resolution</td>
+<td>any paid tier</td>
+</tr>
+<tr>
+<td>Descript</td>
+<td>free tier</td>
+<td>none stated</td>
+<td>yes, on free exports</td>
+<td>720p</td>
+<td>Hobbyist, $16/mo billed yearly</td>
+</tr>
+<tr>
+<td>Cap</td>
+<td>open source, capped app tier</td>
+<td>5 min, personal use only</td>
+<td>none</td>
+<td>not capped</td>
+<td>Desktop License, $29/yr</td>
+</tr>
+<tr>
+<td>ScreenPal</td>
+<td>free tier</td>
+<td>15 min</td>
+<td>none</td>
+<td>720p</td>
+<td>Deluxe, from $4/mo billed yearly</td>
+</tr>
+<tr>
+<td>Vidyard</td>
+<td>free tier</td>
+<td>30 min, 5 videos/month</td>
+<td>not stated</td>
+<td>not stated</td>
+<td>paid tiers</td>
+</tr>
+<tr>
+<td>Loom</td>
+<td>free (Starter) tier</td>
+<td>5 min, 25-video library</td>
+<td>Loom branding</td>
+<td>720p</td>
+<td>Business, $18/user/mo</td>
+</tr>
+</tbody></table></div>
+<p>One row is ours to disclose: aidemo is our own MIT-licensed engine, free with no cap and no watermark, and its honest limits get their own paragraph below. Read down the last column and the three bargains separate cleanly: the top rows cost nothing, the watermark rows cost you at export, and the freemium rows cost you a consumption wall you will hit later than you expect.</p>
+<h2 id="when-open-source-still-ships-a-capped-free-tier">When open source still ships a capped free tier<a class="hanchor" href="#when-open-source-still-ships-a-capped-free-tier" aria-label="Link to section: When open source still ships a capped free tier">#</a></h2>
+<p>&quot;Open source&quot; and &quot;unlimited free&quot; are not the same promise, and Cap is the case that proves it. Cap is genuinely open source, released under AGPLv3 with its capture crates under MIT<sup class="article-cite"><a href="#src-7" title="Cap — GitHub repository (AGPLv3 + MIT crates)">7</a></sup>. But the shipped free tier is not unlimited: it &quot;caps local recordings at 5 minutes&quot; and is &quot;for personal use only,&quot; with commercial rights and the cap lifted by a $29-a-year Desktop License<sup class="article-cite"><a href="#src-6" title="Cap — pricing (free-tier caps)">6</a></sup>. The source is free; the packaged free product is metered.</p>
+<p>That is the distinction the word &quot;free&quot; hides. A permissive license tells you what you may legally do with the code. It does not tell you what the download hands you at no charge. OBS is the tool where the two coincide: GPLv2 code and a free build with no meter on it. If your hard requirement is a recorder that never asks for a card and never brands the output, OBS is where &quot;free&quot; holds all the way down; most of the freemium field gives you a taste and a wall.</p>
+<h2 id="which-cap-you-can-ignore-depends-on-the-demo">Which cap you can ignore depends on the demo<a class="hanchor" href="#which-cap-you-can-ignore-depends-on-the-demo" aria-label="Link to section: Which cap you can ignore depends on the demo">#</a></h2>
+<p>No single free tool wins outright, because the four limits hurt different jobs. Match the cap you will never hit to the demo you are making.</p>
+<ul>
+<li>A <strong>five-minute per-clip limit</strong> (Loom, Cap free) is invisible for a quick feature clip and fatal for a multi-step walkthrough. If <a href="/blog/how-to-make-a-product-demo-video/">the demo carries one full task end to end</a>, that ceiling is the first thing you hit.</li>
+<li>A <strong>watermark</strong> (Camtasia editor, Descript free) is fine for an internal review and unusable for anything public: a landing hero, a README, a launch. Someone else&#39;s brand on your marketing page is not the look you paid nothing for.</li>
+<li>A <strong>720p export ceiling</strong> (Loom, ScreenPal, Descript free) reads acceptably in a small embed and turns text mushy the moment the video goes full-screen on a retina display. Product UI is mostly small type, which is exactly what 720p smears.</li>
+<li>A <strong>video-count cap</strong> (Loom&#39;s 25, Vidyard&#39;s 5 a month, ScreenPal&#39;s 10 hosted) is a non-issue for one demo and a slow strangle on a growing tutorial library.</li>
+</ul>
+<p>ScreenPal is the honest middle of the freemium field: no watermark, but a 15-minute recording limit, a 10-video hosting cap, and 720p playback, with the Deluxe tier from $4 a month billed yearly<sup class="article-cite"><a href="#src-8" title="ScreenPal — plans (free-plan limits)">8</a></sup>. Vidyard&#39;s free plan makes the opposite trade, count for length: 5 videos a month at up to 30 minutes each<sup class="article-cite"><a href="#src-9" title="Vidyard — pricing (free-plan limits)">9</a></sup>, against Loom&#39;s many-short-clips ceiling.</p>
+<h2 id="pick-the-free-tool-by-the-limit-youll-never-hit">Pick the free tool by the limit you&#39;ll never hit<a class="hanchor" href="#pick-the-free-tool-by-the-limit-youll-never-hit" aria-label="Link to section: Pick the free tool by the limit you'll never hit">#</a></h2>
+<p>Walk the caps in order of what would end your project soonest.</p>
+<p>If you need a public, full-resolution, unbranded demo for nothing, the free tier is the trap and the free-and-open tools are the answer: OBS to record. If you can live with 720p and short clips and just want the fastest record-and-share loop, a freemium recorder is fine, but price its wall before you commit, because <a href="/blog/demo-video-cost/">the full paid picture</a> is where the real bill lives. Screen Studio, worth naming because people expect it in this comparison, has no free tier at all: it is $20 a month, or $9 a month billed yearly, macOS only<sup class="article-cite"><a href="#src-10" title="Screen Studio — pricing (no free tier)">10</a></sup>.</p>
+<p>The limit no free tier removes is staleness. A recorded demo, on any tool, captures the interface exactly as it looked on record day, then quietly goes wrong the next time the product ships. aidemo, which we build and disclose as ours, is MIT-licensed and free<sup class="article-cite"><a href="#src-11" title="aidemo — GitHub repository (our engine, disclosed as ours)">11</a></sup>: an agent authors the storyboard, then a deterministic player drives your live product through it and adds voiceover and word-timed captions, so <a href="/blog/demo-videos-in-ci/">CI can re-render it</a> on the commit that changed the interface. The honest trade, since it is ours: it captures a browser tab and nothing else, so native desktop and phone apps are out; you author a text storyboard rather than nudge clips on a canvas; and there is no drag-to-edit GUI. Free removes the price. Only a spec removes the rot.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://obsproject.com/" rel="noopener">OBS Studio — homepage (free and open source)</a></li>
+<li id="src-2"><a href="https://github.com/obsproject/obs-studio" rel="noopener">OBS Studio — GitHub repository (GPL v2)</a></li>
+<li id="src-3"><a href="https://www.loom.com/pricing" rel="noopener">Loom — pricing (free-plan caps)</a></li>
+<li id="src-4"><a href="https://www.techsmith.com/camtasia/" rel="noopener">TechSmith — Camtasia (free editor, watermark on export)</a></li>
+<li id="src-5"><a href="https://www.descript.com/pricing" rel="noopener">Descript — pricing (free-plan watermark and 720p cap)</a></li>
+<li id="src-6"><a href="https://cap.so/pricing" rel="noopener">Cap — pricing (free-tier caps)</a></li>
+<li id="src-7"><a href="https://github.com/CapSoftware/Cap" rel="noopener">Cap — GitHub repository (AGPLv3 + MIT crates)</a></li>
+<li id="src-8"><a href="https://screenpal.com/plans" rel="noopener">ScreenPal — plans (free-plan limits)</a></li>
+<li id="src-9"><a href="https://www.vidyard.com/pricing/" rel="noopener">Vidyard — pricing (free-plan limits)</a></li>
+<li id="src-10"><a href="https://screen.studio/" rel="noopener">Screen Studio — pricing (no free tier)</a></li>
+<li id="src-11"><a href="https://github.com/tandryukha/aidemo" rel="noopener">aidemo — GitHub repository (our engine, disclosed as ours)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-the-best-free-demo-video-maker-with-no-watermark" class="blog-faq-q">What is the best free demo video maker with no watermark?<a class="hanchor" href="#what-is-the-best-free-demo-video-maker-with-no-watermark" aria-label="Link to section: What is the best free demo video maker with no watermark?">#</a></h3>
+<p>OBS Studio is the strongest no-watermark option: free, open source under GPL v2, with no time or resolution cap, on Windows, macOS, and Linux<sup class="article-cite"><a href="#src-1" title="OBS Studio — homepage (free and open source)">1</a></sup>. The trade is that you do your own zooming and trimming. Among the freemium recorders, ScreenPal&#39;s free plan also carries no watermark, but it caps recordings at 15 minutes and exports at 720p<sup class="article-cite"><a href="#src-8" title="ScreenPal — plans (free-plan limits)">8</a></sup>. Loom&#39;s free videos carry Loom branding, and Descript and the Camtasia editor watermark free exports until you pay.</p>
+<h3 id="is-obs-studio-free-for-commercial-use" class="blog-faq-q">Is OBS Studio free for commercial use?<a class="hanchor" href="#is-obs-studio-free-for-commercial-use" aria-label="Link to section: Is OBS Studio free for commercial use?">#</a></h3>
+<p>Yes. OBS Studio is distributed under the GNU General Public License v2<sup class="article-cite"><a href="#src-2" title="OBS Studio — GitHub repository (GPL v2)">2</a></sup>, which places no restriction on commercial use, adds no watermark, and imposes no time or export cap. You can record client work, product demos, or paid courses with it at no charge. The only real cost is effort: OBS is a raw recorder, so the polish other tools automate, click-zoom, cursor smoothing, and dead-time trimming, is on you.</p>
+<h3 id="which-free-screen-recorder-has-no-recording-time-limit" class="blog-faq-q">Which free screen recorder has no recording time limit?<a class="hanchor" href="#which-free-screen-recorder-has-no-recording-time-limit" aria-label="Link to section: Which free screen recorder has no recording time limit?">#</a></h3>
+<p>OBS Studio and the free Camtasia editor have no per-clip time cap: OBS records for as long as your disk allows, and Camtasia&#39;s editor is unlimited but watermarks the export until you pay<sup class="article-cite"><a href="#src-4" title="TechSmith — Camtasia (free editor, watermark on export)">4</a></sup>. The common freemium recorders all meter length: Loom and Cap&#39;s free tier stop at 5 minutes a clip, ScreenPal at 15, and Vidyard&#39;s free plan at 30 minutes with only 5 videos a month<sup class="article-cite"><a href="#src-9" title="Vidyard — pricing (free-plan limits)">9</a></sup>. Match the cap to your longest planned demo before you record, not after.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">free demo video software</span>
+        <span class="article-tag">screen recorder</span>
+        <span class="article-tag">obs studio</span>
+        <span class="article-tag">loom</span>
+        <span class="article-tag">demo tools</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-demo-video-generators-400.webp" srcset="/blog/images/ai-demo-video-generators-400.webp 400w, /blog/images/ai-demo-video-generators-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="One search bar branching into four outputs: a video, an interactive embed, an avatar clip, and a real-UI render"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/arcade-vs-navattic-vs-storylane/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/arcade-vs-navattic-vs-storylane-400.webp" srcset="/blog/images/arcade-vs-navattic-vs-storylane-400.webp 400w, /blog/images/arcade-vs-navattic-vs-storylane-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single ice cream cone piled with scoops of ice cream in different colors"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Arcade vs Navattic vs Storylane: picking an interactive demo platform</h3>
+    <p class="article-card-excerpt">They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/camtasia-alternatives/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/camtasia-alternatives-400.webp" srcset="/blog/images/camtasia-alternatives-400.webp 400w, /blog/images/camtasia-alternatives-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An overloaded key ring crowded with chunky keys"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Camtasia alternatives for software demos and tutorials</h3>
+    <p class="article-card-excerpt">TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-bargains-wear-the-same-word">Three bargains wear the same word</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-actually-runs-out-and-when">What actually runs out, and when</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#every-free-tools-real-limit-in-one-table">Every free tool's real limit, in one table</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-open-source-still-ships-a-capped-free-tier">When open source still ships a capped free tier</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-cap-you-can-ignore-depends-on-the-demo">Which cap you can ignore depends on the demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pick-the-free-tool-by-the-limit-youll-never-hit">Pick the free tool by the limit you'll never hit</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

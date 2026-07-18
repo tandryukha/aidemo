@@ -99,6 +99,13 @@
       <description>Four production tiers, priced per finished minute, plus the line item every quote leaves off: what it costs to make the same demo again when the UI moves.</description>
     </item>
     <item>
+      <title>How to start a demo video: the first five seconds</title>
+      <link>https://aidemo.top/blog/demo-video-hook/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-hook/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Viewers decide to leave in the first few seconds. Six opening moves that earn the next fifty, the one intro to retire, and which hook fits muted autoplay.</description>
+    </item>
+    <item>
       <title>Putting a demo video on your landing page without wrecking load time</title>
       <link>https://aidemo.top/blog/demo-video-on-landing-page/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-video-on-landing-page/</guid>
@@ -148,6 +155,20 @@
       <description>The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</description>
     </item>
     <item>
+      <title>How to embed video on a website: self-host vs YouTube vs streaming host</title>
+      <link>https://aidemo.top/blog/embed-video-on-website/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/embed-video-on-website/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Paste the YouTube iframe and you ship 540 KB of someone else&apos;s JavaScript. Self-host and you own the egress bill. Here is how to choose, with the arithmetic.</description>
+    </item>
+    <item>
+      <title>Free demo video software: what the free tier actually gives you</title>
+      <link>https://aidemo.top/blog/free-demo-video-software/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/free-demo-video-software/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Some free demo tools are free forever, some stop you at 5 minutes, and some brand every export. A field guide to which paywall is waiting for you.</description>
+    </item>
+    <item>
       <title>How long should a demo video be? The retention math</title>
       <link>https://aidemo.top/blog/how-long-should-a-demo-video-be/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/how-long-should-a-demo-video-be/</guid>
@@ -195,27 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/multi-language-product-demo-videos/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Localizing a demo doesn&apos;t mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.</description>
-    </item>
-    <item>
-      <title>Open-source demo video tools, scored by license and install reality</title>
-      <link>https://aidemo.top/blog/open-source-demo-video-tools/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/open-source-demo-video-tools/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.</description>
-    </item>
-    <item>
-      <title>Personalized demo videos at scale: the template-render pattern</title>
-      <link>https://aidemo.top/blog/personalized-demo-videos-at-scale/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/personalized-demo-videos-at-scale/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>A merge field with the prospect&apos;s name is not a demo that shows their data. Three depths of personalization, priced honestly for a fifty-prospect batch.</description>
-    </item>
-    <item>
-      <title>The Product Hunt launch video: spec, format, and the first five seconds</title>
-      <link>https://aidemo.top/blog/product-hunt-launch-video/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/product-hunt-launch-video/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>The Product Hunt feed shows a 240x240 thumbnail, not your video. The real asset spec, an honest read on the 53% stat, and a shot-list for the night before.</description>
     </item>
   </channel>
 </rss>

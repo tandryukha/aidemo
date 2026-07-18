@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embed Video on a Website: Self-Host vs YouTube | aidemo</title>
+<meta name="description" content="Self-host your demo video, embed it from YouTube, or use a streaming host like Mux or Cloudflare Stream? The decision on control, cost, speed, and privacy.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/embed-video-on-website/">
+<link rel="alternate" type="text/markdown" href="/blog/embed-video-on-website/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Embed Video on a Website: Self-Host vs YouTube | aidemo">
+<meta property="og:description" content="Self-host your demo video, embed it from YouTube, or use a streaming host like Mux or Cloudflare Stream? The decision on control, cost, speed, and privacy.">
+<meta property="og:url" content="https://aidemo.top/blog/embed-video-on-website/">
+<meta property="og:image" content="https://aidemo.top/blog/images/embed-video-on-website-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Embed Video on a Website: Self-Host vs YouTube | aidemo">
+<meta name="twitter:description" content="Self-host your demo video, embed it from YouTube, or use a streaming host like Mux or Cloudflare Stream? The decision on control, cost, speed, and privacy.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/embed-video-on-website-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to embed video on a website: self-host vs YouTube vs streaming host",
+  "description": "Self-host your demo video, embed it from YouTube, or use a streaming host like Mux or Cloudflare Stream? The decision on control, cost, speed, and privacy.",
+  "image": [
+    "https://aidemo.top/blog/images/embed-video-on-website-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/embed-video-on-website/"
+  },
+  "wordCount": 2169,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The Video Embed element (\u003cvideo>)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "web.dev — Lazy-loading video",
+      "url": "https://web.dev/articles/lazy-loading-video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome / Lighthouse — Lazy load third-party resources with facades",
+      "url": "https://developer.chrome.com/docs/lighthouse/performance/third-party-facades"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "paulirish — lite-youtube-embed",
+      "url": "https://github.com/paulirish/lite-youtube-embed"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cloudflare Stream — Pricing",
+      "url": "https://developers.cloudflare.com/stream/pricing/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cloudflare Stream — Overview (adaptive bitrate)",
+      "url": "https://developers.cloudflare.com/stream/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Mux — Pricing",
+      "url": "https://www.mux.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Bunny — Stream pricing",
+      "url": "https://bunny.net/stream/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube Help — Embed videos and playlists (privacy-enhanced mode)",
+      "url": "https://support.google.com/youtube/answer/171780"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to embed video on a website: self-host vs YouTube vs streaming host",
+      "item": "https://aidemo.top/blog/embed-video-on-website/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is it better to self-host a video or embed it from YouTube?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Neither wins outright; it depends on what you can't afford. YouTube is free and adaptive but loads a roughly 540 KB player per page view and attaches Google's tracking, so it fits reach on YouTube's own surface and content you don't mind branding. Self-hosting a \u003cvideo> keeps the page light and first-party but hands every viewer one bitrate and puts the egress bill on you. If you want adaptive delivery and a clean player without either downside, a streaming host is the middle path, metered per GB (about $0.005-0.01) or per minute ($1 per 1,000)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does embedding a YouTube video slow down my website?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, if you paste the stock iframe. Chrome's Lighthouse measures the YouTube player at about 540 KB loaded on the page (Lighthouse, 2026), executed on first paint whether or not anyone watches. The fix is a facade, a roughly 3 KB placeholder that swaps in the real player on click, which the lite-youtube-embed element reports rendering about 224 times faster."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does it cost to stream a demo video from your own site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For a 2-minute 1080p clip at about 2 Mbps (roughly 30 MB a view) watched 10,000 times a month, which is around 290 GB or 20,000 minutes, a commodity CDN or Bunny Stream runs about $1.50-3 at $0.005-0.01/GB, while Cloudflare Stream or Mux land near $20 because they meter by the minute. Per-GB billing is several times cheaper for ordinary 1080p; per-minute billing only pays off above about 13 Mbps."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>How to embed video on a website: self-host vs YouTube vs streaming host</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">How to embed video on a website: self-host vs YouTube vs streaming host</h1>
+        <p class="article-dek">Paste the YouTube iframe and you ship 540 KB of someone else's JavaScript. Self-host and you own the egress bill. Here is how to choose, with the arithmetic.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 9 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-places-the-bytes-can-come-from">Three places the bytes can come from</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-decision-on-one-screen">The decision on one screen</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-pasted-youtube-embed-loads-before-anyone-presses-play">What a pasted YouTube embed loads before anyone presses play</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#self-hostings-real-bill-in-dollars-per-thousand-views">Self-hosting's real bill, in dollars per thousand views</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#adaptive-bitrate-is-the-line-a-single-file-cant-cross-for-free">Adaptive bitrate is the line a single file can't cross for free</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-third-party-you-embedded-also-embedded-itself">The third party you embedded also embedded itself</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#picking-by-the-job-not-the-brand">Picking by the job, not the brand</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/embed-video-on-website-800.webp" srcset="/blog/images/embed-video-on-website-400.webp 400w, /blog/images/embed-video-on-website-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A round brass ship's porthole set into a plain wall"><figcaption>The window is easy to cut; what matters is whose wall the bytes arrive through.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Three mechanisms: a self-hosted &lt;video&gt; (you own egress, no adaptive), a YouTube/Vimeo iframe (free but ~540 KB player plus tracking per load), or a streaming host (adaptive, clean player, metered).</li>
+    <li>A cold YouTube embed loads a ~540 KB player on the page (Lighthouse); a facade ships ~3 KB and swaps in the real player on click, and lite-youtube-embed reports rendering ~224x faster.</li>
+    <li>A 2-min 1080p demo at 10,000 views/mo costs ~$0 on YouTube (paid in page weight), ~$1.50-3 on Bunny or a commodity CDN, and ~$20 on Cloudflare Stream or Mux.</li>
+    <li>Per-minute billing (Cloudflare, Mux) only beats per-GB billing (Bunny, self-host) above ~13 Mbps; for typical 1080p, per-GB is roughly seven times cheaper.</li>
+    <li>Self-hosting a single MP4 gives every viewer one bitrate; adaptive 360p-1080p delivery is automatic on YouTube and streaming hosts but is an HLS pipeline you build yourself when self-hosting.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="three-places-the-bytes-can-come-from">Three places the bytes can come from<a class="hanchor" href="#three-places-the-bytes-can-come-from" aria-label="Link to section: Three places the bytes can come from">#</a></h2>
+<p>Every video on a web page is one of three arrangements. To a visitor they can look identical; to your page, your bill, and your users&#39; privacy they are nothing alike, because what separates them is where the bytes originate and who owns the player that draws them.</p>
+<p><strong>Self-hosting</strong> means you serve the encoded file from your own origin or CDN and point a <code>&lt;video&gt;</code> element at it. The browser fetches the file and plays it with native controls. Because no one format plays in every browser, you list a couple of fallbacks and, in MDN&#39;s words, &quot;the browser will then use the first one it understands&quot;<sup class="article-cite"><a href="#src-1" title="MDN — The Video Embed element (&lt;video&gt;)">1</a></sup>; which codec belongs in each source is a separate call. Everything downstream of that tag is yours: the encoding, the poster, the caption track, and the bandwidth.</p>
+<p><strong>A hosted embed</strong> is the pasted YouTube or Vimeo <code>&lt;iframe&gt;</code>. The file, the player, the CDN, and the encoding all belong to someone else. It costs nothing and it reaches everywhere, and, as the next two sections measure, it is heavy on the page and chatty with third parties.</p>
+<p><strong>A streaming host</strong> — Mux, Cloudflare Stream, or Bunny Stream — sits between them. You upload once; they encode into an adaptive ladder and deliver over their own CDN the way YouTube does, except the player is clean, the domain is yours, and nobody staples related-video thumbnails or ads to your demo. You pay by the minute watched or the gigabyte delivered.</p>
+<p>The rest of this is the choice among the three, on the axes that genuinely differ.</p>
+<h2 id="the-decision-on-one-screen">The decision on one screen<a class="hanchor" href="#the-decision-on-one-screen" aria-label="Link to section: The decision on one screen">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Self-hosted <code>&lt;video&gt;</code></th>
+<th>YouTube / Vimeo embed</th>
+<th>Streaming host (Mux, CF, Bunny)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Player control</td>
+<td>Full: native chrome or your own JS</td>
+<td>Almost none: their chrome, ads, related videos</td>
+<td>Full: their player, your branding</td>
+</tr>
+<tr>
+<td>Adaptive bitrate</td>
+<td>No, unless you build the HLS ladder</td>
+<td>Yes, automatic</td>
+<td>Yes, automatic</td>
+</tr>
+<tr>
+<td>Bytes on page load</td>
+<td>Your poster only</td>
+<td>~540 KB player per embed</td>
+<td>A small player script</td>
+</tr>
+<tr>
+<td>Delivery cost</td>
+<td>Your CDN egress</td>
+<td>$0</td>
+<td>Metered: per minute or per GB</td>
+</tr>
+<tr>
+<td>Third-party tracking</td>
+<td>None; first-party</td>
+<td>Cookies and view personalization</td>
+<td>None; first-party</td>
+</tr>
+<tr>
+<td>Encoding and captions</td>
+<td>You do it</td>
+<td>They do it</td>
+<td>They do it</td>
+</tr>
+<tr>
+<td>Fits</td>
+<td>READMEs, docs, one small clip</td>
+<td>Reach on YouTube&#39;s own surface</td>
+<td>A library watched at scale, on your domain</td>
+</tr>
+</tbody></table></div>
+<p>Read the table as four questions in order. Does the clip need to play smoothly at scale on unpredictable networks? A bare self-hosted MP4 can&#39;t, so that narrows things. Can you accept Google&#39;s player and its tracking sitting on your page? If not, the raw embed is out. Is the number you can&#39;t afford the delivery bill or the page weight? That decides between a streaming host and self-hosting. The sections below are those rows argued out.</p>
+<h2 id="what-a-pasted-youtube-embed-loads-before-anyone-presses-play">What a pasted YouTube embed loads before anyone presses play<a class="hanchor" href="#what-a-pasted-youtube-embed-loads-before-anyone-presses-play" aria-label="Link to section: What a pasted YouTube embed loads before anyone presses play">#</a></h2>
+<p>The cheapest option is not free; it just bills you in kilobytes instead of dollars. Chrome&#39;s Lighthouse audit for third-party facades puts a figure on it: for a YouTube embed, &quot;the facade weighs 3 KB and the player weighing 540 KB is loaded on interaction&quot; when you defer it, and on first paint when you don&#39;t<sup class="article-cite"><a href="#src-3" title="Chrome / Lighthouse — Lazy load third-party resources with facades">3</a></sup>. Half a megabyte of someone else&#39;s JavaScript, executed before anything is clicked, for a video most visitors will never play.</p>
+<p>The fix is the facade pattern: render a lightweight placeholder and swap in the real iframe only when the visitor interacts. Lighthouse spells out the sequence — &quot;On load: Add facade to the page. On mouseover: The facade preconnects to third-party resources. On click: The facade replaces itself with the third-party product&quot;<sup class="article-cite"><a href="#src-3" title="Chrome / Lighthouse — Lazy load third-party resources with facades">3</a></sup>. Paul Irish&#39;s drop-in custom element for exactly this reports rendering &quot;approximately 224× faster&quot; than the native embed<sup class="article-cite"><a href="#src-4" title="paulirish — lite-youtube-embed">4</a></sup>.</p>
+<p>The catch, in the audit&#39;s own words, is that a facade lacks &quot;the full range of functionality of the actual embeds&quot;: no autoplay, no live badges, a click&#39;s worth of latency before playback starts. For a landing hero that is a fair trade, and the <a href="/blog/demo-video-on-landing-page/">LCP and poster mechanics that decide whether any embed wrecks first paint</a> are worked out in detail elsewhere in this cluster. The point here is narrower: the raw iframe is the single most expensive way to put a video on a page, and almost nobody who pastes it knows the price.</p>
+<h2 id="self-hostings-real-bill-in-dollars-per-thousand-views">Self-hosting&#39;s real bill, in dollars per thousand views<a class="hanchor" href="#self-hostings-real-bill-in-dollars-per-thousand-views" aria-label="Link to section: Self-hosting's real bill, in dollars per thousand views">#</a></h2>
+<p>Self-hosting trades page weight for an egress bill, and the bill is smaller than folklore claims, if you serve it from the right place. Work an example: one 2-minute 1080p demo at a lean 2 Mbps is about 30 MB per full view. Ten thousand full views a month is roughly 290 GB delivered, or 20,000 minutes watched. Here is that month on each option, at list rates verified in 2026.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Billed by</th>
+<th>List rate</th>
+<th>10,000 views/mo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Self-hosted, commodity CDN</td>
+<td>GB delivered</td>
+<td>~$0.005-0.01/GB<sup class="article-cite"><a href="#src-8" title="Bunny — Stream pricing">8</a></sup></td>
+<td>~$1.50-3, plus your own encoding</td>
+</tr>
+<tr>
+<td>YouTube / Vimeo embed</td>
+<td>nothing</td>
+<td>$0</td>
+<td>$0 (paid in ~540 KB/load and tracking)</td>
+</tr>
+<tr>
+<td>Cloudflare Stream</td>
+<td>minutes delivered</td>
+<td>$1 / 1,000 min, bandwidth included<sup class="article-cite"><a href="#src-5" title="Cloudflare Stream — Pricing">5</a></sup></td>
+<td>~$20</td>
+</tr>
+<tr>
+<td>Mux</td>
+<td>minutes delivered</td>
+<td>$0.001/min at 1080p<sup class="article-cite"><a href="#src-7" title="Mux — Pricing">7</a></sup></td>
+<td>~$20 at list</td>
+</tr>
+<tr>
+<td>Bunny Stream</td>
+<td>GB delivered</td>
+<td>from $0.005-0.01/GB<sup class="article-cite"><a href="#src-8" title="Bunny — Stream pricing">8</a></sup></td>
+<td>~$1.50-3</td>
+</tr>
+</tbody></table></div>
+<p>The striking cell is not any single price; it is that the per-minute hosts (Cloudflare Stream, Mux) cost several times the per-GB hosts (Bunny, a commodity CDN) for the same footage. The reason is the billing unit, not the brand. At 2 Mbps, one minute of 1080p is about 15 MB, so a per-GB host at $0.01/GB charges roughly $0.00015 a minute against Cloudflare&#39;s $0.001, about seven times less. Per-minute billing only pulls even once bitrate crosses about 13 Mbps, which is 4K territory rather than a product demo. Bill by the gigabyte for ordinary 1080p; bill by the minute if you ship high-bitrate 4K, where a per-minute rate stops punishing you for pixels.</p>
+<p>The folklore gets one thing wrong in the other direction, too: a hyperscaler CDN can charge several times a commodity CDN&#39;s rate for the identical bytes, so &quot;self-hosting is cheap&quot; holds only if you don&#39;t serve it from a big cloud&#39;s default egress. And video earns its keep only when the page still loads fast to begin with, a claim <a href="/blog/does-video-increase-conversion/">traced through the actual conversion data</a> rather than assumed.</p>
+<h2 id="adaptive-bitrate-is-the-line-a-single-file-cant-cross-for-free">Adaptive bitrate is the line a single file can&#39;t cross for free<a class="hanchor" href="#adaptive-bitrate-is-the-line-a-single-file-cant-cross-for-free" aria-label="Link to section: Adaptive bitrate is the line a single file can't cross for free">#</a></h2>
+<p>The quiet reason a raw <code>&lt;video&gt;</code> loses at scale is that it hands every viewer the same file. A phone on a congested cell network downloads the identical 2 Mbps 1080p stream as a workstation on fiber, so the phone buffers and the desktop is under-served. Streaming hosts and YouTube solve this the same way: they encode your upload into a ladder of renditions and switch between them per segment as the connection changes. Cloudflare Stream, for one, &quot;automatically encodes and delivers videos using the H.264 codec with adaptive bitrate streaming, supporting resolutions from 360p to 1080p&quot; for &quot;smooth playback across different devices and network conditions&quot;<sup class="article-cite"><a href="#src-6" title="Cloudflare Stream — Overview (adaptive bitrate)">6</a></sup>.</p>
+<p>You can do this yourself: run ffmpeg to produce three or four renditions, generate an HLS playlist, and serve the segments. It works, and it is precisely the labor a streaming host charges you to skip. So the honest read is that self-hosting a single MP4 is fine for a short clip on a docs page or a README, where every viewer is on a decent connection and the file is small enough that one bitrate suits everyone. It stops being fine the moment the video is long, watched globally, or the difference between a smooth play and a spinner decides whether the demo lands. If the embed also has to autoplay muted the way a background loop does, the attribute set is the same whichever host serves the bytes.</p>
+<h2 id="the-third-party-you-embedded-also-embedded-itself">The third party you embedded also embedded itself<a class="hanchor" href="#the-third-party-you-embedded-also-embedded-itself" aria-label="Link to section: The third party you embedded also embedded itself">#</a></h2>
+<p>A YouTube iframe is not just a video; it is a Google-owned script running on your origin with its own agenda. By default the standard embed can use the view to personalize the visitor&#39;s experience across the web. YouTube&#39;s own privacy-enhanced mode, which you enable by switching the domain to <code>youtube-nocookie.com</code>, narrows that: a view in that mode &quot;will not be used to personalize&quot; the viewer&#39;s browsing, and any ads served &quot;will likewise be non-personalized&quot;<sup class="article-cite"><a href="#src-9" title="YouTube Help — Embed videos and playlists (privacy-enhanced mode)">9</a></sup>. It is an improvement, not an exit. The embed still loads Google&#39;s player and connects to Google&#39;s servers, and you have to opt in by editing the URL.</p>
+<p>Self-hosting and streaming hosts sidestep the question, because the bytes and the player come from your own domain. Bunny Stream, Mux, and Cloudflare Stream serve a first-party player with no advertising cookies riding along on the play. For a privacy-sensitive product, a consent-conscious jurisdiction, or simply a page you would rather not hand to another company&#39;s analytics, that is the deciding column, and it is one self-hosting a <code>&lt;video&gt;</code> wins outright, since the only bytes are the ones you shipped. Owning the player also means you own the caption track instead of inheriting YouTube&#39;s auto-captions, and <a href="/blog/demo-video-captions/">captions are not optional on muted playback</a>.</p>
+<h2 id="picking-by-the-job-not-the-brand">Picking by the job, not the brand<a class="hanchor" href="#picking-by-the-job-not-the-brand" aria-label="Link to section: Picking by the job, not the brand">#</a></h2>
+<p>Match the mechanism to the task. A short clip in a README or docs page: self-host a single MP4, set <code>preload=&quot;none&quot;</code> so nothing downloads until a click, which web.dev calls &quot;the best chance of avoiding loading the video&quot;<sup class="article-cite"><a href="#src-2" title="web.dev — Lazy-loading video">2</a></sup>, and skip every host. A landing hero or a demo watched at scale on mixed networks: a streaming host, priced per GB for ordinary 1080p and per minute only if you serve 4K, so you get adaptive delivery and a clean first-party player without building an HLS pipeline. Reach and discovery on YouTube&#39;s own surface, where the algorithm and search are the whole point: use YouTube, but embed it behind a facade so the 540 KB player never loads on first paint. This is one row in the larger job of turning <a href="/blog/video-marketing-for-software/">one recording into every placement</a>.</p>
+<p>Whichever row you land on, you still have to produce the file, and the file has to stay honest as the UI it shows keeps shipping. aidemo, the open-source engine we build, renders the demo from an agent-authored storyboard, so the embedded copy is a re-render rather than a reshoot when the product changes; it is browser-only, offers no GUI timeline editor, and expects an agent, not a person at a scrubber, to write the spec, which suits a demo pipeline and not a hand-tuned one-off.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video" rel="noopener">MDN — The Video Embed element (&lt;video&gt;)</a></li>
+<li id="src-2"><a href="https://web.dev/articles/lazy-loading-video" rel="noopener">web.dev — Lazy-loading video</a></li>
+<li id="src-3"><a href="https://developer.chrome.com/docs/lighthouse/performance/third-party-facades" rel="noopener">Chrome / Lighthouse — Lazy load third-party resources with facades</a></li>
+<li id="src-4"><a href="https://github.com/paulirish/lite-youtube-embed" rel="noopener">paulirish — lite-youtube-embed</a></li>
+<li id="src-5"><a href="https://developers.cloudflare.com/stream/pricing/" rel="noopener">Cloudflare Stream — Pricing</a></li>
+<li id="src-6"><a href="https://developers.cloudflare.com/stream/" rel="noopener">Cloudflare Stream — Overview (adaptive bitrate)</a></li>
+<li id="src-7"><a href="https://www.mux.com/pricing" rel="noopener">Mux — Pricing</a></li>
+<li id="src-8"><a href="https://bunny.net/stream/" rel="noopener">Bunny — Stream pricing</a></li>
+<li id="src-9"><a href="https://support.google.com/youtube/answer/171780" rel="noopener">YouTube Help — Embed videos and playlists (privacy-enhanced mode)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-it-better-to-self-host-a-video-or-embed-it-from-youtube" class="blog-faq-q">Is it better to self-host a video or embed it from YouTube?<a class="hanchor" href="#is-it-better-to-self-host-a-video-or-embed-it-from-youtube" aria-label="Link to section: Is it better to self-host a video or embed it from YouTube?">#</a></h3>
+<p>Neither wins outright; it depends on what you can&#39;t afford. YouTube is free and adaptive but loads a roughly 540 KB player per page view and attaches Google&#39;s tracking, so it fits reach on YouTube&#39;s own surface and content you don&#39;t mind branding. Self-hosting a <code>&lt;video&gt;</code> keeps the page light and first-party but hands every viewer one bitrate and puts the egress bill on you. If you want adaptive delivery and a clean player without either downside, a streaming host is the middle path, metered per GB (about $0.005-0.01) or per minute ($1 per 1,000).</p>
+<h3 id="does-embedding-a-youtube-video-slow-down-my-website" class="blog-faq-q">Does embedding a YouTube video slow down my website?<a class="hanchor" href="#does-embedding-a-youtube-video-slow-down-my-website" aria-label="Link to section: Does embedding a YouTube video slow down my website?">#</a></h3>
+<p>Yes, if you paste the stock iframe. Chrome&#39;s Lighthouse measures the YouTube player at about 540 KB loaded on the page<sup class="article-cite"><a href="#src-3" title="Chrome / Lighthouse — Lazy load third-party resources with facades">3</a></sup>, executed on first paint whether or not anyone watches. The fix is a facade, a roughly 3 KB placeholder that swaps in the real player on click, which the lite-youtube-embed element reports rendering about 224 times faster.</p>
+<h3 id="how-much-does-it-cost-to-stream-a-demo-video-from-your-own-site" class="blog-faq-q">How much does it cost to stream a demo video from your own site?<a class="hanchor" href="#how-much-does-it-cost-to-stream-a-demo-video-from-your-own-site" aria-label="Link to section: How much does it cost to stream a demo video from your own site?">#</a></h3>
+<p>For a 2-minute 1080p clip at about 2 Mbps (roughly 30 MB a view) watched 10,000 times a month, which is around 290 GB or 20,000 minutes, a commodity CDN or Bunny Stream runs about $1.50-3 at $0.005-0.01/GB, while Cloudflare Stream or Mux land near $20 because they meter by the minute. Per-GB billing is several times cheaper for ordinary 1080p; per-minute billing only pays off above about 13 Mbps.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">embed video</span>
+        <span class="article-tag">self-hosted video</span>
+        <span class="article-tag">video hosting</span>
+        <span class="article-tag">youtube embed</span>
+        <span class="article-tag">streaming video</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-on-landing-page/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-on-landing-page-400.webp" srcset="/blog/images/demo-video-on-landing-page-400.webp 400w, /blog/images/demo-video-on-landing-page-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A paper airplane caught in mid-glide, nose tilted slightly upward"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Putting a demo video on your landing page without wrecking load time</h3>
+    <p class="article-card-excerpt">A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/does-video-increase-conversion/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/does-video-increase-conversion-400.webp" srcset="/blog/images/does-video-increase-conversion-400.webp 400w, /blog/images/does-video-increase-conversion-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A brass-style balance scale tipped to one side, one shallow pan hanging lower than the other"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Does video actually increase conversion? Tracing the 80% claim</h3>
+    <p class="article-card-excerpt">The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-places-the-bytes-can-come-from">Three places the bytes can come from</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-decision-on-one-screen">The decision on one screen</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-pasted-youtube-embed-loads-before-anyone-presses-play">What a pasted YouTube embed loads before anyone presses play</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#self-hostings-real-bill-in-dollars-per-thousand-views">Self-hosting's real bill, in dollars per thousand views</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#adaptive-bitrate-is-the-line-a-single-file-cant-cross-for-free">Adaptive bitrate is the line a single file can't cross for free</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-third-party-you-embedded-also-embedded-itself">The third party you embedded also embedded itself</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#picking-by-the-job-not-the-brand">Picking by the job, not the brand</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

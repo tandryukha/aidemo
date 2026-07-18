@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual regression tools, by diff engine | aidemo</title>
+<meta name="description" content="Compare visual regression testing tools by what differs: the diff engine (pixel, DOM-render, or Visual AI) and where baselines live, git or a vendor cloud.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/visual-regression-testing-tools/">
+<link rel="alternate" type="text/markdown" href="/blog/visual-regression-testing-tools/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Visual regression tools, by diff engine | aidemo">
+<meta property="og:description" content="Compare visual regression testing tools by what differs: the diff engine (pixel, DOM-render, or Visual AI) and where baselines live, git or a vendor cloud.">
+<meta property="og:url" content="https://aidemo.top/blog/visual-regression-testing-tools/">
+<meta property="og:image" content="https://aidemo.top/blog/images/visual-regression-testing-tools-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Visual regression tools, by diff engine | aidemo">
+<meta name="twitter:description" content="Compare visual regression testing tools by what differs: the diff engine (pixel, DOM-render, or Visual AI) and where baselines live, git or a vendor cloud.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/visual-regression-testing-tools-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Visual regression testing tools compared by diff engine",
+  "description": "Compare visual regression testing tools by what differs: the diff engine (pixel, DOM-render, or Visual AI) and where baselines live, git or a vendor cloud.",
+  "image": [
+    "https://aidemo.top/blog/images/visual-regression-testing-tools-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/visual-regression-testing-tools/"
+  },
+  "wordCount": 2320,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "pixelmatch — pixel-level image comparison library (ISC)",
+      "url": "https://github.com/mapbox/pixelmatch"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "odiff — native image diffing tool and benchmarks (MIT)",
+      "url": "https://github.com/dmtrKovalenko/odiff"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — visual comparisons and snapshot storage (toHaveScreenshot)",
+      "url": "https://playwright.dev/docs/test-snapshots"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vitest — browser-mode visual regression testing (toMatchScreenshot)",
+      "url": "https://vitest.dev/guide/browser/visual-regression-testing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "BackstopJS — visual regression tool (MIT, Resemble.js)",
+      "url": "https://github.com/garris/BackstopJS"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "reg-suit — visual regression CLI with S3/GCS baseline storage (MIT)",
+      "url": "https://github.com/reg-viz/reg-suit"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Argos — open-source visual testing platform",
+      "url": "https://github.com/argos-ci/argos"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Argos — pricing",
+      "url": "https://argos-ci.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chromatic — pricing and TurboSnap",
+      "url": "https://www.chromatic.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Percy (BrowserStack) — DOM snapshotting and free tier",
+      "url": "https://www.browserstack.com/percy"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Percy — visual diff modes",
+      "url": "https://www.browserstack.com/percy/features/visual-diff-modes"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Applitools — Visual AI match levels",
+      "url": "https://applitools.com/tutorials/concepts/best-practices/match-levels"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Visual regression testing tools compared by diff engine",
+      "item": "https://aidemo.top/blog/visual-regression-testing-tools/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the best visual regression testing tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There is no single best; there is a best for your two constraints. If you build in Storybook, Chromatic renders your stories with no capture code. If you already run Playwright or Vitest, their built-in screenshot matchers cost nothing and store baselines in your repo. If baselines must stay in your own infrastructure, reg-suit into your bucket or self-hosted Argos fit, and if you want cross-browser rendering with a review UI a non-engineer can drive, a cloud tool like Percy or Applitools earns its per-screenshot fee."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between Percy and Chromatic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both capture in the browser and re-render on their own cloud, so neither flakes on your local font stack, and both bill per screenshot with a 5,000-a-month free tier. The split is what they render: Percy snapshots the DOM of any page in your end-to-end tests and re-renders it across browsers and widths, while Chromatic renders Storybook stories and uses TurboSnap to bill only the stories a code change touched. Percy fits page-level flows; Chromatic fits component-driven front ends."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Playwright have built-in visual regression testing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. expect(page).toHaveScreenshot() writes a baseline PNG into a \u003ctest>-snapshots/ folder on first run, diffs every later run against it with the pixelmatch library, and accepts intended changes when you pass --update-snapshots. Because the baselines live in your repo and the pixels come from wherever the test ran, run it in a containerized or CI environment so font rendering stays constant, or the diffs will flake across machines."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there free open-source visual regression testing tools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Several, and they differ by where baselines live. pixelmatch (ISC) and odiff (MIT) are diff libraries you wire into your own runner; BackstopJS (MIT) keeps reference bitmaps in your repo with a local browser report; reg-suit (MIT) stores baselines in your own S3 or GCS bucket and comments the diff on the pull request; and Argos is MIT-licensed and self-hostable. All cost $0 in license; you pay only in the git space, storage, or CI minutes you already own."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Visual regression testing tools compared by diff engine</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Visual regression testing tools compared by diff engine</h1>
+        <p class="article-dek">Ten tools, three diff engines, one question the listicles skip: where do your baselines live? Cleave the category by mechanism and the field collapses to three.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 12 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-category-is-a-listicle-graveyard-the-diff-engine-is-the-real-axis">The category is a listicle graveyard; the diff engine is the real axis</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-engines-decide-what-different-means">Three engines decide what &quot;different&quot; means</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-the-baseline-lives-decides-your-bill-and-your-blast-radius">Where the baseline lives decides your bill and your blast radius</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-field-on-two-axes">The field on two axes</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#four-questions-that-eliminate-most-of-the-list">Four questions that eliminate most of the list</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#for-a-demo-or-a-docs-asset-the-engine-is-only-half-the-check">For a demo or a docs asset, the engine is only half the check</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/visual-regression-testing-tools-800.webp" srcset="/blog/images/visual-regression-testing-tools-400.webp 400w, /blog/images/visual-regression-testing-tools-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A round brass kitchen sieve with a fine mesh"><figcaption>Every tool in the category is this one instrument set to a different tolerance; the only question that matters is how wide a gap it agrees to call a difference.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The category cleaves on two axes the listicles skip: the diff engine (perceptual pixel, DOM-render, or Visual AI) and where baselines live (git, your own bucket, or a vendor cloud).</li>
+    <li>Three engine families: perceptual pixel (pixelmatch ISC; odiff MIT is ~6.6x faster at 1.168s vs 7.712s), DOM-capture-then-cloud-render (Percy, Chromatic), and Visual AI match levels (Applitools).</li>
+    <li>Framework-native is not a fourth engine: Playwright toHaveScreenshot and Vitest toMatchScreenshot both diff with pixelmatch and commit baselines into your repo.</li>
+    <li>SaaS bills per screenshot: Chromatic free 5,000/mo then $179/35,000 ($0.008 each); Argos free 5,000 then $100/35,000; Percy free 5,000/mo. Open-source baselines in git or S3 cost $0.</li>
+    <li>Local pixel tools flake on font rendering across machines; cloud renderers fix it with a fixed render environment. Vitest's own docs call visual tests 'inherently unstable across environments.'</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-category-is-a-listicle-graveyard-the-diff-engine-is-the-real-axis">The category is a listicle graveyard; the diff engine is the real axis<a class="hanchor" href="#the-category-is-a-listicle-graveyard-the-diff-engine-is-the-real-axis" aria-label="Link to section: The category is a listicle graveyard; the diff engine is the real axis">#</a></h2>
+<p>Search for visual regression testing tools and you get the same fifteen-row table on twenty different blogs, sorted by GitHub stars and padded with &quot;easy to use.&quot; That table hides the two decisions that actually determine fit: how a tool decides two frames differ, and where it keeps the baseline it compares against. Everything else, the language bindings, the CI snippets, the dashboard color, is downstream of those two. Get them right and a field of thirty tools collapses to two or three real candidates. Get them wrong and you buy something that flakes on every font change, or that bills you per screenshot for baselines you could have kept in git for free.</p>
+<p>This piece cleaves the category on those two axes. It is the tool-selection companion to <a href="/blog/detecting-ui-drift/">the drift-detection ladder</a>, which ranks the kinds of check from a cheap selector assertion up to a perceptual pixel diff. Here we pick the actual engine behind the pixel rungs, and the storage behind all of them.</p>
+<h2 id="three-engines-decide-what-different-means">Three engines decide what &quot;different&quot; means<a class="hanchor" href="#three-engines-decide-what-different-means" aria-label="Link to section: Three engines decide what &quot;different&quot; means">#</a></h2>
+<p>Under every visual regression tool is a comparator, and there are only three families of them. They differ in what they can see and, more to the point, in what they refuse to react to.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Diff engine family</th>
+<th>How it rules on a change</th>
+<th>Representative tools</th>
+<th>Where it flakes or goes blind</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Perceptual pixel diff</td>
+<td>thresholded per-pixel color delta, anti-aliasing aware</td>
+<td>pixelmatch, odiff, Resemble.js (BackstopJS), reg-cli</td>
+<td>flakes on the client&#39;s own font and GPU rendering; sees everything, so it must be tuned</td>
+</tr>
+<tr>
+<td>DOM capture then cloud render</td>
+<td>re-renders your captured DOM or stories in a fixed environment, then diffs</td>
+<td>Percy, Chromatic</td>
+<td>the fixed render kills environment flake; blind to anything outside the captured DOM</td>
+</tr>
+<tr>
+<td>Visual AI (ML match levels)</td>
+<td>a model classes each region as a layout, content, or color change</td>
+<td>Applitools</td>
+<td>fewest false alarms; a model you do not control, at quote-based pricing</td>
+</tr>
+</tbody></table></div>
+<p>The perceptual-pixel family is the workhorse and the one most tools quietly embed. pixelmatch (ISC-licensed, zero dependencies, a few hundred lines) judges color distance in the perceptual OKLab space, leaves anti-aliasing detection on by default, and defaults its <code>threshold</code> to 0.1<sup class="article-cite"><a href="#src-1" title="pixelmatch — pixel-level image comparison library (ISC)">1</a></sup>. odiff is the same idea rebuilt for speed: a native binary (first OCaml, now Zig with SIMD) that its own benchmark clocks at 1.168 seconds against pixelmatch&#39;s 7.712 on a full-page Cypress screenshot, roughly a 6.6x gap, widening to 1.951 versus 10.614 seconds on an 8K image<sup class="article-cite"><a href="#src-2" title="odiff — native image diffing tool and benchmarks (MIT)">2</a></sup>. Both compare pixels the client already captured, so they inherit whatever the client rendered. A teammate&#39;s different font-hinting stack repaints every glyph edge, and the diff lights up over a change nobody shipped.</p>
+<p>The second family sidesteps that. Percy does not diff the pixels your machine drew; it captures a DOM snapshot during your test run and re-renders it on its own infrastructure across browsers and widths before diffing, which is why its own pitch is to &quot;ditch fragile pixel-to-pixel comparisons&quot;<sup class="article-cite"><a href="#src-10" title="Percy (BrowserStack) — DOM snapshotting and free tier">10</a></sup>. It then layers three diff modes on top, Content, Layout, and Detail, with Strict, Recommended, or Relaxed sensitivity<sup class="article-cite"><a href="#src-11" title="Percy — visual diff modes">11</a></sup>. Chromatic applies the same trick to Storybook, rendering your stories in standardized cloud browsers (Chrome on the free tier; Safari, Firefox, and Edge on paid plans) so the render environment never varies<sup class="article-cite"><a href="#src-9" title="Chromatic — pricing and TurboSnap">9</a></sup>. Fix the environment and the entire &quot;it flakes on my font stack&quot; class of failure disappears.</p>
+<p>The third family swaps the threshold for a model. Applitools Visual AI sorts each region by match level, Strict, Layout, Ignore Colors, Dynamic, and Exact, so you can say &quot;same layout, ignore the content&quot; or &quot;this region is a date, any valid date passes&quot; instead of hand-tuning a pixel budget<sup class="article-cite"><a href="#src-12" title="Applitools — Visual AI match levels">12</a></sup>. It is the DOM-aware judgment of family two pushed further, and priced as an enterprise product.</p>
+<p>Framework-native runners are not a fourth engine. They are family one embedded where you already work: Playwright&#39;s <code>toHaveScreenshot</code> and Vitest&#39;s <code>toMatchScreenshot</code> both diff with pixelmatch, inside the test runner you already run.</p>
+<h2 id="where-the-baseline-lives-decides-your-bill-and-your-blast-radius">Where the baseline lives decides your bill and your blast radius<a class="hanchor" href="#where-the-baseline-lives-decides-your-bill-and-your-blast-radius" aria-label="Link to section: Where the baseline lives decides your bill and your blast radius">#</a></h2>
+<p>The second axis is the one listicles never sort on, and it changes the operational math more than the engine does. A baseline can live in one of three places.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Baseline home</th>
+<th>Tools</th>
+<th>You pay in</th>
+<th>You get</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Committed to your repo</td>
+<td>Playwright, Vitest, BackstopJS</td>
+<td>git bloat, binary PR diffs, environment pinning</td>
+<td>$0, versioned with code, reproducible from a checkout</td>
+</tr>
+<tr>
+<td>Your own object storage</td>
+<td>reg-suit (S3 / GCS)</td>
+<td>a storage bill you control</td>
+<td>baselines out of git, a hosted report, no vendor meter</td>
+</tr>
+<tr>
+<td>A vendor cloud</td>
+<td>Percy, Chromatic, Applitools, Argos-hosted</td>
+<td>per-screenshot fees and lock-in</td>
+<td>approve/reject review UI, cross-browser rendering</td>
+</tr>
+</tbody></table></div>
+<p>Committing to the repo is the default for framework-native tools. Playwright writes baselines to a <code>&lt;test&gt;-snapshots/</code> folder and updates them with <code>--update-snapshots</code><sup class="article-cite"><a href="#src-3" title="Playwright — visual comparisons and snapshot storage (toHaveScreenshot)">3</a></sup>; Vitest writes to <code>__screenshots__/</code> beside the test<sup class="article-cite"><a href="#src-4" title="Vitest — browser-mode visual regression testing (toMatchScreenshot)">4</a></sup>; BackstopJS keeps <code>bitmaps_reference/</code> bitmaps you check in<sup class="article-cite"><a href="#src-5" title="BackstopJS — visual regression tool (MIT, Resemble.js)">5</a></sup>. It is free and reproducible, but two costs hide inside it: binary PNGs bloat git history, and a pull request shows a baseline change as an unreviewable blob unless the tool ships its own report. And because the pixels come from wherever the test ran, you have to pin that environment. Vitest&#39;s own docs warn that visual tests are &quot;inherently unstable across different environments&quot; thanks to font rendering and hardware, and steer you to a containerized or cloud CI, the same <a href="/blog/deterministic-browser-automation-for-video/">deterministic-replay discipline</a> a clean demo render depends on.</p>
+<p>Your own bucket is the underrated middle. reg-suit (MIT) stores baselines in your S3 or GCS through publisher plugins, fetches the prior snapshot to diff, posts an HTML report, and comments the result on the pull request<sup class="article-cite"><a href="#src-6" title="reg-suit — visual regression CLI with S3/GCS baseline storage (MIT)">6</a></sup>. You own the data and the storage line item, and no one meters your screenshot count. BackstopJS (MIT, Resemble.js under the hood) gives you a local browser report with an approve-to-baseline button and no cloud at all.</p>
+<p>The vendor cloud buys away the two repo costs, the binary diff and the flaky environment, and charges per screenshot for it. Chromatic&#39;s free tier is 5,000 billed snapshots a month (Chrome only); Starter is $179 a month for 35,000, about $0.008 a snapshot, and its TurboSnap bills only the stories a code change actually touched<sup class="article-cite"><a href="#src-9" title="Chromatic — pricing and TurboSnap">9</a></sup>. Argos is unusual: MIT-licensed and self-hostable, with a hosted plan of 5,000 screenshots free, then $100 a month for 35,000 and $0.004 overage<sup class="article-cite"><a href="#src-8" title="Argos — pricing">8</a></sup>. Percy&#39;s free tier is likewise 5,000 screenshots a month<sup class="article-cite"><a href="#src-10" title="Percy (BrowserStack) — DOM snapshotting and free tier">10</a></sup>. The open-source tools keep baselines in git or your bucket for $0; the SaaS tools trade that dollar for a review UI a non-engineer can drive.</p>
+<h2 id="the-field-on-two-axes">The field on two axes<a class="hanchor" href="#the-field-on-two-axes" aria-label="Link to section: The field on two axes">#</a></h2>
+<p>Put the engine and the baseline home together and the shape of each tool is legible at a glance.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Diff engine</th>
+<th>Baseline home</th>
+<th>Review surface</th>
+<th>License / price (July 2026)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pixelmatch</td>
+<td>perceptual pixel (OKLab)</td>
+<td>wherever you write it</td>
+<td>your own report</td>
+<td>ISC, free</td>
+</tr>
+<tr>
+<td>odiff</td>
+<td>perceptual pixel, native SIMD</td>
+<td>wherever you write it</td>
+<td>your own report</td>
+<td>MIT, free</td>
+</tr>
+<tr>
+<td>Playwright <code>toHaveScreenshot</code></td>
+<td>pixelmatch</td>
+<td>repo (<code>*-snapshots/</code>)</td>
+<td>binary PR diff + HTML report</td>
+<td>Apache-2.0, free</td>
+</tr>
+<tr>
+<td>Vitest <code>toMatchScreenshot</code></td>
+<td>pixelmatch (default)</td>
+<td>repo (<code>__screenshots__/</code>)</td>
+<td>binary PR diff + report</td>
+<td>MIT, free</td>
+</tr>
+<tr>
+<td>BackstopJS</td>
+<td>Resemble.js</td>
+<td>repo (<code>bitmaps_reference/</code>)</td>
+<td>local browser report, approve</td>
+<td>MIT, free</td>
+</tr>
+<tr>
+<td>reg-suit</td>
+<td>reg-cli / x-img-diff-js</td>
+<td>your S3 or GCS bucket</td>
+<td>hosted report + PR comment</td>
+<td>MIT, free + storage</td>
+</tr>
+<tr>
+<td>Argos</td>
+<td>perceptual pixel</td>
+<td>vendor cloud or self-host</td>
+<td>web review UI</td>
+<td>MIT; SaaS free 5k, $100/35k</td>
+</tr>
+<tr>
+<td>Percy</td>
+<td>DOM render + perceptual</td>
+<td>vendor cloud</td>
+<td>web review UI, diff modes</td>
+<td>SaaS, free 5k/mo</td>
+</tr>
+<tr>
+<td>Chromatic</td>
+<td>cloud render of stories + pixel</td>
+<td>vendor cloud</td>
+<td>web review UI, TurboSnap</td>
+<td>SaaS, free 5k; $179/35k</td>
+</tr>
+<tr>
+<td>Applitools</td>
+<td>Visual AI match levels</td>
+<td>vendor cloud</td>
+<td>web review UI, match levels</td>
+<td>SaaS, quote-based</td>
+</tr>
+</tbody></table></div>
+<h2 id="four-questions-that-eliminate-most-of-the-list">Four questions that eliminate most of the list<a class="hanchor" href="#four-questions-that-eliminate-most-of-the-list" aria-label="Link to section: Four questions that eliminate most of the list">#</a></h2>
+<p>You do not compare all ten. You answer four questions and the field cuts itself in half each time.</p>
+<p>First, do you build in Storybook? If so, Chromatic renders your existing stories with no capture code to write, and TurboSnap keeps the bill proportional to what changed. That single fact ends most searches for component-heavy front ends.</p>
+<p>Second, do you already run Playwright or Vitest? Then <code>toHaveScreenshot</code> or <code>toMatchScreenshot</code> costs nothing and stores baselines in the repo you already review. Start there, and only leave when the binary-diff review UX genuinely hurts, not before.</p>
+<p>Third, must baselines stay inside your own infrastructure for compliance or an air gap? That rules out every hosted SaaS in one stroke and leaves reg-suit pointed at your bucket, self-hosted Argos, or BackstopJS, all MIT.</p>
+<p>Fourth, do you need cross-browser truth without maintaining browsers, and diffs a product manager can approve without a git client? That is exactly what a cloud renderer (Percy, Chromatic) or Visual AI (Applitools) sells, and the per-screenshot fee is the price of not owning the render farm or the review tooling. If none of the four bites and volume is high, a perceptual-pixel library, pixelmatch or odiff for speed, wired into your own runner is the cheapest thing that works.</p>
+<h2 id="for-a-demo-or-a-docs-asset-the-engine-is-only-half-the-check">For a demo or a docs asset, the engine is only half the check<a class="hanchor" href="#for-a-demo-or-a-docs-asset-the-engine-is-only-half-the-check" aria-label="Link to section: For a demo or a docs asset, the engine is only half the check">#</a></h2>
+<p>Every tool above guards a component in one fixed state. A demo video or a marketing screenshot is not one state; it is a path through several, and that changes what you have to watch. A moved button does not just repaint pixels, it sends a cursor clicking empty space and a voiceover narrating an action that never happened. The pixel diff catches the repaint; only a selector assertion catches the empty click. So for demo media you pair them: assert the flow still resolves (the cheap top of <a href="/blog/detecting-ui-drift/">the drift ladder</a>), then pixel-diff the frames with one of the engines here, and when either fires you regenerate the asset from its spec instead of re-shooting it, which is the whole argument of <a href="/blog/automated-product-demo-videos/">the regenerate-don&#39;t-re-record pillar</a>. The same <a href="/blog/automating-product-screenshots/">screenshot pipeline that refreshes your docs</a> is already a pixel-diff suite once it has a baseline; these tools are simply what you point it at. Our own engine, aidemo (browser-only, storyboards authored by an agent, no GUI timeline editor), covers the assertion half with a golden probe that fails when a storyboard&#39;s selectors stop resolving, and deliberately leaves the pixel half to the diff engines mapped above rather than reinventing one. Marketing frames carry their own tolerances, worked through in visual regression for marketing assets.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://github.com/mapbox/pixelmatch" rel="noopener">pixelmatch — pixel-level image comparison library (ISC)</a></li>
+<li id="src-2"><a href="https://github.com/dmtrKovalenko/odiff" rel="noopener">odiff — native image diffing tool and benchmarks (MIT)</a></li>
+<li id="src-3"><a href="https://playwright.dev/docs/test-snapshots" rel="noopener">Playwright — visual comparisons and snapshot storage (toHaveScreenshot)</a></li>
+<li id="src-4"><a href="https://vitest.dev/guide/browser/visual-regression-testing" rel="noopener">Vitest — browser-mode visual regression testing (toMatchScreenshot)</a></li>
+<li id="src-5"><a href="https://github.com/garris/BackstopJS" rel="noopener">BackstopJS — visual regression tool (MIT, Resemble.js)</a></li>
+<li id="src-6"><a href="https://github.com/reg-viz/reg-suit" rel="noopener">reg-suit — visual regression CLI with S3/GCS baseline storage (MIT)</a></li>
+<li id="src-7"><a href="https://github.com/argos-ci/argos" rel="noopener">Argos — open-source visual testing platform</a></li>
+<li id="src-8"><a href="https://argos-ci.com/pricing" rel="noopener">Argos — pricing</a></li>
+<li id="src-9"><a href="https://www.chromatic.com/pricing" rel="noopener">Chromatic — pricing and TurboSnap</a></li>
+<li id="src-10"><a href="https://www.browserstack.com/percy" rel="noopener">Percy (BrowserStack) — DOM snapshotting and free tier</a></li>
+<li id="src-11"><a href="https://www.browserstack.com/percy/features/visual-diff-modes" rel="noopener">Percy — visual diff modes</a></li>
+<li id="src-12"><a href="https://applitools.com/tutorials/concepts/best-practices/match-levels" rel="noopener">Applitools — Visual AI match levels</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-the-best-visual-regression-testing-tool" class="blog-faq-q">What is the best visual regression testing tool?<a class="hanchor" href="#what-is-the-best-visual-regression-testing-tool" aria-label="Link to section: What is the best visual regression testing tool?">#</a></h3>
+<p>There is no single best; there is a best for your two constraints. If you build in Storybook, Chromatic renders your stories with no capture code. If you already run Playwright or Vitest, their built-in screenshot matchers cost nothing and store baselines in your repo. If baselines must stay in your own infrastructure, reg-suit into your bucket or self-hosted Argos fit, and if you want cross-browser rendering with a review UI a non-engineer can drive, a cloud tool like Percy or Applitools earns its per-screenshot fee.</p>
+<h3 id="what-is-the-difference-between-percy-and-chromatic" class="blog-faq-q">What is the difference between Percy and Chromatic?<a class="hanchor" href="#what-is-the-difference-between-percy-and-chromatic" aria-label="Link to section: What is the difference between Percy and Chromatic?">#</a></h3>
+<p>Both capture in the browser and re-render on their own cloud, so neither flakes on your local font stack, and both bill per screenshot with a 5,000-a-month free tier. The split is what they render: Percy snapshots the DOM of any page in your end-to-end tests and re-renders it across browsers and widths, while Chromatic renders Storybook stories and uses TurboSnap to bill only the stories a code change touched. Percy fits page-level flows; Chromatic fits component-driven front ends.</p>
+<h3 id="does-playwright-have-built-in-visual-regression-testing" class="blog-faq-q">Does Playwright have built-in visual regression testing?<a class="hanchor" href="#does-playwright-have-built-in-visual-regression-testing" aria-label="Link to section: Does Playwright have built-in visual regression testing?">#</a></h3>
+<p>Yes. <code>expect(page).toHaveScreenshot()</code> writes a baseline PNG into a <code>&lt;test&gt;-snapshots/</code> folder on first run, diffs every later run against it with the pixelmatch library, and accepts intended changes when you pass <code>--update-snapshots</code>. Because the baselines live in your repo and the pixels come from wherever the test ran, run it in a containerized or CI environment so font rendering stays constant, or the diffs will flake across machines.</p>
+<h3 id="are-there-free-open-source-visual-regression-testing-tools" class="blog-faq-q">Are there free open-source visual regression testing tools?<a class="hanchor" href="#are-there-free-open-source-visual-regression-testing-tools" aria-label="Link to section: Are there free open-source visual regression testing tools?">#</a></h3>
+<p>Several, and they differ by where baselines live. pixelmatch (ISC) and odiff (MIT) are diff libraries you wire into your own runner; BackstopJS (MIT) keeps reference bitmaps in your repo with a local browser report; reg-suit (MIT) stores baselines in your own S3 or GCS bucket and comments the diff on the pull request; and Argos is MIT-licensed and self-hostable. All cost $0 in license; you pay only in the git space, storage, or CI minutes you already own.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">visual regression</span>
+        <span class="article-tag">screenshot testing</span>
+        <span class="article-tag">diff engine</span>
+        <span class="article-tag">ci</span>
+        <span class="article-tag">tooling</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-videos-in-ci-400.webp" srcset="/blog/images/demo-videos-in-ci-400.webp 400w, /blog/images/demo-videos-in-ci-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A GitHub Actions run log with a passing render-demo job and an attached MP4, beside the workflow YAML that triggered it"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-category-is-a-listicle-graveyard-the-diff-engine-is-the-real-axis">The category is a listicle graveyard; the diff engine is the real axis</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-engines-decide-what-different-means">Three engines decide what &quot;different&quot; means</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-the-baseline-lives-decides-your-bill-and-your-blast-radius">Where the baseline lives decides your bill and your blast radius</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-field-on-two-axes">The field on two axes</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#four-questions-that-eliminate-most-of-the-list">Four questions that eliminate most of the list</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#for-a-demo-or-a-docs-asset-the-engine-is-only-half-the-check">For a demo or a docs asset, the engine is only half the check</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
