@@ -111,6 +111,14 @@ Key facts:
   a shopping flow inside a ChatGPT app, authored by Claude
 - [CONTRIBUTING](https://github.com/tandryukha/aidemo/blob/main/CONTRIBUTING.md)
 
+## Blog
+
+- [aidemo blog](https://aidemo.top/blog/): practical, evidence-backed articles
+  on product demo videos — scripting, recording, automation, AI tooling, and
+  demos-as-code. Every article has a raw-markdown mirror at its URL + /index.md.
+- [Blog llms.txt](https://aidemo.top/blog/llms.txt): per-article markdown index
+- [Blog full corpus](https://aidemo.top/blog/llms-full.txt): every article in one file
+
 ## Install
 
 - Claude Code plugin (bundles the record-demo skill + the aidemo MCP server):

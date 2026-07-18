@@ -1,0 +1,15 @@
+{
+  "name": "aidemo-blog",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Static-site generator for the aidemo blog (https://aidemo.top/blog/)",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "bake": "node scripts/bake.mjs",
+    "preview": "python3 -m http.server 8090 --directory ../docs"
+  },
+  "dependencies": {
+    "marked": "^15.0.0"
+  }
+}

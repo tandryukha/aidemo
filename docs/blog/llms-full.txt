@@ -1,0 +1,3 @@
+# aidemo blog — full corpus
+
+> Every published article, concatenated as markdown. Per-article mirrors live at the .md URL next to each canonical URL below.

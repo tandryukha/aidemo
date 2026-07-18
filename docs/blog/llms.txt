@@ -1,0 +1,12 @@
+# aidemo blog
+
+> Practical, evidence-backed articles on product demo videos — scripting, recording, automation, AI tooling, and demos-as-code — from the team behind aidemo, the open-source engine that turns an agent-authored storyboard into a narrated, captioned demo video.
+
+Every article is available as raw markdown at the .md URLs below (the .md suffix on any article URL).
+
+## Optional
+
+- [Full corpus, one file](https://aidemo.top/blog/llms-full.txt): every article concatenated as markdown
+- [Editorial policy](https://aidemo.top/blog/editorial-policy/): how articles are researched, cited, and corrected
+- [Blog home (HTML)](https://aidemo.top/blog/)
+- [Sitemap](https://aidemo.top/blog/sitemap.xml)

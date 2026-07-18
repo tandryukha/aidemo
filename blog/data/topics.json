@@ -1,0 +1,411 @@
+{
+  "version": 1,
+  "generated": "2026-07-18",
+  "clusters": {
+    "demo-videos": {
+      "title": "Product Demo Videos",
+      "description": "How to script, narrate, caption, and pace a product demo video that people actually watch — with the numbers (length, word rates, retention) instead of vibes."
+    },
+    "demo-automation": {
+      "title": "Demo Automation",
+      "description": "Demos and screenshots that keep themselves up to date — why product media rots, and how CI can re-render it from a spec when the product changes."
+    },
+    "ai-demo-tools": {
+      "title": "Demo Tools & Alternatives",
+      "description": "The demo-tooling landscape mapped honestly: AI demo generators, screen recorders, interactive demo platforms — what each mechanism can and cannot do."
+    },
+    "demos-as-code": {
+      "title": "Demos as Code",
+      "description": "Treating the demo as a committed artifact: agent-authored storyboards, deterministic browser replay, multi-language and per-prospect renders from one recording."
+    }
+  },
+  "topics": [
+    {
+      "slug": "how-to-make-a-product-demo-video",
+      "title": "How to make a product demo video (that people finish)",
+      "cluster": "demo-videos",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["how to make a product demo video", "product demo video", "create demo video", "software demo video"],
+      "intent": "informational",
+      "angle": "The end-to-end playbook — script first, record second — with concrete budgets (words per second of narration, seconds per scene, total length by channel) and where each step can be automated instead of performed.",
+      "evidenceHooks": [
+        "Wistia video-length engagement data (wistia.com/learn)",
+        "HubSpot video marketing statistics report",
+        "W3C WCAG 2.2 captions success criteria",
+        "vendor docs for at least two recording tools, dated"
+      ],
+      "crossLinks": ["demo-video-script-template", "how-long-should-a-demo-video-be", "ai-voiceover-for-demo-videos", "automated-product-demo-videos"],
+      "wave": 1
+    },
+    {
+      "slug": "demo-video-script-template",
+      "title": "Demo video script template: problem, walkthrough, proof",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["demo video script", "demo video script template", "product demo script", "demo script example"],
+      "intent": "informational",
+      "angle": "A copy-pasteable script skeleton with per-section word budgets derived from speech rate (~2.5 words/sec English TTS and human narration), plus two worked examples — one SaaS dashboard, one dev tool.",
+      "evidenceHooks": [
+        "published speech-rate research or broadcasting style guides (words per minute)",
+        "Wistia/Vidyard guidance on demo structure, dated",
+        "a real conference-talk or launch-video transcript to dissect"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "how-long-should-a-demo-video-be", "ai-voiceover-for-demo-videos"],
+      "wave": 1
+    },
+    {
+      "slug": "how-long-should-a-demo-video-be",
+      "title": "How long should a demo video be? The retention math",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["how long should a demo video be", "demo video length", "ideal video length", "product video length"],
+      "intent": "informational",
+      "angle": "Length by placement (landing hero, README, sales follow-up, docs) anchored in published engagement curves — and why the answer is usually 'shorter than you recorded', which is an editing problem tools can solve.",
+      "evidenceHooks": [
+        "Wistia engagement-by-length data",
+        "Vidyard video benchmarks report",
+        "YouTube/LinkedIn native-video guidance, dated"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "demo-video-script-template", "professional-screen-recordings"],
+      "wave": 2
+    },
+    {
+      "slug": "ai-voiceover-for-demo-videos",
+      "title": "AI voiceover for demo videos: quality, cost, and workflow",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["ai voiceover for videos", "text to speech video narration", "tts voiceover demo", "ai narration"],
+      "intent": "informational",
+      "angle": "What current TTS actually sounds like for product narration, what it costs per finished minute (with arithmetic), where it beats recording yourself (iteration, localization, consistency) and where it still loses (emotion, brand voice).",
+      "evidenceHooks": [
+        "OpenAI TTS pricing/docs, dated",
+        "an open-weights TTS project (e.g. Kokoro) README",
+        "ElevenLabs pricing page, dated"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "demo-video-captions", "multi-language-product-demo-videos"],
+      "wave": 3,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "demo-video-captions",
+      "title": "Captions on demo videos: the accessibility case and the numbers",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["video captions best practices", "add captions to demo video", "captions accessibility", "muted autoplay captions"],
+      "intent": "informational",
+      "angle": "Most demo views start muted — captions are the difference between a view and a bounce. WCAG requirements, word-level vs block timing, open vs closed captions for embeds, and how caption generation fits an automated pipeline.",
+      "evidenceHooks": [
+        "W3C WCAG captions success criteria (1.2.2)",
+        "a published muted-autoplay / captions-usage statistic with a traceable source",
+        "Whisper (openai/whisper) paper or repo for word-level timing"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "ai-voiceover-for-demo-videos", "how-long-should-a-demo-video-be"],
+      "wave": 3
+    },
+    {
+      "slug": "professional-screen-recordings",
+      "title": "What makes a screen recording look professional",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["professional screen recording", "make screen recording look good", "screen recording zoom effects", "cinematic screen recording"],
+      "intent": "informational",
+      "angle": "Deconstruct the polish bar set by tools like Screen Studio into its mechanics — zoom-on-interaction, cursor smoothing, dead-time trimming, sizing/letterboxing — and show each one is a deterministic transform on footage, not taste.",
+      "evidenceHooks": [
+        "Screen Studio feature docs, dated",
+        "ffmpeg zoompan/crop filter docs",
+        "a published UI-motion guideline (e.g. Material motion durations)"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "screen-studio-alternatives", "how-long-should-a-demo-video-be"],
+      "wave": 4
+    },
+    {
+      "slug": "saas-demo-video-examples",
+      "title": "SaaS demo video examples: what the best ones do differently",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["saas demo video examples", "best product demo videos", "demo video examples"],
+      "intent": "informational",
+      "angle": "Close-read 6-8 publicly linkable SaaS demo videos (timestamps, structure, narration density) and extract the repeatable patterns — an analysis piece, not a mood board.",
+      "evidenceHooks": [
+        "publicly hosted demo videos that can be linked and timestamped",
+        "Wistia/Vidyard benchmark data for comparison"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "demo-video-script-template", "how-long-should-a-demo-video-be"],
+      "wave": 5
+    },
+    {
+      "slug": "automated-product-demo-videos",
+      "title": "Automated product demo videos: regenerate, don't re-record",
+      "cluster": "demo-automation",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["automated demo video", "demo video automation", "automatically generate demo video", "demo automation"],
+      "intent": "informational",
+      "angle": "The taxonomy of what 'automated' actually means across the market — AI-polished human takes, clip re-capture with propagation, synthetic compositions, and spec-driven replay of a real UI — and which failure (staleness) each one does or does not solve.",
+      "evidenceHooks": [
+        "Trainn's own 'no re-recording needed' marketing page, dated",
+        "charmbracelet/vhs README (terminal demos as code, the proven pattern)",
+        "GitHub Actions scheduled-workflow docs"
+      ],
+      "crossLinks": ["why-product-demos-go-stale", "demo-videos-in-ci", "readme-gifs-that-update-themselves", "demos-as-code"],
+      "wave": 1,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "why-product-demos-go-stale",
+      "title": "Why every product demo is out of date (and what rot costs)",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["outdated product screenshots", "keep demos up to date", "stale documentation screenshots", "demo maintenance"],
+      "intent": "informational",
+      "angle": "The pain piece: ship velocity vs media half-life. Estimate rot rates from public changelogs (UI-visible changes per month for a few well-known SaaS), tally the re-record cost, and frame regeneration-from-spec as the only mechanism that scales.",
+      "evidenceHooks": [
+        "public changelogs of 2-3 fast-shipping SaaS products (count UI-visible changes)",
+        "simonw's shot-scraper writeup on automating screenshots",
+        "Trainn marketing page naming the same pain, dated"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "demo-videos-in-ci", "automating-product-screenshots"],
+      "wave": 2
+    },
+    {
+      "slug": "demo-videos-in-ci",
+      "title": "Rendering demo videos in CI: a GitHub Actions walkthrough",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["generate video in ci", "github actions video", "demo video ci cd", "automated video pipeline"],
+      "intent": "informational",
+      "angle": "The engineering how-to: what a video-rendering CI job needs (browser, ffmpeg, fonts, headless quirks), how to trigger on product change vs cron, and how to publish the artifact (commit, release asset, stable embed URL) — tool-agnostic, with one concrete worked pipeline.",
+      "evidenceHooks": [
+        "GitHub Actions runner-image software list (what ubuntu-latest actually ships)",
+        "charmbracelet/vhs GitHub Action docs",
+        "GitHub docs on raw file URLs / release assets"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "readme-gifs-that-update-themselves", "deterministic-browser-automation-for-video"],
+      "wave": 1,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "readme-gifs-that-update-themselves",
+      "title": "README GIFs that update themselves",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["readme gif", "github readme demo gif", "animated gif readme", "readme video"],
+      "intent": "informational",
+      "angle": "The README demo GIF as a maintained artifact: size/framerate budgets GitHub actually renders well, GIF vs MP4 vs animated WebP tradeoffs, stable raw-URL embedding, and a cron-recapture loop so the GIF never lies about the product.",
+      "evidenceHooks": [
+        "GitHub docs on images in READMEs and camo caching",
+        "charmbracelet/vhs (tape files for terminal GIFs)",
+        "ffmpeg palettegen/paletteuse docs for quality GIF encoding"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "demo-videos-in-ci", "why-product-demos-go-stale"],
+      "wave": 2,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "automating-product-screenshots",
+      "title": "Automating product screenshots for docs and marketing",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["automate product screenshots", "screenshot automation docs", "automated screenshots ci"],
+      "intent": "informational",
+      "angle": "Stills are the gateway drug to demo automation: shot-scraper, Heroshot-style cron→re-capture→PR loops, screenshot golden-diffing, and when a set of named stills beats a video entirely.",
+      "evidenceHooks": [
+        "shot-scraper docs / simonwillison.net writeup",
+        "Heroshot README (cron re-capture + auto-PR workflow)",
+        "Playwright screenshot API docs"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "why-product-demos-go-stale", "demo-videos-in-ci"],
+      "wave": 4,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "ai-demo-video-generators",
+      "title": "AI demo video generators: what the label actually covers",
+      "cluster": "ai-demo-tools",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["ai demo video generator", "ai demo video", "ai video generator for software demos", "generate demo video ai"],
+      "intent": "commercial",
+      "angle": "Buyers searching this phrase get four unrelated mechanisms sold under one label: AI-polished human recordings, interactive tour builders with AI copy, synthetic text-to-video, and agent-authored replay of a real UI. Map the mechanisms to use cases so the reader can stop comparing apples to screenshots.",
+      "evidenceHooks": [
+        "vendor docs/pricing for one tool per mechanism, dated",
+        "G2 Demo Automation category page (breadth of the label)",
+        "Remotion 'agent era' positioning page"
+      ],
+      "crossLinks": ["screen-studio-alternatives", "interactive-demo-vs-video-demo", "open-source-demo-video-tools", "demos-as-code"],
+      "wave": 2,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "screen-studio-alternatives",
+      "title": "Screen Studio alternatives for Windows, Linux, and CI",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["screen studio alternatives", "screen studio windows", "screen studio linux", "screen studio alternative open source"],
+      "intent": "commercial",
+      "angle": "Screen Studio set the polish bar but is a macOS-only GUI (Windows 'in review' for years, subscription-only since late 2025). Honest per-platform alternatives table — Cap, OBS+post, Tella, aidemo (disclosed as ours), and others verified live — scored on the polish features people actually cite.",
+      "evidenceHooks": [
+        "Screen Studio pricing page and platform status, dated",
+        "Cap (cap.so) repo/docs",
+        "each listed alternative's own docs, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "professional-screen-recordings", "open-source-demo-video-tools"],
+      "wave": 1,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "open-source-demo-video-tools",
+      "title": "Open-source demo video tools, compared by mechanism",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["open source demo video", "open source screen recorder", "open source video automation", "free demo video tool"],
+      "intent": "commercial",
+      "angle": "The genuinely-open landscape: Cap (recorder), vhs (terminal tapes), Remotion's license fine print (source-available ≠ open source), Revideo, editly, aidemo — with install friction and license terms checked against the actual repos.",
+      "evidenceHooks": [
+        "Remotion license page (company license terms), dated",
+        "OSI open-source definition",
+        "each tool's repo license file, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "screen-studio-alternatives", "video-as-code-tools"],
+      "wave": 3,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "interactive-demo-vs-video-demo",
+      "title": "Interactive product demos vs video demos: when each wins",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["interactive demo vs video", "interactive product demo", "product tour vs demo video", "storylane vs video"],
+      "intent": "commercial",
+      "angle": "Tour platforms (Storylane, Navattic, Arcade) capture HTML and replay clicks; videos carry narration and ship anywhere an <img> or <video> tag works. Decision framework by funnel stage, buyer, and maintenance cost — not a vendor takedown.",
+      "evidenceHooks": [
+        "Storylane/Navattic/Arcade docs on what their captures are, dated",
+        "G2 category review-volume data",
+        "a published buyer-enablement or PLG report with traceable sourcing"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "how-to-make-a-product-demo-video", "why-product-demos-go-stale"],
+      "wave": 3
+    },
+    {
+      "slug": "demos-as-code",
+      "title": "Demos as code: commit the storyboard, render the video",
+      "cluster": "demos-as-code",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["demos as code", "demo as code", "video as code", "declarative demo video"],
+      "intent": "informational",
+      "angle": "The category-defining piece: what changes when the demo is a committed spec instead of a captured performance — diffable, reviewable, regenerable, agent-authorable. The terminal world proved it with vhs; the browser is the harder, more valuable version.",
+      "evidenceHooks": [
+        "charmbracelet/vhs README and its golden-file testing story",
+        "infrastructure-as-code literature for the analogy (e.g. HashiCorp docs)",
+        "Remotion/Revideo positioning pages (the synthetic-composition contrast)"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "coding-agents-that-make-demo-videos", "deterministic-browser-automation-for-video", "video-as-code-tools"],
+      "wave": 2,
+      "productMentionCap": 6
+    },
+    {
+      "slug": "coding-agents-that-make-demo-videos",
+      "title": "Letting a coding agent make your demo video",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["claude code demo video", "ai agent make video", "mcp video tools", "coding agent screen recording"],
+      "intent": "informational",
+      "angle": "The agent workflow in practice: the agent explores the app, writes the storyboard (script + selectors), a deterministic engine records — and why keeping the LLM out of the capture loop is the design decision that makes the output shippable.",
+      "evidenceHooks": [
+        "MCP specification docs (modelcontextprotocol.io)",
+        "Remotion Agent Skills / Revideo agent positioning, dated",
+        "Claude Code skills/plugins docs"
+      ],
+      "crossLinks": ["demos-as-code", "deterministic-browser-automation-for-video", "demo-videos-in-ci"],
+      "wave": 3,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "deterministic-browser-automation-for-video",
+      "title": "Deterministic browser automation for video capture",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["deterministic browser automation", "playwright video recording", "scripted screen recording", "browser automation flaky"],
+      "intent": "informational",
+      "angle": "What it takes to replay the same browser flow into the same footage twice: wait strategies vs sleeps, animation and clock control, viewport/DPR pinning, and why flakiness that merely annoys a test suite ruins a video.",
+      "evidenceHooks": [
+        "Playwright docs on auto-waiting and video recording",
+        "Playwright/Chromium docs on reduced motion or animation control",
+        "a published flaky-test study or engineering writeup with traceable sourcing"
+      ],
+      "crossLinks": ["demos-as-code", "demo-videos-in-ci", "coding-agents-that-make-demo-videos"],
+      "wave": 4
+    },
+    {
+      "slug": "video-as-code-tools",
+      "title": "Video-as-code tools: Remotion, Revideo, editly, vhs — and real-UI capture",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["video as code", "remotion alternative", "programmatic video generation", "video from code"],
+      "intent": "commercial",
+      "angle": "The programmatic-video landscape split by what the pixels are: synthetic compositions (Remotion, Revideo), composed pre-existing media (editly), terminal replay (vhs), and real-product capture — with licenses and install friction checked against the repos.",
+      "evidenceHooks": [
+        "Remotion license terms, dated",
+        "editly repo (native-deps build status)",
+        "vhs repo",
+        "Revideo repo"
+      ],
+      "crossLinks": ["demos-as-code", "open-source-demo-video-tools", "deterministic-browser-automation-for-video"],
+      "wave": 4,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "multi-language-product-demo-videos",
+      "title": "Multi-language product demo videos from one recording",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["localize demo video", "multi language product video", "translate demo video", "video localization"],
+      "intent": "informational",
+      "angle": "Localization economics: re-recording per locale vs re-voicing one take. TTS + caption realignment makes N locales a rendering matrix, with the caveats (UI language vs narration language, word-rate differences by language) treated honestly.",
+      "evidenceHooks": [
+        "published speech-rate-by-language data with traceable sourcing",
+        "OpenAI TTS or another multi-locale TTS vendor's language docs, dated",
+        "W3C i18n or a localization industry source on video localization cost"
+      ],
+      "crossLinks": ["demos-as-code", "ai-voiceover-for-demo-videos", "personalized-demo-videos-at-scale"],
+      "wave": 4,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "personalized-demo-videos-at-scale",
+      "title": "Personalized demo videos at scale: the template-render pattern",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["personalized demo video", "personalized sales video at scale", "demo video per prospect"],
+      "intent": "commercial",
+      "angle": "Per-prospect demo videos without per-prospect recording: parameterize the storyboard (name, data, flow), render the matrix, and the honest limits — personalization that changes the UI state vs a name overlay.",
+      "evidenceHooks": [
+        "a sales-engagement vendor's personalized-video docs, dated",
+        "published data on personalization response rates with traceable sourcing"
+      ],
+      "crossLinks": ["demos-as-code", "multi-language-product-demo-videos", "automated-product-demo-videos"],
+      "wave": 5,
+      "productMentionCap": 4
+    }
+  ]
+}
