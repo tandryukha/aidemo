@@ -224,7 +224,7 @@ The four map onto the staleness failure like this.
 
 Notice what the last column is really testing. Three of the four mechanisms treat the demo as an output: a file you produce, then own, then maintain against a product that keeps moving underneath it. The fourth treats the demo as a function of the product. Give it the spec and the current build, get the current demo. When the build changes, re-running the function is the entire update. There is no "track down the stale clips" step, because the spec does not encode a moment in time. It encodes intent, go here, click this, narrate that, and binds to whatever the product currently looks like when you run it.
 
-This is the move infrastructure-as-code made two decades ago, applied to media instead of servers. The reason vhs works is not that terminals are special. It is that a `.tape` is a spec and a terminal is deterministic, so the same tape yields the same frames every run. The browser is messier, with animations, network timing, fonts, and viewport all in play, which is why replaying a browser flow into identical footage twice is a real engineering problem and not a checkbox. But when you solve it, the demo becomes a diffable, reviewable, regenerable artifact instead of a binary someone has to babysit. That is the whole thesis of [treating demos as code](/blog/demos-as-code).
+This is the move infrastructure-as-code made two decades ago, applied to media instead of servers. The reason vhs works is not that terminals are special. It is that a `.tape` is a spec and a terminal is deterministic, so the same tape yields the same frames every run. The browser is messier, with animations, network timing, fonts, and viewport all in play, which is why [replaying a browser flow into identical footage twice](/blog/deterministic-browser-automation-for-video) is a real engineering problem and not a checkbox. But when you solve it, the demo becomes a diffable, reviewable, regenerable artifact instead of a binary someone has to babysit. That is the whole thesis of [treating demos as code](/blog/demos-as-code).
 
 ## The regeneration loop: trigger it on change, not on a whim
 
@@ -251,7 +251,7 @@ None of these four is best in general. Each is best for a specific constraint, a
 - **You want data-driven or motion-graphics video at scale, not a product walkthrough.** Synthetic composition (Remotion, Revideo) renders as many variants as you have data rows, and the fact that it never shows your live UI is a non-issue when the content was never a UI in the first place.
 - **You want a demo that stays true to a product that ships constantly, with nobody in the maintenance loop.** Spec-driven replay is the only mechanism where the update is automatic and the footage is your real UI. The cost is up front: you write and maintain a spec, and for the browser you accept an agent-authored one rather than a timeline you drag. If the demo is an asset you will keep for years, that cost amortizes to nothing. Choosing a recorder for the manual lanes is its own decision — [the Screen Studio alternatives comparison](/blog/screen-studio-alternatives) maps that market by platform — and the craft itself is covered in [how to make a product demo video](/blog/how-to-make-a-product-demo-video), with [a script template](/blog/demo-video-script-template) that gives every second of narration a word budget.
 
-The taxonomy is the point. "Automated" was never one thing, and the four things it names solve four different problems. Only one of them solves staleness, and it solves it by refusing to treat the demo as a recording at all. Automating product screenshots follows the same logic one step down: a named still re-captured from a spec beats a folder of PNGs nobody remembers to update.
+The taxonomy is the point. "Automated" was never one thing, and the four things it names solve four different problems. Only one of them solves staleness, and it solves it by refusing to treat the demo as a recording at all. [Automating product screenshots](/blog/automating-product-screenshots) follows the same logic one step down: a named still re-captured from a spec beats a folder of PNGs nobody remembers to update.
 
 ## Sources
 
@@ -1528,6 +1528,115 @@ No. The videos you record are your own output and are not a derivative work of C
 
 ---
 
+# Personalized demo videos at scale: the template-render pattern
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/personalized-demo-videos-at-scale/
+
+> A merge field with the prospect's name is not a demo that shows their data. Three depths of personalization, priced honestly for a fifty-prospect batch.
+
+## The name in the corner versus the data on the screen
+
+Two things can be true of a "personalized" demo video, and they cost about three orders of magnitude apart. One puts the prospect's name in a caption over footage that is byte-for-byte identical to what the last hundred prospects saw. The other rebuilds the pixels so the prospect watches their own account, their industry's records, the workflow their team actually runs. Between them sits a third option that rewrites the words but not the screen. Sales tooling sells all three under one label, and the label hides the only distinction a skeptical buyer cares about: whether anything on screen is actually theirs.
+
+Personalization depth is a ladder with three rungs, and every rung up buys believability and costs more to build:
+
+- **Tier 1 — name overlay.** A merge field (first name, company, a background image of their website) composited onto one generic video.
+- **Tier 2 — narration.** The same footage, a script written for one reader, spoken by a voice track generated per prospect.
+- **Tier 3 — UI state.** The demo itself shows the prospect's data, which requires the app to be seeded with prospect-relevant state before the camera rolls.
+
+The whole game at scale is knowing which rung a given outbound sequence needs. Paying for tier 3 when tier 1 would land the meeting is waste. Shipping tier 1 to a buyer who will notice the generic screen is worse than sending nothing, because now the effort is visible and it reads as faked.
+
+## Tier one: a merge field over footage everyone shares
+
+This is what the sales-video category means by "personalized video," and the mechanism is honest about itself once you read the docs. Sendspark's dynamic videos have you record one take with a placeholder: you open with "Hi Watermelon," and the word "watermelon" is swapped for each viewer's first name using a cloned copy of your voice before the video sends ([Sendspark, June 2026](https://help.sendspark.com/en/articles/8554225-dynamic-videos-make-videos-with-ai-introductions)). A second knob, the background URL, drops the prospect's homepage or LinkedIn page behind your camera bubble. Feed the API a list of contacts — contactName, company, jobTitle, backgroundUrl — and the bulk endpoint fans one recording into a batch ([Sendspark API, February 2026](https://help.sendspark.com/en/articles/9051823-api-automatically-create-dynamic-videos-via-api)).
+
+Read what does not change. The screen recording is identical across every prospect; only the spoken name and the backdrop swap. That is the tier's strength and its ceiling at once. The strength: a fifty-prospect batch is a CSV upload and a few minutes of render, near-zero marginal cost per video. The ceiling: the demo body, the part that is supposed to prove the product fits, is the same demo everyone gets. A prospect who has seen one templated video recognizes the second on sight, and the recognition undoes the point of personalizing at all.
+
+## Tier two: same pixels, a script written for one reader
+
+Tier 2 keeps the footage and rewrites the narration. Over the identical clip you say, "here is how a fintech team like yours would triage a failed payment." Because narration is text and [modern TTS renders a minute of speech for cents](/blog/ai-voiceover-for-demo-videos), fifty prospect-specific scripts cost almost nothing to voice and caption, and a language model can draft all fifty from CRM notes. In a spec-driven pipeline this is one substitution: [parameterize the storyboard's narration](/blog/demos-as-code) and re-render, without touching the recorded take.
+
+The failure mode is an audio-visual mismatch. The voice promises their world; the screen still shows the vendor's sample tenant with its stock demo data. A distracted viewer misses it. An evaluator on a buying committee, scrubbing back to check a claim, does not. Tier 2 is strongest when the narration's specificity is about the prospect and the screen is legitimately generic — an onboarding flow, a settings page, an integration that looks the same for everyone. It is weakest when the pitch is "look how this handles your data" spoken over data that is visibly not theirs.
+
+## Tier three: the demo shows their account, not yours
+
+This is the rung that changes the pixels, and the only one where "personalized" survives a close look. The demo opens on their company in the account switcher, their vertical's records in the table, the workflow their team runs. No amount of compositing or voice cloning gets you here. The frames themselves have to be captured against an app already showing the prospect's state, which forces the one prerequisite the first two tiers dodge: something has to seed that state before capture.
+
+Seeding is the real cost of tier 3, and it splits by where the demo runs. Against a sandbox or fixture you control, you can fabricate believable state per prospect — an account named for their company, sample records drawn from their industry — and drive it from parameters. Against a live product, you are either provisioning a real trial tenant per prospect or you are blocked, because you cannot and must not populate a stranger's production data to film it. Tier 3 at scale is realistic exactly when the app accepts parameters that dress the set, and infeasible when it does not.
+
+Given a seedable app, tier 3 is a [parameterized re-render](/blog/automated-product-demo-videos), not a re-shoot. Each prospect is a set of values — company name, a seeded query, an industry — pushed into a storyboard whose selectors and typed text carry placeholders. A [deterministic replay](/blog/deterministic-browser-automation-for-video) drives the seeded app and captures the take. The same pipeline that turns [one take into a wall of locales](/blog/multi-language-product-demo-videos) turns it into a wall of prospects; the only difference is which column of the CSV you feed it. And the difference from tier 2 is precisely which fields hold the placeholder: a value in a URL or a typed search term changes the recorded footage, so tier 3 re-records the take instead of only re-voicing it.
+
+Worked in our own engine (disclosed: aidemo is ours, browser-only, storyboard authored by an agent rather than dragged on a timeline, no visual editor). Declare params, reference them as placeholders, then hand the render a row per prospect:
+
+```json
+// storyboard.json (excerpt)
+{
+  "params": { "customer": "there", "query": "whey isolate under 30 euros" },
+  "scenes": [{
+    "narration": "Here is how {{customer}} would find the right SKU.",
+    "actions": [
+      { "op": "type", "target": { "selector": "#search" }, "text": "{{query}}" }
+    ]
+  }]
+}
+```
+
+```json
+// variants.json — one object per prospect
+[
+  { "name": "acme",   "params": { "customer": "Acme Corp", "query": "creatine" } },
+  { "name": "globex", "params": { "customer": "Globex",    "query": "omega 3"  } }
+]
+```
+
+`render --variants variants.json` walks the list and drops each prospect's video in its own folder. The `{{customer}}` in the narration re-voices; the `{{query}}` typed into the search box changes what the recorded screen shows. Fifty rows is fifty renders, sequential and unattended. The engineering that made this cheap already existed for localization — per-prospect is the same substitution aimed at a different field.
+
+## The arithmetic for a fifty-prospect sequence
+
+Put the tiers side by side for one outbound batch. "Build" is one-time; "per prospect" is what the fifty-first video costs.
+
+| | Tier 1: name overlay | Tier 2: narration | Tier 3: UI state |
+|---|---|---|---|
+| What changes on screen | nothing (name audio + backdrop) | nothing (words only) | the app's data, per prospect |
+| One-time build | 1 base recording | 1 recording + a param'd script | seedable app + 1 param'd storyboard |
+| Per-prospect work | a CSV row | LLM script, TTS, caption | seed values, re-record, TTS |
+| Per-prospect cost | ~$0 plus seat | cents (TTS + caption) | cents plus minutes of compute |
+| Human touch per prospect | none | read the script | check the seeded data is right |
+| Believability | low: generic demo, real name | medium: real story, stock screen | high: their data on screen |
+| Breaks when | buyer has seen a templated video | the pitch is "your data," screen isn't | app can't be seeded, or data is wrong |
+
+The table makes one thing obvious: cost per prospect is low at every tier once the build exists. What moves is the build, and the believability it buys. Tiers 1 and 2 are nearly free to produce and cap out at "convincing until examined." Tier 3 front-loads real engineering — a seedable environment and clean prospect data — and in exchange produces the only video that survives an evaluator pausing on a frame. Choose the tier by how skeptical the audience is and how much of the pitch rides on "this is *your* situation," not by what the tooling makes easy to ship.
+
+## What the response-rate numbers actually measured
+
+The stats that sell personalized video are worth reading with the source in view. Vidyard reports that over 70% of reps who use custom-recorded video say it beats text at producing opens, clicks, and responses — from a survey of 600-plus sales leaders run by Demand Metric and published by Vidyard, whose product is the thing being surveyed ([Vidyard/Demand Metric, September 2021](https://www.vidyard.com/press-releases/sales-teams-using-video-increase-response-rates/)). The widely repeated "8x click-through, 4x reply" figure traces to a single Vidyard customer case study ([Vidyard, July 2023](https://www.vidyard.com/blog/personalized-video/)). None of these are fraudulent, but all are vendor-published, and all measure the presence of a personal video in an email against plain text. They say nothing about whether tier-3 seeded UI beats a tier-1 name overlay, because the vendors publishing the numbers sell the shallow tier. The honest read: a personal video plausibly lifts replies over a text-only email, and the depth-versus-response question has no clean public data at all.
+
+Depth can also overshoot. In a controlled 2025 study, once privacy concern was made salient, the most aggressive personalization — a first name plus purchase history — performed no better than a generic control and worse than moderate, contextual personalization ([Kim & Han, Behavioral Sciences, 2025](https://pmc.ncbi.nlm.nih.gov/articles/PMC12561546/)). Wrong data is worse than none: a video that confidently addresses the prospect's competitor, or seeds the demo with a vertical they left two jobs ago, converts effort into an insult. Tier 3's believability is a direct function of data accuracy, and accuracy is the property a fifty-row CSV is least likely to guarantee. Personalize as deep as your data is clean, and no deeper.
+
+## Sources
+
+- [Sendspark — Dynamic videos: make videos with AI introductions (voice-cloned name, dynamic background)](https://help.sendspark.com/en/articles/8554225-dynamic-videos-make-videos-with-ai-introductions)
+- [Sendspark — API: automatically create dynamic videos (contactName/company/jobTitle/backgroundUrl, bulk)](https://help.sendspark.com/en/articles/9051823-api-automatically-create-dynamic-videos-via-api)
+- [Vidyard / Demand Metric — Sales teams using video see higher response rates (State of Virtual Selling, 2021)](https://www.vidyard.com/press-releases/sales-teams-using-video-increase-response-rates/)
+- [Vidyard — Personalized video: everything you need to know (Superside 8x/4x case study)](https://www.vidyard.com/blog/personalized-video/)
+- [Kim & Han — Triggering the personalization backfire effect (Behavioral Sciences, 2025)](https://pmc.ncbi.nlm.nih.gov/articles/PMC12561546/)
+
+## FAQ
+
+### Can I personalize a demo video for every prospect without re-recording each one?
+
+Yes for the shallow tiers, with a caveat for the deep one. A name overlay and a per-prospect narration both reuse one base recording, so fifty prospects is one take plus fifty merges or fifty re-voiced tracks. Showing each prospect their own data on screen is different: the footage has to be captured against an app already seeded with their state, so the "recording" becomes an automated, parameterized re-render rather than a person redoing the take. You avoid the manual reshoot, not the render.
+
+### Do personalized sales videos actually get higher reply rates?
+
+The published lifts are real but narrow. Vendor surveys and case studies report that reps who add a custom video to an email see better open and reply rates than text-only outreach, and those numbers come from the video vendors themselves, measuring video-versus-text rather than one depth of personalization against another. There is no clean public data showing that a demo seeded with the prospect's data beats a name in the corner, and a separate 2025 study found aggressive personalization can backfire once a buyer's privacy antennae are up.
+
+### What does it take to show each prospect their own data in the demo?
+
+Two things the shallower tiers skip: an app that can be seeded with prospect-relevant state, and accurate data to seed it with. If you drive a sandbox you control, you can generate believable per-prospect state (their company name, records from their industry) and parameterize the storyboard so a selector, a typed query, or a URL carries the placeholder. Then a deterministic replay records each variant unattended. Against a live product you cannot fill with a stranger's real data, this tier is usually not feasible, and a wrong guess costs you more than a generic demo would.
+
+---
+
 # What makes a screen recording look professional
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/professional-screen-recordings/
@@ -1743,6 +1852,89 @@ Not from a file you commit. A `<video>` tag pointing at a `raw.githubusercontent
 ### Why does my updated README GIF still show the old version?
 
 GitHub serves README images through its Camo proxy, which caches them, so a freshly pushed GIF can lag behind the file in the repo. If you commit the GIF at a fixed path the raw URL is stable and normally updates within minutes because committed files carry short cache lifetimes. When it sticks, the fix GitHub documents is to have the image origin send `Cache-Control: no-cache` and, as a last resort, to purge the Camo cache for that URL manually.
+
+---
+
+# SaaS demo video examples: what the best ones do differently
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/saas-demo-video-examples/
+
+> Six real SaaS demo videos from Vercel, Notion, Loom, Linear, Warp, and Retool, read with a stopwatch and a transcript instead of a mood board.
+
+## What the tape shows when you time six SaaS demos
+
+Most writing about demo videos is done from the author's chair. This is done from the stopwatch. I pulled the published caption tracks for six product videos from vendors of very different sizes, counted the words, marked the timestamps, and read each one the way you would read a transcript for a deposition: what is actually on screen, second by second, rather than what the vendor hoped you would feel. All six are public and linkable, so every claim below is one you can check against the tape.
+
+The set runs from a 48-second launch montage by Vercel to a four-minute onboarding tour by Linear, with Loom, Notion, Warp, and Retool in between. Here is the whole comparison in one place, because the patterns only surface once the numbers are lined up.
+
+| Video (vendor) | Length | First ~10 seconds | Structure | Narration (words/sec) | The one technique to steal |
+|---|---|---|---|---|---|
+| Vercel, "Introducing v0" | 0:48 | Product output, music, no voice | Montage, no voiceover | 0 | Let the artifact the product generates be the whole pitch |
+| Loom, "Work Faster with Loom AI" | 0:38 | "Loom AI makes it even easier" | Claim, feature family, CTA | ~2.3 | Name every capability with its payoff attached |
+| Notion, "What is Notion?" | 1:27 | "It's not an AI chatbot. Not a task tracker." | Negation, anaphora anthem, bookend | ~1.5 | Reframe a crowded category by what you are not |
+| Warp, "Introducing Warp 2.0" | 2:27 | "I'm Zach, the founder... 2.0 has four parts" | Founder, numbered agenda, proof, reframe | ~2.1 | Announce a numbered agenda before the demo |
+| Retool, "Getting Started" | 3:04 | "...let me introduce you. Hi, I'm Andre" | Presenter, formula, panel tour, CTA | ~2.7 | State the workflow as a three-step formula first |
+| Linear, "Intro to Linear" | 4:01 | "Welcome to Linear. This is an introduction" | Two claims, then object model bottom-up | ~2.7 | Teach the object model from the smallest unit up |
+
+Two things jump out before we read any single video closely. The narration density spreads across nearly a 3x range, from Notion's roughly 1.5 words a second to Retool's 2.7, and that one number tells you what kind of video you are watching. And not one of the six opens the way every script guide says to.
+
+## The openers: nobody leads with the problem
+
+The [problem, walkthrough, proof script template](/blog/demo-video-script-template) is close to gospel: open on the pain, then show the product as the relief. It is good advice. It is also advice that none of these six vendors took, at least not literally.
+
+Watch the first ten seconds of each. Vercel's v0 launch opens on the product's own output with music up and no voice at all ([Vercel, 2023](https://www.youtube.com/watch?v=By9wCB9IZp0)). Loom opens on a flat claim, "Loom makes communicating easy. The magic of Loom AI makes it even easier" ([Loom, 2024](https://www.youtube.com/watch?v=Jxa8L0EV9F0)). Retool opens on a person, "let me introduce you to the future. Hi, my name is Andre... a developer advocate here at Retool" ([Retool, 2025](https://www.youtube.com/watch?v=0a-KWd66eNU)). Warp opens on a founder and an agenda, "I'm Zach, the founder and CEO of Warp... Warp 2.0 has four parts" ([Warp, 2025](https://www.youtube.com/watch?v=k9BRhSbVSpI)). Linear opens on orientation, "Hi, and welcome to Linear. This video will give you an introduction to what Linear is" ([Linear, 2025](https://www.youtube.com/watch?v=9Q5BoiIFBiY)). Only Notion gestures at a problem, and it does it by negation: "It's not an AI chatbot. It's not a task tracker. And Notion is definitely not a note-taking app" ([Notion, 2026](https://www.youtube.com/watch?v=3HLMH9t1Q-g)).
+
+So the rule survives, but compressed. The problem is almost never a scene of a frustrated worker drowning in browser tabs; it is one line, or an implied contrast, or a category the product refuses to be filed under. The lesson is not that the template is wrong. It is that on a muted feed you have about three seconds, and a problem scene spends them picturing something the viewer already knows. The shipped canon opens on the product, the claim, or the reframe, and lets the problem live in a single sentence. The [end-to-end playbook](/blog/how-to-make-a-product-demo-video) makes the same case for opening on the product mid-action, and these six are the working proof.
+
+## Narration density is a genre signal
+
+Word rate is the most honest single number in a demo, because it is not a matter of taste. Count the words in the caption track, divide by the runtime, and the genre falls out on its own.
+
+Notion's "What is Notion?" runs about 1.5 words a second: a brand anthem built on anaphora ("Where every meeting... Where every project...") with long musical rests doing the emotional work. Vercel's v0 sits at the floor, zero, a pure montage with no spoken track at all. In the middle, Loom's feature reel runs about 2.3, tight but still breathing. At the top, both Retool and Linear run near 2.7 words a second, essentially wall to wall for three and four minutes respectively.
+
+That top number is worth flagging, because most demo scripts budget around 2.5 words per second on the theory that the viewer is also reading the screen, and [the pillar works that arithmetic out](/blog/how-to-make-a-product-demo-video). Retool and Linear sit above that line for their entire runtime. It works for them because both are onboarding videos watched by someone who chose to be there, not hero loops fighting a scroll. Put that density on a landing page and it reads as anxious. The practical tell is simple: if your words per second climbs past 2.5 and the video is meant for the top of the funnel, you are writing a tutorial and calling it an ad. The two shortest videos here, Loom at 0:38 and v0 at 0:48, sit exactly where completion stays highest, since 65% of viewers finish a business video under a minute against 20% for one over twenty minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)); [length by placement](/blog/how-long-should-a-demo-video-be) covers that curve in full.
+
+## The techniques that travel across all six
+
+The single best move in the set appears twice, which is how you know it is a move and not a fluke: state the agenda as a map before the demo begins. Warp says "2.0 has four parts" and then delivers exactly four. Retool says a build is "a resource, then a query, then connect the UI to data" before touching a single control. Both hand the viewer a schema to hang everything on, which is why a dense walkthrough stays navigable instead of collapsing into a blur of clicks.
+
+Three more are worth lifting outright:
+
+- **Reframe by negation.** Notion opens by saying what it is not, and Warp closes the same way ("It's not a terminal. It's not an IDE"). In a crowded category, telling the viewer which mental box to throw out is faster than describing the one you want them to use.
+- **Name the payoff, not the feature.** Loom does not say "auto-generated chapters," it says the chapters save you time, and every capability is stated with its benefit attached. That is how it fits a whole feature family, titles, summaries, chapters, action items, filler-word removal, into 38 seconds and still lands a call to action.
+- **Build the object model from the bottom up.** Linear introduces its product as a ladder, from the smallest unit to the largest: an issue, then a project, then an initiative. For any product with nested objects, teaching the hierarchy outlasts touring the screens, because the screens get restyled and the model does not.
+
+## Polished is not the same as maintainable
+
+Now the honest part, the one a gallery of "10 inspiring demos" never mentions: several of these videos are beautiful and nearly impossible to keep current.
+
+The two brand films, Notion's anthem and Vercel's montage, are the most polished and the least reusable. They carry no voiceover you can re-record for a new locale, they say almost nothing with the sound off unless someone burns captions into the pixels, and they date the instant the positioning or a UI restyle moves. Notion's is literally the March 2026 AI-forward recut of a video the company has remade more than once. The two presenter-led walkthroughs, Retool and Warp, have the opposite exposure: a face on camera means you reshoot the human, not just the screen, when the product changes. Only Linear's is a straight real-UI walkthrough where, in principle, the footage could be regenerated from the same script without anyone stepping in front of a lens.
+
+That maintainability axis is the one to optimize for if the demo will ship more than once, and it is the argument for treating the video as something you [regenerate rather than re-record when the product moves](/blog/why-product-demos-go-stale). A real-UI replay approach is the bet behind aidemo, our own engine: the demo is a storyboard a coding agent writes and a real browser replays, so a UI change is a re-render instead of a reshoot. It is browser-only and has no GUI timeline, a poor trade for a one-off brand film and a good one for a walkthrough you will retarget five times. The polish itself, the zooms and the trims, is [a mechanical transform either way](/blog/professional-screen-recordings). What separates the six above is not talent. It is whether the second version costs a diff or a shoot.
+
+## Sources
+
+- [Vercel — Introducing v0: Generative UI (YouTube, 0:48)](https://www.youtube.com/watch?v=By9wCB9IZp0)
+- [Loom — Work Faster and Smarter with Loom AI (YouTube, 0:38)](https://www.youtube.com/watch?v=Jxa8L0EV9F0)
+- [Notion — What is Notion? (YouTube, 1:27)](https://www.youtube.com/watch?v=3HLMH9t1Q-g)
+- [Warp — Introducing Warp 2.0: The Agentic Development Environment (YouTube, 2:27)](https://www.youtube.com/watch?v=k9BRhSbVSpI)
+- [Retool — Getting Started with Retool: Full Platform Walkthrough (YouTube, 3:04)](https://www.youtube.com/watch?v=0a-KWd66eNU)
+- [Linear — Intro to Linear (YouTube, 4:01)](https://www.youtube.com/watch?v=9Q5BoiIFBiY)
+- [Vidyard — Video in Business Benchmark Report (2025 edition)](https://www.vidyard.com/business-video-benchmarks/)
+
+## FAQ
+
+### What makes a SaaS demo video effective?
+
+Across the six vendor demos read here, the effective ones share a map and a length that fits the placement, not a big budget. They give the viewer a structure in the first ten seconds, a numbered agenda, a three-step formula, or a category reframe, then name payoffs rather than features and keep the words per second matched to where the video lives. A 38-second feature reel and a four-minute onboarding tour are both effective, for different jobs.
+
+### Should a demo video open with the problem or the product?
+
+Open on the product or a one-line reframe, not a staged problem scene. None of the six demos analyzed here opens on a dramatized pain point; they open on product output, a claim, a presenter, an agenda, or a negation, and let the problem live in a single sentence. On a muted feed the first three seconds decide whether anyone stays, and a problem montage spends them on something the viewer already knows.
+
+### Do SaaS demo videos need a voiceover, or can music carry them?
+
+Both ship, but they solve different problems. Vercel's 48-second v0 launch runs on music with no voiceover, which looks striking but cannot be re-voiced for another language and says nothing with the sound off unless captions are burned in. A voiceover, human or synthetic, is what lets you localize and caption the same footage, so if the demo has to travel across markets, script the words.
 
 ---
 

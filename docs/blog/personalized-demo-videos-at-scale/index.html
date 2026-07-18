@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personalized demo videos at scale | aidemo</title>
+<meta name="description" content="Personalized demo videos come in three depths: a name overlay, a per-prospect script, or a re-render that shows the prospect's own data. The cost math for 50.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/personalized-demo-videos-at-scale/">
+<link rel="alternate" type="text/markdown" href="/blog/personalized-demo-videos-at-scale/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Personalized demo videos at scale | aidemo">
+<meta property="og:description" content="Personalized demo videos come in three depths: a name overlay, a per-prospect script, or a re-render that shows the prospect's own data. The cost math for 50.">
+<meta property="og:url" content="https://aidemo.top/blog/personalized-demo-videos-at-scale/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Personalized demo videos at scale | aidemo">
+<meta name="twitter:description" content="Personalized demo videos come in three depths: a name overlay, a per-prospect script, or a re-render that shows the prospect's own data. The cost math for 50.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Personalized demo videos at scale: the template-render pattern",
+  "description": "Personalized demo videos come in three depths: a name overlay, a per-prospect script, or a re-render that shows the prospect's own data. The cost math for 50.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/personalized-demo-videos-at-scale/"
+  },
+  "wordCount": 2108,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Sendspark — Dynamic videos: make videos with AI introductions (voice-cloned name, dynamic background)",
+      "url": "https://help.sendspark.com/en/articles/8554225-dynamic-videos-make-videos-with-ai-introductions"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Sendspark — API: automatically create dynamic videos (contactName/company/jobTitle/backgroundUrl, bulk)",
+      "url": "https://help.sendspark.com/en/articles/9051823-api-automatically-create-dynamic-videos-via-api"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vidyard / Demand Metric — Sales teams using video see higher response rates (State of Virtual Selling, 2021)",
+      "url": "https://www.vidyard.com/press-releases/sales-teams-using-video-increase-response-rates/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vidyard — Personalized video: everything you need to know (Superside 8x/4x case study)",
+      "url": "https://www.vidyard.com/blog/personalized-video/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Kim & Han — Triggering the personalization backfire effect (Behavioral Sciences, 2025)",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12561546/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Personalized demo videos at scale: the template-render pattern",
+      "item": "https://aidemo.top/blog/personalized-demo-videos-at-scale/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I personalize a demo video for every prospect without re-recording each one?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for the shallow tiers, with a caveat for the deep one. A name overlay and a per-prospect narration both reuse one base recording, so fifty prospects is one take plus fifty merges or fifty re-voiced tracks. Showing each prospect their own data on screen is different: the footage has to be captured against an app already seeded with their state, so the \"recording\" becomes an automated, parameterized re-render rather than a person redoing the take. You avoid the manual reshoot, not the render."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do personalized sales videos actually get higher reply rates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The published lifts are real but narrow. Vendor surveys and case studies report that reps who add a custom video to an email see better open and reply rates than text-only outreach, and those numbers come from the video vendors themselves, measuring video-versus-text rather than one depth of personalization against another. There is no clean public data showing that a demo seeded with the prospect's data beats a name in the corner, and a separate 2025 study found aggressive personalization can backfire once a buyer's privacy antennae are up."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does it take to show each prospect their own data in the demo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two things the shallower tiers skip: an app that can be seeded with prospect-relevant state, and accurate data to seed it with. If you drive a sandbox you control, you can generate believable per-prospect state (their company name, records from their industry) and parameterize the storyboard so a selector, a typed query, or a URL carries the placeholder. Then a deterministic replay records each variant unattended. Against a live product you cannot fill with a stranger's real data, this tier is usually not feasible, and a wrong guess costs you more than a generic demo would."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Personalized demo videos at scale: the template-render pattern</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Personalized demo videos at scale: the template-render pattern</h1>
+        <p class="article-dek">A merge field with the prospect's name is not a demo that shows their data. Three depths of personalization, priced honestly for a fifty-prospect batch.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-name-in-the-corner-versus-the-data-on-the-screen">The name in the corner versus the data on the screen</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#tier-one-a-merge-field-over-footage-everyone-shares">Tier one: a merge field over footage everyone shares</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#tier-two-same-pixels-a-script-written-for-one-reader">Tier two: same pixels, a script written for one reader</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#tier-three-the-demo-shows-their-account-not-yours">Tier three: the demo shows their account, not yours</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-arithmetic-for-a-fifty-prospect-sequence">The arithmetic for a fifty-prospect sequence</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-the-response-rate-numbers-actually-measured">What the response-rate numbers actually measured</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Three depths: name overlay (footage identical, only name audio and background swap), narration (re-voice per prospect for cents), UI-state (re-render an app seeded to their data).</li>
+    <li>Only tier 3 changes the pixels; tiers 1-2 wrap generic footage, so a buyer who scrubs back sees the seam between a 'your workflow' voiceover and everyone-else's screen.</li>
+    <li>For 50 prospects the per-prospect cost is low at every tier; what moves is the one-time build, and tier 3's build is a seedable app plus clean data, not video work.</li>
+    <li>Response-rate lifts (Vidyard/Demand Metric: 70%+ say video beats text; a case-study 8x CTR / 4x reply) are vendor-published and measure video-vs-text, not seeded UI vs a name.</li>
+    <li>Over-personalization can backfire: once privacy concern is salient, name-plus-history personalization matched a generic control (Behavioral Sciences, 2025); wrong data is worse than none.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-name-in-the-corner-versus-the-data-on-the-screen">The name in the corner versus the data on the screen<a class="hanchor" href="#the-name-in-the-corner-versus-the-data-on-the-screen" aria-label="Link to section: The name in the corner versus the data on the screen">#</a></h2>
+<p>Two things can be true of a &quot;personalized&quot; demo video, and they cost about three orders of magnitude apart. One puts the prospect&#39;s name in a caption over footage that is byte-for-byte identical to what the last hundred prospects saw. The other rebuilds the pixels so the prospect watches their own account, their industry&#39;s records, the workflow their team actually runs. Between them sits a third option that rewrites the words but not the screen. Sales tooling sells all three under one label, and the label hides the only distinction a skeptical buyer cares about: whether anything on screen is actually theirs.</p>
+<p>Personalization depth is a ladder with three rungs, and every rung up buys believability and costs more to build:</p>
+<ul>
+<li><strong>Tier 1 — name overlay.</strong> A merge field (first name, company, a background image of their website) composited onto one generic video.</li>
+<li><strong>Tier 2 — narration.</strong> The same footage, a script written for one reader, spoken by a voice track generated per prospect.</li>
+<li><strong>Tier 3 — UI state.</strong> The demo itself shows the prospect&#39;s data, which requires the app to be seeded with prospect-relevant state before the camera rolls.</li>
+</ul>
+<p>The whole game at scale is knowing which rung a given outbound sequence needs. Paying for tier 3 when tier 1 would land the meeting is waste. Shipping tier 1 to a buyer who will notice the generic screen is worse than sending nothing, because now the effort is visible and it reads as faked.</p>
+<h2 id="tier-one-a-merge-field-over-footage-everyone-shares">Tier one: a merge field over footage everyone shares<a class="hanchor" href="#tier-one-a-merge-field-over-footage-everyone-shares" aria-label="Link to section: Tier one: a merge field over footage everyone shares">#</a></h2>
+<p>This is what the sales-video category means by &quot;personalized video,&quot; and the mechanism is honest about itself once you read the docs. Sendspark&#39;s dynamic videos have you record one take with a placeholder: you open with &quot;Hi Watermelon,&quot; and the word &quot;watermelon&quot; is swapped for each viewer&#39;s first name using a cloned copy of your voice before the video sends<sup class="article-cite"><a href="#src-1" title="Sendspark — Dynamic videos: make videos with AI introductions (voice-cloned name, dynamic background)">1</a></sup>. A second knob, the background URL, drops the prospect&#39;s homepage or LinkedIn page behind your camera bubble. Feed the API a list of contacts — contactName, company, jobTitle, backgroundUrl — and the bulk endpoint fans one recording into a batch<sup class="article-cite"><a href="#src-2" title="Sendspark — API: automatically create dynamic videos (contactName/company/jobTitle/backgroundUrl, bulk)">2</a></sup>.</p>
+<p>Read what does not change. The screen recording is identical across every prospect; only the spoken name and the backdrop swap. That is the tier&#39;s strength and its ceiling at once. The strength: a fifty-prospect batch is a CSV upload and a few minutes of render, near-zero marginal cost per video. The ceiling: the demo body, the part that is supposed to prove the product fits, is the same demo everyone gets. A prospect who has seen one templated video recognizes the second on sight, and the recognition undoes the point of personalizing at all.</p>
+<h2 id="tier-two-same-pixels-a-script-written-for-one-reader">Tier two: same pixels, a script written for one reader<a class="hanchor" href="#tier-two-same-pixels-a-script-written-for-one-reader" aria-label="Link to section: Tier two: same pixels, a script written for one reader">#</a></h2>
+<p>Tier 2 keeps the footage and rewrites the narration. Over the identical clip you say, &quot;here is how a fintech team like yours would triage a failed payment.&quot; Because narration is text and <a href="/blog/ai-voiceover-for-demo-videos/">modern TTS renders a minute of speech for cents</a>, fifty prospect-specific scripts cost almost nothing to voice and caption, and a language model can draft all fifty from CRM notes. In a spec-driven pipeline this is one substitution: <a href="/blog/demos-as-code/">parameterize the storyboard&#39;s narration</a> and re-render, without touching the recorded take.</p>
+<p>The failure mode is an audio-visual mismatch. The voice promises their world; the screen still shows the vendor&#39;s sample tenant with its stock demo data. A distracted viewer misses it. An evaluator on a buying committee, scrubbing back to check a claim, does not. Tier 2 is strongest when the narration&#39;s specificity is about the prospect and the screen is legitimately generic — an onboarding flow, a settings page, an integration that looks the same for everyone. It is weakest when the pitch is &quot;look how this handles your data&quot; spoken over data that is visibly not theirs.</p>
+<h2 id="tier-three-the-demo-shows-their-account-not-yours">Tier three: the demo shows their account, not yours<a class="hanchor" href="#tier-three-the-demo-shows-their-account-not-yours" aria-label="Link to section: Tier three: the demo shows their account, not yours">#</a></h2>
+<p>This is the rung that changes the pixels, and the only one where &quot;personalized&quot; survives a close look. The demo opens on their company in the account switcher, their vertical&#39;s records in the table, the workflow their team runs. No amount of compositing or voice cloning gets you here. The frames themselves have to be captured against an app already showing the prospect&#39;s state, which forces the one prerequisite the first two tiers dodge: something has to seed that state before capture.</p>
+<p>Seeding is the real cost of tier 3, and it splits by where the demo runs. Against a sandbox or fixture you control, you can fabricate believable state per prospect — an account named for their company, sample records drawn from their industry — and drive it from parameters. Against a live product, you are either provisioning a real trial tenant per prospect or you are blocked, because you cannot and must not populate a stranger&#39;s production data to film it. Tier 3 at scale is realistic exactly when the app accepts parameters that dress the set, and infeasible when it does not.</p>
+<p>Given a seedable app, tier 3 is a <a href="/blog/automated-product-demo-videos/">parameterized re-render</a>, not a re-shoot. Each prospect is a set of values — company name, a seeded query, an industry — pushed into a storyboard whose selectors and typed text carry placeholders. A <a href="/blog/deterministic-browser-automation-for-video/">deterministic replay</a> drives the seeded app and captures the take. The same pipeline that turns <a href="/blog/multi-language-product-demo-videos/">one take into a wall of locales</a> turns it into a wall of prospects; the only difference is which column of the CSV you feed it. And the difference from tier 2 is precisely which fields hold the placeholder: a value in a URL or a typed search term changes the recorded footage, so tier 3 re-records the take instead of only re-voicing it.</p>
+<p>Worked in our own engine (disclosed: aidemo is ours, browser-only, storyboard authored by an agent rather than dragged on a timeline, no visual editor). Declare params, reference them as placeholders, then hand the render a row per prospect:</p>
+<pre><code class="language-json">// storyboard.json (excerpt)
+{
+  &quot;params&quot;: { &quot;customer&quot;: &quot;there&quot;, &quot;query&quot;: &quot;whey isolate under 30 euros&quot; },
+  &quot;scenes&quot;: [{
+    &quot;narration&quot;: &quot;Here is how {{customer}} would find the right SKU.&quot;,
+    &quot;actions&quot;: [
+      { &quot;op&quot;: &quot;type&quot;, &quot;target&quot;: { &quot;selector&quot;: &quot;#search&quot; }, &quot;text&quot;: &quot;{{query}}&quot; }
+    ]
+  }]
+}
+</code></pre>
+<pre><code class="language-json">// variants.json — one object per prospect
+[
+  { &quot;name&quot;: &quot;acme&quot;,   &quot;params&quot;: { &quot;customer&quot;: &quot;Acme Corp&quot;, &quot;query&quot;: &quot;creatine&quot; } },
+  { &quot;name&quot;: &quot;globex&quot;, &quot;params&quot;: { &quot;customer&quot;: &quot;Globex&quot;,    &quot;query&quot;: &quot;omega 3&quot;  } }
+]
+</code></pre>
+<p><code>render --variants variants.json</code> walks the list and drops each prospect&#39;s video in its own folder. The <code>{{customer}}</code> in the narration re-voices; the <code>{{query}}</code> typed into the search box changes what the recorded screen shows. Fifty rows is fifty renders, sequential and unattended. The engineering that made this cheap already existed for localization — per-prospect is the same substitution aimed at a different field.</p>
+<h2 id="the-arithmetic-for-a-fifty-prospect-sequence">The arithmetic for a fifty-prospect sequence<a class="hanchor" href="#the-arithmetic-for-a-fifty-prospect-sequence" aria-label="Link to section: The arithmetic for a fifty-prospect sequence">#</a></h2>
+<p>Put the tiers side by side for one outbound batch. &quot;Build&quot; is one-time; &quot;per prospect&quot; is what the fifty-first video costs.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Tier 1: name overlay</th>
+<th>Tier 2: narration</th>
+<th>Tier 3: UI state</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>What changes on screen</td>
+<td>nothing (name audio + backdrop)</td>
+<td>nothing (words only)</td>
+<td>the app&#39;s data, per prospect</td>
+</tr>
+<tr>
+<td>One-time build</td>
+<td>1 base recording</td>
+<td>1 recording + a param&#39;d script</td>
+<td>seedable app + 1 param&#39;d storyboard</td>
+</tr>
+<tr>
+<td>Per-prospect work</td>
+<td>a CSV row</td>
+<td>LLM script, TTS, caption</td>
+<td>seed values, re-record, TTS</td>
+</tr>
+<tr>
+<td>Per-prospect cost</td>
+<td>~$0 plus seat</td>
+<td>cents (TTS + caption)</td>
+<td>cents plus minutes of compute</td>
+</tr>
+<tr>
+<td>Human touch per prospect</td>
+<td>none</td>
+<td>read the script</td>
+<td>check the seeded data is right</td>
+</tr>
+<tr>
+<td>Believability</td>
+<td>low: generic demo, real name</td>
+<td>medium: real story, stock screen</td>
+<td>high: their data on screen</td>
+</tr>
+<tr>
+<td>Breaks when</td>
+<td>buyer has seen a templated video</td>
+<td>the pitch is &quot;your data,&quot; screen isn&#39;t</td>
+<td>app can&#39;t be seeded, or data is wrong</td>
+</tr>
+</tbody></table></div>
+<p>The table makes one thing obvious: cost per prospect is low at every tier once the build exists. What moves is the build, and the believability it buys. Tiers 1 and 2 are nearly free to produce and cap out at &quot;convincing until examined.&quot; Tier 3 front-loads real engineering — a seedable environment and clean prospect data — and in exchange produces the only video that survives an evaluator pausing on a frame. Choose the tier by how skeptical the audience is and how much of the pitch rides on &quot;this is <em>your</em> situation,&quot; not by what the tooling makes easy to ship.</p>
+<h2 id="what-the-response-rate-numbers-actually-measured">What the response-rate numbers actually measured<a class="hanchor" href="#what-the-response-rate-numbers-actually-measured" aria-label="Link to section: What the response-rate numbers actually measured">#</a></h2>
+<p>The stats that sell personalized video are worth reading with the source in view. Vidyard reports that over 70% of reps who use custom-recorded video say it beats text at producing opens, clicks, and responses — from a survey of 600-plus sales leaders run by Demand Metric and published by Vidyard, whose product is the thing being surveyed<sup class="article-cite"><a href="#src-3" title="Vidyard / Demand Metric — Sales teams using video see higher response rates (State of Virtual Selling, 2021)">3</a></sup>. The widely repeated &quot;8x click-through, 4x reply&quot; figure traces to a single Vidyard customer case study<sup class="article-cite"><a href="#src-4" title="Vidyard — Personalized video: everything you need to know (Superside 8x/4x case study)">4</a></sup>. None of these are fraudulent, but all are vendor-published, and all measure the presence of a personal video in an email against plain text. They say nothing about whether tier-3 seeded UI beats a tier-1 name overlay, because the vendors publishing the numbers sell the shallow tier. The honest read: a personal video plausibly lifts replies over a text-only email, and the depth-versus-response question has no clean public data at all.</p>
+<p>Depth can also overshoot. In a controlled 2025 study, once privacy concern was made salient, the most aggressive personalization — a first name plus purchase history — performed no better than a generic control and worse than moderate, contextual personalization<sup class="article-cite"><a href="#src-5" title="Kim &amp; Han — Triggering the personalization backfire effect (Behavioral Sciences, 2025)">5</a></sup>. Wrong data is worse than none: a video that confidently addresses the prospect&#39;s competitor, or seeds the demo with a vertical they left two jobs ago, converts effort into an insult. Tier 3&#39;s believability is a direct function of data accuracy, and accuracy is the property a fifty-row CSV is least likely to guarantee. Personalize as deep as your data is clean, and no deeper.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://help.sendspark.com/en/articles/8554225-dynamic-videos-make-videos-with-ai-introductions" rel="noopener">Sendspark — Dynamic videos: make videos with AI introductions (voice-cloned name, dynamic background)</a></li>
+<li id="src-2"><a href="https://help.sendspark.com/en/articles/9051823-api-automatically-create-dynamic-videos-via-api" rel="noopener">Sendspark — API: automatically create dynamic videos (contactName/company/jobTitle/backgroundUrl, bulk)</a></li>
+<li id="src-3"><a href="https://www.vidyard.com/press-releases/sales-teams-using-video-increase-response-rates/" rel="noopener">Vidyard / Demand Metric — Sales teams using video see higher response rates (State of Virtual Selling, 2021)</a></li>
+<li id="src-4"><a href="https://www.vidyard.com/blog/personalized-video/" rel="noopener">Vidyard — Personalized video: everything you need to know (Superside 8x/4x case study)</a></li>
+<li id="src-5"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12561546/" rel="noopener">Kim &amp; Han — Triggering the personalization backfire effect (Behavioral Sciences, 2025)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="can-i-personalize-a-demo-video-for-every-prospect-without-re-recording-each-one" class="blog-faq-q">Can I personalize a demo video for every prospect without re-recording each one?<a class="hanchor" href="#can-i-personalize-a-demo-video-for-every-prospect-without-re-recording-each-one" aria-label="Link to section: Can I personalize a demo video for every prospect without re-recording each one?">#</a></h3>
+<p>Yes for the shallow tiers, with a caveat for the deep one. A name overlay and a per-prospect narration both reuse one base recording, so fifty prospects is one take plus fifty merges or fifty re-voiced tracks. Showing each prospect their own data on screen is different: the footage has to be captured against an app already seeded with their state, so the &quot;recording&quot; becomes an automated, parameterized re-render rather than a person redoing the take. You avoid the manual reshoot, not the render.</p>
+<h3 id="do-personalized-sales-videos-actually-get-higher-reply-rates" class="blog-faq-q">Do personalized sales videos actually get higher reply rates?<a class="hanchor" href="#do-personalized-sales-videos-actually-get-higher-reply-rates" aria-label="Link to section: Do personalized sales videos actually get higher reply rates?">#</a></h3>
+<p>The published lifts are real but narrow. Vendor surveys and case studies report that reps who add a custom video to an email see better open and reply rates than text-only outreach, and those numbers come from the video vendors themselves, measuring video-versus-text rather than one depth of personalization against another. There is no clean public data showing that a demo seeded with the prospect&#39;s data beats a name in the corner, and a separate 2025 study found aggressive personalization can backfire once a buyer&#39;s privacy antennae are up.</p>
+<h3 id="what-does-it-take-to-show-each-prospect-their-own-data-in-the-demo" class="blog-faq-q">What does it take to show each prospect their own data in the demo?<a class="hanchor" href="#what-does-it-take-to-show-each-prospect-their-own-data-in-the-demo" aria-label="Link to section: What does it take to show each prospect their own data in the demo?">#</a></h3>
+<p>Two things the shallower tiers skip: an app that can be seeded with prospect-relevant state, and accurate data to seed it with. If you drive a sandbox you control, you can generate believable per-prospect state (their company name, records from their industry) and parameterize the storyboard so a selector, a typed query, or a URL carries the placeholder. Then a deterministic replay records each variant unattended. Against a live product you cannot fill with a stranger&#39;s real data, this tier is usually not feasible, and a wrong guess costs you more than a generic demo would.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">personalization</span>
+        <span class="article-tag">sales videos</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">outbound</span>
+        <span class="article-tag">render matrix</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-name-in-the-corner-versus-the-data-on-the-screen">The name in the corner versus the data on the screen</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#tier-one-a-merge-field-over-footage-everyone-shares">Tier one: a merge field over footage everyone shares</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#tier-two-same-pixels-a-script-written-for-one-reader">Tier two: same pixels, a script written for one reader</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#tier-three-the-demo-shows-their-account-not-yours">Tier three: the demo shows their account, not yours</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-arithmetic-for-a-fifty-prospect-sequence">The arithmetic for a fifty-prospect sequence</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-the-response-rate-numbers-actually-measured">What the response-rate numbers actually measured</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

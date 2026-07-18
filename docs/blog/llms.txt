@@ -27,6 +27,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [How long should a demo video be? The retention math](https://aidemo.top/blog/how-long-should-a-demo-video-be/index.md): Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.
 - [How to make a product demo video (that people finish)](https://aidemo.top/blog/how-to-make-a-product-demo-video/index.md): The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
 - [What makes a screen recording look professional](https://aidemo.top/blog/professional-screen-recordings/index.md): The polish people call professional is five named transforms with parameters, not a knack. Here is what each one does and why a bad zoom is a recompose.
+- [SaaS demo video examples: what the best ones do differently](https://aidemo.top/blog/saas-demo-video-examples/index.md): Six real SaaS demo videos from Vercel, Notion, Loom, Linear, Warp, and Retool, read with a stopwatch and a transcript instead of a mood board.
 
 ## Demos as Code
 
@@ -34,6 +35,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [Demos as code: commit the storyboard, render the video](https://aidemo.top/blog/demos-as-code/index.md): A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.
 - [Deterministic browser automation for video capture](https://aidemo.top/blog/deterministic-browser-automation-for-video/index.md): A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.
 - [Multi-language product demo videos from one recording](https://aidemo.top/blog/multi-language-product-demo-videos/index.md): Localizing a demo doesn't mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.
+- [Personalized demo videos at scale: the template-render pattern](https://aidemo.top/blog/personalized-demo-videos-at-scale/index.md): A merge field with the prospect's name is not a demo that shows their data. Three depths of personalization, priced honestly for a fifty-prospect batch.
 - [Video-as-code tools: Remotion, Revideo, editly, vhs — and real-UI capture](https://aidemo.top/blog/video-as-code-tools/index.md): Remotion and Revideo draw every frame, editly stitches clips, vhs replays a terminal, real-UI capture films your product. Five models, one map.
 
 ## Optional
