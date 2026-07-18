@@ -113,6 +113,13 @@
       <description>A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</description>
     </item>
     <item>
+      <title>Demo video CTAs: one ask, placed where viewers still are</title>
+      <link>https://aidemo.top/blog/demo-video-call-to-action/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-call-to-action/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>An end card offering five things converts nobody. The one-ask rule, a developer CTA taxonomy, and the retention math for where the closing ask goes.</description>
+    </item>
+    <item>
       <title>Captions on demo videos: the accessibility case and the numbers</title>
       <link>https://aidemo.top/blog/demo-video-captions/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-video-captions/</guid>
@@ -209,13 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/developer-education-screencasts/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.</description>
-    </item>
-    <item>
-      <title>Does video actually increase conversion? Tracing the 80% claim</title>
-      <link>https://aidemo.top/blog/does-video-increase-conversion/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/does-video-increase-conversion/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</description>
     </item>
   </channel>
 </rss>

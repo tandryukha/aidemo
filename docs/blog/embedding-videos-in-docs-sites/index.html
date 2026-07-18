@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embed video in docs without wrecking load time | aidemo</title>
+<meta name="description" content="The exact &lt;video&gt; syntax for Docusaurus MDX and MkDocs Material, plus the preload and poster settings that keep a video-heavy docs page inside Core Web Vitals.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/embedding-videos-in-docs-sites/">
+<link rel="alternate" type="text/markdown" href="/blog/embedding-videos-in-docs-sites/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Embed video in docs without wrecking load time | aidemo">
+<meta property="og:description" content="The exact &lt;video&gt; syntax for Docusaurus MDX and MkDocs Material, plus the preload and poster settings that keep a video-heavy docs page inside Core Web Vitals.">
+<meta property="og:url" content="https://aidemo.top/blog/embedding-videos-in-docs-sites/">
+<meta property="og:image" content="https://aidemo.top/blog/images/embedding-videos-in-docs-sites-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Embed video in docs without wrecking load time | aidemo">
+<meta name="twitter:description" content="The exact &lt;video&gt; syntax for Docusaurus MDX and MkDocs Material, plus the preload and poster settings that keep a video-heavy docs page inside Core Web Vitals.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/embedding-videos-in-docs-sites-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Embedding video in docs sites without wrecking load time",
+  "description": "The exact \u003cvideo> syntax for Docusaurus MDX and MkDocs Material, plus the preload and poster settings that keep a video-heavy docs page inside Core Web Vitals.",
+  "image": [
+    "https://aidemo.top/blog/images/embedding-videos-in-docs-sites-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/embedding-videos-in-docs-sites/"
+  },
+  "wordCount": 1909,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Docusaurus — Markdown Features: Assets",
+      "url": "https://docusaurus.io/docs/markdown-features/assets"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Material for MkDocs — How to embed videos (discussion #3984)",
+      "url": "https://github.com/squidfunk/mkdocs-material/discussions/3984"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "mkdocs-video — plugin README (Markdown syntax and config)",
+      "url": "https://github.com/soulless-viewer/mkdocs-video/blob/master/README.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The Video Embed element (preload, poster, dimensions)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The Inline Frame element (loading attribute)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "web.dev — Lazy-loading video",
+      "url": "https://web.dev/articles/lazy-loading-video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "web.dev — Optimize Largest Contentful Paint",
+      "url": "https://web.dev/articles/optimize-lcp"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Embedding video in docs sites without wrecking load time",
+      "item": "https://aidemo.top/blog/embedding-videos-in-docs-sites/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I embed a local MP4 video in Docusaurus or MkDocs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In both, the portable way is a raw HTML5 \u003cvideo> block written straight into the Markdown, since both render inline HTML: point a \u003csource> at the file and add controls and preload=\"none\". In Docusaurus (MDX) put the file in static/ and self-close the \u003csource /> tag, or wrap the path in require() for hash-based caching. In MkDocs Material you can instead add the mkdocs-video plugin and write ![type:video](./clip.mp4) with is_video: True in the config."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I lazy-load a self-hosted video on a documentation page?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not with loading=\"lazy\" — that attribute works on \u003cimg> and \u003ciframe> elements, not on \u003cvideo>. To defer a self-hosted clip, set preload=\"none\", which web.dev calls the best chance of avoiding loading the video before a click; the only thing that then loads is the poster image. Use loading=\"lazy\" only on an iframe embed such as YouTube, and never on the poster or clip that is your Largest Contentful Paint element."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will a documentation page with several video clips fail Core Web Vitals?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if you let the clips load eagerly. Set preload=\"none\" on every self-hosted \u003cvideo> so nothing but the poster loads up front, give each embed explicit width and height (or aspect-ratio) to prevent layout shift, and defer any YouTube iframes with loading=\"lazy\". With those in place, the bytes that count against Largest Contentful Paint are a handful of compressed posters, and the page clears the 2.5-second \"good\" threshold with room to spare."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Embedding video in docs sites without wrecking load time</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Embedding video in docs sites without wrecking load time</h1>
+        <p class="article-dek">You can't lazy-load a &lt;video&gt; the way you lazy-load an image. Here is how to put clips in Docusaurus and MkDocs without a page that stalls or breaks offline.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-docs-page-is-the-hard-case-for-embedding-a-clip">A docs page is the hard case for embedding a clip</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-ways-to-put-a-clip-on-a-docs-page-ranked-for-docs">Three ways to put a clip on a docs page, ranked for docs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-exact-embed-framework-by-framework">The exact embed, framework by framework</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#keeping-a-video-heavy-page-inside-core-web-vitals">Keeping a video-heavy page inside Core Web Vitals</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-embed-that-survives-a-docs-migration">The embed that survives a docs migration</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/embedding-videos-in-docs-sites-800.webp" srcset="/blog/images/embedding-videos-in-docs-sites-400.webp 400w, /blog/images/embedding-videos-in-docs-sites-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A model sailing ship sealed inside a glass bottle resting on a small wooden stand."><figcaption>Anyone can get the ship into the bottle; the craft is doing it without cracking the glass, which on a docs page is the load time.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Prefer a self-hosted &lt;video&gt; written as raw HTML in Markdown: it renders in Docusaurus (MDX), MkDocs Material, GitHub, and plain HTML, and survives a framework migration an MDX component would not.</li>
+    <li>loading=&quot;lazy&quot; works on an &lt;iframe&gt; (a YouTube embed) but not on a &lt;video&gt;; to defer a self-hosted clip use preload=&quot;none&quot;, which web.dev calls the best chance of avoiding loading the video.</li>
+    <li>With preload=&quot;none&quot; the only byte that loads is the poster image, so compress it: an above-the-fold poster can become the LCP element, and LCP’s &quot;good&quot; bar is 2.5 seconds.</li>
+    <li>Set explicit width/height (or CSS aspect-ratio) on every embed to reserve the box and avoid the layout shift (CLS) as clips load.</li>
+    <li>MkDocs Material ships no video component: use a raw HTML5 &lt;video&gt; or the mkdocs-video plugin’s ![type:video](./clip.mp4) with is_video: True.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-docs-page-is-the-hard-case-for-embedding-a-clip">A docs page is the hard case for embedding a clip<a class="hanchor" href="#a-docs-page-is-the-hard-case-for-embedding-a-clip" aria-label="Link to section: A docs page is the hard case for embedding a clip">#</a></h2>
+<p>A landing page carries one hero video: watched once, above the fold, on a page built around that single moment. A documentation page is the opposite environment, and every embedding habit that works on the landing page has to be re-checked against four things the docs page does differently.</p>
+<p>It carries many clips, not one. A six-step how-to guide wants six short clips, and a careless embed multiplies its cost by six on one scroll. It gets read mid-task, usually by someone who did not come to watch anything and will leave if the page stalls. It gets exported: docs frameworks build offline bundles and PDFs, and a third-party <code>&lt;iframe&gt;</code> that plays fine online is a blank rectangle in the offline copy. And it outlives its framework. Docs get migrated between Docusaurus, MkDocs, and plain HTML more often than a marketing site gets rebuilt, and an embed written as a framework-specific component moves with far more friction than one written as portable markup.</p>
+<p>So the real question is not how to get a video onto the page, which is trivial, but how to get several clips onto a page that still passes Core Web Vitals, still works offline, and still renders after the next migration. The pillar on <a href="/blog/video-documentation/">where video earns its keep in docs</a> settles which passages deserve a clip at all; this is the mechanics for the ones that do. <a href="/blog/gifs-in-documentation/">Whether the clip should be a GIF instead</a> and <a href="/blog/microvideos-in-documentation/">how small to cut it</a> are separate calls; assume here you already have a short muted clip and need it on the page.</p>
+<h2 id="three-ways-to-put-a-clip-on-a-docs-page-ranked-for-docs">Three ways to put a clip on a docs page, ranked for docs<a class="hanchor" href="#three-ways-to-put-a-clip-on-a-docs-page-ranked-for-docs" aria-label="Link to section: Three ways to put a clip on a docs page, ranked for docs">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Portable across frameworks</th>
+<th>Bytes on page load</th>
+<th>Works offline / in PDF</th>
+<th>Written in plain Markdown</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Self-hosted <code>&lt;video&gt;</code></td>
+<td>Yes, raw HTML renders everywhere</td>
+<td>Poster only, with <code>preload=&quot;none&quot;</code></td>
+<td>Yes, the file ships with the docs</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>YouTube / Vimeo <code>&lt;iframe&gt;</code></td>
+<td>Renders anywhere online, breaks offline</td>
+<td>~540 KB player unless deferred</td>
+<td>No, needs the network</td>
+<td>Yes, the raw iframe</td>
+</tr>
+<tr>
+<td>Animated GIF</td>
+<td>Yes, it is an <code>&lt;img&gt;</code></td>
+<td>Largest of the three</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<p>For a docs page the self-hosted <code>&lt;video&gt;</code> usually wins, because it is the only row that is portable, offline-safe, and light on load at the same time. What it trades away, adaptive bitrate and the egress bill, barely bites here: docs clips are short and the reader is usually on a working connection, so one modest file suits everyone. The full <a href="/blog/embed-video-on-website/">self-host versus YouTube versus streaming-host cost arithmetic</a> is worked out for the marketing case elsewhere; the docs twist is that the two columns marketing can ignore, offline export and portability, are the ones that decide it here. Keep the YouTube iframe for the rare docs page whose point is reach, and defer it. Keep the GIF for the surface that genuinely refuses a <code>&lt;video&gt;</code> tag, a README the usual example, and pay its <a href="/blog/gifs-in-documentation/">size and accessibility tax</a> on purpose.</p>
+<p>One codec note, then the syntax: give the <code>&lt;video&gt;</code> two sources, WebM first for smaller bytes and MP4 as the universal fallback, and let the browser take the first it can play. The <a href="/blog/best-video-format-for-screen-recording/">container-versus-codec decision</a> is a spoke of its own.</p>
+<h2 id="the-exact-embed-framework-by-framework">The exact embed, framework by framework<a class="hanchor" href="#the-exact-embed-framework-by-framework" aria-label="Link to section: The exact embed, framework by framework">#</a></h2>
+<p>Plain HTML is the portable floor. Most generators pass raw HTML through untouched, so this block renders in Docusaurus, MkDocs Material, GitHub-flavored Markdown that allows HTML, and a hand-written page alike:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">video</span><span style="color:#986801"> controls</span><span style="color:#986801"> preload</span><span style="color:#383A42">=</span><span style="color:#50A14F">"none"</span><span style="color:#986801"> width</span><span style="color:#383A42">=</span><span style="color:#50A14F">"720"</span><span style="color:#986801"> height</span><span style="color:#383A42">=</span><span style="color:#50A14F">"450"</span></span>
+<span class="line"><span style="color:#986801">       poster</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/img/export-step.png"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/vid/export-step.webm"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/webm"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/vid/export-step.mp4"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/mp4"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">a</span><span style="color:#986801"> href</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/vid/export-step.mp4"</span><span style="color:#383A42">>Download the clip&#x3C;/</span><span style="color:#E45649">a</span><span style="color:#383A42">> if it will not play inline.</span></span>
+<span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">video</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p>Every attribute there earns its place, and <code>preload</code> and <code>poster</code> get their own section next.</p>
+<p><strong>Docusaurus (MDX).</strong> MDX is JSX, so raw HTML mostly works, with two catches: void elements must be self-closed (<code>&lt;source ... /&gt;</code>), and no tag can be left unbalanced. Put the file in <code>static/</code> and reference it with an absolute path, which Docusaurus resolves from the static directory, or wrap the path in <code>require()</code> so the file&#39;s &quot;name will be appended by a hash, which enables browsers to aggressively cache&quot; it<sup class="article-cite"><a href="#src-1" title="Docusaurus — Markdown Features: Assets">1</a></sup>:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">jsx</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>&lt;video controls preload=&quot;none&quot; width=&quot;720&quot;
+       poster={require('./img/export-step.png').default}&gt;
+  &lt;source src={require('./vid/export-step.mp4').default} type=&quot;video/mp4&quot; /&gt;
+&lt;/video&gt;</code></pre>
+</div>
+<p>The temptation in Docusaurus is to wrap this in a custom <code>&lt;VideoPlayer&gt;</code> MDX component and reuse it everywhere. It is tidy, and it welds your content to Docusaurus; the last section is why that is a trap.</p>
+<p><strong>MkDocs Material.</strong> Material ships no video component of its own. Tellingly, its maintainer embeds the project&#39;s own demo from a third-party host, Streamable, with a raw <code>&lt;iframe&gt;</code><sup class="article-cite"><a href="#src-2" title="Material for MkDocs — How to embed videos (discussion #3984)">2</a></sup>. For a self-hosted clip you have two clean routes. Write the same HTML5 <code>&lt;video&gt;</code> block straight into the Markdown, since Material renders inline HTML. Or add the <code>mkdocs-video</code> plugin and embed with image syntax:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">markdown</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>![type:video](./videos/export-step.mp4)</code></pre>
+</div>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">yaml</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#E45649">plugins</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#383A42">  - </span><span style="color:#E45649">mkdocs-video</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#E45649">      is_video</span><span style="color:#383A42">: </span><span style="color:#986801">true</span></span>
+<span class="line"><span style="color:#E45649">      video_muted</span><span style="color:#383A42">: </span><span style="color:#986801">true</span></span>
+<span class="line"><span style="color:#E45649">      video_controls</span><span style="color:#383A42">: </span><span style="color:#986801">true</span></span></code></pre>
+</div>
+<p>Here <code>is_video: True</code> selects the <code>&lt;video&gt;</code> tag over an <code>&lt;iframe&gt;</code>, and <code>video_muted</code>, <code>video_controls</code>, <code>video_autoplay</code>, and <code>video_loop</code> map to the matching attributes<sup class="article-cite"><a href="#src-3" title="mkdocs-video — plugin README (Markdown syntax and config)">3</a></sup>. The plugin buys cleaner Markdown; the raw block buys zero dependencies and identical output in every other framework.</p>
+<h2 id="keeping-a-video-heavy-page-inside-core-web-vitals">Keeping a video-heavy page inside Core Web Vitals<a class="hanchor" href="#keeping-a-video-heavy-page-inside-core-web-vitals" aria-label="Link to section: Keeping a video-heavy page inside Core Web Vitals">#</a></h2>
+<p>The metric that decides whether a docs page feels broken is Largest Contentful Paint, and Google&#39;s bar for &quot;good&quot; is &quot;2.5 seconds or less for at least 75% of page visits&quot;<sup class="article-cite"><a href="#src-7" title="web.dev — Optimize Largest Contentful Paint">7</a></sup>. A page with six clips can miss it on one wrong attribute, so three settings carry the weight.</p>
+<p>Defer the bytes, but use the right lever, because the two embed types do not share one. An <code>&lt;iframe&gt;</code>, a YouTube embed, takes <code>loading=&quot;lazy&quot;</code>, which defers the frame &quot;until it reaches a calculated distance from the visual viewport&quot; and cuts &quot;initial page load times&quot;<sup class="article-cite"><a href="#src-5" title="MDN — The Inline Frame element (loading attribute)">5</a></sup>. A <code>&lt;video&gt;</code> element has no <code>loading</code> attribute at all. Its lever is <code>preload</code>, set to <code>none</code> to &quot;prevent browsers from preloading any video data, even when in the viewport&quot;<sup class="article-cite"><a href="#src-6" title="web.dev — Lazy-loading video">6</a></sup>; web.dev calls that &quot;the best chance of avoiding loading the video.&quot; Copying <code>loading=&quot;lazy&quot;</code> onto a <code>&lt;video&gt;</code> does nothing, and that mismatched attribute is the single most common docs-embed bug.</p>
+<p>With <code>preload=&quot;none&quot;</code> the only byte a clip fetches before a click is its poster, &quot;a placeholder that will occupy the space while the video loads&quot;<sup class="article-cite"><a href="#src-4" title="MDN — The Video Embed element (preload, poster, dimensions)">4</a></sup>. That makes the poster the asset to optimize, with one subtlety: a clip above the fold can make its poster the page&#39;s LCP element, and web.dev&#39;s rule is to &quot;never lazy-load your LCP image&quot;<sup class="article-cite"><a href="#src-7" title="web.dev — Optimize Largest Contentful Paint">7</a></sup>. Compress the poster hard, and lazy-load the posters further down the page, not the one that paints first.</p>
+<p>Reserve the space. Set explicit <code>width</code> and <code>height</code>, or a CSS <code>aspect-ratio</code>, on every embed so the browser lays out the box before the media arrives. Skip it and each clip that loads shoves the paragraph beneath it downward, the layout jump that Cumulative Layout Shift scores and a reader feels as text sliding out from under them mid-sentence. Reserved dimensions cost nothing and remove the shift completely.</p>
+<h2 id="the-embed-that-survives-a-docs-migration">The embed that survives a docs migration<a class="hanchor" href="#the-embed-that-survives-a-docs-migration" aria-label="Link to section: The embed that survives a docs migration">#</a></h2>
+<p>Docs get moved. A team on MkDocs adopts Docusaurus for versioned releases; a Docusaurus site collapses back to plain Markdown on a new host. The embeds that survive are the ones written as portable markup; the ones that fight you are the framework-specific conveniences. A raw <code>&lt;video&gt;</code> block is the same nine lines in MkDocs, Docusaurus, GitHub, and a bare HTML page. A custom <code>&lt;VideoPlayer&gt;</code> MDX component is a rewrite the day you leave Docusaurus, and a <code>mkdocs-video</code> marker is a find-and-replace the day you leave MkDocs. Convenience that reads well in one framework is debt in the next, so the portable block is the default and the plugin the deliberate upgrade.</p>
+<p>Self-hosting is the portability choice for the same reason. A file shipped alongside the docs travels into the offline bundle, the PDF export, and the migrated site; a third-party <code>&lt;iframe&gt;</code> is a live network dependency that a reader offline, a printed PDF, or a locked-down enterprise mirror all render as a hole. The clip you own is the clip that still plays where you cannot reach.</p>
+<p>That leaves the one problem no embed setting fixes: the clip goes stale. A docs video shows the exact interface a reader is about to touch, so the day the UI ships, every embed pointing at the old screen is quietly wrong, and a fast, offline-safe, perfectly portable embed of last quarter&#39;s UI is still a lie in motion. The fix that scales is to rebuild the clip from a spec on the same commit that changed the screen, the <a href="/blog/keeping-tutorial-libraries-current/">maintenance model that keeps a tutorial library current</a>. aidemo, the open-source engine we build, is one way to do it: an agent writes a storyboard and a deterministic run re-records the clip, so the embedded file is regenerated on the release that changed the UI, not reshot by hand. The honest bounds: it captures a browser and nothing outside one, the storyboard is agent-drafted and then edited as text, and there is no drag-and-drop timeline anywhere. Getting the clip onto the page is the easy half. Keeping it true to the product is the half that decides whether the page is documentation or decoration.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://docusaurus.io/docs/markdown-features/assets" rel="noopener">Docusaurus — Markdown Features: Assets</a></li>
+<li id="src-2"><a href="https://github.com/squidfunk/mkdocs-material/discussions/3984" rel="noopener">Material for MkDocs — How to embed videos (discussion #3984)</a></li>
+<li id="src-3"><a href="https://github.com/soulless-viewer/mkdocs-video/blob/master/README.md" rel="noopener">mkdocs-video — plugin README (Markdown syntax and config)</a></li>
+<li id="src-4"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video" rel="noopener">MDN — The Video Embed element (preload, poster, dimensions)</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe" rel="noopener">MDN — The Inline Frame element (loading attribute)</a></li>
+<li id="src-6"><a href="https://web.dev/articles/lazy-loading-video" rel="noopener">web.dev — Lazy-loading video</a></li>
+<li id="src-7"><a href="https://web.dev/articles/optimize-lcp" rel="noopener">web.dev — Optimize Largest Contentful Paint</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-embed-a-local-mp4-video-in-docusaurus-or-mkdocs" class="blog-faq-q">How do I embed a local MP4 video in Docusaurus or MkDocs?<a class="hanchor" href="#how-do-i-embed-a-local-mp4-video-in-docusaurus-or-mkdocs" aria-label="Link to section: How do I embed a local MP4 video in Docusaurus or MkDocs?">#</a></h3>
+<p>In both, the portable way is a raw HTML5 <code>&lt;video&gt;</code> block written straight into the Markdown, since both render inline HTML: point a <code>&lt;source&gt;</code> at the file and add <code>controls</code> and <code>preload=&quot;none&quot;</code>. In Docusaurus (MDX) put the file in <code>static/</code> and self-close the <code>&lt;source /&gt;</code> tag, or wrap the path in <code>require()</code> for hash-based caching. In MkDocs Material you can instead add the <code>mkdocs-video</code> plugin and write <code>![type:video](./clip.mp4)</code> with <code>is_video: True</code> in the config.</p>
+<h3 id="can-i-lazy-load-a-self-hosted-video-on-a-documentation-page" class="blog-faq-q">Can I lazy-load a self-hosted video on a documentation page?<a class="hanchor" href="#can-i-lazy-load-a-self-hosted-video-on-a-documentation-page" aria-label="Link to section: Can I lazy-load a self-hosted video on a documentation page?">#</a></h3>
+<p>Not with <code>loading=&quot;lazy&quot;</code> — that attribute works on <code>&lt;img&gt;</code> and <code>&lt;iframe&gt;</code> elements, not on <code>&lt;video&gt;</code>. To defer a self-hosted clip, set <code>preload=&quot;none&quot;</code>, which web.dev calls the best chance of avoiding loading the video before a click; the only thing that then loads is the <code>poster</code> image. Use <code>loading=&quot;lazy&quot;</code> only on an iframe embed such as YouTube, and never on the poster or clip that is your Largest Contentful Paint element.</p>
+<h3 id="will-a-documentation-page-with-several-video-clips-fail-core-web-vitals" class="blog-faq-q">Will a documentation page with several video clips fail Core Web Vitals?<a class="hanchor" href="#will-a-documentation-page-with-several-video-clips-fail-core-web-vitals" aria-label="Link to section: Will a documentation page with several video clips fail Core Web Vitals?">#</a></h3>
+<p>Only if you let the clips load eagerly. Set <code>preload=&quot;none&quot;</code> on every self-hosted <code>&lt;video&gt;</code> so nothing but the poster loads up front, give each embed explicit <code>width</code> and <code>height</code> (or <code>aspect-ratio</code>) to prevent layout shift, and defer any YouTube iframes with <code>loading=&quot;lazy&quot;</code>. With those in place, the bytes that count against Largest Contentful Paint are a handful of compressed posters, and the page clears the 2.5-second &quot;good&quot; threshold with room to spare.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">embed video</span>
+        <span class="article-tag">documentation</span>
+        <span class="article-tag">docusaurus</span>
+        <span class="article-tag">mkdocs</span>
+        <span class="article-tag">core web vitals</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/developer-education-screencasts/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/developer-education-screencasts-400.webp" srcset="/blog/images/developer-education-screencasts-400.webp 400w, /blog/images/developer-education-screencasts-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A tall triple-decker sandwich with three distinct layers held together by a pick, on a wooden board."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Developer-education screencasts: terminal, code, and browser together</h3>
+    <p class="article-card-excerpt">Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/gifs-in-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/gifs-in-documentation-400.webp" srcset="/blog/images/gifs-in-documentation-400.webp 400w, /blog/images/gifs-in-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A slotted zoetrope drum on a small wooden base, caught mid-spin."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">GIFs in documentation: when a loop beats a screenshot</h3>
+    <p class="article-card-excerpt">An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-docs-page-is-the-hard-case-for-embedding-a-clip">A docs page is the hard case for embedding a clip</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-ways-to-put-a-clip-on-a-docs-page-ranked-for-docs">Three ways to put a clip on a docs page, ranked for docs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-exact-embed-framework-by-framework">The exact embed, framework by framework</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#keeping-a-video-heavy-page-inside-core-web-vitals">Keeping a video-heavy page inside Core Web Vitals</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-embed-that-survives-a-docs-migration">The embed that survives a docs migration</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

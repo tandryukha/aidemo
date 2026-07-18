@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual regression for marketing assets | aidemo</title>
+<meta name="description" content="Engineering teams pixel-diff their components but never the homepage. A taxonomy of marketing assets to baseline, plus the CMS, A/B, and web-font noise to mute.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/">
+<link rel="alternate" type="text/markdown" href="/blog/visual-regression-testing-for-marketing-assets/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Visual regression for marketing assets | aidemo">
+<meta property="og:description" content="Engineering teams pixel-diff their components but never the homepage. A taxonomy of marketing assets to baseline, plus the CMS, A/B, and web-font noise to mute.">
+<meta property="og:url" content="https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/">
+<meta property="og:image" content="https://aidemo.top/blog/images/visual-regression-testing-for-marketing-assets-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Visual regression for marketing assets | aidemo">
+<meta name="twitter:description" content="Engineering teams pixel-diff their components but never the homepage. A taxonomy of marketing assets to baseline, plus the CMS, A/B, and web-font noise to mute.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/visual-regression-testing-for-marketing-assets-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Visual regression testing for marketing assets, not just components",
+  "description": "Engineering teams pixel-diff their components but never the homepage. A taxonomy of marketing assets to baseline, plus the CMS, A/B, and web-font noise to mute.",
+  "image": [
+    "https://aidemo.top/blog/images/visual-regression-testing-for-marketing-assets-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/"
+  },
+  "wordCount": 2149,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "BackstopJS — scenario config: selectors, viewports, removeSelectors/hideSelectors, misMatchThreshold (MIT)",
+      "url": "https://github.com/garris/BackstopJS"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Percy (BrowserStack) — Percy-specific CSS: @media only percy and percyCSS",
+      "url": "https://www.browserstack.com/docs/percy/advanced-snapshots/percy-css"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Percy (BrowserStack) — component and dynamic content testing: Region Diff, widths, A/B baselines",
+      "url": "https://www.browserstack.com/percy/features/component-dynamic-content-testing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chromatic — diffThreshold (default 0.063, YIQ) and anti-aliasing handling",
+      "url": "https://www.chromatic.com/docs/threshold/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — CSS font-display (FOIT/FOUT, block vs swap)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "The Open Graph protocol — og:image and og:image:width/height",
+      "url": "https://ogp.me/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Visual regression testing for marketing assets, not just components",
+      "item": "https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do you visual regression test a marketing website?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Capture each page at the widths where its layout actually differs — a phone, a tablet, and a desktop breakpoint — and diff every deploy against an approved baseline, using a full-page tool like BackstopJS or a DOM-render tool like Percy. Hook the check onto the marketing site's own deploy track (a Vercel or Netlify preview URL, or a CMS publish webhook) rather than the app's CI, since the two usually ship separately. Then neutralize the page-level noise up front: hide third-party embeds, pin any A/B variant, and wait for web fonts to load before you capture."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you keep cookie banners and A/B tests from breaking visual tests?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Take them out of the comparison at the source instead of loosening the threshold. For a cookie banner, chat widget, or ad, BackstopJS removeSelectors (display:none) or hideSelectors (visibility:hidden) and Percy's percyCSS hiding the iframe both blank the element before the snapshot. For an A/B test or personalization, pin the visitor to one variant with a cookie or flag so the same bucket renders every run, then let a tool like Percy match the capture against that variant's baseline rather than a different one."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should marketing pages and components share the same visual test suite?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually not, because they deploy on different tracks and get reviewed by different people. Components live in the app repo and ride the app's CI, where an engineer approves a binary diff; marketing pages ship from a CMS or a separate site deploy and are approved by a designer or marketer who wants a click-to-approve screen, not a git diff. Keep them as two suites wired to their own triggers — the app's pull requests for components, the marketing preview deploy or CMS webhook for pages — even if both point at the same underlying diff engine."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Visual regression testing for marketing assets, not just components</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Visual regression testing for marketing assets, not just components</h1>
+        <p class="article-dek">Your Storybook is under test; your pricing page is not. Which marketing assets to baseline, how many snapshots each really is, and the noise to mute.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#your-component-library-is-under-test-your-homepage-is-not">Your component library is under test; your homepage is not</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-taxonomy-of-marketing-assets-worth-a-baseline">A taxonomy of marketing assets worth a baseline</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#marketing-pages-break-visual-tests-in-ways-components-cant">Marketing pages break visual tests in ways components can't</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-generated-card-is-code-so-baseline-it-like-code">The generated card is code, so baseline it like code</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#wire-the-diff-to-the-deploy-the-marketing-team-actually-ships">Wire the diff to the deploy the marketing team actually ships</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/visual-regression-testing-for-marketing-assets-800.webp" srcset="/blog/images/visual-regression-testing-for-marketing-assets-400.webp 400w, /blog/images/visual-regression-testing-for-marketing-assets-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A polished brass lion's-head door knocker on a plain door"><figcaption>Teams bolt a lock on the component library and leave the front door — the homepage every visitor actually uses — unwatched.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Teams pixel-diff Storybook components in the app's CI, but the homepage, pricing page, and OG card ship from a CMS or a separate deploy no baseline ever compares against.</li>
+    <li>One marketing page is several baselines: render it at 375, 768, and 1280 px (phone, tablet, desktop) and it is three snapshots, each re-captured per locale.</li>
+    <li>Kill marketing noise at the source, not the threshold: BackstopJS removeSelectors/hideSelectors, Percy @media only percy + percyCSS, freeze animations, mask A/B and live-data regions.</li>
+    <li>Web fonts flake silently: with font-display:swap the fallback repaints when the font loads (FOUT), so wait on document.fonts.ready before capturing rather than loosening the threshold.</li>
+    <li>Generated OG cards are code: a broken template overflows text off the 1200x630 canvas to every shared link, so baseline representative cards on every deploy.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="your-component-library-is-under-test-your-homepage-is-not">Your component library is under test; your homepage is not<a class="hanchor" href="#your-component-library-is-under-test-your-homepage-is-not" aria-label="Link to section: Your component library is under test; your homepage is not">#</a></h2>
+<p>Open a mature front-end repo and you will usually find a visual regression suite guarding the component library: every button, badge, and modal snapshotted in Storybook, re-rendered in a fixed cloud browser, diffed on every pull request. Then open the marketing site and the coverage stops at the property line. The homepage, the pricing page, the feature landing pages, the Open Graph card that renders under every shared link — the surfaces a prospect sees first — ship through a CMS or a separate Next.js deploy that no baseline ever compares against. A designer edits a hero on Friday, a font token shifts, a third-party embed restyles itself, and the first thing to notice is a visitor, not a build.</p>
+<p>The asymmetry is not laziness; it is org structure. The component library lives in the app repo and rides the app&#39;s CI, so wiring a screenshot matcher into it is a one-line addition to a pipeline that already runs. The marketing site is often a different repo, a different deploy target (Vercel or Netlify preview URLs), and a different owner (marketing, not engineering), edited by people who never open a git client. Visual regression testing is a solved problem for components precisely because components are code all the way down. Marketing assets are the harder case, and the costlier one to get wrong, because they are the impression that decides whether anyone reaches the product at all. This is the marketing-asset companion to <a href="/blog/visual-regression-testing-tools/">the tool comparison by diff engine</a> and <a href="/blog/detecting-ui-drift/">the drift-detection ladder</a>: those pick the engine and tune the pixel threshold; this one maps the assets worth baselining and the noise unique to them.</p>
+<h2 id="a-taxonomy-of-marketing-assets-worth-a-baseline">A taxonomy of marketing assets worth a baseline<a class="hanchor" href="#a-taxonomy-of-marketing-assets-worth-a-baseline" aria-label="Link to section: A taxonomy of marketing assets worth a baseline">#</a></h2>
+<p>&quot;Test the marketing site&quot; is too coarse to act on. The assets differ in what they are, what silently breaks them, and therefore which capture-and-diff approach fits. Five are worth a baseline, and each carries a multiplier that decides how many snapshots one asset actually becomes.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>What silently breaks it</th>
+<th>Capture + diff that fits</th>
+<th>Baseline multiplier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Full-page marketing page (home, pricing, features)</td>
+<td>CMS copy edits, a reflowed section, a moved CTA</td>
+<td>full-page capture per breakpoint; DOM-render diff (Percy) or full-page pixel diff (BackstopJS)</td>
+<td>breakpoints x locales</td>
+</tr>
+<tr>
+<td>Hero / above-the-fold still</td>
+<td>a swapped background, a font-token change, a broken web-font load</td>
+<td>tight crop of the first viewport, strict threshold</td>
+<td>breakpoints</td>
+</tr>
+<tr>
+<td>Embedded demo frame or <code>&lt;video poster&gt;</code></td>
+<td>the product moved, so the frame no longer matches the live UI</td>
+<td>still extracted from the same take that renders the video</td>
+<td>1 per demo</td>
+</tr>
+<tr>
+<td>Generated OG / social card</td>
+<td>a template change overflowing text off the 1200x630 canvas</td>
+<td>render the card URL, diff the output image</td>
+<td>1 per template x dynamic inputs</td>
+</tr>
+<tr>
+<td>Email / campaign hero image</td>
+<td>a design-system change the campaign was forked from</td>
+<td>render the exported asset, diff before send</td>
+<td>1 per campaign</td>
+</tr>
+</tbody></table></div>
+<p>The multiplier is the number nobody budgets for. A single homepage is not one baseline; render it at 375, 768, and 1280 pixels — the phone, tablet, and desktop breakpoints where the layout genuinely differs — and it is three, each re-captured per locale. BackstopJS models this directly: a scenario takes a <code>viewports</code> array and captures the page at each width in one run<sup class="article-cite"><a href="#src-1" title="BackstopJS — scenario config: selectors, viewports, removeSelectors/hideSelectors, misMatchThreshold (MIT)">1</a></sup>, and Percy renders one snapshot at multiple <code>widths</code> and produces a separate diff per width<sup class="article-cite"><a href="#src-3" title="Percy (BrowserStack) — component and dynamic content testing: Region Diff, widths, A/B baselines">3</a></sup>. The taxonomy exists so you baseline the right five things at the right count, instead of snapshotting the whole site at one width and calling it covered.</p>
+<h2 id="marketing-pages-break-visual-tests-in-ways-components-cant">Marketing pages break visual tests in ways components can&#39;t<a class="hanchor" href="#marketing-pages-break-visual-tests-in-ways-components-cant" aria-label="Link to section: Marketing pages break visual tests in ways components can't">#</a></h2>
+<p>A component renders in isolation from a fixed prop set. A marketing page renders in a hostile environment full of things that change without anyone shipping a change to the product, and a raw pixel diff fires on all of them. The fix is not a looser global threshold — that just blinds you to the moved CTA you wanted to catch, the failure mode <a href="/blog/detecting-ui-drift/">the drift ladder</a> works through in detail. The fix is to neutralize each noise source at its own root.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Marketing-page noise</th>
+<th>Why it fires a false diff</th>
+<th>Neutralize it with</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Third-party embeds (chat widget, cookie banner, ad)</td>
+<td>loads late, restyles itself, renders per session</td>
+<td>BackstopJS <code>removeSelectors</code> (display:none) / <code>hideSelectors</code> (visibility:hidden); Percy <code>percyCSS</code> hiding the iframe</td>
+</tr>
+<tr>
+<td>A/B test or personalization variant</td>
+<td>a different bucket renders per visit</td>
+<td>pin the variant via cookie or flag; match against the right baseline (Percy variant baselining)</td>
+</tr>
+<tr>
+<td>Live data (timestamps, view counts, avatars)</td>
+<td>changes every capture</td>
+<td>mask or freeze the region (Percy Region Diff, animation freezing)</td>
+</tr>
+<tr>
+<td>Web-font load (FOUT/FOIT)</td>
+<td>fallback text renders, then reflows when the font swaps in</td>
+<td>wait on <code>document.fonts.ready</code> before capture; hold layout with <code>font-display</code></td>
+</tr>
+<tr>
+<td>Responsive reflow</td>
+<td>the same DOM lays out differently per width</td>
+<td>one baseline per breakpoint, not one crop stretched</td>
+</tr>
+</tbody></table></div>
+<p>BackstopJS gives you the bluntest instruments: <code>removeSelectors</code> sets <code>display: none</code> and <code>hideSelectors</code> sets <code>visibility: hidden</code> on anything unpredictable — an ad slot, a cookie banner — before it captures, and <code>misMatchThreshold</code> (default 0.1% of pixels) sets how much residual noise passes<sup class="article-cite"><a href="#src-1" title="BackstopJS — scenario config: selectors, viewports, removeSelectors/hideSelectors, misMatchThreshold (MIT)">1</a></sup>. Percy does the same without touching production markup, through a scoped media query: CSS nested in <code>@media only percy { .hide-in-percy { visibility: hidden; } }</code> applies only in Percy&#39;s render environment and nowhere else, and a per-snapshot <code>percyCSS: &quot;iframe { display: none; }&quot;</code> kills a live embed for the diff alone<sup class="article-cite"><a href="#src-2" title="Percy (BrowserStack) — Percy-specific CSS: @media only percy and percyCSS">2</a></sup>. For the variant problem, Percy&#39;s dynamic-content features add Region Diff to scope out noisy areas and baseline matching that &quot;automatically compare[s] new screenshots to the right baseline&quot; for A/B tests<sup class="article-cite"><a href="#src-3" title="Percy (BrowserStack) — component and dynamic content testing: Region Diff, widths, A/B baselines">3</a></sup>.</p>
+<p>The web-font case is the one teams miss, because it looks like flake and is actually timing. A page with <code>font-display: swap</code> renders fallback text immediately, then repaints when the web font arrives — a flash of unstyled text, FOUT; <code>block</code> instead hides the text first, a flash of invisible text, FOIT<sup class="article-cite"><a href="#src-5" title="MDN — CSS font-display (FOIT/FOUT, block vs swap)">5</a></sup>. Snapshot inside that window and every glyph edge, metric, and line-wrap differs from a snapshot taken a beat later, over a font nobody changed. Waiting on <code>document.fonts.ready</code> before you capture removes the entire class, and it is cheaper and more honest than raising the pixel threshold until the real diffs slip through too.</p>
+<p>Anti-aliasing is the one noise source you can leave to the tool. Every serious engine already discards it: Chromatic ignores anti-aliased pixels by default and measures color distance in YIQ with a <code>diffThreshold</code> that defaults to 0.063 on a 0-to-1 scale<sup class="article-cite"><a href="#src-4" title="Chromatic — diffThreshold (default 0.063, YIQ) and anti-aliasing handling">4</a></sup>, the same family of default other engines set for pixelmatch and Playwright. Spend your tuning budget on the marketing-specific noise above; the sub-pixel edge noise is handled for you.</p>
+<h2 id="the-generated-card-is-code-so-baseline-it-like-code">The generated card is code, so baseline it like code<a class="hanchor" href="#the-generated-card-is-code-so-baseline-it-like-code" aria-label="Link to section: The generated card is code, so baseline it like code">#</a></h2>
+<p>One marketing asset is unambiguously a build artifact: the Open Graph image. <code>og:image</code> is a required Open Graph property, with structured <code>og:image:width</code> and <code>og:image:height</code> companions, and it is the picture every link preview renders on social, in Slack, in a text message<sup class="article-cite"><a href="#src-6" title="The Open Graph protocol — og:image and og:image:width/height">6</a></sup>. Increasingly that image is generated on the fly — a template with the page title, an author, a gradient, rendered to a 1200x630 PNG per URL. When the template is code, its output drifts exactly like any other rendered surface: a longer title overflows the canvas, a font fails to load and falls back to broken metrics, a design-token change recolors it — and because nobody looks at their own share cards, the break ships to every shared link in silence.</p>
+<p>This is the asset most native to visual regression, because it has no CMS editor and no human in the loop: it is a pure function from inputs to pixels. Baseline a handful of representative cards — a short title, a title long enough to test wrapping, a locale with tall glyphs — render each to its 1200x630 output, and diff on every deploy. It is the <a href="/blog/automating-product-screenshots/">screenshot pipeline the docs already run</a> pointed at a URL that returns an image instead of a page, and it catches the overflow before it becomes the first thing a prospect sees in a feed.</p>
+<h2 id="wire-the-diff-to-the-deploy-the-marketing-team-actually-ships">Wire the diff to the deploy the marketing team actually ships<a class="hanchor" href="#wire-the-diff-to-the-deploy-the-marketing-team-actually-ships" aria-label="Link to section: Wire the diff to the deploy the marketing team actually ships">#</a></h2>
+<p>The reason marketing assets go untested is that they deploy on a track engineering does not own, so the check has to hook onto that track, not the app&#39;s. Marketing sites on Vercel or Netlify get a preview URL per pull request; a CMS publish fires a webhook. Point the diff at those events — capture the preview deploy, compare against the last approved production render — and the check runs where the change actually lands. The reviewer matters as much as the trigger: the person who approves a hero change is a designer or a marketer, not an engineer, which is the argument for a hosted tool with a click-to-approve review screen even on a team that keeps every component baseline in git for free. A binary PNG diff buried in a pull request is not a surface a marketer will review; an approve-or-reject screen is.</p>
+<p>When the drifted asset is a demo still or a poster frame, the response is not to re-shoot it. A frame pulled from a demo video is correct only as long as the product it shows is; when the diff fires, <a href="/blog/automated-product-demo-videos/">regenerate the asset from its spec</a> so the corrected still ships in the same change that moved the UI — the mechanism that keeps a demo from <a href="/blog/why-product-demos-go-stale/">lying about the product as it ships</a>. Our own engine, aidemo, emits the marketing still and the narrated video from one storyboard, so a UI change updates both together rather than leaving the hero image a version behind; its limits are worth naming plainly — it is browser-only, its storyboards are authored by an agent instead of assembled on a drag-and-drop timeline, and there is no built-in editor for hand-cutting a sequence, so it produces the frame you baseline and hands the diffing to the engines above. The point holds without any particular tool: the surfaces customers see first deserve the same baseline discipline the button component already gets.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://github.com/garris/BackstopJS" rel="noopener">BackstopJS — scenario config: selectors, viewports, removeSelectors/hideSelectors, misMatchThreshold (MIT)</a></li>
+<li id="src-2"><a href="https://www.browserstack.com/docs/percy/advanced-snapshots/percy-css" rel="noopener">Percy (BrowserStack) — Percy-specific CSS: @media only percy and percyCSS</a></li>
+<li id="src-3"><a href="https://www.browserstack.com/percy/features/component-dynamic-content-testing" rel="noopener">Percy (BrowserStack) — component and dynamic content testing: Region Diff, widths, A/B baselines</a></li>
+<li id="src-4"><a href="https://www.chromatic.com/docs/threshold/" rel="noopener">Chromatic — diffThreshold (default 0.063, YIQ) and anti-aliasing handling</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display" rel="noopener">MDN — CSS font-display (FOIT/FOUT, block vs swap)</a></li>
+<li id="src-6"><a href="https://ogp.me/" rel="noopener">The Open Graph protocol — og:image and og:image:width/height</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-you-visual-regression-test-a-marketing-website" class="blog-faq-q">How do you visual regression test a marketing website?<a class="hanchor" href="#how-do-you-visual-regression-test-a-marketing-website" aria-label="Link to section: How do you visual regression test a marketing website?">#</a></h3>
+<p>Capture each page at the widths where its layout actually differs — a phone, a tablet, and a desktop breakpoint — and diff every deploy against an approved baseline, using a full-page tool like BackstopJS or a DOM-render tool like Percy. Hook the check onto the marketing site&#39;s own deploy track (a Vercel or Netlify preview URL, or a CMS publish webhook) rather than the app&#39;s CI, since the two usually ship separately. Then neutralize the page-level noise up front: hide third-party embeds, pin any A/B variant, and wait for web fonts to load before you capture.</p>
+<h3 id="how-do-you-keep-cookie-banners-and-ab-tests-from-breaking-visual-tests" class="blog-faq-q">How do you keep cookie banners and A/B tests from breaking visual tests?<a class="hanchor" href="#how-do-you-keep-cookie-banners-and-ab-tests-from-breaking-visual-tests" aria-label="Link to section: How do you keep cookie banners and A/B tests from breaking visual tests?">#</a></h3>
+<p>Take them out of the comparison at the source instead of loosening the threshold. For a cookie banner, chat widget, or ad, BackstopJS <code>removeSelectors</code> (display:none) or <code>hideSelectors</code> (visibility:hidden) and Percy&#39;s <code>percyCSS</code> hiding the iframe both blank the element before the snapshot. For an A/B test or personalization, pin the visitor to one variant with a cookie or flag so the same bucket renders every run, then let a tool like Percy match the capture against that variant&#39;s baseline rather than a different one.</p>
+<h3 id="should-marketing-pages-and-components-share-the-same-visual-test-suite" class="blog-faq-q">Should marketing pages and components share the same visual test suite?<a class="hanchor" href="#should-marketing-pages-and-components-share-the-same-visual-test-suite" aria-label="Link to section: Should marketing pages and components share the same visual test suite?">#</a></h3>
+<p>Usually not, because they deploy on different tracks and get reviewed by different people. Components live in the app repo and ride the app&#39;s CI, where an engineer approves a binary diff; marketing pages ship from a CMS or a separate site deploy and are approved by a designer or marketer who wants a click-to-approve screen, not a git diff. Keep them as two suites wired to their own triggers — the app&#39;s pull requests for components, the marketing preview deploy or CMS webhook for pages — even if both point at the same underlying diff engine.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">visual regression</span>
+        <span class="article-tag">marketing pages</span>
+        <span class="article-tag">screenshot testing</span>
+        <span class="article-tag">ui drift</span>
+        <span class="article-tag">ci</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-videos-in-ci-400.webp" srcset="/blog/images/demo-videos-in-ci-400.webp 400w, /blog/images/demo-videos-in-ci-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A GitHub Actions run log with a passing render-demo job and an attached MP4, beside the workflow YAML that triggered it"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#your-component-library-is-under-test-your-homepage-is-not">Your component library is under test; your homepage is not</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-taxonomy-of-marketing-assets-worth-a-baseline">A taxonomy of marketing assets worth a baseline</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#marketing-pages-break-visual-tests-in-ways-components-cant">Marketing pages break visual tests in ways components can't</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-generated-card-is-code-so-baseline-it-like-code">The generated card is code, so baseline it like code</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#wire-the-diff-to-the-deploy-the-marketing-team-actually-ships">Wire the diff to the deploy the marketing team actually ships</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

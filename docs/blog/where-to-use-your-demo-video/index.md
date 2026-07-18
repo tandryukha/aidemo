@@ -1,0 +1,83 @@
+# Where to use your demo video: one recording, ten placements
+
+July 18, 2026 · Video Marketing for Software · 7 min read · https://aidemo.top/blog/where-to-use-your-demo-video/
+
+> You recorded one demo and posted it in one place. Here is the ten-surface checklist that makes it pay for itself, each with the cut it needs.
+
+**Key takeaways**
+
+- One recording has ten homes, not one: landing hero, README, docs, onboarding email, sales follow-up, Product Hunt, LinkedIn, app store, changelog, and YouTube. Most teams fill two.
+- Teams underuse the cheapest surfaces: Wyzowl 2026 has 69% deploying video on social but only 23% in customer onboarding and 24% in customer support.
+- A README takes an mp4, mov, or webm dragged into a GitHub issue to mint a hosted URL; the upload cap is 10 MB on a free plan, 100 MB on a paid one (GitHub docs).
+- The app-store preview is the one row you cannot fake: 15-30s of 886x1920 portrait footage, up to 3 per language, under 500 MB (Apple); 80% download after an app-demo video (Wyzowl).
+- Ten placements are ten things that go stale together, so reuse pays only when a UI change is one re-render, not ten reshoots.
+
+## Most demos get posted twice and then forgotten
+
+A demo video is the most expensive artifact a small software team makes and the one they distribute the least. It goes on the landing page, maybe gets an upload to YouTube, and then it sits there while the surfaces it could have covered stay empty. Wyzowl's 2026 survey, run against 266 marketers and consumers late in 2025, shows the gap directly: 69% of teams put video on social media, but only 23% run a customer-onboarding video and 24% a customer-service one ([Wyzowl, 2026](https://www.wyzowl.com/video-marketing-statistics/)). The two surfaces where the same recording is nearly free to reuse are the two most teams never reach.
+
+That is a distribution problem, not a production one. The recording is a sunk cost the moment you finish it, and every additional place it appears is close to pure return, because the footage already exists. Marketers call the move content atomization: take one asset and cut it into the shapes a dozen destinations want, rather than commissioning a dozen originals. Wistia's 2026 State of Video, drawn from 900-plus professionals and more than 13 million videos, shows teams already do this with their costliest asset, the webinar. Almost 90% reuse webinar footage, most often as a landing-page recording and a set of social clips, with nearly half of teams cutting it into email and over a third into blog posts ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). A product demo earns the same treatment and rarely gets it.
+
+The reason to bother is that one recording is quietly doing three different jobs. On a landing page it convinces a stranger; in your docs it onboards a new account; in a changelog it keeps an existing customer. [The channel matrix in the pillar](/blog/video-marketing-for-software) grades each marketing surface on its own metric; this piece is the placement checklist that comes after it, and it runs past marketing into the product and support surfaces the matrix underweights.
+
+## The ten-placement checklist
+
+Here is one recording and the ten homes it should have. The column that matters is not the format, which the pillar's matrix already pins down, but the exact thing you hand each surface and the specific way teams get it wrong.
+
+| Placement | What you hand it | The mistake that spoils it |
+| --- | --- | --- |
+| Landing-page hero | A muted clip behind a poster, click-to-play | Autoplaying the full-weight file so it becomes the slowest thing on the page |
+| README | An .mp4 or looping GIF dropped in via an issue upload | Committing a 40 MB GIF that bloats every clone and still never plays inline |
+| Docs / help center | A 10-20s silent microvideo beside the written steps | Replacing the text with the video, so search and screen readers find nothing |
+| Onboarding email | A clickable GIF or poster linking to a hosted page | Embedding a real video element and trusting it to play in Gmail |
+| Sales follow-up | A short, named clip behind a personal thumbnail | Sending the generic hero and calling it personalized |
+| Product Hunt gallery | A public YouTube URL, not an upload | Cutting three minutes for a surface judged in the first five seconds |
+| LinkedIn feed | A native square or vertical upload, captions burned in | Pasting a YouTube link and halving your own reach |
+| App Store / Play preview | In-app footage at 886x1920, 15-30s | Letterboxing a landscape web demo to fake a portrait preview |
+| Changelog entry | A 30s clip on the one visible change, with a deep link | Filming an invisible change, like a new API field, as a static screen |
+| YouTube | The full 16:9 cut with chapters and a transcript | Uploading once and never touching the title, chapters, or captions again |
+
+Four rows carry a spec worth pinning down. The README is the one developers forget is a video surface at all. GitHub will not embed a player, but drag an `.mp4`, `.mov`, or `.webm` into an issue, pull request, or discussion and it mints a hosted asset URL you paste straight into the README; the upload ceiling is 10 MB on a free plan and 100 MB on a paid one ([GitHub, 2026](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)). Keep it small, or ship [a looping GIF that re-renders itself](/blog/readme-gifs-that-update-themselves) rather than a multi-megabyte file that rides in every checkout.
+
+The app-store preview is the strictest cell on the board and the one you cannot fake with a reframe. Apple wants 15 to 30 seconds, an `.mov`, `.m4v`, or `.mp4` in H.264, a portrait 886x1920 on current iPhones, up to three previews per language, under 500 MB, with the poster frame taken at the five-second mark ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-preview-specifications/)). It also carries the clearest payoff on the table: 80% of people told Wyzowl they downloaded an app after watching its preview ([Wyzowl, 2026](https://www.wyzowl.com/video-marketing-statistics/)). Squashing a landscape web demo into that portrait frame looks as cheap as it is, which is why [the app-store cut is a genuine second capture](/blog/app-preview-video), not a trim of the hero.
+
+The docs clip and the onboarding email are the activation surfaces, and they fail the same way. A help-center video that replaces the written steps is invisible to a search box and useless on a muted first play, so it belongs beside the text, not in place of it. An onboarding email cannot play an ordinary video element in Gmail or Outlook, so the deliverable there is a clickable GIF or a poster image linking to a hosted page. The changelog wants the opposite of length: [a thirty-second clip on the one thing that visibly changed](/blog/feature-announcement-video), a deep link to try it, and nothing filmed that a camera cannot actually see.
+
+## The same recording works three jobs: convince, onboard, keep
+
+Sort the ten placements by what the video is doing rather than which team owns the surface, and they fall into three jobs spread across a customer's life with you.
+
+| Job | Where it shows up | What the recording is doing there |
+| --- | --- | --- |
+| Convince a stranger | Landing hero, Product Hunt, LinkedIn, YouTube, app store | Earning a click and a shred of trust from someone who has never heard of you |
+| Onboard a signup | README, docs, onboarding email, in-product empty states | Turning a fresh account into its first successful action |
+| Keep a customer | Changelog, help center, release emails | Announcing what changed and answering the repeat how-do-I before it becomes a ticket |
+
+The middle and bottom rows are the underpriced ones. Most "where to use your demo video" advice stops at the top row, the acquisition surfaces, because that is where marketing's attention and budget already point. But the same footage that convinces a stranger on the landing page also shows a new signup where the export button lives, and settles the how-do-I question a customer would otherwise open a ticket about. Those are the two jobs Wyzowl found teams skipping, at 23% and 24%, and they are the two where reuse is cheapest, because a product surface needs no 9:16 reframe and no burned-in social hook. A [help-center clip that actually deflects a ticket](/blog/support-videos-knowledge-base) is just the recording trimmed to one task and captioned. The demo pays itself back fastest not on the surface that first won someone over, but on the surfaces that stop them leaving or writing in.
+
+## Ten placements are ten things that go stale together
+
+Breadth sends its bill later. The day you rename a button or restyle a screen, every one of those ten placements is wrong at once: the landing hero, the README GIF, the docs clip, the app-store preview, the whole changelog back-catalog. A demo distributed to one place lies in one place; a demo distributed to ten lies in ten, and the wider you spread a hand-recorded take the larger the re-record tax when the product ships. That is the quiet reason teams under-distribute in the first place. Some part of them knows every extra placement is one more thing to redo by hand.
+
+The tax only shrinks if the recording is something you regenerate instead of reshoot. Store the demo as a spec, the flow captured as steps and narration in text, and a renamed button becomes a one-line change that all ten outputs rebuild from, which is the whole case for [treating the demo as a regenerable artifact](/blog/automated-product-demo-videos) rather than a frozen file. aidemo, the open-source engine we build, is made for exactly that: you hand it a storyboard, it drives a real Chrome to act the flow out, and that one description renders at every size and length the ten surfaces need. Where it fits poorly is worth naming too. The capture happens inside a browser, which rules out a native mobile screen; an agent writes the storyboard, so it is code you review rather than clicks you perform; and it has no editing timeline, so a fix means changing the spec and rendering again. None of that pays off for a throwaway one-take clip. It pays off when the recording has to reach ten places and stay accurate as the UI keeps moving, the case where rebuilding the whole set is cheaper than shooting it again.
+
+## Sources
+
+- [Wyzowl - Video Marketing Statistics 2026 (onboarding/support video use, app-demo download rate)](https://www.wyzowl.com/video-marketing-statistics/)
+- [Wistia - State of Video Report: Video Marketing Statistics for 2026 (webinar repurposing, distribution)](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [GitHub Docs - Attaching files (supported video formats and upload size limits)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+- [Apple - App preview specifications (App Store Connect)](https://developer.apple.com/help/app-store-connect/reference/app-preview-specifications/)
+
+## FAQ
+
+### Where should I put my product demo video?
+
+In more than the two places most teams use. The full working set is ten: a landing-page hero, a README, a docs or help-center clip, an onboarding email, a sales follow-up, the Product Hunt gallery, a native LinkedIn post, an app-store preview, a changelog entry, and a YouTube upload. Start with the surfaces you are skipping: Wyzowl's 2026 data has 69% of teams putting video on social but only 23% in onboarding and 24% in customer support, and those product surfaces are where the same recording is cheapest to reuse.
+
+### How do I reuse one demo video across multiple channels?
+
+Treat the capture as a master and re-fit it per surface: trim to the placement's length, change the container, burn captions for muted feeds, and reframe the aspect. Most placements are that master with a mechanical pass and nothing more. Two are not: an app-store preview needs 886x1920 portrait footage of the app itself, and a hard 9:16 crop of a wide desktop UI throws away most of the frame, so both are better recorded fresh than cropped.
+
+### Can you put a video in a GitHub README?
+
+Not as an embedded player, but yes as a hosted clip. Drag an `.mp4`, `.mov`, or `.webm` into a GitHub issue, pull request, or discussion and GitHub uploads it and hands back a URL you drop into the README; the ceiling is 10 MB on a free plan and 100 MB on a paid one. For an always-visible loop, a GIF plays inline with no click, at the cost of a larger file and no sound.

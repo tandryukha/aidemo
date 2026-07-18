@@ -1444,6 +1444,83 @@ MCP, the Model Context Protocol, is an open JSON-RPC client-server standard wher
 
 ---
 
+# Demo video CTAs: one ask, placed where viewers still are
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-call-to-action/
+
+> An end card offering five things converts nobody. The one-ask rule, a developer CTA taxonomy, and the retention math for where the closing ask goes.
+
+## The ask is where the whole video cashes out
+
+A demo video has exactly one job downstream of being watched: to produce a next action. Everything before the final beat, the hook and the walkthrough and the proof, is setup for the single moment when the viewer decides to do the thing you built the video to make them do. That moment is the call to action, and it is where the whole video cashes out. Get it wrong and a demo that held attention for ninety seconds converts nobody, which is the most expensive kind of failure, because you paid for the attention and then declined to spend it.
+
+Two failures account for most of it. The first is the menu: an end card offering five things at once, start a trial, book a call, read the docs, follow us, watch another video, on the theory that more doors mean more exits. The second is misplacement: a single clean ask welded to the last frame of a four-minute video that two-thirds of the audience already left. Both are fixable, and both reduce to two decisions you make once, which ask and where it goes. This piece is only about the close; the [end-to-end production playbook](/blog/how-to-make-a-product-demo-video) covers the rest, and [the opening](/blog/demo-video-hook) is the bookend at the other end of the same timeline.
+
+## Pick one ask, keyed to the funnel stage
+
+The right ask is not a matter of taste. It is a function of how warm the viewer is and how much friction the action costs them. A cold viewer who found a README clip will star a repo but will not book a sales call, and a buyer three weeks into an evaluation wants the call, not another docs link. Match the ask to the temperature of the traffic.
+
+| The ask | Funnel stage | Friction | Fits which product | Where it belongs |
+| --- | --- | --- | --- | --- |
+| Star the repo | Awareness (open source) | Lowest, one click | An open-source tool | A spoken line plus the description |
+| Read the docs | Consideration | Low | A self-serve, technical product | End card and description |
+| Start free | Activation (PLG) | Medium, an account | Self-serve SaaS | End card, plus a button beside the embed |
+| Book a call | Sales | Highest, a calendar hold | Sales-led, higher-ACV B2B | A sound-on follow-up and the sales email |
+| Join the waitlist | Pre-launch | Low | An unreleased product | End card and description |
+
+Read down the friction column and the rule falls out: the colder the traffic, the lower-friction the ask has to be. A repo star or a docs link is the right first ask for an awareness clip, because it costs one click and no commitment. Reserve "book a call" for the warm, sound-on, post-discovery send, where the viewer has already decided you might be worth an hour; the [async sales demo](/blog/sales-demo-video) is built around exactly that ask. Whichever you choose, Wistia's read on the 36,000 CTAs it analyzed in 2024 holds: the ones that convert are built from action-oriented verbs, not vague invitations, and video CTAs on its platform convert at about 16% on average ([Wistia, 2026](https://wistia.com/learn/marketing/using-video-ctas)), a number worth holding onto when we price placement below.
+
+## Why one ask beats a menu of five
+
+The instinct to offer five asks is the instinct that more options cannot hurt: if someone will not buy, maybe they will subscribe. The evidence runs the other way. In Iyengar and Lepper's 2000 field experiment, a supermarket display of 24 jams drew 60% of passing shoppers to stop, against 40% for a display of six, so the big menu won the glance. But only 3% of the shoppers who met the 24-jam display bought a jar, versus 30% of those who met the six ([Iyengar and Lepper, 2000](https://doi.org/10.1037/0022-3514.79.6.995)). The extensive display won attention and lost the sale by a factor of ten.
+
+An end card of five asks is the 24-jam table. It wins a half-second of notice and then hands the viewer a decision, which of these do I want, at the exact moment you needed them to act rather than deliberate. Hick's law names the cost plainly: the time to choose grows with the number of options, and a viewer weighing five links past the end of a video mostly resolves the choice by closing the tab. YouTube quietly encourages the pile-up, letting you place "up to four elements" on an end screen for a standard 16:9 video ([YouTube Help, 2026](https://support.google.com/youtube/answer/6388789)), which reads as permission to use all four. Use one. A single ask is not a constraint you settle for; it is the version that converts, because it replaces a decision with an instruction.
+
+## Placement: the end card only reaches the finishers
+
+A CTA is seen only by the viewers still present when it appears, which makes its real reach a product, not a constant: effective reach equals the people who started, times the fraction still watching at the ask's timestamp. The end card sits at the one point in the video where that fraction is smallest. Vidyard's 2025 benchmark, drawn from roughly 943,000 videos, puts a sub-minute video's completion at 65% and a past-twenty-minute video's at 20% ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)); everything longer than a tight cut sheds audience before the end card ever renders.
+
+Price it out. The figures below are illustrative, anchored to Vidyard's endpoints and the plain fact that a retention curve only falls, but the ratios are the point, not the decimals.
+
+| Video and CTA placement | Retention at the ask | Reach per 1,000 plays, at ~16% CTA conversion |
+| --- | --- | --- |
+| 55-second cut, end card at 0:50 | ~65% | ~104 act |
+| 4-minute walkthrough, end card at 3:55 | ~30% | ~48 act |
+| 4-minute walkthrough, ask stated at the aha (~1:20) | ~70% | ~112 act |
+
+Same ask, same 16% who act once they see it; placement times length is what moves the outcome from 48 to 112. The lesson is not "always put the CTA in the middle." It is that the end card is a good home for the one ask only when the video is short enough that most people reach it, and a poor one the moment the video runs long. Wistia's placement guidance encodes the same curve from the other side: it recommends the CTA in the last quarter for a one-to-three-minute video, but at the halfway mark once a video runs three to five minutes, and earlier still beyond that ([Wistia, 2026](https://wistia.com/learn/marketing/using-video-ctas)), because the longer the video, the fewer finishers there are to catch. Two hard platform limits sharpen the point: a YouTube end screen requires the video to be at least 25 seconds long and lives only in the last 5 to 20 seconds ([YouTube Help, 2026](https://support.google.com/youtube/answer/6388789)), so a fifteen-second social cut cannot carry one at all, and its ask has to be burned into the frame or parked in the description.
+
+This is where "one ask" and "place it where viewers are" stop fighting. You do not solve the retention problem by adding more asks; you solve it by placing the same ask where the audience actually is. State it once out loud at the aha moment, when intent peaks and most of the audience is still there; show it again on the end card for the finishers; and leave it a third time in the description or a pinned comment, the durable link that outlives the end card and catches the viewer who scrolls after the clip stops. One destination, three touchpoints, not three destinations.
+
+## The closing ask is a re-render, not a reshoot
+
+The CTA is the line you will change most, because it is the one you can only grade against real behavior. You will learn that "start free" out-pulls "book a call" for your traffic, or that the ask lands better spoken at 0:40 than shown at 0:55, and each of those lessons is a rewrite. In a hand-recorded demo the ask is welded to the take: the end card is baked into the export, the spoken line sits in a voice track cut to the old timing, and moving it means recording the whole thing again to keep the audio and the cursor in sync. So most teams ship the first CTA they captured and never test a second.
+
+Defining the demo as a script and an action list makes the ask a variable instead of a weld. Our engine, aidemo, works this way: the closing line and the end card are a few fields in an agent-authored storyboard, so swapping the ask or moving it earlier is an edit and a fresh render rather than a reshoot. The honest limits come with the approach: aidemo captures a browser only, a coding agent writes the storyboard as text with no visual timeline to assemble it on, and there is no drag-to-trim editor for nudging the end card by eye. The principle outlives whatever renders the pixels. Decide on one ask, place it where the viewers still are, and keep it cheap enough to change that you actually test it, then instrument the result, because [which ask converts](/blog/demo-video-metrics) is a question only your own click data answers, and [where the video lives](/blog/where-to-use-your-demo-video) decides which placement you needed in the first place.
+
+## Sources
+
+- [Wistia — How to Add a Video CTA to Increase Conversions (2024 analysis of 36,000+ CTAs)](https://wistia.com/learn/marketing/using-video-ctas)
+- [YouTube Help — Add end screens to videos (25-second minimum, last 5-20 seconds, up to four elements)](https://support.google.com/youtube/answer/6388789)
+- [Iyengar & Lepper — When Choice is Demotivating (Journal of Personality and Social Psychology, 2000)](https://doi.org/10.1037/0022-3514.79.6.995)
+- [Vidyard — Video in Business Benchmark Report (completion by length, ~943,000 videos)](https://www.vidyard.com/business-video-benchmarks/)
+
+## FAQ
+
+### Where should a demo video's call to action be placed?
+
+Wherever the most viewers still are, which is rarely only the last frame. On a tight sub-minute cut the end card works, because roughly two-thirds of viewers reach it; on anything longer, retention has thinned, so state the ask out loud at the aha moment and reinforce it on the end card and in the description. Wistia's placement data follows the same logic, moving the recommended CTA earlier as a video runs longer, precisely because fewer people finish it.
+
+### How many calls to action should a demo video have?
+
+One ask, though you can state that one ask more than once. Offering a menu of five competing links reproduces the choice-overload effect Iyengar and Lepper measured with jam, where a 24-option display converted at 3% against 30% for six. Pick a single destination and place it in up to three spots, spoken at the aha, shown on the end card, and left in the description, rather than sending viewers to three different places.
+
+### What makes a good call to action for a software demo?
+
+An ask matched to how warm the viewer is and how much the action costs them. A cold viewer on a README clip will star a repo or open the docs but will not book a sales call, so lead with the low-friction ask and save "book a call" for warm, post-discovery sends. Wistia found across more than 36,000 CTAs that the ones that convert use action-oriented verbs, not vague invitations like "learn more."
+
+---
+
 # Captions on demo videos: the accessibility case and the numbers
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-captions/
@@ -2968,6 +3045,118 @@ Yes, if you paste the stock iframe. Chrome's Lighthouse measures the YouTube pla
 ### How much does it cost to stream a demo video from your own site?
 
 For a 2-minute 1080p clip at about 2 Mbps (roughly 30 MB a view) watched 10,000 times a month, which is around 290 GB or 20,000 minutes, a commodity CDN or Bunny Stream runs about $1.50-3 at $0.005-0.01/GB, while Cloudflare Stream or Mux land near $20 because they meter by the minute. Per-GB billing is several times cheaper for ordinary 1080p; per-minute billing only pays off above about 13 Mbps.
+
+---
+
+# Embedding video in docs sites without wrecking load time
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/embedding-videos-in-docs-sites/
+
+> You can't lazy-load a <video> the way you lazy-load an image. Here is how to put clips in Docusaurus and MkDocs without a page that stalls or breaks offline.
+
+## A docs page is the hard case for embedding a clip
+
+A landing page carries one hero video: watched once, above the fold, on a page built around that single moment. A documentation page is the opposite environment, and every embedding habit that works on the landing page has to be re-checked against four things the docs page does differently.
+
+It carries many clips, not one. A six-step how-to guide wants six short clips, and a careless embed multiplies its cost by six on one scroll. It gets read mid-task, usually by someone who did not come to watch anything and will leave if the page stalls. It gets exported: docs frameworks build offline bundles and PDFs, and a third-party `<iframe>` that plays fine online is a blank rectangle in the offline copy. And it outlives its framework. Docs get migrated between Docusaurus, MkDocs, and plain HTML more often than a marketing site gets rebuilt, and an embed written as a framework-specific component moves with far more friction than one written as portable markup.
+
+So the real question is not how to get a video onto the page, which is trivial, but how to get several clips onto a page that still passes Core Web Vitals, still works offline, and still renders after the next migration. The pillar on [where video earns its keep in docs](/blog/video-documentation) settles which passages deserve a clip at all; this is the mechanics for the ones that do. [Whether the clip should be a GIF instead](/blog/gifs-in-documentation) and [how small to cut it](/blog/microvideos-in-documentation) are separate calls; assume here you already have a short muted clip and need it on the page.
+
+## Three ways to put a clip on a docs page, ranked for docs
+
+| Approach | Portable across frameworks | Bytes on page load | Works offline / in PDF | Written in plain Markdown |
+| --- | --- | --- | --- | --- |
+| Self-hosted `<video>` | Yes, raw HTML renders everywhere | Poster only, with `preload="none"` | Yes, the file ships with the docs | Yes |
+| YouTube / Vimeo `<iframe>` | Renders anywhere online, breaks offline | ~540 KB player unless deferred | No, needs the network | Yes, the raw iframe |
+| Animated GIF | Yes, it is an `<img>` | Largest of the three | Yes | Yes |
+
+For a docs page the self-hosted `<video>` usually wins, because it is the only row that is portable, offline-safe, and light on load at the same time. What it trades away, adaptive bitrate and the egress bill, barely bites here: docs clips are short and the reader is usually on a working connection, so one modest file suits everyone. The full [self-host versus YouTube versus streaming-host cost arithmetic](/blog/embed-video-on-website) is worked out for the marketing case elsewhere; the docs twist is that the two columns marketing can ignore, offline export and portability, are the ones that decide it here. Keep the YouTube iframe for the rare docs page whose point is reach, and defer it. Keep the GIF for the surface that genuinely refuses a `<video>` tag, a README the usual example, and pay its [size and accessibility tax](/blog/gifs-in-documentation) on purpose.
+
+One codec note, then the syntax: give the `<video>` two sources, WebM first for smaller bytes and MP4 as the universal fallback, and let the browser take the first it can play. The [container-versus-codec decision](/blog/best-video-format-for-screen-recording) is a spoke of its own.
+
+## The exact embed, framework by framework
+
+Plain HTML is the portable floor. Most generators pass raw HTML through untouched, so this block renders in Docusaurus, MkDocs Material, GitHub-flavored Markdown that allows HTML, and a hand-written page alike:
+
+```html
+<video controls preload="none" width="720" height="450"
+       poster="/img/export-step.png">
+  <source src="/vid/export-step.webm" type="video/webm">
+  <source src="/vid/export-step.mp4" type="video/mp4">
+  <a href="/vid/export-step.mp4">Download the clip</a> if it will not play inline.
+</video>
+```
+
+Every attribute there earns its place, and `preload` and `poster` get their own section next.
+
+**Docusaurus (MDX).** MDX is JSX, so raw HTML mostly works, with two catches: void elements must be self-closed (`<source ... />`), and no tag can be left unbalanced. Put the file in `static/` and reference it with an absolute path, which Docusaurus resolves from the static directory, or wrap the path in `require()` so the file's "name will be appended by a hash, which enables browsers to aggressively cache" it ([Docusaurus, accessed July 2026](https://docusaurus.io/docs/markdown-features/assets)):
+
+```jsx
+<video controls preload="none" width="720"
+       poster={require('./img/export-step.png').default}>
+  <source src={require('./vid/export-step.mp4').default} type="video/mp4" />
+</video>
+```
+
+The temptation in Docusaurus is to wrap this in a custom `<VideoPlayer>` MDX component and reuse it everywhere. It is tidy, and it welds your content to Docusaurus; the last section is why that is a trap.
+
+**MkDocs Material.** Material ships no video component of its own. Tellingly, its maintainer embeds the project's own demo from a third-party host, Streamable, with a raw `<iframe>` ([squidfunk, accessed July 2026](https://github.com/squidfunk/mkdocs-material/discussions/3984)). For a self-hosted clip you have two clean routes. Write the same HTML5 `<video>` block straight into the Markdown, since Material renders inline HTML. Or add the `mkdocs-video` plugin and embed with image syntax:
+
+```markdown
+![type:video](./videos/export-step.mp4)
+```
+
+```yaml
+plugins:
+  - mkdocs-video:
+      is_video: true
+      video_muted: true
+      video_controls: true
+```
+
+Here `is_video: True` selects the `<video>` tag over an `<iframe>`, and `video_muted`, `video_controls`, `video_autoplay`, and `video_loop` map to the matching attributes ([mkdocs-video, accessed July 2026](https://github.com/soulless-viewer/mkdocs-video/blob/master/README.md)). The plugin buys cleaner Markdown; the raw block buys zero dependencies and identical output in every other framework.
+
+## Keeping a video-heavy page inside Core Web Vitals
+
+The metric that decides whether a docs page feels broken is Largest Contentful Paint, and Google's bar for "good" is "2.5 seconds or less for at least 75% of page visits" ([web.dev, accessed July 2026](https://web.dev/articles/optimize-lcp)). A page with six clips can miss it on one wrong attribute, so three settings carry the weight.
+
+Defer the bytes, but use the right lever, because the two embed types do not share one. An `<iframe>`, a YouTube embed, takes `loading="lazy"`, which defers the frame "until it reaches a calculated distance from the visual viewport" and cuts "initial page load times" ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe)). A `<video>` element has no `loading` attribute at all. Its lever is `preload`, set to `none` to "prevent browsers from preloading any video data, even when in the viewport" ([web.dev, accessed July 2026](https://web.dev/articles/lazy-loading-video)); web.dev calls that "the best chance of avoiding loading the video." Copying `loading="lazy"` onto a `<video>` does nothing, and that mismatched attribute is the single most common docs-embed bug.
+
+With `preload="none"` the only byte a clip fetches before a click is its poster, "a placeholder that will occupy the space while the video loads" ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). That makes the poster the asset to optimize, with one subtlety: a clip above the fold can make its poster the page's LCP element, and web.dev's rule is to "never lazy-load your LCP image" ([web.dev, accessed July 2026](https://web.dev/articles/optimize-lcp)). Compress the poster hard, and lazy-load the posters further down the page, not the one that paints first.
+
+Reserve the space. Set explicit `width` and `height`, or a CSS `aspect-ratio`, on every embed so the browser lays out the box before the media arrives. Skip it and each clip that loads shoves the paragraph beneath it downward, the layout jump that Cumulative Layout Shift scores and a reader feels as text sliding out from under them mid-sentence. Reserved dimensions cost nothing and remove the shift completely.
+
+## The embed that survives a docs migration
+
+Docs get moved. A team on MkDocs adopts Docusaurus for versioned releases; a Docusaurus site collapses back to plain Markdown on a new host. The embeds that survive are the ones written as portable markup; the ones that fight you are the framework-specific conveniences. A raw `<video>` block is the same nine lines in MkDocs, Docusaurus, GitHub, and a bare HTML page. A custom `<VideoPlayer>` MDX component is a rewrite the day you leave Docusaurus, and a `mkdocs-video` marker is a find-and-replace the day you leave MkDocs. Convenience that reads well in one framework is debt in the next, so the portable block is the default and the plugin the deliberate upgrade.
+
+Self-hosting is the portability choice for the same reason. A file shipped alongside the docs travels into the offline bundle, the PDF export, and the migrated site; a third-party `<iframe>` is a live network dependency that a reader offline, a printed PDF, or a locked-down enterprise mirror all render as a hole. The clip you own is the clip that still plays where you cannot reach.
+
+That leaves the one problem no embed setting fixes: the clip goes stale. A docs video shows the exact interface a reader is about to touch, so the day the UI ships, every embed pointing at the old screen is quietly wrong, and a fast, offline-safe, perfectly portable embed of last quarter's UI is still a lie in motion. The fix that scales is to rebuild the clip from a spec on the same commit that changed the screen, the [maintenance model that keeps a tutorial library current](/blog/keeping-tutorial-libraries-current). aidemo, the open-source engine we build, is one way to do it: an agent writes a storyboard and a deterministic run re-records the clip, so the embedded file is regenerated on the release that changed the UI, not reshot by hand. The honest bounds: it captures a browser and nothing outside one, the storyboard is agent-drafted and then edited as text, and there is no drag-and-drop timeline anywhere. Getting the clip onto the page is the easy half. Keeping it true to the product is the half that decides whether the page is documentation or decoration.
+
+## Sources
+
+- [Docusaurus — Markdown Features: Assets](https://docusaurus.io/docs/markdown-features/assets)
+- [Material for MkDocs — How to embed videos (discussion #3984)](https://github.com/squidfunk/mkdocs-material/discussions/3984)
+- [mkdocs-video — plugin README (Markdown syntax and config)](https://github.com/soulless-viewer/mkdocs-video/blob/master/README.md)
+- [MDN — The Video Embed element (preload, poster, dimensions)](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)
+- [MDN — The Inline Frame element (loading attribute)](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe)
+- [web.dev — Lazy-loading video](https://web.dev/articles/lazy-loading-video)
+- [web.dev — Optimize Largest Contentful Paint](https://web.dev/articles/optimize-lcp)
+
+## FAQ
+
+### How do I embed a local MP4 video in Docusaurus or MkDocs?
+
+In both, the portable way is a raw HTML5 `<video>` block written straight into the Markdown, since both render inline HTML: point a `<source>` at the file and add `controls` and `preload="none"`. In Docusaurus (MDX) put the file in `static/` and self-close the `<source />` tag, or wrap the path in `require()` for hash-based caching. In MkDocs Material you can instead add the `mkdocs-video` plugin and write `![type:video](./clip.mp4)` with `is_video: True` in the config.
+
+### Can I lazy-load a self-hosted video on a documentation page?
+
+Not with `loading="lazy"` — that attribute works on `<img>` and `<iframe>` elements, not on `<video>`. To defer a self-hosted clip, set `preload="none"`, which web.dev calls the best chance of avoiding loading the video before a click; the only thing that then loads is the `poster` image. Use `loading="lazy"` only on an iframe embed such as YouTube, and never on the poster or clip that is your Largest Contentful Paint element.
+
+### Will a documentation page with several video clips fail Core Web Vitals?
+
+Only if you let the clips load eagerly. Set `preload="none"` on every self-hosted `<video>` so nothing but the poster loads up front, give each embed explicit `width` and `height` (or `aspect-ratio`) to prevent layout shift, and defer any YouTube iframes with `loading="lazy"`. With those in place, the bytes that count against Largest Contentful Paint are a handful of compressed posters, and the page clears the 2.5-second "good" threshold with room to spare.
 
 ---
 
@@ -6193,6 +6382,90 @@ Match it to where the video plays: 16:9 (1920 x 1080) for YouTube, a landing her
 
 ---
 
+# Screen recording with a webcam: when the talking-head bubble helps
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/screen-recording-with-webcam/
+
+> Every recorder offers a face cam and most leave it on by habit. A yes/no framework for the talking-head bubble, and the corner it should never take.
+
+## The bubble is a trust signal, not a default setting
+
+Every screen recorder ships a webcam overlay, and most turn it on by default: a small circle of your face parked in a corner while the product runs behind it. The picture-in-picture bubble is not free. It occupies real estate, it pulls the eye off the interface, and on a small embed it grows proportionally larger than it looked in the editor. Leaving it on is a decision whether or not you made it on purpose. The useful question is not "how do I add a face cam" — every tool answers that in two clicks — but "does this particular video need one."
+
+The honest answer depends on what the video is fighting. When the barrier is trust, a face is the fastest way through it: over half of sales pros who use the "hybrid" format, a recording of their face and their screen together, say it pulls the highest response rate, ahead of both selfie-style and screen-only video ([Vidyard, 2025](https://www.vidyard.com/blog/sales-statistics-virtual-selling/)). When the barrier is comprehension, the same face is a liability, because it competes for the attention the interface needs. What follows is a yes/no framework keyed to that split, the placement and size numbers for the times the answer is yes, and the one accessibility mistake the bubble makes on the way. It is the personal-video layer on top of [the capture-settings checklist](/blog/how-to-record-your-screen-in-high-quality).
+
+## When the face earns its corner, and when it steals it
+
+A demo clears exactly one barrier at a time, and the barrier decides the bubble. Wistia's case for the talking head is that when someone speaks straight to camera it "feels intimate and personal, as if they're having a one-on-one conversation," which "can help build trust ... and add credibility" ([Wistia, 2026](https://wistia.com/learn/marketing/talking-head-video)). That intimacy is exactly what a cold outbound send, a founder's launch, or a customer testimonial is short on. A first-run walkthrough or a docs clip has the opposite shortage: the viewer already trusts you enough to be watching, and what they lack is a clean look at the control you are describing. Put a face over that and you have spent attention on a problem you did not have.
+
+| The video | Barrier it clears | Webcam bubble | Why |
+|---|---|---|---|
+| Cold or async sales demo | trust in a stranger | Yes | A face lifts reply rates; the buyer is deciding whether you are worth a meeting |
+| Founder or maker-story launch | trust in the team | Yes | Launch-day audiences expect a human; the story is the pitch |
+| Testimonial or About-page clip | credibility | Yes, often full-frame | The speaker is the content, not the screen behind them |
+| First-run or onboarding walkthrough | comprehension | No | The user wants the next click, not your face over it |
+| Docs, tutorial, or feature clip | comprehension | No | The UI is the subject; a bubble occludes the thing being taught |
+| Landing-page hero (muted autoplay) | attention in 5 seconds | Usually no | A silent face says nothing; show the product doing the thing |
+| Bug repro or changelog clip | clarity | No | Nobody needs a face to read a diff |
+
+Two rows anchor the extremes. [The async sales demo](/blog/sales-demo-video) is the strongest yes, because it lands in an inbox cold and the face is what earns the open. [The Product Hunt maker story](/blog/product-hunt-launch-video) is the other clear yes, because launch-day viewers came for the humans as much as the product. Everything in the lower half of the table is a walkthrough whose whole value is legibility, and there the bubble is subtraction.
+
+## Placement and size: stay out of the safe area's way
+
+When the answer is yes, the bubble has three parameters — shape, corner, and size — and broadcast already worked out the constraints. EBU R95, the European standard for 16:9 safe areas, reserves an action-safe region of the inner 93% of the frame (a 3.5% margin on every side) for essential content, and a tighter graphics-safe region of the inner 90% (a 5% margin) for on-screen text and graphics ([EBU R95, 2017](https://tech.ebu.ch/files/live/sites/tech/files/shared/r/r095-2016_2.pdf)). A webcam bubble is on-screen graphics, so it belongs inside those margins, not kissing the edge where a phone's rounded corner or a player's control bar can clip it.
+
+| Parameter | Spec | Reason |
+|---|---|---|
+| Shape | Circle or rounded rectangle | A circle crops tighter, reads as personal, wastes no corner on background |
+| Corner | Bottom, opposite the action and the captions | The eye tracks the cursor; keep the face away from where it works |
+| Size (persistent) | ~15-25% of frame width | Big enough to read a face, small enough to leave the UI legible |
+| Size (intro or outro) | Full frame, briefly | When the face is the message, give it the whole frame for a beat |
+| Edge margin | Inside the 3.5% action-safe border | So a rounded display or a control bar never clips it |
+
+The size band is where instinct misleads. A bubble that looks modest at editor scale, filling a fifth of a 1920-pixel-wide timeline, is the same fifth of a 320-pixel-wide card in an email or a docs sidebar, where it now swallows a real fraction of the readable UI. Size the bubble against the smallest place the video will actually play, not the editor you built it in.
+
+## The bubble that covers the button you are demoing
+
+The failure mode is not aesthetic. A face in the corner sits on top of the interface you recorded the video to show, and two collisions do the damage.
+
+The first is with the UI itself. A persistent bubble occludes whatever is beneath it for the entire runtime, so a control, a status line, or a validation error that happens to live in that corner is gone for anyone watching. The fix is compositional: put the bubble in the deadest corner of your layout, and if the app has no dead corner, that is the app telling you it does not want a bubble.
+
+The second collision is with the captions, and people miss it because they design with the sound on. Most demo views start muted, which is why [captions carry the video for muted autoplay](/blog/demo-video-captions), and captions live in the bottom band of the frame. Drop a bubble in a bottom corner and the two fight for the same pixels. Broadcast subtitling settled this long ago: the BBC's guidelines keep subtitles toward the bottom but insist it is "most important to avoid obscuring on-screen captions, any part of a speaker's mouth or any other important activity," and use vertical displacement "to avoid obscuring important information" ([BBC Subtitle Guidelines, 2024](https://www.bbc.co.uk/accessibility/forproducts/guides/subtitles/)). Applied to a webcam demo: the bubble and the caption band cannot share an edge. Put the face bottom-left and the captions bottom-center, or lift one clear of the other.
+
+There is a subtler point in that same BBC line. For a viewer who lip-reads, the speaker's mouth is information, so a bubble cropped tight enough to cut the chin, or shrunk until the lips are a smudge, has removed a channel a hearing viewer keeps. If you are showing a face for trust, show enough of it to be read.
+
+## Record the face and the UI as two problems
+
+The pattern that resolves the tension is to stop treating the face and the screen as one welded take. Open full-frame on the face for five to ten seconds to establish the human, shrink to a corner bubble (or cut the face entirely) for the walkthrough where the UI has to be legible, and bring it back full-frame for the closing ask. That is the disciplined version of the hybrid format Vidyard measures: a face where trust is transacted, a clean interface where comprehension is.
+
+Keeping the two as separate layers also keeps them fixable. A face welded into the screen pixels at record time cannot be moved, resized, or removed later; recorded as its own track, it is a composite you can re-time when the caption band shifts or the UI redraws. Tools like OBS composite a webcam, a screen, and overlays into one live frame — the face there is a Video Capture Device source you add and point at your camera ([OBS, 2026](https://obsproject.com/kb/video-capture-sources)), on Windows through DirectShow and on Linux through a separate V4L2 variant. [The build-versus-buy accounting for OBS as a demo tool](/blog/obs-for-product-demos) is its own piece; the point here is that a required face means a compositing recorder.
+
+It is also the honest limit of our own engine. aidemo is browser-only: it drives a real web app from a storyboard a coding agent authors, draws a synthetic cursor, and composites captions and zoom, but it does not capture or overlay a webcam feed at all, and it has no GUI timeline to nudge a bubble on. That is a deliberate boundary — aidemo's bet is the faceless product walkthrough you re-render deterministically when the UI ships. If a video's job is a founder's face on launch day, that is an OBS or produced-recorder job; if its job is a legible, always-current UI walkthrough, the face was the part you were going to cut anyway.
+
+## Sources
+
+- [Vidyard — Virtual selling statistics (hybrid video response rates)](https://www.vidyard.com/blog/sales-statistics-virtual-selling/)
+- [Wistia — How to make a talking-head video](https://wistia.com/learn/marketing/talking-head-video)
+- [EBU R95 — Safe areas for 16:9 television production](https://tech.ebu.ch/files/live/sites/tech/files/shared/r/r095-2016_2.pdf)
+- [BBC — Subtitle Guidelines (positioning and obscuring important content)](https://www.bbc.co.uk/accessibility/forproducts/guides/subtitles/)
+- [OBS Studio — Video capture device sources (adding a webcam)](https://obsproject.com/kb/video-capture-sources)
+
+## FAQ
+
+### Should a screen recording include a webcam or face cam?
+
+Only when the barrier is trust, not comprehension. Use it for cold sales sends, founder and maker-story launches, and testimonials, where a face lifts reply rates and credibility — Vidyard finds the hybrid format (face plus screen) pulls the highest response rate. Skip it for onboarding, docs, tutorials, and feature clips, where the interface is the subject and a bubble occludes it. When in doubt, ask what the video is fighting: a face fixes trust, and a clear UI fixes understanding.
+
+### Where should the webcam bubble go, and how big should it be?
+
+A circle or rounded rectangle in a bottom corner, opposite both the on-screen action and the caption band, sized roughly 15-25% of the frame width and kept inside the action-safe margin — about 3.5% from every edge, per EBU R95 — so a rounded display or a control bar never clips it. Size it against the smallest place the video will play, an email or a docs sidebar, not the full-width editor, because a bubble that looks modest at 1920 pixels swallows a card at 320.
+
+### Does a talking-head bubble hurt accessibility?
+
+It can, in two ways. A persistent bubble occludes whatever UI sits beneath it, and a bottom-corner bubble collides with the captions most muted viewers rely on; the BBC's subtitle guidelines specifically warn against obscuring on-screen captions or other important activity. For viewers who lip-read, a bubble cropped too tight to show the mouth removes information a hearing viewer keeps. Keep the face and the caption band on separate edges, and show enough of the face to be read.
+
+---
+
 # Screen recording without the mouse cursor (or with a better one)
 
 July 18, 2026 · Screen Recording · https://aidemo.top/blog/screen-recording-without-cursor/
@@ -7591,6 +7864,87 @@ Often yes, and it is less work than it sounds, because the text is not optional.
 
 ---
 
+# Visual regression testing for marketing assets, not just components
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/
+
+> Your Storybook is under test; your pricing page is not. Which marketing assets to baseline, how many snapshots each really is, and the noise to mute.
+
+## Your component library is under test; your homepage is not
+
+Open a mature front-end repo and you will usually find a visual regression suite guarding the component library: every button, badge, and modal snapshotted in Storybook, re-rendered in a fixed cloud browser, diffed on every pull request. Then open the marketing site and the coverage stops at the property line. The homepage, the pricing page, the feature landing pages, the Open Graph card that renders under every shared link — the surfaces a prospect sees first — ship through a CMS or a separate Next.js deploy that no baseline ever compares against. A designer edits a hero on Friday, a font token shifts, a third-party embed restyles itself, and the first thing to notice is a visitor, not a build.
+
+The asymmetry is not laziness; it is org structure. The component library lives in the app repo and rides the app's CI, so wiring a screenshot matcher into it is a one-line addition to a pipeline that already runs. The marketing site is often a different repo, a different deploy target (Vercel or Netlify preview URLs), and a different owner (marketing, not engineering), edited by people who never open a git client. Visual regression testing is a solved problem for components precisely because components are code all the way down. Marketing assets are the harder case, and the costlier one to get wrong, because they are the impression that decides whether anyone reaches the product at all. This is the marketing-asset companion to [the tool comparison by diff engine](/blog/visual-regression-testing-tools) and [the drift-detection ladder](/blog/detecting-ui-drift): those pick the engine and tune the pixel threshold; this one maps the assets worth baselining and the noise unique to them.
+
+## A taxonomy of marketing assets worth a baseline
+
+"Test the marketing site" is too coarse to act on. The assets differ in what they are, what silently breaks them, and therefore which capture-and-diff approach fits. Five are worth a baseline, and each carries a multiplier that decides how many snapshots one asset actually becomes.
+
+| Asset | What silently breaks it | Capture + diff that fits | Baseline multiplier |
+|---|---|---|---|
+| Full-page marketing page (home, pricing, features) | CMS copy edits, a reflowed section, a moved CTA | full-page capture per breakpoint; DOM-render diff (Percy) or full-page pixel diff (BackstopJS) | breakpoints x locales |
+| Hero / above-the-fold still | a swapped background, a font-token change, a broken web-font load | tight crop of the first viewport, strict threshold | breakpoints |
+| Embedded demo frame or `<video poster>` | the product moved, so the frame no longer matches the live UI | still extracted from the same take that renders the video | 1 per demo |
+| Generated OG / social card | a template change overflowing text off the 1200x630 canvas | render the card URL, diff the output image | 1 per template x dynamic inputs |
+| Email / campaign hero image | a design-system change the campaign was forked from | render the exported asset, diff before send | 1 per campaign |
+
+The multiplier is the number nobody budgets for. A single homepage is not one baseline; render it at 375, 768, and 1280 pixels — the phone, tablet, and desktop breakpoints where the layout genuinely differs — and it is three, each re-captured per locale. BackstopJS models this directly: a scenario takes a `viewports` array and captures the page at each width in one run ([BackstopJS, accessed July 2026](https://github.com/garris/BackstopJS)), and Percy renders one snapshot at multiple `widths` and produces a separate diff per width ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/percy/features/component-dynamic-content-testing)). The taxonomy exists so you baseline the right five things at the right count, instead of snapshotting the whole site at one width and calling it covered.
+
+## Marketing pages break visual tests in ways components can't
+
+A component renders in isolation from a fixed prop set. A marketing page renders in a hostile environment full of things that change without anyone shipping a change to the product, and a raw pixel diff fires on all of them. The fix is not a looser global threshold — that just blinds you to the moved CTA you wanted to catch, the failure mode [the drift ladder](/blog/detecting-ui-drift) works through in detail. The fix is to neutralize each noise source at its own root.
+
+| Marketing-page noise | Why it fires a false diff | Neutralize it with |
+|---|---|---|
+| Third-party embeds (chat widget, cookie banner, ad) | loads late, restyles itself, renders per session | BackstopJS `removeSelectors` (display:none) / `hideSelectors` (visibility:hidden); Percy `percyCSS` hiding the iframe |
+| A/B test or personalization variant | a different bucket renders per visit | pin the variant via cookie or flag; match against the right baseline (Percy variant baselining) |
+| Live data (timestamps, view counts, avatars) | changes every capture | mask or freeze the region (Percy Region Diff, animation freezing) |
+| Web-font load (FOUT/FOIT) | fallback text renders, then reflows when the font swaps in | wait on `document.fonts.ready` before capture; hold layout with `font-display` |
+| Responsive reflow | the same DOM lays out differently per width | one baseline per breakpoint, not one crop stretched |
+
+BackstopJS gives you the bluntest instruments: `removeSelectors` sets `display: none` and `hideSelectors` sets `visibility: hidden` on anything unpredictable — an ad slot, a cookie banner — before it captures, and `misMatchThreshold` (default 0.1% of pixels) sets how much residual noise passes ([BackstopJS, accessed July 2026](https://github.com/garris/BackstopJS)). Percy does the same without touching production markup, through a scoped media query: CSS nested in `@media only percy { .hide-in-percy { visibility: hidden; } }` applies only in Percy's render environment and nowhere else, and a per-snapshot `percyCSS: "iframe { display: none; }"` kills a live embed for the diff alone ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/docs/percy/advanced-snapshots/percy-css)). For the variant problem, Percy's dynamic-content features add Region Diff to scope out noisy areas and baseline matching that "automatically compare[s] new screenshots to the right baseline" for A/B tests ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/percy/features/component-dynamic-content-testing)).
+
+The web-font case is the one teams miss, because it looks like flake and is actually timing. A page with `font-display: swap` renders fallback text immediately, then repaints when the web font arrives — a flash of unstyled text, FOUT; `block` instead hides the text first, a flash of invisible text, FOIT ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)). Snapshot inside that window and every glyph edge, metric, and line-wrap differs from a snapshot taken a beat later, over a font nobody changed. Waiting on `document.fonts.ready` before you capture removes the entire class, and it is cheaper and more honest than raising the pixel threshold until the real diffs slip through too.
+
+Anti-aliasing is the one noise source you can leave to the tool. Every serious engine already discards it: Chromatic ignores anti-aliased pixels by default and measures color distance in YIQ with a `diffThreshold` that defaults to 0.063 on a 0-to-1 scale ([Chromatic, accessed July 2026](https://www.chromatic.com/docs/threshold/)), the same family of default other engines set for pixelmatch and Playwright. Spend your tuning budget on the marketing-specific noise above; the sub-pixel edge noise is handled for you.
+
+## The generated card is code, so baseline it like code
+
+One marketing asset is unambiguously a build artifact: the Open Graph image. `og:image` is a required Open Graph property, with structured `og:image:width` and `og:image:height` companions, and it is the picture every link preview renders on social, in Slack, in a text message ([Open Graph protocol, accessed July 2026](https://ogp.me/)). Increasingly that image is generated on the fly — a template with the page title, an author, a gradient, rendered to a 1200x630 PNG per URL. When the template is code, its output drifts exactly like any other rendered surface: a longer title overflows the canvas, a font fails to load and falls back to broken metrics, a design-token change recolors it — and because nobody looks at their own share cards, the break ships to every shared link in silence.
+
+This is the asset most native to visual regression, because it has no CMS editor and no human in the loop: it is a pure function from inputs to pixels. Baseline a handful of representative cards — a short title, a title long enough to test wrapping, a locale with tall glyphs — render each to its 1200x630 output, and diff on every deploy. It is the [screenshot pipeline the docs already run](/blog/automating-product-screenshots) pointed at a URL that returns an image instead of a page, and it catches the overflow before it becomes the first thing a prospect sees in a feed.
+
+## Wire the diff to the deploy the marketing team actually ships
+
+The reason marketing assets go untested is that they deploy on a track engineering does not own, so the check has to hook onto that track, not the app's. Marketing sites on Vercel or Netlify get a preview URL per pull request; a CMS publish fires a webhook. Point the diff at those events — capture the preview deploy, compare against the last approved production render — and the check runs where the change actually lands. The reviewer matters as much as the trigger: the person who approves a hero change is a designer or a marketer, not an engineer, which is the argument for a hosted tool with a click-to-approve review screen even on a team that keeps every component baseline in git for free. A binary PNG diff buried in a pull request is not a surface a marketer will review; an approve-or-reject screen is.
+
+When the drifted asset is a demo still or a poster frame, the response is not to re-shoot it. A frame pulled from a demo video is correct only as long as the product it shows is; when the diff fires, [regenerate the asset from its spec](/blog/automated-product-demo-videos) so the corrected still ships in the same change that moved the UI — the mechanism that keeps a demo from [lying about the product as it ships](/blog/why-product-demos-go-stale). Our own engine, aidemo, emits the marketing still and the narrated video from one storyboard, so a UI change updates both together rather than leaving the hero image a version behind; its limits are worth naming plainly — it is browser-only, its storyboards are authored by an agent instead of assembled on a drag-and-drop timeline, and there is no built-in editor for hand-cutting a sequence, so it produces the frame you baseline and hands the diffing to the engines above. The point holds without any particular tool: the surfaces customers see first deserve the same baseline discipline the button component already gets.
+
+## Sources
+
+- [BackstopJS — scenario config: selectors, viewports, removeSelectors/hideSelectors, misMatchThreshold (MIT)](https://github.com/garris/BackstopJS)
+- [Percy (BrowserStack) — Percy-specific CSS: @media only percy and percyCSS](https://www.browserstack.com/docs/percy/advanced-snapshots/percy-css)
+- [Percy (BrowserStack) — component and dynamic content testing: Region Diff, widths, A/B baselines](https://www.browserstack.com/percy/features/component-dynamic-content-testing)
+- [Chromatic — diffThreshold (default 0.063, YIQ) and anti-aliasing handling](https://www.chromatic.com/docs/threshold/)
+- [MDN — CSS font-display (FOIT/FOUT, block vs swap)](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)
+- [The Open Graph protocol — og:image and og:image:width/height](https://ogp.me/)
+
+## FAQ
+
+### How do you visual regression test a marketing website?
+
+Capture each page at the widths where its layout actually differs — a phone, a tablet, and a desktop breakpoint — and diff every deploy against an approved baseline, using a full-page tool like BackstopJS or a DOM-render tool like Percy. Hook the check onto the marketing site's own deploy track (a Vercel or Netlify preview URL, or a CMS publish webhook) rather than the app's CI, since the two usually ship separately. Then neutralize the page-level noise up front: hide third-party embeds, pin any A/B variant, and wait for web fonts to load before you capture.
+
+### How do you keep cookie banners and A/B tests from breaking visual tests?
+
+Take them out of the comparison at the source instead of loosening the threshold. For a cookie banner, chat widget, or ad, BackstopJS `removeSelectors` (display:none) or `hideSelectors` (visibility:hidden) and Percy's `percyCSS` hiding the iframe both blank the element before the snapshot. For an A/B test or personalization, pin the visitor to one variant with a cookie or flag so the same bucket renders every run, then let a tool like Percy match the capture against that variant's baseline rather than a different one.
+
+### Should marketing pages and components share the same visual test suite?
+
+Usually not, because they deploy on different tracks and get reviewed by different people. Components live in the app repo and ride the app's CI, where an engineer approves a binary diff; marketing pages ship from a CMS or a separate site deploy and are approved by a designer or marketer who wants a click-to-approve screen, not a git diff. Keep them as two suites wired to their own triggers — the app's pull requests for components, the marketing preview deploy or CMS webhook for pages — even if both point at the same underlying diff engine.
+
+---
+
 # Visual regression testing tools compared by diff engine
 
 July 18, 2026 · Demo Automation · https://aidemo.top/blog/visual-regression-testing-tools/
@@ -7693,6 +8047,84 @@ Both capture in the browser and re-render on their own cloud, so neither flakes 
 Yes. `expect(page).toHaveScreenshot()` writes a baseline PNG into a `<test>-snapshots/` folder on first run, diffs every later run against it with the pixelmatch library, and accepts intended changes when you pass `--update-snapshots`. Because the baselines live in your repo and the pixels come from wherever the test ran, run it in a containerized or CI environment so font rendering stays constant, or the diffs will flake across machines.
 ### Are there free open-source visual regression testing tools?
 Several, and they differ by where baselines live. pixelmatch (ISC) and odiff (MIT) are diff libraries you wire into your own runner; BackstopJS (MIT) keeps reference bitmaps in your repo with a local browser report; reg-suit (MIT) stores baselines in your own S3 or GCS bucket and comments the diff on the pull request; and Argos is MIT-licensed and self-hostable. All cost $0 in license; you pay only in the git space, storage, or CI minutes you already own.
+
+---
+
+# Where to use your demo video: one recording, ten placements
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/where-to-use-your-demo-video/
+
+> You recorded one demo and posted it in one place. Here is the ten-surface checklist that makes it pay for itself, each with the cut it needs.
+
+## Most demos get posted twice and then forgotten
+
+A demo video is the most expensive artifact a small software team makes and the one they distribute the least. It goes on the landing page, maybe gets an upload to YouTube, and then it sits there while the surfaces it could have covered stay empty. Wyzowl's 2026 survey, run against 266 marketers and consumers late in 2025, shows the gap directly: 69% of teams put video on social media, but only 23% run a customer-onboarding video and 24% a customer-service one ([Wyzowl, 2026](https://www.wyzowl.com/video-marketing-statistics/)). The two surfaces where the same recording is nearly free to reuse are the two most teams never reach.
+
+That is a distribution problem, not a production one. The recording is a sunk cost the moment you finish it, and every additional place it appears is close to pure return, because the footage already exists. Marketers call the move content atomization: take one asset and cut it into the shapes a dozen destinations want, rather than commissioning a dozen originals. Wistia's 2026 State of Video, drawn from 900-plus professionals and more than 13 million videos, shows teams already do this with their costliest asset, the webinar. Almost 90% reuse webinar footage, most often as a landing-page recording and a set of social clips, with nearly half of teams cutting it into email and over a third into blog posts ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). A product demo earns the same treatment and rarely gets it.
+
+The reason to bother is that one recording is quietly doing three different jobs. On a landing page it convinces a stranger; in your docs it onboards a new account; in a changelog it keeps an existing customer. [The channel matrix in the pillar](/blog/video-marketing-for-software) grades each marketing surface on its own metric; this piece is the placement checklist that comes after it, and it runs past marketing into the product and support surfaces the matrix underweights.
+
+## The ten-placement checklist
+
+Here is one recording and the ten homes it should have. The column that matters is not the format, which the pillar's matrix already pins down, but the exact thing you hand each surface and the specific way teams get it wrong.
+
+| Placement | What you hand it | The mistake that spoils it |
+| --- | --- | --- |
+| Landing-page hero | A muted clip behind a poster, click-to-play | Autoplaying the full-weight file so it becomes the slowest thing on the page |
+| README | An .mp4 or looping GIF dropped in via an issue upload | Committing a 40 MB GIF that bloats every clone and still never plays inline |
+| Docs / help center | A 10-20s silent microvideo beside the written steps | Replacing the text with the video, so search and screen readers find nothing |
+| Onboarding email | A clickable GIF or poster linking to a hosted page | Embedding a real video element and trusting it to play in Gmail |
+| Sales follow-up | A short, named clip behind a personal thumbnail | Sending the generic hero and calling it personalized |
+| Product Hunt gallery | A public YouTube URL, not an upload | Cutting three minutes for a surface judged in the first five seconds |
+| LinkedIn feed | A native square or vertical upload, captions burned in | Pasting a YouTube link and halving your own reach |
+| App Store / Play preview | In-app footage at 886x1920, 15-30s | Letterboxing a landscape web demo to fake a portrait preview |
+| Changelog entry | A 30s clip on the one visible change, with a deep link | Filming an invisible change, like a new API field, as a static screen |
+| YouTube | The full 16:9 cut with chapters and a transcript | Uploading once and never touching the title, chapters, or captions again |
+
+Four rows carry a spec worth pinning down. The README is the one developers forget is a video surface at all. GitHub will not embed a player, but drag an `.mp4`, `.mov`, or `.webm` into an issue, pull request, or discussion and it mints a hosted asset URL you paste straight into the README; the upload ceiling is 10 MB on a free plan and 100 MB on a paid one ([GitHub, 2026](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)). Keep it small, or ship [a looping GIF that re-renders itself](/blog/readme-gifs-that-update-themselves) rather than a multi-megabyte file that rides in every checkout.
+
+The app-store preview is the strictest cell on the board and the one you cannot fake with a reframe. Apple wants 15 to 30 seconds, an `.mov`, `.m4v`, or `.mp4` in H.264, a portrait 886x1920 on current iPhones, up to three previews per language, under 500 MB, with the poster frame taken at the five-second mark ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-preview-specifications/)). It also carries the clearest payoff on the table: 80% of people told Wyzowl they downloaded an app after watching its preview ([Wyzowl, 2026](https://www.wyzowl.com/video-marketing-statistics/)). Squashing a landscape web demo into that portrait frame looks as cheap as it is, which is why [the app-store cut is a genuine second capture](/blog/app-preview-video), not a trim of the hero.
+
+The docs clip and the onboarding email are the activation surfaces, and they fail the same way. A help-center video that replaces the written steps is invisible to a search box and useless on a muted first play, so it belongs beside the text, not in place of it. An onboarding email cannot play an ordinary video element in Gmail or Outlook, so the deliverable there is a clickable GIF or a poster image linking to a hosted page. The changelog wants the opposite of length: [a thirty-second clip on the one thing that visibly changed](/blog/feature-announcement-video), a deep link to try it, and nothing filmed that a camera cannot actually see.
+
+## The same recording works three jobs: convince, onboard, keep
+
+Sort the ten placements by what the video is doing rather than which team owns the surface, and they fall into three jobs spread across a customer's life with you.
+
+| Job | Where it shows up | What the recording is doing there |
+| --- | --- | --- |
+| Convince a stranger | Landing hero, Product Hunt, LinkedIn, YouTube, app store | Earning a click and a shred of trust from someone who has never heard of you |
+| Onboard a signup | README, docs, onboarding email, in-product empty states | Turning a fresh account into its first successful action |
+| Keep a customer | Changelog, help center, release emails | Announcing what changed and answering the repeat how-do-I before it becomes a ticket |
+
+The middle and bottom rows are the underpriced ones. Most "where to use your demo video" advice stops at the top row, the acquisition surfaces, because that is where marketing's attention and budget already point. But the same footage that convinces a stranger on the landing page also shows a new signup where the export button lives, and settles the how-do-I question a customer would otherwise open a ticket about. Those are the two jobs Wyzowl found teams skipping, at 23% and 24%, and they are the two where reuse is cheapest, because a product surface needs no 9:16 reframe and no burned-in social hook. A [help-center clip that actually deflects a ticket](/blog/support-videos-knowledge-base) is just the recording trimmed to one task and captioned. The demo pays itself back fastest not on the surface that first won someone over, but on the surfaces that stop them leaving or writing in.
+
+## Ten placements are ten things that go stale together
+
+Breadth sends its bill later. The day you rename a button or restyle a screen, every one of those ten placements is wrong at once: the landing hero, the README GIF, the docs clip, the app-store preview, the whole changelog back-catalog. A demo distributed to one place lies in one place; a demo distributed to ten lies in ten, and the wider you spread a hand-recorded take the larger the re-record tax when the product ships. That is the quiet reason teams under-distribute in the first place. Some part of them knows every extra placement is one more thing to redo by hand.
+
+The tax only shrinks if the recording is something you regenerate instead of reshoot. Store the demo as a spec, the flow captured as steps and narration in text, and a renamed button becomes a one-line change that all ten outputs rebuild from, which is the whole case for [treating the demo as a regenerable artifact](/blog/automated-product-demo-videos) rather than a frozen file. aidemo, the open-source engine we build, is made for exactly that: you hand it a storyboard, it drives a real Chrome to act the flow out, and that one description renders at every size and length the ten surfaces need. Where it fits poorly is worth naming too. The capture happens inside a browser, which rules out a native mobile screen; an agent writes the storyboard, so it is code you review rather than clicks you perform; and it has no editing timeline, so a fix means changing the spec and rendering again. None of that pays off for a throwaway one-take clip. It pays off when the recording has to reach ten places and stay accurate as the UI keeps moving, the case where rebuilding the whole set is cheaper than shooting it again.
+
+## Sources
+
+- [Wyzowl - Video Marketing Statistics 2026 (onboarding/support video use, app-demo download rate)](https://www.wyzowl.com/video-marketing-statistics/)
+- [Wistia - State of Video Report: Video Marketing Statistics for 2026 (webinar repurposing, distribution)](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [GitHub Docs - Attaching files (supported video formats and upload size limits)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+- [Apple - App preview specifications (App Store Connect)](https://developer.apple.com/help/app-store-connect/reference/app-preview-specifications/)
+
+## FAQ
+
+### Where should I put my product demo video?
+
+In more than the two places most teams use. The full working set is ten: a landing-page hero, a README, a docs or help-center clip, an onboarding email, a sales follow-up, the Product Hunt gallery, a native LinkedIn post, an app-store preview, a changelog entry, and a YouTube upload. Start with the surfaces you are skipping: Wyzowl's 2026 data has 69% of teams putting video on social but only 23% in onboarding and 24% in customer support, and those product surfaces are where the same recording is cheapest to reuse.
+
+### How do I reuse one demo video across multiple channels?
+
+Treat the capture as a master and re-fit it per surface: trim to the placement's length, change the container, burn captions for muted feeds, and reframe the aspect. Most placements are that master with a mechanical pass and nothing more. Two are not: an app-store preview needs 886x1920 portrait footage of the app itself, and a hard 9:16 crop of a wide desktop UI throws away most of the frame, so both are better recorded fresh than cropped.
+
+### Can you put a video in a GitHub README?
+
+Not as an embedded player, but yes as a hosted clip. Drag an `.mp4`, `.mov`, or `.webm` into a GitHub issue, pull request, or discussion and GitHub uploads it and hands back a URL you drop into the README; the ceiling is 10 MB on a free plan and 100 MB on a paid one. For an always-visible loop, a GIF plays inline with no click, at the cost of a larger file and no sound.
 
 ---
 

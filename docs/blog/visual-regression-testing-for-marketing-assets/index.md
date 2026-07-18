@@ -1,0 +1,86 @@
+# Visual regression testing for marketing assets, not just components
+
+July 18, 2026 · Demo Automation · 7 min read · https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/
+
+> Your Storybook is under test; your pricing page is not. Which marketing assets to baseline, how many snapshots each really is, and the noise to mute.
+
+**Key takeaways**
+
+- Teams pixel-diff Storybook components in the app's CI, but the homepage, pricing page, and OG card ship from a CMS or a separate deploy no baseline ever compares against.
+- One marketing page is several baselines: render it at 375, 768, and 1280 px (phone, tablet, desktop) and it is three snapshots, each re-captured per locale.
+- Kill marketing noise at the source, not the threshold: BackstopJS removeSelectors/hideSelectors, Percy @media only percy + percyCSS, freeze animations, mask A/B and live-data regions.
+- Web fonts flake silently: with font-display:swap the fallback repaints when the font loads (FOUT), so wait on document.fonts.ready before capturing rather than loosening the threshold.
+- Generated OG cards are code: a broken template overflows text off the 1200x630 canvas to every shared link, so baseline representative cards on every deploy.
+
+## Your component library is under test; your homepage is not
+
+Open a mature front-end repo and you will usually find a visual regression suite guarding the component library: every button, badge, and modal snapshotted in Storybook, re-rendered in a fixed cloud browser, diffed on every pull request. Then open the marketing site and the coverage stops at the property line. The homepage, the pricing page, the feature landing pages, the Open Graph card that renders under every shared link — the surfaces a prospect sees first — ship through a CMS or a separate Next.js deploy that no baseline ever compares against. A designer edits a hero on Friday, a font token shifts, a third-party embed restyles itself, and the first thing to notice is a visitor, not a build.
+
+The asymmetry is not laziness; it is org structure. The component library lives in the app repo and rides the app's CI, so wiring a screenshot matcher into it is a one-line addition to a pipeline that already runs. The marketing site is often a different repo, a different deploy target (Vercel or Netlify preview URLs), and a different owner (marketing, not engineering), edited by people who never open a git client. Visual regression testing is a solved problem for components precisely because components are code all the way down. Marketing assets are the harder case, and the costlier one to get wrong, because they are the impression that decides whether anyone reaches the product at all. This is the marketing-asset companion to [the tool comparison by diff engine](/blog/visual-regression-testing-tools) and [the drift-detection ladder](/blog/detecting-ui-drift): those pick the engine and tune the pixel threshold; this one maps the assets worth baselining and the noise unique to them.
+
+## A taxonomy of marketing assets worth a baseline
+
+"Test the marketing site" is too coarse to act on. The assets differ in what they are, what silently breaks them, and therefore which capture-and-diff approach fits. Five are worth a baseline, and each carries a multiplier that decides how many snapshots one asset actually becomes.
+
+| Asset | What silently breaks it | Capture + diff that fits | Baseline multiplier |
+|---|---|---|---|
+| Full-page marketing page (home, pricing, features) | CMS copy edits, a reflowed section, a moved CTA | full-page capture per breakpoint; DOM-render diff (Percy) or full-page pixel diff (BackstopJS) | breakpoints x locales |
+| Hero / above-the-fold still | a swapped background, a font-token change, a broken web-font load | tight crop of the first viewport, strict threshold | breakpoints |
+| Embedded demo frame or `<video poster>` | the product moved, so the frame no longer matches the live UI | still extracted from the same take that renders the video | 1 per demo |
+| Generated OG / social card | a template change overflowing text off the 1200x630 canvas | render the card URL, diff the output image | 1 per template x dynamic inputs |
+| Email / campaign hero image | a design-system change the campaign was forked from | render the exported asset, diff before send | 1 per campaign |
+
+The multiplier is the number nobody budgets for. A single homepage is not one baseline; render it at 375, 768, and 1280 pixels — the phone, tablet, and desktop breakpoints where the layout genuinely differs — and it is three, each re-captured per locale. BackstopJS models this directly: a scenario takes a `viewports` array and captures the page at each width in one run ([BackstopJS, accessed July 2026](https://github.com/garris/BackstopJS)), and Percy renders one snapshot at multiple `widths` and produces a separate diff per width ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/percy/features/component-dynamic-content-testing)). The taxonomy exists so you baseline the right five things at the right count, instead of snapshotting the whole site at one width and calling it covered.
+
+## Marketing pages break visual tests in ways components can't
+
+A component renders in isolation from a fixed prop set. A marketing page renders in a hostile environment full of things that change without anyone shipping a change to the product, and a raw pixel diff fires on all of them. The fix is not a looser global threshold — that just blinds you to the moved CTA you wanted to catch, the failure mode [the drift ladder](/blog/detecting-ui-drift) works through in detail. The fix is to neutralize each noise source at its own root.
+
+| Marketing-page noise | Why it fires a false diff | Neutralize it with |
+|---|---|---|
+| Third-party embeds (chat widget, cookie banner, ad) | loads late, restyles itself, renders per session | BackstopJS `removeSelectors` (display:none) / `hideSelectors` (visibility:hidden); Percy `percyCSS` hiding the iframe |
+| A/B test or personalization variant | a different bucket renders per visit | pin the variant via cookie or flag; match against the right baseline (Percy variant baselining) |
+| Live data (timestamps, view counts, avatars) | changes every capture | mask or freeze the region (Percy Region Diff, animation freezing) |
+| Web-font load (FOUT/FOIT) | fallback text renders, then reflows when the font swaps in | wait on `document.fonts.ready` before capture; hold layout with `font-display` |
+| Responsive reflow | the same DOM lays out differently per width | one baseline per breakpoint, not one crop stretched |
+
+BackstopJS gives you the bluntest instruments: `removeSelectors` sets `display: none` and `hideSelectors` sets `visibility: hidden` on anything unpredictable — an ad slot, a cookie banner — before it captures, and `misMatchThreshold` (default 0.1% of pixels) sets how much residual noise passes ([BackstopJS, accessed July 2026](https://github.com/garris/BackstopJS)). Percy does the same without touching production markup, through a scoped media query: CSS nested in `@media only percy { .hide-in-percy { visibility: hidden; } }` applies only in Percy's render environment and nowhere else, and a per-snapshot `percyCSS: "iframe { display: none; }"` kills a live embed for the diff alone ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/docs/percy/advanced-snapshots/percy-css)). For the variant problem, Percy's dynamic-content features add Region Diff to scope out noisy areas and baseline matching that "automatically compare[s] new screenshots to the right baseline" for A/B tests ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/percy/features/component-dynamic-content-testing)).
+
+The web-font case is the one teams miss, because it looks like flake and is actually timing. A page with `font-display: swap` renders fallback text immediately, then repaints when the web font arrives — a flash of unstyled text, FOUT; `block` instead hides the text first, a flash of invisible text, FOIT ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)). Snapshot inside that window and every glyph edge, metric, and line-wrap differs from a snapshot taken a beat later, over a font nobody changed. Waiting on `document.fonts.ready` before you capture removes the entire class, and it is cheaper and more honest than raising the pixel threshold until the real diffs slip through too.
+
+Anti-aliasing is the one noise source you can leave to the tool. Every serious engine already discards it: Chromatic ignores anti-aliased pixels by default and measures color distance in YIQ with a `diffThreshold` that defaults to 0.063 on a 0-to-1 scale ([Chromatic, accessed July 2026](https://www.chromatic.com/docs/threshold/)), the same family of default other engines set for pixelmatch and Playwright. Spend your tuning budget on the marketing-specific noise above; the sub-pixel edge noise is handled for you.
+
+## The generated card is code, so baseline it like code
+
+One marketing asset is unambiguously a build artifact: the Open Graph image. `og:image` is a required Open Graph property, with structured `og:image:width` and `og:image:height` companions, and it is the picture every link preview renders on social, in Slack, in a text message ([Open Graph protocol, accessed July 2026](https://ogp.me/)). Increasingly that image is generated on the fly — a template with the page title, an author, a gradient, rendered to a 1200x630 PNG per URL. When the template is code, its output drifts exactly like any other rendered surface: a longer title overflows the canvas, a font fails to load and falls back to broken metrics, a design-token change recolors it — and because nobody looks at their own share cards, the break ships to every shared link in silence.
+
+This is the asset most native to visual regression, because it has no CMS editor and no human in the loop: it is a pure function from inputs to pixels. Baseline a handful of representative cards — a short title, a title long enough to test wrapping, a locale with tall glyphs — render each to its 1200x630 output, and diff on every deploy. It is the [screenshot pipeline the docs already run](/blog/automating-product-screenshots) pointed at a URL that returns an image instead of a page, and it catches the overflow before it becomes the first thing a prospect sees in a feed.
+
+## Wire the diff to the deploy the marketing team actually ships
+
+The reason marketing assets go untested is that they deploy on a track engineering does not own, so the check has to hook onto that track, not the app's. Marketing sites on Vercel or Netlify get a preview URL per pull request; a CMS publish fires a webhook. Point the diff at those events — capture the preview deploy, compare against the last approved production render — and the check runs where the change actually lands. The reviewer matters as much as the trigger: the person who approves a hero change is a designer or a marketer, not an engineer, which is the argument for a hosted tool with a click-to-approve review screen even on a team that keeps every component baseline in git for free. A binary PNG diff buried in a pull request is not a surface a marketer will review; an approve-or-reject screen is.
+
+When the drifted asset is a demo still or a poster frame, the response is not to re-shoot it. A frame pulled from a demo video is correct only as long as the product it shows is; when the diff fires, [regenerate the asset from its spec](/blog/automated-product-demo-videos) so the corrected still ships in the same change that moved the UI — the mechanism that keeps a demo from [lying about the product as it ships](/blog/why-product-demos-go-stale). Our own engine, aidemo, emits the marketing still and the narrated video from one storyboard, so a UI change updates both together rather than leaving the hero image a version behind; its limits are worth naming plainly — it is browser-only, its storyboards are authored by an agent instead of assembled on a drag-and-drop timeline, and there is no built-in editor for hand-cutting a sequence, so it produces the frame you baseline and hands the diffing to the engines above. The point holds without any particular tool: the surfaces customers see first deserve the same baseline discipline the button component already gets.
+
+## Sources
+
+- [BackstopJS — scenario config: selectors, viewports, removeSelectors/hideSelectors, misMatchThreshold (MIT)](https://github.com/garris/BackstopJS)
+- [Percy (BrowserStack) — Percy-specific CSS: @media only percy and percyCSS](https://www.browserstack.com/docs/percy/advanced-snapshots/percy-css)
+- [Percy (BrowserStack) — component and dynamic content testing: Region Diff, widths, A/B baselines](https://www.browserstack.com/percy/features/component-dynamic-content-testing)
+- [Chromatic — diffThreshold (default 0.063, YIQ) and anti-aliasing handling](https://www.chromatic.com/docs/threshold/)
+- [MDN — CSS font-display (FOIT/FOUT, block vs swap)](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)
+- [The Open Graph protocol — og:image and og:image:width/height](https://ogp.me/)
+
+## FAQ
+
+### How do you visual regression test a marketing website?
+
+Capture each page at the widths where its layout actually differs — a phone, a tablet, and a desktop breakpoint — and diff every deploy against an approved baseline, using a full-page tool like BackstopJS or a DOM-render tool like Percy. Hook the check onto the marketing site's own deploy track (a Vercel or Netlify preview URL, or a CMS publish webhook) rather than the app's CI, since the two usually ship separately. Then neutralize the page-level noise up front: hide third-party embeds, pin any A/B variant, and wait for web fonts to load before you capture.
+
+### How do you keep cookie banners and A/B tests from breaking visual tests?
+
+Take them out of the comparison at the source instead of loosening the threshold. For a cookie banner, chat widget, or ad, BackstopJS `removeSelectors` (display:none) or `hideSelectors` (visibility:hidden) and Percy's `percyCSS` hiding the iframe both blank the element before the snapshot. For an A/B test or personalization, pin the visitor to one variant with a cookie or flag so the same bucket renders every run, then let a tool like Percy match the capture against that variant's baseline rather than a different one.
+
+### Should marketing pages and components share the same visual test suite?
+
+Usually not, because they deploy on different tracks and get reviewed by different people. Components live in the app repo and ride the app's CI, where an engineer approves a binary diff; marketing pages ship from a CMS or a separate site deploy and are approved by a designer or marketer who wants a click-to-approve screen, not a git diff. Keep them as two suites wired to their own triggers — the app's pull requests for components, the marketing preview deploy or CMS webhook for pages — even if both point at the same underlying diff engine.

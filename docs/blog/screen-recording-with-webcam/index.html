@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen recording with a webcam: when it helps | aidemo</title>
+<meta name="description" content="When a webcam bubble on a screen recording lifts trust and when it just covers the UI, with the placement, size, and caption-collision specs to get it right.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/screen-recording-with-webcam/">
+<link rel="alternate" type="text/markdown" href="/blog/screen-recording-with-webcam/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Screen recording with a webcam: when it helps | aidemo">
+<meta property="og:description" content="When a webcam bubble on a screen recording lifts trust and when it just covers the UI, with the placement, size, and caption-collision specs to get it right.">
+<meta property="og:url" content="https://aidemo.top/blog/screen-recording-with-webcam/">
+<meta property="og:image" content="https://aidemo.top/blog/images/screen-recording-with-webcam-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Screen recording with a webcam: when it helps | aidemo">
+<meta name="twitter:description" content="When a webcam bubble on a screen recording lifts trust and when it just covers the UI, with the placement, size, and caption-collision specs to get it right.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/screen-recording-with-webcam-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Screen recording with a webcam: when the talking-head bubble helps",
+  "description": "When a webcam bubble on a screen recording lifts trust and when it just covers the UI, with the placement, size, and caption-collision specs to get it right.",
+  "image": [
+    "https://aidemo.top/blog/images/screen-recording-with-webcam-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/screen-recording-with-webcam/"
+  },
+  "wordCount": 1901,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Vidyard — Virtual selling statistics (hybrid video response rates)",
+      "url": "https://www.vidyard.com/blog/sales-statistics-virtual-selling/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — How to make a talking-head video",
+      "url": "https://wistia.com/learn/marketing/talking-head-video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "EBU R95 — Safe areas for 16:9 television production",
+      "url": "https://tech.ebu.ch/files/live/sites/tech/files/shared/r/r095-2016_2.pdf"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "BBC — Subtitle Guidelines (positioning and obscuring important content)",
+      "url": "https://www.bbc.co.uk/accessibility/forproducts/guides/subtitles/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — Video capture device sources (adding a webcam)",
+      "url": "https://obsproject.com/kb/video-capture-sources"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Screen recording with a webcam: when the talking-head bubble helps",
+      "item": "https://aidemo.top/blog/screen-recording-with-webcam/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should a screen recording include a webcam or face cam?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only when the barrier is trust, not comprehension. Use it for cold sales sends, founder and maker-story launches, and testimonials, where a face lifts reply rates and credibility — Vidyard finds the hybrid format (face plus screen) pulls the highest response rate. Skip it for onboarding, docs, tutorials, and feature clips, where the interface is the subject and a bubble occludes it. When in doubt, ask what the video is fighting: a face fixes trust, and a clear UI fixes understanding."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where should the webcam bubble go, and how big should it be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A circle or rounded rectangle in a bottom corner, opposite both the on-screen action and the caption band, sized roughly 15-25% of the frame width and kept inside the action-safe margin — about 3.5% from every edge, per EBU R95 — so a rounded display or a control bar never clips it. Size it against the smallest place the video will play, an email or a docs sidebar, not the full-width editor, because a bubble that looks modest at 1920 pixels swallows a card at 320."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a talking-head bubble hurt accessibility?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It can, in two ways. A persistent bubble occludes whatever UI sits beneath it, and a bottom-corner bubble collides with the captions most muted viewers rely on; the BBC's subtitle guidelines specifically warn against obscuring on-screen captions or other important activity. For viewers who lip-read, a bubble cropped too tight to show the mouth removes information a hearing viewer keeps. Keep the face and the caption band on separate edges, and show enough of the face to be read."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Screen recording with a webcam: when the talking-head bubble helps</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Screen recording with a webcam: when the talking-head bubble helps</h1>
+        <p class="article-dek">Every recorder offers a face cam and most leave it on by habit. A yes/no framework for the talking-head bubble, and the corner it should never take.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-bubble-is-a-trust-signal-not-a-default-setting">The bubble is a trust signal, not a default setting</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-the-face-earns-its-corner-and-when-it-steals-it">When the face earns its corner, and when it steals it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#placement-and-size-stay-out-of-the-safe-areas-way">Placement and size: stay out of the safe area's way</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-bubble-that-covers-the-button-you-are-demoing">The bubble that covers the button you are demoing</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#record-the-face-and-the-ui-as-two-problems">Record the face and the UI as two problems</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/screen-recording-with-webcam-800.webp" srcset="/blog/images/screen-recording-with-webcam-400.webp 400w, /blog/images/screen-recording-with-webcam-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="An oval cameo brooch carved with a raised face in profile"><figcaption>A face is an ornament you pin on the work: worth wearing when trust is the barrier, better left off when the UI itself has to be read.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The webcam bubble is a trust tool, not a default: Vidyard's hybrid (face plus screen) format pulls the highest sales response rate, but a face over a docs or onboarding UI is subtraction.</li>
+    <li>Decide by the barrier: use the bubble for cold sales, founder/maker-story, and testimonials (trust); skip it for onboarding, tutorials, feature clips, and muted landing heroes (comprehension).</li>
+    <li>Place a circle or rounded rect in a bottom corner, ~15-25% of frame width, inside EBU R95's 3.5% action-safe margin, opposite both the cursor action and the caption band.</li>
+    <li>Size against the smallest embed, not the editor: a bubble filling a fifth of a 1920px timeline swallows a fifth of a 320px email or docs card.</li>
+    <li>Accessibility: a bottom-corner bubble collides with captions muted viewers need (BBC guidelines warn against obscuring them), and cropping the mouth too tight removes lip-reading info.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-bubble-is-a-trust-signal-not-a-default-setting">The bubble is a trust signal, not a default setting<a class="hanchor" href="#the-bubble-is-a-trust-signal-not-a-default-setting" aria-label="Link to section: The bubble is a trust signal, not a default setting">#</a></h2>
+<p>Every screen recorder ships a webcam overlay, and most turn it on by default: a small circle of your face parked in a corner while the product runs behind it. The picture-in-picture bubble is not free. It occupies real estate, it pulls the eye off the interface, and on a small embed it grows proportionally larger than it looked in the editor. Leaving it on is a decision whether or not you made it on purpose. The useful question is not &quot;how do I add a face cam&quot; — every tool answers that in two clicks — but &quot;does this particular video need one.&quot;</p>
+<p>The honest answer depends on what the video is fighting. When the barrier is trust, a face is the fastest way through it: over half of sales pros who use the &quot;hybrid&quot; format, a recording of their face and their screen together, say it pulls the highest response rate, ahead of both selfie-style and screen-only video<sup class="article-cite"><a href="#src-1" title="Vidyard — Virtual selling statistics (hybrid video response rates)">1</a></sup>. When the barrier is comprehension, the same face is a liability, because it competes for the attention the interface needs. What follows is a yes/no framework keyed to that split, the placement and size numbers for the times the answer is yes, and the one accessibility mistake the bubble makes on the way. It is the personal-video layer on top of <a href="/blog/how-to-record-your-screen-in-high-quality/">the capture-settings checklist</a>.</p>
+<h2 id="when-the-face-earns-its-corner-and-when-it-steals-it">When the face earns its corner, and when it steals it<a class="hanchor" href="#when-the-face-earns-its-corner-and-when-it-steals-it" aria-label="Link to section: When the face earns its corner, and when it steals it">#</a></h2>
+<p>A demo clears exactly one barrier at a time, and the barrier decides the bubble. Wistia&#39;s case for the talking head is that when someone speaks straight to camera it &quot;feels intimate and personal, as if they&#39;re having a one-on-one conversation,&quot; which &quot;can help build trust ... and add credibility&quot;<sup class="article-cite"><a href="#src-2" title="Wistia — How to make a talking-head video">2</a></sup>. That intimacy is exactly what a cold outbound send, a founder&#39;s launch, or a customer testimonial is short on. A first-run walkthrough or a docs clip has the opposite shortage: the viewer already trusts you enough to be watching, and what they lack is a clean look at the control you are describing. Put a face over that and you have spent attention on a problem you did not have.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The video</th>
+<th>Barrier it clears</th>
+<th>Webcam bubble</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cold or async sales demo</td>
+<td>trust in a stranger</td>
+<td>Yes</td>
+<td>A face lifts reply rates; the buyer is deciding whether you are worth a meeting</td>
+</tr>
+<tr>
+<td>Founder or maker-story launch</td>
+<td>trust in the team</td>
+<td>Yes</td>
+<td>Launch-day audiences expect a human; the story is the pitch</td>
+</tr>
+<tr>
+<td>Testimonial or About-page clip</td>
+<td>credibility</td>
+<td>Yes, often full-frame</td>
+<td>The speaker is the content, not the screen behind them</td>
+</tr>
+<tr>
+<td>First-run or onboarding walkthrough</td>
+<td>comprehension</td>
+<td>No</td>
+<td>The user wants the next click, not your face over it</td>
+</tr>
+<tr>
+<td>Docs, tutorial, or feature clip</td>
+<td>comprehension</td>
+<td>No</td>
+<td>The UI is the subject; a bubble occludes the thing being taught</td>
+</tr>
+<tr>
+<td>Landing-page hero (muted autoplay)</td>
+<td>attention in 5 seconds</td>
+<td>Usually no</td>
+<td>A silent face says nothing; show the product doing the thing</td>
+</tr>
+<tr>
+<td>Bug repro or changelog clip</td>
+<td>clarity</td>
+<td>No</td>
+<td>Nobody needs a face to read a diff</td>
+</tr>
+</tbody></table></div>
+<p>Two rows anchor the extremes. <a href="/blog/sales-demo-video/">The async sales demo</a> is the strongest yes, because it lands in an inbox cold and the face is what earns the open. <a href="/blog/product-hunt-launch-video/">The Product Hunt maker story</a> is the other clear yes, because launch-day viewers came for the humans as much as the product. Everything in the lower half of the table is a walkthrough whose whole value is legibility, and there the bubble is subtraction.</p>
+<h2 id="placement-and-size-stay-out-of-the-safe-areas-way">Placement and size: stay out of the safe area&#39;s way<a class="hanchor" href="#placement-and-size-stay-out-of-the-safe-areas-way" aria-label="Link to section: Placement and size: stay out of the safe area's way">#</a></h2>
+<p>When the answer is yes, the bubble has three parameters — shape, corner, and size — and broadcast already worked out the constraints. EBU R95, the European standard for 16:9 safe areas, reserves an action-safe region of the inner 93% of the frame (a 3.5% margin on every side) for essential content, and a tighter graphics-safe region of the inner 90% (a 5% margin) for on-screen text and graphics<sup class="article-cite"><a href="#src-3" title="EBU R95 — Safe areas for 16:9 television production">3</a></sup>. A webcam bubble is on-screen graphics, so it belongs inside those margins, not kissing the edge where a phone&#39;s rounded corner or a player&#39;s control bar can clip it.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Spec</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Shape</td>
+<td>Circle or rounded rectangle</td>
+<td>A circle crops tighter, reads as personal, wastes no corner on background</td>
+</tr>
+<tr>
+<td>Corner</td>
+<td>Bottom, opposite the action and the captions</td>
+<td>The eye tracks the cursor; keep the face away from where it works</td>
+</tr>
+<tr>
+<td>Size (persistent)</td>
+<td>~15-25% of frame width</td>
+<td>Big enough to read a face, small enough to leave the UI legible</td>
+</tr>
+<tr>
+<td>Size (intro or outro)</td>
+<td>Full frame, briefly</td>
+<td>When the face is the message, give it the whole frame for a beat</td>
+</tr>
+<tr>
+<td>Edge margin</td>
+<td>Inside the 3.5% action-safe border</td>
+<td>So a rounded display or a control bar never clips it</td>
+</tr>
+</tbody></table></div>
+<p>The size band is where instinct misleads. A bubble that looks modest at editor scale, filling a fifth of a 1920-pixel-wide timeline, is the same fifth of a 320-pixel-wide card in an email or a docs sidebar, where it now swallows a real fraction of the readable UI. Size the bubble against the smallest place the video will actually play, not the editor you built it in.</p>
+<h2 id="the-bubble-that-covers-the-button-you-are-demoing">The bubble that covers the button you are demoing<a class="hanchor" href="#the-bubble-that-covers-the-button-you-are-demoing" aria-label="Link to section: The bubble that covers the button you are demoing">#</a></h2>
+<p>The failure mode is not aesthetic. A face in the corner sits on top of the interface you recorded the video to show, and two collisions do the damage.</p>
+<p>The first is with the UI itself. A persistent bubble occludes whatever is beneath it for the entire runtime, so a control, a status line, or a validation error that happens to live in that corner is gone for anyone watching. The fix is compositional: put the bubble in the deadest corner of your layout, and if the app has no dead corner, that is the app telling you it does not want a bubble.</p>
+<p>The second collision is with the captions, and people miss it because they design with the sound on. Most demo views start muted, which is why <a href="/blog/demo-video-captions/">captions carry the video for muted autoplay</a>, and captions live in the bottom band of the frame. Drop a bubble in a bottom corner and the two fight for the same pixels. Broadcast subtitling settled this long ago: the BBC&#39;s guidelines keep subtitles toward the bottom but insist it is &quot;most important to avoid obscuring on-screen captions, any part of a speaker&#39;s mouth or any other important activity,&quot; and use vertical displacement &quot;to avoid obscuring important information&quot;<sup class="article-cite"><a href="#src-4" title="BBC — Subtitle Guidelines (positioning and obscuring important content)">4</a></sup>. Applied to a webcam demo: the bubble and the caption band cannot share an edge. Put the face bottom-left and the captions bottom-center, or lift one clear of the other.</p>
+<p>There is a subtler point in that same BBC line. For a viewer who lip-reads, the speaker&#39;s mouth is information, so a bubble cropped tight enough to cut the chin, or shrunk until the lips are a smudge, has removed a channel a hearing viewer keeps. If you are showing a face for trust, show enough of it to be read.</p>
+<h2 id="record-the-face-and-the-ui-as-two-problems">Record the face and the UI as two problems<a class="hanchor" href="#record-the-face-and-the-ui-as-two-problems" aria-label="Link to section: Record the face and the UI as two problems">#</a></h2>
+<p>The pattern that resolves the tension is to stop treating the face and the screen as one welded take. Open full-frame on the face for five to ten seconds to establish the human, shrink to a corner bubble (or cut the face entirely) for the walkthrough where the UI has to be legible, and bring it back full-frame for the closing ask. That is the disciplined version of the hybrid format Vidyard measures: a face where trust is transacted, a clean interface where comprehension is.</p>
+<p>Keeping the two as separate layers also keeps them fixable. A face welded into the screen pixels at record time cannot be moved, resized, or removed later; recorded as its own track, it is a composite you can re-time when the caption band shifts or the UI redraws. Tools like OBS composite a webcam, a screen, and overlays into one live frame — the face there is a Video Capture Device source you add and point at your camera<sup class="article-cite"><a href="#src-5" title="OBS Studio — Video capture device sources (adding a webcam)">5</a></sup>, on Windows through DirectShow and on Linux through a separate V4L2 variant. <a href="/blog/obs-for-product-demos/">The build-versus-buy accounting for OBS as a demo tool</a> is its own piece; the point here is that a required face means a compositing recorder.</p>
+<p>It is also the honest limit of our own engine. aidemo is browser-only: it drives a real web app from a storyboard a coding agent authors, draws a synthetic cursor, and composites captions and zoom, but it does not capture or overlay a webcam feed at all, and it has no GUI timeline to nudge a bubble on. That is a deliberate boundary — aidemo&#39;s bet is the faceless product walkthrough you re-render deterministically when the UI ships. If a video&#39;s job is a founder&#39;s face on launch day, that is an OBS or produced-recorder job; if its job is a legible, always-current UI walkthrough, the face was the part you were going to cut anyway.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.vidyard.com/blog/sales-statistics-virtual-selling/" rel="noopener">Vidyard — Virtual selling statistics (hybrid video response rates)</a></li>
+<li id="src-2"><a href="https://wistia.com/learn/marketing/talking-head-video" rel="noopener">Wistia — How to make a talking-head video</a></li>
+<li id="src-3"><a href="https://tech.ebu.ch/files/live/sites/tech/files/shared/r/r095-2016_2.pdf" rel="noopener">EBU R95 — Safe areas for 16:9 television production</a></li>
+<li id="src-4"><a href="https://www.bbc.co.uk/accessibility/forproducts/guides/subtitles/" rel="noopener">BBC — Subtitle Guidelines (positioning and obscuring important content)</a></li>
+<li id="src-5"><a href="https://obsproject.com/kb/video-capture-sources" rel="noopener">OBS Studio — Video capture device sources (adding a webcam)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="should-a-screen-recording-include-a-webcam-or-face-cam" class="blog-faq-q">Should a screen recording include a webcam or face cam?<a class="hanchor" href="#should-a-screen-recording-include-a-webcam-or-face-cam" aria-label="Link to section: Should a screen recording include a webcam or face cam?">#</a></h3>
+<p>Only when the barrier is trust, not comprehension. Use it for cold sales sends, founder and maker-story launches, and testimonials, where a face lifts reply rates and credibility — Vidyard finds the hybrid format (face plus screen) pulls the highest response rate. Skip it for onboarding, docs, tutorials, and feature clips, where the interface is the subject and a bubble occludes it. When in doubt, ask what the video is fighting: a face fixes trust, and a clear UI fixes understanding.</p>
+<h3 id="where-should-the-webcam-bubble-go-and-how-big-should-it-be" class="blog-faq-q">Where should the webcam bubble go, and how big should it be?<a class="hanchor" href="#where-should-the-webcam-bubble-go-and-how-big-should-it-be" aria-label="Link to section: Where should the webcam bubble go, and how big should it be?">#</a></h3>
+<p>A circle or rounded rectangle in a bottom corner, opposite both the on-screen action and the caption band, sized roughly 15-25% of the frame width and kept inside the action-safe margin — about 3.5% from every edge, per EBU R95 — so a rounded display or a control bar never clips it. Size it against the smallest place the video will play, an email or a docs sidebar, not the full-width editor, because a bubble that looks modest at 1920 pixels swallows a card at 320.</p>
+<h3 id="does-a-talking-head-bubble-hurt-accessibility" class="blog-faq-q">Does a talking-head bubble hurt accessibility?<a class="hanchor" href="#does-a-talking-head-bubble-hurt-accessibility" aria-label="Link to section: Does a talking-head bubble hurt accessibility?">#</a></h3>
+<p>It can, in two ways. A persistent bubble occludes whatever UI sits beneath it, and a bottom-corner bubble collides with the captions most muted viewers rely on; the BBC&#39;s subtitle guidelines specifically warn against obscuring on-screen captions or other important activity. For viewers who lip-read, a bubble cropped too tight to show the mouth removes information a hearing viewer keeps. Keep the face and the caption band on separate edges, and show enough of the face to be read.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">webcam</span>
+        <span class="article-tag">talking head video</span>
+        <span class="article-tag">picture in picture</span>
+        <span class="article-tag">demo video</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-bubble-is-a-trust-signal-not-a-default-setting">The bubble is a trust signal, not a default setting</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-the-face-earns-its-corner-and-when-it-steals-it">When the face earns its corner, and when it steals it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#placement-and-size-stay-out-of-the-safe-areas-way">Placement and size: stay out of the safe area's way</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-bubble-that-covers-the-button-you-are-demoing">The bubble that covers the button you are demoing</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#record-the-face-and-the-ui-as-two-problems">Record the face and the UI as two problems</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

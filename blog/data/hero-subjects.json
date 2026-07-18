@@ -266,5 +266,22 @@
   },
   "developer-education-screencasts": {
     "subject": "a triple-decker sandwich stacked tall on a wooden board"
+  },
+  "demo-video-call-to-action": {
+    "subject": "a round archery target with a single arrow in the bullseye"
+  },
+  "screen-recording-with-webcam": {
+    "subject": "an oval cameo brooch carved with a face in profile",
+    "seedOffset": 1
+  },
+  "where-to-use-your-demo-video": {
+    "subject": "a dandelion seed head scattering its seeds into the breeze"
+  },
+  "visual-regression-testing-for-marketing-assets": {
+    "subject": "a polished brass lion's-head door knocker"
+  },
+  "embedding-videos-in-docs-sites": {
+    "subject": "a ship in a bottle resting on a small wooden stand",
+    "seedOffset": 1
   }
 }
