@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding Walkthroughs That Survive Redesigns | aidemo</title>
+<meta name="description" content="Onboarding walkthrough videos rot fastest: they show the first-run UI that changes most. Narrate outcomes, not pixel positions, and re-render on each redesign.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/onboarding-walkthrough-videos/">
+<link rel="alternate" type="text/markdown" href="/blog/onboarding-walkthrough-videos/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Onboarding Walkthroughs That Survive Redesigns | aidemo">
+<meta property="og:description" content="Onboarding walkthrough videos rot fastest: they show the first-run UI that changes most. Narrate outcomes, not pixel positions, and re-render on each redesign.">
+<meta property="og:url" content="https://aidemo.top/blog/onboarding-walkthrough-videos/">
+<meta property="og:image" content="https://aidemo.top/blog/images/onboarding-walkthrough-videos-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Onboarding Walkthroughs That Survive Redesigns | aidemo">
+<meta name="twitter:description" content="Onboarding walkthrough videos rot fastest: they show the first-run UI that changes most. Narrate outcomes, not pixel positions, and re-render on each redesign.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/onboarding-walkthrough-videos-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "In-app onboarding walkthrough videos that survive redesigns",
+  "description": "Onboarding walkthrough videos rot fastest: they show the first-run UI that changes most. Narrate outcomes, not pixel positions, and re-render on each redesign.",
+  "image": [
+    "https://aidemo.top/blog/images/onboarding-walkthrough-videos-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/onboarding-walkthrough-videos/"
+  },
+  "wordCount": 2169,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Appcues — User Onboarding (definition and in-app patterns, 2026)",
+      "url": "https://www.appcues.com/user-onboarding"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Kendrick, Nielsen Norman Group (2020) — Mobile-App Onboarding: An Analysis of Components and Techniques",
+      "url": "https://www.nngroup.com/articles/mobile-app-onboarding/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — How to Choose the Right Marketing Video Length (2026)",
+      "url": "https://wistia.com/learn/marketing/optimal-video-length"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google — Developer Documentation Style Guide: Accessibility (directional language)",
+      "url": "https://developers.google.com/style/accessibility"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?",
+      "url": "https://arxiv.org/abs/1808.04986"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "In-app onboarding walkthrough videos that survive redesigns",
+      "item": "https://aidemo.top/blog/onboarding-walkthrough-videos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is a video or an in-app product tour better for user onboarding?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They do different jobs, so most products need both. An in-app tour of tooltips, modals, and checklists overlays the live product, so it always reflects the current UI, but it only works once a user is signed in and inside the app, and NN/g finds users routinely skip lengthy onboarding (Kendrick, NN/g, 2020). A walkthrough video plays before signup, in docs, and in email, and carries narration, but it freezes the UI at record time. Use tooltips for in-the-moment nudges and a video for the surfaces a tour cannot reach."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my onboarding walkthrough go out of date so quickly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because it films the part of the product that changes most. The signup flow, welcome screens, and empty states are where teams run the most experiments to lift activation, so the first-run UI churns faster than the settled core. A walkthrough pinned to that surface is falsified by the very redesigns meant to improve it. The fix is to narrate outcomes rather than pixel positions so small changes do not break it, and to re-render from a committed spec when a large change does."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you write onboarding narration that survives a UI change?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Name what the user is accomplishing, not where the control sits. \"Create your first project\" survives a recolor, a relayout, and a rename; \"click the blue button in the top-right corner\" breaks on all three. This is the same rule Google's developer style guide gives for written docs: avoid directional language like \"above\" or \"right-hand side\" because it fails for accessibility and localization, and refer to a control by its visible label instead (Google, accessed July 2026)."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>In-app onboarding walkthrough videos that survive redesigns</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">In-app onboarding walkthrough videos that survive redesigns</h1>
+        <p class="article-dek">The onboarding video shows the exact first-run UI a growth team keeps reshaping. How to build a walkthrough that survives the next redesign.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-first-run-screen-is-the-surface-you-redesign-on-purpose">The first-run screen is the surface you redesign on purpose</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#video-or-an-in-app-tour-which-fits-the-first-run">Video or an in-app tour: which fits the first run</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#narrate-the-outcome-not-the-pixel">Narrate the outcome, not the pixel</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-small-redesign-actually-breaks">What a small redesign actually breaks</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#closing-the-loop-so-the-walkthrough-shows-todays-signup">Closing the loop so the walkthrough shows today's signup</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/onboarding-walkthrough-videos-800.webp" srcset="/blog/images/onboarding-walkthrough-videos-400.webp 400w, /blog/images/onboarding-walkthrough-videos-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A brass pocket compass lying open with its needle settled on north"><figcaption>A compass names the destination, never the road, which is exactly how a walkthrough narrated by outcome outlives every redesign of the path.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Onboarding walkthroughs sit on the fastest-changing surface you own: the signup flow, welcome modals, and empty states a growth team keeps reshaping, so they rot faster than any other doc video.</li>
+    <li>For first-run, pick by reach: an in-app tour overlays the live UI so it never goes stale but needs the user signed in; a video plays before signup, in docs, and in email but freezes the UI at record time.</li>
+    <li>Narrate the outcome, not the pixel: 'create your first project' survives a recolor, relayout, or rename; 'click the blue button top-right' does not (Google's style guide bans directional language too).</li>
+    <li>Sort a change by the layer it hits: a restyle ships unchanged, a moved element needs only a re-render from the same spec, and only a removed flow needs re-authoring.</li>
+    <li>Re-render on the commit that touched the onboarding path, so 'the signup flow changed' and 'the walkthrough is current' become one event instead of a backlog.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-first-run-screen-is-the-surface-you-redesign-on-purpose">The first-run screen is the surface you redesign on purpose<a class="hanchor" href="#the-first-run-screen-is-the-surface-you-redesign-on-purpose" aria-label="Link to section: The first-run screen is the surface you redesign on purpose">#</a></h2>
+<p>An onboarding walkthrough has a cruel property: it is at once the most valuable clip in your documentation and the one guaranteed to rot fastest. Valuable, because it shows a brand-new user the exact first-run interface at the one moment they have no mental model of it and the most doubt about whether to stay. Fast-rotting, because that first-run interface, the signup form, the welcome modal, the setup checklist, the empty workspace, is the surface a product team reshapes most deliberately and most often.</p>
+<p>That churn is not an accident of the interface; it is where the growth work lives. Onboarding is &quot;the process of guiding new users from the moment they sign up to their first meaningful experience with your product,&quot; an end-to-end journey across &quot;in-app flows, emails, empty states, tooltips, checklists, and more&quot;<sup class="article-cite"><a href="#src-1" title="Appcues — User Onboarding (definition and in-app patterns, 2026)">1</a></sup>, and every one of those touchpoints is a lever a team pulls to raise activation. A page you keep testing is a page you keep changing, so the first-run flow moves faster than the settled core of the product that a walkthrough of, say, the export screen would document. The highest-value doc video sits on the least stable ground you own. <a href="/blog/video-documentation/">The pillar case for video as a documentation medium</a> names maintenance, not production quality, as what closes most video programs; onboarding is where that tax is steepest.</p>
+<p>This piece is not about what an onboarding clip should contain, <a href="/blog/product-onboarding-video/">the activation-first job of an onboarding video is worked out separately</a>, sorted by the metric each type moves. It is about the narrower engineering problem underneath: how to build a first-run walkthrough that shrugs off a small UI change and re-renders cheaply for a large one, so it keeps matching today&#39;s signup flow instead of last quarter&#39;s.</p>
+<h2 id="video-or-an-in-app-tour-which-fits-the-first-run">Video or an in-app tour: which fits the first run<a class="hanchor" href="#video-or-an-in-app-tour-which-fits-the-first-run" aria-label="Link to section: Video or an in-app tour: which fits the first run">#</a></h2>
+<p>For first-run specifically, the live competitor to a walkthrough video is not a paragraph but an in-app tour: the tooltips, modals, and checklists that overlay the running product. Appcues describes those as &quot;lightweight, contextual onboarding elements that surface guidance exactly where users need it,&quot; with product tours that work only when &quot;short, focused, and tied to a specific action&quot;<sup class="article-cite"><a href="#src-1" title="Appcues — User Onboarding (definition and in-app patterns, 2026)">1</a></sup>. The general <a href="/blog/interactive-demo-vs-video-demo/">decision between an interactive tour and a video</a> turns on distribution and funnel stage; the first-run slice has its own logic worth separating out, because the two formats fail in opposite directions.</p>
+<p>An in-app tour renders on the live product, so it never shows a screen that no longer exists, but it breaks the instant a step&#39;s anchor moves, the user must already be signed in to see it at all, and it cannot be watched before signup, emailed, or pasted into a help center. A video can be watched by a prospect who has not signed up, lives in docs or a launch email, and carries a narrated argument, but it freezes the interface at record time and goes stale without a sound.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>First-run need</th>
+<th>In-app tour (overlay)</th>
+<th>Walkthrough video</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Playable before signup, in docs or email</td>
+<td>No, needs the user inside the app</td>
+<td>Yes, a file plays anywhere</td>
+</tr>
+<tr>
+<td>Reflects today&#39;s exact UI automatically</td>
+<td>Yes, it sits on the live app</td>
+<td>No, frozen at record time</td>
+</tr>
+<tr>
+<td>Carries narration and a reason why</td>
+<td>Weakly, a line of tooltip copy</td>
+<td>Yes, that is its strength</td>
+</tr>
+<tr>
+<td>Fails when a step moves</td>
+<td>Anchor misfires mid-flow</td>
+<td>Cursor points at the wrong spot</td>
+</tr>
+<tr>
+<td>Interrupts the user&#39;s own task</td>
+<td>Yes, and users skip it</td>
+<td>No, the user chose to watch</td>
+</tr>
+</tbody></table></div>
+<p>That last row is the one teams underweight. NN/g&#39;s onboarding research is blunt that &quot;lengthy promotional onboarding will likely be skipped,&quot; that tutorials &quot;didn&#39;t improve task performance,&quot; and that the right instinct is often to &quot;avoid creating app onboarding whenever possible and instead spend your resources making the UI more usable&quot;<sup class="article-cite"><a href="#src-2" title="Kendrick, Nielsen Norman Group (2020) — Mobile-App Onboarding: An Analysis of Components and Techniques">2</a></sup>. Read alongside the table, the honest split is this: use in-app tooltips for in-the-moment nudges a user can dismiss, and use a walkthrough video for the surfaces a tour cannot reach, the pre-signup evaluator, the help center, the onboarding email, kept short, since a one-to-five-minute educational clip still holds over half its viewers before engagement drops off fast<sup class="article-cite"><a href="#src-3" title="Wistia — How to Choose the Right Marketing Video Length (2026)">3</a></sup>. The two are complements. The video half is the one this piece hardens against redesigns.</p>
+<h2 id="narrate-the-outcome-not-the-pixel">Narrate the outcome, not the pixel<a class="hanchor" href="#narrate-the-outcome-not-the-pixel" aria-label="Link to section: Narrate the outcome, not the pixel">#</a></h2>
+<p>Here is the single authoring decision that determines whether a walkthrough survives a small UI change: what the narration is pinned to. A script written around where things sit on screen dies when they move. A script written around what the user is trying to accomplish survives, because the user&#39;s goal is the one thing a redesign is not allowed to change.</p>
+<p>Technical-writing style guides already codify this for prose, and it transfers straight to a voice track. Google&#39;s developer documentation style guide is explicit: &quot;Don&#39;t use directional language to orient the reader, such as above, below, or right-hand side,&quot; because such phrases &quot;don&#39;t work well for accessibility or for localization,&quot; and it tells you to name the control by its visible label instead<sup class="article-cite"><a href="#src-4" title="Google — Developer Documentation Style Guide: Accessibility (directional language)">4</a></sup>. The rule that keeps a written instruction accessible keeps a spoken one durable, for the same reason: both are pinned to intent, not to the arrangement of the moment.</p>
+<p>Rewrite each brittle line into a durable one and the pattern is plain:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Brittle narration (pinned to the layout)</th>
+<th>Durable narration (pinned to the outcome)</th>
+<th>Survives which change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;Click the blue button in the top-right corner&quot;</td>
+<td>&quot;Create your first project&quot;</td>
+<td>Recolor, move, and restyle all survive</td>
+</tr>
+<tr>
+<td>&quot;Open the third tab along the top&quot;</td>
+<td>&quot;Go to your billing settings&quot;</td>
+<td>Reordered or renamed tabs survive</td>
+</tr>
+<tr>
+<td>&quot;A modal pops up in the center of the screen&quot;</td>
+<td>&quot;Confirm your workspace name&quot;</td>
+<td>A swapped or repositioned component survives</td>
+</tr>
+<tr>
+<td>&quot;Type into the big field under the logo&quot;</td>
+<td>&quot;Name your team&quot;</td>
+<td>A relaid-out form survives</td>
+</tr>
+<tr>
+<td>&quot;Press the hamburger icon&quot;</td>
+<td>&quot;Open the main menu&quot;</td>
+<td>A new icon, or an added label, survives</td>
+</tr>
+</tbody></table></div>
+<p>Every line on the right still makes sense after a recolor, a relayout, or a localization, because none of them describe the paint; they describe the job. When the narration names the outcome, a redesign that keeps the outcome, which is nearly every redesign, since one that removed &quot;create a project&quot; would be a different product, leaves the voice track correct even though the pixels moved. This is the spoken twin of pinning the machine&#39;s <a href="/blog/selectors-that-survive-redesigns/">selectors to the accessibility tree rather than to nth-child position</a>: the selector keeps the cursor landing on the right element, and outcome-based narration keeps the voice describing the right thing, and neither has to be re-authored when a designer reaches for the stylesheet. Good how-to videos are scarce partly because &quot;software professionals ... are not directors&quot; and skip exactly this kind of discipline<sup class="article-cite"><a href="#src-5" title="Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?">5</a></sup>; this particular discipline is small, specific, and most of what buys durability.</p>
+<h2 id="what-a-small-redesign-actually-breaks">What a small redesign actually breaks<a class="hanchor" href="#what-a-small-redesign-actually-breaks" aria-label="Link to section: What a small redesign actually breaks">#</a></h2>
+<p>Outcome-based narration is necessary but not sufficient, because a walkthrough is three layers stacked, and a redesign hits them differently. The script is one layer. The cursor path and any zoom are a second, pinned to where the target element sits. The step sequence, the order of actions the flow demands, is a third. Sort a change by which layer it touches and you know at once whether you have a clip that still ships, a clip that needs a re-render, or a clip that needs re-authoring.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Change a redesign makes</th>
+<th>Narration (outcome-based)</th>
+<th>Cursor path and zoom</th>
+<th>Step sequence</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Recolor or restyle</td>
+<td>Fine</td>
+<td>Fine, the element stays put</td>
+<td>Fine</td>
+<td>Ships unchanged</td>
+</tr>
+<tr>
+<td>Rename or re-icon a control</td>
+<td>Fine, it named the goal</td>
+<td>Fine if the selector is role-and-name</td>
+<td>Fine</td>
+<td>Ships, or a one-line selector edit</td>
+</tr>
+<tr>
+<td>Move or relayout an element</td>
+<td>Fine</td>
+<td>Cursor lands wrong; needs a re-render</td>
+<td>Fine</td>
+<td>Re-render from the same spec</td>
+</tr>
+<tr>
+<td>Reorder or add a required step</td>
+<td>Needs a line</td>
+<td>Needs the new target</td>
+<td>Changed</td>
+<td>Edit the spec, re-render</td>
+</tr>
+<tr>
+<td>Remove the flow entirely</td>
+<td>Wrong</td>
+<td>Wrong</td>
+<td>Gone</td>
+<td>Re-author: the task itself changed</td>
+</tr>
+</tbody></table></div>
+<p>The middle three rows are the whole argument for treating the walkthrough as something you re-render rather than re-shoot. A moved element or a new required field does not need a human back in a screen recorder performing the flow again; it needs the cursor pointed at the new location and the clip rebuilt, which is a spec edit and a render. Only the last row, where the task itself is gone, is genuinely new work, and that is correct, because a walkthrough of a flow that no longer exists should fail loudly rather than limp along. That is the same reason resilient targeting <a href="/blog/detecting-ui-drift/">doubles as a way to catch UI drift before the video lies</a>: a re-render against today&#39;s build either succeeds or tells you exactly which step broke, which is far cheaper than a viewer discovering it for you.</p>
+<h2 id="closing-the-loop-so-the-walkthrough-shows-todays-signup">Closing the loop so the walkthrough shows today&#39;s signup<a class="hanchor" href="#closing-the-loop-so-the-walkthrough-shows-todays-signup" aria-label="Link to section: Closing the loop so the walkthrough shows today's signup">#</a></h2>
+<p>Durable narration and resilient targeting buy survival against the small changes. The large ones, the quarterly signup redesign, the reworked empty state, the new required field, still demand a fresh clip, and the only model that keeps pace is regeneration: hold the walkthrough as a committed spec that a machine replays against the current build, so &quot;the signup flow changed&quot; and &quot;the walkthrough is current&quot; collapse into one event. <a href="/blog/keeping-tutorial-libraries-current/">Keeping a whole tutorial library current at scale</a> works the arithmetic across many clips; for a single onboarding walkthrough the case is even sharper, because it sits on the fastest-moving surface, which makes it the clip most worth wiring to re-render on the commit that touched the onboarding path.</p>
+<p>Our own engine, aidemo, is built for this loop, and it fits a docs pipeline only with its limits stated plainly: it drives a browser and nothing native, its storyboards are authored by a coding agent instead of assembled on a visual timeline, and it ships no drag-and-drop editor. It earns its place on a first-run walkthrough you mean to keep true for years, not on a throwaway screencast. The engine matters far less than the two habits the format rewards, both specific to onboarding: narrate the outcome, so a restyle leaves the voice correct, and keep the flow re-renderable, so the redesign that reshaped your signup rebuilds the video instead of quietly invalidating it.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.appcues.com/user-onboarding" rel="noopener">Appcues — User Onboarding (definition and in-app patterns, 2026)</a></li>
+<li id="src-2"><a href="https://www.nngroup.com/articles/mobile-app-onboarding/" rel="noopener">Kendrick, Nielsen Norman Group (2020) — Mobile-App Onboarding: An Analysis of Components and Techniques</a></li>
+<li id="src-3"><a href="https://wistia.com/learn/marketing/optimal-video-length" rel="noopener">Wistia — How to Choose the Right Marketing Video Length (2026)</a></li>
+<li id="src-4"><a href="https://developers.google.com/style/accessibility" rel="noopener">Google — Developer Documentation Style Guide: Accessibility (directional language)</a></li>
+<li id="src-5"><a href="https://arxiv.org/abs/1808.04986" rel="noopener">Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-a-video-or-an-in-app-product-tour-better-for-user-onboarding" class="blog-faq-q">Is a video or an in-app product tour better for user onboarding?<a class="hanchor" href="#is-a-video-or-an-in-app-product-tour-better-for-user-onboarding" aria-label="Link to section: Is a video or an in-app product tour better for user onboarding?">#</a></h3>
+<p>They do different jobs, so most products need both. An in-app tour of tooltips, modals, and checklists overlays the live product, so it always reflects the current UI, but it only works once a user is signed in and inside the app, and NN/g finds users routinely skip lengthy onboarding<sup class="article-cite"><a href="#src-2" title="Kendrick, Nielsen Norman Group (2020) — Mobile-App Onboarding: An Analysis of Components and Techniques">2</a></sup>. A walkthrough video plays before signup, in docs, and in email, and carries narration, but it freezes the UI at record time. Use tooltips for in-the-moment nudges and a video for the surfaces a tour cannot reach.</p>
+<h3 id="why-does-my-onboarding-walkthrough-go-out-of-date-so-quickly" class="blog-faq-q">Why does my onboarding walkthrough go out of date so quickly?<a class="hanchor" href="#why-does-my-onboarding-walkthrough-go-out-of-date-so-quickly" aria-label="Link to section: Why does my onboarding walkthrough go out of date so quickly?">#</a></h3>
+<p>Because it films the part of the product that changes most. The signup flow, welcome screens, and empty states are where teams run the most experiments to lift activation, so the first-run UI churns faster than the settled core. A walkthrough pinned to that surface is falsified by the very redesigns meant to improve it. The fix is to narrate outcomes rather than pixel positions so small changes do not break it, and to re-render from a committed spec when a large change does.</p>
+<h3 id="how-do-you-write-onboarding-narration-that-survives-a-ui-change" class="blog-faq-q">How do you write onboarding narration that survives a UI change?<a class="hanchor" href="#how-do-you-write-onboarding-narration-that-survives-a-ui-change" aria-label="Link to section: How do you write onboarding narration that survives a UI change?">#</a></h3>
+<p>Name what the user is accomplishing, not where the control sits. &quot;Create your first project&quot; survives a recolor, a relayout, and a rename; &quot;click the blue button in the top-right corner&quot; breaks on all three. This is the same rule Google&#39;s developer style guide gives for written docs: avoid directional language like &quot;above&quot; or &quot;right-hand side&quot; because it fails for accessibility and localization, and refer to a control by its visible label instead<sup class="article-cite"><a href="#src-4" title="Google — Developer Documentation Style Guide: Accessibility (directional language)">4</a></sup>.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">onboarding walkthrough video</span>
+        <span class="article-tag">in-app onboarding</span>
+        <span class="article-tag">user onboarding video</span>
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">demo maintenance</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/gifs-in-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/gifs-in-documentation-400.webp" srcset="/blog/images/gifs-in-documentation-400.webp 400w, /blog/images/gifs-in-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A slotted zoetrope drum on a small wooden base, caught mid-spin."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">GIFs in documentation: when a loop beats a screenshot</h3>
+    <p class="article-card-excerpt">An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/keeping-tutorial-libraries-current/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/keeping-tutorial-libraries-current-400.webp" srcset="/blog/images/keeping-tutorial-libraries-current-400.webp 400w, /blog/images/keeping-tutorial-libraries-current-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A rounded purple toy truck with snow piled on top, plowing through fresh snow."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Keeping a tutorial video library current at scale</h3>
+    <p class="article-card-excerpt">Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-first-run-screen-is-the-surface-you-redesign-on-purpose">The first-run screen is the surface you redesign on purpose</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#video-or-an-in-app-tour-which-fits-the-first-run">Video or an in-app tour: which fits the first run</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#narrate-the-outcome-not-the-pixel">Narrate the outcome, not the pixel</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-small-redesign-actually-breaks">What a small redesign actually breaks</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#closing-the-loop-so-the-walkthrough-shows-todays-signup">Closing the loop so the walkthrough shows today's signup</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

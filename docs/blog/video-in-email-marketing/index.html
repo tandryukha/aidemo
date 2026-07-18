@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video in Email: the GIF Workaround That Ships | aidemo</title>
+<meta name="description" content="Email clients strip HTML5 video and Outlook freezes GIFs. The Gmail, Apple Mail, and Outlook support table plus the thumbnail-linking pattern that ships.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/video-in-email-marketing/">
+<link rel="alternate" type="text/markdown" href="/blog/video-in-email-marketing/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Video in Email: the GIF Workaround That Ships | aidemo">
+<meta property="og:description" content="Email clients strip HTML5 video and Outlook freezes GIFs. The Gmail, Apple Mail, and Outlook support table plus the thumbnail-linking pattern that ships.">
+<meta property="og:url" content="https://aidemo.top/blog/video-in-email-marketing/">
+<meta property="og:image" content="https://aidemo.top/blog/images/video-in-email-marketing-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Video in Email: the GIF Workaround That Ships | aidemo">
+<meta name="twitter:description" content="Email clients strip HTML5 video and Outlook freezes GIFs. The Gmail, Apple Mail, and Outlook support table plus the thumbnail-linking pattern that ships.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/video-in-email-marketing-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Video in email marketing: the GIF workaround that actually ships",
+  "description": "Email clients strip HTML5 video and Outlook freezes GIFs. The Gmail, Apple Mail, and Outlook support table plus the thumbnail-linking pattern that ships.",
+  "image": [
+    "https://aidemo.top/blog/images/video-in-email-marketing-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/video-in-email-marketing/"
+  },
+  "wordCount": 1948,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Can I Email — HTML5 video element support in email clients",
+      "url": "https://www.caniemail.com/features/html-video/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Can I Email — Animated GIF image support in email clients",
+      "url": "https://www.caniemail.com/features/image-gif/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Can I Email — WebP image support in email clients",
+      "url": "https://www.caniemail.com/features/image-webp/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Litmus — Faux Video: A Fallback for Video in Email",
+      "url": "https://www.litmus.com/blog/faux-video-a-fallback-for-video-in-email"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Mailchimp — Add a video to a campaign (thumbnail links to hosted video)",
+      "url": "https://mailchimp.com/help/add-video-to-a-campaign/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Video in email marketing: the GIF workaround that actually ships",
+      "item": "https://aidemo.top/blog/video-in-email-marketing/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can you embed a playable video in an email?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rarely, and not reliably. The HTML5 \u003cvideo> element works in only about a quarter of email clients per Can I Email: Apple Mail plays it with a tap, but Gmail rewrites the tag to nothing, Outlook on Windows strips it, and Outlook.com and ProtonMail block the file with a Content Security Policy. Because you cannot predict which client opens your message, the shipping pattern is an image, animated GIF or static thumbnail, that links to a hosted page where the video actually plays."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my email GIF show only the first frame in Outlook?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Outlook on the Windows desktop (2007 through 2019) does not animate GIFs, so it renders a single static frame instead of the loop. Outlook 2019 on an Office 365 account plays the animation three times and then stops. There is no markup fix, so design the GIF so its first frame states the whole message on its own, and treat the motion as a bonus for the clients that support it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What size should a GIF be for an email?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aim well under a megabyte, often a few hundred kilobytes, because email images load over cellular connections and compete for a few seconds of attention before the reader moves on. GIF compresses motion poorly, so cut width first, then framerate, then length. A click-through demo that holds still between a few deliberate steps fits far more easily than a continuous scroll, which changes every pixel of every frame."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>Video in email marketing: the GIF workaround that actually ships</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">Video in email marketing: the GIF workaround that actually ships</h1>
+        <p class="article-dek">Most inboxes strip your video tag and Outlook freezes your GIF. The client-by-client table for the animated thumbnail that reaches every reader.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-inbox-does-not-play-video-and-the-numbers-say-why">The inbox does not play video, and the numbers say why</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-each-email-client-does-with-an-animated-gif">What each email client does with an animated GIF</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-first-frame-has-to-carry-the-whole-message">The first frame has to carry the whole message</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-gif-weight-budget-email-actually-enforces">The GIF weight budget email actually enforces</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-faux-video-hover-trick-and-why-it-stays-a-demo">The faux-video hover trick, and why it stays a demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-pattern-that-ships-a-thumbnail-wired-to-a-hosted-page">The pattern that ships: a thumbnail wired to a hosted page</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/video-in-email-marketing-800.webp" srcset="/blog/images/video-in-email-marketing-400.webp 400w, /blog/images/video-in-email-marketing-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A flip-book fanned open mid-riffle, its stacked pages caught in motion"><figcaption>The inbox will not run your video, so you mail a stack of stills that fakes the motion.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The HTML5 &lt;video&gt; tag works in only ~24% of email clients (Can I Email): Gmail rewrites it to an empty tag, Outlook Windows strips it, Apple Mail plays it but never autoplays.</li>
+    <li>Animated GIF is near-universal, but Outlook on Windows desktop freezes it on one static frame, so the first frame, not the loop, has to carry the whole message.</li>
+    <li>Skip animated WebP in email: Gmail converts it to JPG and drops the animation, Apple Mail shows no WebP at all, so the wasteful GIF is the only motion format the inbox agrees on.</li>
+    <li>Faux-video hover reveals the GIF on mouseover but breaks on mobile: a tap fires the click-out link instead, so you cannot have both the inbox animation and the click to your page.</li>
+    <li>The pattern that survives every client: a static or lightly animated thumbnail with a play button, linked to a hosted page, the only version of video-in-email you can measure by click.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-inbox-does-not-play-video-and-the-numbers-say-why">The inbox does not play video, and the numbers say why<a class="hanchor" href="#the-inbox-does-not-play-video-and-the-numbers-say-why" aria-label="Link to section: The inbox does not play video, and the numbers say why">#</a></h2>
+<p>Marketers keep asking how to drop a playable demo into a marketing email, and the honest answer is that you mostly cannot. The HTML5 <code>&lt;video&gt;</code> element, the same tag that autoplays a hero loop on a landing page, is supported in roughly a quarter of email clients: Can I Email puts it at 24.39% (19.51% full, 4.88% partial) across the clients it tests<sup class="article-cite"><a href="#src-1" title="Can I Email — HTML5 video element support in email clients">1</a></sup>. Apple Mail on macOS and iOS renders it, but only from version 13.3, only when you supply a <code>controls</code> attribute, and never on autoplay. Gmail does not render it at all: it rewrites <code>&lt;video&gt;</code>, <code>&lt;source&gt;</code>, and <code>&lt;track&gt;</code> into empty <code>&lt;u&gt;&lt;/u&gt;</code> tags. Outlook on Windows strips the tag, and so do Yahoo and AOL. Even where the element survives, a strict Content Security Policy in Outlook.com and ProtonMail blocks the file from loading. Mailchimp says the same thing from the sending side: &quot;Most email clients can&#39;t display embedded video content, and will strip the code from your email&quot;<sup class="article-cite"><a href="#src-5" title="Mailchimp — Add a video to a campaign (thumbnail links to hosted video)">5</a></sup>.</p>
+<p>So the working pattern is not a video. It is a picture that looks like a video, wired to a link that opens the real thing on a page you control. That picture is either an animated GIF or a static thumbnail, and the whole craft of video in email is choosing between those two and getting the details right. This is the email cell of the <a href="/blog/video-marketing-for-software/">one-recording, every-channel matrix</a>, taken down to the mechanics.</p>
+<h2 id="what-each-email-client-does-with-an-animated-gif">What each email client does with an animated GIF<a class="hanchor" href="#what-each-email-client-does-with-an-animated-gif" aria-label="Link to section: What each email client does with an animated GIF">#</a></h2>
+<p>An animated GIF is the closest thing to motion that the inbox supports broadly. Can I Email records GIF rendering at effectively total coverage, so a looping clip reaches almost every reader. The exception is the one that always ruins email plans: Outlook on the Windows desktop (2007 through 2019) &quot;Does not support animated gif images,&quot; rendering a single static frame instead<sup class="article-cite"><a href="#src-2" title="Can I Email — Animated GIF image support in email clients">2</a></sup>. Newer Outlook 2019 on an Office 365 account is oddly specific: it plays the loop three times, stops, and shows a play button to replay it.</p>
+<p>The obvious optimization is to reach for the format a README would use. An animated WebP is several times smaller than a GIF for the same motion, so why not send that instead? Because WebP animation is dead in the inbox. Can I Email shows Gmail &quot;Converts file to jpg&quot; and &quot;Does not support animation,&quot; and Apple Mail renders no WebP at all<sup class="article-cite"><a href="#src-3" title="Can I Email — WebP image support in email clients">3</a></sup>. The GIF is wasteful, but it is the only motion format the clients agree on. The <a href="/blog/readme-gifs-that-update-themselves/">two-pass palette encoding that keeps a GIF small and clean</a> is the same work you would do for a repository; email just spends the result on a stricter budget.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Gmail (web and app)</th>
+<th>Apple Mail</th>
+<th>Outlook, Windows desktop</th>
+<th>Leaves the inbox on click</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTML5 <code>&lt;video&gt;</code></td>
+<td>Nothing, tag rewritten to <code>&lt;u&gt;</code></td>
+<td>Inline player, tap to play, no autoplay</td>
+<td>Nothing, tag stripped</td>
+<td>No, plays in place where it works</td>
+</tr>
+<tr>
+<td>Animated GIF</td>
+<td>Loops inline</td>
+<td>Loops inline</td>
+<td>Frozen on one frame</td>
+<td>Only if you wrap it in a link</td>
+</tr>
+<tr>
+<td>Faux-video hover</td>
+<td>Cover, animates on hover</td>
+<td>Cover, animates on hover</td>
+<td>Cover frame, no reveal</td>
+<td>Hover and click-out fight each other</td>
+</tr>
+<tr>
+<td>Static thumbnail + link</td>
+<td>Poster image, click opens a page</td>
+<td>Poster image, click opens a page</td>
+<td>Poster image, click opens a page</td>
+<td>Yes, by design</td>
+</tr>
+</tbody></table></div>
+<h2 id="the-first-frame-has-to-carry-the-whole-message">The first frame has to carry the whole message<a class="hanchor" href="#the-first-frame-has-to-carry-the-whole-message" aria-label="Link to section: The first frame has to carry the whole message">#</a></h2>
+<p>Two facts collapse into one design rule. First, Outlook on the desktop freezes a GIF on a single static frame, in practice the first one, so a real slice of your list sees a still and never the loop. Second, plenty of clients block remote images until the reader clicks to display them, and a heavy GIF paints progressively, so the first thing anyone sees is either the opening frame or a broken-image box. The rule that falls out of both: whatever renders first has to state the value on its own. Show the product mid-task with a short label, not a fade-in from black and not a spinner. Treat the animation as a bonus for readers whose client cooperates, and the first frame as the message every reader gets. It is the poster-frame discipline of a video thumbnail applied to a format that, for a chunk of your audience, will never move at all.</p>
+<h2 id="the-gif-weight-budget-email-actually-enforces">The GIF weight budget email actually enforces<a class="hanchor" href="#the-gif-weight-budget-email-actually-enforces" aria-label="Link to section: The GIF weight budget email actually enforces">#</a></h2>
+<p>A GitHub README has a hard ceiling: 10 MB per image. Email&#39;s budget is softer and stricter at the same time. An email image loads over whatever connection the reader happens to be on, often a phone on cellular data; it competes with a full inbox for a few seconds of attention; and a GIF that must buffer before it loops will not have looped by the time the reader has scrolled past. The target most senders settle on is well under a megabyte, frequently a few hundred kilobytes, which is a demanding ask for motion given <a href="/blog/readme-gifs-that-update-themselves/">how badly GIF compresses a moving frame</a>.</p>
+<p>The levers are the familiar ones, in the same order of impact: width first, then framerate, then length, then color count. Email just pushes each one harder. A continuous scroll is the worst case, because every pixel changes every frame; a click-through demo that holds still between three deliberate actions compresses far better, because the encoder can skip the unchanged regions. So the GIF that actually fits an email is usually the one that shows a few settled states rather than a pan. Keeping it short pays a second dividend: a GIF cannot be paused, and <a href="/blog/gifs-in-documentation/">motion that autoplays past a few seconds trips a Level A accessibility rule</a>, so a tight three-second loop is both the lighter file and the more considerate one.</p>
+<h2 id="the-faux-video-hover-trick-and-why-it-stays-a-demo">The faux-video hover trick, and why it stays a demo<a class="hanchor" href="#the-faux-video-hover-trick-and-why-it-stays-a-demo" aria-label="Link to section: The faux-video hover trick, and why it stays a demo">#</a></h2>
+<p>There is a clever technique that gets closer to real playback, and it is worth understanding precisely so you know when not to use it. Litmus calls it faux video: layer a static cover image with a play button over an animated GIF of identical dimensions, then use a CSS opacity transition so that hovering the cover fades it out over about 0.3 seconds and reveals the animation beneath<sup class="article-cite"><a href="#src-4" title="Litmus — Faux Video: A Fallback for Video in Email">4</a></sup>. It works in Gmail, the Gmail app, Apple Mail, iOS Mail, Samsung Mail, and Outlook for Mac. It fails in AOL, Yahoo, and Outlook.com, which do not support CSS opacity, so the cover never lifts and the reader is stuck on the static image.</p>
+<p>The client gaps are the small problem. The real one is a contradiction Litmus flags in its own writeup: on mobile, &quot;if a clickthrough is applied in your email, the link will launch the browser on tap and the subscriber will never see the video.&quot; Read that twice. Faux video is built to make people watch inside the inbox, but the conversion event for a product demo is the click out to a page where the viewer can sign up. Wire the trick for the inbox reveal and you forfeit the click; wire it for the click and the hover animation never fires, because a phone tap cannot both hover and follow a link. That is why faux video is a fine portfolio piece and rarely what a revenue-driven campaign ships.</p>
+<h2 id="the-pattern-that-ships-a-thumbnail-wired-to-a-hosted-page">The pattern that ships: a thumbnail wired to a hosted page<a class="hanchor" href="#the-pattern-that-ships-a-thumbnail-wired-to-a-hosted-page" aria-label="Link to section: The pattern that ships: a thumbnail wired to a hosted page">#</a></h2>
+<p>The approach that survives every client on the list is the least clever one: a single image with a visible play button, linked to a hosted video page. Mailchimp&#39;s built-in video block does exactly this, generating a thumbnail of a player so that &quot;when a recipient clicks the thumbnail, they can watch the video in a new browser window&quot;<sup class="article-cite"><a href="#src-5" title="Mailchimp — Add a video to a campaign (thumbnail links to hosted video)">5</a></sup>. It renders the same in Gmail, in Apple Mail, and in frozen-GIF Outlook, because underneath it is only an <code>&lt;img&gt;</code> inside an <code>&lt;a&gt;</code>. Make that image a lightly animated GIF if you want a hint of movement for the clients that animate, but design it so the static first frame is the entire pitch and the link is the point.</p>
+<p>That link is where the demo actually lives, so the <a href="/blog/embed-video-on-website/">page it opens has to load the video fast and clean</a>. It is also the only version of video in email you can measure honestly: an embedded loop gives you an open at best, while a wrapped thumbnail gives you a click, which is the number this channel is graded on. One last reason to keep the inbox asset and the hosted asset separate is that they can still share a source. If the demo is generated from a committed storyboard, one recording produces both the hosted MP4 and the email GIF as two renders rather than two shoots, the same discipline behind a <a href="/blog/readme-gifs-that-update-themselves/">README loop that recaptures itself when the product changes</a>. Our own engine, aidemo, can spit out an email-sized GIF and a full-length hosted clip from one such spec; its honest limits are that it captures browsers only, the spec is written by a coding agent rather than assembled in a timeline editor, and it ships no click-to-edit UI, so it fits a demo you keep in step with the product rather than a one-off. Whatever tool you reach for, the shape holds: cut the email GIF and the hosted video from one master, let the first frame do the work, and let the click carry the reader to where a video can finally play.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.caniemail.com/features/html-video/" rel="noopener">Can I Email — HTML5 video element support in email clients</a></li>
+<li id="src-2"><a href="https://www.caniemail.com/features/image-gif/" rel="noopener">Can I Email — Animated GIF image support in email clients</a></li>
+<li id="src-3"><a href="https://www.caniemail.com/features/image-webp/" rel="noopener">Can I Email — WebP image support in email clients</a></li>
+<li id="src-4"><a href="https://www.litmus.com/blog/faux-video-a-fallback-for-video-in-email" rel="noopener">Litmus — Faux Video: A Fallback for Video in Email</a></li>
+<li id="src-5"><a href="https://mailchimp.com/help/add-video-to-a-campaign/" rel="noopener">Mailchimp — Add a video to a campaign (thumbnail links to hosted video)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="can-you-embed-a-playable-video-in-an-email" class="blog-faq-q">Can you embed a playable video in an email?<a class="hanchor" href="#can-you-embed-a-playable-video-in-an-email" aria-label="Link to section: Can you embed a playable video in an email?">#</a></h3>
+<p>Rarely, and not reliably. The HTML5 <code>&lt;video&gt;</code> element works in only about a quarter of email clients per Can I Email: Apple Mail plays it with a tap, but Gmail rewrites the tag to nothing, Outlook on Windows strips it, and Outlook.com and ProtonMail block the file with a Content Security Policy. Because you cannot predict which client opens your message, the shipping pattern is an image, animated GIF or static thumbnail, that links to a hosted page where the video actually plays.</p>
+<h3 id="why-does-my-email-gif-show-only-the-first-frame-in-outlook" class="blog-faq-q">Why does my email GIF show only the first frame in Outlook?<a class="hanchor" href="#why-does-my-email-gif-show-only-the-first-frame-in-outlook" aria-label="Link to section: Why does my email GIF show only the first frame in Outlook?">#</a></h3>
+<p>Outlook on the Windows desktop (2007 through 2019) does not animate GIFs, so it renders a single static frame instead of the loop. Outlook 2019 on an Office 365 account plays the animation three times and then stops. There is no markup fix, so design the GIF so its first frame states the whole message on its own, and treat the motion as a bonus for the clients that support it.</p>
+<h3 id="what-size-should-a-gif-be-for-an-email" class="blog-faq-q">What size should a GIF be for an email?<a class="hanchor" href="#what-size-should-a-gif-be-for-an-email" aria-label="Link to section: What size should a GIF be for an email?">#</a></h3>
+<p>Aim well under a megabyte, often a few hundred kilobytes, because email images load over cellular connections and compete for a few seconds of attention before the reader moves on. GIF compresses motion poorly, so cut width first, then framerate, then length. A click-through demo that holds still between a few deliberate steps fits far more easily than a continuous scroll, which changes every pixel of every frame.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">video marketing</span>
+        <span class="article-tag">email marketing</span>
+        <span class="article-tag">gif</span>
+        <span class="article-tag">video distribution</span>
+        <span class="article-tag">demo video</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/autoplay-video-on-website/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/autoplay-video-on-website-400.webp" srcset="/blog/images/autoplay-video-on-website-400.webp 400w, /blog/images/autoplay-video-on-website-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pinwheel on a slender stick, its vanes caught mid-turn"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Autoplay video on a website: the recipe that works everywhere</h3>
+    <p class="article-card-excerpt">Most autoplay bugs are a missing word from one line of markup. Here is the four-attribute set that plays in every browser, and the code for when it still won't.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-metrics/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-metrics-400.webp" srcset="/blog/images/demo-video-metrics-400.webp 400w, /blog/images/demo-video-metrics-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A coiled stethoscope resting on a smooth tabletop, its chest-piece lying flat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Demo video metrics: play rate, retention, and assisted conversions</h3>
+    <p class="article-card-excerpt">Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-inbox-does-not-play-video-and-the-numbers-say-why">The inbox does not play video, and the numbers say why</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-each-email-client-does-with-an-animated-gif">What each email client does with an animated GIF</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-first-frame-has-to-carry-the-whole-message">The first frame has to carry the whole message</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-gif-weight-budget-email-actually-enforces">The GIF weight budget email actually enforces</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-faux-video-hover-trick-and-why-it-stays-a-demo">The faux-video hover trick, and why it stays a demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-pattern-that-ships-a-thumbnail-wired-to-a-hosted-page">The pattern that ships: a thumbnail wired to a hosted page</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

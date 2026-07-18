@@ -234,5 +234,21 @@
   },
   "microvideos-in-documentation": {
     "subject": "a single jigsaw puzzle piece standing on its edge"
+  },
+  "feature-announcement-video": {
+    "subject": "a polished brass town-crier's hand bell with a wooden handle"
+  },
+  "record-screen-on-linux": {
+    "subject": "a chunky rounded penguin figurine standing on a round base"
+  },
+  "video-in-email-marketing": {
+    "subject": "a flip-book fanned open mid-riffle"
+  },
+  "release-notes-videos": {
+    "subject": "a gumball machine dropping a single round gumball into the tray"
+  },
+  "onboarding-walkthrough-videos": {
+    "subject": "a brass pocket compass with its needle settled on north",
+    "seedOffset": 1
   }
 }

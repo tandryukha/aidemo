@@ -2890,6 +2890,94 @@ For a 2-minute 1080p clip at about 2 Mbps (roughly 30 MB a view) watched 10,000 
 
 ---
 
+# Feature announcement and changelog videos: a 30-second template
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/feature-announcement-video/
+
+> A launch is an event; a feature announcement is a habit. The three-beat, 30-second template and the cadence that keeps the program alive past sprint three.
+
+## A feature clip is a habit, not an event
+
+Most advice about product videos assumes a launch: one date, one big feature, six surfaces lit up at once. A feature announcement is the opposite shape. It is small, it recurs, and it competes for thirty seconds of attention against every other update the same reader has already learned to skim past. The question a changelog clip answers is not "what is this product" but "one thing changed since last week, is it worth your attention." Get that job wrong and the video is worse than no video, because it spends production time and reader goodwill to say something a single line of text would have said faster.
+
+The good news is that a recurring format gets cheap once it stops being bespoke. [The full script-first playbook](/blog/how-to-make-a-product-demo-video) covers the demo family in general, and [a product launch](/blog/product-launch-video) is the once-a-quarter event that same playbook scales up to. This piece is about the small, frequent cut in between: a repeatable template you can fill in a sprint, and a cadence you can hold for a year.
+
+## Thirty seconds, three beats: shipped, matters, one click
+
+A feature announcement has exactly three things to say and a fixed budget to say them in. Thirty seconds at a normal narration pace of about two and a half words a second, the same rate [the script template](/blog/demo-video-script-template) budgets against, is roughly seventy-five words. That is not much, which is the point: the constraint is what keeps the format repeatable.
+
+| Beat | Seconds | Words | The one job |
+| --- | --- | --- | --- |
+| What shipped | 0-8 | ~18 | Show the new thing happening, name it once, no logo card |
+| Why it matters | 8-20 | ~30 | The before-and-after: what used to take longer, or was impossible |
+| One click to try it | 20-30 | ~25 | Exactly where to go, one deep link, one ask, no menu |
+
+The middle beat is the one teams skip and the one that decides whether the clip earns its slot. "We added saved views" is a fact; "you stop rebuilding the same filter every morning" is a reason. A changelog that lists facts is read once, by the people already paying attention. A changelog that leads with the reason reaches the people who had stopped reading.
+
+The third beat is where a video beats a paragraph outright. A written note ends with a link; a clip can show the exact button in context, then name where it lives, so the viewer knows what to look for before they click. Keep it to one destination. A single "open the sidebar and pick a view" beats a list of five other things they could also try.
+
+## A worked cut: 28 seconds for one shipped feature
+
+Here is the template filled in for a real, ordinary feature: saved views in a task tracker. Seven beats, about 28 seconds, roughly 60 words of narration.
+
+| Time | On screen | Narration |
+| --- | --- | --- |
+| 0-3s | The filter bar with three conditions already set | "Saved views just shipped." |
+| 3-9s | Click Save, type the name "My open bugs" | "Build a filter once, then save it." |
+| 9-17s | The named view appears in the sidebar; a click reloads the list | "It is one click from the sidebar now, no rebuilding the same filter every morning." |
+| 17-23s | Toggle Share; a teammate's avatar lands on the view | "Share it, and your team opens the exact list you do." |
+| 23-28s | The cursor resting on the view in the sidebar | "It is live today. Look in the sidebar." |
+
+Read the rows top to bottom and the three beats are visible: the first is what shipped, the middle two are why it matters (the before was rebuilding a filter daily, the after is one click and a shared list), and the last is the single click to try it. Nothing here is a logo, an intro, or a "hey everyone." The cold open is the feature already in motion, because [the first seconds of any demo are a filter, not a warm-up](/blog/how-to-make-a-product-demo-video), and a changelog viewer has the itchiest skip finger of any audience you have.
+
+## Which cadence you can keep for a year
+
+The template is the easy half. The half that sinks feature-announcement programs is cadence: a team commits to a clip per release, ships fast, and quietly stops by the third sprint. The fix is to pick a cadence your real ship rate can sustain, and public changelogs make the spectrum concrete.
+
+| Ship rate | Real changelog | Video every entry? | The sustainable move |
+| --- | --- | --- | --- |
+| Daily | GitHub Changelog: entries nearly every weekday, several per day | No, that is 15+ clips a week | One monthly reel of the few visible changes |
+| Weekly to biweekly | Linear: an entry every 7-10 days, video on the material ones | Only the material features | Clip what you can see, leave the rest as text |
+| Monthly | Stripe API versions: a dated release about once a month | Feasible per release | One clip per release, when there is something to show |
+
+GitHub posts changelog entries nearly every weekday, often several on the same day ([GitHub Changelog, accessed July 2026](https://github.blog/changelog/)); no one should try to film fifteen videos a week, and its entries are text with no embedded clips. Linear ships an entry roughly every seven to ten days and reserves a player for the material features, the coding-sessions and diffs, while smaller changes stay in prose ([Linear Changelog, accessed July 2026](https://linear.app/changelog)). Stripe's API changelog moves about once a month on a dated cadence ([Stripe, accessed July 2026](https://docs.stripe.com/changelog)), slow enough that a clip per release is realistic.
+
+The pattern across all three is the same: your video frequency is not your ship frequency, it is the frequency of changes worth watching. AnnounceKit's own cadence guidance lands in the same place, recommending a hybrid for most SaaS teams, "minor updates weekly or bi-weekly, major releases monthly or quarterly" ([AnnounceKit, June 2025](https://announcekit.app/blog/how-often-should-you-publish-product-updates/)). Read that as two lanes: a fast text changelog that catches everything, and a slower video lane that catches only the material features. Commit to the second lane at a rate you can hold when the quarter gets busy, because a video changelog that skips a month reads as a product that stopped shipping.
+
+## The filter: a clip only for what you can watch happen
+
+Not every shipped thing is filmable. A new on-screen flow, an interaction you can show faster side by side, a feature that removes steps: these have something a camera can catch. A rate-limit change, a new API field, a security patch, a background performance win: these do not, and forcing them into video produces the worst kind of changelog clip, thirty seconds of a static screen while a voice describes a thing you cannot see. Route the invisible changes to text and keep the clip for the visible ones. The deeper question of exactly which releases earn a rendered clip, and how to hang that trigger off the git tag your written changelog already uses, is its own problem, covered in [release-notes videos generated per release](/blog/release-notes-videos).
+
+## The recurring clip is the one you re-render, never re-record
+
+A launch video is a one-time cost you can afford to hand-record. A feature-announcement clip is not, because you are signing up to make one every sprint against a UI that changes every sprint, which is the exact condition under which [product demos quietly go stale](/blog/why-product-demos-go-stale). Hand-recording a recurring format is how the program dies: the re-record tax compounds until the clip lands later than the feature it announces, and then the whole lane gets dropped.
+
+The way the format survives is to store it as a spec, not as footage. When the thirty-second cut is a template with the feature's steps written down as text, next sprint's announcement is a diff of last sprint's, and a renamed button is a one-line edit rather than a fresh take. This is what aidemo, the open-source engine we build, is designed for: a coding agent writes the storyboard, a real browser replays it, and the clip re-renders when the product moves. Be clear-eyed about the tradeoff, which is also why it is wrong for a single throwaway clip: it only knows how to drive a browser, the storyboard is an agent's code rather than a person's clicks, and polishing a frame means editing that spec, not nudging it on a timeline. For a video you record once, that machinery is overkill. For a format you are committing to ship fifty times a year, re-rendering instead of re-recording is the only version of that commitment you will actually keep.
+
+## Sources
+
+- [Wistia - How to Choose the Right Marketing Video Length (2026 State of Video, engagement by length)](https://wistia.com/learn/marketing/optimal-video-length)
+- [GitHub Changelog (near-daily release entries, text-only)](https://github.blog/changelog/)
+- [Linear Changelog (weekly-to-biweekly entries, video on material features)](https://linear.app/changelog)
+- [Stripe API changelog (dated, roughly monthly release cadence)](https://docs.stripe.com/changelog)
+- [AnnounceKit - How Often Should You Publish Product Updates? (hybrid cadence guidance, June 2025)](https://announcekit.app/blog/how-often-should-you-publish-product-updates/)
+
+## FAQ
+
+### How long should a feature announcement video be?
+
+Aim for thirty seconds or less. A feature announcement makes one point to an audience that is already skimming, and at a normal narration pace of about two and a half words a second, thirty seconds is roughly seventy-five words, enough for what shipped, why it matters, and where to try it. Wistia's 2026 State of Video, drawn from more than 13 million videos, puts sub-minute clips at a 52% average engagement rate, so the short cut is also the one most people finish ([Wistia, 2025](https://wistia.com/learn/marketing/optimal-video-length)).
+
+### Should you make a video for every product release?
+
+No. Match video frequency to the number of changes worth watching, not to your ship rate. A team shipping daily, like GitHub with several changelog entries a day, cannot film every release and should not try; a monthly video lane that catches only the material, visible features is sustainable where a per-release one is not. AnnounceKit's cadence guidance recommends the same split for most SaaS teams: minor updates weekly or biweekly, major releases monthly or quarterly ([AnnounceKit, 2025](https://announcekit.app/blog/how-often-should-you-publish-product-updates/)).
+
+### What should a changelog video include, and what should it leave out?
+
+Include three beats: the feature shown in motion, the before-and-after reason it matters, and one deep link to try it. Leave out the logo card, the "hey everyone" intro, and the menu of other things to explore, since each one spends seconds the format does not have. Leave the feature out entirely if it is invisible: an API field or a background performance win belongs in text, not in thirty seconds of a voice narrating a static screen.
+
+---
+
 # Free demo video software: what the free tier actually gives you
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/free-demo-video-software/
@@ -4254,6 +4342,98 @@ Zoom is added after the fact, in a separate editor by keyframing a scale and pos
 
 ---
 
+# In-app onboarding walkthrough videos that survive redesigns
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/onboarding-walkthrough-videos/
+
+> The onboarding video shows the exact first-run UI a growth team keeps reshaping. How to build a walkthrough that survives the next redesign.
+
+## The first-run screen is the surface you redesign on purpose
+
+An onboarding walkthrough has a cruel property: it is at once the most valuable clip in your documentation and the one guaranteed to rot fastest. Valuable, because it shows a brand-new user the exact first-run interface at the one moment they have no mental model of it and the most doubt about whether to stay. Fast-rotting, because that first-run interface, the signup form, the welcome modal, the setup checklist, the empty workspace, is the surface a product team reshapes most deliberately and most often.
+
+That churn is not an accident of the interface; it is where the growth work lives. Onboarding is "the process of guiding new users from the moment they sign up to their first meaningful experience with your product," an end-to-end journey across "in-app flows, emails, empty states, tooltips, checklists, and more" ([Appcues, 2026](https://www.appcues.com/user-onboarding)), and every one of those touchpoints is a lever a team pulls to raise activation. A page you keep testing is a page you keep changing, so the first-run flow moves faster than the settled core of the product that a walkthrough of, say, the export screen would document. The highest-value doc video sits on the least stable ground you own. [The pillar case for video as a documentation medium](/blog/video-documentation) names maintenance, not production quality, as what closes most video programs; onboarding is where that tax is steepest.
+
+This piece is not about what an onboarding clip should contain, [the activation-first job of an onboarding video is worked out separately](/blog/product-onboarding-video), sorted by the metric each type moves. It is about the narrower engineering problem underneath: how to build a first-run walkthrough that shrugs off a small UI change and re-renders cheaply for a large one, so it keeps matching today's signup flow instead of last quarter's.
+
+## Video or an in-app tour: which fits the first run
+
+For first-run specifically, the live competitor to a walkthrough video is not a paragraph but an in-app tour: the tooltips, modals, and checklists that overlay the running product. Appcues describes those as "lightweight, contextual onboarding elements that surface guidance exactly where users need it," with product tours that work only when "short, focused, and tied to a specific action" ([Appcues, 2026](https://www.appcues.com/user-onboarding)). The general [decision between an interactive tour and a video](/blog/interactive-demo-vs-video-demo) turns on distribution and funnel stage; the first-run slice has its own logic worth separating out, because the two formats fail in opposite directions.
+
+An in-app tour renders on the live product, so it never shows a screen that no longer exists, but it breaks the instant a step's anchor moves, the user must already be signed in to see it at all, and it cannot be watched before signup, emailed, or pasted into a help center. A video can be watched by a prospect who has not signed up, lives in docs or a launch email, and carries a narrated argument, but it freezes the interface at record time and goes stale without a sound.
+
+| First-run need | In-app tour (overlay) | Walkthrough video |
+|---|---|---|
+| Playable before signup, in docs or email | No, needs the user inside the app | Yes, a file plays anywhere |
+| Reflects today's exact UI automatically | Yes, it sits on the live app | No, frozen at record time |
+| Carries narration and a reason why | Weakly, a line of tooltip copy | Yes, that is its strength |
+| Fails when a step moves | Anchor misfires mid-flow | Cursor points at the wrong spot |
+| Interrupts the user's own task | Yes, and users skip it | No, the user chose to watch |
+
+That last row is the one teams underweight. NN/g's onboarding research is blunt that "lengthy promotional onboarding will likely be skipped," that tutorials "didn't improve task performance," and that the right instinct is often to "avoid creating app onboarding whenever possible and instead spend your resources making the UI more usable" ([Kendrick, NN/g, 2020](https://www.nngroup.com/articles/mobile-app-onboarding/)). Read alongside the table, the honest split is this: use in-app tooltips for in-the-moment nudges a user can dismiss, and use a walkthrough video for the surfaces a tour cannot reach, the pre-signup evaluator, the help center, the onboarding email, kept short, since a one-to-five-minute educational clip still holds over half its viewers before engagement drops off fast ([Wistia, 2026](https://wistia.com/learn/marketing/optimal-video-length)). The two are complements. The video half is the one this piece hardens against redesigns.
+
+## Narrate the outcome, not the pixel
+
+Here is the single authoring decision that determines whether a walkthrough survives a small UI change: what the narration is pinned to. A script written around where things sit on screen dies when they move. A script written around what the user is trying to accomplish survives, because the user's goal is the one thing a redesign is not allowed to change.
+
+Technical-writing style guides already codify this for prose, and it transfers straight to a voice track. Google's developer documentation style guide is explicit: "Don't use directional language to orient the reader, such as above, below, or right-hand side," because such phrases "don't work well for accessibility or for localization," and it tells you to name the control by its visible label instead ([Google, accessed July 2026](https://developers.google.com/style/accessibility)). The rule that keeps a written instruction accessible keeps a spoken one durable, for the same reason: both are pinned to intent, not to the arrangement of the moment.
+
+Rewrite each brittle line into a durable one and the pattern is plain:
+
+| Brittle narration (pinned to the layout) | Durable narration (pinned to the outcome) | Survives which change |
+|---|---|---|
+| "Click the blue button in the top-right corner" | "Create your first project" | Recolor, move, and restyle all survive |
+| "Open the third tab along the top" | "Go to your billing settings" | Reordered or renamed tabs survive |
+| "A modal pops up in the center of the screen" | "Confirm your workspace name" | A swapped or repositioned component survives |
+| "Type into the big field under the logo" | "Name your team" | A relaid-out form survives |
+| "Press the hamburger icon" | "Open the main menu" | A new icon, or an added label, survives |
+
+Every line on the right still makes sense after a recolor, a relayout, or a localization, because none of them describe the paint; they describe the job. When the narration names the outcome, a redesign that keeps the outcome, which is nearly every redesign, since one that removed "create a project" would be a different product, leaves the voice track correct even though the pixels moved. This is the spoken twin of pinning the machine's [selectors to the accessibility tree rather than to nth-child position](/blog/selectors-that-survive-redesigns): the selector keeps the cursor landing on the right element, and outcome-based narration keeps the voice describing the right thing, and neither has to be re-authored when a designer reaches for the stylesheet. Good how-to videos are scarce partly because "software professionals ... are not directors" and skip exactly this kind of discipline ([Karras and Schneider, 2018](https://arxiv.org/abs/1808.04986)); this particular discipline is small, specific, and most of what buys durability.
+
+## What a small redesign actually breaks
+
+Outcome-based narration is necessary but not sufficient, because a walkthrough is three layers stacked, and a redesign hits them differently. The script is one layer. The cursor path and any zoom are a second, pinned to where the target element sits. The step sequence, the order of actions the flow demands, is a third. Sort a change by which layer it touches and you know at once whether you have a clip that still ships, a clip that needs a re-render, or a clip that needs re-authoring.
+
+| Change a redesign makes | Narration (outcome-based) | Cursor path and zoom | Step sequence | Verdict |
+|---|---|---|---|---|
+| Recolor or restyle | Fine | Fine, the element stays put | Fine | Ships unchanged |
+| Rename or re-icon a control | Fine, it named the goal | Fine if the selector is role-and-name | Fine | Ships, or a one-line selector edit |
+| Move or relayout an element | Fine | Cursor lands wrong; needs a re-render | Fine | Re-render from the same spec |
+| Reorder or add a required step | Needs a line | Needs the new target | Changed | Edit the spec, re-render |
+| Remove the flow entirely | Wrong | Wrong | Gone | Re-author: the task itself changed |
+
+The middle three rows are the whole argument for treating the walkthrough as something you re-render rather than re-shoot. A moved element or a new required field does not need a human back in a screen recorder performing the flow again; it needs the cursor pointed at the new location and the clip rebuilt, which is a spec edit and a render. Only the last row, where the task itself is gone, is genuinely new work, and that is correct, because a walkthrough of a flow that no longer exists should fail loudly rather than limp along. That is the same reason resilient targeting [doubles as a way to catch UI drift before the video lies](/blog/detecting-ui-drift): a re-render against today's build either succeeds or tells you exactly which step broke, which is far cheaper than a viewer discovering it for you.
+
+## Closing the loop so the walkthrough shows today's signup
+
+Durable narration and resilient targeting buy survival against the small changes. The large ones, the quarterly signup redesign, the reworked empty state, the new required field, still demand a fresh clip, and the only model that keeps pace is regeneration: hold the walkthrough as a committed spec that a machine replays against the current build, so "the signup flow changed" and "the walkthrough is current" collapse into one event. [Keeping a whole tutorial library current at scale](/blog/keeping-tutorial-libraries-current) works the arithmetic across many clips; for a single onboarding walkthrough the case is even sharper, because it sits on the fastest-moving surface, which makes it the clip most worth wiring to re-render on the commit that touched the onboarding path.
+
+Our own engine, aidemo, is built for this loop, and it fits a docs pipeline only with its limits stated plainly: it drives a browser and nothing native, its storyboards are authored by a coding agent instead of assembled on a visual timeline, and it ships no drag-and-drop editor. It earns its place on a first-run walkthrough you mean to keep true for years, not on a throwaway screencast. The engine matters far less than the two habits the format rewards, both specific to onboarding: narrate the outcome, so a restyle leaves the voice correct, and keep the flow re-renderable, so the redesign that reshaped your signup rebuilds the video instead of quietly invalidating it.
+
+## Sources
+
+- [Appcues — User Onboarding (definition and in-app patterns, 2026)](https://www.appcues.com/user-onboarding)
+- [Kendrick, Nielsen Norman Group (2020) — Mobile-App Onboarding: An Analysis of Components and Techniques](https://www.nngroup.com/articles/mobile-app-onboarding/)
+- [Wistia — How to Choose the Right Marketing Video Length (2026)](https://wistia.com/learn/marketing/optimal-video-length)
+- [Google — Developer Documentation Style Guide: Accessibility (directional language)](https://developers.google.com/style/accessibility)
+- [Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?](https://arxiv.org/abs/1808.04986)
+
+## FAQ
+
+### Is a video or an in-app product tour better for user onboarding?
+
+They do different jobs, so most products need both. An in-app tour of tooltips, modals, and checklists overlays the live product, so it always reflects the current UI, but it only works once a user is signed in and inside the app, and NN/g finds users routinely skip lengthy onboarding ([Kendrick, NN/g, 2020](https://www.nngroup.com/articles/mobile-app-onboarding/)). A walkthrough video plays before signup, in docs, and in email, and carries narration, but it freezes the UI at record time. Use tooltips for in-the-moment nudges and a video for the surfaces a tour cannot reach.
+
+### Why does my onboarding walkthrough go out of date so quickly?
+
+Because it films the part of the product that changes most. The signup flow, welcome screens, and empty states are where teams run the most experiments to lift activation, so the first-run UI churns faster than the settled core. A walkthrough pinned to that surface is falsified by the very redesigns meant to improve it. The fix is to narrate outcomes rather than pixel positions so small changes do not break it, and to re-render from a committed spec when a large change does.
+
+### How do you write onboarding narration that survives a UI change?
+
+Name what the user is accomplishing, not where the control sits. "Create your first project" survives a recolor, a relayout, and a rename; "click the blue button in the top-right corner" breaks on all three. This is the same rule Google's developer style guide gives for written docs: avoid directional language like "above" or "right-hand side" because it fails for accessibility and localization, and refer to a control by its visible label instead ([Google, accessed July 2026](https://developers.google.com/style/accessibility)).
+
+---
+
 # Open-source demo video tools, scored by license and install reality
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/open-source-demo-video-tools/
@@ -5101,6 +5281,109 @@ Yes. Chrome can capture tab audio through `getDisplayMedia()` or `chrome.tabCapt
 
 ---
 
+# How to record your screen on Linux (X11 and Wayland)
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/record-screen-on-linux/
+
+> On Linux the top screen-recording answer, ffmpeg x11grab, silently fails under Wayland. A capture matrix keyed to your display server, with the commands.
+
+## The display server, not the distro, decides your recorder
+
+Search "record screen on Linux" and the top answer is almost always `ffmpeg -f x11grab`. Paste it into a terminal on a current Ubuntu, Fedora, or Debian desktop and you are as likely to get a black rectangle as a recording. Nothing errored, the command ran, the file just holds none of what you wanted. This is the most confusing failure in Linux screen capture, and it has one cause: the machine is running Wayland, and x11grab can only see X11.
+
+So on Linux the first decision is not which tool but which display server you are on, because the two do not share a capture mechanism. Everything else, resolution and frame rate and [the capture settings that decide sharpness](/blog/how-to-record-your-screen-in-high-quality), is downstream of getting a non-black frame at all. This page is a capture matrix keyed to that one axis: what works on X11, what works on Wayland, the command lines for each, and why the internet's favorite recipe went dark on you.
+
+## Check your session before you touch a recorder
+
+One command tells you which world you are in:
+
+```sh
+echo "$XDG_SESSION_TYPE"    # prints:  wayland   or   x11
+```
+
+If that variable is empty, `loginctl show-session "$XDG_SESSION_ID" -p Type` gives the same answer. Do this first, on any machine you did not set up yourself, because the default flipped under most people without their noticing. Wayland "is used by default in Debian 10 and newer" ([Debian Wiki, 2026](https://wiki.debian.org/Wayland)); Fedora's GNOME has shipped Wayland by default for years, and Ubuntu's has since 21.04. The X11 answers that fill the search results were written for a default that is no longer the default. They are not wrong. They are just for the other session.
+
+## The X11 path: x11grab and anything that reads a display
+
+If `$XDG_SESSION_TYPE` says `x11`, the classic tooling works exactly as advertised. FFmpeg's x11grab is an "X11 video input device" that captures "a region of an X11 display" ([FFmpeg, 2026](https://ffmpeg.org/ffmpeg-devices.html)), reading the display named by the `DISPLAY` variable:
+
+```sh
+ffmpeg -f x11grab -framerate 30 -video_size 1920x1080 -i :0.0 \
+       -c:v libx264 -crf 20 -pix_fmt yuv420p demo.mp4
+```
+
+The `:0.0` is the display; the pointer is drawn by default and drops out with `draw_mouse 0` ([FFmpeg, 2026](https://ffmpeg.org/ffmpeg-devices.html)). OBS Studio's Display Capture and Window Capture sources use the same X11 access underneath and behave the same way. This path is also the one under [recording a screen with no monitor attached](/blog/headless-screen-recording): a virtual X server in memory is still an X server, and x11grab reads it the same as a physical one. On X11, the old recipes are still the right answer.
+
+## Why those recipes go dark under Wayland
+
+Wayland is not a drop-in X11. It is "a protocol between a compositor and its clients," where "the clients render locally and then communicate video memory buffers ... back to the compositor," and the architecture "integrates the display server, window manager and compositor into one process" ([Wayland, 2026](https://wayland.freedesktop.org/faq.html)). There is no global display object sitting in the open for any process to read. A client draws its own window and hands the pixels to the compositor; it cannot reach across and grab the whole screen, and neither can x11grab, because the X display it is pointed at is either absent or a compatibility shim (XWayland) that sees only legacy windows.
+
+Capture on Wayland therefore goes through the compositor, by asking it. The mechanism is the `org.freedesktop.portal.ScreenCast` interface, a "portal for screen cast sessions" whose `Start` method returns "an array of PipeWire streams" ([xdg-desktop-portal, 2026](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.ScreenCast.html)). PipeWire is the media layer that "aims to greatly improve handling of audio and video under Linux" and, "alongside Wayland and Flatpak," is meant as "a core building block for the future of Linux" ([PipeWire, 2026](https://pipewire.org/)). The practical consequence is the one Debian spells out: "to support screenshotting, screencasting and screensharing ... pipewire is required in addition to one of the Desktop specific xdg-desktop-portal packages" ([Debian Wiki, 2026](https://wiki.debian.org/Wayland)). Install those and the tools below work; skip them and even a Wayland-aware recorder finds nothing to record.
+
+## The Wayland path: the portal, GNOME's recorder, and the wlroots tools
+
+Which recorder you reach for on Wayland depends on your desktop, because the portal has per-desktop backends.
+
+On GNOME, the fastest capture is already built in. Press Shift+Ctrl+Alt+R to start a screencast and click the red indicator to stop; the clip is "automatically saved in your Videos/Screencasts folder" ([GNOME, 2026](https://help.gnome.org/users/gnome-help/stable/screen-shot-record.html.en)). No install, no portal dialog, WebM out. It is the quickest way to a clip and the least configurable.
+
+For a produced capture on any Wayland desktop, OBS Studio is the workhorse. It "added support for Wayland on Linux" including "a new PipeWire capture source" in version 27.0 ([OBS Studio, 27.0](https://github.com/obsproject/obs-studio/releases/tag/27.0.0)); pick the "Screen Capture (PipeWire)" source, approve the portal picker once, and OBS records through the compositor. Kooha is the lightweight GUI version of the same idea: it captures through PipeWire and the desktop portal and exports "WebM, MP4, GIF, and Matroska formats" ([Kooha, 2026](https://github.com/SeaDve/Kooha)), handy when you want a specific container without an ffmpeg pass.
+
+If you run a wlroots compositor — Sway, Hyprland, river — there is a scriptable, command-line option the GNOME tools do not cover. wf-recorder is "a utility program for screen recording of `wlroots`-based compositors" ([wf-recorder, 2026](https://github.com/ammen99/wf-recorder)), and it pairs with slurp for region selection:
+
+```sh
+wf-recorder -g "$(slurp)" --audio -f demo.mp4
+```
+
+## The capture matrix, keyed to your display server
+
+Read the top of the column your session is in, and ignore the rest.
+
+| Recorder | X11 | Wayland (GNOME) | Wayland (wlroots) | How it captures |
+|---|---|---|---|---|
+| ffmpeg x11grab | Yes | No (black frame) | No (black frame) | reads the X11 display directly |
+| OBS Display Capture (X11) | Yes | No | No | X11 display access |
+| OBS Screen Capture (PipeWire) | Yes | Yes | Yes | xdg-desktop-portal + PipeWire |
+| GNOME built-in (Shift+Ctrl+Alt+R) | Yes (GNOME) | Yes | No | the compositor's own recorder |
+| Kooha | portal-dependent | Yes | Yes | xdg-desktop-portal + PipeWire |
+| wf-recorder | No | No | Yes | wlr-screencopy-v1 |
+
+Two rows carry the whole lesson. x11grab is a full-height "Yes" on X11 and a full-height "No (black frame)" on Wayland, the exact trap. The PipeWire portal row is the inverse: it is the one path that spans every modern desktop, which is why OBS with the PipeWire source, or a portal-based tool like Kooha, is the safe default when you do not know or cannot control the session. Once you have a clean capture, [the container and codec you save it in](/blog/best-video-format-for-screen-recording) is a separate, portable decision that no longer cares about the display server.
+
+## When the cleanest answer is no display to fight over
+
+There is a way to sidestep the X11-versus-Wayland question: do not record a desktop at all. A browser can hand you its own frames with no display server in the loop, which is why the same web demo records identically on a laptop, a headless container, and a CI runner, and why [capturing a screen that was never painted to a monitor](/blog/headless-screen-recording) is its own technique. In-browser, `getDisplayMedia()` asks "the user to select a screen or portion of a screen to capture" and needs a recent user gesture to fire ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API)); it works across sessions but is interactive, so it fits [capturing one browser tab](/blog/record-a-browser-tab) by hand more than an automated pipeline.
+
+This is the lane our own tool sits in. aidemo, which we build, drives a real Chrome and pulls frames from the browser rather than the desktop, so a demo renders the same whether the box runs X11, Wayland, or no display server at all, and the whole matrix above becomes moot. The honest limits: it records a browser only, so a native Linux app is squarely a case for x11grab or the PipeWire portal, not for us; you (or an agent) write its storyboard in code rather than dragging clips on a GUI timeline; and there is no click-to-trim editor. For a terminal session specifically, a [text-based recording beats a video entirely](/blog/record-a-terminal-session).
+
+## Sources
+
+- [FFmpeg — Device documentation (x11grab input device, draw_mouse)](https://ffmpeg.org/ffmpeg-devices.html)
+- [Wayland — FAQ (protocol between a compositor and its clients)](https://wayland.freedesktop.org/faq.html)
+- [freedesktop — org.freedesktop.portal.ScreenCast (portal returns PipeWire streams)](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.ScreenCast.html)
+- [PipeWire — project homepage (audio and video handling on Linux)](https://pipewire.org/)
+- [Debian Wiki — Wayland (default since Debian 10; pipewire + xdg-desktop-portal for screencasting)](https://wiki.debian.org/Wayland)
+- [GNOME Help — Take a screenshot or screencast (Shift+Ctrl+Alt+R, Videos/Screencasts)](https://help.gnome.org/users/gnome-help/stable/screen-shot-record.html.en)
+- [OBS Studio 27.0 release notes (Wayland support, PipeWire capture source)](https://github.com/obsproject/obs-studio/releases/tag/27.0.0)
+- [Kooha — GitHub repository (PipeWire + portal capture, WebM/MP4/GIF/MKV)](https://github.com/SeaDve/Kooha)
+- [wf-recorder — GitHub repository (screen recording for wlroots compositors)](https://github.com/ammen99/wf-recorder)
+- [MDN — Screen Capture API (getDisplayMedia, user-gesture requirement)](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API)
+
+## FAQ
+
+### How do I record my screen on Ubuntu?
+
+Ubuntu has defaulted to a Wayland session since 21.04, so run `echo "$XDG_SESSION_TYPE"` first: if it prints `wayland`, an old `ffmpeg x11grab` command will capture a black frame. Use OBS Studio's "Screen Capture (PipeWire)" source, the lightweight Kooha app, or GNOME's built-in recorder (Shift+Ctrl+Alt+R) instead, and make sure the `pipewire` and `xdg-desktop-portal` packages are installed. If the variable prints `x11`, the classic x11grab and OBS Display Capture recipes work unchanged.
+
+### Why does my screen recorder capture a black screen on Wayland?
+
+Because it is an X11 tool pointed at a display Wayland does not expose. Wayland folds the display server, window manager, and compositor into one process and gives no client global access to the screen, so anything built on X11 screen grabbing — x11grab, older OBS capture, many legacy recorders — sees nothing or only XWayland windows. The fix is a recorder that goes through the xdg-desktop-portal ScreenCast interface and PipeWire, which asks the compositor for the frames instead of trying to read them directly.
+
+### What is the keyboard shortcut to record the screen in GNOME?
+
+Shift+Ctrl+Alt+R starts and stops a screencast on GNOME, on both its Wayland and X11 sessions, and a red indicator in the top bar shows the recording is live. The clip lands in your Videos/Screencasts folder as a WebM file. It is the fastest route to a quick recording; for zoom, cursor smoothing, or captions you will want a produced recorder or a compose step on top.
+
+---
+
 # How to record your screen with audio (system, mic, or both)
 
 July 18, 2026 · Screen Recording · https://aidemo.top/blog/record-screen-with-audio/
@@ -5192,6 +5475,115 @@ Because the operating system treats the audio leaving your speakers as an output
 ### Should I capture my microphone and system audio as one track or two?
 
 Two, always, if your recorder allows it. A single mixed track is a sum you cannot un-add, so if a notification chime lands on top of a word you are stuck with it. Two tracks let you balance the voice and the interface sound after the take, duck one under the other, and re-export until the mix is right. Keep the mic peaking around -6 to -12 dBFS for headroom and set the system audio well below the narration.
+
+---
+
+# Release-notes videos generated per release
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/release-notes-videos/
+
+> A monthly recap is a chore that slips; a per-tag video is a release artifact. Which releases clear the bar reads straight off the version number.
+
+## The monthly recap dies on the to-do list
+
+The "here's everything we shipped this month" video is a good idea that keeps not happening. It is discretionary work that competes with the roadmap, so it slips to next week, and by the time someone sits down to film it the product has moved again and half the footage is already wrong. The task has no owner the way a failing test has an owner, so it quietly becomes the thing you'll do once the quarter calms down.
+
+A per-release video is a different kind of object. It is not a chore on a calendar; it is an artifact that falls out of the release you already cut. Every release you ship already emits structured signals — a version number, a git tag, a changelog entry — and each of those can both trigger a render and feed its script, with nobody editing anything by hand. That works only when the demo is a committed spec you can [regenerate instead of re-record](/blog/automated-product-demo-videos): a filmed take freezes at record time, but a storyboard re-runs against the current build. This is a distinct job from the drift-guarding [nightly re-render](/blog/nightly-demo-builds), which rebuilds the *current* demo to catch [media going stale](/blog/why-product-demos-go-stale). A release-notes video does the opposite: it captures *one specific release's* new thing and then stays frozen as the visual record of what v2.4 introduced. This piece is about which releases deserve that video, how to read the answer off the version number, and how to hang the render on the same tag your written changelog already uses.
+
+## Read "does this earn a video" straight off the version number
+
+The mistake that kills the practice is filming everything. Spawn a video for every patch tag and you drown; the signal-to-noise collapses and the archive becomes a landfill nobody scrubs. You do not need judgment for the filter, because the version number already carries it. Semantic Versioning defines the three bumps precisely: increment MAJOR "when you make incompatible API changes," MINOR "when you add functionality in a backward compatible manner," and PATCH "when you make backward compatible bug fixes" ([Semantic Versioning 2.0.0, accessed July 2026](https://semver.org/)).
+
+Read those definitions as a video test and the answer writes itself. A PATCH is, by definition, a fix to existing behavior with no new surface for a user to see, so there is nothing to demonstrate. A MINOR adds functionality a user can now act on, which is exactly a demo's job. A MAJOR reshapes enough that it usually earns a longer cut or a small set of them.
+
+| Release | SemVer meaning | New user-visible surface? | Earns a video? | The cut |
+|---|---|---|---|---|
+| PATCH (x.y.**Z**) | backward-compatible bug fixes | rarely | No — a changelog line | text only |
+| MINOR (x.**Y**.0) | new functionality, backward compatible | yes, by definition | Yes | one focused 20-40s clip of the new thing |
+| MAJOR (**X**.0.0) | incompatible API changes | usually large | Yes | a longer walkthrough or a short set of clips |
+
+The filter is where sustainability lives, and the arithmetic makes the case. Take a healthy SemVer project that cuts about 24 tags a quarter: most are fixes, so say 18 patches, 5 minors, and 1 major. Gating on MINOR-and-up leaves 6 videos a quarter instead of 24. Six is a rhythm a CI job keeps forever without anyone noticing; twenty-four is the reason nobody makes the video at all.
+
+## The changelog you already write is the script you don't
+
+If you keep a changelog in the standard shape, each release already ships a structured entry sorted into six buckets: "`Added` for new features. `Changed` for changes in existing functionality. `Deprecated` for soon-to-be removed features. `Removed` for now removed features. `Fixed` for any bug fixes. `Security` in case of vulnerabilities" ([Keep a Changelog 1.1.0, accessed July 2026](https://keepachangelog.com/en/1.1.0/)). Those buckets are not just bookkeeping; they sort themselves cleanly into whether a line becomes a scene and how.
+
+| Changelog section | What it is | In the video |
+|---|---|---|
+| Added | new features | the subject — show the new thing working |
+| Changed | changes to existing behavior | a before/after, when the change is visible |
+| Fixed | bug fixes | skip — text is the right medium |
+| Deprecated / Removed | features going away | a caption or note, not a scene |
+| Security | vulnerability fixes | text; almost never a demo |
+
+The Added section, rewritten from "what we built" into "what you can now do," is the spine of the script. That reframing is not a stylistic flourish; it is the whole reason release notes get read. Keep a Changelog states its first principle bluntly — changelogs are "_for humans_, not machines" — and the release-notes craft literature says the same thing about video: "Lead with what the user can now do, not the technical implementation" ([Appcues, accessed July 2026](https://www.appcues.com/blog/release-notes-examples)). You are not authoring a new artifact from a blank page; you are giving the changelog's Added lines a voice and a screen.
+
+One honest caveat separates this from the nightly drift-check. A drift render can skip the text-to-speech pass entirely when the narration text has not changed, but a release video's narration changes every release by definition — new feature, new words — so the voice step runs every time. In our own engine, aidemo, which is ours and honestly browser-only, whose storyboard a coding agent writes instead of a person nudging clips across a GUI timeline, that means a per-release render pays for the voice pass a nightly gets to skip. It is a real cost, and a small one against not filming the thing by hand.
+
+## Wire it to the tag, not to a calendar reminder
+
+The monthly recap slips because its trigger is a person's memory. A per-release video does not slip because its trigger is the release itself. GitHub fires a `release` event with activity types "published, unpublished, created, edited, deleted, prereleased, released," and you can just as well filter a `push` to the `tags` that match a version pattern ([GitHub Docs, accessed July 2026](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)). That is the same tag your written notes hang off — GitHub can even auto-fill the prose by clicking "Generate release notes" against it ([GitHub Docs, accessed July 2026](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)). Cut the release, and the render starts.
+
+The SemVer filter from the first table becomes a one-line job guard, because a MINOR is `x.Y.0` and a MAJOR is `X.0.0` — both zero the patch field, so both end in `.0`, while a patch never does:
+
+```yaml
+on:
+  release:
+    types: [published]          # fires on the tag your changelog already uses
+jobs:
+  release-video:
+    # x.Y.0 (minor) and X.0.0 (major) end in .0; a patch x.y.Z does not
+    if: ${{ endsWith(github.event.release.tag_name, '.0') }}
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: ./render-storyboard.sh        # your spec -> out/release-demo.mp4
+      - run: gh release upload "$TAG" out/release-demo.mp4
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
+```
+
+The guard is a heuristic, not a proof: a hand-cut `v2.4.0` that is really an emergency patch would still trip it, and it does not tell a minor from a major if you want different-length cuts (check the middle and first fields for that). But for the common case it reads the triage decision off the tag string with no extra metadata. The runner-level details — that `ubuntu-latest` ships Chrome but not the encoder, which fonts non-Latin captions need, and where large files should land — are their own subject, covered in [rendering demo videos in CI](/blog/demo-videos-in-ci).
+
+The last step is the one that makes this a changelog and not just a video. Uploading the MP4 as a release asset pins it to the tag, so v2.4.0's video lives with v2.4.0 permanently and a later ship never overwrites it — the same durability the written entry has, and the point of [pinning a demo to each shipped version](/blog/versioned-demos-per-release).
+
+## A cadence you can keep without a standing meeting
+
+Frequency, not polish, is what earns trust from release notes: "A short, consistent cadence builds more trust than irregular comprehensive releases" ([Appcues, accessed July 2026](https://www.appcues.com/blog/release-notes-examples)). The monthly recap fails exactly on that axis — it is the irregular, comprehensive, easy-to-skip option by construction. A per-qualifying-tag video is short and consistent because the release cadence, not a human's willpower, sets the beat. High-frequency written streams already prove the appetite: GitHub's own changelog posts several dated entries a day (github.blog/changelog, accessed July 2026), all text — the lesson is not "film every entry" but that a fast release stream already exists and the video should ride a filtered slice of it.
+
+| Cadence model | Who triggers it | Videos / quarter (from the 24-tag example) | Human edit each | Skip risk |
+|---|---|---|---|---|
+| Monthly recap | a person, on a calendar | 3 | high — film, edit, voice | high, it's discretionary |
+| Every tag | CI, on every release | ~24 | none | none, but noisy |
+| Filtered (minor + major) | CI, gated on the tag | ~6 | none | none |
+
+The filtered row is the one that survives contact with a real quarter: low enough volume that each clip is worth a watch, automatic enough that none gets dropped, and keyed to the version so the back-catalog doubles as a visual changelog. What goes *inside* each 20-to-40-second clip — the what-shipped, why-it-matters, one-click-to-try structure — is a format question owned by [the feature-announcement template](/blog/feature-announcement-video); this piece is only about the trigger and the filter that decide whether a clip gets made at all. The release already hands you a tag, a changelog entry, and a "what you can now do." The only thing worth engineering is which releases clear the bar, and the version number answers that for free.
+
+## Sources
+
+- [Semantic Versioning 2.0.0 — MAJOR / MINOR / PATCH definitions](https://semver.org/)
+- [Keep a Changelog 1.1.0 — change categories and "for humans, not machines"](https://keepachangelog.com/en/1.1.0/)
+- [Appcues — release notes examples, cadence, and using visuals](https://www.appcues.com/blog/release-notes-examples)
+- [GitHub Docs — events that trigger workflows (release event, tag filters)](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+- [GitHub Docs — managing releases (create from a tag, generate notes, attach assets)](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
+- [GitHub Changelog — a high-frequency written release stream](https://github.blog/changelog/)
+
+## FAQ
+
+### Which releases actually need a video, and which don't?
+
+Read it off the SemVer bump. A PATCH is a backward-compatible bug fix with no new surface to show, so it belongs in a changelog line, not a video. A MINOR adds functionality a user can now act on and a MAJOR reshapes the product, so both earn a clip. Gating on minor-and-up typically turns something like 24 tags a quarter into about 6 videos — few enough to keep making, frequent enough to stay current.
+
+### How do you generate a release-notes video automatically from a git tag?
+
+Trigger a CI job on the `release` event (or a `push` filtered to version tags), gate it so only minor and major releases render — a one-line check like `endsWith(tag, '.0')` skips patches, since both minors and majors zero the patch field — then render your committed storyboard and upload the MP4 as a release asset. Because it hangs off the same tag your written changelog uses, cutting the release is the whole trigger.
+
+### Are video release notes better than a written changelog?
+
+They are complements, not substitutes. Written notes are searchable, linkable, and cheap for every release including patches; the standard changelog format exists precisely because notes are for humans scanning what changed. Video earns its cost only where the change is visual: a 15-second clip "communicates more than two paragraphs for any UI change" (Appcues), which is why the sustainable pattern is text for every release plus a short video for the minor and major ones that added something to see.
 
 ---
 
@@ -6328,6 +6720,77 @@ On its own, yes. Search engines index the words on a page, not the pixels in a v
 ### How many documentation videos should a small team maintain?
 
 As few as genuinely need motion, because each one is a maintenance liability. The highest-value doc videos show the first-run UI, which is the part of a product that changes most, so a large library rots faster than a small team can re-record. Keep video for the handful of jobs where showing beats telling, keep everything else in text, and make the videos you do keep regenerate from a spec so they rebuild when the product ships.
+
+---
+
+# Video in email marketing: the GIF workaround that actually ships
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/video-in-email-marketing/
+
+> Most inboxes strip your video tag and Outlook freezes your GIF. The client-by-client table for the animated thumbnail that reaches every reader.
+
+## The inbox does not play video, and the numbers say why
+
+Marketers keep asking how to drop a playable demo into a marketing email, and the honest answer is that you mostly cannot. The HTML5 `<video>` element, the same tag that autoplays a hero loop on a landing page, is supported in roughly a quarter of email clients: Can I Email puts it at 24.39% (19.51% full, 4.88% partial) across the clients it tests ([Can I Email, 2026](https://www.caniemail.com/features/html-video/)). Apple Mail on macOS and iOS renders it, but only from version 13.3, only when you supply a `controls` attribute, and never on autoplay. Gmail does not render it at all: it rewrites `<video>`, `<source>`, and `<track>` into empty `<u></u>` tags. Outlook on Windows strips the tag, and so do Yahoo and AOL. Even where the element survives, a strict Content Security Policy in Outlook.com and ProtonMail blocks the file from loading. Mailchimp says the same thing from the sending side: "Most email clients can't display embedded video content, and will strip the code from your email" ([Mailchimp, 2026](https://mailchimp.com/help/add-video-to-a-campaign/)).
+
+So the working pattern is not a video. It is a picture that looks like a video, wired to a link that opens the real thing on a page you control. That picture is either an animated GIF or a static thumbnail, and the whole craft of video in email is choosing between those two and getting the details right. This is the email cell of the [one-recording, every-channel matrix](/blog/video-marketing-for-software), taken down to the mechanics.
+
+## What each email client does with an animated GIF
+
+An animated GIF is the closest thing to motion that the inbox supports broadly. Can I Email records GIF rendering at effectively total coverage, so a looping clip reaches almost every reader. The exception is the one that always ruins email plans: Outlook on the Windows desktop (2007 through 2019) "Does not support animated gif images," rendering a single static frame instead ([Can I Email, 2026](https://www.caniemail.com/features/image-gif/)). Newer Outlook 2019 on an Office 365 account is oddly specific: it plays the loop three times, stops, and shows a play button to replay it.
+
+The obvious optimization is to reach for the format a README would use. An animated WebP is several times smaller than a GIF for the same motion, so why not send that instead? Because WebP animation is dead in the inbox. Can I Email shows Gmail "Converts file to jpg" and "Does not support animation," and Apple Mail renders no WebP at all ([Can I Email, 2021](https://www.caniemail.com/features/image-webp/)). The GIF is wasteful, but it is the only motion format the clients agree on. The [two-pass palette encoding that keeps a GIF small and clean](/blog/readme-gifs-that-update-themselves) is the same work you would do for a repository; email just spends the result on a stricter budget.
+
+| Approach | Gmail (web and app) | Apple Mail | Outlook, Windows desktop | Leaves the inbox on click |
+| --- | --- | --- | --- | --- |
+| HTML5 `<video>` | Nothing, tag rewritten to `<u>` | Inline player, tap to play, no autoplay | Nothing, tag stripped | No, plays in place where it works |
+| Animated GIF | Loops inline | Loops inline | Frozen on one frame | Only if you wrap it in a link |
+| Faux-video hover | Cover, animates on hover | Cover, animates on hover | Cover frame, no reveal | Hover and click-out fight each other |
+| Static thumbnail + link | Poster image, click opens a page | Poster image, click opens a page | Poster image, click opens a page | Yes, by design |
+
+## The first frame has to carry the whole message
+
+Two facts collapse into one design rule. First, Outlook on the desktop freezes a GIF on a single static frame, in practice the first one, so a real slice of your list sees a still and never the loop. Second, plenty of clients block remote images until the reader clicks to display them, and a heavy GIF paints progressively, so the first thing anyone sees is either the opening frame or a broken-image box. The rule that falls out of both: whatever renders first has to state the value on its own. Show the product mid-task with a short label, not a fade-in from black and not a spinner. Treat the animation as a bonus for readers whose client cooperates, and the first frame as the message every reader gets. It is the [poster-frame discipline of a video thumbnail](/blog/demo-video-thumbnail) applied to a format that, for a chunk of your audience, will never move at all.
+
+## The GIF weight budget email actually enforces
+
+A GitHub README has a hard ceiling: 10 MB per image. Email's budget is softer and stricter at the same time. An email image loads over whatever connection the reader happens to be on, often a phone on cellular data; it competes with a full inbox for a few seconds of attention; and a GIF that must buffer before it loops will not have looped by the time the reader has scrolled past. The target most senders settle on is well under a megabyte, frequently a few hundred kilobytes, which is a demanding ask for motion given [how badly GIF compresses a moving frame](/blog/readme-gifs-that-update-themselves).
+
+The levers are the familiar ones, in the same order of impact: width first, then framerate, then length, then color count. Email just pushes each one harder. A continuous scroll is the worst case, because every pixel changes every frame; a click-through demo that holds still between three deliberate actions compresses far better, because the encoder can skip the unchanged regions. So the GIF that actually fits an email is usually the one that shows a few settled states rather than a pan. Keeping it short pays a second dividend: a GIF cannot be paused, and [motion that autoplays past a few seconds trips a Level A accessibility rule](/blog/gifs-in-documentation), so a tight three-second loop is both the lighter file and the more considerate one.
+
+## The faux-video hover trick, and why it stays a demo
+
+There is a clever technique that gets closer to real playback, and it is worth understanding precisely so you know when not to use it. Litmus calls it faux video: layer a static cover image with a play button over an animated GIF of identical dimensions, then use a CSS opacity transition so that hovering the cover fades it out over about 0.3 seconds and reveals the animation beneath ([Litmus, 2026](https://www.litmus.com/blog/faux-video-a-fallback-for-video-in-email)). It works in Gmail, the Gmail app, Apple Mail, iOS Mail, Samsung Mail, and Outlook for Mac. It fails in AOL, Yahoo, and Outlook.com, which do not support CSS opacity, so the cover never lifts and the reader is stuck on the static image.
+
+The client gaps are the small problem. The real one is a contradiction Litmus flags in its own writeup: on mobile, "if a clickthrough is applied in your email, the link will launch the browser on tap and the subscriber will never see the video." Read that twice. Faux video is built to make people watch inside the inbox, but the conversion event for a product demo is the click out to a page where the viewer can sign up. Wire the trick for the inbox reveal and you forfeit the click; wire it for the click and the hover animation never fires, because a phone tap cannot both hover and follow a link. That is why faux video is a fine portfolio piece and rarely what a revenue-driven campaign ships.
+
+## The pattern that ships: a thumbnail wired to a hosted page
+
+The approach that survives every client on the list is the least clever one: a single image with a visible play button, linked to a hosted video page. Mailchimp's built-in video block does exactly this, generating a thumbnail of a player so that "when a recipient clicks the thumbnail, they can watch the video in a new browser window" ([Mailchimp, 2026](https://mailchimp.com/help/add-video-to-a-campaign/)). It renders the same in Gmail, in Apple Mail, and in frozen-GIF Outlook, because underneath it is only an `<img>` inside an `<a>`. Make that image a lightly animated GIF if you want a hint of movement for the clients that animate, but design it so the static first frame is the entire pitch and the link is the point.
+
+That link is where the demo actually lives, so the [page it opens has to load the video fast and clean](/blog/embed-video-on-website). It is also the only version of video in email you can measure honestly: an embedded loop gives you an open at best, while a wrapped thumbnail gives you a click, which is the number this channel is graded on. One last reason to keep the inbox asset and the hosted asset separate is that they can still share a source. If the demo is generated from a committed storyboard, one recording produces both the hosted MP4 and the email GIF as two renders rather than two shoots, the same discipline behind a [README loop that recaptures itself when the product changes](/blog/readme-gifs-that-update-themselves). Our own engine, aidemo, can spit out an email-sized GIF and a full-length hosted clip from one such spec; its honest limits are that it captures browsers only, the spec is written by a coding agent rather than assembled in a timeline editor, and it ships no click-to-edit UI, so it fits a demo you keep in step with the product rather than a one-off. Whatever tool you reach for, the shape holds: cut the email GIF and the hosted video from one master, let the first frame do the work, and let the click carry the reader to where a video can finally play.
+
+## Sources
+
+- [Can I Email — HTML5 video element support in email clients](https://www.caniemail.com/features/html-video/)
+- [Can I Email — Animated GIF image support in email clients](https://www.caniemail.com/features/image-gif/)
+- [Can I Email — WebP image support in email clients](https://www.caniemail.com/features/image-webp/)
+- [Litmus — Faux Video: A Fallback for Video in Email](https://www.litmus.com/blog/faux-video-a-fallback-for-video-in-email)
+- [Mailchimp — Add a video to a campaign (thumbnail links to hosted video)](https://mailchimp.com/help/add-video-to-a-campaign/)
+
+## FAQ
+
+### Can you embed a playable video in an email?
+
+Rarely, and not reliably. The HTML5 `<video>` element works in only about a quarter of email clients per Can I Email: Apple Mail plays it with a tap, but Gmail rewrites the tag to nothing, Outlook on Windows strips it, and Outlook.com and ProtonMail block the file with a Content Security Policy. Because you cannot predict which client opens your message, the shipping pattern is an image, animated GIF or static thumbnail, that links to a hosted page where the video actually plays.
+
+### Why does my email GIF show only the first frame in Outlook?
+
+Outlook on the Windows desktop (2007 through 2019) does not animate GIFs, so it renders a single static frame instead of the loop. Outlook 2019 on an Office 365 account plays the animation three times and then stops. There is no markup fix, so design the GIF so its first frame states the whole message on its own, and treat the motion as a bonus for the clients that support it.
+
+### What size should a GIF be for an email?
+
+Aim well under a megabyte, often a few hundred kilobytes, because email images load over cellular connections and compete for a few seconds of attention before the reader moves on. GIF compresses motion poorly, so cut width first, then framerate, then length. A click-through demo that holds still between a few deliberate steps fits far more easily than a continuous scroll, which changes every pixel of every frame.
 
 ---
 

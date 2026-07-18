@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Release-notes videos, generated per release | aidemo</title>
+<meta name="description" content="Which product releases earn a video and which don't, read off the SemVer bump — plus how to wire a per-tag render to the git tag your changelog uses.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/release-notes-videos/">
+<link rel="alternate" type="text/markdown" href="/blog/release-notes-videos/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Release-notes videos, generated per release | aidemo">
+<meta property="og:description" content="Which product releases earn a video and which don't, read off the SemVer bump — plus how to wire a per-tag render to the git tag your changelog uses.">
+<meta property="og:url" content="https://aidemo.top/blog/release-notes-videos/">
+<meta property="og:image" content="https://aidemo.top/blog/images/release-notes-videos-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Release-notes videos, generated per release | aidemo">
+<meta name="twitter:description" content="Which product releases earn a video and which don't, read off the SemVer bump — plus how to wire a per-tag render to the git tag your changelog uses.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/release-notes-videos-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Release-notes videos generated per release",
+  "description": "Which product releases earn a video and which don't, read off the SemVer bump — plus how to wire a per-tag render to the git tag your changelog uses.",
+  "image": [
+    "https://aidemo.top/blog/images/release-notes-videos-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/release-notes-videos/"
+  },
+  "wordCount": 2008,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Semantic Versioning 2.0.0 — MAJOR / MINOR / PATCH definitions",
+      "url": "https://semver.org/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Keep a Changelog 1.1.0 — change categories and \"for humans, not machines\"",
+      "url": "https://keepachangelog.com/en/1.1.0/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Appcues — release notes examples, cadence, and using visuals",
+      "url": "https://www.appcues.com/blog/release-notes-examples"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — events that trigger workflows (release event, tag filters)",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — managing releases (create from a tag, generate notes, attach assets)",
+      "url": "https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Changelog — a high-frequency written release stream",
+      "url": "https://github.blog/changelog/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Release-notes videos generated per release",
+      "item": "https://aidemo.top/blog/release-notes-videos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Which releases actually need a video, and which don't?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Read it off the SemVer bump. A PATCH is a backward-compatible bug fix with no new surface to show, so it belongs in a changelog line, not a video. A MINOR adds functionality a user can now act on and a MAJOR reshapes the product, so both earn a clip. Gating on minor-and-up typically turns something like 24 tags a quarter into about 6 videos — few enough to keep making, frequent enough to stay current."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you generate a release-notes video automatically from a git tag?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Trigger a CI job on the release event (or a push filtered to version tags), gate it so only minor and major releases render — a one-line check like endsWith(tag, '.0') skips patches, since both minors and majors zero the patch field — then render your committed storyboard and upload the MP4 as a release asset. Because it hangs off the same tag your written changelog uses, cutting the release is the whole trigger."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are video release notes better than a written changelog?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They are complements, not substitutes. Written notes are searchable, linkable, and cheap for every release including patches; the standard changelog format exists precisely because notes are for humans scanning what changed. Video earns its cost only where the change is visual: a 15-second clip \"communicates more than two paragraphs for any UI change\" (Appcues), which is why the sustainable pattern is text for every release plus a short video for the minor and major ones that added something to see."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Release-notes videos generated per release</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Release-notes videos generated per release</h1>
+        <p class="article-dek">A monthly recap is a chore that slips; a per-tag video is a release artifact. Which releases clear the bar reads straight off the version number.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-monthly-recap-dies-on-the-to-do-list">The monthly recap dies on the to-do list</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#read-does-this-earn-a-video-straight-off-the-version-number">Read &quot;does this earn a video&quot; straight off the version number</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-changelog-you-already-write-is-the-script-you-dont">The changelog you already write is the script you don't</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#wire-it-to-the-tag-not-to-a-calendar-reminder">Wire it to the tag, not to a calendar reminder</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-cadence-you-can-keep-without-a-standing-meeting">A cadence you can keep without a standing meeting</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/release-notes-videos-800.webp" srcset="/blog/images/release-notes-videos-400.webp 400w, /blog/images/release-notes-videos-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A rounded gumball machine dispensing a single gumball into its tray"><figcaption>A monthly recap is something a person has to sit down and make; a per-tag video just drops out the moment you cut the release.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The monthly recap slips because a human has to make it; a per-release video is triggered by the release event itself and hand-edited by no one.</li>
+    <li>Read 'does this earn a video' off SemVer: a PATCH bug fix gets a changelog line, a MINOR or MAJOR (new user-visible surface) gets a clip.</li>
+    <li>Filtering to minor-and-up turns ~24 tags a quarter into ~6 videos — a cadence CI keeps forever, versus 24 that would drown the signal.</li>
+    <li>Keep a Changelog's Added section is the script: 'lead with what the user can now do' (Appcues), rendered as one 20-40s clip of the new thing.</li>
+    <li>Wire the render to the release event, gate with endsWith(tag,'.0') to skip patches, and attach the MP4 as a release asset so v2.4.0's video lives with v2.4.0.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-monthly-recap-dies-on-the-to-do-list">The monthly recap dies on the to-do list<a class="hanchor" href="#the-monthly-recap-dies-on-the-to-do-list" aria-label="Link to section: The monthly recap dies on the to-do list">#</a></h2>
+<p>The &quot;here&#39;s everything we shipped this month&quot; video is a good idea that keeps not happening. It is discretionary work that competes with the roadmap, so it slips to next week, and by the time someone sits down to film it the product has moved again and half the footage is already wrong. The task has no owner the way a failing test has an owner, so it quietly becomes the thing you&#39;ll do once the quarter calms down.</p>
+<p>A per-release video is a different kind of object. It is not a chore on a calendar; it is an artifact that falls out of the release you already cut. Every release you ship already emits structured signals — a version number, a git tag, a changelog entry — and each of those can both trigger a render and feed its script, with nobody editing anything by hand. That works only when the demo is a committed spec you can <a href="/blog/automated-product-demo-videos/">regenerate instead of re-record</a>: a filmed take freezes at record time, but a storyboard re-runs against the current build. This is a distinct job from the drift-guarding <a href="/blog/nightly-demo-builds/">nightly re-render</a>, which rebuilds the <em>current</em> demo to catch <a href="/blog/why-product-demos-go-stale/">media going stale</a>. A release-notes video does the opposite: it captures <em>one specific release&#39;s</em> new thing and then stays frozen as the visual record of what v2.4 introduced. This piece is about which releases deserve that video, how to read the answer off the version number, and how to hang the render on the same tag your written changelog already uses.</p>
+<h2 id="read-does-this-earn-a-video-straight-off-the-version-number">Read &quot;does this earn a video&quot; straight off the version number<a class="hanchor" href="#read-does-this-earn-a-video-straight-off-the-version-number" aria-label="Link to section: Read &quot;does this earn a video&quot; straight off the version number">#</a></h2>
+<p>The mistake that kills the practice is filming everything. Spawn a video for every patch tag and you drown; the signal-to-noise collapses and the archive becomes a landfill nobody scrubs. You do not need judgment for the filter, because the version number already carries it. Semantic Versioning defines the three bumps precisely: increment MAJOR &quot;when you make incompatible API changes,&quot; MINOR &quot;when you add functionality in a backward compatible manner,&quot; and PATCH &quot;when you make backward compatible bug fixes&quot;<sup class="article-cite"><a href="#src-1" title="Semantic Versioning 2.0.0 — MAJOR / MINOR / PATCH definitions">1</a></sup>.</p>
+<p>Read those definitions as a video test and the answer writes itself. A PATCH is, by definition, a fix to existing behavior with no new surface for a user to see, so there is nothing to demonstrate. A MINOR adds functionality a user can now act on, which is exactly a demo&#39;s job. A MAJOR reshapes enough that it usually earns a longer cut or a small set of them.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Release</th>
+<th>SemVer meaning</th>
+<th>New user-visible surface?</th>
+<th>Earns a video?</th>
+<th>The cut</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PATCH (x.y.<strong>Z</strong>)</td>
+<td>backward-compatible bug fixes</td>
+<td>rarely</td>
+<td>No — a changelog line</td>
+<td>text only</td>
+</tr>
+<tr>
+<td>MINOR (x.<strong>Y</strong>.0)</td>
+<td>new functionality, backward compatible</td>
+<td>yes, by definition</td>
+<td>Yes</td>
+<td>one focused 20-40s clip of the new thing</td>
+</tr>
+<tr>
+<td>MAJOR (<strong>X</strong>.0.0)</td>
+<td>incompatible API changes</td>
+<td>usually large</td>
+<td>Yes</td>
+<td>a longer walkthrough or a short set of clips</td>
+</tr>
+</tbody></table></div>
+<p>The filter is where sustainability lives, and the arithmetic makes the case. Take a healthy SemVer project that cuts about 24 tags a quarter: most are fixes, so say 18 patches, 5 minors, and 1 major. Gating on MINOR-and-up leaves 6 videos a quarter instead of 24. Six is a rhythm a CI job keeps forever without anyone noticing; twenty-four is the reason nobody makes the video at all.</p>
+<h2 id="the-changelog-you-already-write-is-the-script-you-dont">The changelog you already write is the script you don&#39;t<a class="hanchor" href="#the-changelog-you-already-write-is-the-script-you-dont" aria-label="Link to section: The changelog you already write is the script you don't">#</a></h2>
+<p>If you keep a changelog in the standard shape, each release already ships a structured entry sorted into six buckets: &quot;<code>Added</code> for new features. <code>Changed</code> for changes in existing functionality. <code>Deprecated</code> for soon-to-be removed features. <code>Removed</code> for now removed features. <code>Fixed</code> for any bug fixes. <code>Security</code> in case of vulnerabilities&quot;<sup class="article-cite"><a href="#src-2" title="Keep a Changelog 1.1.0 — change categories and &quot;for humans, not machines&quot;">2</a></sup>. Those buckets are not just bookkeeping; they sort themselves cleanly into whether a line becomes a scene and how.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Changelog section</th>
+<th>What it is</th>
+<th>In the video</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Added</td>
+<td>new features</td>
+<td>the subject — show the new thing working</td>
+</tr>
+<tr>
+<td>Changed</td>
+<td>changes to existing behavior</td>
+<td>a before/after, when the change is visible</td>
+</tr>
+<tr>
+<td>Fixed</td>
+<td>bug fixes</td>
+<td>skip — text is the right medium</td>
+</tr>
+<tr>
+<td>Deprecated / Removed</td>
+<td>features going away</td>
+<td>a caption or note, not a scene</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>vulnerability fixes</td>
+<td>text; almost never a demo</td>
+</tr>
+</tbody></table></div>
+<p>The Added section, rewritten from &quot;what we built&quot; into &quot;what you can now do,&quot; is the spine of the script. That reframing is not a stylistic flourish; it is the whole reason release notes get read. Keep a Changelog states its first principle bluntly — changelogs are &quot;<em>for humans</em>, not machines&quot; — and the release-notes craft literature says the same thing about video: &quot;Lead with what the user can now do, not the technical implementation&quot;<sup class="article-cite"><a href="#src-3" title="Appcues — release notes examples, cadence, and using visuals">3</a></sup>. You are not authoring a new artifact from a blank page; you are giving the changelog&#39;s Added lines a voice and a screen.</p>
+<p>One honest caveat separates this from the nightly drift-check. A drift render can skip the text-to-speech pass entirely when the narration text has not changed, but a release video&#39;s narration changes every release by definition — new feature, new words — so the voice step runs every time. In our own engine, aidemo, which is ours and honestly browser-only, whose storyboard a coding agent writes instead of a person nudging clips across a GUI timeline, that means a per-release render pays for the voice pass a nightly gets to skip. It is a real cost, and a small one against not filming the thing by hand.</p>
+<h2 id="wire-it-to-the-tag-not-to-a-calendar-reminder">Wire it to the tag, not to a calendar reminder<a class="hanchor" href="#wire-it-to-the-tag-not-to-a-calendar-reminder" aria-label="Link to section: Wire it to the tag, not to a calendar reminder">#</a></h2>
+<p>The monthly recap slips because its trigger is a person&#39;s memory. A per-release video does not slip because its trigger is the release itself. GitHub fires a <code>release</code> event with activity types &quot;published, unpublished, created, edited, deleted, prereleased, released,&quot; and you can just as well filter a <code>push</code> to the <code>tags</code> that match a version pattern<sup class="article-cite"><a href="#src-4" title="GitHub Docs — events that trigger workflows (release event, tag filters)">4</a></sup>. That is the same tag your written notes hang off — GitHub can even auto-fill the prose by clicking &quot;Generate release notes&quot; against it<sup class="article-cite"><a href="#src-5" title="GitHub Docs — managing releases (create from a tag, generate notes, attach assets)">5</a></sup>. Cut the release, and the render starts.</p>
+<p>The SemVer filter from the first table becomes a one-line job guard, because a MINOR is <code>x.Y.0</code> and a MAJOR is <code>X.0.0</code> — both zero the patch field, so both end in <code>.0</code>, while a patch never does:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">yaml</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#986801">on</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#E45649">  release</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#E45649">    types</span><span style="color:#383A42">: [</span><span style="color:#50A14F">published</span><span style="color:#383A42">]          </span><span style="color:#6f747e;font-style:italic"># fires on the tag your changelog already uses</span></span>
+<span class="line"><span style="color:#E45649">jobs</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#E45649">  release-video</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">    # x.Y.0 (minor) and X.0.0 (major) end in .0; a patch x.y.Z does not</span></span>
+<span class="line"><span style="color:#E45649">    if</span><span style="color:#383A42">: </span><span style="color:#50A14F">${{ endsWith(github.event.release.tag_name, '.0') }}</span></span>
+<span class="line"><span style="color:#E45649">    runs-on</span><span style="color:#383A42">: </span><span style="color:#50A14F">ubuntu-latest</span></span>
+<span class="line"><span style="color:#E45649">    permissions</span><span style="color:#383A42">: { </span><span style="color:#E45649">contents</span><span style="color:#383A42">: </span><span style="color:#50A14F">write</span><span style="color:#383A42"> }</span></span>
+<span class="line"><span style="color:#E45649">    steps</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#383A42">      - </span><span style="color:#E45649">uses</span><span style="color:#383A42">: </span><span style="color:#50A14F">actions/checkout@v4</span></span>
+<span class="line"><span style="color:#383A42">      - </span><span style="color:#E45649">run</span><span style="color:#383A42">: </span><span style="color:#50A14F">sudo apt-get update &#x26;&#x26; sudo apt-get install -y ffmpeg</span></span>
+<span class="line"><span style="color:#383A42">      - </span><span style="color:#E45649">run</span><span style="color:#383A42">: </span><span style="color:#50A14F">./render-storyboard.sh</span><span style="color:#6f747e;font-style:italic">        # your spec -> out/release-demo.mp4</span></span>
+<span class="line"><span style="color:#383A42">      - </span><span style="color:#E45649">run</span><span style="color:#383A42">: </span><span style="color:#50A14F">gh release upload "$TAG" out/release-demo.mp4</span></span>
+<span class="line"><span style="color:#E45649">        env</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#E45649">          TAG</span><span style="color:#383A42">: </span><span style="color:#50A14F">${{ github.event.release.tag_name }}</span></span>
+<span class="line"><span style="color:#E45649">          GH_TOKEN</span><span style="color:#383A42">: </span><span style="color:#50A14F">${{ github.token }}</span></span></code></pre>
+</div>
+<p>The guard is a heuristic, not a proof: a hand-cut <code>v2.4.0</code> that is really an emergency patch would still trip it, and it does not tell a minor from a major if you want different-length cuts (check the middle and first fields for that). But for the common case it reads the triage decision off the tag string with no extra metadata. The runner-level details — that <code>ubuntu-latest</code> ships Chrome but not the encoder, which fonts non-Latin captions need, and where large files should land — are their own subject, covered in <a href="/blog/demo-videos-in-ci/">rendering demo videos in CI</a>.</p>
+<p>The last step is the one that makes this a changelog and not just a video. Uploading the MP4 as a release asset pins it to the tag, so v2.4.0&#39;s video lives with v2.4.0 permanently and a later ship never overwrites it — the same durability the written entry has, and the point of pinning a demo to each shipped version.</p>
+<h2 id="a-cadence-you-can-keep-without-a-standing-meeting">A cadence you can keep without a standing meeting<a class="hanchor" href="#a-cadence-you-can-keep-without-a-standing-meeting" aria-label="Link to section: A cadence you can keep without a standing meeting">#</a></h2>
+<p>Frequency, not polish, is what earns trust from release notes: &quot;A short, consistent cadence builds more trust than irregular comprehensive releases&quot;<sup class="article-cite"><a href="#src-3" title="Appcues — release notes examples, cadence, and using visuals">3</a></sup>. The monthly recap fails exactly on that axis — it is the irregular, comprehensive, easy-to-skip option by construction. A per-qualifying-tag video is short and consistent because the release cadence, not a human&#39;s willpower, sets the beat. High-frequency written streams already prove the appetite: GitHub&#39;s own changelog posts several dated entries a day (github.blog/changelog, accessed July 2026), all text — the lesson is not &quot;film every entry&quot; but that a fast release stream already exists and the video should ride a filtered slice of it.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Cadence model</th>
+<th>Who triggers it</th>
+<th>Videos / quarter (from the 24-tag example)</th>
+<th>Human edit each</th>
+<th>Skip risk</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Monthly recap</td>
+<td>a person, on a calendar</td>
+<td>3</td>
+<td>high — film, edit, voice</td>
+<td>high, it&#39;s discretionary</td>
+</tr>
+<tr>
+<td>Every tag</td>
+<td>CI, on every release</td>
+<td>~24</td>
+<td>none</td>
+<td>none, but noisy</td>
+</tr>
+<tr>
+<td>Filtered (minor + major)</td>
+<td>CI, gated on the tag</td>
+<td>~6</td>
+<td>none</td>
+<td>none</td>
+</tr>
+</tbody></table></div>
+<p>The filtered row is the one that survives contact with a real quarter: low enough volume that each clip is worth a watch, automatic enough that none gets dropped, and keyed to the version so the back-catalog doubles as a visual changelog. What goes <em>inside</em> each 20-to-40-second clip — the what-shipped, why-it-matters, one-click-to-try structure — is a format question owned by <a href="/blog/feature-announcement-video/">the feature-announcement template</a>; this piece is only about the trigger and the filter that decide whether a clip gets made at all. The release already hands you a tag, a changelog entry, and a &quot;what you can now do.&quot; The only thing worth engineering is which releases clear the bar, and the version number answers that for free.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://semver.org/" rel="noopener">Semantic Versioning 2.0.0 — MAJOR / MINOR / PATCH definitions</a></li>
+<li id="src-2"><a href="https://keepachangelog.com/en/1.1.0/" rel="noopener">Keep a Changelog 1.1.0 — change categories and &quot;for humans, not machines&quot;</a></li>
+<li id="src-3"><a href="https://www.appcues.com/blog/release-notes-examples" rel="noopener">Appcues — release notes examples, cadence, and using visuals</a></li>
+<li id="src-4"><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows" rel="noopener">GitHub Docs — events that trigger workflows (release event, tag filters)</a></li>
+<li id="src-5"><a href="https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository" rel="noopener">GitHub Docs — managing releases (create from a tag, generate notes, attach assets)</a></li>
+<li id="src-6"><a href="https://github.blog/changelog/" rel="noopener">GitHub Changelog — a high-frequency written release stream</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="which-releases-actually-need-a-video-and-which-dont" class="blog-faq-q">Which releases actually need a video, and which don&#39;t?<a class="hanchor" href="#which-releases-actually-need-a-video-and-which-dont" aria-label="Link to section: Which releases actually need a video, and which don't?">#</a></h3>
+<p>Read it off the SemVer bump. A PATCH is a backward-compatible bug fix with no new surface to show, so it belongs in a changelog line, not a video. A MINOR adds functionality a user can now act on and a MAJOR reshapes the product, so both earn a clip. Gating on minor-and-up typically turns something like 24 tags a quarter into about 6 videos — few enough to keep making, frequent enough to stay current.</p>
+<h3 id="how-do-you-generate-a-release-notes-video-automatically-from-a-git-tag" class="blog-faq-q">How do you generate a release-notes video automatically from a git tag?<a class="hanchor" href="#how-do-you-generate-a-release-notes-video-automatically-from-a-git-tag" aria-label="Link to section: How do you generate a release-notes video automatically from a git tag?">#</a></h3>
+<p>Trigger a CI job on the <code>release</code> event (or a <code>push</code> filtered to version tags), gate it so only minor and major releases render — a one-line check like <code>endsWith(tag, &#39;.0&#39;)</code> skips patches, since both minors and majors zero the patch field — then render your committed storyboard and upload the MP4 as a release asset. Because it hangs off the same tag your written changelog uses, cutting the release is the whole trigger.</p>
+<h3 id="are-video-release-notes-better-than-a-written-changelog" class="blog-faq-q">Are video release notes better than a written changelog?<a class="hanchor" href="#are-video-release-notes-better-than-a-written-changelog" aria-label="Link to section: Are video release notes better than a written changelog?">#</a></h3>
+<p>They are complements, not substitutes. Written notes are searchable, linkable, and cheap for every release including patches; the standard changelog format exists precisely because notes are for humans scanning what changed. Video earns its cost only where the change is visual: a 15-second clip &quot;communicates more than two paragraphs for any UI change&quot; (Appcues), which is why the sustainable pattern is text for every release plus a short video for the minor and major ones that added something to see.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">release notes</span>
+        <span class="article-tag">video changelog</span>
+        <span class="article-tag">demo automation</span>
+        <span class="article-tag">ci-cd</span>
+        <span class="article-tag">semver</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-videos-in-ci-400.webp" srcset="/blog/images/demo-videos-in-ci-400.webp 400w, /blog/images/demo-videos-in-ci-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A GitHub Actions run log with a passing render-demo job and an attached MP4, beside the workflow YAML that triggered it"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-monthly-recap-dies-on-the-to-do-list">The monthly recap dies on the to-do list</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#read-does-this-earn-a-video-straight-off-the-version-number">Read &quot;does this earn a video&quot; straight off the version number</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-changelog-you-already-write-is-the-script-you-dont">The changelog you already write is the script you don't</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#wire-it-to-the-tag-not-to-a-calendar-reminder">Wire it to the tag, not to a calendar reminder</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-cadence-you-can-keep-without-a-standing-meeting">A cadence you can keep without a standing meeting</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>
