@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measuring documentation video effectiveness | aidemo</title>
+<meta name="description" content="Views are a vanity metric for a doc video. Grade it on four gates, findability, engagement, task success, and ticket deflection, and retire the ones that fail.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/measuring-documentation-video-effectiveness/">
+<link rel="alternate" type="text/markdown" href="/blog/measuring-documentation-video-effectiveness/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Measuring documentation video effectiveness | aidemo">
+<meta property="og:description" content="Views are a vanity metric for a doc video. Grade it on four gates, findability, engagement, task success, and ticket deflection, and retire the ones that fail.">
+<meta property="og:url" content="https://aidemo.top/blog/measuring-documentation-video-effectiveness/">
+<meta property="og:image" content="https://aidemo.top/blog/images/measuring-documentation-video-effectiveness-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Measuring documentation video effectiveness | aidemo">
+<meta name="twitter:description" content="Views are a vanity metric for a doc video. Grade it on four gates, findability, engagement, task success, and ticket deflection, and retire the ones that fail.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/measuring-documentation-video-effectiveness-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Measuring whether documentation videos actually work",
+  "description": "Views are a vanity metric for a doc video. Grade it on four gates, findability, engagement, task success, and ticket deflection, and retire the ones that fail.",
+  "image": [
+    "https://aidemo.top/blog/images/measuring-documentation-video-effectiveness-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/measuring-documentation-video-effectiveness/"
+  },
+  "wordCount": 2237,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Zendesk — Getting started with self-service, Part 6: Tracking essential self-service metrics",
+      "url": "https://support.zendesk.com/hc/en-us/articles/4408894139930-Getting-started-with-self-service-Part-6-Tracking-essential-self-service-metrics"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Zendesk — Using the metrics that matter to improve your knowledge base",
+      "url": "https://support.zendesk.com/hc/en-us/articles/4408838548250-Using-the-metrics-that-matter-to-improve-your-knowledge-base"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — Average User Engagement Analytics",
+      "url": "https://support.wistia.com/en/articles/8228871-average-user-engagement-analytics"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines",
+      "url": "https://www.nngroup.com/articles/instructional-video-guidelines/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Measuring whether documentation videos actually work",
+      "item": "https://aidemo.top/blog/measuring-documentation-video-effectiveness/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What metrics show whether a documentation video is working?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not the view count. Grade a doc video on four gates in order: findability (can a stuck reader reach it, from whether search surfaces the article), engagement (did they watch the load-bearing segment, from the drop-off graph), task success (did watching let them do the thing, from helpful votes and a follow-through event in product analytics), and deflection (did the ticket go unfiled, from the topic's self-service score). A clip can pass three gates and fail the fourth, so measure them separately rather than as one score."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you measure ticket deflection from a help-center video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Read it at the topic level with the self-service score: help-center sessions on that topic divided by users who filed a ticket on it, which Zendesk frames as a ratio you want to grow, for every 40 self-service users, one ticket. Track that ratio and the count of searches that led to a ticket, before and after the clip ships. Deflection is a lagging indicator, so give it weeks; a cleaner read is a holdout, showing the video to half the traffic and comparing the ticket rate on the topic."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is video watch time a good measure of documentation quality?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Watch time and completion are engagement metrics: they tell you people stayed, not that they succeeded. A doc video can post high completion and still leave every viewer unable to finish the task, which shows up only in a flat helpful-vote tally and no follow-through in product analytics. Treat watch time as a leading indicator you iterate on fast, and the outcome metrics, task follow-through and deflection, as the lagging signals that decide whether the clip works."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Measuring whether documentation videos actually work</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Measuring whether documentation videos actually work</h1>
+        <p class="article-dek">A play count cannot tell you whether a documentation video did its job. Measure the four gates it must clear, and retire the clips that fail them.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 4 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#views-measure-supply-not-whether-anyone-got-helped">Views measure supply, not whether anyone got helped</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-four-gates-a-documentation-video-has-to-clear">The four gates a documentation video has to clear</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#findability-the-metric-that-decides-before-anyone-presses-play">Findability: the metric that decides before anyone presses play</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#completion-of-the-part-that-matters-not-the-whole-clip">Completion of the part that matters, not the whole clip</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-outcome-gates-did-they-succeed-and-did-the-ticket-go-unfiled">The outcome gates: did they succeed, and did the ticket go unfiled</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#reading-the-numbers-together-which-gate-a-failing-video-failed">Reading the numbers together: which gate a failing video failed</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-retire-rule-so-the-videos-nobody-needs-stop-billing-you">A retire rule, so the videos nobody needs stop billing you</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/measuring-documentation-video-effectiveness-800.webp" srcset="/blog/images/measuring-documentation-video-effectiveness-400.webp 400w, /blog/images/measuring-documentation-video-effectiveness-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A single wooden matchstick standing upright with a small steady flame"><figcaption>Nobody grades a match on how many times it was struck; it either lights or it doesn't. Measure a documentation video the same way — by the tasks it actually ignites, not the plays.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Views measure supply, not outcome: a doc video is graded on task success and ticket deflection, not plays. Zendesk warns to read pageviews only alongside other metrics.</li>
+    <li>Grade a doc video on four gates in order, findability, engagement, task success, deflection. A clip can pass three and fail the fourth, so an upstream failure fakes a downstream one.</li>
+    <li>Findability runs before playback: a video-only article is invisible to a text search box. The fix is a transcript and in-article placement, never a re-shoot.</li>
+    <li>Deflection has a formula: Zendesk self-service score = help-center sessions / users who filed a ticket, read at the topic level. It is the lagging signal that grades the real outcome.</li>
+    <li>Retire on a scorecard: after a fair window (a quarter), kill a clip that is findable and watched but moves no helpful votes, follow-through, or self-service score.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="views-measure-supply-not-whether-anyone-got-helped">Views measure supply, not whether anyone got helped<a class="hanchor" href="#views-measure-supply-not-whether-anyone-got-helped" aria-label="Link to section: Views measure supply, not whether anyone got helped">#</a></h2>
+<p>A documentation video&#39;s dashboard leads with a view count, and it is the single number that cannot tell you whether the video did its job. A marketing video wants attention, so a play is at least adjacent to the goal. A documentation video wants something a play never proves: that a reader who arrived stuck left unstuck, and did not open a ticket on the way out. Ten thousand plays on a help-center clip reports supply, how many times the file started, and says nothing about the outcome the clip exists to produce. Zendesk&#39;s own knowledge-base guidance refuses to read raw pageviews as a verdict, advising teams to &quot;monitor page views in conjunction with other monitoring methods&quot; instead<sup class="article-cite"><a href="#src-2" title="Zendesk — Using the metrics that matter to improve your knowledge base">2</a></sup>.</p>
+<p>The reframe this piece runs on: a doc video is an instrument for task success and ticket deflection, not a thing people watch. That makes its measurement a different exercise from the marketing one, where <a href="/blog/demo-video-metrics/">play rate, retention shape, and assisted conversions grade a video meant to move a deal</a>. Here the clip is graded on whether the reader&#39;s problem went away. The <a href="/blog/video-documentation/">pillar argues when video belongs in docs at all</a>; this spoke assumes you shipped one and asks how to tell if it works, and, more usefully, which of four different ways it is failing.</p>
+<h2 id="the-four-gates-a-documentation-video-has-to-clear">The four gates a documentation video has to clear<a class="hanchor" href="#the-four-gates-a-documentation-video-has-to-clear" aria-label="Link to section: The four gates a documentation video has to clear">#</a></h2>
+<p>A doc video can die at four independent points, and collapsing them into one &quot;is it working&quot; number hides which one killed it. Read them as gates in order: a reader has to find the video, then choose to watch the part that matters, then actually succeed at the task, and finally not file the ticket anyway. Each gate has its own metric and its own fix, and a clip can sail through three and fail the fourth.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>The question</th>
+<th>The metric that grades it</th>
+<th>Where a failure sends you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Findability</td>
+<td>Could a stuck reader reach it at all?</td>
+<td>Search-to-video ratio, searches with no clicks</td>
+<td>Placement, transcript, indexing</td>
+</tr>
+<tr>
+<td>Engagement</td>
+<td>Did they watch the load-bearing part?</td>
+<td>Play rate, drop-off at the key step</td>
+<td>Poster, opening, pacing</td>
+</tr>
+<tr>
+<td>Task success</td>
+<td>Did watching let them do the thing?</td>
+<td>Helpful votes, a follow-through event</td>
+<td>The content itself</td>
+</tr>
+<tr>
+<td>Deflection</td>
+<td>Did the ticket go unfiled?</td>
+<td>Self-service score on the topic</td>
+<td>The approach, or a ticket no video fits</td>
+</tr>
+</tbody></table></div>
+<p>The order matters because an upstream failure impersonates a downstream one. A video nobody can find posts a task-success rate near zero, and if you read only that number you re-record a perfectly good clip that simply never got watched. Walk the gates in sequence and you spend effort on the one that is actually red.</p>
+<h2 id="findability-the-metric-that-decides-before-anyone-presses-play">Findability: the metric that decides before anyone presses play<a class="hanchor" href="#findability-the-metric-that-decides-before-anyone-presses-play" aria-label="Link to section: Findability: the metric that decides before anyone presses play">#</a></h2>
+<p>Every marketing metric starts at the play. In docs the first gate sits upstream of playback: can a stuck reader reach the clip? A help-center search box matches words, so a video-only article is invisible to someone typing the exact error into it, and a clip parked in a &quot;videos&quot; tab nobody opens has no path to it. The signal that grades this is the search-to-video ratio, how often a search on the topic surfaces the article carrying the clip, read next to two counts Zendesk exposes directly: &quot;searches that returned 0 results&quot; and &quot;searches where no result was selected,&quot; each pointing at a topic readers want and cannot reach<sup class="article-cite"><a href="#src-1" title="Zendesk — Getting started with self-service, Part 6: Tracking essential self-service metrics">1</a></sup>.</p>
+<p>The fix for a findability failure is never in the video. It is a transcript beside the clip so search has words to match, which doubles as <a href="/blog/accessible-tutorial-videos/">the accessible text layer a video otherwise withholds</a>; it is placing the clip inside the article a reader already lands on rather than in a gallery; and it is titling that article the way a stuck user phrases the problem. None of that is filmmaking, and re-shooting a clip that fails this gate changes nothing.</p>
+<h2 id="completion-of-the-part-that-matters-not-the-whole-clip">Completion of the part that matters, not the whole clip<a class="hanchor" href="#completion-of-the-part-that-matters-not-the-whole-clip" aria-label="Link to section: Completion of the part that matters, not the whole clip">#</a></h2>
+<p>Past findability, the engagement gate asks whether the reader reached the moment the video exists for. Marketing measurement fixates on overall completion; for a doc clip that number is nearly meaningless, because a reader who came for one step is right to leave the instant they have it. What you want is completion of the load-bearing segment, the ten seconds that show the actual click, not the share who sat through the outro.</p>
+<p>Wistia&#39;s engagement graph gives you that at a glance: &quot;the point where the blue line falls is where attention dropped,&quot; while a spike in the orange overlay marks a stretch &quot;people found compelling enough to replay&quot;<sup class="article-cite"><a href="#src-3" title="Wistia — Average User Engagement Analytics">3</a></sup>. On a doc clip a replay spike is a gift; it flags the exact second readers rewind because the step went by too fast, which is a re-cut, not a failure. The drop-off to fear is the early one, and NN/g&#39;s instructional-video research names its usual cause: viewers complain that &quot;videos include lengthy introductions and don&#39;t get to the point quickly enough,&quot; and because &quot;videos move at the creator&#39;s pace and not necessarily at the viewer&#39;s pace,&quot; an intro that reads as polite in a webinar is friction in a how-to<sup class="article-cite"><a href="#src-4" title="Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines">4</a></sup>. Reading the shape of that curve, cliff, valley, or plateau, is a skill <a href="/blog/demo-video-metrics/">the demo-metrics piece works through drop-off by drop-off</a>; the doc-specific twist is only which segment you hold to the standard.</p>
+<h2 id="the-outcome-gates-did-they-succeed-and-did-the-ticket-go-unfiled">The outcome gates: did they succeed, and did the ticket go unfiled<a class="hanchor" href="#the-outcome-gates-did-they-succeed-and-did-the-ticket-go-unfiled" aria-label="Link to section: The outcome gates: did they succeed, and did the ticket go unfiled">#</a></h2>
+<p>Findability and completion grade the clip as something watched. Neither proves the reader could then do the thing. The outcome gates do, and they are what separate documentation measurement from marketing measurement.</p>
+<p>The cheapest outcome signal is the vote already built into most help centers: the &quot;Was this article helpful?&quot; thumbs. Zendesk surfaces it as &quot;a number representing the difference between positive and negative votes,&quot; a single running tally rather than a percentage<sup class="article-cite"><a href="#src-2" title="Zendesk — Using the metrics that matter to improve your knowledge base">2</a></sup>. It is noisy and self-selected, a leading indicator, because readers reach for &quot;not helpful&quot; more freely than &quot;helpful&quot;, so read the trend rather than the raw split; still, a clip whose tally turns down after you add it is telling you something a play count never would.</p>
+<p>The stronger signal is behavioral: fire a product event when a reader performs the exact action the clip documents, shortly after the article view. A walkthrough of the export flow should be followed by exports; a video on connecting an integration should be followed by connections. That follow-through rate is the closest a doc video gets to measuring task success directly, and it lives in your product analytics, not your video tool.</p>
+<p>The last gate is deflection, and here the definition is a formula, not a mood. Zendesk names it the self-service score: help-center sessions divided by users who filed a ticket, where success &quot;is demonstrated by an increasingly large ratio (for example, for every 40 users only one of them submits a ticket)&quot;<sup class="article-cite"><a href="#src-1" title="Zendesk — Getting started with self-service, Part 6: Tracking essential self-service metrics">1</a></sup>. Read it at the topic level, not the video level, and watch the &quot;searches that led to a ticket being created&quot; on that topic fall after the clip ships. The <a href="/blog/support-videos-knowledge-base/">break-even math on what a deflected ticket is worth against what the clip costs</a> is a subject of its own; the measurement point is that deflection is a lagging indicator, weeks of data for a strong signal, and it is the only gate that grades the outcome the video was funded to produce.</p>
+<h2 id="reading-the-numbers-together-which-gate-a-failing-video-failed">Reading the numbers together: which gate a failing video failed<a class="hanchor" href="#reading-the-numbers-together-which-gate-a-failing-video-failed" aria-label="Link to section: Reading the numbers together: which gate a failing video failed">#</a></h2>
+<p>The four metrics are only diagnostic together, because the same verdict, &quot;this video isn&#39;t working&quot;, has four different cures depending on which gate is red. This is the table nobody assembles, because it needs the doc-specific outcome gates a marketing dashboard does not carry.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What you see</th>
+<th>The gate that failed</th>
+<th>What it is not, and the real fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Few plays, but high completion and helpful votes among those who watch</td>
+<td>Findability</td>
+<td>Not the video. Add a transcript, move the clip into the searched article, retitle it</td>
+</tr>
+<tr>
+<td>Good traffic, low play rate</td>
+<td>Engagement, entry</td>
+<td>Not the content. Fix the poster frame, thumbnail, and on-page placement</td>
+</tr>
+<tr>
+<td>High play rate, sharp early drop-off</td>
+<td>Engagement, opening</td>
+<td>Not the whole clip. Cut the intro and open on the action</td>
+</tr>
+<tr>
+<td>High completion, but flat helpful votes and no follow-through</td>
+<td>Task success</td>
+<td>The content is wrong: it shows the wrong step or is unclear. Re-author, do not just re-place</td>
+</tr>
+<tr>
+<td>Every watch metric strong, deflection still flat</td>
+<td>Deflection</td>
+<td>The ticket was never video-shaped; account-specific or trivial, so no clip deflects it</td>
+</tr>
+</tbody></table></div>
+<p>The two rows people misread are the last two. A clip with high completion and no follow-through looks like a win on the dashboard and is a loss in the world: people watched the whole thing and still could not act, which indicts the content, not the packaging. And a video that clears every watch gate while tickets keep coming is usually sitting on a problem no video can deflect, the disputed-charge, account-specific kind that <a href="/blog/support-videos-knowledge-base/">belongs with a human rather than in the docs</a>. Re-recording either one is wasted motion.</p>
+<h2 id="a-retire-rule-so-the-videos-nobody-needs-stop-billing-you">A retire rule, so the videos nobody needs stop billing you<a class="hanchor" href="#a-retire-rule-so-the-videos-nobody-needs-stop-billing-you" aria-label="Link to section: A retire rule, so the videos nobody needs stop billing you">#</a></h2>
+<p>Measurement earns its keep only when it ends in a decision, and for a doc video the decision most teams never make is to kill one. Every kept clip runs a standing maintenance bill, on the order of <a href="/blog/keeping-tutorial-libraries-current/">two hours per video per year to keep it from lying about a moved button</a>, so a clip that clears playback but fails the outcome gates is pure liability: cost with no offsetting deflection.</p>
+<p>The rule is a scorecard, not a feeling. Give a video a fair measurement window, a quarter is defensible, then retire it when it fails the gates it was built to clear: findable and watched, but no movement in helpful votes, in follow-through, or in the topic&#39;s self-service score. Retiring rarely means deleting the answer; it means demoting the clip and letting text carry the load, which is the right call whenever <a href="/blog/video-vs-written-documentation/">the job turned out to want words more than motion</a>.</p>
+<p>One variable quietly sets the retire threshold: what the clip costs to keep. A hand-recorded video is expensive to maintain, so the bar to justify keeping a marginal one is high. A video that regenerates from a committed spec costs only CI minutes to rebuild, which lowers the bar, since keeping a borderline clip current is nearly free. One engine built for that, our own aidemo, is worth naming only with its limits attached: it works inside a web browser and nowhere else, a coding agent writes each storyboard rather than a person assembling clips by hand, and it has no drag-on-a-timeline editor at all. Which tool does the rebuilding is secondary. What matters is that &quot;should this video still exist&quot; is a question measurement answers, and for a real share of any library the answer is no.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://support.zendesk.com/hc/en-us/articles/4408894139930-Getting-started-with-self-service-Part-6-Tracking-essential-self-service-metrics" rel="noopener">Zendesk — Getting started with self-service, Part 6: Tracking essential self-service metrics</a></li>
+<li id="src-2"><a href="https://support.zendesk.com/hc/en-us/articles/4408838548250-Using-the-metrics-that-matter-to-improve-your-knowledge-base" rel="noopener">Zendesk — Using the metrics that matter to improve your knowledge base</a></li>
+<li id="src-3"><a href="https://support.wistia.com/en/articles/8228871-average-user-engagement-analytics" rel="noopener">Wistia — Average User Engagement Analytics</a></li>
+<li id="src-4"><a href="https://www.nngroup.com/articles/instructional-video-guidelines/" rel="noopener">Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-metrics-show-whether-a-documentation-video-is-working" class="blog-faq-q">What metrics show whether a documentation video is working?<a class="hanchor" href="#what-metrics-show-whether-a-documentation-video-is-working" aria-label="Link to section: What metrics show whether a documentation video is working?">#</a></h3>
+<p>Not the view count. Grade a doc video on four gates in order: findability (can a stuck reader reach it, from whether search surfaces the article), engagement (did they watch the load-bearing segment, from the drop-off graph), task success (did watching let them do the thing, from helpful votes and a follow-through event in product analytics), and deflection (did the ticket go unfiled, from the topic&#39;s self-service score). A clip can pass three gates and fail the fourth, so measure them separately rather than as one score.</p>
+<h3 id="how-do-you-measure-ticket-deflection-from-a-help-center-video" class="blog-faq-q">How do you measure ticket deflection from a help-center video?<a class="hanchor" href="#how-do-you-measure-ticket-deflection-from-a-help-center-video" aria-label="Link to section: How do you measure ticket deflection from a help-center video?">#</a></h3>
+<p>Read it at the topic level with the self-service score: help-center sessions on that topic divided by users who filed a ticket on it, which Zendesk frames as a ratio you want to grow, for every 40 self-service users, one ticket. Track that ratio and the count of searches that led to a ticket, before and after the clip ships. Deflection is a lagging indicator, so give it weeks; a cleaner read is a holdout, showing the video to half the traffic and comparing the ticket rate on the topic.</p>
+<h3 id="is-video-watch-time-a-good-measure-of-documentation-quality" class="blog-faq-q">Is video watch time a good measure of documentation quality?<a class="hanchor" href="#is-video-watch-time-a-good-measure-of-documentation-quality" aria-label="Link to section: Is video watch time a good measure of documentation quality?">#</a></h3>
+<p>No. Watch time and completion are engagement metrics: they tell you people stayed, not that they succeeded. A doc video can post high completion and still leave every viewer unable to finish the task, which shows up only in a flat helpful-vote tally and no follow-through in product analytics. Treat watch time as a leading indicator you iterate on fast, and the outcome metrics, task follow-through and deflection, as the lagging signals that decide whether the clip works.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">documentation video metrics</span>
+        <span class="article-tag">ticket deflection</span>
+        <span class="article-tag">knowledge base analytics</span>
+        <span class="article-tag">self-service score</span>
+        <span class="article-tag">video documentation</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/accessible-tutorial-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/accessible-tutorial-videos-400.webp" srcset="/blog/images/accessible-tutorial-videos-400.webp 400w, /blog/images/accessible-tutorial-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A gently curving ramp with smooth edges rising from the ground to a low raised platform."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Accessible tutorial videos: captions, transcripts, audio description</h3>
+    <p class="article-card-excerpt">Captions clear one of seven WCAG media checks. The descriptive transcript that serves a Deaf-blind reader is the same text your search box needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/api-documentation-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/api-documentation-videos-400.webp" srcset="/blog/images/api-documentation-videos-400.webp 400w, /blog/images/api-documentation-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A wooden pyramid metronome with its pendulum caught mid-swing."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">API and SDK documentation videos that stay in sync with the API</h3>
+    <p class="article-card-excerpt">A stale UI demo looks wrong on sight. A stale API quickstart shows valid JSON while the field it names no longer exists. How to keep one honest.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#views-measure-supply-not-whether-anyone-got-helped">Views measure supply, not whether anyone got helped</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-four-gates-a-documentation-video-has-to-clear">The four gates a documentation video has to clear</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#findability-the-metric-that-decides-before-anyone-presses-play">Findability: the metric that decides before anyone presses play</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#completion-of-the-part-that-matters-not-the-whole-clip">Completion of the part that matters, not the whole clip</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-outcome-gates-did-they-succeed-and-did-the-ticket-go-unfiled">The outcome gates: did they succeed, and did the ticket go unfiled</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#reading-the-numbers-together-which-gate-a-failing-video-failed">Reading the numbers together: which gate a failing video failed</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-retire-rule-so-the-videos-nobody-needs-stop-billing-you">A retire rule, so the videos nobody needs stop billing you</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

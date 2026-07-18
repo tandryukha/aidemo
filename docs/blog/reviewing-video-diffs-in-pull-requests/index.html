@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reviewing media diffs in pull requests | aidemo</title>
+<meta name="description" content="A committed MP4 shows only as 'Binary files differ' in a PR. Diff the storyboard spec, attach a rendered preview, and gate the merge on a flow check.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/reviewing-video-diffs-in-pull-requests/">
+<link rel="alternate" type="text/markdown" href="/blog/reviewing-video-diffs-in-pull-requests/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Reviewing media diffs in pull requests | aidemo">
+<meta property="og:description" content="A committed MP4 shows only as 'Binary files differ' in a PR. Diff the storyboard spec, attach a rendered preview, and gate the merge on a flow check.">
+<meta property="og:url" content="https://aidemo.top/blog/reviewing-video-diffs-in-pull-requests/">
+<meta property="og:image" content="https://aidemo.top/blog/images/reviewing-video-diffs-in-pull-requests-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reviewing media diffs in pull requests | aidemo">
+<meta name="twitter:description" content="A committed MP4 shows only as 'Binary files differ' in a PR. Diff the storyboard spec, attach a rendered preview, and gate the merge on a flow check.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/reviewing-video-diffs-in-pull-requests-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Reviewing video and media diffs in pull requests",
+  "description": "A committed MP4 shows only as 'Binary files differ' in a PR. Diff the storyboard spec, attach a rendered preview, and gate the merge on a flow check.",
+  "image": [
+    "https://aidemo.top/blog/images/reviewing-video-diffs-in-pull-requests-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/reviewing-video-diffs-in-pull-requests/"
+  },
+  "wordCount": 2197,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Working with non-code files (image diff modes: 2-up, swipe, onion skin; supported formats)",
+      "url": "https://docs.github.com/en/repositories/working-with-files/using-files/working-with-non-code-files"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Attaching files (video .mp4/.mov/.webm rendered inline; 10 MB free / 100 MB paid; H.264)",
+      "url": "https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Git — gitattributes (\"Binary files differ\", the -diff attribute, and textconv to diff a binary as text)",
+      "url": "https://git-scm.com/docs/gitattributes"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chromatic — UI Review (changeset, assign reviewers, approve/deny, required UI Review status check)",
+      "url": "https://www.chromatic.com/docs/review/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Charmbracelet vhs — tape files as source and .txt/.ascii golden output committed to git",
+      "url": "https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Engineering Practices — What to look for in a code review (review every line; you must understand the change)",
+      "url": "https://google.github.io/eng-practices/review/reviewer/looking-for.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Reviewing video and media diffs in pull requests",
+      "item": "https://aidemo.top/blog/reviewing-video-diffs-in-pull-requests/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can you preview a video in a GitHub pull request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not from the file diff itself: a committed video shows only as \"Binary files differ,\" with no player. But you can drop an .mp4, .mov, or .webm into the pull request description or a comment, and GitHub uploads it and embeds a playable preview inline, capped at 10 MB on a free plan and 100 MB on a paid one. The reliable pattern is a CI job that renders the demo on each push and posts it back as a comment, so the preview always matches the current branch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does GitHub show image differences in pull requests?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for images, though not for video. GitHub renders PNG, JPG, GIF, PSD, and SVG and offers three comparison modes: 2-up (both versions side by side), swipe (a slider you drag across the two), and onion skin (an opacity fade that exposes small shifts). PSD renders but will not diff, and an SVG diffs both as an image and as its XML source. That is why freezing a key screen as a committed PNG makes a demo's state reviewable in a way the MP4 never is."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you review a change to a binary file in git?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You review its text projection, not its bytes. Git can attach a textconv program that converts a binary to text purely for diffing (EXIF for a JPG, ASCII for PostScript), and the same principle drives demos-as-code: review the storyboard that renders the video, since the render is build output. For a genuinely opaque asset with no source, attach a before/after preview to the PR and gate the merge on an automated visual check."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Reviewing video and media diffs in pull requests</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Reviewing video and media diffs in pull requests</h1>
+        <p class="article-dek">A pull request has nothing to say about a video: git renders it as 'Binary files differ.' Here is how to make a media change a reviewer can actually approve.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#binary-files-differ-is-all-a-pull-request-tells-you-about-a-video">&quot;Binary files differ&quot; is all a pull request tells you about a video</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-pull-request-will-render-and-what-it-wont">What a pull request will render, and what it won't</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#put-the-render-where-the-reviewer-already-is">Put the render where the reviewer already is</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#review-the-spec-not-the-pixels">Review the spec, not the pixels</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-gate-hands-the-reviewer-a-verdict-not-a-video">The gate hands the reviewer a verdict, not a video</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-checklist-for-approving-a-media-change">A checklist for approving a media change</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/reviewing-video-diffs-in-pull-requests-800.webp" srcset="/blog/images/reviewing-video-diffs-in-pull-requests-400.webp 400w, /blog/images/reviewing-video-diffs-in-pull-requests-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A brass jeweler's loupe standing open on its folding hinge"><figcaption>A loupe is useless against a sealed binary; hand the reviewer the spec and every change snaps into focus.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>GitHub renders a real diff for PNG, JPG, GIF, PSD, and SVG in three modes (2-up, swipe, onion skin) but shows a committed .mp4 only as 'Binary files differ' — zero visual review.</li>
+    <li>Attach the render, don't commit it: .mp4/.mov/.webm embed inline in a PR comment, capped at 10 MB (free) / 100 MB (paid), H.264 for cross-browser playback.</li>
+    <li>Review the spec, not the pixels: a storyboard diffs line-by-line; git can even textconv a binary to text, and vhs commits .txt/.ascii golden output for exactly this.</li>
+    <li>Gate the flow, not the frame: a probe/golden check tells the reviewer 'still resolves or not'; Chromatic posts a required UI Review status check with assigned approvers.</li>
+    <li>The six-row checklist: every row a human judges points at text or a still, never the committed video, because that's the one artifact the pull request can't show.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="binary-files-differ-is-all-a-pull-request-tells-you-about-a-video">&quot;Binary files differ&quot; is all a pull request tells you about a video<a class="hanchor" href="#binary-files-differ-is-all-a-pull-request-tells-you-about-a-video" aria-label="Link to section: &quot;Binary files differ&quot; is all a pull request tells you about a video">#</a></h2>
+<p>Open a pull request that changes a committed demo video and the diff has nothing to say. Git stores the MP4 as an opaque blob, and where a code change would show red and green lines, a re-encoded video shows one line: <code>Binary files a/demo.mp4 and b/demo.mp4 differ</code>. That message is not a GitHub quirk. It is git&#39;s defined behavior for any path whose <code>diff</code> attribute is unset, the default for anything git detects as binary<sup class="article-cite"><a href="#src-3" title="Git — gitattributes (&quot;Binary files differ&quot;, the -diff attribute, and textconv to diff a binary as text)">3</a></sup>. The reviewer learns that four bytes changed, or four million did, with no way to tell which and no way to see what.</p>
+<p>That is the whole problem in one line. Code review works because a reviewer can read every line of a change, understand it, and rule on whether it improves the codebase; Google&#39;s own review guidance is blunt that if a reviewer &quot;can&#39;t understand the code, it&#39;s very likely that other developers won&#39;t either&quot;<sup class="article-cite"><a href="#src-6" title="Google Engineering Practices — What to look for in a code review (review every line; you must understand the change)">6</a></sup>. A binary that renders as &quot;files differ&quot; fails that test before it starts. So a media PR gets approved the way media PRs get approved today: by trusting the author, or by leaving the tab to watch the file somewhere else. Neither is review.</p>
+<p>The fix is not a smarter diff tool for MP4s. It is to stop asking the pull request to review the pixels at all, and to hand it three things it can read: an image where an image will do, a rendered preview parked beside the diff, and above all the text that produced the video. <a href="/blog/demos-as-code/">Treating the demo as a committed spec</a> is what makes that last one possible.</p>
+<h2 id="what-a-pull-request-will-render-and-what-it-wont">What a pull request will render, and what it won&#39;t<a class="hanchor" href="#what-a-pull-request-will-render-and-what-it-wont" aria-label="Link to section: What a pull request will render, and what it won't">#</a></h2>
+<p>GitHub is not helpless with binaries; it is selective. For images it ships a real visual diff with three modes, and for one common format it does nothing at all. Knowing where the line falls tells you which artifact to put in the diff.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>File in the diff</th>
+<th>What the PR shows</th>
+<th>Diff modes available</th>
+<th>Reviewer verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Committed <code>.mp4</code> / <code>.mov</code></td>
+<td><code>Binary files differ</code>, no preview</td>
+<td>none</td>
+<td>can&#39;t review it</td>
+</tr>
+<tr>
+<td>Committed <code>.gif</code></td>
+<td>renders inline as an animation</td>
+<td>2-up, swipe, onion skin (per frame)</td>
+<td>reviewable as a short loop</td>
+</tr>
+<tr>
+<td>Committed <code>.png</code> / <code>.jpg</code> still</td>
+<td>renders inline</td>
+<td>2-up, swipe, onion skin</td>
+<td>fully reviewable, one state</td>
+</tr>
+<tr>
+<td>Committed <code>.svg</code></td>
+<td>renders as an image and as XML text</td>
+<td>image modes plus a line diff</td>
+<td>reviewable two ways</td>
+</tr>
+<tr>
+<td>Storyboard <code>.json</code> / <code>.tape</code> (spec)</td>
+<td>a line-by-line text diff</td>
+<td>text</td>
+<td>the primary review surface</td>
+</tr>
+</tbody></table></div>
+<p>The image modes are worth naming, because they are the reason a still beats a clip for review. GitHub renders PNG, JPG, GIF, PSD, and SVG, and lets you &quot;visually compare images in three different modes: 2-up, swipe, and onion skin&quot;<sup class="article-cite"><a href="#src-1" title="GitHub Docs — Working with non-code files (image diff modes: 2-up, swipe, onion skin; supported formats)">1</a></sup>. 2-up is the default and shows both versions with any dimension change called out; swipe drags a slider across the two so you compare the same pixels; onion skin fades one into the other on an opacity slider, which &quot;comes in handy when elements move around by small, hard to notice amounts.&quot; PSD renders but will not diff, and SVG diffs twice over, as an image and as the XML it really is. Video appears nowhere on that list: a committed <code>.mp4</code> gets no preview, no modes, nothing.</p>
+<p>So the review-surface ranking sorts itself. A frozen key state committed as a PNG is fully reviewable, in three modes. A short loop as a GIF is reviewable as motion, though swipe and onion skin only help on a held frame. A committed video is not reviewable in the diff at all. And the storyboard that produced the video diffs as ordinary text, line by line, which is the surface a reviewer can rule on most precisely of the lot.</p>
+<h2 id="put-the-render-where-the-reviewer-already-is">Put the render where the reviewer already is<a class="hanchor" href="#put-the-render-where-the-reviewer-already-is" aria-label="Link to section: Put the render where the reviewer already is">#</a></h2>
+<p>A reviewer should not have to check out the branch and run a render to see what changed. GitHub already hosts video: drop an <code>.mp4</code>, <code>.mov</code>, or <code>.webm</code> into a pull request description or comment and it uploads the file and embeds a player inline, no external host needed<sup class="article-cite"><a href="#src-2" title="GitHub Docs — Attaching files (video .mp4/.mov/.webm rendered inline; 10 MB free / 100 MB paid; H.264)">2</a></sup>. The catch is a size ceiling that doubles as a length discipline: 10 MB per video on a free plan, 100 MB on a paid one, with H.264 recommended because &quot;video codec compatibility is browser specific.&quot; A 60-second 1080p UI capture lands near 40 MB, so the free-tier 10 MB cap is really a nudge toward the short, low-motion clip a reviewer will actually finish.</p>
+<p>Attaching the preview by hand is fine for a one-off. The durable version is a CI job that renders the demo on the pull request and posts the result back as a comment, so every push refreshes the clip next to the diff. That is the same <a href="/blog/demo-videos-in-ci/">render-in-CI pipeline that rebuilds a demo when the product changes</a>, aimed at the PR instead of the release. The productized form is a visual-review service: Chromatic, for one, runs on the PR build, generates &quot;a changeset highlighting the exact visual differences between your feature branch and the main branch,&quot; lets you assign reviewers who approve or deny that changeset, and posts a <code>UI Review</code> status check you can require in branch protection so an unreviewed visual change cannot merge<sup class="article-cite"><a href="#src-4" title="Chromatic — UI Review (changeset, assign reviewers, approve/deny, required UI Review status check)">4</a></sup>. Hand-dropped clip or bot-driven changeset, the move is identical: bring the rendered result to the reviewer&#39;s tab.</p>
+<h2 id="review-the-spec-not-the-pixels">Review the spec, not the pixels<a class="hanchor" href="#review-the-spec-not-the-pixels" aria-label="Link to section: Review the spec, not the pixels">#</a></h2>
+<p>The preview lets a reviewer see the change. The spec lets them understand it, which is the part that counts. When the demo is <a href="/blog/storyboard-design-patterns/">a storyboard rather than a captured take</a>, the meaningful change is a text diff: a renamed selector, an edited narration line, a reordered scene. That reads in the pull request with no special tooling, and it carries the one thing the pixels never will, which is why the video changed.</p>
+<p>The terminal world has run this way for years. vhs writes a terminal demo as a <code>.tape</code> file of human-readable commands (<code>Type</code>, <code>Enter</code>, <code>Sleep</code>, <code>Wait /regex/</code>) and renders the GIF from it; the reviewable artifact is the tape, and for a regression check the project&#39;s advice is to emit <code>.txt</code> or <code>.ascii</code> output and commit those text files so a later run&#39;s diff surfaces any change<sup class="article-cite"><a href="#src-5" title="Charmbracelet vhs — tape files as source and .txt/.ascii golden output committed to git">5</a></sup>. The GIF is build output; the tape is the source you review. A browser demo is the same shape against a richer target.</p>
+<p>Git even sanctions the general trick. A binary path can be handed a <code>textconv</code> program that converts it to text purely for diffing, so a <code>.jpg</code> can diff as its EXIF fields and a PostScript file as its ASCII rendering instead of as a blob<sup class="article-cite"><a href="#src-3" title="Git — gitattributes (&quot;Binary files differ&quot;, the -diff attribute, and textconv to diff a binary as text)">3</a></sup>. The lesson outruns any single textconv: the reviewable form of a media file is a text projection of it, and for a demo that projection already exists as the storyboard. Reviewing the spec is not a workaround for the binary diff; it is the diff, moved to the layer a human can read. It is also why the finished render <a href="/blog/versioning-media-assets-in-git/">does not belong in the commit at all</a>.</p>
+<h2 id="the-gate-hands-the-reviewer-a-verdict-not-a-video">The gate hands the reviewer a verdict, not a video<a class="hanchor" href="#the-gate-hands-the-reviewer-a-verdict-not-a-video" aria-label="Link to section: The gate hands the reviewer a verdict, not a video">#</a></h2>
+<p>Seeing the change and reading the spec still leaves one question a person should not answer by squinting: did the flow itself break? That is a machine&#39;s job, and it belongs in a merge gate rather than in the reviewer&#39;s eyes. The gate&#39;s mechanics, a committed golden, a CI re-render, a diff that blocks the merge, are <a href="/blog/testing-demos-like-code/">their own discipline</a>, and the pixel comparison inside it is <a href="/blog/visual-regression-testing-tools/">its own tool choice</a>; the review-relevant point is narrow. A good gate reduces a media change to a verdict the reviewer can trust: the flow still resolves, or it does not.</p>
+<p>Our engine, aidemo (ours; the limits are real, in that it records inside a browser only, its storyboards are written by an agent as text, and it ships no drag-and-drop timeline), emits exactly that verdict. A <code>probe --golden</code> run replays the storyboard&#39;s actions against the current build with no voice and no encode, then exits non-zero on the first step whose selector stops resolving and prints a field-level line a reviewer reads at a glance. Because that check answers &quot;did it break,&quot; the human is freed for the questions only a human can settle: is the frame readable, is the narration still true, is this change intended. The gate and the reviewer split the labor; neither does the other&#39;s job.</p>
+<p>One rule keeps the split honest, and it is a review rule, not a machine one: whoever changes a demo blesses its new baseline in the very same pull request, so no green check ever certifies an update that nobody looked at.</p>
+<h2 id="a-checklist-for-approving-a-media-change">A checklist for approving a media change<a class="hanchor" href="#a-checklist-for-approving-a-media-change" aria-label="Link to section: A checklist for approving a media change">#</a></h2>
+<p>Google&#39;s reviewers look for design, functionality, tests, naming, and comments, and above all for a change they can actually understand<sup class="article-cite"><a href="#src-6" title="Google Engineering Practices — What to look for in a code review (review every line; you must understand the change)">6</a></sup>. A media PR earns the same rigor, pointed at different artifacts. Here is what a reviewer actually approves, and where each answer lives.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What the reviewer decides</th>
+<th>Where the answer lives</th>
+<th>The red flag</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Was this change intended?</td>
+<td>the storyboard text diff</td>
+<td>a selector or URL changed with no reason in the PR</td>
+</tr>
+<tr>
+<td>Did the flow still resolve?</td>
+<td>the golden / probe check</td>
+<td>a step flips from resolved to not-found</td>
+</tr>
+<tr>
+<td>Does the frame still read?</td>
+<td>the attached preview or a still diff</td>
+<td>tiny text, a spinner, or an empty state in shot</td>
+</tr>
+<tr>
+<td>Is the narration still true?</td>
+<td>the narration lines in the diff</td>
+<td>the script names a control the UI no longer has</td>
+</tr>
+<tr>
+<td>Is this the source or the output?</td>
+<td>the changed-files list</td>
+<td>a committed MP4 where a spec should be</td>
+</tr>
+<tr>
+<td>Was the baseline blessed on purpose?</td>
+<td>the golden update in this same PR</td>
+<td>a baseline bumped in a separate or automated commit</td>
+</tr>
+</tbody></table></div>
+<p>The checklist has a shape worth saying outright. Every row a human should judge points at text or a still, never at the committed video, because the video is the one artifact the pull request cannot show. Make the change land as a spec diff, plus a rendered preview, plus a green flow-check, and approving a demo stops being an act of faith and becomes what code review already is: reading the change, understanding it, and blessing it on purpose.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://docs.github.com/en/repositories/working-with-files/using-files/working-with-non-code-files" rel="noopener">GitHub Docs — Working with non-code files (image diff modes: 2-up, swipe, onion skin; supported formats)</a></li>
+<li id="src-2"><a href="https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files" rel="noopener">GitHub Docs — Attaching files (video .mp4/.mov/.webm rendered inline; 10 MB free / 100 MB paid; H.264)</a></li>
+<li id="src-3"><a href="https://git-scm.com/docs/gitattributes" rel="noopener">Git — gitattributes (&quot;Binary files differ&quot;, the -diff attribute, and textconv to diff a binary as text)</a></li>
+<li id="src-4"><a href="https://www.chromatic.com/docs/review/" rel="noopener">Chromatic — UI Review (changeset, assign reviewers, approve/deny, required UI Review status check)</a></li>
+<li id="src-5"><a href="https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md" rel="noopener">Charmbracelet vhs — tape files as source and .txt/.ascii golden output committed to git</a></li>
+<li id="src-6"><a href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" rel="noopener">Google Engineering Practices — What to look for in a code review (review every line; you must understand the change)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="can-you-preview-a-video-in-a-github-pull-request" class="blog-faq-q">Can you preview a video in a GitHub pull request?<a class="hanchor" href="#can-you-preview-a-video-in-a-github-pull-request" aria-label="Link to section: Can you preview a video in a GitHub pull request?">#</a></h3>
+<p>Not from the file diff itself: a committed video shows only as &quot;Binary files differ,&quot; with no player. But you can drop an .mp4, .mov, or .webm into the pull request description or a comment, and GitHub uploads it and embeds a playable preview inline, capped at 10 MB on a free plan and 100 MB on a paid one. The reliable pattern is a CI job that renders the demo on each push and posts it back as a comment, so the preview always matches the current branch.</p>
+<h3 id="does-github-show-image-differences-in-pull-requests" class="blog-faq-q">Does GitHub show image differences in pull requests?<a class="hanchor" href="#does-github-show-image-differences-in-pull-requests" aria-label="Link to section: Does GitHub show image differences in pull requests?">#</a></h3>
+<p>Yes for images, though not for video. GitHub renders PNG, JPG, GIF, PSD, and SVG and offers three comparison modes: 2-up (both versions side by side), swipe (a slider you drag across the two), and onion skin (an opacity fade that exposes small shifts). PSD renders but will not diff, and an SVG diffs both as an image and as its XML source. That is why freezing a key screen as a committed PNG makes a demo&#39;s state reviewable in a way the MP4 never is.</p>
+<h3 id="how-do-you-review-a-change-to-a-binary-file-in-git" class="blog-faq-q">How do you review a change to a binary file in git?<a class="hanchor" href="#how-do-you-review-a-change-to-a-binary-file-in-git" aria-label="Link to section: How do you review a change to a binary file in git?">#</a></h3>
+<p>You review its text projection, not its bytes. Git can attach a textconv program that converts a binary to text purely for diffing (EXIF for a JPG, ASCII for PostScript), and the same principle drives demos-as-code: review the storyboard that renders the video, since the render is build output. For a genuinely opaque asset with no source, attach a before/after preview to the PR and gate the merge on an automated visual check.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">code review</span>
+        <span class="article-tag">pull request</span>
+        <span class="article-tag">video diff</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">ci</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/agent-friendly-app-instrumentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/agent-friendly-app-instrumentation-400.webp" srcset="/blog/images/agent-friendly-app-instrumentation-400.webp 400w, /blog/images/agent-friendly-app-instrumentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A row of evenly spaced sturdy brass wall hooks mounted on a horizontal rail"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Agent-friendly app instrumentation: data-testid and beyond</h3>
+    <p class="article-card-excerpt">Whether an agent can script your UI is decided in your codebase. The instrumentation playbook that pays off for tests, agents, and demo capture at once.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#binary-files-differ-is-all-a-pull-request-tells-you-about-a-video">&quot;Binary files differ&quot; is all a pull request tells you about a video</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-pull-request-will-render-and-what-it-wont">What a pull request will render, and what it won't</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#put-the-render-where-the-reviewer-already-is">Put the render where the reviewer already is</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#review-the-spec-not-the-pixels">Review the spec, not the pixels</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-gate-hands-the-reviewer-a-verdict-not-a-video">The gate hands the reviewer a verdict, not a video</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-checklist-for-approving-a-media-change">A checklist for approving a media change</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

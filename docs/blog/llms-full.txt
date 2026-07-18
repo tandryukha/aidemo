@@ -93,6 +93,99 @@ Every control, play, pause, scrub, volume, and captions, has to be reachable and
 
 ---
 
+# Agent-friendly app instrumentation: data-testid and beyond
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/agent-friendly-app-instrumentation/
+
+> Whether an agent can script your UI is decided in your codebase. The instrumentation playbook that pays off for tests, agents, and demo capture at once.
+
+## Instrument the app once, and three consumers can drive it
+
+Whether an agent can script your UI reliably is decided in your codebase, not in the agent's. The team writing the automation picks selectors from whatever the app happens to expose; the team writing the app decides what there is to pick from. A button labeled by its text and a chart with a deliberate handle are addressable to anyone; a `<div onClick>` buried in three hashed-class wrappers is a guessing game. Instrumentation is the small, unglamorous product work that moves an element from the second category to the first, and it is cheaper and more durable done once in the app than worked around in every consumer.
+
+And there is more than one consumer. The same hook you add for a component test is the handle an end-to-end test grabs, the anchor a coding agent writes into a storyboard, and the target a camera moves a cursor to. That is the case for treating instrumentation as first-class rather than test-only: one edit, three payoffs.
+
+| Consumer | What it does with the hook | What a missing hook costs it |
+|---|---|---|
+| Component / integration test | queries the element to assert on it | brittle query pinned to markup, rewritten on every refactor |
+| E2E test or coding agent | finds and acts on the element across the real app | flaky runs, or an agent guessing selectors from a screenshot |
+| Demo capture | moves a cursor to it, holds a beat, zooms the frame | a cursor gliding to the wrong spot, on camera |
+
+The [demos-as-code](/blog/demos-as-code) worldview treats a demo as a committed spec that re-runs on every build, which means the demo leans on the app's hooks exactly the way a test suite does. Getting those hooks right is the app-side complement to [choosing selectors that survive a redesign](/blog/selectors-that-survive-redesigns): that piece ranks the handles you can grab, this one is about putting durable handles there in the first place.
+
+## Semantics first: the elements you never have to instrument
+
+The cheapest hook is the one you get for free by writing the markup correctly. A native `<button>` whose visible text reads "Export" is already addressable as a button named "Export" by every framework, in every consumer, with no extra attribute at all. That handle exists because the platform demands it: the W3C's ARIA practices note that "both the WAI-ARIA specification and WCAG require all focusable, interactive elements to have an accessible name," and press you to source that name from what is already on screen, because "using the visible text for the accessible name simplifies maintenance, prevents bugs, and reduces language translation requirements" ([W3C WAI-ARIA APG, accessed July 2026](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/)).
+
+So the first instrumentation task is not to sprinkle attributes, it is to name your controls: use a real `<button>` and not a clickable `<div>`, tie every input to a `<label>`, give an icon-only control an `aria-label`. Every one of those is an accessibility fix a screen-reader user needed anyway, and each hands automation a stable, human-meaningful handle as a side effect. A UI that is legible to assistive technology is, almost for free, a UI that is legible to an agent. Do this well and a large fraction of the app needs no test-specific instrumentation at all.
+
+## Where semantics run out, add a hook on purpose
+
+Some targets have no name to grab and never will: an icon-only affordance you cannot label sensibly, a `canvas` or SVG chart, a bare list row, a drag handle, a layout region. For these an explicit test id is the honest answer, and every major framework agrees it is the last resort, not the first. Testing Library tells you to reach for it "only after the other queries don't work," warning that test ids "do not resemble how your software is used and should be avoided if possible," while conceding they are "way better than querying based on DOM structure or styling css class names" ([Testing Library, accessed July 2026](https://testing-library.com/docs/queries/bytestid/)). Playwright frames the same tradeoff: a test id is "the most resilient way of testing," but "is not user facing," so if the role or text matters, "consider using user facing locators such as role and text locators" ([Playwright, accessed July 2026](https://playwright.dev/docs/locators)).
+
+Two rules keep the escape hatch honest. First, a test id is not a substitute for a name. MDN is explicit that you should not "store content that should be visible and accessible in data attributes, because assistive technology may not access them," so an unnamed button earns an `aria-label` (which fixes accessibility and yields a handle) before it earns a `data-testid` (which fixes only your automation) ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Solve_HTML_problems/Use_data_attributes)). Second, pick one attribute and hold the line, because there is no universal standard: Playwright and Testing Library default to `data-testid` but both let you reconfigure it (`testIdAttribute` / `configure({testIdAttribute})`), and Cypress's convention is `data-cy`. A codebase that mixes three of them has instrumented nothing consistently.
+
+| Target | First choice | Fallback |
+|---|---|---|
+| Text-labeled button, link, menu item | role + visible text (no attribute at all) | none needed |
+| Form field | associated `<label>` | `aria-label` |
+| Icon-only control | `aria-label` (names it for everyone) | `data-testid` |
+| Chart, `canvas`, map, third-party embed | `data-testid` on the container | `aria-label` on a wrapper |
+| Repeated list or table row | `data-testid` keyed to the row's domain id | none |
+
+## The value matters as much as the attribute
+
+A `data-testid` is not a boolean. It carries a value, and the value decides whether the hook is usable at all. Two properties are non-negotiable.
+
+It has to be unique where you use it. Playwright locators are strict by design: "all operations on locators that imply some target DOM element will throw an exception if more than one element matches" ([Playwright, accessed July 2026](https://playwright.dev/docs/locators)). Stamp the same `data-testid="row"` on forty table rows and the automation cannot address any single one without falling back to positional `.nth(3)`, which is precisely the fragile, layout-pinned selection that instrumentation was supposed to retire.
+
+It has to be stable across renders, and stable means derived from identity, not position. The tempting version keys the id to the loop index, `data-testid={`row-${i}`}`, which silently rebinds the instant the list sorts or filters, so `row-3` points at a different record after every reorder. Key it to the domain instead, `data-testid={`invoice-${invoice.id}`}`, and the handle names the same invoice no matter where it lands on the page. A value spun from `Math.random()` or a render-time counter is worse still: it changes between two runs of the same page, which is exactly the per-run drift that [breaks a deterministic replay](/blog/deterministic-browser-automation-for-video) even when nothing about the UI changed.
+
+## An anti-pattern catalog
+
+Most broken instrumentation is one of six shapes. Each has a symptom you can recognize on sight and a one-line fix.
+
+| Anti-pattern | Symptom | Fix |
+|---|---|---|
+| Test id mirrors a styling class (`data-testid="btn-primary"`) | renamed the day the design system changes | name it for the job (`submit-order`), not the paint |
+| Test id on the wrapper, not the control | the click misses, the cursor lands off-target on camera | put it on the actual interactive element |
+| The same test id on many elements | strict-mode failure, or acting on the wrong one | make each unique, keyed to the row's id |
+| Value from an array index or a random number | breaks on reorder, or between two runs | derive it from a stable domain identifier |
+| Test id where role and name would already do | hides a missing accessible name from you | delete it and name the control instead |
+| Orphan: rendered, but nothing references it | dead weight and false confidence | lint it out (below) |
+
+The last two are the quiet ones. A `data-testid` slapped on an already-nameable button masks an accessibility gap you would otherwise have caught, and an orphan left behind after its test was deleted reads like coverage while asserting nothing.
+
+## Lint the hooks: orphans, duplicates, and the strip question
+
+Instrumentation rots the same way dead code does, so treat it like dead code. An orphan check is a diff on both sides: collect every literal test-id value the app renders, collect every test-id string the automation and storyboards reference, and compare the two sets. Values the app emits that nobody consumes are orphans to delete; values the automation asks for that the app no longer emits are dangling references that fail the next run. Duplicates drop out of the same pass: any literal that appears on more than one rendered element is a strict-mode failure in waiting. A dozen lines in CI keeps the hook inventory honest, which matters because a stale hook gives false confidence exactly like a stale demo does.
+
+Then the ship-it question: should the attribute reach production HTML at all? Build tooling can strip it. The Next.js compiler's `reactRemoveProperties` removes JSX properties matching the default regex `^data-test` from production output ([Next.js, docs updated May 2025](https://nextjs.org/docs/architecture/nextjs-compiler)). Stripping shaves a few bytes and keeps internal handles out of shipped markup; keeping them is what lets you run automation, synthetic monitoring, or [an agent-driven demo capture](/blog/coding-agents-that-make-demo-videos) against the real production build instead of a staging clone. The rule of thumb: strip when nothing you ship depends on the hooks in production, keep them when your recorded demo or uptime check drives the live site. aidemo, the engine we build, is a direct consumer of this instrumentation: a storyboard pins each target by its role, its visible text, or a test id, and the engine checks every one of those handles against the running app before it records a frame, so a hook that has gone orphaned or moved trips the preflight rather than showing up on camera as a cursor clicking empty space. The honest limits sit right next to that strength. It works inside a browser only, never a native window; the storyboard comes from an agent, not a person nudging clips on a timeline; and there is no drag-to-trim editor. In exchange it asks for a UI instrumented the way this playbook describes, which is one it can script on the first pass.
+
+## Sources
+
+- [W3C WAI-ARIA APG — Providing Accessible Names and Descriptions (every interactive element needs a name; prefer visible text)](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/)
+- [Testing Library — ByTestId query (use only after other queries fail; test ids don't resemble how software is used)](https://testing-library.com/docs/queries/bytestid/)
+- [Playwright — Locators (getByTestId, configurable testIdAttribute, strict locators, prefer user-facing locators)](https://playwright.dev/docs/locators)
+- [MDN — Using data attributes (data-* is invisible to assistive tech and search crawlers; not for user-facing content)](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Solve_HTML_problems/Use_data_attributes)
+- [Next.js — Next.js Compiler (reactRemoveProperties strips properties matching ^data-test from production)](https://nextjs.org/docs/architecture/nextjs-compiler)
+
+## FAQ
+
+### Should I remove data-testid attributes in production?
+
+It depends on whether anything you ship needs them there. Stripping them (for example with Next.js's `reactRemoveProperties`, which removes attributes matching `^data-test`) keeps internal hooks out of your production HTML and shaves a few bytes. Keep them if you run end-to-end tests, synthetic monitoring, or a recorded demo against the live production build, because those consumers need the very hooks the strip removes. Plenty of teams keep them everywhere and treat the leak as a non-issue, since a test id exposes nothing a determined reader could not already infer from the DOM.
+
+### What makes a good data-testid value?
+
+Two things: uniqueness and stability. It has to be unique among the elements you target, because strict locators throw when a selector matches more than one element, and it has to stay the same across renders, which means deriving it from a domain identifier like `invoice-4192` rather than an array index or a random number. A value tied to position rebinds the moment a list sorts or filters, and a random value differs between two runs of the same page, so both quietly break the automation that depends on them.
+
+### Do data-testid attributes hurt accessibility or SEO?
+
+No, but they do nothing for either, which is the part to remember. A `data-*` attribute is invisible to assistive technology and to search crawlers, so it is not a place for any content a user needs, and it is not a stand-in for an accessible name. Use `aria-label` or visible text to make a control legible to people and search engines, and reserve `data-testid` for structural targets that have no name to give.
+
+---
+
 # AI demo video generators: what the label actually covers
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/ai-demo-video-generators/
@@ -1708,6 +1801,114 @@ In the shippable pattern, no. The agent explores your app in a throwaway session
 ### What is an MCP server, and how does it let an agent make videos?
 
 MCP, the Model Context Protocol, is an open JSON-RPC client-server standard where a server exposes tools a model can call. A video engine can publish tools such as validate and render; the agent decides to call them and supplies arguments, but the render runs as ordinary server code, not model inference. So the agent orchestrates the pipeline from the outside while staying out of the deterministic capture step that produces the actual frames.
+
+---
+
+# Demo environments and seed data that make a demo reproducible
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/demo-environments-and-seed-data/
+
+> You pinned the browser and the encoder. Then the same click lands on a different dashboard, because the database reseeded. The state has to be pinned too.
+
+## A demo is a function of its data, not just its clicks
+
+The usual determinism advice stops at the browser. You keep [pinning the browser so it paints the same pixels on every run](/blog/deterministic-browser-automation-for-video): fixed viewport, frozen clock, fonts awaited, network owned. Some teams go further and [freeze the finished MP4 down to the byte](/blog/reproducible-demo-renders). Both are real work, and both assume the thing on screen is the same thing on screen. It often is not, because the spec replays the same *clicks*, and a click is a coordinate, not a fact. Click the second row of the invoices table on Monday and it says \$4,180 from Acme; reseed the database and click the same row Tuesday and it says \$92 from a name the generator picked fresh. The action replayed perfectly. The data underneath it moved.
+
+That is the part [regenerating a demo instead of re-recording it](/blog/automated-product-demo-videos) actually depends on. The demo is a function of three inputs, not one: the spec you committed, the build you run it against, and the state the build is sitting on. Pin the first two and leave the third floating and the re-render is not reproducible, it is a fresh draw from whatever the seed script happened to produce this morning. So the backend needs the same discipline the browser got. The same rows, in the same order, with the same values and the same dates, every single run. This is the mechanics of getting there, and the failure modes that look fixed but are not.
+
+## Seed the generator so the same rows appear every run
+
+Randomness enters a demo backend at three layers, and each has its own off switch. The application-code generator is the first. Faker, the standard for this, is random by default, and its own guide is exact about the fix: "If you want consistent results, you can set your own seed," after which `faker.seed(123)` twice yields the same value twice ([Faker, accessed July 2026](https://fakerjs.dev/guide/usage)). One line converts a generator that invents a new customer roster every run into one that invents the same roster forever.
+
+The second layer is the ORM seed script. Prisma frames seeding around exactly this property: it "allows you to consistently re-create the same data in your database," run on demand through `prisma db seed` ([Prisma, accessed July 2026](https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding)). Make the script idempotent (Prisma's own example reaches for `upsert`, not `create`) so re-running it lands the same table state instead of stacking duplicates. The third layer is the database itself, for anything generated in SQL rather than app code. PostgreSQL will repeat its own randomness on request: "if `setseed()` is called, the series of results of subsequent calls to these functions in the current session can be repeated by re-issuing `setseed()` with the same argument" ([PostgreSQL, accessed July 2026](https://www.postgresql.org/docs/current/functions-math.html)).
+
+A seed script that pins all three reads like this. The comments mark the four things it is pinning, which the next section takes apart one at a time.
+
+```ts
+import { PrismaClient } from '@prisma/client'
+import { faker } from '@faker-js/faker'
+
+const prisma = new PrismaClient()
+
+faker.seed(42)                                   // 1. same names, emails, amounts every run
+faker.setDefaultRefDate('2026-01-15T00:00:00Z')  // 2. pin "now" so relative dates stop aging
+
+async function main() {
+  await prisma.invoice.deleteMany()               // 4. reset to clean before seeding
+  await prisma.customer.deleteMany()
+
+  for (let i = 0; i < 8; i++) {
+    const customer = await prisma.customer.create({
+      data: {
+        id: `cus_${1000 + i}`,                    // 3. deterministic id, not a v4 uuid
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        signedUpAt: faker.date.recent({ days: 30 }), // relative to the pinned refDate
+      },
+    })
+  }
+}
+```
+
+## A fixed seed is necessary, not sufficient
+
+Here is the trap every Faker tutorial walks right past, because it does not matter for a unit test and matters enormously for a video. Seeding the generator is not the same as seeding the demo. Four things leak through a fixed seed and change the footage anyway, and the first is documented by Faker itself: the relative-date helpers "default to creating a date before or after 'today', and 'today' depends on when the code is run" ([Faker, accessed July 2026](https://fakerjs.dev/guide/usage)). Seed it all you like; a `faker.date.recent()` signup labeled "3 days ago" this week reads "68 days ago" two months from now, and your evergreen demo has a timeline that ages in public. The fix is a fixed reference date, `setDefaultRefDate`, which is why it sits on line two of the script above.
+
+The other three leak the same way: invisible in a test, on camera in a render.
+
+| Leak | Survives `faker.seed()`? | On-screen symptom | The pin |
+|---|---|---|---|
+| Relative dates | Yes | "3 days ago" becomes "68 days ago" months later | fixed reference date (`setDefaultRefDate`), or a frozen app clock |
+| DB-side randomness | Yes | row values or order shift when `random()`, `gen_random_uuid()`, or `now()` run in SQL | `setseed()` before the seed queries; fixed literals, not `now()` |
+| External API calls | Yes | a payment status, enrichment result, or model reply differs per run | record and replay the call, or a sandbox test clock |
+| Ordering and IDs | Yes | rows render in a different order; v4 UUID keys change every seed | `ORDER BY` a stable column; deterministic IDs, never a v4 UUID |
+
+The external-call row is the one that bites hardest, because it is the layer you do not own. A demo that shows a Stripe charge, a clearbit-style enrichment, or an LLM response is filming a third party's mood at capture time. Two tools close it. Record-and-replay puts a cache in front of the network: Netflix's Polly.js exists to "record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests," and to "simulate different application states" on demand ([Netflix, accessed July 2026](https://github.com/Netflix/pollyjs)). For time-driven services there is a purpose-built clock: Stripe's test clocks let you "see how various Billing resources like subscriptions change over time" in a sandbox, so a renewal or a dunning email happens on the tick you choose instead of whenever the calendar reaches it ([Stripe, accessed July 2026](https://docs.stripe.com/billing/testing/test-clocks)). Either way the rule is the same as the browser's: [take the network out of the shot](/blog/deterministic-browser-automation-for-video) and feed it data you control.
+
+## Reset to a known-clean state before every take
+
+A seed script that assumes an empty database is a bug waiting for the second run. The take before this one left rows behind, a probe run created a half-finished order, yesterday's render bumped an auto-increment counter. Reproducibility needs the starting state to be identical, which means resetting to clean is not optional cleanup, it is part of the seed. Four strategies, trading speed for isolation.
+
+| Strategy | Speed | Isolation | Reach for it when |
+|---|---|---|---|
+| Truncate then reseed | seconds | full | a small fixture and a single render process |
+| Transaction rollback | milliseconds | per-run | the whole flow fits in one transaction (rare for a real browser take) |
+| Copy a template database | fast file copy | full | Postgres, and you want a pristine DB per run |
+| Snapshot restore or throwaway container | seconds to minutes | full | heavy fixtures, or CI that discards the environment anyway |
+
+The template-database row is the underused one. PostgreSQL builds every new database by copying an existing one: "`CREATE DATABASE` actually works by copying an existing database," and copying the untouched `template0` gives you "a 'pristine' user database (one where no user-defined objects exist and where the system objects have not been altered)" ([PostgreSQL, accessed July 2026](https://www.postgresql.org/docs/current/manage-ag-templatedbs.html)). Seed a database once, register it as a template, and each run spins a clean clone in the time of a file copy rather than a full re-seed.
+
+At the productionized end, the reset becomes the whole environment. Sales-demo platforms sell exactly this move: Bunnyshell spins "one environment per prospect" with "pre-loaded sample data" so the state is fresh and isolated for every session ([Bunnyshell, accessed July 2026](https://www.bunnyshell.com/demo-environments/)). For a recorded demo you rarely need that much machinery, but the principle transfers down: the render should start from a state it built, not one it inherited. That discipline is also what keeps a demo honest, because a shared, drifting environment is one more way [a demo quietly stops matching the product it claims to show](/blog/why-product-demos-go-stale).
+
+## Where the seeded backend sits in the determinism stack
+
+Three layers have to agree before a re-render is trustworthy, and they stack. The state layer is this one: a seeded, reset, clock-pinned backend so the same query returns the same rows. On top sits the capture layer, the pinned browser that turns those rows into identical pixels. On top of that, optionally, the encode layer that freezes the file itself. Skip the bottom layer and the two above it are pinning a moving target with great precision. A nightly re-render against an unseeded backend does not prove the product is stable, it proves the seed script is nondeterministic, and it will page you at 4am over a customer name that changed for no product reason at all.
+
+This is the layer our own engine, aidemo, deliberately does not own, and it is worth being exact about the seam. aidemo drives a real Chrome through a committed storyboard and pins the capture side, but the storyboard expects the app to already be sitting on a controlled state, seeded and reset by your own script or fixture before the take. It is browser-only, its storyboards are agent-authored rather than assembled on a drag-and-drop timeline, and it does not manage your database, so the seed discipline here is yours to run in the job that renders the demo. Reproducible state is also the twin of realistic state: a seed that repeats is worth little if the rows read as lorem ipsum, so pair this with [making those rows believable without leaking a real customer](/blog/realistic-demo-data-generation). Nail both and the re-render stops being a hopeful coincidence: same inputs, same demo, on demand.
+
+## Sources
+
+- [Faker — Usage guide (faker.seed for reproducible values; relative-date helpers default to 'today' and need a fixed reference date)](https://fakerjs.dev/guide/usage)
+- [Prisma — Seeding (consistently re-create the same data; prisma db seed; idempotent upsert example)](https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding)
+- [PostgreSQL — Mathematical functions (setseed repeats random() results in the current session)](https://www.postgresql.org/docs/current/functions-math.html)
+- [PostgreSQL — Template databases (CREATE DATABASE copies a template; template0 for a pristine copy)](https://www.postgresql.org/docs/current/manage-ag-templatedbs.html)
+- [Netflix Polly.js — Record, replay, and stub HTTP interactions for fast, deterministic tests](https://github.com/Netflix/pollyjs)
+- [Stripe — Test clocks (simulate Billing objects like subscriptions moving through time in a sandbox)](https://docs.stripe.com/billing/testing/test-clocks)
+- [Bunnyshell — Sales demo environments (one environment per prospect, pre-loaded sample data)](https://www.bunnyshell.com/demo-environments/)
+
+## FAQ
+
+### Why does my demo show different data every time it re-renders?
+
+Because the demo replays clicks, not facts, and a click just lands on whatever row the seed script produced this run. If the data generator is unseeded, or seeded but leaking through relative dates, database-side `random()`, external API calls, or unordered queries, the same click hits a different value each time. Pin the generator with a fixed seed, pin the reference date, stub the external calls, and order your queries, so the same coordinate always lands on the same fact.
+
+### How do I stop seeded "3 days ago" timestamps from aging in a demo?
+
+A fixed RNG seed does not fix this on its own. Faker's own docs note that helpers like `faker.date.recent` default to a date relative to "today," so a signup that reads "3 days ago" at seed time drifts as the calendar moves. Set a fixed reference date (`faker.setDefaultRefDate`) or freeze the application clock during the render, so "now" is a pinned value and every relative label reads the same in every re-render.
+
+### How do I reset a demo database to a clean state between renders?
+
+Pick the cheapest reset that gives full isolation for your fixture size. A small dataset can truncate the tables and re-run the seed each time. On PostgreSQL, seed once and copy a template database, since `CREATE DATABASE` clones an existing one in the time of a file copy and `template0` gives a pristine starting point. For heavy fixtures or CI that throws the environment away, restore a snapshot or spin a fresh throwaway container per run.
 
 ---
 
@@ -4937,6 +5138,98 @@ Only if an agent is the one driving the render interactively. If your demos rege
 
 ---
 
+# Measuring whether documentation videos actually work
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/measuring-documentation-video-effectiveness/
+
+> A play count cannot tell you whether a documentation video did its job. Measure the four gates it must clear, and retire the clips that fail them.
+
+## Views measure supply, not whether anyone got helped
+
+A documentation video's dashboard leads with a view count, and it is the single number that cannot tell you whether the video did its job. A marketing video wants attention, so a play is at least adjacent to the goal. A documentation video wants something a play never proves: that a reader who arrived stuck left unstuck, and did not open a ticket on the way out. Ten thousand plays on a help-center clip reports supply, how many times the file started, and says nothing about the outcome the clip exists to produce. Zendesk's own knowledge-base guidance refuses to read raw pageviews as a verdict, advising teams to "monitor page views in conjunction with other monitoring methods" instead ([Zendesk knowledge base, accessed July 2026](https://support.zendesk.com/hc/en-us/articles/4408838548250-Using-the-metrics-that-matter-to-improve-your-knowledge-base)).
+
+The reframe this piece runs on: a doc video is an instrument for task success and ticket deflection, not a thing people watch. That makes its measurement a different exercise from the marketing one, where [play rate, retention shape, and assisted conversions grade a video meant to move a deal](/blog/demo-video-metrics). Here the clip is graded on whether the reader's problem went away. The [pillar argues when video belongs in docs at all](/blog/video-documentation); this spoke assumes you shipped one and asks how to tell if it works, and, more usefully, which of four different ways it is failing.
+
+## The four gates a documentation video has to clear
+
+A doc video can die at four independent points, and collapsing them into one "is it working" number hides which one killed it. Read them as gates in order: a reader has to find the video, then choose to watch the part that matters, then actually succeed at the task, and finally not file the ticket anyway. Each gate has its own metric and its own fix, and a clip can sail through three and fail the fourth.
+
+| Gate | The question | The metric that grades it | Where a failure sends you |
+|---|---|---|---|
+| Findability | Could a stuck reader reach it at all? | Search-to-video ratio, searches with no clicks | Placement, transcript, indexing |
+| Engagement | Did they watch the load-bearing part? | Play rate, drop-off at the key step | Poster, opening, pacing |
+| Task success | Did watching let them do the thing? | Helpful votes, a follow-through event | The content itself |
+| Deflection | Did the ticket go unfiled? | Self-service score on the topic | The approach, or a ticket no video fits |
+
+The order matters because an upstream failure impersonates a downstream one. A video nobody can find posts a task-success rate near zero, and if you read only that number you re-record a perfectly good clip that simply never got watched. Walk the gates in sequence and you spend effort on the one that is actually red.
+
+## Findability: the metric that decides before anyone presses play
+
+Every marketing metric starts at the play. In docs the first gate sits upstream of playback: can a stuck reader reach the clip? A help-center search box matches words, so a video-only article is invisible to someone typing the exact error into it, and a clip parked in a "videos" tab nobody opens has no path to it. The signal that grades this is the search-to-video ratio, how often a search on the topic surfaces the article carrying the clip, read next to two counts Zendesk exposes directly: "searches that returned 0 results" and "searches where no result was selected," each pointing at a topic readers want and cannot reach ([Zendesk self-service, accessed July 2026](https://support.zendesk.com/hc/en-us/articles/4408894139930-Getting-started-with-self-service-Part-6-Tracking-essential-self-service-metrics)).
+
+The fix for a findability failure is never in the video. It is a transcript beside the clip so search has words to match, which doubles as [the accessible text layer a video otherwise withholds](/blog/accessible-tutorial-videos); it is placing the clip inside the article a reader already lands on rather than in a gallery; and it is titling that article the way a stuck user phrases the problem. None of that is filmmaking, and re-shooting a clip that fails this gate changes nothing.
+
+## Completion of the part that matters, not the whole clip
+
+Past findability, the engagement gate asks whether the reader reached the moment the video exists for. Marketing measurement fixates on overall completion; for a doc clip that number is nearly meaningless, because a reader who came for one step is right to leave the instant they have it. What you want is completion of the load-bearing segment, the ten seconds that show the actual click, not the share who sat through the outro.
+
+Wistia's engagement graph gives you that at a glance: "the point where the blue line falls is where attention dropped," while a spike in the orange overlay marks a stretch "people found compelling enough to replay" ([Wistia, accessed July 2026](https://support.wistia.com/en/articles/8228871-average-user-engagement-analytics)). On a doc clip a replay spike is a gift; it flags the exact second readers rewind because the step went by too fast, which is a re-cut, not a failure. The drop-off to fear is the early one, and NN/g's instructional-video research names its usual cause: viewers complain that "videos include lengthy introductions and don't get to the point quickly enough," and because "videos move at the creator's pace and not necessarily at the viewer's pace," an intro that reads as polite in a webinar is friction in a how-to ([Harley, NN/g, 2020](https://www.nngroup.com/articles/instructional-video-guidelines/)). Reading the shape of that curve, cliff, valley, or plateau, is a skill [the demo-metrics piece works through drop-off by drop-off](/blog/demo-video-metrics); the doc-specific twist is only which segment you hold to the standard.
+
+## The outcome gates: did they succeed, and did the ticket go unfiled
+
+Findability and completion grade the clip as something watched. Neither proves the reader could then do the thing. The outcome gates do, and they are what separate documentation measurement from marketing measurement.
+
+The cheapest outcome signal is the vote already built into most help centers: the "Was this article helpful?" thumbs. Zendesk surfaces it as "a number representing the difference between positive and negative votes," a single running tally rather than a percentage ([Zendesk knowledge base, accessed July 2026](https://support.zendesk.com/hc/en-us/articles/4408838548250-Using-the-metrics-that-matter-to-improve-your-knowledge-base)). It is noisy and self-selected, a leading indicator, because readers reach for "not helpful" more freely than "helpful", so read the trend rather than the raw split; still, a clip whose tally turns down after you add it is telling you something a play count never would.
+
+The stronger signal is behavioral: fire a product event when a reader performs the exact action the clip documents, shortly after the article view. A walkthrough of the export flow should be followed by exports; a video on connecting an integration should be followed by connections. That follow-through rate is the closest a doc video gets to measuring task success directly, and it lives in your product analytics, not your video tool.
+
+The last gate is deflection, and here the definition is a formula, not a mood. Zendesk names it the self-service score: help-center sessions divided by users who filed a ticket, where success "is demonstrated by an increasingly large ratio (for example, for every 40 users only one of them submits a ticket)" ([Zendesk self-service, accessed July 2026](https://support.zendesk.com/hc/en-us/articles/4408894139930-Getting-started-with-self-service-Part-6-Tracking-essential-self-service-metrics)). Read it at the topic level, not the video level, and watch the "searches that led to a ticket being created" on that topic fall after the clip ships. The [break-even math on what a deflected ticket is worth against what the clip costs](/blog/support-videos-knowledge-base) is a subject of its own; the measurement point is that deflection is a lagging indicator, weeks of data for a strong signal, and it is the only gate that grades the outcome the video was funded to produce.
+
+## Reading the numbers together: which gate a failing video failed
+
+The four metrics are only diagnostic together, because the same verdict, "this video isn't working", has four different cures depending on which gate is red. This is the table nobody assembles, because it needs the doc-specific outcome gates a marketing dashboard does not carry.
+
+| What you see | The gate that failed | What it is not, and the real fix |
+|---|---|---|
+| Few plays, but high completion and helpful votes among those who watch | Findability | Not the video. Add a transcript, move the clip into the searched article, retitle it |
+| Good traffic, low play rate | Engagement, entry | Not the content. Fix the poster frame, thumbnail, and on-page placement |
+| High play rate, sharp early drop-off | Engagement, opening | Not the whole clip. Cut the intro and open on the action |
+| High completion, but flat helpful votes and no follow-through | Task success | The content is wrong: it shows the wrong step or is unclear. Re-author, do not just re-place |
+| Every watch metric strong, deflection still flat | Deflection | The ticket was never video-shaped; account-specific or trivial, so no clip deflects it |
+
+The two rows people misread are the last two. A clip with high completion and no follow-through looks like a win on the dashboard and is a loss in the world: people watched the whole thing and still could not act, which indicts the content, not the packaging. And a video that clears every watch gate while tickets keep coming is usually sitting on a problem no video can deflect, the disputed-charge, account-specific kind that [belongs with a human rather than in the docs](/blog/support-videos-knowledge-base). Re-recording either one is wasted motion.
+
+## A retire rule, so the videos nobody needs stop billing you
+
+Measurement earns its keep only when it ends in a decision, and for a doc video the decision most teams never make is to kill one. Every kept clip runs a standing maintenance bill, on the order of [two hours per video per year to keep it from lying about a moved button](/blog/keeping-tutorial-libraries-current), so a clip that clears playback but fails the outcome gates is pure liability: cost with no offsetting deflection.
+
+The rule is a scorecard, not a feeling. Give a video a fair measurement window, a quarter is defensible, then retire it when it fails the gates it was built to clear: findable and watched, but no movement in helpful votes, in follow-through, or in the topic's self-service score. Retiring rarely means deleting the answer; it means demoting the clip and letting text carry the load, which is the right call whenever [the job turned out to want words more than motion](/blog/video-vs-written-documentation).
+
+One variable quietly sets the retire threshold: what the clip costs to keep. A hand-recorded video is expensive to maintain, so the bar to justify keeping a marginal one is high. A video that regenerates from a committed spec costs only CI minutes to rebuild, which lowers the bar, since keeping a borderline clip current is nearly free. One engine built for that, our own aidemo, is worth naming only with its limits attached: it works inside a web browser and nowhere else, a coding agent writes each storyboard rather than a person assembling clips by hand, and it has no drag-on-a-timeline editor at all. Which tool does the rebuilding is secondary. What matters is that "should this video still exist" is a question measurement answers, and for a real share of any library the answer is no.
+
+## Sources
+
+- [Zendesk — Getting started with self-service, Part 6: Tracking essential self-service metrics](https://support.zendesk.com/hc/en-us/articles/4408894139930-Getting-started-with-self-service-Part-6-Tracking-essential-self-service-metrics)
+- [Zendesk — Using the metrics that matter to improve your knowledge base](https://support.zendesk.com/hc/en-us/articles/4408838548250-Using-the-metrics-that-matter-to-improve-your-knowledge-base)
+- [Wistia — Average User Engagement Analytics](https://support.wistia.com/en/articles/8228871-average-user-engagement-analytics)
+- [Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines](https://www.nngroup.com/articles/instructional-video-guidelines/)
+
+## FAQ
+
+### What metrics show whether a documentation video is working?
+
+Not the view count. Grade a doc video on four gates in order: findability (can a stuck reader reach it, from whether search surfaces the article), engagement (did they watch the load-bearing segment, from the drop-off graph), task success (did watching let them do the thing, from helpful votes and a follow-through event in product analytics), and deflection (did the ticket go unfiled, from the topic's self-service score). A clip can pass three gates and fail the fourth, so measure them separately rather than as one score.
+
+### How do you measure ticket deflection from a help-center video?
+
+Read it at the topic level with the self-service score: help-center sessions on that topic divided by users who filed a ticket on it, which Zendesk frames as a ratio you want to grow, for every 40 self-service users, one ticket. Track that ratio and the count of searches that led to a ticket, before and after the clip ships. Deflection is a lagging indicator, so give it weeks; a cleaner read is a holdout, showing the video to half the traffic and comparing the ticket rate on the topic.
+
+### Is video watch time a good measure of documentation quality?
+
+No. Watch time and completion are engagement metrics: they tell you people stayed, not that they succeeded. A doc video can post high completion and still leave every viewer unable to finish the task, which shows up only in a flat helpful-vote tally and no follow-through in product analytics. Treat watch time as a leading indicator you iterate on fast, and the outcome metrics, task follow-through and deflection, as the lagging signals that decide whether the clip works.
+
+---
+
 # Microvideos in documentation: the 10-second clip that replaces a paragraph
 
 July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/microvideos-in-documentation/
@@ -6285,6 +6578,101 @@ GitHub serves README images through its Camo proxy, which caches them, so a fres
 
 ---
 
+# Generating demo data that looks real (and stays safe)
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/realistic-demo-data-generation/
+
+> Lorem ipsum makes a demo look like a toy; a copy of production makes it a data-protection incident. The safe middle is seeded, coherent, synthetic data.
+
+## Lorem ipsum reads fake; production data reads like a lawsuit
+
+Point a demo at a fresh database and it looks like a wireframe: "Lorem ipsum" in every cell, User 1 through User 5, `test@test.com` on repeat. Point it at a copy of production and it looks great until legal asks why a real customer's invoices are playing on your landing page. Both failures cost you the demo. The first says the product is a toy; the second is a data-protection incident with your logo on it.
+
+The middle path is synthetic data that is coherent and safe: rows that read like they came from a real account with real history, generated deterministically so every render shows the same believable world, carrying no information that traces back to a person. For a demo video the bar is higher than for a test fixture, because the camera lingers. A unit test never notices that a user's last login predates their signup; a viewer watching a 30-second walkthrough at full resolution does. Demo data has to survive being stared at.
+
+This is the data half of a [reproducible render](/blog/reproducible-demo-renders); the [demo environment and seed pipeline](/blog/demo-environments-and-seed-data) is the other half, and [regenerating the whole demo from a spec](/blog/automated-product-demo-videos) only works when the state behind the UI is as deterministic as the script in front of it. A recorder like aidemo (ours; it films a real browser from an agent-authored storyboard and has no GUI timeline editor) captures whatever the frame shows and nothing you left out, which puts the realism and the safety of the data entirely upstream of the camera.
+
+## Five axes that separate believable demo data from noise
+
+Realism is not one property. A dataset can be plausible on one axis and obviously synthetic on another, and the weakest axis is the one the viewer spots. These five are ranked by how loudly they betray a fake when they break:
+
+| Axis | The tell when it fails | How to generate it right |
+|---|---|---|
+| Referential integrity | An order with no customer, an avatar that 404s, a comment on a deleted post | Insert parents before children and resolve every foreign key to a row that exists |
+| Temporal coherence | "Last active" before "joined", every timestamp identical, a trial that expires in 1970 | Derive all of an entity's dates from one anchor date, then offset forward |
+| Distributional shape | Every user has exactly three orders, all prices end in .00, no empty states | Sample counts and amounts from a weighted range with a long tail, not a constant |
+| Identity coherence | "Wei Chen" at a Munich address with a name badge in Cyrillic | Draw a whole persona from one locale, then derive name, email, avatar, and city from it |
+| Volume to frame | Three rows in a table the UI paginates at fifty; a dashboard of zeros | Seed enough rows to fill the exact viewport the demo records |
+
+Referential integrity leads because it is the one a generator can enforce for you. A schema-aware tool such as SeedBase reads your Prisma, Django, or SQL schema and guarantees that declared foreign keys are resolved automatically, with every reference pointing to a real row ([SeedBase, 2026](https://seedbase.dev/?lang=en)). Flat generators that emit one table at a time cannot promise that, and you end up with a `user_id` that points at nobody.
+
+The last axis is the one demo authors forget. A form-filling test is content with three rows. A demo that pans across a table wants that table full, and it wants the shape the product shows in real accounts: a couple of pinned items at the top, a long scroll below, and one empty state you kept on purpose to show the zero-data screen.
+
+## Seed it, or the demo re-rolls on every render
+
+Random data that changes every run makes a demo unreproducible. Caption timing drifts, zoom targets move, and a golden-file check can never go green. Faker-class libraries fix this with a seed. In Faker.js, `faker.seed(42)` pins the sequence: seed, generate, reseed with the same number, and you get identical output, because generated values are dependent on both the seed and the number of calls made since it was set ([Faker.js docs, 2026](https://fakerjs.dev/api/faker)). Python's Faker behaves the same way through `Faker.seed()`, seeding the shared generator all instances draw from ([Python Faker, 2026](https://faker.readthedocs.io/en/master/)).
+
+Two traps hide inside that guarantee.
+
+The first is relative dates. `faker.date.past()`, `date.recent()`, and UUID v7 anchor on "today," so a seeded run still yields a different timeline tomorrow, and the trial that ended "three days ago" keeps sliding. Faker.js closes this with a pinned reference date: `faker.setDefaultRefDate('2026-01-01T00:00:00.000Z')` makes relative dates deterministic too ([Faker.js usage, 2026](https://fakerjs.dev/guide/usage)). It is the data-side version of the same clock-freezing you do in the browser for [deterministic replay](/blog/deterministic-browser-automation-for-video).
+
+The second is version drift. A seed reproduces the same result only when the same methods are called on the same version of the library, and the maintainers warn that results are not guaranteed to be consistent across patch versions as the underlying datasets are updated ([Python Faker, 2026](https://faker.readthedocs.io/en/master/)). If your demo's data is load-bearing, pin the generator version in your lockfile exactly as you pin the app.
+
+```js
+import { faker } from '@faker-js/faker';
+
+faker.seed(42);
+faker.setDefaultRefDate('2026-01-01T00:00:00.000Z');
+// same 200 users, same join dates, on every render
+const users = faker.helpers.multiple(makeUser, { count: 200 });
+```
+
+## Making the pieces agree: names, avatars, timelines, foreign keys
+
+The difference between "fake data" and "a believable account" is that the fields agree with one another. A real user named Priya Nair has an email containing "priya," an avatar of a South Asian woman, a signup date before her first order, and invoice lines that sum to the total shown. Generate each field independently and every one is individually plausible while the row as a whole is nonsense.
+
+The fix is to generate the persona once and derive the rest. Draw a locale, take the name from it, then build the email from the name, the avatar from the same locale and gender, and the city from the same country. Faker.js ships over 70 locales for precisely this, producing names, addresses, and phone numbers that belong together ([faker-js/faker, 2026](https://github.com/faker-js/faker)); Python's Faker exposes a comparable localized set. Thread one locale through the whole entity instead of re-rolling it per field and the "Wei Chen in Munich" giveaway disappears.
+
+Relationships need the same discipline one level up. Timelines are coherent when every date on an entity is an offset from a single anchor: pick `joined_at`, then set `last_login = joined_at + a few days` and `trial_ends = joined_at + 14 days`. Money is coherent when the invoice total is the sum of its line items, not an independent random number. Foreign keys are coherent when children are generated after parents, from the pool of IDs that actually exist, which is the property SeedBase describes as behaving like a database where every foreign key resolves ([SeedBase, 2026](https://seedbase.dev/?lang=en)). Coherence at the model level is also what makes [per-prospect personalization](/blog/personalized-demo-videos-at-scale) safe to automate: if the data model holds together, swapping in one account's parameters cannot produce an impossible row.
+
+## Scrubbing production down to demo-safe, in order
+
+Sometimes you genuinely need production's shape, the real distribution of a table nobody could invent from scratch. Copying it wholesale is the mistake. Work down this order and stop as soon as synthesis is enough:
+
+1. **Prefer synthesis.** If a seeded generator can produce the shape you need, use it and skip the rest. Data that never contained a person cannot leak one.
+2. **Classify columns before touching them.** Direct identifiers (name, email, phone), quasi-identifiers (birth date, ZIP, job title, employer), sensitive fields, and free text each demand different handling.
+3. **Mask direct identifiers with format-preserving fakes, consistently.** Replace real values with fakes that keep the type and shape, and map each input to the same output every time so joins across tables still line up. Tools that auto-detect PII and keep formats and foreign keys intact do this per run and emit a privacy report ([SeedBase, 2026](https://seedbase.dev/?lang=en)).
+4. **Generalize the quasi-identifiers.** A nameless row can still single someone out. GDPR's test is "all the means reasonably likely to be used, such as singling out" ([GDPR Recital 26, 2016](https://gdpr-info.eu/recitals/no-26/)); a birth date plus a ZIP plus a job title is frequently unique. Round dates to the month, truncate ZIPs, bucket the rare titles.
+5. **Scrub free text last and hardest.** Support tickets, notes, and audit logs quote names, emails, and card numbers in prose, and a column-level mask never sees them.
+6. **Know which side of the line you landed on.** Masking you can reverse with a key is pseudonymisation, and pseudonymised data should be considered information on an identifiable natural person, so it remains personal data and stays in scope ([GDPR Recital 26, 2016](https://gdpr-info.eu/recitals/no-26/)). Only anonymisation, where the data subject is no longer identifiable, takes the data out of scope. A demo you publish has to clear the anonymisation bar, not the pseudonymisation one.
+
+The honest default is to synthesize and never scrub. Scrubbing is a control you reach for when you must; synthesis is the absence of the risk. That is the whole case for a seeded generator over a sanitized dump: one starts from zero personal data, the other spends its life trying to remove the last trace of it.
+
+## Sources
+
+- [Faker.js — faker.seed() API reference](https://fakerjs.dev/api/faker)
+- [Faker.js — Usage guide (seeding and reference dates)](https://fakerjs.dev/guide/usage)
+- [faker-js/faker — README (over 70 locales)](https://github.com/faker-js/faker)
+- [Python Faker — documentation (seeding and reproducibility)](https://faker.readthedocs.io/en/master/)
+- [GDPR Recital 26 — anonymous information and identifiability](https://gdpr-info.eu/recitals/no-26/)
+- [SeedBase — FK-consistent synthetic test data generator](https://seedbase.dev/?lang=en)
+
+## FAQ
+
+### How do I generate realistic test data for a product demo?
+
+Start from your schema, not from production. A seeded Faker-class generator produces names, addresses, and dates that read as real, and a schema-aware tool resolves foreign keys so every relationship holds. Generate each entity as a coherent persona, with name, email, avatar, and city drawn from one locale, rather than filling fields independently. Seed enough rows to fill the exact view the demo records, including one empty state if the product has one.
+
+### Is it safe to use real customer data in a demo?
+
+No. A demo can be published, embedded, or screen-recorded, so any real customer data in it is a disclosure waiting to happen. Even data with names stripped can single a person out through a birth date, ZIP, and job title, which GDPR Recital 26 treats as identifying. Synthesize the data instead, or, if you must start from production, anonymise it irreversibly before it reaches the frame.
+
+### How do I make Faker produce the same data every time?
+
+Set a seed: `faker.seed(42)` in Faker.js or `Faker.seed(42)` in Python fixes the sequence for a given number of calls. Relative-date methods like `date.past()` ignore the seed because they anchor on today, so pin a reference date with `setDefaultRefDate` as well. Reproducibility only holds within one library version, so lock the Faker version in your lockfile the way you lock the app.
+
+---
+
 # How to record just one browser tab (three ways, one clean result)
 
 July 18, 2026 · Screen Recording · https://aidemo.top/blog/record-a-browser-tab/
@@ -6861,6 +7249,98 @@ Because the file records more than the picture. The container stamps in wall-clo
 Add `-fflags +bitexact -flags:v +bitexact -flags:a +bitexact`, which FFmpeg documents as writing only "platform-, build- and time-independent data" so "checksums are reproducible and match between platforms." Then pin the thread count with `-threads 1` (its default is the machine-dependent `auto`), drop container metadata with `-map_metadata -1`, and run the whole thing inside a pinned toolchain, since the output only matches other machines up to the encoder version.
 ### Does SOURCE_DATE_EPOCH work for video files?
 Not directly. FFmpeg does not read `SOURCE_DATE_EPOCH`; its own mechanism for "no wall clock in the file" is the `bitexact` flag, which writes time-independent data instead of the current time. Use `SOURCE_DATE_EPOCH` in the surrounding build tooling that archives or packages the render, and reach for a post-processor like `strip-nondeterminism` for any timestamp a tool embeds regardless.
+
+---
+
+# Reviewing video and media diffs in pull requests
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/reviewing-video-diffs-in-pull-requests/
+
+> A pull request has nothing to say about a video: git renders it as 'Binary files differ.' Here is how to make a media change a reviewer can actually approve.
+
+## "Binary files differ" is all a pull request tells you about a video
+
+Open a pull request that changes a committed demo video and the diff has nothing to say. Git stores the MP4 as an opaque blob, and where a code change would show red and green lines, a re-encoded video shows one line: `Binary files a/demo.mp4 and b/demo.mp4 differ`. That message is not a GitHub quirk. It is git's defined behavior for any path whose `diff` attribute is unset, the default for anything git detects as binary ([Git, accessed July 2026](https://git-scm.com/docs/gitattributes)). The reviewer learns that four bytes changed, or four million did, with no way to tell which and no way to see what.
+
+That is the whole problem in one line. Code review works because a reviewer can read every line of a change, understand it, and rule on whether it improves the codebase; Google's own review guidance is blunt that if a reviewer "can't understand the code, it's very likely that other developers won't either" ([Google, accessed July 2026](https://google.github.io/eng-practices/review/reviewer/looking-for.html)). A binary that renders as "files differ" fails that test before it starts. So a media PR gets approved the way media PRs get approved today: by trusting the author, or by leaving the tab to watch the file somewhere else. Neither is review.
+
+The fix is not a smarter diff tool for MP4s. It is to stop asking the pull request to review the pixels at all, and to hand it three things it can read: an image where an image will do, a rendered preview parked beside the diff, and above all the text that produced the video. [Treating the demo as a committed spec](/blog/demos-as-code) is what makes that last one possible.
+
+## What a pull request will render, and what it won't
+
+GitHub is not helpless with binaries; it is selective. For images it ships a real visual diff with three modes, and for one common format it does nothing at all. Knowing where the line falls tells you which artifact to put in the diff.
+
+| File in the diff | What the PR shows | Diff modes available | Reviewer verdict |
+|---|---|---|---|
+| Committed `.mp4` / `.mov` | `Binary files differ`, no preview | none | can't review it |
+| Committed `.gif` | renders inline as an animation | 2-up, swipe, onion skin (per frame) | reviewable as a short loop |
+| Committed `.png` / `.jpg` still | renders inline | 2-up, swipe, onion skin | fully reviewable, one state |
+| Committed `.svg` | renders as an image and as XML text | image modes plus a line diff | reviewable two ways |
+| Storyboard `.json` / `.tape` (spec) | a line-by-line text diff | text | the primary review surface |
+
+The image modes are worth naming, because they are the reason a still beats a clip for review. GitHub renders PNG, JPG, GIF, PSD, and SVG, and lets you "visually compare images in three different modes: 2-up, swipe, and onion skin" ([GitHub, accessed July 2026](https://docs.github.com/en/repositories/working-with-files/using-files/working-with-non-code-files)). 2-up is the default and shows both versions with any dimension change called out; swipe drags a slider across the two so you compare the same pixels; onion skin fades one into the other on an opacity slider, which "comes in handy when elements move around by small, hard to notice amounts." PSD renders but will not diff, and SVG diffs twice over, as an image and as the XML it really is. Video appears nowhere on that list: a committed `.mp4` gets no preview, no modes, nothing.
+
+So the review-surface ranking sorts itself. A frozen key state committed as a PNG is fully reviewable, in three modes. A short loop as a GIF is reviewable as motion, though swipe and onion skin only help on a held frame. A committed video is not reviewable in the diff at all. And the storyboard that produced the video diffs as ordinary text, line by line, which is the surface a reviewer can rule on most precisely of the lot.
+
+## Put the render where the reviewer already is
+
+A reviewer should not have to check out the branch and run a render to see what changed. GitHub already hosts video: drop an `.mp4`, `.mov`, or `.webm` into a pull request description or comment and it uploads the file and embeds a player inline, no external host needed ([GitHub, accessed July 2026](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)). The catch is a size ceiling that doubles as a length discipline: 10 MB per video on a free plan, 100 MB on a paid one, with H.264 recommended because "video codec compatibility is browser specific." A 60-second 1080p UI capture lands near 40 MB, so the free-tier 10 MB cap is really a nudge toward the short, low-motion clip a reviewer will actually finish.
+
+Attaching the preview by hand is fine for a one-off. The durable version is a CI job that renders the demo on the pull request and posts the result back as a comment, so every push refreshes the clip next to the diff. That is the same [render-in-CI pipeline that rebuilds a demo when the product changes](/blog/demo-videos-in-ci), aimed at the PR instead of the release. The productized form is a visual-review service: Chromatic, for one, runs on the PR build, generates "a changeset highlighting the exact visual differences between your feature branch and the main branch," lets you assign reviewers who approve or deny that changeset, and posts a `UI Review` status check you can require in branch protection so an unreviewed visual change cannot merge ([Chromatic, accessed July 2026](https://www.chromatic.com/docs/review/)). Hand-dropped clip or bot-driven changeset, the move is identical: bring the rendered result to the reviewer's tab.
+
+## Review the spec, not the pixels
+
+The preview lets a reviewer see the change. The spec lets them understand it, which is the part that counts. When the demo is [a storyboard rather than a captured take](/blog/storyboard-design-patterns), the meaningful change is a text diff: a renamed selector, an edited narration line, a reordered scene. That reads in the pull request with no special tooling, and it carries the one thing the pixels never will, which is why the video changed.
+
+The terminal world has run this way for years. vhs writes a terminal demo as a `.tape` file of human-readable commands (`Type`, `Enter`, `Sleep`, `Wait /regex/`) and renders the GIF from it; the reviewable artifact is the tape, and for a regression check the project's advice is to emit `.txt` or `.ascii` output and commit those text files so a later run's diff surfaces any change ([Charmbracelet, accessed July 2026](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)). The GIF is build output; the tape is the source you review. A browser demo is the same shape against a richer target.
+
+Git even sanctions the general trick. A binary path can be handed a `textconv` program that converts it to text purely for diffing, so a `.jpg` can diff as its EXIF fields and a PostScript file as its ASCII rendering instead of as a blob ([Git, accessed July 2026](https://git-scm.com/docs/gitattributes)). The lesson outruns any single textconv: the reviewable form of a media file is a text projection of it, and for a demo that projection already exists as the storyboard. Reviewing the spec is not a workaround for the binary diff; it is the diff, moved to the layer a human can read. It is also why the finished render [does not belong in the commit at all](/blog/versioning-media-assets-in-git).
+
+## The gate hands the reviewer a verdict, not a video
+
+Seeing the change and reading the spec still leaves one question a person should not answer by squinting: did the flow itself break? That is a machine's job, and it belongs in a merge gate rather than in the reviewer's eyes. The gate's mechanics, a committed golden, a CI re-render, a diff that blocks the merge, are [their own discipline](/blog/testing-demos-like-code), and the pixel comparison inside it is [its own tool choice](/blog/visual-regression-testing-tools); the review-relevant point is narrow. A good gate reduces a media change to a verdict the reviewer can trust: the flow still resolves, or it does not.
+
+Our engine, aidemo (ours; the limits are real, in that it records inside a browser only, its storyboards are written by an agent as text, and it ships no drag-and-drop timeline), emits exactly that verdict. A `probe --golden` run replays the storyboard's actions against the current build with no voice and no encode, then exits non-zero on the first step whose selector stops resolving and prints a field-level line a reviewer reads at a glance. Because that check answers "did it break," the human is freed for the questions only a human can settle: is the frame readable, is the narration still true, is this change intended. The gate and the reviewer split the labor; neither does the other's job.
+
+One rule keeps the split honest, and it is a review rule, not a machine one: whoever changes a demo blesses its new baseline in the very same pull request, so no green check ever certifies an update that nobody looked at.
+
+## A checklist for approving a media change
+
+Google's reviewers look for design, functionality, tests, naming, and comments, and above all for a change they can actually understand ([Google, accessed July 2026](https://google.github.io/eng-practices/review/reviewer/looking-for.html)). A media PR earns the same rigor, pointed at different artifacts. Here is what a reviewer actually approves, and where each answer lives.
+
+| What the reviewer decides | Where the answer lives | The red flag |
+|---|---|---|
+| Was this change intended? | the storyboard text diff | a selector or URL changed with no reason in the PR |
+| Did the flow still resolve? | the golden / probe check | a step flips from resolved to not-found |
+| Does the frame still read? | the attached preview or a still diff | tiny text, a spinner, or an empty state in shot |
+| Is the narration still true? | the narration lines in the diff | the script names a control the UI no longer has |
+| Is this the source or the output? | the changed-files list | a committed MP4 where a spec should be |
+| Was the baseline blessed on purpose? | the golden update in this same PR | a baseline bumped in a separate or automated commit |
+
+The checklist has a shape worth saying outright. Every row a human should judge points at text or a still, never at the committed video, because the video is the one artifact the pull request cannot show. Make the change land as a spec diff, plus a rendered preview, plus a green flow-check, and approving a demo stops being an act of faith and becomes what code review already is: reading the change, understanding it, and blessing it on purpose.
+
+## Sources
+
+- [GitHub Docs — Working with non-code files (image diff modes: 2-up, swipe, onion skin; supported formats)](https://docs.github.com/en/repositories/working-with-files/using-files/working-with-non-code-files)
+- [GitHub Docs — Attaching files (video .mp4/.mov/.webm rendered inline; 10 MB free / 100 MB paid; H.264)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+- [Git — gitattributes ("Binary files differ", the -diff attribute, and textconv to diff a binary as text)](https://git-scm.com/docs/gitattributes)
+- [Chromatic — UI Review (changeset, assign reviewers, approve/deny, required UI Review status check)](https://www.chromatic.com/docs/review/)
+- [Charmbracelet vhs — tape files as source and .txt/.ascii golden output committed to git](https://raw.githubusercontent.com/charmbracelet/vhs/main/README.md)
+- [Google Engineering Practices — What to look for in a code review (review every line; you must understand the change)](https://google.github.io/eng-practices/review/reviewer/looking-for.html)
+
+## FAQ
+
+### Can you preview a video in a GitHub pull request?
+
+Not from the file diff itself: a committed video shows only as "Binary files differ," with no player. But you can drop an .mp4, .mov, or .webm into the pull request description or a comment, and GitHub uploads it and embeds a playable preview inline, capped at 10 MB on a free plan and 100 MB on a paid one. The reliable pattern is a CI job that renders the demo on each push and posts it back as a comment, so the preview always matches the current branch.
+
+### Does GitHub show image differences in pull requests?
+
+Yes for images, though not for video. GitHub renders PNG, JPG, GIF, PSD, and SVG and offers three comparison modes: 2-up (both versions side by side), swipe (a slider you drag across the two), and onion skin (an opacity fade that exposes small shifts). PSD renders but will not diff, and an SVG diffs both as an image and as its XML source. That is why freezing a key screen as a committed PNG makes a demo's state reviewable in a way the MP4 never is.
+
+### How do you review a change to a binary file in git?
+
+You review its text projection, not its bytes. Git can attach a textconv program that converts a binary to text purely for diffing (EXIF for a JPG, ASCII for PostScript), and the same principle drives demos-as-code: review the storyboard that renders the video, since the render is build output. For a genuinely opaque asset with no source, attach a before/after preview to the PR and gate the merge on an automated visual check.
 
 ---
 

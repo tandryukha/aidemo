@@ -1,0 +1,100 @@
+# Generating demo data that looks real (and stays safe)
+
+July 18, 2026 · Demo Automation · 7 min read · https://aidemo.top/blog/realistic-demo-data-generation/
+
+> Lorem ipsum makes a demo look like a toy; a copy of production makes it a data-protection incident. The safe middle is seeded, coherent, synthetic data.
+
+**Key takeaways**
+
+- Two failure modes bracket demo data: lorem ipsum reads fake, a production copy is a data-protection incident. The fix is seeded, coherent, PII-free synthetic data between them.
+- faker.seed(42) makes output reproducible, but relative dates ignore the seed: pin one with setDefaultRefDate and lock the Faker version, or the timeline slides every render.
+- Rank demo-data realism on five axes: referential integrity, temporal coherence, distribution shape, identity coherence, and enough volume to fill the frame the demo records.
+- Generate a persona once and derive name, email, avatar, and city from one of Faker's 70+ locales; independent fields are each plausible but the whole row reads fake.
+- If you must start from production, anonymise (irreversible), don't pseudonymise: GDPR Recital 26 treats reversible masked data as still-personal and in scope.
+
+## Lorem ipsum reads fake; production data reads like a lawsuit
+
+Point a demo at a fresh database and it looks like a wireframe: "Lorem ipsum" in every cell, User 1 through User 5, `test@test.com` on repeat. Point it at a copy of production and it looks great until legal asks why a real customer's invoices are playing on your landing page. Both failures cost you the demo. The first says the product is a toy; the second is a data-protection incident with your logo on it.
+
+The middle path is synthetic data that is coherent and safe: rows that read like they came from a real account with real history, generated deterministically so every render shows the same believable world, carrying no information that traces back to a person. For a demo video the bar is higher than for a test fixture, because the camera lingers. A unit test never notices that a user's last login predates their signup; a viewer watching a 30-second walkthrough at full resolution does. Demo data has to survive being stared at.
+
+This is the data half of a [reproducible render](/blog/reproducible-demo-renders); the [demo environment and seed pipeline](/blog/demo-environments-and-seed-data) is the other half, and [regenerating the whole demo from a spec](/blog/automated-product-demo-videos) only works when the state behind the UI is as deterministic as the script in front of it. A recorder like aidemo (ours; it films a real browser from an agent-authored storyboard and has no GUI timeline editor) captures whatever the frame shows and nothing you left out, which puts the realism and the safety of the data entirely upstream of the camera.
+
+## Five axes that separate believable demo data from noise
+
+Realism is not one property. A dataset can be plausible on one axis and obviously synthetic on another, and the weakest axis is the one the viewer spots. These five are ranked by how loudly they betray a fake when they break:
+
+| Axis | The tell when it fails | How to generate it right |
+|---|---|---|
+| Referential integrity | An order with no customer, an avatar that 404s, a comment on a deleted post | Insert parents before children and resolve every foreign key to a row that exists |
+| Temporal coherence | "Last active" before "joined", every timestamp identical, a trial that expires in 1970 | Derive all of an entity's dates from one anchor date, then offset forward |
+| Distributional shape | Every user has exactly three orders, all prices end in .00, no empty states | Sample counts and amounts from a weighted range with a long tail, not a constant |
+| Identity coherence | "Wei Chen" at a Munich address with a name badge in Cyrillic | Draw a whole persona from one locale, then derive name, email, avatar, and city from it |
+| Volume to frame | Three rows in a table the UI paginates at fifty; a dashboard of zeros | Seed enough rows to fill the exact viewport the demo records |
+
+Referential integrity leads because it is the one a generator can enforce for you. A schema-aware tool such as SeedBase reads your Prisma, Django, or SQL schema and guarantees that declared foreign keys are resolved automatically, with every reference pointing to a real row ([SeedBase, 2026](https://seedbase.dev/?lang=en)). Flat generators that emit one table at a time cannot promise that, and you end up with a `user_id` that points at nobody.
+
+The last axis is the one demo authors forget. A form-filling test is content with three rows. A demo that pans across a table wants that table full, and it wants the shape the product shows in real accounts: a couple of pinned items at the top, a long scroll below, and one empty state you kept on purpose to show the zero-data screen.
+
+## Seed it, or the demo re-rolls on every render
+
+Random data that changes every run makes a demo unreproducible. Caption timing drifts, zoom targets move, and a golden-file check can never go green. Faker-class libraries fix this with a seed. In Faker.js, `faker.seed(42)` pins the sequence: seed, generate, reseed with the same number, and you get identical output, because generated values are dependent on both the seed and the number of calls made since it was set ([Faker.js docs, 2026](https://fakerjs.dev/api/faker)). Python's Faker behaves the same way through `Faker.seed()`, seeding the shared generator all instances draw from ([Python Faker, 2026](https://faker.readthedocs.io/en/master/)).
+
+Two traps hide inside that guarantee.
+
+The first is relative dates. `faker.date.past()`, `date.recent()`, and UUID v7 anchor on "today," so a seeded run still yields a different timeline tomorrow, and the trial that ended "three days ago" keeps sliding. Faker.js closes this with a pinned reference date: `faker.setDefaultRefDate('2026-01-01T00:00:00.000Z')` makes relative dates deterministic too ([Faker.js usage, 2026](https://fakerjs.dev/guide/usage)). It is the data-side version of the same clock-freezing you do in the browser for [deterministic replay](/blog/deterministic-browser-automation-for-video).
+
+The second is version drift. A seed reproduces the same result only when the same methods are called on the same version of the library, and the maintainers warn that results are not guaranteed to be consistent across patch versions as the underlying datasets are updated ([Python Faker, 2026](https://faker.readthedocs.io/en/master/)). If your demo's data is load-bearing, pin the generator version in your lockfile exactly as you pin the app.
+
+```js
+import { faker } from '@faker-js/faker';
+
+faker.seed(42);
+faker.setDefaultRefDate('2026-01-01T00:00:00.000Z');
+// same 200 users, same join dates, on every render
+const users = faker.helpers.multiple(makeUser, { count: 200 });
+```
+
+## Making the pieces agree: names, avatars, timelines, foreign keys
+
+The difference between "fake data" and "a believable account" is that the fields agree with one another. A real user named Priya Nair has an email containing "priya," an avatar of a South Asian woman, a signup date before her first order, and invoice lines that sum to the total shown. Generate each field independently and every one is individually plausible while the row as a whole is nonsense.
+
+The fix is to generate the persona once and derive the rest. Draw a locale, take the name from it, then build the email from the name, the avatar from the same locale and gender, and the city from the same country. Faker.js ships over 70 locales for precisely this, producing names, addresses, and phone numbers that belong together ([faker-js/faker, 2026](https://github.com/faker-js/faker)); Python's Faker exposes a comparable localized set. Thread one locale through the whole entity instead of re-rolling it per field and the "Wei Chen in Munich" giveaway disappears.
+
+Relationships need the same discipline one level up. Timelines are coherent when every date on an entity is an offset from a single anchor: pick `joined_at`, then set `last_login = joined_at + a few days` and `trial_ends = joined_at + 14 days`. Money is coherent when the invoice total is the sum of its line items, not an independent random number. Foreign keys are coherent when children are generated after parents, from the pool of IDs that actually exist, which is the property SeedBase describes as behaving like a database where every foreign key resolves ([SeedBase, 2026](https://seedbase.dev/?lang=en)). Coherence at the model level is also what makes [per-prospect personalization](/blog/personalized-demo-videos-at-scale) safe to automate: if the data model holds together, swapping in one account's parameters cannot produce an impossible row.
+
+## Scrubbing production down to demo-safe, in order
+
+Sometimes you genuinely need production's shape, the real distribution of a table nobody could invent from scratch. Copying it wholesale is the mistake. Work down this order and stop as soon as synthesis is enough:
+
+1. **Prefer synthesis.** If a seeded generator can produce the shape you need, use it and skip the rest. Data that never contained a person cannot leak one.
+2. **Classify columns before touching them.** Direct identifiers (name, email, phone), quasi-identifiers (birth date, ZIP, job title, employer), sensitive fields, and free text each demand different handling.
+3. **Mask direct identifiers with format-preserving fakes, consistently.** Replace real values with fakes that keep the type and shape, and map each input to the same output every time so joins across tables still line up. Tools that auto-detect PII and keep formats and foreign keys intact do this per run and emit a privacy report ([SeedBase, 2026](https://seedbase.dev/?lang=en)).
+4. **Generalize the quasi-identifiers.** A nameless row can still single someone out. GDPR's test is "all the means reasonably likely to be used, such as singling out" ([GDPR Recital 26, 2016](https://gdpr-info.eu/recitals/no-26/)); a birth date plus a ZIP plus a job title is frequently unique. Round dates to the month, truncate ZIPs, bucket the rare titles.
+5. **Scrub free text last and hardest.** Support tickets, notes, and audit logs quote names, emails, and card numbers in prose, and a column-level mask never sees them.
+6. **Know which side of the line you landed on.** Masking you can reverse with a key is pseudonymisation, and pseudonymised data should be considered information on an identifiable natural person, so it remains personal data and stays in scope ([GDPR Recital 26, 2016](https://gdpr-info.eu/recitals/no-26/)). Only anonymisation, where the data subject is no longer identifiable, takes the data out of scope. A demo you publish has to clear the anonymisation bar, not the pseudonymisation one.
+
+The honest default is to synthesize and never scrub. Scrubbing is a control you reach for when you must; synthesis is the absence of the risk. That is the whole case for a seeded generator over a sanitized dump: one starts from zero personal data, the other spends its life trying to remove the last trace of it.
+
+## Sources
+
+- [Faker.js — faker.seed() API reference](https://fakerjs.dev/api/faker)
+- [Faker.js — Usage guide (seeding and reference dates)](https://fakerjs.dev/guide/usage)
+- [faker-js/faker — README (over 70 locales)](https://github.com/faker-js/faker)
+- [Python Faker — documentation (seeding and reproducibility)](https://faker.readthedocs.io/en/master/)
+- [GDPR Recital 26 — anonymous information and identifiability](https://gdpr-info.eu/recitals/no-26/)
+- [SeedBase — FK-consistent synthetic test data generator](https://seedbase.dev/?lang=en)
+
+## FAQ
+
+### How do I generate realistic test data for a product demo?
+
+Start from your schema, not from production. A seeded Faker-class generator produces names, addresses, and dates that read as real, and a schema-aware tool resolves foreign keys so every relationship holds. Generate each entity as a coherent persona, with name, email, avatar, and city drawn from one locale, rather than filling fields independently. Seed enough rows to fill the exact view the demo records, including one empty state if the product has one.
+
+### Is it safe to use real customer data in a demo?
+
+No. A demo can be published, embedded, or screen-recorded, so any real customer data in it is a disclosure waiting to happen. Even data with names stripped can single a person out through a birth date, ZIP, and job title, which GDPR Recital 26 treats as identifying. Synthesize the data instead, or, if you must start from production, anonymise it irreversibly before it reaches the frame.
+
+### How do I make Faker produce the same data every time?
+
+Set a seed: `faker.seed(42)` in Faker.js or `Faker.seed(42)` in Python fixes the sequence for a given number of calls. Relative-date methods like `date.past()` ignore the seed because they anchor on today, so pin a reference date with `setDefaultRefDate` as well. Reproducibility only holds within one library version, so lock the Faker version in your lockfile the way you lock the app.

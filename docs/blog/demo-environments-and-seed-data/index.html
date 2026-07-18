@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reproducible demo environments and seed data | aidemo</title>
+<meta name="description" content="A demo re-renders true only if its backend does: a fixed RNG seed, reference dates that don't age, reset-to-clean scripting, and the leaks that break replay.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/demo-environments-and-seed-data/">
+<link rel="alternate" type="text/markdown" href="/blog/demo-environments-and-seed-data/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Reproducible demo environments and seed data | aidemo">
+<meta property="og:description" content="A demo re-renders true only if its backend does: a fixed RNG seed, reference dates that don't age, reset-to-clean scripting, and the leaks that break replay.">
+<meta property="og:url" content="https://aidemo.top/blog/demo-environments-and-seed-data/">
+<meta property="og:image" content="https://aidemo.top/blog/images/demo-environments-and-seed-data-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reproducible demo environments and seed data | aidemo">
+<meta name="twitter:description" content="A demo re-renders true only if its backend does: a fixed RNG seed, reference dates that don't age, reset-to-clean scripting, and the leaks that break replay.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/demo-environments-and-seed-data-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Demo environments and seed data that make a demo reproducible",
+  "description": "A demo re-renders true only if its backend does: a fixed RNG seed, reference dates that don't age, reset-to-clean scripting, and the leaks that break replay.",
+  "image": [
+    "https://aidemo.top/blog/images/demo-environments-and-seed-data-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/demo-environments-and-seed-data/"
+  },
+  "wordCount": 2059,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Faker — Usage guide (faker.seed for reproducible values; relative-date helpers default to 'today' and need a fixed reference date)",
+      "url": "https://fakerjs.dev/guide/usage"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Prisma — Seeding (consistently re-create the same data; prisma db seed; idempotent upsert example)",
+      "url": "https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "PostgreSQL — Mathematical functions (setseed repeats random() results in the current session)",
+      "url": "https://www.postgresql.org/docs/current/functions-math.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "PostgreSQL — Template databases (CREATE DATABASE copies a template; template0 for a pristine copy)",
+      "url": "https://www.postgresql.org/docs/current/manage-ag-templatedbs.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Netflix Polly.js — Record, replay, and stub HTTP interactions for fast, deterministic tests",
+      "url": "https://github.com/Netflix/pollyjs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Stripe — Test clocks (simulate Billing objects like subscriptions moving through time in a sandbox)",
+      "url": "https://docs.stripe.com/billing/testing/test-clocks"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Bunnyshell — Sales demo environments (one environment per prospect, pre-loaded sample data)",
+      "url": "https://www.bunnyshell.com/demo-environments/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Demo environments and seed data that make a demo reproducible",
+      "item": "https://aidemo.top/blog/demo-environments-and-seed-data/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does my demo show different data every time it re-renders?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the demo replays clicks, not facts, and a click just lands on whatever row the seed script produced this run. If the data generator is unseeded, or seeded but leaking through relative dates, database-side random(), external API calls, or unordered queries, the same click hits a different value each time. Pin the generator with a fixed seed, pin the reference date, stub the external calls, and order your queries, so the same coordinate always lands on the same fact."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I stop seeded \"3 days ago\" timestamps from aging in a demo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A fixed RNG seed does not fix this on its own. Faker's own docs note that helpers like faker.date.recent default to a date relative to \"today,\" so a signup that reads \"3 days ago\" at seed time drifts as the calendar moves. Set a fixed reference date (faker.setDefaultRefDate) or freeze the application clock during the render, so \"now\" is a pinned value and every relative label reads the same in every re-render."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I reset a demo database to a clean state between renders?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pick the cheapest reset that gives full isolation for your fixture size. A small dataset can truncate the tables and re-run the seed each time. On PostgreSQL, seed once and copy a template database, since CREATE DATABASE clones an existing one in the time of a file copy and template0 gives a pristine starting point. For heavy fixtures or CI that throws the environment away, restore a snapshot or spin a fresh throwaway container per run."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Demo environments and seed data that make a demo reproducible</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Demo environments and seed data that make a demo reproducible</h1>
+        <p class="article-dek">You pinned the browser and the encoder. Then the same click lands on a different dashboard, because the database reseeded. The state has to be pinned too.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-demo-is-a-function-of-its-data-not-just-its-clicks">A demo is a function of its data, not just its clicks</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#seed-the-generator-so-the-same-rows-appear-every-run">Seed the generator so the same rows appear every run</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-fixed-seed-is-necessary-not-sufficient">A fixed seed is necessary, not sufficient</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#reset-to-a-known-clean-state-before-every-take">Reset to a known-clean state before every take</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-the-seeded-backend-sits-in-the-determinism-stack">Where the seeded backend sits in the determinism stack</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/demo-environments-and-seed-data-800.webp" srcset="/blog/images/demo-environments-and-seed-data-400.webp 400w, /blog/images/demo-environments-and-seed-data-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A sealed glass terrarium holding a tiny green mossy landscape"><figcaption>A terrarium is a world planted on purpose and sealed against drift; a demo environment earns the same care — every record grown from seed, nothing wandering in from production.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A demo replays clicks, not facts: if the backend reseeds differently, the same click lands on different data. Pin the state before you bother pinning pixels or bytes.</li>
+    <li>faker.seed(123) and Postgres setseed() make the RNG repeatable, but Faker's own docs warn that relative-date helpers (date.recent, date.past, uuid v7) default to 'today' and still drift.</li>
+    <li>Four leaks survive a fixed seed: relative dates, DB-side random()/now(), external API calls, and unordered or v4-UUID rows. Pin each or the video changes for no product reason.</li>
+    <li>Reset to clean before every take: truncate and reseed, roll back a transaction, or clone a pristine Postgres template (template0) so each run starts from an identical state.</li>
+    <li>Record and replay external calls (Polly.js) or use a sandbox test clock (Stripe) so a payment, enrichment, or model response doesn't make the demo different every night.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-demo-is-a-function-of-its-data-not-just-its-clicks">A demo is a function of its data, not just its clicks<a class="hanchor" href="#a-demo-is-a-function-of-its-data-not-just-its-clicks" aria-label="Link to section: A demo is a function of its data, not just its clicks">#</a></h2>
+<p>The usual determinism advice stops at the browser. You keep <a href="/blog/deterministic-browser-automation-for-video/">pinning the browser so it paints the same pixels on every run</a>: fixed viewport, frozen clock, fonts awaited, network owned. Some teams go further and <a href="/blog/reproducible-demo-renders/">freeze the finished MP4 down to the byte</a>. Both are real work, and both assume the thing on screen is the same thing on screen. It often is not, because the spec replays the same <em>clicks</em>, and a click is a coordinate, not a fact. Click the second row of the invoices table on Monday and it says $4,180 from Acme; reseed the database and click the same row Tuesday and it says $92 from a name the generator picked fresh. The action replayed perfectly. The data underneath it moved.</p>
+<p>That is the part <a href="/blog/automated-product-demo-videos/">regenerating a demo instead of re-recording it</a> actually depends on. The demo is a function of three inputs, not one: the spec you committed, the build you run it against, and the state the build is sitting on. Pin the first two and leave the third floating and the re-render is not reproducible, it is a fresh draw from whatever the seed script happened to produce this morning. So the backend needs the same discipline the browser got. The same rows, in the same order, with the same values and the same dates, every single run. This is the mechanics of getting there, and the failure modes that look fixed but are not.</p>
+<h2 id="seed-the-generator-so-the-same-rows-appear-every-run">Seed the generator so the same rows appear every run<a class="hanchor" href="#seed-the-generator-so-the-same-rows-appear-every-run" aria-label="Link to section: Seed the generator so the same rows appear every run">#</a></h2>
+<p>Randomness enters a demo backend at three layers, and each has its own off switch. The application-code generator is the first. Faker, the standard for this, is random by default, and its own guide is exact about the fix: &quot;If you want consistent results, you can set your own seed,&quot; after which <code>faker.seed(123)</code> twice yields the same value twice<sup class="article-cite"><a href="#src-1" title="Faker — Usage guide (faker.seed for reproducible values; relative-date helpers default to 'today' and need a fixed reference date)">1</a></sup>. One line converts a generator that invents a new customer roster every run into one that invents the same roster forever.</p>
+<p>The second layer is the ORM seed script. Prisma frames seeding around exactly this property: it &quot;allows you to consistently re-create the same data in your database,&quot; run on demand through <code>prisma db seed</code><sup class="article-cite"><a href="#src-2" title="Prisma — Seeding (consistently re-create the same data; prisma db seed; idempotent upsert example)">2</a></sup>. Make the script idempotent (Prisma&#39;s own example reaches for <code>upsert</code>, not <code>create</code>) so re-running it lands the same table state instead of stacking duplicates. The third layer is the database itself, for anything generated in SQL rather than app code. PostgreSQL will repeat its own randomness on request: &quot;if <code>setseed()</code> is called, the series of results of subsequent calls to these functions in the current session can be repeated by re-issuing <code>setseed()</code> with the same argument&quot;<sup class="article-cite"><a href="#src-3" title="PostgreSQL — Mathematical functions (setseed repeats random() results in the current session)">3</a></sup>.</p>
+<p>A seed script that pins all three reads like this. The comments mark the four things it is pinning, which the next section takes apart one at a time.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">ts</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#A626A4">import</span><span style="color:#383A42"> { </span><span style="color:#E45649">PrismaClient</span><span style="color:#383A42"> } </span><span style="color:#A626A4">from</span><span style="color:#50A14F"> '@prisma/client'</span></span>
+<span class="line"><span style="color:#A626A4">import</span><span style="color:#383A42"> { </span><span style="color:#E45649">faker</span><span style="color:#383A42"> } </span><span style="color:#A626A4">from</span><span style="color:#50A14F"> '@faker-js/faker'</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#A626A4">const</span><span style="color:#986801"> prisma</span><span style="color:#0184BC"> =</span><span style="color:#A626A4"> new</span><span style="color:#4078F2"> PrismaClient</span><span style="color:#383A42">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#383A42">faker.</span><span style="color:#4078F2">seed</span><span style="color:#383A42">(</span><span style="color:#986801">42</span><span style="color:#383A42">)                                   </span><span style="color:#6f747e;font-style:italic">// 1. same names, emails, amounts every run</span></span>
+<span class="line"><span style="color:#383A42">faker.</span><span style="color:#4078F2">setDefaultRefDate</span><span style="color:#383A42">(</span><span style="color:#50A14F">'2026-01-15T00:00:00Z'</span><span style="color:#383A42">)  </span><span style="color:#6f747e;font-style:italic">// 2. pin "now" so relative dates stop aging</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#A626A4">async</span><span style="color:#A626A4"> function</span><span style="color:#4078F2"> main</span><span style="color:#383A42">() {</span></span>
+<span class="line"><span style="color:#A626A4">  await</span><span style="color:#383A42"> prisma.</span><span style="color:#E45649">invoice</span><span style="color:#383A42">.</span><span style="color:#4078F2">deleteMany</span><span style="color:#383A42">()               </span><span style="color:#6f747e;font-style:italic">// 4. reset to clean before seeding</span></span>
+<span class="line"><span style="color:#A626A4">  await</span><span style="color:#383A42"> prisma.</span><span style="color:#E45649">customer</span><span style="color:#383A42">.</span><span style="color:#4078F2">deleteMany</span><span style="color:#383A42">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#A626A4">  for</span><span style="color:#383A42"> (</span><span style="color:#A626A4">let</span><span style="color:#383A42"> i </span><span style="color:#0184BC">=</span><span style="color:#986801"> 0</span><span style="color:#383A42">; i </span><span style="color:#0184BC">&#x3C;</span><span style="color:#986801"> 8</span><span style="color:#383A42">; i</span><span style="color:#0184BC">++</span><span style="color:#383A42">) {</span></span>
+<span class="line"><span style="color:#A626A4">    const</span><span style="color:#986801"> customer</span><span style="color:#0184BC"> =</span><span style="color:#A626A4"> await</span><span style="color:#383A42"> prisma.</span><span style="color:#E45649">customer</span><span style="color:#383A42">.</span><span style="color:#4078F2">create</span><span style="color:#383A42">({</span></span>
+<span class="line"><span style="color:#E45649">      data</span><span style="color:#0184BC">:</span><span style="color:#383A42"> {</span></span>
+<span class="line"><span style="color:#E45649">        id</span><span style="color:#0184BC">:</span><span style="color:#50A14F"> `cus_</span><span style="color:#CA1243">${</span><span style="color:#986801">1000</span><span style="color:#0184BC"> +</span><span style="color:#383A42"> i</span><span style="color:#CA1243">}</span><span style="color:#50A14F">`</span><span style="color:#383A42">,                    </span><span style="color:#6f747e;font-style:italic">// 3. deterministic id, not a v4 uuid</span></span>
+<span class="line"><span style="color:#E45649">        name</span><span style="color:#0184BC">:</span><span style="color:#383A42"> faker.</span><span style="color:#E45649">person</span><span style="color:#383A42">.</span><span style="color:#4078F2">fullName</span><span style="color:#383A42">(),</span></span>
+<span class="line"><span style="color:#E45649">        email</span><span style="color:#0184BC">:</span><span style="color:#383A42"> faker.</span><span style="color:#E45649">internet</span><span style="color:#383A42">.</span><span style="color:#4078F2">email</span><span style="color:#383A42">(),</span></span>
+<span class="line"><span style="color:#E45649">        signedUpAt</span><span style="color:#0184BC">:</span><span style="color:#383A42"> faker.</span><span style="color:#E45649">date</span><span style="color:#383A42">.</span><span style="color:#4078F2">recent</span><span style="color:#383A42">({ </span><span style="color:#E45649">days</span><span style="color:#0184BC">:</span><span style="color:#986801"> 30</span><span style="color:#383A42"> }), </span><span style="color:#6f747e;font-style:italic">// relative to the pinned refDate</span></span>
+<span class="line"><span style="color:#383A42">      },</span></span>
+<span class="line"><span style="color:#383A42">    })</span></span>
+<span class="line"><span style="color:#383A42">  }</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
+<h2 id="a-fixed-seed-is-necessary-not-sufficient">A fixed seed is necessary, not sufficient<a class="hanchor" href="#a-fixed-seed-is-necessary-not-sufficient" aria-label="Link to section: A fixed seed is necessary, not sufficient">#</a></h2>
+<p>Here is the trap every Faker tutorial walks right past, because it does not matter for a unit test and matters enormously for a video. Seeding the generator is not the same as seeding the demo. Four things leak through a fixed seed and change the footage anyway, and the first is documented by Faker itself: the relative-date helpers &quot;default to creating a date before or after &#39;today&#39;, and &#39;today&#39; depends on when the code is run&quot;<sup class="article-cite"><a href="#src-1" title="Faker — Usage guide (faker.seed for reproducible values; relative-date helpers default to 'today' and need a fixed reference date)">1</a></sup>. Seed it all you like; a <code>faker.date.recent()</code> signup labeled &quot;3 days ago&quot; this week reads &quot;68 days ago&quot; two months from now, and your evergreen demo has a timeline that ages in public. The fix is a fixed reference date, <code>setDefaultRefDate</code>, which is why it sits on line two of the script above.</p>
+<p>The other three leak the same way: invisible in a test, on camera in a render.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Leak</th>
+<th>Survives <code>faker.seed()</code>?</th>
+<th>On-screen symptom</th>
+<th>The pin</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Relative dates</td>
+<td>Yes</td>
+<td>&quot;3 days ago&quot; becomes &quot;68 days ago&quot; months later</td>
+<td>fixed reference date (<code>setDefaultRefDate</code>), or a frozen app clock</td>
+</tr>
+<tr>
+<td>DB-side randomness</td>
+<td>Yes</td>
+<td>row values or order shift when <code>random()</code>, <code>gen_random_uuid()</code>, or <code>now()</code> run in SQL</td>
+<td><code>setseed()</code> before the seed queries; fixed literals, not <code>now()</code></td>
+</tr>
+<tr>
+<td>External API calls</td>
+<td>Yes</td>
+<td>a payment status, enrichment result, or model reply differs per run</td>
+<td>record and replay the call, or a sandbox test clock</td>
+</tr>
+<tr>
+<td>Ordering and IDs</td>
+<td>Yes</td>
+<td>rows render in a different order; v4 UUID keys change every seed</td>
+<td><code>ORDER BY</code> a stable column; deterministic IDs, never a v4 UUID</td>
+</tr>
+</tbody></table></div>
+<p>The external-call row is the one that bites hardest, because it is the layer you do not own. A demo that shows a Stripe charge, a clearbit-style enrichment, or an LLM response is filming a third party&#39;s mood at capture time. Two tools close it. Record-and-replay puts a cache in front of the network: Netflix&#39;s Polly.js exists to &quot;record your test suite&#39;s HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests,&quot; and to &quot;simulate different application states&quot; on demand<sup class="article-cite"><a href="#src-5" title="Netflix Polly.js — Record, replay, and stub HTTP interactions for fast, deterministic tests">5</a></sup>. For time-driven services there is a purpose-built clock: Stripe&#39;s test clocks let you &quot;see how various Billing resources like subscriptions change over time&quot; in a sandbox, so a renewal or a dunning email happens on the tick you choose instead of whenever the calendar reaches it<sup class="article-cite"><a href="#src-6" title="Stripe — Test clocks (simulate Billing objects like subscriptions moving through time in a sandbox)">6</a></sup>. Either way the rule is the same as the browser&#39;s: <a href="/blog/deterministic-browser-automation-for-video/">take the network out of the shot</a> and feed it data you control.</p>
+<h2 id="reset-to-a-known-clean-state-before-every-take">Reset to a known-clean state before every take<a class="hanchor" href="#reset-to-a-known-clean-state-before-every-take" aria-label="Link to section: Reset to a known-clean state before every take">#</a></h2>
+<p>A seed script that assumes an empty database is a bug waiting for the second run. The take before this one left rows behind, a probe run created a half-finished order, yesterday&#39;s render bumped an auto-increment counter. Reproducibility needs the starting state to be identical, which means resetting to clean is not optional cleanup, it is part of the seed. Four strategies, trading speed for isolation.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Speed</th>
+<th>Isolation</th>
+<th>Reach for it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Truncate then reseed</td>
+<td>seconds</td>
+<td>full</td>
+<td>a small fixture and a single render process</td>
+</tr>
+<tr>
+<td>Transaction rollback</td>
+<td>milliseconds</td>
+<td>per-run</td>
+<td>the whole flow fits in one transaction (rare for a real browser take)</td>
+</tr>
+<tr>
+<td>Copy a template database</td>
+<td>fast file copy</td>
+<td>full</td>
+<td>Postgres, and you want a pristine DB per run</td>
+</tr>
+<tr>
+<td>Snapshot restore or throwaway container</td>
+<td>seconds to minutes</td>
+<td>full</td>
+<td>heavy fixtures, or CI that discards the environment anyway</td>
+</tr>
+</tbody></table></div>
+<p>The template-database row is the underused one. PostgreSQL builds every new database by copying an existing one: &quot;<code>CREATE DATABASE</code> actually works by copying an existing database,&quot; and copying the untouched <code>template0</code> gives you &quot;a &#39;pristine&#39; user database (one where no user-defined objects exist and where the system objects have not been altered)&quot;<sup class="article-cite"><a href="#src-4" title="PostgreSQL — Template databases (CREATE DATABASE copies a template; template0 for a pristine copy)">4</a></sup>. Seed a database once, register it as a template, and each run spins a clean clone in the time of a file copy rather than a full re-seed.</p>
+<p>At the productionized end, the reset becomes the whole environment. Sales-demo platforms sell exactly this move: Bunnyshell spins &quot;one environment per prospect&quot; with &quot;pre-loaded sample data&quot; so the state is fresh and isolated for every session<sup class="article-cite"><a href="#src-7" title="Bunnyshell — Sales demo environments (one environment per prospect, pre-loaded sample data)">7</a></sup>. For a recorded demo you rarely need that much machinery, but the principle transfers down: the render should start from a state it built, not one it inherited. That discipline is also what keeps a demo honest, because a shared, drifting environment is one more way <a href="/blog/why-product-demos-go-stale/">a demo quietly stops matching the product it claims to show</a>.</p>
+<h2 id="where-the-seeded-backend-sits-in-the-determinism-stack">Where the seeded backend sits in the determinism stack<a class="hanchor" href="#where-the-seeded-backend-sits-in-the-determinism-stack" aria-label="Link to section: Where the seeded backend sits in the determinism stack">#</a></h2>
+<p>Three layers have to agree before a re-render is trustworthy, and they stack. The state layer is this one: a seeded, reset, clock-pinned backend so the same query returns the same rows. On top sits the capture layer, the pinned browser that turns those rows into identical pixels. On top of that, optionally, the encode layer that freezes the file itself. Skip the bottom layer and the two above it are pinning a moving target with great precision. A nightly re-render against an unseeded backend does not prove the product is stable, it proves the seed script is nondeterministic, and it will page you at 4am over a customer name that changed for no product reason at all.</p>
+<p>This is the layer our own engine, aidemo, deliberately does not own, and it is worth being exact about the seam. aidemo drives a real Chrome through a committed storyboard and pins the capture side, but the storyboard expects the app to already be sitting on a controlled state, seeded and reset by your own script or fixture before the take. It is browser-only, its storyboards are agent-authored rather than assembled on a drag-and-drop timeline, and it does not manage your database, so the seed discipline here is yours to run in the job that renders the demo. Reproducible state is also the twin of realistic state: a seed that repeats is worth little if the rows read as lorem ipsum, so pair this with <a href="/blog/realistic-demo-data-generation/">making those rows believable without leaking a real customer</a>. Nail both and the re-render stops being a hopeful coincidence: same inputs, same demo, on demand.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://fakerjs.dev/guide/usage" rel="noopener">Faker — Usage guide (faker.seed for reproducible values; relative-date helpers default to 'today' and need a fixed reference date)</a></li>
+<li id="src-2"><a href="https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding" rel="noopener">Prisma — Seeding (consistently re-create the same data; prisma db seed; idempotent upsert example)</a></li>
+<li id="src-3"><a href="https://www.postgresql.org/docs/current/functions-math.html" rel="noopener">PostgreSQL — Mathematical functions (setseed repeats random() results in the current session)</a></li>
+<li id="src-4"><a href="https://www.postgresql.org/docs/current/manage-ag-templatedbs.html" rel="noopener">PostgreSQL — Template databases (CREATE DATABASE copies a template; template0 for a pristine copy)</a></li>
+<li id="src-5"><a href="https://github.com/Netflix/pollyjs" rel="noopener">Netflix Polly.js — Record, replay, and stub HTTP interactions for fast, deterministic tests</a></li>
+<li id="src-6"><a href="https://docs.stripe.com/billing/testing/test-clocks" rel="noopener">Stripe — Test clocks (simulate Billing objects like subscriptions moving through time in a sandbox)</a></li>
+<li id="src-7"><a href="https://www.bunnyshell.com/demo-environments/" rel="noopener">Bunnyshell — Sales demo environments (one environment per prospect, pre-loaded sample data)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="why-does-my-demo-show-different-data-every-time-it-re-renders" class="blog-faq-q">Why does my demo show different data every time it re-renders?<a class="hanchor" href="#why-does-my-demo-show-different-data-every-time-it-re-renders" aria-label="Link to section: Why does my demo show different data every time it re-renders?">#</a></h3>
+<p>Because the demo replays clicks, not facts, and a click just lands on whatever row the seed script produced this run. If the data generator is unseeded, or seeded but leaking through relative dates, database-side <code>random()</code>, external API calls, or unordered queries, the same click hits a different value each time. Pin the generator with a fixed seed, pin the reference date, stub the external calls, and order your queries, so the same coordinate always lands on the same fact.</p>
+<h3 id="how-do-i-stop-seeded-3-days-ago-timestamps-from-aging-in-a-demo" class="blog-faq-q">How do I stop seeded &quot;3 days ago&quot; timestamps from aging in a demo?<a class="hanchor" href="#how-do-i-stop-seeded-3-days-ago-timestamps-from-aging-in-a-demo" aria-label="Link to section: How do I stop seeded &quot;3 days ago&quot; timestamps from aging in a demo?">#</a></h3>
+<p>A fixed RNG seed does not fix this on its own. Faker&#39;s own docs note that helpers like <code>faker.date.recent</code> default to a date relative to &quot;today,&quot; so a signup that reads &quot;3 days ago&quot; at seed time drifts as the calendar moves. Set a fixed reference date (<code>faker.setDefaultRefDate</code>) or freeze the application clock during the render, so &quot;now&quot; is a pinned value and every relative label reads the same in every re-render.</p>
+<h3 id="how-do-i-reset-a-demo-database-to-a-clean-state-between-renders" class="blog-faq-q">How do I reset a demo database to a clean state between renders?<a class="hanchor" href="#how-do-i-reset-a-demo-database-to-a-clean-state-between-renders" aria-label="Link to section: How do I reset a demo database to a clean state between renders?">#</a></h3>
+<p>Pick the cheapest reset that gives full isolation for your fixture size. A small dataset can truncate the tables and re-run the seed each time. On PostgreSQL, seed once and copy a template database, since <code>CREATE DATABASE</code> clones an existing one in the time of a file copy and <code>template0</code> gives a pristine starting point. For heavy fixtures or CI that throws the environment away, restore a snapshot or spin a fresh throwaway container per run.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">seed data</span>
+        <span class="article-tag">demo environments</span>
+        <span class="article-tag">determinism</span>
+        <span class="article-tag">demo automation</span>
+        <span class="article-tag">reproducibility</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/app-store-screenshot-automation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/app-store-screenshot-automation-400.webp" srcset="/blog/images/app-store-screenshot-automation-400.webp 400w, /blog/images/app-store-screenshot-automation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay honeycomb slab of identical hexagonal cells"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Keeping App Store screenshots current with automation</h3>
+    <p class="article-card-excerpt">Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-demo-is-a-function-of-its-data-not-just-its-clicks">A demo is a function of its data, not just its clicks</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#seed-the-generator-so-the-same-rows-appear-every-run">Seed the generator so the same rows appear every run</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-fixed-seed-is-necessary-not-sufficient">A fixed seed is necessary, not sufficient</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#reset-to-a-known-clean-state-before-every-take">Reset to a known-clean state before every take</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-the-seeded-backend-sits-in-the-determinism-stack">Where the seeded backend sits in the determinism stack</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

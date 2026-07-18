@@ -319,5 +319,21 @@
   "api-documentation-videos": {
     "subject": "a wooden pyramid metronome with its pendulum mid-swing",
     "seedOffset": 1
+  },
+  "demo-environments-and-seed-data": {
+    "subject": "a sealed glass terrarium with a tiny green landscape inside"
+  },
+  "realistic-demo-data-generation": {
+    "subject": "a hand-carved wooden decoy duck resting on a smooth base"
+  },
+  "reviewing-video-diffs-in-pull-requests": {
+    "subject": "a brass jeweler's loupe standing open on its hinge"
+  },
+  "agent-friendly-app-instrumentation": {
+    "subject": "a row of sturdy brass wall hooks on a smooth rail",
+    "seedOffset": 1
+  },
+  "measuring-documentation-video-effectiveness": {
+    "subject": "a single lit matchstick with a small steady flame"
   }
 }

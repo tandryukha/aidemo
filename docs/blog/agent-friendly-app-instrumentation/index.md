@@ -1,0 +1,98 @@
+# Agent-friendly app instrumentation: data-testid and beyond
+
+July 18, 2026 · Demos as Code · 7 min read · https://aidemo.top/blog/agent-friendly-app-instrumentation/
+
+> Whether an agent can script your UI is decided in your codebase. The instrumentation playbook that pays off for tests, agents, and demo capture at once.
+
+**Key takeaways**
+
+- Instrument in the app, not the automation: one stable hook serves a component test, an e2e test or coding agent, and demo capture at once — three payoffs for one edit.
+- Semantics come free: a native <button> named by its text is addressable with no attribute, and WAI-ARIA plus WCAG already require every interactive control to have an accessible name.
+- Add data-testid only where a name can't exist (icon-only, canvas, list row). Testing Library and Playwright both rank it last, after role and text locators.
+- The value matters: keep it unique (Playwright throws when a locator matches more than one element) and stable, keyed to a domain id like invoice-4192, never an array index or Math.random().
+- Lint hooks like dead code (diff app-emitted vs referenced ids for orphans and duplicates), then decide the strip question: Next.js reactRemoveProperties drops ^data-test from production.
+
+## Instrument the app once, and three consumers can drive it
+
+Whether an agent can script your UI reliably is decided in your codebase, not in the agent's. The team writing the automation picks selectors from whatever the app happens to expose; the team writing the app decides what there is to pick from. A button labeled by its text and a chart with a deliberate handle are addressable to anyone; a `<div onClick>` buried in three hashed-class wrappers is a guessing game. Instrumentation is the small, unglamorous product work that moves an element from the second category to the first, and it is cheaper and more durable done once in the app than worked around in every consumer.
+
+And there is more than one consumer. The same hook you add for a component test is the handle an end-to-end test grabs, the anchor a coding agent writes into a storyboard, and the target a camera moves a cursor to. That is the case for treating instrumentation as first-class rather than test-only: one edit, three payoffs.
+
+| Consumer | What it does with the hook | What a missing hook costs it |
+|---|---|---|
+| Component / integration test | queries the element to assert on it | brittle query pinned to markup, rewritten on every refactor |
+| E2E test or coding agent | finds and acts on the element across the real app | flaky runs, or an agent guessing selectors from a screenshot |
+| Demo capture | moves a cursor to it, holds a beat, zooms the frame | a cursor gliding to the wrong spot, on camera |
+
+The [demos-as-code](/blog/demos-as-code) worldview treats a demo as a committed spec that re-runs on every build, which means the demo leans on the app's hooks exactly the way a test suite does. Getting those hooks right is the app-side complement to [choosing selectors that survive a redesign](/blog/selectors-that-survive-redesigns): that piece ranks the handles you can grab, this one is about putting durable handles there in the first place.
+
+## Semantics first: the elements you never have to instrument
+
+The cheapest hook is the one you get for free by writing the markup correctly. A native `<button>` whose visible text reads "Export" is already addressable as a button named "Export" by every framework, in every consumer, with no extra attribute at all. That handle exists because the platform demands it: the W3C's ARIA practices note that "both the WAI-ARIA specification and WCAG require all focusable, interactive elements to have an accessible name," and press you to source that name from what is already on screen, because "using the visible text for the accessible name simplifies maintenance, prevents bugs, and reduces language translation requirements" ([W3C WAI-ARIA APG, accessed July 2026](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/)).
+
+So the first instrumentation task is not to sprinkle attributes, it is to name your controls: use a real `<button>` and not a clickable `<div>`, tie every input to a `<label>`, give an icon-only control an `aria-label`. Every one of those is an accessibility fix a screen-reader user needed anyway, and each hands automation a stable, human-meaningful handle as a side effect. A UI that is legible to assistive technology is, almost for free, a UI that is legible to an agent. Do this well and a large fraction of the app needs no test-specific instrumentation at all.
+
+## Where semantics run out, add a hook on purpose
+
+Some targets have no name to grab and never will: an icon-only affordance you cannot label sensibly, a `canvas` or SVG chart, a bare list row, a drag handle, a layout region. For these an explicit test id is the honest answer, and every major framework agrees it is the last resort, not the first. Testing Library tells you to reach for it "only after the other queries don't work," warning that test ids "do not resemble how your software is used and should be avoided if possible," while conceding they are "way better than querying based on DOM structure or styling css class names" ([Testing Library, accessed July 2026](https://testing-library.com/docs/queries/bytestid/)). Playwright frames the same tradeoff: a test id is "the most resilient way of testing," but "is not user facing," so if the role or text matters, "consider using user facing locators such as role and text locators" ([Playwright, accessed July 2026](https://playwright.dev/docs/locators)).
+
+Two rules keep the escape hatch honest. First, a test id is not a substitute for a name. MDN is explicit that you should not "store content that should be visible and accessible in data attributes, because assistive technology may not access them," so an unnamed button earns an `aria-label` (which fixes accessibility and yields a handle) before it earns a `data-testid` (which fixes only your automation) ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Solve_HTML_problems/Use_data_attributes)). Second, pick one attribute and hold the line, because there is no universal standard: Playwright and Testing Library default to `data-testid` but both let you reconfigure it (`testIdAttribute` / `configure({testIdAttribute})`), and Cypress's convention is `data-cy`. A codebase that mixes three of them has instrumented nothing consistently.
+
+| Target | First choice | Fallback |
+|---|---|---|
+| Text-labeled button, link, menu item | role + visible text (no attribute at all) | none needed |
+| Form field | associated `<label>` | `aria-label` |
+| Icon-only control | `aria-label` (names it for everyone) | `data-testid` |
+| Chart, `canvas`, map, third-party embed | `data-testid` on the container | `aria-label` on a wrapper |
+| Repeated list or table row | `data-testid` keyed to the row's domain id | none |
+
+## The value matters as much as the attribute
+
+A `data-testid` is not a boolean. It carries a value, and the value decides whether the hook is usable at all. Two properties are non-negotiable.
+
+It has to be unique where you use it. Playwright locators are strict by design: "all operations on locators that imply some target DOM element will throw an exception if more than one element matches" ([Playwright, accessed July 2026](https://playwright.dev/docs/locators)). Stamp the same `data-testid="row"` on forty table rows and the automation cannot address any single one without falling back to positional `.nth(3)`, which is precisely the fragile, layout-pinned selection that instrumentation was supposed to retire.
+
+It has to be stable across renders, and stable means derived from identity, not position. The tempting version keys the id to the loop index, `data-testid={`row-${i}`}`, which silently rebinds the instant the list sorts or filters, so `row-3` points at a different record after every reorder. Key it to the domain instead, `data-testid={`invoice-${invoice.id}`}`, and the handle names the same invoice no matter where it lands on the page. A value spun from `Math.random()` or a render-time counter is worse still: it changes between two runs of the same page, which is exactly the per-run drift that [breaks a deterministic replay](/blog/deterministic-browser-automation-for-video) even when nothing about the UI changed.
+
+## An anti-pattern catalog
+
+Most broken instrumentation is one of six shapes. Each has a symptom you can recognize on sight and a one-line fix.
+
+| Anti-pattern | Symptom | Fix |
+|---|---|---|
+| Test id mirrors a styling class (`data-testid="btn-primary"`) | renamed the day the design system changes | name it for the job (`submit-order`), not the paint |
+| Test id on the wrapper, not the control | the click misses, the cursor lands off-target on camera | put it on the actual interactive element |
+| The same test id on many elements | strict-mode failure, or acting on the wrong one | make each unique, keyed to the row's id |
+| Value from an array index or a random number | breaks on reorder, or between two runs | derive it from a stable domain identifier |
+| Test id where role and name would already do | hides a missing accessible name from you | delete it and name the control instead |
+| Orphan: rendered, but nothing references it | dead weight and false confidence | lint it out (below) |
+
+The last two are the quiet ones. A `data-testid` slapped on an already-nameable button masks an accessibility gap you would otherwise have caught, and an orphan left behind after its test was deleted reads like coverage while asserting nothing.
+
+## Lint the hooks: orphans, duplicates, and the strip question
+
+Instrumentation rots the same way dead code does, so treat it like dead code. An orphan check is a diff on both sides: collect every literal test-id value the app renders, collect every test-id string the automation and storyboards reference, and compare the two sets. Values the app emits that nobody consumes are orphans to delete; values the automation asks for that the app no longer emits are dangling references that fail the next run. Duplicates drop out of the same pass: any literal that appears on more than one rendered element is a strict-mode failure in waiting. A dozen lines in CI keeps the hook inventory honest, which matters because a stale hook gives false confidence exactly like a stale demo does.
+
+Then the ship-it question: should the attribute reach production HTML at all? Build tooling can strip it. The Next.js compiler's `reactRemoveProperties` removes JSX properties matching the default regex `^data-test` from production output ([Next.js, docs updated May 2025](https://nextjs.org/docs/architecture/nextjs-compiler)). Stripping shaves a few bytes and keeps internal handles out of shipped markup; keeping them is what lets you run automation, synthetic monitoring, or [an agent-driven demo capture](/blog/coding-agents-that-make-demo-videos) against the real production build instead of a staging clone. The rule of thumb: strip when nothing you ship depends on the hooks in production, keep them when your recorded demo or uptime check drives the live site. aidemo, the engine we build, is a direct consumer of this instrumentation: a storyboard pins each target by its role, its visible text, or a test id, and the engine checks every one of those handles against the running app before it records a frame, so a hook that has gone orphaned or moved trips the preflight rather than showing up on camera as a cursor clicking empty space. The honest limits sit right next to that strength. It works inside a browser only, never a native window; the storyboard comes from an agent, not a person nudging clips on a timeline; and there is no drag-to-trim editor. In exchange it asks for a UI instrumented the way this playbook describes, which is one it can script on the first pass.
+
+## Sources
+
+- [W3C WAI-ARIA APG — Providing Accessible Names and Descriptions (every interactive element needs a name; prefer visible text)](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/)
+- [Testing Library — ByTestId query (use only after other queries fail; test ids don't resemble how software is used)](https://testing-library.com/docs/queries/bytestid/)
+- [Playwright — Locators (getByTestId, configurable testIdAttribute, strict locators, prefer user-facing locators)](https://playwright.dev/docs/locators)
+- [MDN — Using data attributes (data-* is invisible to assistive tech and search crawlers; not for user-facing content)](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Solve_HTML_problems/Use_data_attributes)
+- [Next.js — Next.js Compiler (reactRemoveProperties strips properties matching ^data-test from production)](https://nextjs.org/docs/architecture/nextjs-compiler)
+
+## FAQ
+
+### Should I remove data-testid attributes in production?
+
+It depends on whether anything you ship needs them there. Stripping them (for example with Next.js's `reactRemoveProperties`, which removes attributes matching `^data-test`) keeps internal hooks out of your production HTML and shaves a few bytes. Keep them if you run end-to-end tests, synthetic monitoring, or a recorded demo against the live production build, because those consumers need the very hooks the strip removes. Plenty of teams keep them everywhere and treat the leak as a non-issue, since a test id exposes nothing a determined reader could not already infer from the DOM.
+
+### What makes a good data-testid value?
+
+Two things: uniqueness and stability. It has to be unique among the elements you target, because strict locators throw when a selector matches more than one element, and it has to stay the same across renders, which means deriving it from a domain identifier like `invoice-4192` rather than an array index or a random number. A value tied to position rebinds the moment a list sorts or filters, and a random value differs between two runs of the same page, so both quietly break the automation that depends on them.
+
+### Do data-testid attributes hurt accessibility or SEO?
+
+No, but they do nothing for either, which is the part to remember. A `data-*` attribute is invisible to assistive technology and to search crawlers, so it is not a place for any content a user needs, and it is not a stand-in for an accessible name. Use `aria-label` or visible text to make a control legible to people and search engines, and reserve `data-testid` for structural targets that have no name to give.
