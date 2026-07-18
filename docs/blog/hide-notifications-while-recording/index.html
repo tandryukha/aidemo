@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hide notifications while screen recording | aidemo</title>
+<meta name="description" content="Turn off notifications while screen recording on macOS, Windows, and Linux, why Do Not Disturb still leaks some alerts, and how to record where none can fire.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/hide-notifications-while-recording/">
+<link rel="alternate" type="text/markdown" href="/blog/hide-notifications-while-recording/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Hide notifications while screen recording | aidemo">
+<meta property="og:description" content="Turn off notifications while screen recording on macOS, Windows, and Linux, why Do Not Disturb still leaks some alerts, and how to record where none can fire.">
+<meta property="og:url" content="https://aidemo.top/blog/hide-notifications-while-recording/">
+<meta property="og:image" content="https://aidemo.top/blog/images/hide-notifications-while-recording-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Hide notifications while screen recording | aidemo">
+<meta name="twitter:description" content="Turn off notifications while screen recording on macOS, Windows, and Linux, why Do Not Disturb still leaks some alerts, and how to record where none can fire.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/hide-notifications-while-recording-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Hide notifications while screen recording, on every OS",
+  "description": "Turn off notifications while screen recording on macOS, Windows, and Linux, why Do Not Disturb still leaks some alerts, and how to record where none can fire.",
+  "image": [
+    "https://aidemo.top/blog/images/hide-notifications-while-recording-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/hide-notifications-while-recording/"
+  },
+  "wordCount": 1648,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Apple Support — Turn a Focus on or off on Mac",
+      "url": "https://support.apple.com/guide/mac-help/turn-a-focus-on-or-off-mchl999b7c1a/mac"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple Support — Set up a Focus to stay on task on Mac",
+      "url": "https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Microsoft Support — Change notification settings in Windows",
+      "url": "https://support.microsoft.com/en-us/windows/change-notification-settings-in-windows-8942c744-6198-fe56-4639-34320cf9444e"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GNOME Help — Hide notifications",
+      "url": "https://help.gnome.org/users/gnome-help/stable/shell-notifications.html.en"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Notifications API",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Hide notifications while screen recording, on every OS",
+      "item": "https://aidemo.top/blog/hide-notifications-while-recording/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I turn off notifications before recording on Mac, Windows, and Linux?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On a Mac, hold the Option key and click the date and time in the menu bar to toggle Do Not Disturb, or open Control Center and click the Focus section. On Windows 11, open the notification center and click the bell icon marked zZ. On GNOME Linux, open the notification list and switch Do Not Disturb on at the bottom. For a recording you make often, set Windows to enable Do Not Disturb automatically when you duplicate your display, so it never depends on memory."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Do Not Disturb hide every notification?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It is a policy filter with deliberate exceptions, so some alerts still appear. macOS still shows time-sensitive notifications and any people or apps you allowed; Windows still shows priority notifications such as incoming calls and reminders, plus alarms; GNOME still shows critical alerts like a low battery. For a recording that ships publicly, back Do Not Disturb up with a clean profile so nothing is armed to break through in the first place."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will website push notifications still appear when Do Not Disturb is on?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Web push notifications are rendered by the operating system's native notification system, so OS Do Not Disturb suppresses them the same way it suppresses app toasts. The catch is that any site you once granted permission to stays armed, so the safer move for a demo is to record in a browser profile where notification permission was never granted, which leaves nothing queued to fire at all."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Hide notifications while screen recording, on every OS</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Hide notifications while screen recording, on every OS</h1>
+        <p class="article-dek">A toast doesn't live in your window; the OS paints it on top. Do Not Disturb on every OS, why it still leaks, and where a notification can't fire.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-notification-is-painted-on-top-of-your-recording-not-inside-it">A notification is painted on top of your recording, not inside it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#do-not-disturb-on-macos-windows-and-linux-in-one-table">Do Not Disturb on macOS, Windows, and Linux, in one table</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-do-not-disturb-still-lets-through">What Do Not Disturb still lets through</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-second-notification-surface-hiding-in-your-browser">The second notification surface hiding in your browser</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#record-where-nothing-can-fire-the-isolation-ladder">Record where nothing can fire: the isolation ladder</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#match-the-isolation-to-the-stakes">Match the isolation to the stakes</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/hide-notifications-while-recording-800.webp" srcset="/blog/images/hide-notifications-while-recording-400.webp 400w, /blog/images/hide-notifications-while-recording-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay velvet rope barrier stretched between two brass stanchion posts"><figcaption>Do Not Disturb is this rope: it turns most interruptions away, but a few guests always carry a pass.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>An OS notification is drawn by the compositor on top of every window, so a full-screen or full-window capture films it; only Do Not Disturb or a surface it cannot reach prevents the leak.</li>
+    <li>Do Not Disturb by OS: macOS Option-click the menu-bar clock (or Control Center), Windows the bell-with-zZ in the notification center, GNOME the toggle at the bottom of the notification list.</li>
+    <li>Do Not Disturb is a policy filter, not a mute: macOS still shows time-sensitive and allowed apps, Windows shows priority notifications and alarms, GNOME shows critical alerts like low battery.</li>
+    <li>Windows 11 can auto-enable Do Not Disturb &quot;When duplicating the display&quot; — the presenting-and-recording case — so a public take never depends on you remembering the switch.</li>
+    <li>Isolation ladder for a zero-leak recording: DND, then a clean profile with notification permission denied, then a scoped tab or window, then a headless environment with no notification daemon at all.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-notification-is-painted-on-top-of-your-recording-not-inside-it">A notification is painted on top of your recording, not inside it<a class="hanchor" href="#a-notification-is-painted-on-top-of-your-recording-not-inside-it" aria-label="Link to section: A notification is painted on top of your recording, not inside it">#</a></h2>
+<p>An operating-system notification is not part of any window. The compositor draws it in its own layer above everything on screen, at the moment the sending app decides, which is why one can slide into a recording that has nothing to do with the app that sent it. A full-screen or full-window capture films the whole compositor output, banner and all. MDN describes the web version of the same object exactly: a notification is &quot;rendered by the operating system&#39;s native notification system&quot; and sits &quot;outside the top-level browsing context viewport,&quot; so it &quot;can be shown even when the user has switched tabs or moved to a different app&quot;<sup class="article-cite"><a href="#src-5" title="MDN — Notifications API">5</a></sup>. Read that as the general rule. The notification layer is above whatever you are recording, so there are only two honest defenses: stop the notifications from firing, or record a surface the layer cannot reach.</p>
+<p>That splits the job in two, and most guides stop after the first half. Move one is telling the OS to hold notifications with Do Not Disturb. Move two, for any recording that must never leak a customer name or an unshipped feature, is recording where a toast has nowhere to land. This is the notifications half of <a href="/blog/how-to-record-your-screen-in-high-quality/">the capture-quality checklist</a>, which lists a leaked toast among the few mistakes no filter fixes after the fact, because it is baked into the pixels the instant it appears.</p>
+<h2 id="do-not-disturb-on-macos-windows-and-linux-in-one-table">Do Not Disturb on macOS, Windows, and Linux, in one table<a class="hanchor" href="#do-not-disturb-on-macos-windows-and-linux-in-one-table" aria-label="Link to section: Do Not Disturb on macOS, Windows, and Linux, in one table">#</a></h2>
+<p>Every desktop OS ships the same primitive under a different name and a different switch. Here is where each one lives, with the single non-obvious detail per platform.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Where the switch is</th>
+<th>The detail worth knowing</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>macOS (Do Not Disturb Focus)</td>
+<td>Control Center, click the Focus section, then Do Not Disturb<sup class="article-cite"><a href="#src-1" title="Apple Support — Turn a Focus on or off on Mac">1</a></sup></td>
+<td>Fastest path is &quot;pressing and holding the Option key while you click the date and time in the menu bar&quot;</td>
+</tr>
+<tr>
+<td>Windows 11</td>
+<td>Notification center, the bell icon marked zZ<sup class="article-cite"><a href="#src-3" title="Microsoft Support — Change notification settings in Windows">3</a></sup></td>
+<td>It can turn on automatically &quot;When duplicating the display&quot; — exactly the present-and-record case</td>
+</tr>
+<tr>
+<td>Linux (GNOME)</td>
+<td>Open the notification list, switch Do Not Disturb on at the bottom<sup class="article-cite"><a href="#src-4" title="GNOME Help — Hide notifications">4</a></sup></td>
+<td>No record-aware trigger; it is a manual toggle you flip each session</td>
+</tr>
+</tbody></table></div>
+<p>The Windows automatic trigger is the one actually worth configuring. Windows 11 will enable Do Not Disturb on its own &quot;When duplicating the display,&quot; &quot;When playing a game,&quot; or &quot;When using an app in full-screen mode,&quot; so a presentation or a full-screen capture goes quiet without you remembering<sup class="article-cite"><a href="#src-3" title="Microsoft Support — Change notification settings in Windows">3</a></sup>. macOS supports schedules but has no built-in &quot;while recording&quot; rule, and GNOME has neither. On those two, your muscle memory is the trigger, which is exactly the trigger that fails on the take that matters.</p>
+<h2 id="what-do-not-disturb-still-lets-through">What Do Not Disturb still lets through<a class="hanchor" href="#what-do-not-disturb-still-lets-through" aria-label="Link to section: What Do Not Disturb still lets through">#</a></h2>
+<p>Here is the fact the one-line guides skip: Do Not Disturb is a policy filter, not a hard mute. Every OS ships deliberate exceptions, and each one is a hole a demo can fall through.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>OS</th>
+<th>What still pops while Do Not Disturb is on</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>macOS</td>
+<td>Time-sensitive notifications, plus any Allowed People and Allowed Apps you configured, and phone calls<sup class="article-cite"><a href="#src-2" title="Apple Support — Set up a Focus to stay on task on Mac">2</a></sup></td>
+</tr>
+<tr>
+<td>Windows 11</td>
+<td>Priority notifications — incoming calls, reminders, and allowlisted apps — plus alarms<sup class="article-cite"><a href="#src-3" title="Microsoft Support — Change notification settings in Windows">3</a></sup></td>
+</tr>
+<tr>
+<td>GNOME</td>
+<td>&quot;only very important notifications, such as when your battery is critically low, will pop up&quot;<sup class="article-cite"><a href="#src-4" title="GNOME Help — Hide notifications">4</a></sup></td>
+</tr>
+</tbody></table></div>
+<p>The macOS row is the trap. Apple frames a Focus as the place where &quot;you can specify which notifications are shown when a Focus is active — for example, notifications from certain people and apps, time-sensitive notifications, or notifications for phone calls&quot;<sup class="article-cite"><a href="#src-2" title="Apple Support — Set up a Focus to stay on task on Mac">2</a></sup>. Time-sensitive delivery is opt-out per app rather than off by default, so a messaging or calendar app you never explicitly allowed can still break through the quiet. Do Not Disturb narrows the odds sharply; it does not take them to zero. For an internal clip that is plenty. For a recording that ships, plan for the carve-outs instead of trusting the toggle.</p>
+<h2 id="the-second-notification-surface-hiding-in-your-browser">The second notification surface hiding in your browser<a class="hanchor" href="#the-second-notification-surface-hiding-in-your-browser" aria-label="Link to section: The second notification surface hiding in your browser">#</a></h2>
+<p>Silence the OS and a browser recording still has its own emitter: every site you ever granted notification permission. A web notification travels through &quot;the operating system&#39;s native notification system,&quot; the same layer Do Not Disturb governs, but it originates from a site rather than an app, and an &quot;Allow&quot; you clicked months ago for webmail, a chat app, or a calendar is still armed<sup class="article-cite"><a href="#src-5" title="MDN — Notifications API">5</a></sup>. Because those route through the OS, OS Do Not Disturb does suppress them — yet the durable fix is a browser profile where the permission was never granted, so nothing is even queued to fire. This is one more reason <a href="/blog/record-a-browser-tab/">scoping the capture to a single browser tab</a> earns its keep: the OS toast layer is drawn above the tab and cannot render inside it, and a clean profile has no armed permissions sitting behind it.</p>
+<h2 id="record-where-nothing-can-fire-the-isolation-ladder">Record where nothing can fire: the isolation ladder<a class="hanchor" href="#record-where-nothing-can-fire-the-isolation-ladder" aria-label="Link to section: Record where nothing can fire: the isolation ladder">#</a></h2>
+<p>For a recording that genuinely cannot leak, climb from &quot;ask the OS to hold notifications&quot; to &quot;record somewhere no notification exists.&quot; Four rungs, each removing an emitter instead of silencing one:</p>
+<ol>
+<li><strong>Do Not Disturb.</strong> The OS holds most toasts, subject to the carve-outs above. Free, instant, imperfect.</li>
+<li><strong>A clean recording profile.</strong> A fresh browser profile or user account with nothing logged in, no extensions, and notification permission denied. Nothing is armed, so nothing fires. This is the <a href="/blog/professional-screen-recordings/">capture-hygiene step a produced recording performs anyway</a>.</li>
+<li><strong>A scoped surface.</strong> Record one browser tab or one window, so the OS notification layer draws outside the frame entirely.</li>
+<li><strong>A headless environment.</strong> A browser rendered with no desktop session has no notification daemon running at all, so a toast is not suppressed, it is impossible. This is the display-less setup used to render demos on a CI runner.</li>
+</ol>
+<p>Our own engine, aidemo, sits on that top rung: an agent-authored storyboard steers a real Chrome tab, headless on a runner, so no notification daemon is even alive to interrupt the take. The honest limits are familiar ones. aidemo captures a browser tab only, never a native desktop app; the demo is specified in a storyboard you edit as code, not on a drag-and-drop timeline; and for a one-off clip, switching on Do Not Disturb beats wiring up a whole pipeline.</p>
+<h2 id="match-the-isolation-to-the-stakes">Match the isolation to the stakes<a class="hanchor" href="#match-the-isolation-to-the-stakes" aria-label="Link to section: Match the isolation to the stakes">#</a></h2>
+<p>You do not need a headless runner to record a note for a teammate, and Do Not Disturb is not enough for an asset that ships forever. Pick the rung by what a leak would cost.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The recording</th>
+<th>Cost of a leaked toast</th>
+<th>The rung that fits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>An internal clip for one teammate</td>
+<td>A moment of mild embarrassment</td>
+<td>Do Not Disturb</td>
+</tr>
+<tr>
+<td>A conference talk or live webinar</td>
+<td>A whole audience reads your DMs</td>
+<td>Do Not Disturb plus a clean profile</td>
+</tr>
+<tr>
+<td>A landing-page or launch video</td>
+<td>A real customer name ships forever</td>
+<td>Clean profile plus a scoped tab</td>
+</tr>
+<tr>
+<td>An app-store preview or CI-rendered demo</td>
+<td>A leak in an asset that re-renders unattended</td>
+<td>Headless, with no notification layer at all</td>
+</tr>
+</tbody></table></div>
+<p>The pattern down that column is that the stakes track how far the recording travels and how hard a reshoot would be. A live take you can redo the next morning; an asset that regenerates on every commit has to be leak-proof by construction, because nobody is watching the render. That is why the top rung stops being paranoia and becomes the default: the further a recording gets from the person who made it, the less it can depend on someone remembering to flip a switch.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://support.apple.com/guide/mac-help/turn-a-focus-on-or-off-mchl999b7c1a/mac" rel="noopener">Apple Support — Turn a Focus on or off on Mac</a></li>
+<li id="src-2"><a href="https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac" rel="noopener">Apple Support — Set up a Focus to stay on task on Mac</a></li>
+<li id="src-3"><a href="https://support.microsoft.com/en-us/windows/change-notification-settings-in-windows-8942c744-6198-fe56-4639-34320cf9444e" rel="noopener">Microsoft Support — Change notification settings in Windows</a></li>
+<li id="src-4"><a href="https://help.gnome.org/users/gnome-help/stable/shell-notifications.html.en" rel="noopener">GNOME Help — Hide notifications</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API" rel="noopener">MDN — Notifications API</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-turn-off-notifications-before-recording-on-mac-windows-and-linux" class="blog-faq-q">How do I turn off notifications before recording on Mac, Windows, and Linux?<a class="hanchor" href="#how-do-i-turn-off-notifications-before-recording-on-mac-windows-and-linux" aria-label="Link to section: How do I turn off notifications before recording on Mac, Windows, and Linux?">#</a></h3>
+<p>On a Mac, hold the Option key and click the date and time in the menu bar to toggle Do Not Disturb, or open Control Center and click the Focus section. On Windows 11, open the notification center and click the bell icon marked zZ. On GNOME Linux, open the notification list and switch Do Not Disturb on at the bottom. For a recording you make often, set Windows to enable Do Not Disturb automatically when you duplicate your display, so it never depends on memory.</p>
+<h3 id="does-do-not-disturb-hide-every-notification" class="blog-faq-q">Does Do Not Disturb hide every notification?<a class="hanchor" href="#does-do-not-disturb-hide-every-notification" aria-label="Link to section: Does Do Not Disturb hide every notification?">#</a></h3>
+<p>No. It is a policy filter with deliberate exceptions, so some alerts still appear. macOS still shows time-sensitive notifications and any people or apps you allowed; Windows still shows priority notifications such as incoming calls and reminders, plus alarms; GNOME still shows critical alerts like a low battery. For a recording that ships publicly, back Do Not Disturb up with a clean profile so nothing is armed to break through in the first place.</p>
+<h3 id="will-website-push-notifications-still-appear-when-do-not-disturb-is-on" class="blog-faq-q">Will website push notifications still appear when Do Not Disturb is on?<a class="hanchor" href="#will-website-push-notifications-still-appear-when-do-not-disturb-is-on" aria-label="Link to section: Will website push notifications still appear when Do Not Disturb is on?">#</a></h3>
+<p>Web push notifications are rendered by the operating system&#39;s native notification system, so OS Do Not Disturb suppresses them the same way it suppresses app toasts. The catch is that any site you once granted permission to stays armed, so the safer move for a demo is to record in a browser profile where notification permission was never granted, which leaves nothing queued to fire at all.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">notifications</span>
+        <span class="article-tag">do not disturb</span>
+        <span class="article-tag">focus mode</span>
+        <span class="article-tag">clean recording</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-notification-is-painted-on-top-of-your-recording-not-inside-it">A notification is painted on top of your recording, not inside it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#do-not-disturb-on-macos-windows-and-linux-in-one-table">Do Not Disturb on macOS, Windows, and Linux, in one table</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-do-not-disturb-still-lets-through">What Do Not Disturb still lets through</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-second-notification-surface-hiding-in-your-browser">The second notification surface hiding in your browser</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#record-where-nothing-can-fire-the-isolation-ladder">Record where nothing can fire: the isolation ladder</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#match-the-isolation-to-the-stakes">Match the isolation to the stakes</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

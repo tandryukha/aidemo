@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nightly demo builds: re-render while you sleep | aidemo</title>
+<meta name="description" content="A nightly cron re-renders your product demo against the live app, so UI drift lands in a morning build log instead of a customer call. Wiring and cost math.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/nightly-demo-builds/">
+<link rel="alternate" type="text/markdown" href="/blog/nightly-demo-builds/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Nightly demo builds: re-render while you sleep | aidemo">
+<meta property="og:description" content="A nightly cron re-renders your product demo against the live app, so UI drift lands in a morning build log instead of a customer call. Wiring and cost math.">
+<meta property="og:url" content="https://aidemo.top/blog/nightly-demo-builds/">
+<meta property="og:image" content="https://aidemo.top/blog/images/nightly-demo-builds-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nightly demo builds: re-render while you sleep | aidemo">
+<meta name="twitter:description" content="A nightly cron re-renders your product demo against the live app, so UI drift lands in a morning build log instead of a customer call. Wiring and cost math.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/nightly-demo-builds-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Nightly demo builds: re-render the demo while you sleep",
+  "description": "A nightly cron re-renders your product demo against the live app, so UI drift lands in a morning build log instead of a customer call. Wiring and cost math.",
+  "image": [
+    "https://aidemo.top/blog/images/nightly-demo-builds-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/nightly-demo-builds/"
+  },
+  "wordCount": 2018,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Joel Spolsky — Daily Builds Are Your Friend (Joel on Software, 2001)",
+      "url": "https://www.joelonsoftware.com/2001/01/27/daily-builds-are-your-friend/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome for Developers — Chrome release channels (Canary released daily)",
+      "url": "https://developer.chrome.com/docs/web-platform/chrome-release-channels"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Mozilla — Firefox Nightly channel (updates once or twice a day)",
+      "url": "https://www.firefox.com/en-US/channel/desktop/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Events that trigger workflows (schedule cron, high-load delay, 60-day auto-disable)",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Billing for GitHub Actions (free minutes, per-minute rates)",
+      "url": "https://docs.github.com/en/billing/concepts/product-billing/github-actions"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Nightly demo builds: re-render the demo while you sleep",
+      "item": "https://aidemo.top/blog/nightly-demo-builds/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should a demo re-render on every merge or only nightly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both, because they catch different failures. An on-merge trigger scoped with a path filter to your UI source re-renders within minutes of a code change and is the fastest way to catch drift you shipped yourself. A nightly cron catches the drift a path filter cannot see — a restyled third-party embed, a dependency bump, changed seed data, a flipped feature flag — none of which touch a file you would filter on. Run a cheap selector assertion on every merge and the full render-and-diff nightly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What time should a nightly demo build run on GitHub Actions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Off the top of the hour, in UTC. GitHub cron defaults to UTC and delays scheduled jobs under load, calling the start of each hour the busiest window, so 17 3 * * * (03:17 UTC) waits in a shorter queue than 0 3 * * *. Add a workflow_dispatch trigger for manual runs, and remember that a public repository disables a scheduled workflow after 60 days with no activity, so a success notification is how you learn it stopped."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does re-rendering a demo every night cost a lot in GitHub Actions minutes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Thirty nightly runs at roughly five minutes each is about 150 runner-minutes a month, well inside every plan's free grant (2,000 minutes on Free, 3,000 on Pro and Team), and standard runners on public repositories are free outright. Linux extra minutes are $0.006 each, so even a run that overshot the grant by 1,000 minutes would cost about six dollars. A drift-check render is cheaper still, since deterministic text-to-speech lets an unchanged script skip the paid voice step entirely."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Nightly demo builds: re-render the demo while you sleep</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Nightly demo builds: re-render the demo while you sleep</h1>
+        <p class="article-dek">Compilers rebuild themselves overnight so breakage lands in a log, not a release. Point the habit at your demo and it quits quietly lying about the product.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-daily-build-pointed-at-a-demo-instead-of-a-binary">The daily build, pointed at a demo instead of a binary</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-nightly-catches-that-an-on-merge-render-cant">What a nightly catches that an on-merge render can't</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-cron-line-and-the-two-ways-github-silently-stops-it">The cron line, and the two ways GitHub silently stops it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#green-is-not-the-same-as-correct-what-a-nightly-does-with-a-diff">Green is not the same as correct: what a nightly does with a diff</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-arithmetic-of-running-it-every-night">The arithmetic of running it every night</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/nightly-demo-builds-800.webp" srcset="/blog/images/nightly-demo-builds-400.webp 400w, /blog/images/nightly-demo-builds-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A wind-up alarm clock with twin round bells and a striker between them"><figcaption>Set it once and it fires every night on its own; the demo that waits for you to remember is the one already gone wrong.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Borrow the compiler habit: Chrome Canary ships daily and Firefox Nightly once or twice a day, so a nightly demo build surfaces UI drift the next morning, not in a customer call.</li>
+    <li>A nightly catches drift an on-merge path filter can't: a restyled third-party embed, a dependency bump, changed seed data, a flipped feature flag — none touch a file in src/.</li>
+    <li>Green is not correct: fail the build on a broken storyboard selector, open a PR on a pixel diff a human should approve, auto-publish only low-stakes assets like a README GIF.</li>
+    <li>Cost is a rounding error: 30 nightly runs at ~5 min = 150 runner-minutes/month, well under GitHub's free 2,000; public repos are free, Linux extra minutes $0.006 each.</li>
+    <li>Two silent-stop traps: GitHub delays cron at the top of the hour (schedule 3:17, not 3:00) and disables a public repo's schedule after 60 days of no activity.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-daily-build-pointed-at-a-demo-instead-of-a-binary">The daily build, pointed at a demo instead of a binary<a class="hanchor" href="#the-daily-build-pointed-at-a-demo-instead-of-a-binary" aria-label="Link to section: The daily build, pointed at a demo instead of a binary">#</a></h2>
+<p>Compiler teams solved this problem thirty years ago and named the fix after the clock. A nightly build takes whatever code is in the tree and rebuilds the whole thing overnight, so any breakage introduced during the day is sitting in a log the next morning instead of hiding until release. Joel Spolsky made the case in 2001: run the build on a schedule, keep every one in an archive, and when a strange bug appears you can binary-search the history to find the day it entered<sup class="article-cite"><a href="#src-1" title="Joel Spolsky — Daily Builds Are Your Friend (Joel on Software, 2001)">1</a></sup>. Browser vendors turned the same habit into a shipping channel. Chrome Canary &quot;is released daily&quot;<sup class="article-cite"><a href="#src-2" title="Chrome for Developers — Chrome release channels (Canary released daily)">2</a></sup>; Firefox Nightly &quot;will update approximately once or twice a day&quot; and exists as an unstable platform for surfacing problems in the newest code<sup class="article-cite"><a href="#src-3" title="Mozilla — Firefox Nightly channel (updates once or twice a day)">3</a></sup>. All three do one thing: rebuild the artifact against the current world on a fixed cadence, and let the schedule, not a person&#39;s memory, be what never forgets.</p>
+<p>A product demo is exactly the kind of artifact that benefits, because it depends on something it does not own. The video froze one state of a UI that keeps moving, which is <a href="/blog/why-product-demos-go-stale/">why every product demo drifts out of date</a> whether or not anyone touches the file. A nightly demo build applies the compiler reflex: a scheduled job re-runs the recording against the live app every night, so the morning after a change lands you either have a fresh, correct demo or a red build telling you the old one has become a lie. It only works if the demo is a spec you can <a href="/blog/automated-product-demo-videos/">regenerate from source instead of re-recording by hand</a> — a captured performance cannot rebuild itself, but a committed storyboard can.</p>
+<h2 id="what-a-nightly-catches-that-an-on-merge-render-cant">What a nightly catches that an on-merge render can&#39;t<a class="hanchor" href="#what-a-nightly-catches-that-an-on-merge-render-cant" aria-label="Link to section: What a nightly catches that an on-merge render can't">#</a></h2>
+<p>The obvious trigger is on-merge: filter a workflow to your UI source and re-render the moment a relevant file lands, which catches code-driven drift at the lowest possible latency. That wiring — the runner, ffmpeg, the path filter, and where the finished file goes — is a job of its own, covered in <a href="/blog/demo-videos-in-ci/">rendering demo videos in CI</a>. But a path filter only sees your repository, and a demo leans on more than your repository. Whole classes of drift never touch a file you would think to filter on:</p>
+<ul>
+<li>A third-party widget you embed (a chat launcher, a payment form, a map) restyles itself on the vendor&#39;s deploy, not yours.</li>
+<li>A dependency bump moves a component&#39;s padding or default variant, and the change rides in through the lockfile, not through anything you edited.</li>
+<li>The seed data behind the demo changes shape, so a table that had three rows now has none, or a chart flattens to a single bar.</li>
+<li>A feature flag flips on its own timer, hiding or revealing the exact button the cursor is about to click.</li>
+<li>An external API changes a field the UI renders, and the screen the demo depends on now shows an error state.</li>
+</ul>
+<p>None of these arrive as a diff in <code>src/</code>, so an on-merge trigger stays silent while the demo quietly goes wrong. A wall-clock rebuild is the only trigger that sees them, which is why compiler teams kept the nightly even after per-commit CI existed: the nightly is the integration check, the per-commit run is the unit check. Turning that render into a pass-or-fail verdict rather than a fresh file nobody looks at is its own discipline, laid out in <a href="/blog/detecting-ui-drift/">detecting UI drift</a>.</p>
+<h2 id="the-cron-line-and-the-two-ways-github-silently-stops-it">The cron line, and the two ways GitHub silently stops it<a class="hanchor" href="#the-cron-line-and-the-two-ways-github-silently-stops-it" aria-label="Link to section: The cron line, and the two ways GitHub silently stops it">#</a></h2>
+<p>The scheduling itself is one block. GitHub Actions reads standard cron, in UTC by default, so a nightly at 3:17 a.m. is:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">yaml</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#986801">on</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#E45649">  schedule</span><span style="color:#383A42">:</span></span>
+<span class="line"><span style="color:#383A42">    - </span><span style="color:#E45649">cron</span><span style="color:#383A42">: </span><span style="color:#50A14F">"17 3 * * *"</span><span style="color:#6f747e;font-style:italic">   # 03:17 UTC, every night</span></span>
+<span class="line"><span style="color:#E45649">  workflow_dispatch</span><span style="color:#383A42">:        </span><span style="color:#6f747e;font-style:italic"># plus a manual button</span></span></code></pre>
+</div>
+<p>The odd minute is deliberate. GitHub warns that the schedule event is delayed when workflow load is high and flags the top of every hour as the busiest window, so a job pinned to <code>0 3 * * *</code> queues behind everything else that chose the round number<sup class="article-cite"><a href="#src-4" title="GitHub Docs — Events that trigger workflows (schedule cron, high-load delay, 60-day auto-disable)">4</a></sup>. A nightly does not need to be punctual, but it should not wait behind the whole platform either.</p>
+<p>Two failure modes are specific to a job meant to run for months unattended, and both are silent. The first is that same delay: a nightly that &quot;did not run&quot; often did run, late, and you checked before it landed. The second is worse. In a public repository, GitHub automatically disables a scheduled workflow after 60 days with no repository activity<sup class="article-cite"><a href="#src-4" title="GitHub Docs — Events that trigger workflows (schedule cron, high-load delay, 60-day auto-disable)">4</a></sup> — so the nightly on your stable, finished side project switches off right when the product is most likely to shift under it without you watching. A nightly you cannot trust to run is worse than none, so give the workflow a heartbeat: have it post to a channel on success, not only on failure, so a silent stop becomes its own alarm.</p>
+<h2 id="green-is-not-the-same-as-correct-what-a-nightly-does-with-a-diff">Green is not the same as correct: what a nightly does with a diff<a class="hanchor" href="#green-is-not-the-same-as-correct-what-a-nightly-does-with-a-diff" aria-label="Link to section: Green is not the same as correct: what a nightly does with a diff">#</a></h2>
+<p>A nightly that re-renders and publishes unconditionally has only swapped yesterday&#39;s stale demo for today&#39;s unreviewed one. The value is entirely in what the job does with the difference it finds, and the right move depends on how much judgment that difference demands. Two facts decide it: whether the change is ambiguous (a broken selector is not; a shifted gradient is) and how public the asset is (a landing-page hero versus a GIF in an internal runbook). That yields four exits.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What the nightly found</th>
+<th>Ambiguous?</th>
+<th>Right exit</th>
+<th>Fits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A storyboard selector no longer resolves</td>
+<td>No — the flow is broken</td>
+<td>Fail the build red</td>
+<td>Every demo</td>
+</tr>
+<tr>
+<td>Pixels moved past threshold, flow still runs</td>
+<td>Yes — needs an eye</td>
+<td>Open a PR with the new render</td>
+<td>Public, marketing, sales assets</td>
+</tr>
+<tr>
+<td>Pixels moved, the asset is low-stakes</td>
+<td>No — newest wins</td>
+<td>Auto-commit and publish</td>
+<td>README GIF, internal docs</td>
+</tr>
+<tr>
+<td>Nothing changed</td>
+<td>No</td>
+<td>Do nothing (but log the heartbeat)</td>
+<td>All</td>
+</tr>
+</tbody></table></div>
+<p>The first two rows carry the whole idea: an assertion failure is a fact, a pixel diff is an opinion. A selector that no longer resolves means the cursor lands on empty space and the voiceover narrates a click that never happens, so the build should go red and block with no human vote required. A pixel difference means something merely looks different, which could be an intended redesign or could be breakage, so the honest response is a pull request that puts the new cut in front of a person rather than a bot overwriting the live asset on a guess. Producing that pixel signal cleanly, without paging you over anti-aliasing, is a tuning problem mapped in <a href="/blog/visual-regression-testing-tools/">the visual-regression tools compared by diff engine</a>; the nightly&#39;s job is only to decide what each verdict is allowed to do.</p>
+<h2 id="the-arithmetic-of-running-it-every-night">The arithmetic of running it every night<a class="hanchor" href="#the-arithmetic-of-running-it-every-night" aria-label="Link to section: The arithmetic of running it every night">#</a></h2>
+<p>The instinct is that rendering a video every single night must be expensive. It is not, and the numbers are worth writing down because they change which trigger you should argue about. A GitHub-hosted Linux runner bills extra minutes at $0.006 each, and every account carries a monthly free grant — 2,000 minutes on the Free plan, 3,000 on Pro and Team, 50,000 on Enterprise — while standard runners on public repositories are free outright<sup class="article-cite"><a href="#src-5" title="GitHub Docs — Billing for GitHub Actions (free minutes, per-minute rates)">5</a></sup>. Call a full browser render five minutes, generously. A drift-checking nightly is cheaper still, because it need not re-voice anything: text-to-speech is deterministic from the script, so when the narration text is unchanged the render is browser capture plus compose, with no paid speech call at all. In our own engine, aidemo — disclosed as ours, and honestly browser-only, with storyboards written by a coding agent instead of clips arranged on a GUI timeline — the voice and caption stages are skipped when the script has not changed, so a nightly&#39;s marginal cost is a handful of runner-minutes and nothing else.</p>
+<p>Put the cadences side by side.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Cadence</th>
+<th>Runs / month</th>
+<th>Runner-minutes (~5 min each)</th>
+<th>Against Free 2,000</th>
+<th>Extra cost on Linux</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nightly cron</td>
+<td>30</td>
+<td>150</td>
+<td>7.5% of the grant</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>On-merge, ~40 UI merges</td>
+<td>40</td>
+<td>200</td>
+<td>10%</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>On-merge, ~300 UI merges</td>
+<td>300</td>
+<td>1,500</td>
+<td>75%</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>On-merge, ~600 UI merges</td>
+<td>600</td>
+<td>3,000</td>
+<td>over by 1,000</td>
+<td>~$6</td>
+</tr>
+</tbody></table></div>
+<p>The nightly is fixed at 30 runs no matter how fast the team ships; only the busiest on-merge case even leaves the free grant, and it does so for the price of a sandwich. On a public repo the entire dollar column is zero. So cost is not the axis. The real tradeoff is latency versus review noise: on-merge catches drift within minutes but hands you a diff to inspect on every merge and stays blind to the non-code drift above, while the nightly batches a whole day&#39;s changes into one review the next morning and sees the drift a filter cannot, at the price of up to a day of latency. The mature answer is both, cheaply — a fast selector assertion on every merge that blocks in seconds without encoding a single frame, plus the full nightly render-and-diff for everything the assertion cannot see. If you also pin a demo to each shipped version, the nightly guards the current one while the tagged ones stay frozen. The demo tells the truth in the morning because something rebuilt it in the dark, and a build log is the first place a break shows up, before any prospect sees it.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.joelonsoftware.com/2001/01/27/daily-builds-are-your-friend/" rel="noopener">Joel Spolsky — Daily Builds Are Your Friend (Joel on Software, 2001)</a></li>
+<li id="src-2"><a href="https://developer.chrome.com/docs/web-platform/chrome-release-channels" rel="noopener">Chrome for Developers — Chrome release channels (Canary released daily)</a></li>
+<li id="src-3"><a href="https://www.firefox.com/en-US/channel/desktop/" rel="noopener">Mozilla — Firefox Nightly channel (updates once or twice a day)</a></li>
+<li id="src-4"><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows" rel="noopener">GitHub Docs — Events that trigger workflows (schedule cron, high-load delay, 60-day auto-disable)</a></li>
+<li id="src-5"><a href="https://docs.github.com/en/billing/concepts/product-billing/github-actions" rel="noopener">GitHub Docs — Billing for GitHub Actions (free minutes, per-minute rates)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="should-a-demo-re-render-on-every-merge-or-only-nightly" class="blog-faq-q">Should a demo re-render on every merge or only nightly?<a class="hanchor" href="#should-a-demo-re-render-on-every-merge-or-only-nightly" aria-label="Link to section: Should a demo re-render on every merge or only nightly?">#</a></h3>
+<p>Both, because they catch different failures. An on-merge trigger scoped with a path filter to your UI source re-renders within minutes of a code change and is the fastest way to catch drift you shipped yourself. A nightly cron catches the drift a path filter cannot see — a restyled third-party embed, a dependency bump, changed seed data, a flipped feature flag — none of which touch a file you would filter on. Run a cheap selector assertion on every merge and the full render-and-diff nightly.</p>
+<h3 id="what-time-should-a-nightly-demo-build-run-on-github-actions" class="blog-faq-q">What time should a nightly demo build run on GitHub Actions?<a class="hanchor" href="#what-time-should-a-nightly-demo-build-run-on-github-actions" aria-label="Link to section: What time should a nightly demo build run on GitHub Actions?">#</a></h3>
+<p>Off the top of the hour, in UTC. GitHub cron defaults to UTC and delays scheduled jobs under load, calling the start of each hour the busiest window, so <code>17 3 * * *</code> (03:17 UTC) waits in a shorter queue than <code>0 3 * * *</code>. Add a <code>workflow_dispatch</code> trigger for manual runs, and remember that a public repository disables a scheduled workflow after 60 days with no activity, so a success notification is how you learn it stopped.</p>
+<h3 id="does-re-rendering-a-demo-every-night-cost-a-lot-in-github-actions-minutes" class="blog-faq-q">Does re-rendering a demo every night cost a lot in GitHub Actions minutes?<a class="hanchor" href="#does-re-rendering-a-demo-every-night-cost-a-lot-in-github-actions-minutes" aria-label="Link to section: Does re-rendering a demo every night cost a lot in GitHub Actions minutes?">#</a></h3>
+<p>No. Thirty nightly runs at roughly five minutes each is about 150 runner-minutes a month, well inside every plan&#39;s free grant (2,000 minutes on Free, 3,000 on Pro and Team), and standard runners on public repositories are free outright. Linux extra minutes are $0.006 each, so even a run that overshot the grant by 1,000 minutes would cost about six dollars. A drift-check render is cheaper still, since deterministic text-to-speech lets an unchanged script skip the paid voice step entirely.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demo automation</span>
+        <span class="article-tag">github actions</span>
+        <span class="article-tag">nightly build</span>
+        <span class="article-tag">cron</span>
+        <span class="article-tag">ci-cd</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-videos-in-ci-400.webp" srcset="/blog/images/demo-videos-in-ci-400.webp 400w, /blog/images/demo-videos-in-ci-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A GitHub Actions run log with a passing render-demo job and an attached MP4, beside the workflow YAML that triggered it"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-daily-build-pointed-at-a-demo-instead-of-a-binary">The daily build, pointed at a demo instead of a binary</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-nightly-catches-that-an-on-merge-render-cant">What a nightly catches that an on-merge render can't</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-cron-line-and-the-two-ways-github-silently-stops-it">The cron line, and the two ways GitHub silently stops it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#green-is-not-the-same-as-correct-what-a-nightly-does-with-a-diff">Green is not the same as correct: what a nightly does with a diff</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-arithmetic-of-running-it-every-night">The arithmetic of running it every night</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

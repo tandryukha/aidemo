@@ -183,5 +183,22 @@
   "testing-demos-like-code": {
     "subject": "a polished brass calibration weight resting in a felt-lined slot",
     "seedOffset": 1
+  },
+  "product-onboarding-video": {
+    "subject": "a smooth rounded playground slide with gentle curved rails"
+  },
+  "hide-notifications-while-recording": {
+    "subject": "a velvet rope barrier stretched between two brass stanchion posts"
+  },
+  "video-seo-for-product-pages": {
+    "subject": "a stack of round mixing bowls nested inside one another"
+  },
+  "nightly-demo-builds": {
+    "subject": "a wind-up alarm clock with two round brass bells",
+    "seedOffset": 2
+  },
+  "ai-documentation-tools": {
+    "subject": "a rounded toy shape-sorter box with three cutout holes",
+    "seedOffset": 1
   }
 }

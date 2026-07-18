@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video SEO for Product Pages: VideoObject Schema | aidemo</title>
+<meta name="description" content="VideoObject schema for product pages: the three properties Google requires, the copy-paste JSON-LD that nests it in Product, and Google’s video case-study data.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/video-seo-for-product-pages/">
+<link rel="alternate" type="text/markdown" href="/blog/video-seo-for-product-pages/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Video SEO for Product Pages: VideoObject Schema | aidemo">
+<meta property="og:description" content="VideoObject schema for product pages: the three properties Google requires, the copy-paste JSON-LD that nests it in Product, and Google’s video case-study data.">
+<meta property="og:url" content="https://aidemo.top/blog/video-seo-for-product-pages/">
+<meta property="og:image" content="https://aidemo.top/blog/images/video-seo-for-product-pages-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Video SEO for Product Pages: VideoObject Schema | aidemo">
+<meta name="twitter:description" content="VideoObject schema for product pages: the three properties Google requires, the copy-paste JSON-LD that nests it in Product, and Google’s video case-study data.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/video-seo-for-product-pages-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Video SEO for product pages: VideoObject schema, done right",
+  "description": "VideoObject schema for product pages: the three properties Google requires, the copy-paste JSON-LD that nests it in Product, and Google’s video case-study data.",
+  "image": [
+    "https://aidemo.top/blog/images/video-seo-for-product-pages-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/video-seo-for-product-pages/"
+  },
+  "wordCount": 1788,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Google Search Central — Video structured data (VideoObject)",
+      "url": "https://developers.google.com/search/docs/appearance/structured-data/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Search Central — Video SEO best practices (watch pages, thumbnails, contentUrl, sitemaps)",
+      "url": "https://developers.google.com/search/docs/appearance/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "schema.org — VideoObject",
+      "url": "https://schema.org/VideoObject"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Search Central — Product structured data",
+      "url": "https://developers.google.com/search/docs/appearance/structured-data/product"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Search Central — Vidio case study (VideoObject markup)",
+      "url": "https://developers.google.com/search/case-studies/vidio-case-study"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Search Central — MX Player case study (video structured data and sitemaps)",
+      "url": "https://developers.google.com/search/case-studies/mx-case-study"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Video SEO for product pages: VideoObject schema, done right",
+      "item": "https://aidemo.top/blog/video-seo-for-product-pages/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are the required properties for VideoObject schema?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Google requires exactly three: name, thumbnailUrl, and uploadDate. Everything else, including contentUrl, description, duration, and embedUrl, is recommended rather than required. In practice you should still add contentUrl and description, because contentUrl is what lets Google index the file and description is indexable copy. The uploadDate must be in ISO 8601 format with a timezone, and thumbnailUrl must point at a crawlable image at least 60x30 pixels."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a product page get a video rich result in Google Search?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not the way a dedicated video page can. Google treats a product page as a page where the video is secondary, not a \"watch page,\" so the markup will not turn the product listing itself into a video result. What VideoObject markup buys instead is eligibility for Google's video surfaces: Video mode, the video thumbnails that show among the main results, and Google Images or Discover. The product's own rich result stays about price, availability, and rating."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does video schema markup actually improve click-through rate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It can, but through eligibility, not magic. Google's own Vidio case study reports about 3x video impressions and close to 2x video clicks after adding VideoObject markup with a crawlable contentUrl, measured from Q1 2022 to Q1 2023, and MX Player saw organic traffic triple in six months from structured data plus video sitemaps. Markup makes a video eligible to appear; the file still has to be crawlable and the clip still has to be worth watching for the numbers to follow."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>Video SEO for product pages: VideoObject schema, done right</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">Video SEO for product pages: VideoObject schema, done right</h1>
+        <p class="article-dek">Google names three required VideoObject properties, not thirty. The copy-paste JSON-LD that nests a demo into Product schema, and what the markup really buys.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>6 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#your-product-page-is-not-a-watch-page">Your product page is not a watch page</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-three-properties-google-actually-requires">The three properties Google actually requires</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-videoobject-that-validates-then-nests-into-product">A VideoObject that validates, then nests into Product</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#contenturl-is-what-makes-the-video-indexable-not-the-embed">contentUrl is what makes the video indexable, not the embed</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#transcripts-and-captions-carry-the-words-search-can-read">Transcripts and captions carry the words search can read</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-the-markup-buys-in-googles-own-numbers">What the markup buys, in Google's own numbers</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/video-seo-for-product-pages-800.webp" srcset="/blog/images/video-seo-for-product-pages-400.webp 400w, /blog/images/video-seo-for-product-pages-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A stack of round mixing bowls of graduated sizes nested inside one another"><figcaption>A crawler can only carry out what the markup nests in plain sight; the demo has to sit inside the product’s data, not merely beside it.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Google requires only three VideoObject properties (name, thumbnailUrl, uploadDate) and recommends contentUrl, description, duration, and embedUrl; the rest is optional.</li>
+    <li>A product page is not a &quot;watch page,&quot; so VideoObject markup will not turn the product listing into a video result; it makes the clip eligible for Google’s video surfaces instead.</li>
+    <li>Link Product and VideoObject with subjectOf/about in a JSON-LD @graph; Product has no built-in video property, so mis-nesting is the common mistake.</li>
+    <li>contentUrl must point at a crawlable video file at a stable URL: Vidio’s VideoObject markup drove ~3x video impressions and ~2x clicks (Q1 2022 to Q1 2023).</li>
+    <li>MX Player added video structured data plus frequent video sitemaps and saw 3x organic traffic in 6 months; markup makes a video eligible, it does not guarantee ranking.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="your-product-page-is-not-a-watch-page">Your product page is not a watch page<a class="hanchor" href="#your-product-page-is-not-a-watch-page" aria-label="Link to section: Your product page is not a watch page">#</a></h2>
+<p>Search advice about video treats every embedded clip as if it were a YouTube page, and that is the mistake that wastes the markup. Google draws a hard line the guides skip. Its video documentation defines a watch page as one whose &quot;main purpose is to show users a single video,&quot; and says plainly that pages where the video is secondary, a blog post or a product page with an embedded demo, &quot;aren&#39;t watch pages, though they can still appear as text or image results&quot;<sup class="article-cite"><a href="#src-2" title="Google Search Central — Video SEO best practices (watch pages, thumbnails, contentUrl, sitemaps)">2</a></sup>. That single distinction rewrites the task. On a product page the product is the main content: the price, the offer, the rating. The demo is a supporting act. So the point of VideoObject markup on a product page is not to turn the product&#39;s listing into a video result, which Google will not do, but to make the clip itself findable in Google&#39;s dedicated video places while the product listing stays a product listing. Get that straight and the rest of the markup follows; get it wrong and you chase a video rich result the page was never eligible for. Everything below assumes that framing: the markup exists to feed the crawler, not to redecorate the page for a human who is already reading it. This is the structured-data corner of turning <a href="/blog/video-marketing-for-software/">one recording into every channel</a>.</p>
+<h2 id="the-three-properties-google-actually-requires">The three properties Google actually requires<a class="hanchor" href="#the-three-properties-google-actually-requires" aria-label="Link to section: The three properties Google actually requires">#</a></h2>
+<p>Most VideoObject snippets in the wild carry twenty properties because someone pasted a reference dump. Google requires three. Its structured-data guide lists exactly <code>name</code>, <code>thumbnailUrl</code>, and <code>uploadDate</code> as required, and marks everything else, including the ones people assume are mandatory, as recommended<sup class="article-cite"><a href="#src-1" title="Google Search Central — Video structured data (VideoObject)">1</a></sup>.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Google status</th>
+<th>Format</th>
+<th>Why it matters for a demo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>Required</td>
+<td>Text, unique per video</td>
+<td>The title Google shows; reuse it across clips and you compete with yourself</td>
+</tr>
+<tr>
+<td><code>thumbnailUrl</code></td>
+<td>Required</td>
+<td>Crawlable image URL, min 60x30 px</td>
+<td>The frame a searcher sees; a login screen or a spinner here costs the click</td>
+</tr>
+<tr>
+<td><code>uploadDate</code></td>
+<td>Required</td>
+<td>ISO 8601 with timezone</td>
+<td>A freshness signal; a stale date reads as a stale product</td>
+</tr>
+<tr>
+<td><code>contentUrl</code></td>
+<td>Recommended</td>
+<td>URL to the video file bytes</td>
+<td>The property that actually makes the video indexable, below</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Recommended</td>
+<td>Text, unique per video</td>
+<td>Indexable copy; write it for the query, not the file name</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Recommended</td>
+<td>ISO 8601, e.g. <code>PT1M30S</code></td>
+<td>Sets the length badge; a 90-second demo should say 90 seconds</td>
+</tr>
+<tr>
+<td><code>embedUrl</code></td>
+<td>Recommended</td>
+<td>URL of the player, not the page</td>
+<td>The iframe <code>src</code>, and distinct from <code>contentUrl</code></td>
+</tr>
+</tbody></table></div>
+<p>The two to never skip despite their &quot;recommended&quot; label are <code>contentUrl</code> and <code>description</code>, for reasons the next sections make concrete. And read the <code>thumbnailUrl</code> row twice: Google wants a crawlable image at least 60x30 pixels, larger preferred, at a stable URL, and the thumbnail is the single most visible thing about your clip in a results page, so the frame you choose is a decision, not a default.</p>
+<h2 id="a-videoobject-that-validates-then-nests-into-product">A VideoObject that validates, then nests into Product<a class="hanchor" href="#a-videoobject-that-validates-then-nests-into-product" aria-label="Link to section: A VideoObject that validates, then nests into Product">#</a></h2>
+<p>Here is a complete, valid VideoObject with every required property and the recommended ones worth carrying:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">{</span></span>
+<span class="line"><span style="color:#E45649">  "@context"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://schema.org"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "@type"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"VideoObject"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Acme Analytics: build a live dashboard in 90 seconds"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "description"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"A 90-second walkthrough of creating a shareable dashboard in Acme Analytics, from empty state to a public link."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "thumbnailUrl"</span><span style="color:#383A42">: [</span><span style="color:#50A14F">"https://acme.example/video/dashboard-poster-1280x720.jpg"</span><span style="color:#383A42">],</span></span>
+<span class="line"><span style="color:#E45649">  "uploadDate"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"2026-07-18T08:00:00-07:00"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "duration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"PT1M30S"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "contentUrl"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/video/dashboard-demo.mp4"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "embedUrl"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/player/dashboard-demo"</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
+<p>Now the part the guides get wrong. Product has no video property, and Google&#39;s Product structured-data documentation never mentions nesting a video inside it<sup class="article-cite"><a href="#src-4" title="Google Search Central — Product structured data">4</a></sup>. schema.org&#39;s actual answer is a pair of linking properties: a VideoObject is <code>about</code> the Product, and the Product has the video as its <code>subjectOf</code>. VideoObject inherits <code>about</code> from CreativeWork, and Product inherits <code>subjectOf</code> from Thing<sup class="article-cite"><a href="#src-3" title="schema.org — VideoObject">3</a></sup>. The clean way to express that is one <code>@graph</code> with two nodes cross-referenced by <code>@id</code>:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">{</span></span>
+<span class="line"><span style="color:#E45649">  "@context"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://schema.org"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">  "@graph"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">    {</span></span>
+<span class="line"><span style="color:#E45649">      "@type"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Product"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "@id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/analytics#product"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Acme Analytics"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "image"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/img/analytics-1200x1200.jpg"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "offers"</span><span style="color:#383A42">: {</span></span>
+<span class="line"><span style="color:#E45649">        "@type"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Offer"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">        "price"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"49.00"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">        "priceCurrency"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"USD"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">        "availability"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://schema.org/InStock"</span></span>
+<span class="line"><span style="color:#383A42">      },</span></span>
+<span class="line"><span style="color:#E45649">      "subjectOf"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"@id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/analytics#demo"</span><span style="color:#383A42"> }</span></span>
+<span class="line"><span style="color:#383A42">    },</span></span>
+<span class="line"><span style="color:#383A42">    {</span></span>
+<span class="line"><span style="color:#E45649">      "@type"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"VideoObject"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "@id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/analytics#demo"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Acme Analytics: build a live dashboard in 90 seconds"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "thumbnailUrl"</span><span style="color:#383A42">: [</span><span style="color:#50A14F">"https://acme.example/video/dashboard-poster-1280x720.jpg"</span><span style="color:#383A42">],</span></span>
+<span class="line"><span style="color:#E45649">      "uploadDate"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"2026-07-18T08:00:00-07:00"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "duration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"PT1M30S"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "contentUrl"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/video/dashboard-demo.mp4"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "embedUrl"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/player/dashboard-demo"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "about"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"@id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://acme.example/analytics#product"</span><span style="color:#383A42"> }</span></span>
+<span class="line"><span style="color:#383A42">    }</span></span>
+<span class="line"><span style="color:#383A42">  ]</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
+<p>The common failures are inventing a <code>video</code> property on Product, or dropping the VideoObject somewhere a parser cannot associate it with anything. Link the two nodes explicitly and both stay valid on their own.</p>
+<h2 id="contenturl-is-what-makes-the-video-indexable-not-the-embed">contentUrl is what makes the video indexable, not the embed<a class="hanchor" href="#contenturl-is-what-makes-the-video-indexable-not-the-embed" aria-label="Link to section: contentUrl is what makes the video indexable, not the embed">#</a></h2>
+<p>The property that does the heavy lifting is <code>contentUrl</code>. Google&#39;s best-practices doc is blunt that it can only index a video whose file it can fetch: the video has to be reachable through a standard <code>&lt;video&gt;</code>, <code>&lt;iframe&gt;</code>, <code>&lt;embed&gt;</code>, or <code>&lt;object&gt;</code> element, in a supported format, at a stable URL, with the bytes crawlable rather than gated behind a click or a login<sup class="article-cite"><a href="#src-2" title="Google Search Central — Video SEO best practices (watch pages, thumbnails, contentUrl, sitemaps)">2</a></sup>. <code>embedUrl</code> points at your player; <code>contentUrl</code> points at the actual file, and it is the file Google indexes. This is not theory. In Google&#39;s own case study, Vidio added VideoObject markup with <code>contentUrl</code> and stable, crawlable file URLs, validated it with Search Console&#39;s video report, and between Q1 2022 and Q1 2023 saw video impressions rise about 3x and video clicks close to 2x on Search<sup class="article-cite"><a href="#src-5" title="Google Search Central — Vidio case study (VideoObject markup)">5</a></sup>. The lesson is not the size of the number, it is the cause: they made the file reachable. If your demo is a YouTube embed, <code>contentUrl</code> is Google&#39;s and you inherit its indexing; if you self-host, <code>contentUrl</code> is yours to keep stable, which is one more reason <a href="/blog/embed-video-on-website/">how you host the file is its own decision</a>.</p>
+<h2 id="transcripts-and-captions-carry-the-words-search-can-read">Transcripts and captions carry the words search can read<a class="hanchor" href="#transcripts-and-captions-carry-the-words-search-can-read" aria-label="Link to section: Transcripts and captions carry the words search can read">#</a></h2>
+<p>A video is opaque to a text index; the pixels say nothing a crawler can read. schema.org gives VideoObject a <code>transcript</code> property, the plain text of what is said, and a <code>caption</code> property, the timed track, both distinct from the visual content<sup class="article-cite"><a href="#src-3" title="schema.org — VideoObject">3</a></sup>. The transcript is the one that feeds search: it is indexable copy that spells out every feature name and step the narration mentions, in the words a searcher would actually type. Captions do the accessibility job and the muted-autoplay job, which is <a href="/blog/demo-video-captions/">a discipline of its own</a>, and because the caption text and the transcript are the same script the voice read, you produce both from one narration pass instead of two transcription passes. For a product demo whose whole pitch is spoken, publishing the transcript is the cheapest indexable-content win the page has. Upload your own rather than trusting auto-generation, for the same reason it pays off <a href="/blog/youtube-marketing-for-dev-tools/">on a developer YouTube channel</a>: speech recognition cannot spell your product&#39;s names.</p>
+<h2 id="what-the-markup-buys-in-googles-own-numbers">What the markup buys, in Google&#39;s own numbers<a class="hanchor" href="#what-the-markup-buys-in-googles-own-numbers" aria-label="Link to section: What the markup buys, in Google's own numbers">#</a></h2>
+<p>Markup makes a video eligible to appear; it does not rank it. Both of Google&#39;s video case studies did two things at once, and neither got its result from JSON-LD alone. Vidio&#39;s gains came with a crawlable <code>contentUrl</code>. MX Player paired video structured data with frequently submitted video sitemaps and saw organic traffic triple over six months, with video page views per session doubling from Search<sup class="article-cite"><a href="#src-6" title="Google Search Central — MX Player case study (video structured data and sitemaps)">6</a></sup>. Correct markup plus a reachable file plus a sitemap; the schema is one leg of the tripod, not the whole thing. A video sitemap is not optional decoration here: it is how a crawler that will not run your player still learns the file exists, which is why MX Player leaned on frequent submissions rather than markup alone. And the product-page caveat from the top returns as the honest ceiling: because a product page is not a watch page, the payoff is eligibility in Video mode, the video thumbnails that appear among the main results, and Google Images or Discover, not a video result bolted onto the product&#39;s own listing. The last thing worth budgeting is drift. A VideoObject that names a duration, a thumbnail, and a transcript is a set of promises about a file, and every one of them goes stale when the UI in the clip changes. aidemo, the open-source engine this blog belongs to, re-renders the demo from a committed spec and can emit the <code>contentUrl</code>, <code>thumbnailUrl</code>, <code>duration</code>, and transcript on every build, so the markup keeps describing a UI that still exists; its honest limits are that it captures inside a browser only, an agent writes the storyboard instead of a person on a timeline, and there is no visual editor. The markup is worth exactly what the video behind it is worth, kept current.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developers.google.com/search/docs/appearance/structured-data/video" rel="noopener">Google Search Central — Video structured data (VideoObject)</a></li>
+<li id="src-2"><a href="https://developers.google.com/search/docs/appearance/video" rel="noopener">Google Search Central — Video SEO best practices (watch pages, thumbnails, contentUrl, sitemaps)</a></li>
+<li id="src-3"><a href="https://schema.org/VideoObject" rel="noopener">schema.org — VideoObject</a></li>
+<li id="src-4"><a href="https://developers.google.com/search/docs/appearance/structured-data/product" rel="noopener">Google Search Central — Product structured data</a></li>
+<li id="src-5"><a href="https://developers.google.com/search/case-studies/vidio-case-study" rel="noopener">Google Search Central — Vidio case study (VideoObject markup)</a></li>
+<li id="src-6"><a href="https://developers.google.com/search/case-studies/mx-case-study" rel="noopener">Google Search Central — MX Player case study (video structured data and sitemaps)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-are-the-required-properties-for-videoobject-schema" class="blog-faq-q">What are the required properties for VideoObject schema?<a class="hanchor" href="#what-are-the-required-properties-for-videoobject-schema" aria-label="Link to section: What are the required properties for VideoObject schema?">#</a></h3>
+<p>Google requires exactly three: <code>name</code>, <code>thumbnailUrl</code>, and <code>uploadDate</code>. Everything else, including <code>contentUrl</code>, <code>description</code>, <code>duration</code>, and <code>embedUrl</code>, is recommended rather than required. In practice you should still add <code>contentUrl</code> and <code>description</code>, because <code>contentUrl</code> is what lets Google index the file and <code>description</code> is indexable copy. The <code>uploadDate</code> must be in ISO 8601 format with a timezone, and <code>thumbnailUrl</code> must point at a crawlable image at least 60x30 pixels.</p>
+<h3 id="can-a-product-page-get-a-video-rich-result-in-google-search" class="blog-faq-q">Can a product page get a video rich result in Google Search?<a class="hanchor" href="#can-a-product-page-get-a-video-rich-result-in-google-search" aria-label="Link to section: Can a product page get a video rich result in Google Search?">#</a></h3>
+<p>Not the way a dedicated video page can. Google treats a product page as a page where the video is secondary, not a &quot;watch page,&quot; so the markup will not turn the product listing itself into a video result. What VideoObject markup buys instead is eligibility for Google&#39;s video surfaces: Video mode, the video thumbnails that show among the main results, and Google Images or Discover. The product&#39;s own rich result stays about price, availability, and rating.</p>
+<h3 id="does-video-schema-markup-actually-improve-click-through-rate" class="blog-faq-q">Does video schema markup actually improve click-through rate?<a class="hanchor" href="#does-video-schema-markup-actually-improve-click-through-rate" aria-label="Link to section: Does video schema markup actually improve click-through rate?">#</a></h3>
+<p>It can, but through eligibility, not magic. Google&#39;s own Vidio case study reports about 3x video impressions and close to 2x video clicks after adding VideoObject markup with a crawlable <code>contentUrl</code>, measured from Q1 2022 to Q1 2023, and MX Player saw organic traffic triple in six months from structured data plus video sitemaps. Markup makes a video eligible to appear; the file still has to be crawlable and the clip still has to be worth watching for the numbers to follow.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">video seo</span>
+        <span class="article-tag">structured data</span>
+        <span class="article-tag">schema markup</span>
+        <span class="article-tag">videoobject</span>
+        <span class="article-tag">product pages</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-on-landing-page/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-on-landing-page-400.webp" srcset="/blog/images/demo-video-on-landing-page-400.webp 400w, /blog/images/demo-video-on-landing-page-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A paper airplane caught in mid-glide, nose tilted slightly upward"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Putting a demo video on your landing page without wrecking load time</h3>
+    <p class="article-card-excerpt">A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/does-video-increase-conversion/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/does-video-increase-conversion-400.webp" srcset="/blog/images/does-video-increase-conversion-400.webp 400w, /blog/images/does-video-increase-conversion-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A brass-style balance scale tipped to one side, one shallow pan hanging lower than the other"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Does video actually increase conversion? Tracing the 80% claim</h3>
+    <p class="article-card-excerpt">The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#your-product-page-is-not-a-watch-page">Your product page is not a watch page</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-three-properties-google-actually-requires">The three properties Google actually requires</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-videoobject-that-validates-then-nests-into-product">A VideoObject that validates, then nests into Product</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#contenturl-is-what-makes-the-video-indexable-not-the-embed">contentUrl is what makes the video indexable, not the embed</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#transcripts-and-captions-carry-the-words-search-can-read">Transcripts and captions carry the words search can read</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-the-markup-buys-in-googles-own-numbers">What the markup buys, in Google's own numbers</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

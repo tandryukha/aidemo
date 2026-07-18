@@ -96,6 +96,97 @@ No. An interactive demo, or tour, is a clickable HTML embed a viewer navigates t
 
 ---
 
+# AI documentation tools mapped: Guidde, Scribe, Clueso, Supademo
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/ai-documentation-tools/
+
+> Five AI documentation tools get sold as one category. They split into text step guides, narrated video, and click-throughs, and each rots differently.
+
+## One keyword, three kinds of artifact you can hand a reader
+
+Search "AI documentation tool" and the first page returns five products that get compared in the same listicles and priced against each other in the same tables: Scribe, Tango, Guidde, Clueso, Supademo. They all begin the same way, you perform a flow once and software writes it up, so the roundups treat them as interchangeable. They are not. The thing you can hand a reader at the end is a different object in each case, and buying on brand or star rating gets you the wrong object for the job.
+
+Three artifacts come out the far end. Scribe and Tango produce a **text guide**: numbered steps, each a sentence plus a screenshot, that reads like a printed SOP. Guidde and Clueso produce a **narrated video**: a captured take, auto-zoomed, with an AI voiceover, exported as an MP4. Supademo produces an **interactive click-through**: a clickable replica a reader drives themselves. A page that ranks a video tool above a step-guide tool is comparing a documentary against a printout. The useful question is not which is best but which of the three you are trying to publish.
+
+That framing, what comes out and not which logo, is the same lens the [pillar map of AI demo video generators](/blog/ai-demo-video-generators) applies to the video-only side of the market. This piece extends it to the documentation tools that also emit text and interactive output, and adds the two axes that decide the real bill: how much you can fix after the capture, and what happens when the product moves.
+
+## Sorting the five by what the capture turns into
+
+Every tool here captures the same raw event, your clicks through a real flow, then diverges on what it renders. Line them up by output and the cluster stops being a pile.
+
+| Tool | Family | What you publish | AI voiceover | Free tier | Paid floor |
+|---|---|---|---|---|---|
+| Scribe | Capture-to-text | Step guide (screenshots + text) | No (share-as-video only) | Basic, free | Pro Personal $25/mo yearly |
+| Tango | Capture-to-text | Step guide (screenshots + text) | No (video embeds only) | Free, up to 5 guides | Pro Team $15/user/mo |
+| Guidde | Capture-to-video | Narrated MP4 (+ PDF, GIF) | Text-to-voice on Business | 25 videos, watermarked | Pro $19/creator/mo yearly |
+| Clueso | Capture-to-video | Narrated MP4 + step doc | Studio-grade AI voiceover | 7-day trial | Starter $120/mo yearly |
+| Supademo | Interactive | Clickable HTML embed (+ MP4) | Growth tier and up | 5 interactive demos | Scale $50/mo |
+
+All prices checked against each vendor's own pricing page in July 2026. Scribe calls its product "documentation that writes itself" ([Scribe, July 2026](https://scribe.com/pricing)); Tango captures browser clicks into "step-by-step guides with screenshots and text" and, in its own words, "does not generate video recordings" ([Tango, July 2026](https://www.tango.ai/pricing)). Guidde is the opposite pole, pitched to "turn any workflow into professional video documentation," with a Magic Capture step that auto-generates the take and over 200 voices for text-to-voice narration on its Business plan ([Guidde, July 2026](https://www.guidde.com/pricing)). Clueso turns a screen recording into "studio-grade AI voiceovers," automatic zooms, and a matching step-by-step doc from a $120/month Starter plan ([Clueso, July 2026](https://www.clueso.io/pricing)). Supademo is the interactive entry, describing itself as "not a screen recorder or a video-only tool," so the primary artifact is a clickable demo, with AI voiceover that narrates "without recording audio manually" ([Supademo, July 2026](https://supademo.com/features/ai-voiceover)).
+
+Notice the diagonal. Clueso and Scribe both emit a step doc; Supademo and Guidde both export an MP4. Their center of gravity still differs, and that center is what you should buy on. An MP4 out of Supademo flattens the interactivity you paid for, and a step doc out of Clueso is a byproduct of a video pipeline. [Whether the reader wants to watch or to click](/blog/interactive-demo-vs-video-demo) is the single decision that separates the interactive family from the other two.
+
+## Edit-after-record: what each tool lets you fix without re-capturing
+
+The axis the listicles skip is the one you feel every week: after the capture, how much can you change without walking the flow again. It varies enormously across the three families, and it is the difference between a two-minute fix and a re-shoot.
+
+Text step guides win this axis outright. Because each step is an independent screenshot plus an editable line of text, you can rewrite a caption, re-order steps, crop a shot, or blur a field without disturbing the rest. That last one matters more than it sounds, because these tools document internal software full of real records, so redaction is a first-class feature rather than an afterthought. Scribe offers manual redaction from Pro Personal, assisted redaction on Pro Team, and enforced automatic PII and PHI redaction on Enterprise ([Scribe, July 2026](https://scribe.com/pricing)); Tango adds a "secure blur" with automatic PII detection on its Enterprise tier and manual screenshot blurring on Pro ([Tango, July 2026](https://www.tango.ai/pricing)). Pulling a credit-card field out of a finished video is nowhere near as clean.
+
+The video family sits in the middle. You edit the script and regenerate the voiceover, Guidde's Magic Capture drafts the narration for you and Clueso strips filler words and re-voices on demand, and you can usually re-record a single step. But the pixels are baked footage. Fixing what is on screen means re-capturing that segment, because the frames are a recording, not a document. The interactive family lands closer to the text end: you edit hotspots, callouts, and steps over a captured snapshot, so structural edits stay cheap while the underlying screenshots keep aging.
+
+## When the UI moves: which family goes quietly wrong
+
+Editability is the daily cost. Staleness is the one that closes documentation programs, and each family rots differently, which is the part a generic comparison never models.
+
+A text step guide rots **granularly and silently**. One screenshot in step four shows a button that has moved while the surrounding text still reads correctly, so the guide looks fine at a glance and misleads only the reader who reaches that step. No alert fires. A narrated video rots **wholesale**: the take froze the interface at export, so a single redesign falsifies the footage from front to back, with no partial patch short of re-recording. An interactive click-through **drifts**: the captured DOM ages until someone re-captures it, and the reader clicking a phantom control is the first to find out. The [rot-rate arithmetic behind all three](/blog/why-product-demos-go-stale) is the same; the warning you get when it fires is not.
+
+Only one mechanism escapes that pattern, and it is not among the five above.
+
+## Where an agent-authored render fits
+
+There is a fourth mechanism the documentation-tool roundups rarely list, because it is not a record-then-edit product at all. Instead of performing the flow, a coding agent writes it down as a storyboard, the browser actions, the selectors, and the narration, and a deterministic engine replays that spec in a real browser to render the video, then re-renders it every time the spec runs. Our own engine, aidemo, is an open-source (MIT) instance of the pattern, disclosed here as ours. The tool is beside the point; the property that matters is that when the artifact is a committed spec rather than a hand-captured take, "the product changed" and "the documentation changed" become the same commit, which is the only maintenance model that survives a fast ship cadence, the same conclusion the [tutorial-library-at-scale math](/blog/keeping-tutorial-libraries-current) reaches from the cost side.
+
+The honest limits are the mirror image of what the capture tools do well. aidemo captures inside a browser and nothing outside it, so a native desktop app or a phone screen is off the table where Scribe and Tango record both without complaint. The storyboard is authored by an agent and edited as text, not assembled on a drag-and-drop timeline, so there is no visual canvas to nudge a clip on. And it emits a video, not the searchable step doc a text tool hands you for free. You trade the capture families' immediacy for a document you can diff and regenerate. The [Camtasia-alternatives map sorts the same record-versus-regenerate trade](/blog/camtasia-alternatives) by who does the editing.
+
+## Match the family to the documentation you're actually writing
+
+Pick by the single thing about your documentation that will not bend, and take the first row that fits.
+
+| Your documentation is... | Reach for | Why |
+|---|---|---|
+| An internal SOP with sensitive data on screen | Text step guide (Scribe, Tango) | Searchable, editable per step, and it redacts PII before publish |
+| A customer how-to that benefits from narration | Capture-to-video (Guidde, Clueso) | AI voiceover and auto-zoom on a produced clip, no editing skill required |
+| A self-serve walkthrough a prospect drives | Interactive (Supademo) | A clickable replica converts hands-on evaluators better than a passive clip |
+| A video of a web product that must stay current | Agent-authored render (aidemo, ours) | Re-renders from a spec, so CI can rebuild it on the commit that moved the UI |
+
+Two closes worth stating plainly. First, the sensitive-data row is where the text tools genuinely lead: an auto-redacting step guide is a category the video and interactive tools do not really contest, which is why Scribe and Tango own internal-ops documentation. Second, "which is best" is the wrong question for a shelf that holds three different machines. Decide what you are handing the reader, a document to skim, a clip to watch, or a demo to click, then decide how much you will pay to keep it honest, and the five sort themselves. The wider [case for when video earns its keep in docs versus staying text](/blog/video-documentation) is the map above this one.
+
+## Sources
+
+- [Scribe — pricing and features](https://scribe.com/pricing)
+- [Tango — pricing and features](https://www.tango.ai/pricing)
+- [Guidde — pricing](https://www.guidde.com/pricing)
+- [Clueso — pricing](https://www.clueso.io/pricing)
+- [Supademo — pricing](https://supademo.com/pricing)
+- [Supademo — AI voiceover](https://supademo.com/features/ai-voiceover)
+- [aidemo — GitHub repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### What is the difference between Scribe and Guidde?
+
+Scribe produces a text step guide, numbered steps that pair a screenshot with a line of text, and never renders a video; its own tagline is "documentation that writes itself." Guidde captures the same kind of flow but renders a narrated MP4 with AI voiceover and auto-generated steps. Reach for Scribe when the reader will skim or search a written SOP, and Guidde when a customer benefits from watching the flow narrated. They are not tiers of one product; they output different files.
+
+### Do AI documentation tools keep documentation up to date automatically?
+
+Mostly no. Scribe, Tango, Guidde, Clueso, and Supademo each capture a snapshot of the UI at record time and hold it until a human re-captures, so none re-runs itself when the product ships and the guide goes stale on its own. The exception is the agent-authored family, where the documentation is a committed spec a machine can re-render on the same commit that changed the interface. If "stays current without a human" is a hard requirement, that is the only mechanism that delivers it.
+
+### Which AI documentation tool works for internal SOPs with sensitive data?
+
+A capture-to-text tool with redaction, which in practice means Scribe or Tango. Both let you blur fields by hand, and both offer automatic PII detection on their Enterprise tiers, Scribe as enforced PII and PHI redaction, Tango as "secure blur." Because the output is a screenshot-plus-text document, you can also search it, edit one step in isolation, and keep it behind your own auth. The video and interactive tools cannot redact baked footage nearly as cleanly, so they are a poor fit for screens full of real customer data.
+
+---
+
 # AI voiceover for demo videos: quality, cost, and workflow
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/ai-voiceover-for-demo-videos/
@@ -2487,6 +2578,94 @@ OBS Studio and the free Camtasia editor have no per-clip time cap: OBS records f
 
 ---
 
+# Hide notifications while screen recording, on every OS
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/hide-notifications-while-recording/
+
+> A toast doesn't live in your window; the OS paints it on top. Do Not Disturb on every OS, why it still leaks, and where a notification can't fire.
+
+## A notification is painted on top of your recording, not inside it
+
+An operating-system notification is not part of any window. The compositor draws it in its own layer above everything on screen, at the moment the sending app decides, which is why one can slide into a recording that has nothing to do with the app that sent it. A full-screen or full-window capture films the whole compositor output, banner and all. MDN describes the web version of the same object exactly: a notification is "rendered by the operating system's native notification system" and sits "outside the top-level browsing context viewport," so it "can be shown even when the user has switched tabs or moved to a different app" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API)). Read that as the general rule. The notification layer is above whatever you are recording, so there are only two honest defenses: stop the notifications from firing, or record a surface the layer cannot reach.
+
+That splits the job in two, and most guides stop after the first half. Move one is telling the OS to hold notifications with Do Not Disturb. Move two, for any recording that must never leak a customer name or an unshipped feature, is recording where a toast has nowhere to land. This is the notifications half of [the capture-quality checklist](/blog/how-to-record-your-screen-in-high-quality), which lists a leaked toast among the few mistakes no filter fixes after the fact, because it is baked into the pixels the instant it appears.
+
+## Do Not Disturb on macOS, Windows, and Linux, in one table
+
+Every desktop OS ships the same primitive under a different name and a different switch. Here is where each one lives, with the single non-obvious detail per platform.
+
+| OS | Where the switch is | The detail worth knowing |
+|---|---|---|
+| macOS (Do Not Disturb Focus) | Control Center, click the Focus section, then Do Not Disturb ([Apple Support, 2026](https://support.apple.com/guide/mac-help/turn-a-focus-on-or-off-mchl999b7c1a/mac)) | Fastest path is "pressing and holding the Option key while you click the date and time in the menu bar" |
+| Windows 11 | Notification center, the bell icon marked zZ ([Microsoft Support, 2026](https://support.microsoft.com/en-us/windows/change-notification-settings-in-windows-8942c744-6198-fe56-4639-34320cf9444e)) | It can turn on automatically "When duplicating the display" — exactly the present-and-record case |
+| Linux (GNOME) | Open the notification list, switch Do Not Disturb on at the bottom ([GNOME, 2026](https://help.gnome.org/users/gnome-help/stable/shell-notifications.html.en)) | No record-aware trigger; it is a manual toggle you flip each session |
+
+The Windows automatic trigger is the one actually worth configuring. Windows 11 will enable Do Not Disturb on its own "When duplicating the display," "When playing a game," or "When using an app in full-screen mode," so a presentation or a full-screen capture goes quiet without you remembering ([Microsoft Support, 2026](https://support.microsoft.com/en-us/windows/change-notification-settings-in-windows-8942c744-6198-fe56-4639-34320cf9444e)). macOS supports schedules but has no built-in "while recording" rule, and GNOME has neither. On those two, your muscle memory is the trigger, which is exactly the trigger that fails on the take that matters.
+
+## What Do Not Disturb still lets through
+
+Here is the fact the one-line guides skip: Do Not Disturb is a policy filter, not a hard mute. Every OS ships deliberate exceptions, and each one is a hole a demo can fall through.
+
+| OS | What still pops while Do Not Disturb is on |
+|---|---|
+| macOS | Time-sensitive notifications, plus any Allowed People and Allowed Apps you configured, and phone calls ([Apple Support, 2026](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)) |
+| Windows 11 | Priority notifications — incoming calls, reminders, and allowlisted apps — plus alarms ([Microsoft Support, 2026](https://support.microsoft.com/en-us/windows/change-notification-settings-in-windows-8942c744-6198-fe56-4639-34320cf9444e)) |
+| GNOME | "only very important notifications, such as when your battery is critically low, will pop up" ([GNOME, 2026](https://help.gnome.org/users/gnome-help/stable/shell-notifications.html.en)) |
+
+The macOS row is the trap. Apple frames a Focus as the place where "you can specify which notifications are shown when a Focus is active — for example, notifications from certain people and apps, time-sensitive notifications, or notifications for phone calls" ([Apple Support, 2026](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)). Time-sensitive delivery is opt-out per app rather than off by default, so a messaging or calendar app you never explicitly allowed can still break through the quiet. Do Not Disturb narrows the odds sharply; it does not take them to zero. For an internal clip that is plenty. For a recording that ships, plan for the carve-outs instead of trusting the toggle.
+
+## The second notification surface hiding in your browser
+
+Silence the OS and a browser recording still has its own emitter: every site you ever granted notification permission. A web notification travels through "the operating system's native notification system," the same layer Do Not Disturb governs, but it originates from a site rather than an app, and an "Allow" you clicked months ago for webmail, a chat app, or a calendar is still armed ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API)). Because those route through the OS, OS Do Not Disturb does suppress them — yet the durable fix is a browser profile where the permission was never granted, so nothing is even queued to fire. This is one more reason [scoping the capture to a single browser tab](/blog/record-a-browser-tab) earns its keep: the OS toast layer is drawn above the tab and cannot render inside it, and a clean profile has no armed permissions sitting behind it.
+
+## Record where nothing can fire: the isolation ladder
+
+For a recording that genuinely cannot leak, climb from "ask the OS to hold notifications" to "record somewhere no notification exists." Four rungs, each removing an emitter instead of silencing one:
+
+1. **Do Not Disturb.** The OS holds most toasts, subject to the carve-outs above. Free, instant, imperfect.
+2. **A clean recording profile.** A fresh browser profile or user account with nothing logged in, no extensions, and notification permission denied. Nothing is armed, so nothing fires. This is the [capture-hygiene step a produced recording performs anyway](/blog/professional-screen-recordings).
+3. **A scoped surface.** Record one browser tab or one window, so the OS notification layer draws outside the frame entirely.
+4. **A headless environment.** A browser rendered with no desktop session has no notification daemon running at all, so a toast is not suppressed, it is impossible. This is [the display-less setup used to render demos on a CI runner](/blog/headless-screen-recording).
+
+Our own engine, aidemo, sits on that top rung: an agent-authored storyboard steers a real Chrome tab, headless on a runner, so no notification daemon is even alive to interrupt the take. The honest limits are familiar ones. aidemo captures a browser tab only, never a native desktop app; the demo is specified in a storyboard you edit as code, not on a drag-and-drop timeline; and for a one-off clip, switching on Do Not Disturb beats wiring up a whole pipeline.
+
+## Match the isolation to the stakes
+
+You do not need a headless runner to record a note for a teammate, and Do Not Disturb is not enough for an asset that ships forever. Pick the rung by what a leak would cost.
+
+| The recording | Cost of a leaked toast | The rung that fits |
+|---|---|---|
+| An internal clip for one teammate | A moment of mild embarrassment | Do Not Disturb |
+| A conference talk or live webinar | A whole audience reads your DMs | Do Not Disturb plus a clean profile |
+| A landing-page or launch video | A real customer name ships forever | Clean profile plus a scoped tab |
+| An app-store preview or CI-rendered demo | A leak in an asset that re-renders unattended | Headless, with no notification layer at all |
+
+The pattern down that column is that the stakes track how far the recording travels and how hard a reshoot would be. A live take you can redo the next morning; an asset that regenerates on every commit has to be leak-proof by construction, because nobody is watching the render. That is why the top rung stops being paranoia and becomes the default: the further a recording gets from the person who made it, the less it can depend on someone remembering to flip a switch.
+
+## Sources
+
+- [Apple Support — Turn a Focus on or off on Mac](https://support.apple.com/guide/mac-help/turn-a-focus-on-or-off-mchl999b7c1a/mac)
+- [Apple Support — Set up a Focus to stay on task on Mac](https://support.apple.com/guide/mac-help/set-up-a-focus-to-stay-on-task-mchl613dc43f/mac)
+- [Microsoft Support — Change notification settings in Windows](https://support.microsoft.com/en-us/windows/change-notification-settings-in-windows-8942c744-6198-fe56-4639-34320cf9444e)
+- [GNOME Help — Hide notifications](https://help.gnome.org/users/gnome-help/stable/shell-notifications.html.en)
+- [MDN — Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API)
+
+## FAQ
+
+### How do I turn off notifications before recording on Mac, Windows, and Linux?
+
+On a Mac, hold the Option key and click the date and time in the menu bar to toggle Do Not Disturb, or open Control Center and click the Focus section. On Windows 11, open the notification center and click the bell icon marked zZ. On GNOME Linux, open the notification list and switch Do Not Disturb on at the bottom. For a recording you make often, set Windows to enable Do Not Disturb automatically when you duplicate your display, so it never depends on memory.
+
+### Does Do Not Disturb hide every notification?
+
+No. It is a policy filter with deliberate exceptions, so some alerts still appear. macOS still shows time-sensitive notifications and any people or apps you allowed; Windows still shows priority notifications such as incoming calls and reminders, plus alarms; GNOME still shows critical alerts like a low battery. For a recording that ships publicly, back Do Not Disturb up with a clean profile so nothing is armed to break through in the first place.
+
+### Will website push notifications still appear when Do Not Disturb is on?
+
+Web push notifications are rendered by the operating system's native notification system, so OS Do Not Disturb suppresses them the same way it suppresses app toasts. The catch is that any site you once granted permission to stays armed, so the safer move for a demo is to record in a browser profile where notification permission was never granted, which leaves nothing queued to fire at all.
+
+---
+
 # How long should a demo video be? The retention math
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/how-long-should-a-demo-video-be/
@@ -3167,6 +3346,97 @@ As of July 2026, OpenAI's speech models take text in 99 languages though the voi
 
 ---
 
+# Nightly demo builds: re-render the demo while you sleep
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/nightly-demo-builds/
+
+> Compilers rebuild themselves overnight so breakage lands in a log, not a release. Point the habit at your demo and it quits quietly lying about the product.
+
+## The daily build, pointed at a demo instead of a binary
+
+Compiler teams solved this problem thirty years ago and named the fix after the clock. A nightly build takes whatever code is in the tree and rebuilds the whole thing overnight, so any breakage introduced during the day is sitting in a log the next morning instead of hiding until release. Joel Spolsky made the case in 2001: run the build on a schedule, keep every one in an archive, and when a strange bug appears you can binary-search the history to find the day it entered ([Spolsky, 2001](https://www.joelonsoftware.com/2001/01/27/daily-builds-are-your-friend/)). Browser vendors turned the same habit into a shipping channel. Chrome Canary "is released daily" ([Chrome for Developers, accessed July 2026](https://developer.chrome.com/docs/web-platform/chrome-release-channels)); Firefox Nightly "will update approximately once or twice a day" and exists as an unstable platform for surfacing problems in the newest code ([Mozilla, accessed July 2026](https://www.firefox.com/en-US/channel/desktop/)). All three do one thing: rebuild the artifact against the current world on a fixed cadence, and let the schedule, not a person's memory, be what never forgets.
+
+A product demo is exactly the kind of artifact that benefits, because it depends on something it does not own. The video froze one state of a UI that keeps moving, which is [why every product demo drifts out of date](/blog/why-product-demos-go-stale) whether or not anyone touches the file. A nightly demo build applies the compiler reflex: a scheduled job re-runs the recording against the live app every night, so the morning after a change lands you either have a fresh, correct demo or a red build telling you the old one has become a lie. It only works if the demo is a spec you can [regenerate from source instead of re-recording by hand](/blog/automated-product-demo-videos) — a captured performance cannot rebuild itself, but a committed storyboard can.
+
+## What a nightly catches that an on-merge render can't
+
+The obvious trigger is on-merge: filter a workflow to your UI source and re-render the moment a relevant file lands, which catches code-driven drift at the lowest possible latency. That wiring — the runner, ffmpeg, the path filter, and where the finished file goes — is a job of its own, covered in [rendering demo videos in CI](/blog/demo-videos-in-ci). But a path filter only sees your repository, and a demo leans on more than your repository. Whole classes of drift never touch a file you would think to filter on:
+
+- A third-party widget you embed (a chat launcher, a payment form, a map) restyles itself on the vendor's deploy, not yours.
+- A dependency bump moves a component's padding or default variant, and the change rides in through the lockfile, not through anything you edited.
+- The seed data behind the demo changes shape, so a table that had three rows now has none, or a chart flattens to a single bar.
+- A feature flag flips on its own timer, hiding or revealing the exact button the cursor is about to click.
+- An external API changes a field the UI renders, and the screen the demo depends on now shows an error state.
+
+None of these arrive as a diff in `src/`, so an on-merge trigger stays silent while the demo quietly goes wrong. A wall-clock rebuild is the only trigger that sees them, which is why compiler teams kept the nightly even after per-commit CI existed: the nightly is the integration check, the per-commit run is the unit check. Turning that render into a pass-or-fail verdict rather than a fresh file nobody looks at is its own discipline, laid out in [detecting UI drift](/blog/detecting-ui-drift).
+
+## The cron line, and the two ways GitHub silently stops it
+
+The scheduling itself is one block. GitHub Actions reads standard cron, in UTC by default, so a nightly at 3:17 a.m. is:
+
+```yaml
+on:
+  schedule:
+    - cron: "17 3 * * *"   # 03:17 UTC, every night
+  workflow_dispatch:        # plus a manual button
+```
+
+The odd minute is deliberate. GitHub warns that the schedule event is delayed when workflow load is high and flags the top of every hour as the busiest window, so a job pinned to `0 3 * * *` queues behind everything else that chose the round number ([GitHub Docs, accessed July 2026](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)). A nightly does not need to be punctual, but it should not wait behind the whole platform either.
+
+Two failure modes are specific to a job meant to run for months unattended, and both are silent. The first is that same delay: a nightly that "did not run" often did run, late, and you checked before it landed. The second is worse. In a public repository, GitHub automatically disables a scheduled workflow after 60 days with no repository activity ([GitHub Docs, accessed July 2026](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)) — so the nightly on your stable, finished side project switches off right when the product is most likely to shift under it without you watching. A nightly you cannot trust to run is worse than none, so give the workflow a heartbeat: have it post to a channel on success, not only on failure, so a silent stop becomes its own alarm.
+
+## Green is not the same as correct: what a nightly does with a diff
+
+A nightly that re-renders and publishes unconditionally has only swapped yesterday's stale demo for today's unreviewed one. The value is entirely in what the job does with the difference it finds, and the right move depends on how much judgment that difference demands. Two facts decide it: whether the change is ambiguous (a broken selector is not; a shifted gradient is) and how public the asset is (a landing-page hero versus a GIF in an internal runbook). That yields four exits.
+
+| What the nightly found | Ambiguous? | Right exit | Fits |
+|---|---|---|---|
+| A storyboard selector no longer resolves | No — the flow is broken | Fail the build red | Every demo |
+| Pixels moved past threshold, flow still runs | Yes — needs an eye | Open a PR with the new render | Public, marketing, sales assets |
+| Pixels moved, the asset is low-stakes | No — newest wins | Auto-commit and publish | README GIF, internal docs |
+| Nothing changed | No | Do nothing (but log the heartbeat) | All |
+
+The first two rows carry the whole idea: an assertion failure is a fact, a pixel diff is an opinion. A selector that no longer resolves means the cursor lands on empty space and the voiceover narrates a click that never happens, so the build should go red and block with no human vote required. A pixel difference means something merely looks different, which could be an intended redesign or could be breakage, so the honest response is a pull request that puts the new cut in front of a person rather than a bot overwriting the live asset on a guess. Producing that pixel signal cleanly, without paging you over anti-aliasing, is a tuning problem mapped in [the visual-regression tools compared by diff engine](/blog/visual-regression-testing-tools); the nightly's job is only to decide what each verdict is allowed to do.
+
+## The arithmetic of running it every night
+
+The instinct is that rendering a video every single night must be expensive. It is not, and the numbers are worth writing down because they change which trigger you should argue about. A GitHub-hosted Linux runner bills extra minutes at $0.006 each, and every account carries a monthly free grant — 2,000 minutes on the Free plan, 3,000 on Pro and Team, 50,000 on Enterprise — while standard runners on public repositories are free outright ([GitHub Docs, accessed July 2026](https://docs.github.com/en/billing/concepts/product-billing/github-actions)). Call a full browser render five minutes, generously. A drift-checking nightly is cheaper still, because it need not re-voice anything: text-to-speech is deterministic from the script, so when the narration text is unchanged the render is browser capture plus compose, with no paid speech call at all. In our own engine, aidemo — disclosed as ours, and honestly browser-only, with storyboards written by a coding agent instead of clips arranged on a GUI timeline — the voice and caption stages are skipped when the script has not changed, so a nightly's marginal cost is a handful of runner-minutes and nothing else.
+
+Put the cadences side by side.
+
+| Cadence | Runs / month | Runner-minutes (~5 min each) | Against Free 2,000 | Extra cost on Linux |
+|---|---|---|---|---|
+| Nightly cron | 30 | 150 | 7.5% of the grant | $0 |
+| On-merge, ~40 UI merges | 40 | 200 | 10% | $0 |
+| On-merge, ~300 UI merges | 300 | 1,500 | 75% | $0 |
+| On-merge, ~600 UI merges | 600 | 3,000 | over by 1,000 | ~$6 |
+
+The nightly is fixed at 30 runs no matter how fast the team ships; only the busiest on-merge case even leaves the free grant, and it does so for the price of a sandwich. On a public repo the entire dollar column is zero. So cost is not the axis. The real tradeoff is latency versus review noise: on-merge catches drift within minutes but hands you a diff to inspect on every merge and stays blind to the non-code drift above, while the nightly batches a whole day's changes into one review the next morning and sees the drift a filter cannot, at the price of up to a day of latency. The mature answer is both, cheaply — a fast selector assertion on every merge that blocks in seconds without encoding a single frame, plus the full nightly render-and-diff for everything the assertion cannot see. If you also [pin a demo to each shipped version](/blog/versioned-demos-per-release), the nightly guards the current one while the tagged ones stay frozen. The demo tells the truth in the morning because something rebuilt it in the dark, and a build log is the first place a break shows up, before any prospect sees it.
+
+## Sources
+
+- [Joel Spolsky — Daily Builds Are Your Friend (Joel on Software, 2001)](https://www.joelonsoftware.com/2001/01/27/daily-builds-are-your-friend/)
+- [Chrome for Developers — Chrome release channels (Canary released daily)](https://developer.chrome.com/docs/web-platform/chrome-release-channels)
+- [Mozilla — Firefox Nightly channel (updates once or twice a day)](https://www.firefox.com/en-US/channel/desktop/)
+- [GitHub Docs — Events that trigger workflows (schedule cron, high-load delay, 60-day auto-disable)](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+- [GitHub Docs — Billing for GitHub Actions (free minutes, per-minute rates)](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
+
+## FAQ
+
+### Should a demo re-render on every merge or only nightly?
+
+Both, because they catch different failures. An on-merge trigger scoped with a path filter to your UI source re-renders within minutes of a code change and is the fastest way to catch drift you shipped yourself. A nightly cron catches the drift a path filter cannot see — a restyled third-party embed, a dependency bump, changed seed data, a flipped feature flag — none of which touch a file you would filter on. Run a cheap selector assertion on every merge and the full render-and-diff nightly.
+
+### What time should a nightly demo build run on GitHub Actions?
+
+Off the top of the hour, in UTC. GitHub cron defaults to UTC and delays scheduled jobs under load, calling the start of each hour the busiest window, so `17 3 * * *` (03:17 UTC) waits in a shorter queue than `0 3 * * *`. Add a `workflow_dispatch` trigger for manual runs, and remember that a public repository disables a scheduled workflow after 60 days with no activity, so a success notification is how you learn it stopped.
+
+### Does re-rendering a demo every night cost a lot in GitHub Actions minutes?
+
+No. Thirty nightly runs at roughly five minutes each is about 150 runner-minutes a month, well inside every plan's free grant (2,000 minutes on Free, 3,000 on Pro and Team), and standard runners on public repositories are free outright. Linux extra minutes are $0.006 each, so even a run that overshot the grant by 1,000 minutes would cost about six dollars. A drift-check render is cheaper still, since deterministic text-to-speech lets an unchanged script skip the paid voice step entirely.
+
+---
+
 # OBS Studio for product demos: what it does and doesn't do
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/obs-for-product-demos/
@@ -3635,6 +3905,83 @@ One recording, cut several ways, not several videos. A typical launch kit is a s
 ### What is the difference between a launch video and a regular demo video?
 
 A demo video is evergreen and answers "what is this and why should I care"; a launch video is time-boxed and answers "what is new and why now." The launch cut leads with the just-shipped capability, carries a dated ask tied to the launch surface, and has a short shelf life: after the launch window the disposable social clips are archived and only the hero loop and deep walkthrough live on as the standing demo.
+
+---
+
+# Product onboarding videos that shorten time-to-value
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/product-onboarding-video/
+
+> An onboarding video's job is activation, not orientation: four onboarding clips, each mapped to the metric it moves, with a length budget per type.
+
+## An onboarding video is paid to move activation, not to orient
+
+A product demo sells to a stranger. An onboarding video works on someone who already said yes and is now deciding, often inside the first session, whether the yes was a mistake. That single difference should rewrite the brief. A demo's metric is a signup; an onboarding video's metric is activation, the moment a new user first reaches the outcome they signed up for. Across 62 B2B products Userpilot instrumented in 2024, the median activation rate was 37%, which means nearly two of every three new users never reach first value, and the figure ranged from 54.8% in AI tooling down to the single digits in HR and fintech ([Userpilot, 2024](https://userpilot.com/blog/activation-rate/)). That gap between a signup and an activated user is the largest and cheapest pool of growth most products own, and draining it is the job an onboarding video is hired to do.
+
+Frame the whole asset around that one number and the design choices stop being matters of taste. Time-to-value, the elapsed time from signup to that first outcome, is the clock the video is racing. Slack's team put a concrete threshold on it: any team that had exchanged 2,000 messages had genuinely tried the product, and teams that crossed the line retained at 93% ([First Round Review](https://review.firstround.com/from-0-to-1b-slacks-founder-shares-their-epic-launch-strategy/)). A welcome tour that spends three minutes touring the settings menu does nothing for that number. A ninety-second clip that ends on the user sending their first real message moves it directly. So before you script a frame, name the activation event, then build the shortest path to it.
+
+## Four onboarding jobs, four different videos
+
+"Onboarding video" names at least four different artifacts, each fired at a different moment, each moving a different piece of activation, each with its own length budget. Vidyard's onboarding guide sorts clips by content type, welcome, walkthrough, feature tutorial, FAQ ([Vidyard, 2025](https://www.vidyard.com/blog/customer-onboarding-videos/)), which is fine for a production checklist and useless for deciding what to make next, because it never says which metric each one moves. Sort by job instead.
+
+| Video | The job | Activation metric it moves | Trigger and placement | Length |
+| --- | --- | --- | --- | --- |
+| Welcome | Confirm the decision, set the one first action | Signup to first-session return | Post-signup screen, welcome email | 20-45 s |
+| First-run walkthrough | Get one real task done, all the way to the aha | Activation rate (reached first value) | The first empty workspace, in-app | 60-120 s |
+| Feature-unlock nudge | Pull a stuck user to the next value step | Feature adoption, secondary activation | Contextual, when the user hits that surface | 20-60 s |
+| Empty-state prompt | Turn a blank screen into a first object | First-object-created rate | Inside the empty state itself | 10-30 s, often silent |
+
+The welcome video is not a walkthrough; its only job is to survive the gap between signing up and coming back, so it confirms the decision and points at one action, nothing more. The first-run walkthrough is the workhorse, and the discipline is savage scope: one task, done end to end, chosen because it is the task that produces first value. A feature-unlock nudge is the same idea applied later, when a user who activated on the core loop is ready for the next one. The empty-state prompt is the shortest and most overlooked: a blank screen is a confessed need, and Nielsen Norman Group's guidance is to never leave it blank but to give a direct path to the first task that populates it ([Nielsen Norman Group, 2021](https://www.nngroup.com/articles/empty-state-interface-design/)). A ten-second silent clip embedded in that empty state, showing the single action that fills it, does exactly that job.
+
+## Why two focused minutes beat one twenty-minute tour
+
+The reflex when activation is low is to explain more, which produces the twenty-minute guided tour that plays on first login. It fails twice over. First, people skip it: Nielsen Norman Group's research on onboarding tutorials found that users want to start using the product immediately, routinely dismiss upfront tutorials, and that the tutorials do not produce better task performance even when watched ([Nielsen Norman Group, 2023](https://www.nngroup.com/articles/onboarding-tutorials/)). Second, of the few who do press play, almost none reach the one instruction that matters if it sits at minute twelve, because engagement falls off a cliff after the five-minute mark ([Wistia, 2025](https://wistia.com/learn/marketing/optimal-video-length)).
+
+Put rough numbers on it. Take 1,000 new users landing on the first-run screen; the assumptions below are illustrative, but they track the published engagement-by-length data.
+
+| Per 1,000 new users | 20-minute full tour | 2-minute focused walkthrough |
+| --- | --- | --- |
+| Press play instead of skipping | ~35% (350) | ~55% (550) |
+| Where the first-value step sits | around 12:00 | around 1:30 |
+| Share of players still watching there | ~25% | ~55% |
+| New users who actually see the value step | ~90 | ~300 |
+
+The short, scoped clip gets more than three times as many people to the moment that produces value, and it gets them there sooner, which is the entire point of a time-to-value metric. Wistia's analysis of over 13 million videos is the floor under the right column: clips under a minute average a 52% engagement rate, and viewers still watch more than half of a one-to-five-minute educational or tutorial video ([Wistia, 2025](https://wistia.com/learn/marketing/optimal-video-length)). The fix for weak activation was never a more thorough tour; it is tighter scope and a shorter runtime. That is precisely [what a walkthrough video does when it follows one real task from start to finish](/blog/product-walkthrough-video), and [the per-placement retention math](/blog/how-long-should-a-demo-video-be) sets the ceiling before you record. At roughly 2.5 words a second, a two-minute walkthrough is about a 300-word script, and [the problem-walkthrough-proof script template](/blog/demo-video-script-template) sizes each section against that budget.
+
+## Trigger the video where the user already is
+
+Length is only half of why the twenty-minute tour fails; the other half is timing. Nielsen Norman Group draws the line between push revelations, help the system volunteers when it is convenient, and pull revelations, help offered the moment the user reveals they need it, and the research comes down firmly on pull ([Nielsen Norman Group, 2023](https://www.nngroup.com/articles/onboarding-tutorials/)). The same clip is a different asset depending on which one it is. A first-run walkthrough auto-played over a screen the user is trying to click past is a push revelation, and it gets dismissed. The identical clip offered from the empty state the user is currently stuck on is a pull revelation, and it gets watched, because it answers the exact question in front of them.
+
+That reframes placement as the highest-leverage decision after scope. Anchor the welcome to the post-signup screen and the welcome email, where the user sits between deciding and returning. Anchor the first-run walkthrough and the empty-state clip to the surfaces they name, so the video appears where the confessed need is. Fire the feature-unlock nudge only when a user reaches the surface it explains, never on a schedule. Captions matter here more than anywhere, because an in-app clip on an empty state almost always plays muted; a silent, captioned ten-second clip is doing real work while a voice-over-only one says nothing to most of the people who see it.
+
+## The onboarding video is the worst one to let go stale
+
+Onboarding videos sit on exactly the surfaces a product team reshapes most, the signup flow, the first-run experience, empty states, and every newly shipped feature, so they rot faster than any other clip you own. A stale onboarding video is worse than none, because it teaches a brand-new user a UI that no longer exists at the precise moment they are deciding whether to trust the product at all. [The same staleness that quietly breaks every product demo](/blog/why-product-demos-go-stale) lands hardest here, on the most fragile audience you have.
+
+The structural answer is to make each clip cheap to regenerate rather than expensive to re-record, so a UI change re-renders the video instead of silently invalidating it. That is the case our own engine, aidemo, is built for: a demo defined as an agent-authored storyboard re-renders when the flow changes rather than being performed again. Its limits are worth stating plainly. It captures a browser and nothing else, the storyboard is written by a coding agent rather than dragged around a timeline, and there is no GUI editor, so it earns its keep on a library of onboarding clips you intend to maintain for years, not on a single one-off screencast. The tooling is beside the point next to the discipline, which is narrow and specific to onboarding: name the activation event, cut to the shortest path that reaches it, trigger the clip where the user already is, and treat every clip as something you will re-render, not re-shoot. [The full script-first production playbook](/blog/how-to-make-a-product-demo-video) covers the rest.
+
+## Sources
+
+- [Userpilot — Average User Activation Rate Benchmark (2024)](https://userpilot.com/blog/activation-rate/)
+- [First Round Review — From 0 to $1B: Slack's Founder Shares Their Epic Launch Strategy](https://review.firstround.com/from-0-to-1b-slacks-founder-shares-their-epic-launch-strategy/)
+- [Vidyard — Customer Onboarding Videos](https://www.vidyard.com/blog/customer-onboarding-videos/)
+- [Nielsen Norman Group — Onboarding Tutorials vs. Contextual Help](https://www.nngroup.com/articles/onboarding-tutorials/)
+- [Nielsen Norman Group — Empty States in Application Design](https://www.nngroup.com/articles/empty-state-interface-design/)
+- [Wistia — How to Choose the Right Marketing Video Length](https://wistia.com/learn/marketing/optimal-video-length)
+
+## FAQ
+
+### How long should a customer onboarding video be?
+
+It depends on the job, not a single rule. A welcome clip runs 20 to 45 seconds, a first-run walkthrough 60 to 120, a feature-unlock nudge 20 to 60, and an empty-state prompt as little as 10. Vidyard advises keeping tutorials under three minutes ([Vidyard, 2025](https://www.vidyard.com/blog/customer-onboarding-videos/)), and Wistia's data backs the short end: viewers still watch more than half of a one-to-five-minute tutorial but fall away fast past five minutes ([Wistia, 2025](https://wistia.com/learn/marketing/optimal-video-length)). The trap is the twenty-minute tour almost nobody finishes.
+
+### What should a product onboarding video include?
+
+Exactly one activation event and the shortest real path to it, and almost nothing else. Name the outcome the user signed up for, Slack treated 2,000 team messages as that threshold ([First Round Review](https://review.firstround.com/from-0-to-1b-slacks-founder-shares-their-epic-launch-strategy/)), then show the single task that reaches it. Leave out the feature tour, the settings walk, and the org chart. Caption it, because the first in-app play is muted, and end on one next action rather than a menu.
+
+### Do onboarding videos actually improve activation?
+
+They can, but only when scoped to the activation event and triggered in context; a generic upfront tour does not, because users skip it and it fails to improve task performance ([Nielsen Norman Group, 2023](https://www.nngroup.com/articles/onboarding-tutorials/)). Measure the right thing: activation rate, which sat at a 37% median across Userpilot's 2024 B2B sample ([Userpilot, 2024](https://userpilot.com/blog/activation-rate/)), and time-to-value, not video view counts. A clip that lifts neither is a maintenance cost, not a win.
 
 ---
 
@@ -5042,6 +5389,123 @@ Think in placements, not genres. The working set is a landing-page hero, a produ
 ### Is video marketing worth it for a small software startup?
 
 It is worth it when one recording serves many channels, and a money pit when every channel gets its own shoot. HubSpot found 83% of marketers name social media their highest-ROI video channel, and short-form the highest-ROI format, so the return is real. The cost that sinks small teams is per-channel re-recording, especially when the product keeps shipping. Solve distribution as a render matrix off one master, and a two-person team can cover nine surfaces.
+
+---
+
+# Video SEO for product pages: VideoObject schema, done right
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/video-seo-for-product-pages/
+
+> Google names three required VideoObject properties, not thirty. The copy-paste JSON-LD that nests a demo into Product schema, and what the markup really buys.
+
+## Your product page is not a watch page
+
+Search advice about video treats every embedded clip as if it were a YouTube page, and that is the mistake that wastes the markup. Google draws a hard line the guides skip. Its video documentation defines a watch page as one whose "main purpose is to show users a single video," and says plainly that pages where the video is secondary, a blog post or a product page with an embedded demo, "aren't watch pages, though they can still appear as text or image results" ([Google, 2026](https://developers.google.com/search/docs/appearance/video)). That single distinction rewrites the task. On a product page the product is the main content: the price, the offer, the rating. The demo is a supporting act. So the point of VideoObject markup on a product page is not to turn the product's listing into a video result, which Google will not do, but to make the clip itself findable in Google's dedicated video places while the product listing stays a product listing. Get that straight and the rest of the markup follows; get it wrong and you chase a video rich result the page was never eligible for. Everything below assumes that framing: the markup exists to feed the crawler, not to redecorate the page for a human who is already reading it. This is the structured-data corner of turning [one recording into every channel](/blog/video-marketing-for-software).
+
+## The three properties Google actually requires
+
+Most VideoObject snippets in the wild carry twenty properties because someone pasted a reference dump. Google requires three. Its structured-data guide lists exactly `name`, `thumbnailUrl`, and `uploadDate` as required, and marks everything else, including the ones people assume are mandatory, as recommended ([Google, 2026](https://developers.google.com/search/docs/appearance/structured-data/video)).
+
+| Property | Google status | Format | Why it matters for a demo |
+| --- | --- | --- | --- |
+| `name` | Required | Text, unique per video | The title Google shows; reuse it across clips and you compete with yourself |
+| `thumbnailUrl` | Required | Crawlable image URL, min 60x30 px | The frame a searcher sees; a login screen or a spinner here costs the click |
+| `uploadDate` | Required | ISO 8601 with timezone | A freshness signal; a stale date reads as a stale product |
+| `contentUrl` | Recommended | URL to the video file bytes | The property that actually makes the video indexable, below |
+| `description` | Recommended | Text, unique per video | Indexable copy; write it for the query, not the file name |
+| `duration` | Recommended | ISO 8601, e.g. `PT1M30S` | Sets the length badge; a 90-second demo should say 90 seconds |
+| `embedUrl` | Recommended | URL of the player, not the page | The iframe `src`, and distinct from `contentUrl` |
+
+The two to never skip despite their "recommended" label are `contentUrl` and `description`, for reasons the next sections make concrete. And read the `thumbnailUrl` row twice: Google wants a crawlable image at least 60x30 pixels, larger preferred, at a stable URL, and the thumbnail is the single most visible thing about your clip in a results page, so [the frame you choose is a decision, not a default](/blog/demo-video-thumbnail).
+
+## A VideoObject that validates, then nests into Product
+
+Here is a complete, valid VideoObject with every required property and the recommended ones worth carrying:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "Acme Analytics: build a live dashboard in 90 seconds",
+  "description": "A 90-second walkthrough of creating a shareable dashboard in Acme Analytics, from empty state to a public link.",
+  "thumbnailUrl": ["https://acme.example/video/dashboard-poster-1280x720.jpg"],
+  "uploadDate": "2026-07-18T08:00:00-07:00",
+  "duration": "PT1M30S",
+  "contentUrl": "https://acme.example/video/dashboard-demo.mp4",
+  "embedUrl": "https://acme.example/player/dashboard-demo"
+}
+```
+
+Now the part the guides get wrong. Product has no video property, and Google's Product structured-data documentation never mentions nesting a video inside it ([Google, 2026](https://developers.google.com/search/docs/appearance/structured-data/product)). schema.org's actual answer is a pair of linking properties: a VideoObject is `about` the Product, and the Product has the video as its `subjectOf`. VideoObject inherits `about` from CreativeWork, and Product inherits `subjectOf` from Thing ([schema.org, 2026](https://schema.org/VideoObject)). The clean way to express that is one `@graph` with two nodes cross-referenced by `@id`:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Product",
+      "@id": "https://acme.example/analytics#product",
+      "name": "Acme Analytics",
+      "image": "https://acme.example/img/analytics-1200x1200.jpg",
+      "offers": {
+        "@type": "Offer",
+        "price": "49.00",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "subjectOf": { "@id": "https://acme.example/analytics#demo" }
+    },
+    {
+      "@type": "VideoObject",
+      "@id": "https://acme.example/analytics#demo",
+      "name": "Acme Analytics: build a live dashboard in 90 seconds",
+      "thumbnailUrl": ["https://acme.example/video/dashboard-poster-1280x720.jpg"],
+      "uploadDate": "2026-07-18T08:00:00-07:00",
+      "duration": "PT1M30S",
+      "contentUrl": "https://acme.example/video/dashboard-demo.mp4",
+      "embedUrl": "https://acme.example/player/dashboard-demo",
+      "about": { "@id": "https://acme.example/analytics#product" }
+    }
+  ]
+}
+```
+
+The common failures are inventing a `video` property on Product, or dropping the VideoObject somewhere a parser cannot associate it with anything. Link the two nodes explicitly and both stay valid on their own.
+
+## contentUrl is what makes the video indexable, not the embed
+
+The property that does the heavy lifting is `contentUrl`. Google's best-practices doc is blunt that it can only index a video whose file it can fetch: the video has to be reachable through a standard `<video>`, `<iframe>`, `<embed>`, or `<object>` element, in a supported format, at a stable URL, with the bytes crawlable rather than gated behind a click or a login ([Google, 2026](https://developers.google.com/search/docs/appearance/video)). `embedUrl` points at your player; `contentUrl` points at the actual file, and it is the file Google indexes. This is not theory. In Google's own case study, Vidio added VideoObject markup with `contentUrl` and stable, crawlable file URLs, validated it with Search Console's video report, and between Q1 2022 and Q1 2023 saw video impressions rise about 3x and video clicks close to 2x on Search ([Google, 2023](https://developers.google.com/search/case-studies/vidio-case-study)). The lesson is not the size of the number, it is the cause: they made the file reachable. If your demo is a YouTube embed, `contentUrl` is Google's and you inherit its indexing; if you self-host, `contentUrl` is yours to keep stable, which is one more reason [how you host the file is its own decision](/blog/embed-video-on-website).
+
+## Transcripts and captions carry the words search can read
+
+A video is opaque to a text index; the pixels say nothing a crawler can read. schema.org gives VideoObject a `transcript` property, the plain text of what is said, and a `caption` property, the timed track, both distinct from the visual content ([schema.org, 2026](https://schema.org/VideoObject)). The transcript is the one that feeds search: it is indexable copy that spells out every feature name and step the narration mentions, in the words a searcher would actually type. Captions do the accessibility job and the muted-autoplay job, which is [a discipline of its own](/blog/demo-video-captions), and because the caption text and the transcript are the same script the voice read, you produce both from one narration pass instead of two transcription passes. For a product demo whose whole pitch is spoken, publishing the transcript is the cheapest indexable-content win the page has. Upload your own rather than trusting auto-generation, for the same reason it pays off [on a developer YouTube channel](/blog/youtube-marketing-for-dev-tools): speech recognition cannot spell your product's names.
+
+## What the markup buys, in Google's own numbers
+
+Markup makes a video eligible to appear; it does not rank it. Both of Google's video case studies did two things at once, and neither got its result from JSON-LD alone. Vidio's gains came with a crawlable `contentUrl`. MX Player paired video structured data with frequently submitted video sitemaps and saw organic traffic triple over six months, with video page views per session doubling from Search ([Google, 2026](https://developers.google.com/search/case-studies/mx-case-study)). Correct markup plus a reachable file plus a sitemap; the schema is one leg of the tripod, not the whole thing. A video sitemap is not optional decoration here: it is how a crawler that will not run your player still learns the file exists, which is why MX Player leaned on frequent submissions rather than markup alone. And the product-page caveat from the top returns as the honest ceiling: because a product page is not a watch page, the payoff is eligibility in Video mode, the video thumbnails that appear among the main results, and Google Images or Discover, not a video result bolted onto the product's own listing. The last thing worth budgeting is drift. A VideoObject that names a duration, a thumbnail, and a transcript is a set of promises about a file, and every one of them goes stale when the UI in the clip changes. aidemo, the open-source engine this blog belongs to, re-renders the demo from a committed spec and can emit the `contentUrl`, `thumbnailUrl`, `duration`, and transcript on every build, so the markup keeps describing a UI that still exists; its honest limits are that it captures inside a browser only, an agent writes the storyboard instead of a person on a timeline, and there is no visual editor. The markup is worth exactly what the video behind it is worth, kept current.
+
+## Sources
+
+- [Google Search Central — Video structured data (VideoObject)](https://developers.google.com/search/docs/appearance/structured-data/video)
+- [Google Search Central — Video SEO best practices (watch pages, thumbnails, contentUrl, sitemaps)](https://developers.google.com/search/docs/appearance/video)
+- [schema.org — VideoObject](https://schema.org/VideoObject)
+- [Google Search Central — Product structured data](https://developers.google.com/search/docs/appearance/structured-data/product)
+- [Google Search Central — Vidio case study (VideoObject markup)](https://developers.google.com/search/case-studies/vidio-case-study)
+- [Google Search Central — MX Player case study (video structured data and sitemaps)](https://developers.google.com/search/case-studies/mx-case-study)
+
+## FAQ
+
+### What are the required properties for VideoObject schema?
+
+Google requires exactly three: `name`, `thumbnailUrl`, and `uploadDate`. Everything else, including `contentUrl`, `description`, `duration`, and `embedUrl`, is recommended rather than required. In practice you should still add `contentUrl` and `description`, because `contentUrl` is what lets Google index the file and `description` is indexable copy. The `uploadDate` must be in ISO 8601 format with a timezone, and `thumbnailUrl` must point at a crawlable image at least 60x30 pixels.
+
+### Can a product page get a video rich result in Google Search?
+
+Not the way a dedicated video page can. Google treats a product page as a page where the video is secondary, not a "watch page," so the markup will not turn the product listing itself into a video result. What VideoObject markup buys instead is eligibility for Google's video surfaces: Video mode, the video thumbnails that show among the main results, and Google Images or Discover. The product's own rich result stays about price, availability, and rating.
+
+### Does video schema markup actually improve click-through rate?
+
+It can, but through eligibility, not magic. Google's own Vidio case study reports about 3x video impressions and close to 2x video clicks after adding VideoObject markup with a crawlable `contentUrl`, measured from Q1 2022 to Q1 2023, and MX Player saw organic traffic triple in six months from structured data plus video sitemaps. Markup makes a video eligible to appear; the file still has to be crawlable and the clip still has to be worth watching for the numbers to follow.
 
 ---
 
