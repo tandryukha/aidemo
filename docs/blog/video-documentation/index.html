@@ -258,7 +258,7 @@
 <p>The only maintenance model that outlasts ship velocity is regeneration. If the flow is a committed spec instead of a hand-captured take, a machine can replay it against today&#39;s build and emit a current video. A coding agent can even <a href="/blog/coding-agents-that-make-demo-videos/">write that spec by exploring the app first</a>, so the re-render rides the same release that changed the UI, and the general <a href="/blog/automated-product-demo-videos/">case for regenerating demos rather than re-recording them</a> transfers to docs without a change. Our own engine, aidemo, is one instance of that pattern, disclosed as ours and honestly bounded: it captures a browser and nothing else, an agent writes the storyboard while a person edits text rather than nudging clips, and there is no drag-and-drop editor anywhere in the loop. The tool is not the point. The point is that a video library stays honest only if its videos rebuild from source, exactly as the rest of your docs already do.</p>
 <h2 id="making-a-doc-video-earn-its-keep">Making a doc video earn its keep<a class="hanchor" href="#making-a-doc-video-earn-its-keep" aria-label="Link to section: Making a doc video earn its keep">#</a></h2>
 <p>Once a job genuinely wants video, a short checklist separates a clip that documents from one that merely exists.</p>
-<p>Pair every video with text. NN/g&#39;s conclusion after years of testing is flat: video &quot;must supplement, never replace&quot; the written version, and users &quot;resent&quot; pages where a video is the sole route to an answer<sup class="article-cite"><a href="#src-4" title="Schade, Nielsen Norman Group (2014) — Video Usability">4</a></sup>. A transcript does triple duty. It satisfies accessibility, it hands search the words the MP4 hides, and it lets a hurried reader skip watching altogether. Captions are not optional either; the <a href="/blog/demo-video-captions/">captioning mechanics for muted, accessible playback</a> are a solved problem rather than a nicety. Keep each clip to one action, and show its duration up front so a reader can price the time cost before committing to it. When the loop is genuinely tiny and wordless, a GIF can beat a video, and the encoding and stable-embed tricks behind a <a href="/blog/readme-gifs-that-update-themselves/">README GIF that updates itself</a> carry straight onto a docs page. Above all, author the video the way you author the docs around it: scripted, scoped to one job, and rebuildable when the product moves. A doc video is documentation first and a video second.</p>
+<p>Pair every video with text. NN/g&#39;s conclusion after years of testing is flat: video &quot;must supplement, never replace&quot; the written version, and users &quot;resent&quot; pages where a video is the sole route to an answer<sup class="article-cite"><a href="#src-4" title="Schade, Nielsen Norman Group (2014) — Video Usability">4</a></sup>. A transcript does triple duty. It satisfies accessibility, it hands search the words the MP4 hides, and it lets a hurried reader skip watching altogether. Captions are not optional either; the <a href="/blog/demo-video-captions/">captioning mechanics for muted, accessible playback</a> are a solved problem rather than a nicety. Keep each clip to one action, and show its duration up front so a reader can price the time cost before committing to it. When the loop is genuinely tiny and wordless, a <a href="/blog/gifs-in-documentation/">GIF can beat a video</a>, and the encoding and stable-embed tricks behind a <a href="/blog/readme-gifs-that-update-themselves/">README GIF that updates itself</a> carry straight onto a docs page. Above all, author the video the way you author the docs around it: scripted, scoped to one job, and rebuildable when the product moves. A doc video is documentation first and a video second.</p>
 <h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
 <ol class="article-sources">
 <li id="src-1"><a href="https://arxiv.org/abs/1809.00804" rel="noopener">Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering</a></li>
@@ -304,6 +304,15 @@
 <section class="related-articles">
   <h2>Keep reading</h2>
   <div class="related-articles-grid">
+<a class="article-card" href="/blog/gifs-in-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/gifs-in-documentation-400.webp" srcset="/blog/images/gifs-in-documentation-400.webp 400w, /blog/images/gifs-in-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A slotted zoetrope drum on a small wooden base, caught mid-spin."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">GIFs in documentation: when a loop beats a screenshot</h3>
+    <p class="article-card-excerpt">An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/keeping-tutorial-libraries-current/">
   <div class="article-card-image"><img loading="lazy" src="/blog/images/keeping-tutorial-libraries-current-400.webp" srcset="/blog/images/keeping-tutorial-libraries-current-400.webp 400w, /blog/images/keeping-tutorial-libraries-current-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A rounded purple toy truck with snow piled on top, plowing through fresh snow."></div>
   <div class="article-card-content">
@@ -319,15 +328,6 @@
     <div class="article-card-category">Video Documentation &amp; Tutorials</div>
     <h3 class="article-card-title">Support and knowledge-base videos that actually deflect tickets</h3>
     <p class="article-card-excerpt">Most help-center videos deflect zero tickets because they are too long, unsearchable, or stale. Here is which ones pay off, and the deflection math.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/video-vs-written-documentation/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-vs-written-documentation-400.webp" srcset="/blog/images/video-vs-written-documentation-400.webp 400w, /blog/images/video-vs-written-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A cast-iron railroad switch stand with a round throw lever."></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
-    <h3 class="article-card-title">Video vs written documentation: the decision, with evidence</h3>
-    <p class="article-card-excerpt">Stop asking whether your docs should be video or text. Score each doc job on four axes and read the right format off the total, evidence not vibes.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>

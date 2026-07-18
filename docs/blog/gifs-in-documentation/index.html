@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GIFs in docs: when a loop beats a still | aidemo</title>
+<meta name="description" content="When a GIF beats a still or a video in docs, why an MP4 is ~10x smaller, the WCAG rules an auto-looping GIF breaks, and the video and picture fix.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/gifs-in-documentation/">
+<link rel="alternate" type="text/markdown" href="/blog/gifs-in-documentation/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="GIFs in docs: when a loop beats a still | aidemo">
+<meta property="og:description" content="When a GIF beats a still or a video in docs, why an MP4 is ~10x smaller, the WCAG rules an auto-looping GIF breaks, and the video and picture fix.">
+<meta property="og:url" content="https://aidemo.top/blog/gifs-in-documentation/">
+<meta property="og:image" content="https://aidemo.top/blog/images/gifs-in-documentation-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GIFs in docs: when a loop beats a still | aidemo">
+<meta name="twitter:description" content="When a GIF beats a still or a video in docs, why an MP4 is ~10x smaller, the WCAG rules an auto-looping GIF breaks, and the video and picture fix.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/gifs-in-documentation-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "GIFs in documentation: when a loop beats a screenshot",
+  "description": "When a GIF beats a still or a video in docs, why an MP4 is ~10x smaller, the WCAG rules an auto-looping GIF breaks, and the video and picture fix.",
+  "image": [
+    "https://aidemo.top/blog/images/gifs-in-documentation-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/gifs-in-documentation/"
+  },
+  "wordCount": 2024,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Understanding WCAG 2.2 SC 2.2.2 Pause, Stop, Hide (Level A)",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Understanding WCAG 2.2 SC 2.3.3 Animation from Interactions (Level AAA)",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — prefers-reduced-motion media feature",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "web.dev — Replace animated GIFs with video for faster page loads",
+      "url": "https://web.dev/articles/replace-gifs-with-videos"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The video embed element (autoplay, muted, loop, playsinline)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The picture element (media conditions on source)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Image file type and format guide (GIF color depth and animation)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "GIFs in documentation: when a loop beats a screenshot",
+      "item": "https://aidemo.top/blog/gifs-in-documentation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use a GIF or a video in my documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use a GIF only when you need short, wordless, looping motion on a surface that cannot render a \u003cvideo> element, such as a GitHub README, an email, or a wiki that strips video. On any page you host yourself, ship a muted, looping, inline video instead: it is roughly ten times smaller for the same motion and, unlike a GIF, a reader can pause it. When nothing on screen moves, a plain screenshot beats both."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are animated GIFs an accessibility problem?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, when they autoplay and loop. WCAG 2.2 Success Criterion 2.2.2 (Level A) requires a way to pause, stop, or hide any motion that starts automatically, runs past five seconds, and sits alongside other content, and a looping GIF meets all three while offering no pause control at all. A raw \u003cimg> GIF also ignores a reader's system reduce-motion setting, which a video or a \u003cpicture> swap can honor. Add descriptive alt text so the animation is not invisible to screen readers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I make an animated GIF respect a user's reduced-motion setting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A raw GIF cannot respond to prefers-reduced-motion on its own, so serve a static image instead when the setting is on. Wrap the animation in a \u003cpicture> and give the animated source a media=\"(prefers-reduced-motion: reduce)\" sibling that points at a still frame, falling back to the animation in the \u003cimg>. The cleaner option is to drop the GIF entirely for a muted looping \u003cvideo>, which exposes real controls and can be dimmed or paused with a reduced-motion CSS rule."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>GIFs in documentation: when a loop beats a screenshot</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">GIFs in documentation: when a loop beats a screenshot</h1>
+        <p class="article-dek">An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-narrow-band-where-a-loop-beats-both-a-still-and-a-video">The narrow band where a loop beats both a still and a video</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-identical-motion-costs-an-order-of-magnitude-more-as-a-gif">Why identical motion costs an order of magnitude more as a GIF</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-level-a-rule-every-autoplaying-gif-breaks">The Level A rule every autoplaying GIF breaks</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#motion-for-people-who-switched-motion-off">Motion for people who switched motion off</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#ship-the-loop-as-a-muted-video-not-a-gif">Ship the loop as a muted video, not a GIF</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#keeping-the-loop-honest-after-the-ui-moves">Keeping the loop honest after the UI moves</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/gifs-in-documentation-800.webp" srcset="/blog/images/gifs-in-documentation-400.webp 400w, /blog/images/gifs-in-documentation-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A slotted zoetrope drum on a small wooden base, caught mid-spin."><figcaption>The GIF is a zoetrope with its frames baked in: it keeps looping whether or not the reader still wants it to.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A GIF earns its weight only for short (&lt;10s), wordless, looping motion on a surface that cannot take a &lt;video&gt; tag; a still is lighter, a video is lighter and more capable.</li>
+    <li>An auto-looping GIF fails WCAG 2.2.2 (Level A): looping motion runs past the 5-second limit with no pause button, in parallel with the text a reader is trying to read.</li>
+    <li>A raw &lt;img&gt; GIF cannot see prefers-reduced-motion, so a reader who switched motion off system-wide still gets the loop at full speed.</li>
+    <li>The fix keeps autoplay and restores control: a muted &lt;video autoplay loop playsinline&gt; is ~85-90% smaller (web.dev: 3.7MB GIF vs 551KB MP4) and pausable.</li>
+    <li>Serve reduced-motion readers a still via &lt;picture&gt; + media='(prefers-reduced-motion: reduce)'; keep a committed GIF only where nothing but an image renders.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-narrow-band-where-a-loop-beats-both-a-still-and-a-video">The narrow band where a loop beats both a still and a video<a class="hanchor" href="#the-narrow-band-where-a-loop-beats-both-a-still-and-a-video" aria-label="Link to section: The narrow band where a loop beats both a still and a video">#</a></h2>
+<p>Between a screenshot and a video there is a thin slice of documentation that an animated GIF fills better than either, and a much larger territory where reaching for a GIF is a mistake you pay for in bandwidth and accessibility complaints. Documentation is really a set of routing decisions, one per passage, and <a href="/blog/video-documentation/">the pillar on video in docs</a> lays out the whole surface; <a href="/blog/video-vs-written-documentation/">whether a given passage wants motion at all is its own four-axis call</a>. The GIF&#39;s job description, once you draw its edges, turns out to be unusually specific.</p>
+<p>A still image wins whenever the thing you are showing does not move. A GIF only earns its extra weight when the motion is the message: a panel sliding in, a value updating, the before-and-after of a single click. That is the same test a full video passes, so the real question is why you would loop a GIF rather than embed a video. The answer is placement. A GIF is an image as far as the surrounding markup cares, so it renders and autoplays anywhere an <code>&lt;img&gt;</code> tag works and a <code>&lt;video&gt;</code> tag might not: a GitHub README, a notebook cell, an email, a chat message, a wiki that strips <code>&lt;video&gt;</code>. It needs no player, no controls, and no user gesture to start.</p>
+<p>So the band is narrow: a short (under about ten seconds), wordless, looping motion, embedded on a surface where a real video element is unavailable or unwanted. Outside that band a still is lighter and a video is both lighter and more capable. A table makes the boundaries concrete.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Still screenshot</th>
+<th>Animated GIF</th>
+<th>Muted video</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Shows motion or a transition</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Autoplays inline with no player</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Only where <code>&lt;video&gt;</code> is allowed</td>
+</tr>
+<tr>
+<td>Works in email or plain Markdown</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Rarely</td>
+</tr>
+<tr>
+<td>Weight for 10s of UI motion</td>
+<td>Tiny</td>
+<td>Largest</td>
+<td>~10x under the GIF</td>
+</tr>
+<tr>
+<td>Reader can pause or stop it</td>
+<td>N/A (static)</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Respects a reduce-motion setting</td>
+<td>N/A</td>
+<td>No</td>
+<td>Yes, with markup</td>
+</tr>
+<tr>
+<td>Text a crawler can read</td>
+<td>With alt</td>
+<td>With alt</td>
+<td>With track or transcript</td>
+</tr>
+</tbody></table></div>
+<p>Two of those rows are where a GIF quietly fails the reader, and both are accessibility rows. Before the file-size argument, they are the reason to treat the GIF as a last resort rather than a default.</p>
+<h2 id="why-identical-motion-costs-an-order-of-magnitude-more-as-a-gif">Why identical motion costs an order of magnitude more as a GIF<a class="hanchor" href="#why-identical-motion-costs-an-order-of-magnitude-more-as-a-gif" aria-label="Link to section: Why identical motion costs an order of magnitude more as a GIF">#</a></h2>
+<p><a href="/blog/readme-gifs-that-update-themselves/">The exact size math, encode by encode, is worked out for the README case</a>; the short version is structural, not a tuning failure. A GIF stores each pixel as one 8-bit index into a palette capped at 256 colors, and it compresses motion only by skipping pixels that did not change, never by predicting a frame from its neighbor<sup class="article-cite"><a href="#src-7" title="MDN — Image file type and format guide (GIF color depth and animation)">7</a></sup>. Modern codecs predict every frame from the ones around it, so the same motion costs a fraction. Google&#39;s own guidance puts a representative clip at 3.7 MB as a GIF against 551 KB as MP4 and 341 KB as WebM, an 85 to 90 percent cut from identical pixels<sup class="article-cite"><a href="#src-4" title="web.dev — Replace animated GIFs with video for faster page loads">4</a></sup>. MDN is blunt that for animation you should &quot;consider WebP, AVIF or APNG,&quot; and that for lossless animation &quot;GIF is less performant&quot;<sup class="article-cite"><a href="#src-7" title="MDN — Image file type and format guide (GIF color depth and animation)">7</a></sup>.</p>
+<p>On a docs site you serve to real users that difference is a Core Web Vitals line item, not a rounding error. But size is the argument people already accept. The one they skip is the one that earns a page a complaint from a reader who cannot make the motion stop.</p>
+<h2 id="the-level-a-rule-every-autoplaying-gif-breaks">The Level A rule every autoplaying GIF breaks<a class="hanchor" href="#the-level-a-rule-every-autoplaying-gif-breaks" aria-label="Link to section: The Level A rule every autoplaying GIF breaks">#</a></h2>
+<p>WCAG 2.2 Success Criterion 2.2.2, Pause, Stop, Hide, is a Level A requirement, the floor of conformance rather than an aspiration. It says that for &quot;any moving, blinking or scrolling information that (1) starts automatically, (2) lasts more than five seconds, and (3) is presented in parallel with other content, there is a mechanism for the user to pause, stop, or hide it&quot;<sup class="article-cite"><a href="#src-1" title="W3C — Understanding WCAG 2.2 SC 2.2.2 Pause, Stop, Hide (Level A)">1</a></sup>.</p>
+<p>Read those three conditions against a docs GIF. It starts automatically, because a GIF&#39;s loop is baked into the file and begins the instant the image renders. It sits in parallel with other content, because it lives in the middle of a page of prose. The only escape clause is the five-second limit, and it is a trap: a GIF loops, so a four-second animation set to repeat becomes moving content that never stops, well past five seconds, for as long as the page is open. A single-play four-second clip is fine; the same clip on a loop is a 2.2.2 failure, and looping is the entire reason people reach for GIF in the first place.</p>
+<p>There is no pause button on an <code>&lt;img&gt;</code>. A reader cannot stop the animation, cannot slow it, and on most current browsers cannot even hit a key to freeze it the way older browsers once allowed. The motion runs in their peripheral vision while they try to read the paragraph beside it. For a reader with ADHD that is a concentration tax; for a reader with a vestibular disorder it can be a physical one. The criterion exists because unstoppable parallel motion is a documented barrier, not a matter of taste.</p>
+<h2 id="motion-for-people-who-switched-motion-off">Motion for people who switched motion off<a class="hanchor" href="#motion-for-people-who-switched-motion-off" aria-label="Link to section: Motion for people who switched motion off">#</a></h2>
+<p>The second accessibility row is subtler and, for a docs team, more damning, because here the reader has already told you what they want. Every major operating system carries a reduce-motion accessibility setting, and browsers expose it to the page through the <code>prefers-reduced-motion</code> media feature, which is &quot;used to detect if a user has enabled a setting on their device to minimize the amount of non-essential motion&quot;<sup class="article-cite"><a href="#src-3" title="MDN — prefers-reduced-motion media feature">3</a></sup>. MDN names the reason directly: such animations &quot;can trigger discomfort for those with vestibular motion disorders,&quot; and &quot;scaling or panning large objects can be vestibular motion triggers&quot;<sup class="article-cite"><a href="#src-3" title="MDN — prefers-reduced-motion media feature">3</a></sup>. Panning a large object is exactly what a scrolling-dashboard GIF does.</p>
+<p>A raw animated GIF cannot see that preference. It is an image; it exposes no hook a media query can grab. A reader who switched motion off system-wide, deliberately, still gets your loop at full speed. WCAG&#39;s Level AAA criterion 2.3.3, Animation from Interactions, points at honoring <code>prefers-reduced-motion</code> as the mechanism<sup class="article-cite"><a href="#src-2" title="W3C — Understanding WCAG 2.2 SC 2.3.3 Animation from Interactions (Level AAA)">2</a></sup>; a GIF is structurally incapable of honoring it. That is the gap between a video-based loop and a GIF that no encoding setting can close.</p>
+<h2 id="ship-the-loop-as-a-muted-video-not-a-gif">Ship the loop as a muted video, not a GIF<a class="hanchor" href="#ship-the-loop-as-a-muted-video-not-a-gif" aria-label="Link to section: Ship the loop as a muted video, not a GIF">#</a></h2>
+<p>The fix keeps everything the GIF gave you, autoplay, silent loop, inline rendering, and hands back the two things it took away. On any surface that allows a <code>&lt;video&gt;</code> element, which is every docs framework and every page you host yourself, replace the GIF with a muted, looping, inline video. web.dev&#39;s recommended pattern is exactly this, with WebM and an MP4 fallback<sup class="article-cite"><a href="#src-4" title="web.dev — Replace animated GIFs with video for faster page loads">4</a></sup>:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">video</span><span style="color:#986801"> autoplay</span><span style="color:#986801"> muted</span><span style="color:#986801"> loop</span><span style="color:#986801"> playsinline</span><span style="color:#986801"> poster</span><span style="color:#383A42">=</span><span style="color:#50A14F">"dashboard.png"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"dashboard.webm"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/webm"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"dashboard.mp4"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/mp4"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">video</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p><code>autoplay</code> starts it, <code>loop</code> repeats it, <code>playsinline</code> stops it grabbing the whole screen, and <code>muted</code> is mandatory: browsers block autoplay for anything with an audible track<sup class="article-cite"><a href="#src-5" title="MDN — The video embed element (autoplay, muted, loop, playsinline)">5</a></sup>. The <code>poster</code> frame gives the element the Largest Contentful Paint candidate a bare looping video otherwise lacks. This single swap satisfies 2.2.2, because a <code>&lt;video&gt;</code> exposes native controls a reader can reach, and it is the same order of magnitude smaller the file-size section promised.</p>
+<p>Then honor the reader who turned motion off. A <code>&lt;picture&gt;</code> element picks a <code>&lt;source&gt;</code> by media condition and falls back to its <code>&lt;img&gt;</code>, and that condition can be <code>prefers-reduced-motion</code> exactly as it can be <code>prefers-color-scheme</code><sup class="article-cite"><a href="#src-6" title="MDN — The picture element (media conditions on source)">6</a></sup>:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">picture</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> srcset</span><span style="color:#383A42">=</span><span style="color:#50A14F">"card-still.png"</span><span style="color:#986801"> media</span><span style="color:#383A42">=</span><span style="color:#50A14F">"(prefers-reduced-motion: reduce)"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">img</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"card-drag.gif"</span><span style="color:#986801"> alt</span><span style="color:#383A42">=</span><span style="color:#50A14F">"Dragging a card to the next column marks it done"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">picture</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p>A reader with reduced motion enabled gets a crisp still; everyone else gets the loop. If the surface genuinely allows nothing but an image, a GitHub README being the common case, that is the one place a committed GIF is still the right call, and its <a href="/blog/readme-gifs-that-update-themselves/">size budget and stable-embed rules have their own writeup</a>. Everywhere else, the GIF is a habit, not a requirement.</p>
+<p>Two rules travel with the loop wherever it lands. Write real alt text describing the action, not &quot;demo.gif,&quot; because a looping animation with no text description is invisible to a screen reader and to search. And keep the clip to one action; a docs loop is closer to a single-action microvideo than to a tutorial, and the captions and transcript work that makes any tutorial clip accessible applies the moment your loop carries meaning a still cannot.</p>
+<h2 id="keeping-the-loop-honest-after-the-ui-moves">Keeping the loop honest after the UI moves<a class="hanchor" href="#keeping-the-loop-honest-after-the-ui-moves" aria-label="Link to section: Keeping the loop honest after the UI moves">#</a></h2>
+<p>A stale loop is worse than a stale screenshot. A screenshot that has fallen behind is a quiet, correctable error; an animated loop that has fallen behind demonstrates the wrong thing, over and over, with the authority that motion carries. The highest-value docs loops sit on the interfaces that change most, so a library of them rots on the same schedule a video library does, and the <a href="/blog/keeping-tutorial-libraries-current/">only maintenance model that scales is regenerating each clip from a spec instead of re-recording it</a>. Our own engine, aidemo, is one instance of that approach and honest about its edges: it captures a browser and nothing outside one, its storyboard comes from a coding agent that a person then edits as text rather than on a drag-and-drop timeline, and a single script emits the loop as a video or a GIF. The mechanism is the point, not the tool. A docs loop earns its place by showing motion a still cannot, in a format a reader can stop, at a size a page can afford, depicting a UI that still exists.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html" rel="noopener">W3C — Understanding WCAG 2.2 SC 2.2.2 Pause, Stop, Hide (Level A)</a></li>
+<li id="src-2"><a href="https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html" rel="noopener">W3C — Understanding WCAG 2.2 SC 2.3.3 Animation from Interactions (Level AAA)</a></li>
+<li id="src-3"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" rel="noopener">MDN — prefers-reduced-motion media feature</a></li>
+<li id="src-4"><a href="https://web.dev/articles/replace-gifs-with-videos" rel="noopener">web.dev — Replace animated GIFs with video for faster page loads</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video" rel="noopener">MDN — The video embed element (autoplay, muted, loop, playsinline)</a></li>
+<li id="src-6"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture" rel="noopener">MDN — The picture element (media conditions on source)</a></li>
+<li id="src-7"><a href="https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types" rel="noopener">MDN — Image file type and format guide (GIF color depth and animation)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="should-i-use-a-gif-or-a-video-in-my-documentation" class="blog-faq-q">Should I use a GIF or a video in my documentation?<a class="hanchor" href="#should-i-use-a-gif-or-a-video-in-my-documentation" aria-label="Link to section: Should I use a GIF or a video in my documentation?">#</a></h3>
+<p>Use a GIF only when you need short, wordless, looping motion on a surface that cannot render a <code>&lt;video&gt;</code> element, such as a GitHub README, an email, or a wiki that strips video. On any page you host yourself, ship a muted, looping, inline video instead: it is roughly ten times smaller for the same motion and, unlike a GIF, a reader can pause it. When nothing on screen moves, a plain screenshot beats both.</p>
+<h3 id="are-animated-gifs-an-accessibility-problem" class="blog-faq-q">Are animated GIFs an accessibility problem?<a class="hanchor" href="#are-animated-gifs-an-accessibility-problem" aria-label="Link to section: Are animated GIFs an accessibility problem?">#</a></h3>
+<p>Yes, when they autoplay and loop. WCAG 2.2 Success Criterion 2.2.2 (Level A) requires a way to pause, stop, or hide any motion that starts automatically, runs past five seconds, and sits alongside other content, and a looping GIF meets all three while offering no pause control at all. A raw <code>&lt;img&gt;</code> GIF also ignores a reader&#39;s system reduce-motion setting, which a video or a <code>&lt;picture&gt;</code> swap can honor. Add descriptive alt text so the animation is not invisible to screen readers.</p>
+<h3 id="how-do-i-make-an-animated-gif-respect-a-users-reduced-motion-setting" class="blog-faq-q">How do I make an animated GIF respect a user&#39;s reduced-motion setting?<a class="hanchor" href="#how-do-i-make-an-animated-gif-respect-a-users-reduced-motion-setting" aria-label="Link to section: How do I make an animated GIF respect a user's reduced-motion setting?">#</a></h3>
+<p>A raw GIF cannot respond to <code>prefers-reduced-motion</code> on its own, so serve a static image instead when the setting is on. Wrap the animation in a <code>&lt;picture&gt;</code> and give the animated source a <code>media=&quot;(prefers-reduced-motion: reduce)&quot;</code> sibling that points at a still frame, falling back to the animation in the <code>&lt;img&gt;</code>. The cleaner option is to drop the GIF entirely for a muted looping <code>&lt;video&gt;</code>, which exposes real controls and can be dimmed or paused with a reduced-motion CSS rule.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">gif</span>
+        <span class="article-tag">documentation</span>
+        <span class="article-tag">accessibility</span>
+        <span class="article-tag">wcag</span>
+        <span class="article-tag">prefers-reduced-motion</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/keeping-tutorial-libraries-current/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/keeping-tutorial-libraries-current-400.webp" srcset="/blog/images/keeping-tutorial-libraries-current-400.webp 400w, /blog/images/keeping-tutorial-libraries-current-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A rounded purple toy truck with snow piled on top, plowing through fresh snow."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Keeping a tutorial video library current at scale</h3>
+    <p class="article-card-excerpt">Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/support-videos-knowledge-base/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/support-videos-knowledge-base-400.webp" srcset="/blog/images/support-videos-knowledge-base-400.webp 400w, /blog/images/support-videos-knowledge-base-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single bright dome umbrella, open and standing upright on its own."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Support and knowledge-base videos that actually deflect tickets</h3>
+    <p class="article-card-excerpt">Most help-center videos deflect zero tickets because they are too long, unsearchable, or stale. Here is which ones pay off, and the deflection math.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-narrow-band-where-a-loop-beats-both-a-still-and-a-video">The narrow band where a loop beats both a still and a video</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-identical-motion-costs-an-order-of-magnitude-more-as-a-gif">Why identical motion costs an order of magnitude more as a GIF</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-level-a-rule-every-autoplaying-gif-breaks">The Level A rule every autoplaying GIF breaks</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#motion-for-people-who-switched-motion-off">Motion for people who switched motion off</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#ship-the-loop-as-a-muted-video-not-a-gif">Ship the loop as a muted video, not a GIF</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#keeping-the-loop-honest-after-the-ui-moves">Keeping the loop honest after the UI moves</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

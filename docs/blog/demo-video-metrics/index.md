@@ -1,0 +1,96 @@
+# Demo video metrics: play rate, retention, and assisted conversions
+
+July 18, 2026 · Video Marketing for Software · 7 min read · https://aidemo.top/blog/demo-video-metrics/
+
+> Your dashboard hands you "views" for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.
+
+**Key takeaways**
+
+- Read metrics by goal: play rate answers "did they start it," the retention curve answers "did they stay," assisted conversions answer "did watching change what they did next."
+- Play rate is plays over page loads, not raw plays; Wistia puts thank-you and contact pages near 10% while home and product pages pull the highest rates, so a low rate is a packaging problem.
+- The retention curve gives a completion rate a timestamp: an early cliff (0-15s) indicts the opening, a mid-video valley marks dead air to cut, a late cliff literally means end the video here.
+- Assisted conversions are the number nobody instruments: fewer than half of marketers connect video to a CRM (Wistia 2026), and demo video is almost always an assist invisible to last-click.
+- Compare a video against its own last version, not a vendor benchmark: completion moves with length (65% finish under 1 min vs 20% over 20 min, Vidyard), so cross-length comparisons lie.
+
+## Three numbers, three questions your demo has to answer
+
+A demo video generates a dashboard full of numbers, and most of them are noise dressed as insight. Total plays, average watch time, unique viewers, a completion percentage, a heat map: it looks like measurement, but a pile of metrics with no question attached tells you nothing you can act on. The useful move is to run it backwards. Decide what this particular video is for, and only then read the one number that grades that job. A demo does three jobs, and three questions map to them.
+
+| The video's job | The question it answers | The metric that grades it |
+| --- | --- | --- |
+| Get attention (landing hero, social feed, README loop) | Did they start it? | Play rate |
+| Teach a task (onboarding, docs, tutorial) | Did they stay to the part that matters? | The retention curve |
+| Move a deal (sales follow-up, PLG signup, landing CTA) | Did watching change what they did next? | Assisted conversions |
+
+The pillar on video marketing frames this by channel, noting that [each surface grades on a different number](/blog/video-marketing-for-software): a hero on play rate, a feed clip on three-second views, a sales follow-up on a reply. This piece goes the other way and defines each of those metrics precisely enough to instrument, because the reason most teams still report "views" is that views is the only number every platform hands them for free, and it is the least useful one they own.
+
+## The counting problem: impression, load, play, and view
+
+"View" is the number everyone quotes and no two platforms define the same way, because four different events hide under it. An impression is the player appearing in the viewport. A load is the page shipping the player at all, whether or not a human ever looks at it. A play is someone pressing the button, or an autoplay firing on its own. A view is a platform-defined threshold sitting on top of a play, and the threshold is exactly where platforms quietly disagree: some count a view the instant the file starts, a social feed typically counts one at around three seconds, and YouTube's own analytics do not even begin measuring desertion until the thirty-second mark, the point it labels the "intro" ([YouTube Help, 2026](https://support.google.com/youtube/answer/9314415)).
+
+The practical consequence is that two dashboards can report the same clip's "views" off numbers that differ by an order of magnitude, because they are counting different events. An autoplay hero inflates plays with people who never chose to watch; a click-to-play embed reports far fewer plays that each mean far more. Before you compare a demo to a benchmark, to another demo, or to last month, pin down which of the four events your number actually counts. Most reporting arguments are really definition arguments wearing a spreadsheet.
+
+## Play rate: the number your poster and placement control
+
+Play rate is the cleanest attention metric a demo has, because it isolates one decision: of the people who had the chance to press play, how many did. Wistia defines it as "the amount of visitors who land on a page and press play on a video instead of scrolling past it" ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)), which makes it a ratio, plays over page loads, not a raw count. That ratio is honest in a way plays are not. Ten thousand plays sounds like reach until you learn the page had two hundred thousand loads: a five percent play rate, and the real story is that the packaging is failing.
+
+What moves play rate is almost never the content of the video, because nobody who scrolled past has seen a frame of it. It is the poster image, the placement on the page, the thumbnail, and whether the clip autoplays. Wistia's 2026 State of Video, drawn from more than 13 million videos, shows the spread plainly: thank-you and contact pages sit near a 10% play rate, while homepages, product pages, and dedicated video galleries pull the highest rates in the corpus ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). Same videos would behave differently on different pages. So a low play rate is a diagnosis about the frame and the placement, not the film, and the fixes live in the poster and the surface, never in a re-record of the take itself.
+
+## Reading the retention curve: five shapes and what each tells you to fix
+
+Play rate tells you they started. The retention curve tells you where they left, and unlike a single completion percentage it tells you exactly when. A completion rate of 40% is a fact with no address. The curve gives that fact a timestamp, and the shape of the curve at that timestamp is a diagnosis. YouTube's audience-retention report supplies the vocabulary: a flat line means people are "watching that part of your video from start to finish," a gradual decline means "viewers are losing interest over time," a spike means "more viewers are watching, rewatching, or sharing," and a dip means "viewers are abandoning or skipping at that specific part" ([YouTube Help, 2026](https://support.google.com/youtube/answer/9314415)). Those four primitives compose into five shapes worth recognizing on a demo, each with its own fix.
+
+| Curve shape | What you see | Most likely cause on a demo | The fix |
+| --- | --- | --- | --- |
+| Gentle even slope | Steady decline, no cliffs | Normal tapering; nothing acute is broken | Tighten pace or shorten overall; nothing surgical |
+| Early cliff (first 10-15 s) | Sharp drop before the content starts | The opening failed, or the traffic was wrong | Rewrite the hook; cut the logo and the "in this video" |
+| Mid-video valley | A dip that partly recovers | A dead stretch: a load, dead air, a boring step | Cut or speed-ramp that exact segment |
+| Late cliff | Fine, then a sudden drop near a point | You overstayed; the payoff already landed | End the video there |
+| Plateau or spike | A section holds flat or ticks upward | A moment people rewatch or that resonates | Do more of it, and move it earlier |
+
+The one shape people misread is the late cliff. A sharp drop two-thirds of the way in is not a failure, it usually means the payoff already landed and the people who left got what they came for. The instruction the curve is giving you is literal: cut there. This is the same drop-off data that [the length decision reads to trim a demo to its placement](/blog/how-long-should-a-demo-video-be), except here you are not trimming toward a target number, you are letting the audience pick the edit point. An early cliff is the opposite reading: a drop inside the first ten or fifteen seconds is almost always a verdict on the opening rather than the product, which is why [the hook is the most-rewritten line in the script](/blog/demo-video-hook).
+
+Acting on the curve is cheap or expensive depending on what your demo is. When the valley sits on the third feature, the fix is to cut that scene, and in a hand-recorded take that means re-syncing the voice track and the cursor timing around the hole, which in practice means recording again. When the demo is a spec, it is a deletion and a re-render. Our own engine, aidemo, works the second way, re-rendering a trimmed cut from an agent-authored storyboard rather than a fresh shoot. The honest limits: it captures the browser only, ships no drag-on-a-timeline editor, and the storyboard is authored by a coding agent, so it earns its keep when you will read the curve and act on it repeatedly, not on a one-off screencast.
+
+## Assisted conversions: the number almost nobody instruments
+
+Play rate and retention grade the video as a thing people watch. Neither tells you whether watching it did anything. For that you need the metric almost nobody instruments: the demo's part in a conversion that happened somewhere else, later. Wistia found that fewer than half of marketers pipe their video platform into a CRM or email tool at all ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)), which means most "our video is working" claims are never checked against a single closed deal.
+
+The concept has a precise name. In Google's analytics an assisted conversion is credited when a channel "appears anywhere, except as the final interaction, on a conversion path" ([Google, 2026](https://support.google.com/analytics/answer/1191204)). A demo video is almost always an assist, not a close. Someone watches the walkthrough on Tuesday, leaves, then signs up from a branded search on Friday, and last-click attribution hands every point of credit to the search and none to the video that did the persuading. Google publishes a ratio for exactly this asymmetry: an assisted-to-last-click value near zero means a channel mostly closes deals, and a value above one means it mostly assists them ([Google, 2026](https://support.google.com/analytics/answer/1191204)). Top-of-funnel demo video lives well above one, which is precisely why a last-click dashboard makes it look worthless.
+
+The measurement moved, but the idea did not. Universal Analytics' assisted-conversions report was retired with the platform in 2024; GA4 replaces it with attribution reports and a data-driven model that "assigns credit for important user actions to different ads, clicks, and factors along the user's path" ([Google, 2026](https://support.google.com/analytics/answer/10596866)). Whichever generation you use, the instrumentation is the same two steps: fire an event when a viewer watches a meaningful share of the demo, and make that event visible in the tool where you count pipeline. Do it and you can finally answer the question [the conversion debate actually turns on](/blog/does-video-increase-conversion), which is not "does video convert" in the abstract but "did this specific video assist deals it will never get last-click credit for."
+
+## A benchmark card, and why you compare against yourself first
+
+Benchmarks are useful as a floor and dangerous as a target. A floor gives you a rough sense of whether a number is broken or normal. A target lies to you, because a benchmark drawn from a vendor's whole corpus averages your one-minute product demo together with webinars, sales messages, and course content, and that average is only as meaningful as the two populations are alike. Read the card below as a floor, then hold the video against its own last version.
+
+| Metric | What it is | Rough range to beat | The lever that moves it |
+| --- | --- | --- | --- |
+| Play rate | Plays divided by page loads with the player present | ~10% on low-intent pages, highest on home and product pages ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)) | Poster frame, placement, thumbnail, autoplay |
+| Engagement rate | Average share of the video watched | ~15-20% for on-demand webinars, higher for sub-5-minute clips ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)) | Length, pacing, cut dead air |
+| Completion | Share of players who reach the end | 65% finish under 1 minute, 20% finish over 20 minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)) | Match length to the placement |
+| Assisted conversions | Touches on a conversion path that are not the last click | For top-of-funnel video, typically far above its last-click credit | Connect the player to your CRM |
+
+Two caveats keep the card honest. First, engagement and completion move with length as a matter of arithmetic: a fifteen-second clip that half the audience finishes posts a far higher completion rate than a ten-minute tutorial nobody was going to finish, so never compare the completion of two videos of different lengths. Wistia's numbers show the mechanism from the other side, with on-demand webinar engagement running around 15-20% while shorter clips run higher, and even inside the webinar category the 31-to-45-minute cut drew more than twice the engagement of the sub-30-minute one, because the people who chose the longer session were warmer to begin with ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). Second, the only benchmark that is truly comparable is your own: same demo, same length, same placement, last month against this month. That comparison is what a [regenerate-don't-re-record workflow](/blog/automated-product-demo-videos) makes practical, because you can change one variable, the hook or the third scene, and re-render everything else identical, which is the closest a marketing video ever gets to a controlled experiment.
+
+## Sources
+
+- [Wistia — State of Video Report: Video Marketing Statistics for 2026](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [Vidyard — Video in Business Benchmark Report (2025 edition)](https://www.vidyard.com/business-video-benchmarks/)
+- [YouTube Help — Audience retention report (curve shapes and the intro metric)](https://support.google.com/youtube/answer/9314415)
+- [Google Analytics Help — Assisted conversions and the assisted/last-click ratio](https://support.google.com/analytics/answer/1191204)
+- [Google Analytics Help — About attribution and attribution models (GA4)](https://support.google.com/analytics/answer/10596866)
+
+## FAQ
+
+### What is a good play rate for a demo video?
+
+There is no universal figure, because play rate is a ratio of plays to page loads and it depends far more on placement than on the video. Wistia's 2026 data puts thank-you and contact pages near 10%, while homepages, product pages, and video galleries pull the highest rates in its corpus. Treat that as a floor: if a demo on a product page is underperforming a home-page rate, the problem is almost always the poster frame, the position on the page, or the thumbnail, not the film.
+
+### How do you read a video retention or drop-off graph?
+
+Read it by shape, not by the average. A gentle even slope is normal tapering. An early cliff in the first ten to fifteen seconds is a verdict on the opening. A mid-video valley marks a dead stretch, a load or a boring step, that you should cut or speed up. A late cliff means the payoff already landed and you should end the video there. A plateau or upward spike marks a moment people rewatch, so do more of it and move it earlier. YouTube's audience-retention report names the same primitives: flat means watched in full, a dip means people abandoned that spot.
+
+### What are assisted conversions, and why do they matter for demo videos?
+
+An assisted conversion is credit given to a touchpoint that appears anywhere on a conversion path except as the final click. Demo video is almost always an assist rather than a close: people watch, leave, and convert later through another channel that takes the last-click credit. Because fewer than half of marketers wire their video platform into a CRM (Wistia, 2026), most demos are judged only on last-click conversion, where a persuasive top-of-funnel video looks worthless. Firing a watch event into your analytics and reading the attribution report is how you see the credit it actually earned.

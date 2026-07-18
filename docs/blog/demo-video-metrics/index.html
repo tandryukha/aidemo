@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Video Metrics: Play Rate to Retention | aidemo</title>
+<meta name="description" content="Demo video metrics by goal: define play rate, read the retention drop-off curve shape by shape, and instrument the assisted conversions almost nobody tracks.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/demo-video-metrics/">
+<link rel="alternate" type="text/markdown" href="/blog/demo-video-metrics/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Demo Video Metrics: Play Rate to Retention | aidemo">
+<meta property="og:description" content="Demo video metrics by goal: define play rate, read the retention drop-off curve shape by shape, and instrument the assisted conversions almost nobody tracks.">
+<meta property="og:url" content="https://aidemo.top/blog/demo-video-metrics/">
+<meta property="og:image" content="https://aidemo.top/blog/images/demo-video-metrics-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Demo Video Metrics: Play Rate to Retention | aidemo">
+<meta name="twitter:description" content="Demo video metrics by goal: define play rate, read the retention drop-off curve shape by shape, and instrument the assisted conversions almost nobody tracks.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/demo-video-metrics-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Demo video metrics: play rate, retention, and assisted conversions",
+  "description": "Demo video metrics by goal: define play rate, read the retention drop-off curve shape by shape, and instrument the assisted conversions almost nobody tracks.",
+  "image": [
+    "https://aidemo.top/blog/images/demo-video-metrics-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/demo-video-metrics/"
+  },
+  "wordCount": 2429,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — State of Video Report: Video Marketing Statistics for 2026",
+      "url": "https://wistia.com/learn/marketing/video-marketing-statistics"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vidyard — Video in Business Benchmark Report (2025 edition)",
+      "url": "https://www.vidyard.com/business-video-benchmarks/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube Help — Audience retention report (curve shapes and the intro metric)",
+      "url": "https://support.google.com/youtube/answer/9314415"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Analytics Help — Assisted conversions and the assisted/last-click ratio",
+      "url": "https://support.google.com/analytics/answer/1191204"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Analytics Help — About attribution and attribution models (GA4)",
+      "url": "https://support.google.com/analytics/answer/10596866"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Demo video metrics: play rate, retention, and assisted conversions",
+      "item": "https://aidemo.top/blog/demo-video-metrics/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a good play rate for a demo video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There is no universal figure, because play rate is a ratio of plays to page loads and it depends far more on placement than on the video. Wistia's 2026 data puts thank-you and contact pages near 10%, while homepages, product pages, and video galleries pull the highest rates in its corpus. Treat that as a floor: if a demo on a product page is underperforming a home-page rate, the problem is almost always the poster frame, the position on the page, or the thumbnail, not the film."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you read a video retention or drop-off graph?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Read it by shape, not by the average. A gentle even slope is normal tapering. An early cliff in the first ten to fifteen seconds is a verdict on the opening. A mid-video valley marks a dead stretch, a load or a boring step, that you should cut or speed up. A late cliff means the payoff already landed and you should end the video there. A plateau or upward spike marks a moment people rewatch, so do more of it and move it earlier. YouTube's audience-retention report names the same primitives: flat means watched in full, a dip means people abandoned that spot."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are assisted conversions, and why do they matter for demo videos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An assisted conversion is credit given to a touchpoint that appears anywhere on a conversion path except as the final click. Demo video is almost always an assist rather than a close: people watch, leave, and convert later through another channel that takes the last-click credit. Because fewer than half of marketers wire their video platform into a CRM (Wistia, 2026), most demos are judged only on last-click conversion, where a persuasive top-of-funnel video looks worthless. Firing a watch event into your analytics and reading the attribution report is how you see the credit it actually earned."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>Demo video metrics: play rate, retention, and assisted conversions</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">Demo video metrics: play rate, retention, and assisted conversions</h1>
+        <p class="article-dek">Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-numbers-three-questions-your-demo-has-to-answer">Three numbers, three questions your demo has to answer</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-counting-problem-impression-load-play-and-view">The counting problem: impression, load, play, and view</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#play-rate-the-number-your-poster-and-placement-control">Play rate: the number your poster and placement control</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#reading-the-retention-curve-five-shapes-and-what-each-tells-you-to-fix">Reading the retention curve: five shapes and what each tells you to fix</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#assisted-conversions-the-number-almost-nobody-instruments">Assisted conversions: the number almost nobody instruments</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-benchmark-card-and-why-you-compare-against-yourself-first">A benchmark card, and why you compare against yourself first</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/demo-video-metrics-800.webp" srcset="/blog/images/demo-video-metrics-400.webp 400w, /blog/images/demo-video-metrics-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A coiled stethoscope resting on a smooth tabletop, its chest-piece lying flat"><figcaption>A retention curve is a pulse reading: it tells you not just that viewers left, but the exact second they did.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Read metrics by goal: play rate answers &quot;did they start it,&quot; the retention curve answers &quot;did they stay,&quot; assisted conversions answer &quot;did watching change what they did next.&quot;</li>
+    <li>Play rate is plays over page loads, not raw plays; Wistia puts thank-you and contact pages near 10% while home and product pages pull the highest rates, so a low rate is a packaging problem.</li>
+    <li>The retention curve gives a completion rate a timestamp: an early cliff (0-15s) indicts the opening, a mid-video valley marks dead air to cut, a late cliff literally means end the video here.</li>
+    <li>Assisted conversions are the number nobody instruments: fewer than half of marketers connect video to a CRM (Wistia 2026), and demo video is almost always an assist invisible to last-click.</li>
+    <li>Compare a video against its own last version, not a vendor benchmark: completion moves with length (65% finish under 1 min vs 20% over 20 min, Vidyard), so cross-length comparisons lie.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="three-numbers-three-questions-your-demo-has-to-answer">Three numbers, three questions your demo has to answer<a class="hanchor" href="#three-numbers-three-questions-your-demo-has-to-answer" aria-label="Link to section: Three numbers, three questions your demo has to answer">#</a></h2>
+<p>A demo video generates a dashboard full of numbers, and most of them are noise dressed as insight. Total plays, average watch time, unique viewers, a completion percentage, a heat map: it looks like measurement, but a pile of metrics with no question attached tells you nothing you can act on. The useful move is to run it backwards. Decide what this particular video is for, and only then read the one number that grades that job. A demo does three jobs, and three questions map to them.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The video&#39;s job</th>
+<th>The question it answers</th>
+<th>The metric that grades it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Get attention (landing hero, social feed, README loop)</td>
+<td>Did they start it?</td>
+<td>Play rate</td>
+</tr>
+<tr>
+<td>Teach a task (onboarding, docs, tutorial)</td>
+<td>Did they stay to the part that matters?</td>
+<td>The retention curve</td>
+</tr>
+<tr>
+<td>Move a deal (sales follow-up, PLG signup, landing CTA)</td>
+<td>Did watching change what they did next?</td>
+<td>Assisted conversions</td>
+</tr>
+</tbody></table></div>
+<p>The pillar on video marketing frames this by channel, noting that <a href="/blog/video-marketing-for-software/">each surface grades on a different number</a>: a hero on play rate, a feed clip on three-second views, a sales follow-up on a reply. This piece goes the other way and defines each of those metrics precisely enough to instrument, because the reason most teams still report &quot;views&quot; is that views is the only number every platform hands them for free, and it is the least useful one they own.</p>
+<h2 id="the-counting-problem-impression-load-play-and-view">The counting problem: impression, load, play, and view<a class="hanchor" href="#the-counting-problem-impression-load-play-and-view" aria-label="Link to section: The counting problem: impression, load, play, and view">#</a></h2>
+<p>&quot;View&quot; is the number everyone quotes and no two platforms define the same way, because four different events hide under it. An impression is the player appearing in the viewport. A load is the page shipping the player at all, whether or not a human ever looks at it. A play is someone pressing the button, or an autoplay firing on its own. A view is a platform-defined threshold sitting on top of a play, and the threshold is exactly where platforms quietly disagree: some count a view the instant the file starts, a social feed typically counts one at around three seconds, and YouTube&#39;s own analytics do not even begin measuring desertion until the thirty-second mark, the point it labels the &quot;intro&quot;<sup class="article-cite"><a href="#src-3" title="YouTube Help — Audience retention report (curve shapes and the intro metric)">3</a></sup>.</p>
+<p>The practical consequence is that two dashboards can report the same clip&#39;s &quot;views&quot; off numbers that differ by an order of magnitude, because they are counting different events. An autoplay hero inflates plays with people who never chose to watch; a click-to-play embed reports far fewer plays that each mean far more. Before you compare a demo to a benchmark, to another demo, or to last month, pin down which of the four events your number actually counts. Most reporting arguments are really definition arguments wearing a spreadsheet.</p>
+<h2 id="play-rate-the-number-your-poster-and-placement-control">Play rate: the number your poster and placement control<a class="hanchor" href="#play-rate-the-number-your-poster-and-placement-control" aria-label="Link to section: Play rate: the number your poster and placement control">#</a></h2>
+<p>Play rate is the cleanest attention metric a demo has, because it isolates one decision: of the people who had the chance to press play, how many did. Wistia defines it as &quot;the amount of visitors who land on a page and press play on a video instead of scrolling past it&quot;<sup class="article-cite"><a href="#src-1" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">1</a></sup>, which makes it a ratio, plays over page loads, not a raw count. That ratio is honest in a way plays are not. Ten thousand plays sounds like reach until you learn the page had two hundred thousand loads: a five percent play rate, and the real story is that the packaging is failing.</p>
+<p>What moves play rate is almost never the content of the video, because nobody who scrolled past has seen a frame of it. It is the poster image, the placement on the page, the thumbnail, and whether the clip autoplays. Wistia&#39;s 2026 State of Video, drawn from more than 13 million videos, shows the spread plainly: thank-you and contact pages sit near a 10% play rate, while homepages, product pages, and dedicated video galleries pull the highest rates in the corpus<sup class="article-cite"><a href="#src-1" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">1</a></sup>. Same videos would behave differently on different pages. So a low play rate is a diagnosis about the frame and the placement, not the film, and the fixes live in the poster and the surface, never in a re-record of the take itself.</p>
+<h2 id="reading-the-retention-curve-five-shapes-and-what-each-tells-you-to-fix">Reading the retention curve: five shapes and what each tells you to fix<a class="hanchor" href="#reading-the-retention-curve-five-shapes-and-what-each-tells-you-to-fix" aria-label="Link to section: Reading the retention curve: five shapes and what each tells you to fix">#</a></h2>
+<p>Play rate tells you they started. The retention curve tells you where they left, and unlike a single completion percentage it tells you exactly when. A completion rate of 40% is a fact with no address. The curve gives that fact a timestamp, and the shape of the curve at that timestamp is a diagnosis. YouTube&#39;s audience-retention report supplies the vocabulary: a flat line means people are &quot;watching that part of your video from start to finish,&quot; a gradual decline means &quot;viewers are losing interest over time,&quot; a spike means &quot;more viewers are watching, rewatching, or sharing,&quot; and a dip means &quot;viewers are abandoning or skipping at that specific part&quot;<sup class="article-cite"><a href="#src-3" title="YouTube Help — Audience retention report (curve shapes and the intro metric)">3</a></sup>. Those four primitives compose into five shapes worth recognizing on a demo, each with its own fix.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Curve shape</th>
+<th>What you see</th>
+<th>Most likely cause on a demo</th>
+<th>The fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gentle even slope</td>
+<td>Steady decline, no cliffs</td>
+<td>Normal tapering; nothing acute is broken</td>
+<td>Tighten pace or shorten overall; nothing surgical</td>
+</tr>
+<tr>
+<td>Early cliff (first 10-15 s)</td>
+<td>Sharp drop before the content starts</td>
+<td>The opening failed, or the traffic was wrong</td>
+<td>Rewrite the hook; cut the logo and the &quot;in this video&quot;</td>
+</tr>
+<tr>
+<td>Mid-video valley</td>
+<td>A dip that partly recovers</td>
+<td>A dead stretch: a load, dead air, a boring step</td>
+<td>Cut or speed-ramp that exact segment</td>
+</tr>
+<tr>
+<td>Late cliff</td>
+<td>Fine, then a sudden drop near a point</td>
+<td>You overstayed; the payoff already landed</td>
+<td>End the video there</td>
+</tr>
+<tr>
+<td>Plateau or spike</td>
+<td>A section holds flat or ticks upward</td>
+<td>A moment people rewatch or that resonates</td>
+<td>Do more of it, and move it earlier</td>
+</tr>
+</tbody></table></div>
+<p>The one shape people misread is the late cliff. A sharp drop two-thirds of the way in is not a failure, it usually means the payoff already landed and the people who left got what they came for. The instruction the curve is giving you is literal: cut there. This is the same drop-off data that <a href="/blog/how-long-should-a-demo-video-be/">the length decision reads to trim a demo to its placement</a>, except here you are not trimming toward a target number, you are letting the audience pick the edit point. An early cliff is the opposite reading: a drop inside the first ten or fifteen seconds is almost always a verdict on the opening rather than the product, which is why <a href="/blog/demo-video-hook/">the hook is the most-rewritten line in the script</a>.</p>
+<p>Acting on the curve is cheap or expensive depending on what your demo is. When the valley sits on the third feature, the fix is to cut that scene, and in a hand-recorded take that means re-syncing the voice track and the cursor timing around the hole, which in practice means recording again. When the demo is a spec, it is a deletion and a re-render. Our own engine, aidemo, works the second way, re-rendering a trimmed cut from an agent-authored storyboard rather than a fresh shoot. The honest limits: it captures the browser only, ships no drag-on-a-timeline editor, and the storyboard is authored by a coding agent, so it earns its keep when you will read the curve and act on it repeatedly, not on a one-off screencast.</p>
+<h2 id="assisted-conversions-the-number-almost-nobody-instruments">Assisted conversions: the number almost nobody instruments<a class="hanchor" href="#assisted-conversions-the-number-almost-nobody-instruments" aria-label="Link to section: Assisted conversions: the number almost nobody instruments">#</a></h2>
+<p>Play rate and retention grade the video as a thing people watch. Neither tells you whether watching it did anything. For that you need the metric almost nobody instruments: the demo&#39;s part in a conversion that happened somewhere else, later. Wistia found that fewer than half of marketers pipe their video platform into a CRM or email tool at all<sup class="article-cite"><a href="#src-1" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">1</a></sup>, which means most &quot;our video is working&quot; claims are never checked against a single closed deal.</p>
+<p>The concept has a precise name. In Google&#39;s analytics an assisted conversion is credited when a channel &quot;appears anywhere, except as the final interaction, on a conversion path&quot;<sup class="article-cite"><a href="#src-4" title="Google Analytics Help — Assisted conversions and the assisted/last-click ratio">4</a></sup>. A demo video is almost always an assist, not a close. Someone watches the walkthrough on Tuesday, leaves, then signs up from a branded search on Friday, and last-click attribution hands every point of credit to the search and none to the video that did the persuading. Google publishes a ratio for exactly this asymmetry: an assisted-to-last-click value near zero means a channel mostly closes deals, and a value above one means it mostly assists them<sup class="article-cite"><a href="#src-4" title="Google Analytics Help — Assisted conversions and the assisted/last-click ratio">4</a></sup>. Top-of-funnel demo video lives well above one, which is precisely why a last-click dashboard makes it look worthless.</p>
+<p>The measurement moved, but the idea did not. Universal Analytics&#39; assisted-conversions report was retired with the platform in 2024; GA4 replaces it with attribution reports and a data-driven model that &quot;assigns credit for important user actions to different ads, clicks, and factors along the user&#39;s path&quot;<sup class="article-cite"><a href="#src-5" title="Google Analytics Help — About attribution and attribution models (GA4)">5</a></sup>. Whichever generation you use, the instrumentation is the same two steps: fire an event when a viewer watches a meaningful share of the demo, and make that event visible in the tool where you count pipeline. Do it and you can finally answer the question <a href="/blog/does-video-increase-conversion/">the conversion debate actually turns on</a>, which is not &quot;does video convert&quot; in the abstract but &quot;did this specific video assist deals it will never get last-click credit for.&quot;</p>
+<h2 id="a-benchmark-card-and-why-you-compare-against-yourself-first">A benchmark card, and why you compare against yourself first<a class="hanchor" href="#a-benchmark-card-and-why-you-compare-against-yourself-first" aria-label="Link to section: A benchmark card, and why you compare against yourself first">#</a></h2>
+<p>Benchmarks are useful as a floor and dangerous as a target. A floor gives you a rough sense of whether a number is broken or normal. A target lies to you, because a benchmark drawn from a vendor&#39;s whole corpus averages your one-minute product demo together with webinars, sales messages, and course content, and that average is only as meaningful as the two populations are alike. Read the card below as a floor, then hold the video against its own last version.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>What it is</th>
+<th>Rough range to beat</th>
+<th>The lever that moves it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Play rate</td>
+<td>Plays divided by page loads with the player present</td>
+<td>~10% on low-intent pages, highest on home and product pages<sup class="article-cite"><a href="#src-1" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">1</a></sup></td>
+<td>Poster frame, placement, thumbnail, autoplay</td>
+</tr>
+<tr>
+<td>Engagement rate</td>
+<td>Average share of the video watched</td>
+<td>~15-20% for on-demand webinars, higher for sub-5-minute clips<sup class="article-cite"><a href="#src-1" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">1</a></sup></td>
+<td>Length, pacing, cut dead air</td>
+</tr>
+<tr>
+<td>Completion</td>
+<td>Share of players who reach the end</td>
+<td>65% finish under 1 minute, 20% finish over 20 minutes<sup class="article-cite"><a href="#src-2" title="Vidyard — Video in Business Benchmark Report (2025 edition)">2</a></sup></td>
+<td>Match length to the placement</td>
+</tr>
+<tr>
+<td>Assisted conversions</td>
+<td>Touches on a conversion path that are not the last click</td>
+<td>For top-of-funnel video, typically far above its last-click credit</td>
+<td>Connect the player to your CRM</td>
+</tr>
+</tbody></table></div>
+<p>Two caveats keep the card honest. First, engagement and completion move with length as a matter of arithmetic: a fifteen-second clip that half the audience finishes posts a far higher completion rate than a ten-minute tutorial nobody was going to finish, so never compare the completion of two videos of different lengths. Wistia&#39;s numbers show the mechanism from the other side, with on-demand webinar engagement running around 15-20% while shorter clips run higher, and even inside the webinar category the 31-to-45-minute cut drew more than twice the engagement of the sub-30-minute one, because the people who chose the longer session were warmer to begin with<sup class="article-cite"><a href="#src-1" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">1</a></sup>. Second, the only benchmark that is truly comparable is your own: same demo, same length, same placement, last month against this month. That comparison is what a <a href="/blog/automated-product-demo-videos/">regenerate-don&#39;t-re-record workflow</a> makes practical, because you can change one variable, the hook or the third scene, and re-render everything else identical, which is the closest a marketing video ever gets to a controlled experiment.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://wistia.com/learn/marketing/video-marketing-statistics" rel="noopener">Wistia — State of Video Report: Video Marketing Statistics for 2026</a></li>
+<li id="src-2"><a href="https://www.vidyard.com/business-video-benchmarks/" rel="noopener">Vidyard — Video in Business Benchmark Report (2025 edition)</a></li>
+<li id="src-3"><a href="https://support.google.com/youtube/answer/9314415" rel="noopener">YouTube Help — Audience retention report (curve shapes and the intro metric)</a></li>
+<li id="src-4"><a href="https://support.google.com/analytics/answer/1191204" rel="noopener">Google Analytics Help — Assisted conversions and the assisted/last-click ratio</a></li>
+<li id="src-5"><a href="https://support.google.com/analytics/answer/10596866" rel="noopener">Google Analytics Help — About attribution and attribution models (GA4)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-a-good-play-rate-for-a-demo-video" class="blog-faq-q">What is a good play rate for a demo video?<a class="hanchor" href="#what-is-a-good-play-rate-for-a-demo-video" aria-label="Link to section: What is a good play rate for a demo video?">#</a></h3>
+<p>There is no universal figure, because play rate is a ratio of plays to page loads and it depends far more on placement than on the video. Wistia&#39;s 2026 data puts thank-you and contact pages near 10%, while homepages, product pages, and video galleries pull the highest rates in its corpus. Treat that as a floor: if a demo on a product page is underperforming a home-page rate, the problem is almost always the poster frame, the position on the page, or the thumbnail, not the film.</p>
+<h3 id="how-do-you-read-a-video-retention-or-drop-off-graph" class="blog-faq-q">How do you read a video retention or drop-off graph?<a class="hanchor" href="#how-do-you-read-a-video-retention-or-drop-off-graph" aria-label="Link to section: How do you read a video retention or drop-off graph?">#</a></h3>
+<p>Read it by shape, not by the average. A gentle even slope is normal tapering. An early cliff in the first ten to fifteen seconds is a verdict on the opening. A mid-video valley marks a dead stretch, a load or a boring step, that you should cut or speed up. A late cliff means the payoff already landed and you should end the video there. A plateau or upward spike marks a moment people rewatch, so do more of it and move it earlier. YouTube&#39;s audience-retention report names the same primitives: flat means watched in full, a dip means people abandoned that spot.</p>
+<h3 id="what-are-assisted-conversions-and-why-do-they-matter-for-demo-videos" class="blog-faq-q">What are assisted conversions, and why do they matter for demo videos?<a class="hanchor" href="#what-are-assisted-conversions-and-why-do-they-matter-for-demo-videos" aria-label="Link to section: What are assisted conversions, and why do they matter for demo videos?">#</a></h3>
+<p>An assisted conversion is credit given to a touchpoint that appears anywhere on a conversion path except as the final click. Demo video is almost always an assist rather than a close: people watch, leave, and convert later through another channel that takes the last-click credit. Because fewer than half of marketers wire their video platform into a CRM (Wistia, 2026), most demos are judged only on last-click conversion, where a persuasive top-of-funnel video looks worthless. Firing a watch event into your analytics and reading the attribution report is how you see the credit it actually earned.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demo video metrics</span>
+        <span class="article-tag">video analytics</span>
+        <span class="article-tag">play rate</span>
+        <span class="article-tag">audience retention</span>
+        <span class="article-tag">assisted conversions</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-on-landing-page/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-on-landing-page-400.webp" srcset="/blog/images/demo-video-on-landing-page-400.webp 400w, /blog/images/demo-video-on-landing-page-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A paper airplane caught in mid-glide, nose tilted slightly upward"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Putting a demo video on your landing page without wrecking load time</h3>
+    <p class="article-card-excerpt">A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/does-video-increase-conversion/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/does-video-increase-conversion-400.webp" srcset="/blog/images/does-video-increase-conversion-400.webp 400w, /blog/images/does-video-increase-conversion-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A brass-style balance scale tipped to one side, one shallow pan hanging lower than the other"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Does video actually increase conversion? Tracing the 80% claim</h3>
+    <p class="article-card-excerpt">The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-numbers-three-questions-your-demo-has-to-answer">Three numbers, three questions your demo has to answer</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-counting-problem-impression-load-play-and-view">The counting problem: impression, load, play, and view</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#play-rate-the-number-your-poster-and-placement-control">Play rate: the number your poster and placement control</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#reading-the-retention-curve-five-shapes-and-what-each-tells-you-to-fix">Reading the retention curve: five shapes and what each tells you to fix</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#assisted-conversions-the-number-almost-nobody-instruments">Assisted conversions: the number almost nobody instruments</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-benchmark-card-and-why-you-compare-against-yourself-first">A benchmark card, and why you compare against yourself first</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

@@ -200,5 +200,22 @@
   "ai-documentation-tools": {
     "subject": "a rounded toy shape-sorter box with three cutout holes",
     "seedOffset": 1
+  },
+  "product-walkthrough-video": {
+    "subject": "a curving path of flat stepping stones across still water"
+  },
+  "screen-recording-without-cursor": {
+    "subject": "a slim conductor's baton resting on a small round stand"
+  },
+  "demo-video-metrics": {
+    "subject": "a coiled stethoscope resting on a smooth tabletop",
+    "seedOffset": 1
+  },
+  "descript-alternatives-for-demo-editing": {
+    "subject": "a golf bag with rounded club heads peeking out"
+  },
+  "gifs-in-documentation": {
+    "subject": "a spinning zoetrope drum on a small wooden base",
+    "seedOffset": 1
   }
 }

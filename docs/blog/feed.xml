@@ -127,6 +127,13 @@
       <description>Viewers decide to leave in the first few seconds. Six opening moves that earn the next fifty, the one intro to retire, and which hook fits muted autoplay.</description>
     </item>
     <item>
+      <title>Demo video metrics: play rate, retention, and assisted conversions</title>
+      <link>https://aidemo.top/blog/demo-video-metrics/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-metrics/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</description>
+    </item>
+    <item>
       <title>Putting a demo video on your landing page without wrecking load time</title>
       <link>https://aidemo.top/blog/demo-video-on-landing-page/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-video-on-landing-page/</guid>
@@ -160,6 +167,13 @@
       <guid isPermaLink="true">https://aidemo.top/blog/demos-as-code/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</description>
+    </item>
+    <item>
+      <title>Descript alternatives for editing demo videos</title>
+      <link>https://aidemo.top/blog/descript-alternatives-for-demo-editing/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/descript-alternatives-for-demo-editing/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Descript edits video by editing the transcript. That trick shines on a podcast and fights a screen demo. The alternatives, sorted by what you grab.</description>
     </item>
     <item>
       <title>Detecting UI drift before your demo lies about the product</title>
@@ -197,25 +211,11 @@
       <description>Some free demo tools are free forever, some stop you at 5 minutes, and some brand every export. A field guide to which paywall is waiting for you.</description>
     </item>
     <item>
-      <title>Hide notifications while screen recording, on every OS</title>
-      <link>https://aidemo.top/blog/hide-notifications-while-recording/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/hide-notifications-while-recording/</guid>
+      <title>GIFs in documentation: when a loop beats a screenshot</title>
+      <link>https://aidemo.top/blog/gifs-in-documentation/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/gifs-in-documentation/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>A toast doesn&apos;t live in your window; the OS paints it on top. Do Not Disturb on every OS, why it still leaks, and where a notification can&apos;t fire.</description>
-    </item>
-    <item>
-      <title>How long should a demo video be? The retention math</title>
-      <link>https://aidemo.top/blog/how-long-should-a-demo-video-be/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/how-long-should-a-demo-video-be/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.</description>
-    </item>
-    <item>
-      <title>How to make a product demo video (that people finish)</title>
-      <link>https://aidemo.top/blog/how-to-make-a-product-demo-video/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/how-to-make-a-product-demo-video/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</description>
+      <description>An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</description>
     </item>
   </channel>
 </rss>

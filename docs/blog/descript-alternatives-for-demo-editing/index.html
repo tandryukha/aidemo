@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Descript alternatives, by editing model | aidemo</title>
+<meta name="description" content="Sort Descript alternatives by what you edit: the word (Reduct), the clip (Camtasia, DaVinci Resolve), or a spec you re-render. Plus why transcripts fight demos.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/descript-alternatives-for-demo-editing/">
+<link rel="alternate" type="text/markdown" href="/blog/descript-alternatives-for-demo-editing/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Descript alternatives, by editing model | aidemo">
+<meta property="og:description" content="Sort Descript alternatives by what you edit: the word (Reduct), the clip (Camtasia, DaVinci Resolve), or a spec you re-render. Plus why transcripts fight demos.">
+<meta property="og:url" content="https://aidemo.top/blog/descript-alternatives-for-demo-editing/">
+<meta property="og:image" content="https://aidemo.top/blog/images/descript-alternatives-for-demo-editing-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Descript alternatives, by editing model | aidemo">
+<meta name="twitter:description" content="Sort Descript alternatives by what you edit: the word (Reduct), the clip (Camtasia, DaVinci Resolve), or a spec you re-render. Plus why transcripts fight demos.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/descript-alternatives-for-demo-editing-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Descript alternatives for editing demo videos",
+  "description": "Sort Descript alternatives by what you edit: the word (Reduct), the clip (Camtasia, DaVinci Resolve), or a spec you re-render. Plus why transcripts fight demos.",
+  "image": [
+    "https://aidemo.top/blog/images/descript-alternatives-for-demo-editing-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/descript-alternatives-for-demo-editing/"
+  },
+  "wordCount": 2008,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Descript — pricing and plans",
+      "url": "https://www.descript.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Descript — transcript-based editing and AI features",
+      "url": "https://www.descript.com/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Reduct — text-based video editing",
+      "url": "https://reduct.video/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "TechSmith — Camtasia store and subscription tiers",
+      "url": "https://www.techsmith.com/store/camtasia"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Blackmagic Design — DaVinci Resolve (free vs Studio, text-based editing)",
+      "url": "https://www.blackmagicdesign.com/products/davinciresolve"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "aidemo — GitHub repository (our engine, disclosed as ours)",
+      "url": "https://github.com/tandryukha/aidemo"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Descript alternatives for editing demo videos",
+      "item": "https://aidemo.top/blog/descript-alternatives-for-demo-editing/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is there a free way to edit demo videos without Descript?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, and it depends on the handle you want. Descript's own free tier gives 60 minutes a month but caps export at 720p and adds a watermark until you reach a paid plan. For a free timeline editor with no watermark and no minute cap, DaVinci Resolve is the strongest option, and its paid Studio license ($295, one-time) even adds text-based editing. And if the demo is of a web product you would rather regenerate than hand-edit, a spec-driven renderer like the one we build is MIT-licensed and free to run."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does deleting a word in Descript actually delete the video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. That is the core of transcript-based editing: the text and the footage are linked, so removing a word from the transcript removes the frames it maps to. On a talking-head recording that is exactly what you want. On a screen demo it is the catch, because the narration and the on-screen action run on different clocks, so the frames under a deleted sentence are usually not the UI moment you meant to cut, and you end up repairing the result on the timeline anyway."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Descript good for editing screen recordings and product demos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It can record and edit them, but the transcript model is tuned for content where the spoken words are the footage, not for narration laid over a moving interface. Filler-word removal and AI re-voicing fix the audio cleanly; neither touches the demo's real recurring problem, which is the recorded UI going stale as the product ships. For a demo library on a fast-moving web product, a renderer that regenerates from a spec removes that maintenance edit entirely, which no transcript editor does."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>Descript alternatives for editing demo videos</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">Descript alternatives for editing demo videos</h1>
+        <p class="article-dek">Descript edits video by editing the transcript. That trick shines on a podcast and fights a screen demo. The alternatives, sorted by what you grab.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-word-is-the-handle-descript-hands-you">The word is the handle Descript hands you</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-descript-charges-and-for-what">What Descript charges, and for what</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-handles-the-word-the-clip-and-the-spec">Three handles: the word, the clip, and the spec</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-alternatives-by-what-you-edit">The alternatives, by what you edit</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-editing-by-transcript-quietly-fights-a-screen-demo">Where editing-by-transcript quietly fights a screen demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-the-fix-is-not-an-edit-at-all">When the fix is not an edit at all</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#match-the-editor-to-the-cut-you-keep-making">Match the editor to the cut you keep making</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/descript-alternatives-for-demo-editing-800.webp" srcset="/blog/images/descript-alternatives-for-demo-editing-400.webp 400w, /blog/images/descript-alternatives-for-demo-editing-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A golf bag standing upright with rounded club heads peeking out of the top"><figcaption>A transcript editor is one club; a screen demo usually calls for a different one out of the bag.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Descript's model is transcript editing (delete a word, delete the footage), priced free (60 min/mo, 720p, watermark) up to Business at $50/mo annual.</li>
+    <li>Sort alternatives by what you grab: the word (Descript, Reduct), the clip (Camtasia, DaVinci Resolve), or a spec you re-render instead of edit.</li>
+    <li>Text-based editing is no longer a Descript moat: DaVinci Resolve Studio ($295 one-time) bundles it inside a full timeline editor.</li>
+    <li>On a demo, narration and screen run on two clocks, so deleting a line in a transcript editor orphans the UI action under it and you fix it by hand anyway.</li>
+    <li>Filler-word removal and AI re-voicing fix the audio, not the demo's real problem (the UI going stale); only a spec you re-render (aidemo, ours, MIT) closes that.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-word-is-the-handle-descript-hands-you">The word is the handle Descript hands you<a class="hanchor" href="#the-word-is-the-handle-descript-hands-you" aria-label="Link to section: The word is the handle Descript hands you">#</a></h2>
+<p>Descript&#39;s pitch is one genuinely different idea: you edit the video by editing its transcript. Delete a word from the text and the frames beneath it vanish; move a sentence and the clip moves with it. The company frames it as making &quot;video editing as easy as using docs and slides&quot;<sup class="article-cite"><a href="#src-2" title="Descript — transcript-based editing and AI features">2</a></sup>. For a podcast or a talking-head recording, where the words on screen are the footage, that is a real change in how the work feels.</p>
+<p>People go shopping for a Descript alternative for one of two reasons. The first is price. The second is quieter and more interesting: the transcript model, which feels effortless on a monologue, fights you on a screen recording, and it takes a few frustrating cuts to work out why. Most &quot;Descript alternatives&quot; roundups answer only the first reason, stacking fifteen editors by star rating. This one sorts the field by the thing that actually changes your afternoon, which is what you grab hold of when you make a cut, and then makes the honest case for when editing-by-transcript is the wrong tool for a product demo. It is the same instinct the <a href="/blog/ai-demo-video-generators/">pillar map of AI demo video generators</a> applies to the market as a whole: buy on mechanism, not on logo.</p>
+<h2 id="what-descript-charges-and-for-what">What Descript charges, and for what<a class="hanchor" href="#what-descript-charges-and-for-what" aria-label="Link to section: What Descript charges, and for what">#</a></h2>
+<p>Descript&#39;s plans meter two things at once, media minutes and AI credits, so the ceiling you hit first depends on which you burn faster.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Annual price</th>
+<th>Media/mo</th>
+<th>Export</th>
+<th>Notable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Free</td>
+<td>$0</td>
+<td>60 min</td>
+<td>720p</td>
+<td>100 one-time AI credits, limited AI tools</td>
+</tr>
+<tr>
+<td>Hobbyist</td>
+<td>$16/mo</td>
+<td>600 min (10 hr)</td>
+<td>1080p, watermark-free</td>
+<td>25+ AI voices</td>
+</tr>
+<tr>
+<td>Creator</td>
+<td>$24/mo</td>
+<td>1,800 min (30 hr)</td>
+<td>4K</td>
+<td>full Underlord, 20+ AI tools</td>
+</tr>
+<tr>
+<td>Business</td>
+<td>$50/mo</td>
+<td>2,400 min (40 hr)</td>
+<td>4K</td>
+<td>dub in 30+ languages, custom avatars</td>
+</tr>
+</tbody></table></div>
+<p>All figures from Descript&#39;s pricing page in July 2026<sup class="article-cite"><a href="#src-1" title="Descript — pricing and plans">1</a></sup>; those are the annual rates, and month-to-month billing runs higher across the board (Hobbyist $24, Creator $35, Business $65). The features people actually name are Remove Filler Words (strips the &quot;ums&quot; and &quot;uhs&quot;), Overdub and AI voices (a cloned or stock voice that reads typed text), Studio Sound (noise removal), and Underlord, Descript&#39;s &quot;agentic video co-editor&quot;<sup class="article-cite"><a href="#src-2" title="Descript — transcript-based editing and AI features">2</a></sup>. Two things bite on the free tier: export caps at 720p, and watermark-free 1080p only begins at Hobbyist. If 720p-with-a-watermark will not do and the jump to a paid seat feels steep for how little you edit, you are in the price camp, and the cheapest answer is a different editor, not a different plan.</p>
+<h2 id="three-handles-the-word-the-clip-and-the-spec">Three handles: the word, the clip, and the spec<a class="hanchor" href="#three-handles-the-word-the-clip-and-the-spec" aria-label="Link to section: Three handles: the word, the clip, and the spec">#</a></h2>
+<p>Strip the branding and every tool here hands you one of three things to grab when you change the video.</p>
+<ul>
+<li><strong>The word.</strong> Transcript editors, Descript and Reduct among them, put a document in front of you and cut the footage to match your edits to the text. Reduct calls its version &quot;Ctrl + F for video&quot;: edit the transcript to edit the video, delete words to cut footage, and sweep filler words and silences in one pass<sup class="article-cite"><a href="#src-3" title="Reduct — text-based video editing">3</a></sup>.</li>
+<li><strong>The clip.</strong> Timeline editors, Camtasia and DaVinci Resolve and CapCut, give you tracks and a playhead. You cut, layer, and keyframe by hand. It is the most control and the most labor.</li>
+<li><strong>The spec.</strong> A third option deletes the edit itself: describe the demo as a file, the clicks and the narration and the timing, and an engine renders it, then re-renders when the file changes. There is no take to trim because there is no take, only a source you change. This is the <a href="/blog/demos-as-code/">demos-as-code</a> approach.</li>
+</ul>
+<p>One correction the listicles never make: text-based editing is not a Descript moat anymore. DaVinci Resolve&#39;s Studio version, a one-time $295 license, lists &quot;text based editing&quot; among its features<sup class="article-cite"><a href="#src-5" title="Blackmagic Design — DaVinci Resolve (free vs Studio, text-based editing)">5</a></sup>, and it runs inside a full timeline editor rather than instead of one. By 2026, &quot;I want to edit by transcript&quot; is a reason to pick a feature, not a reason to pick Descript.</p>
+<h2 id="the-alternatives-by-what-you-edit">The alternatives, by what you edit<a class="hanchor" href="#the-alternatives-by-what-you-edit" aria-label="Link to section: The alternatives, by what you edit">#</a></h2>
+<p>Here is the field with the handle made the primary axis, each row checked against the vendor&#39;s own pages in July 2026.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Handle</th>
+<th>Filler-word / AI voice</th>
+<th>Platforms</th>
+<th>Price floor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Descript</td>
+<td>Word (transcript)</td>
+<td>Both</td>
+<td>Mac, Windows, web</td>
+<td>Free (60 min, 720p) / $16/mo</td>
+</tr>
+<tr>
+<td>Reduct</td>
+<td>Word (transcript)</td>
+<td>Filler + silence removal</td>
+<td>Web</td>
+<td>Contact sales</td>
+</tr>
+<tr>
+<td>Camtasia</td>
+<td>Clip (timeline)</td>
+<td>Neither, done by hand</td>
+<td>Mac, Windows</td>
+<td>Subscription, four tiers</td>
+</tr>
+<tr>
+<td>DaVinci Resolve</td>
+<td>Clip (timeline)</td>
+<td>Studio tier only</td>
+<td>Mac, Windows, Linux</td>
+<td>Free / $295 once</td>
+</tr>
+<tr>
+<td>aidemo (ours)</td>
+<td>Spec (regenerate)</td>
+<td>TTS voice, re-timed</td>
+<td>Web (browser only)</td>
+<td>Free, MIT</td>
+</tr>
+</tbody></table></div>
+<p>Camtasia is the heavyweight timeline incumbent, now subscription-only across four tiers<sup class="article-cite"><a href="#src-4" title="TechSmith — Camtasia store and subscription tiers">4</a></sup>; the fuller accounting of its lanes lives in the <a href="/blog/camtasia-alternatives/">Camtasia alternatives</a> map, so this piece does not re-derive it. DaVinci Resolve is the free timeline option, genuinely capable, with the text-based panel waiting one paid tier up. Reduct sits beside Descript on the word handle, aimed at interview and documentary teams who search their footage as text. The last row is a different animal, covered below.</p>
+<h2 id="where-editing-by-transcript-quietly-fights-a-screen-demo">Where editing-by-transcript quietly fights a screen demo<a class="hanchor" href="#where-editing-by-transcript-quietly-fights-a-screen-demo" aria-label="Link to section: Where editing-by-transcript quietly fights a screen demo">#</a></h2>
+<p>This is the part the comparison pages miss, and it is why a demo maker&#39;s afternoon with Descript reads nothing like a podcaster&#39;s. Transcript editing rests on one assumption: that the words and the footage are the same thing on the same clock. On a talking head they are, because the mouth on screen is saying the word you are about to delete, so cutting the word and cutting the frame is a single act. A product demo breaks the assumption. The words are narration laid over a screen recording of a UI doing something, and the two run on separate clocks. You say &quot;now I click Export&quot; while the cursor is already three actions ahead. Delete that sentence from the transcript and Descript faithfully removes the frames underneath it, which are some arbitrary slice of the screen capture, not the Export click. You are left with an orphaned action or a jump cut, and you drop back to the timeline to fix by hand the exact thing the transcript was supposed to spare you.</p>
+<p>So the two features people buy Descript for cut cleanly through the audio and glance off the video. Remove Filler Words tidies your speech; it does nothing about the button that moved in last week&#39;s release. Overdub lets you patch a fluffed line by retyping it, the same edit-the-script, re-voice-the-line move any <a href="/blog/ai-voiceover-for-demo-videos/">AI voiceover workflow</a> gives you, but the pixels under the new narration are still the take you shot in March. The hardest and most recurring edit on a demo is not the narration at all. It is the <a href="/blog/why-product-demos-go-stale/">screen going out of date</a>, and no transcript reaches it.</p>
+<h2 id="when-the-fix-is-not-an-edit-at-all">When the fix is not an edit at all<a class="hanchor" href="#when-the-fix-is-not-an-edit-at-all" aria-label="Link to section: When the fix is not an edit at all">#</a></h2>
+<p>The models above all assume a captured take you then repair. The spec handle skips the repair. When the demo is a file that holds the browser actions and the narration together, the two are pinned to each other by construction: cut a line of narration and its action drops with it, and the rest re-times automatically, so there is no orphaned click because the clocks were never separate. When the UI moves, you change the affected line and re-render, which is the maintenance model the record-and-edit tools structurally cannot reach.</p>
+<p>aidemo, which we build, is an open-source (MIT) instance of this. A coding agent writes the storyboard, a deterministic engine replays it in real Chrome, and ffmpeg assembles the captioned MP4<sup class="article-cite"><a href="#src-6" title="aidemo — GitHub repository (our engine, disclosed as ours)">6</a></sup>. Its limits are the mirror image of Descript&#39;s strengths, and worth stating flat: it captures a browser and nothing outside it, so native-desktop and mobile recordings are out; the storyboard is authored, not performed on a canvas; and there is no click-to-trim timeline, since you change a line of text and re-render instead of dragging a clip. If your content is a talking head, an interview, or a walkthrough of a native app, Descript&#39;s transcript or a real timeline is the right tool and this one is not. If it is a web-product demo you would rather regenerate than re-cut, the transcript was never the handle you needed.</p>
+<h2 id="match-the-editor-to-the-cut-you-keep-making">Match the editor to the cut you keep making<a class="hanchor" href="#match-the-editor-to-the-cut-you-keep-making" aria-label="Link to section: Match the editor to the cut you keep making">#</a></h2>
+<p>Pick by the edit you find yourself making over and over, and take the first row that fits.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The edit you repeat most is…</th>
+<th>Reach for</th>
+<th>Handle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Trimming filler, re-ordering spoken content</td>
+<td>Descript or Reduct</td>
+<td>Word</td>
+</tr>
+<tr>
+<td>Frame-precise compositing, native capture, motion graphics</td>
+<td>DaVinci Resolve or Camtasia</td>
+<td>Clip</td>
+</tr>
+<tr>
+<td>Fixing a demo because the product changed</td>
+<td>A regenerating renderer (aidemo, ours)</td>
+<td>Spec</td>
+</tr>
+<tr>
+<td>Editing on a budget with no watermark</td>
+<td>DaVinci Resolve (free) or a spec renderer</td>
+<td>Clip / Spec</td>
+</tr>
+</tbody></table></div>
+<p>Two honest closes. First, Descript is genuinely good at the job it was built for: any recording where the words are the picture, where deleting a sentence and deleting its footage really is one clean move. The reasons to leave are the price ladder and the transcript model chafing against screen content, not the quality of the editor. Second, if the appeal was purely editing video by editing text, you can now get that panel inside DaVinci Resolve or Premiere without adopting a whole second app, which turns the shopping question from &quot;which text-based editor&quot; into &quot;which editor, that also happens to read text.&quot;</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.descript.com/pricing" rel="noopener">Descript — pricing and plans</a></li>
+<li id="src-2"><a href="https://www.descript.com/" rel="noopener">Descript — transcript-based editing and AI features</a></li>
+<li id="src-3"><a href="https://reduct.video/" rel="noopener">Reduct — text-based video editing</a></li>
+<li id="src-4"><a href="https://www.techsmith.com/store/camtasia" rel="noopener">TechSmith — Camtasia store and subscription tiers</a></li>
+<li id="src-5"><a href="https://www.blackmagicdesign.com/products/davinciresolve" rel="noopener">Blackmagic Design — DaVinci Resolve (free vs Studio, text-based editing)</a></li>
+<li id="src-6"><a href="https://github.com/tandryukha/aidemo" rel="noopener">aidemo — GitHub repository (our engine, disclosed as ours)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-there-a-free-way-to-edit-demo-videos-without-descript" class="blog-faq-q">Is there a free way to edit demo videos without Descript?<a class="hanchor" href="#is-there-a-free-way-to-edit-demo-videos-without-descript" aria-label="Link to section: Is there a free way to edit demo videos without Descript?">#</a></h3>
+<p>Yes, and it depends on the handle you want. Descript&#39;s own free tier gives 60 minutes a month but caps export at 720p and adds a watermark until you reach a paid plan. For a free timeline editor with no watermark and no minute cap, DaVinci Resolve is the strongest option, and its paid Studio license ($295, one-time) even adds text-based editing. And if the demo is of a web product you would rather regenerate than hand-edit, a spec-driven renderer like the one we build is MIT-licensed and free to run.</p>
+<h3 id="does-deleting-a-word-in-descript-actually-delete-the-video" class="blog-faq-q">Does deleting a word in Descript actually delete the video?<a class="hanchor" href="#does-deleting-a-word-in-descript-actually-delete-the-video" aria-label="Link to section: Does deleting a word in Descript actually delete the video?">#</a></h3>
+<p>Yes. That is the core of transcript-based editing: the text and the footage are linked, so removing a word from the transcript removes the frames it maps to. On a talking-head recording that is exactly what you want. On a screen demo it is the catch, because the narration and the on-screen action run on different clocks, so the frames under a deleted sentence are usually not the UI moment you meant to cut, and you end up repairing the result on the timeline anyway.</p>
+<h3 id="is-descript-good-for-editing-screen-recordings-and-product-demos" class="blog-faq-q">Is Descript good for editing screen recordings and product demos?<a class="hanchor" href="#is-descript-good-for-editing-screen-recordings-and-product-demos" aria-label="Link to section: Is Descript good for editing screen recordings and product demos?">#</a></h3>
+<p>It can record and edit them, but the transcript model is tuned for content where the spoken words are the footage, not for narration laid over a moving interface. Filler-word removal and AI re-voicing fix the audio cleanly; neither touches the demo&#39;s real recurring problem, which is the recorded UI going stale as the product ships. For a demo library on a fast-moving web product, a renderer that regenerates from a spec removes that maintenance edit entirely, which no transcript editor does.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">descript alternatives</span>
+        <span class="article-tag">text-based video editing</span>
+        <span class="article-tag">demo editing</span>
+        <span class="article-tag">demo tools</span>
+        <span class="article-tag">open source</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-demo-video-generators-400.webp" srcset="/blog/images/ai-demo-video-generators-400.webp 400w, /blog/images/ai-demo-video-generators-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="One search bar branching into four outputs: a video, an interactive embed, an avatar clip, and a real-UI render"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/ai-documentation-tools/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-documentation-tools-400.webp" srcset="/blog/images/ai-documentation-tools-400.webp 400w, /blog/images/ai-documentation-tools-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A rounded toy shape-sorter box with three differently shaped cutout holes"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI documentation tools mapped: Guidde, Scribe, Clueso, Supademo</h3>
+    <p class="article-card-excerpt">Five AI documentation tools get sold as one category. They split into text step guides, narrated video, and click-throughs, and each rots differently.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/arcade-vs-navattic-vs-storylane/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/arcade-vs-navattic-vs-storylane-400.webp" srcset="/blog/images/arcade-vs-navattic-vs-storylane-400.webp 400w, /blog/images/arcade-vs-navattic-vs-storylane-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single ice cream cone piled with scoops of ice cream in different colors"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Arcade vs Navattic vs Storylane: picking an interactive demo platform</h3>
+    <p class="article-card-excerpt">They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-word-is-the-handle-descript-hands-you">The word is the handle Descript hands you</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-descript-charges-and-for-what">What Descript charges, and for what</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-handles-the-word-the-clip-and-the-spec">Three handles: the word, the clip, and the spec</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-alternatives-by-what-you-edit">The alternatives, by what you edit</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-editing-by-transcript-quietly-fights-a-screen-demo">Where editing-by-transcript quietly fights a screen demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-the-fix-is-not-an-edit-at-all">When the fix is not an edit at all</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#match-the-editor-to-the-cut-you-keep-making">Match the editor to the cut you keep making</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

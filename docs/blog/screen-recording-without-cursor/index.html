@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen recording without the cursor | aidemo</title>
+<meta name="description" content="Record your screen without the mouse cursor: the exact toggle in OBS, ffmpeg, macOS, and getDisplayMedia, plus when to replace it with a smooth synthetic one.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/screen-recording-without-cursor/">
+<link rel="alternate" type="text/markdown" href="/blog/screen-recording-without-cursor/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Screen recording without the cursor | aidemo">
+<meta property="og:description" content="Record your screen without the mouse cursor: the exact toggle in OBS, ffmpeg, macOS, and getDisplayMedia, plus when to replace it with a smooth synthetic one.">
+<meta property="og:url" content="https://aidemo.top/blog/screen-recording-without-cursor/">
+<meta property="og:image" content="https://aidemo.top/blog/images/screen-recording-without-cursor-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Screen recording without the cursor | aidemo">
+<meta name="twitter:description" content="Record your screen without the mouse cursor: the exact toggle in OBS, ffmpeg, macOS, and getDisplayMedia, plus when to replace it with a smooth synthetic one.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/screen-recording-without-cursor-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Screen recording without the mouse cursor (or with a better one)",
+  "description": "Record your screen without the mouse cursor: the exact toggle in OBS, ffmpeg, macOS, and getDisplayMedia, plus when to replace it with a smooth synthetic one.",
+  "image": [
+    "https://aidemo.top/blog/images/screen-recording-without-cursor-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/screen-recording-without-cursor/"
+  },
+  "wordCount": 2038,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — devices documentation (x11grab and gdigrab draw_mouse option)",
+      "url": "https://ffmpeg.org/ffmpeg-devices.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — MediaTrackSettings: cursor (never, always, motion)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/cursor"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Screen Capture specification (cursor constrainable property)",
+      "url": "https://w3c.github.io/mediacapture-screen-share/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — CSS cursor property (the none value)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/cursor"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple Support — Take screenshots or screen recordings on Mac (Show Mouse Pointer)",
+      "url": "https://support.apple.com/guide/mac-help/take-screenshots-or-screen-recordings-mh26782/mac"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — capture source UI strings (Capture Cursor label)",
+      "url": "https://raw.githubusercontent.com/obsproject/obs-studio/master/plugins/win-capture/data/locale/en-US.ini"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Screen recording without the mouse cursor (or with a better one)",
+      "item": "https://aidemo.top/blog/screen-recording-without-cursor/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I record my screen without showing the mouse cursor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Flip the capture-time switch in your tool. In OBS, uncheck Capture Cursor on the display or window source. With ffmpeg, add -draw_mouse 0 to an x11grab (Linux) or gdigrab (Windows) capture, since both default to drawing the pointer. On a Mac, open the Shift-Command-5 toolbar and uncheck Show Mouse Pointer under Options. A browser recorder built on getDisplayMedia can request a cursor value of never. Each removes the pointer before it is written to the file, and there is no reliable way to strip it out afterward, so decide before you record."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I remove the mouse cursor from a video after recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not cleanly. Once a frame is captured with the pointer drawn on it, the cursor is part of the image, sitting on top of whatever it was hovering, so removing it means reconstructing the covered pixels on every frame it appears, which is a manual visual-effects job rather than a setting. The practical answer is to prevent it at capture time with your tool's cursor toggle, or to record a scripted or headless take that never had an operating-system pointer in the first place."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should a demo video show the mouse cursor or not?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on whether the pointer teaches the viewer anything at that moment. In a landing-page walkthrough or an app-store preview the pointer is decoration, so hide it or replace the jittery real one with a smooth synthetic pointer. In a live sales demo or a click-here support video the pointer location is the instruction, so keep it, but enlarge it and add click highlights so it reads clearly. When in doubt, ask what the cursor is telling the viewer; if the answer is nothing, take it out."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Screen recording without the mouse cursor (or with a better one)</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Screen recording without the mouse cursor (or with a better one)</h1>
+        <p class="article-dek">A captured cursor can't be cleanly removed later, so hiding it is a record-time switch. The per-tool cheat sheet, and the pro move that beats hiding it.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#you-cant-subtract-a-cursor-in-post">You can't subtract a cursor in post</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-switch-that-kills-the-cursor-per-tool">The switch that kills the cursor, per tool</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-you-would-want-no-cursor-at-all">Why you would want no cursor at all</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-better-cursor-replace-it-dont-just-remove-it">The better cursor: replace it, don't just remove it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pick-the-treatment-by-what-the-demo-is-for">Pick the treatment by what the demo is for</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/screen-recording-without-cursor-800.webp" srcset="/blog/images/screen-recording-without-cursor-400.webp 400w, /blog/images/screen-recording-without-cursor-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay conductor's baton resting on a small round stand"><figcaption>Killing the cursor removes a distraction; a synthetic one does the baton's work, leading the eye instead of twitching in front of it.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A captured cursor is baked into the pixels — there is no clean way to remove it in post, so hiding it is a record-time switch, not an edit.</li>
+    <li>The per-tool switch: OBS uncheck Capture Cursor; ffmpeg -draw_mouse 0 (x11grab and gdigrab, default 1); macOS uncheck Show Mouse Pointer; getDisplayMedia cursor: never.</li>
+    <li>The getDisplayMedia cursor constraint has three values — never, always, motion; motion shows the pointer while it moves and fades it a moment after it stops.</li>
+    <li>A scripted or headless render has no OS cursor at all, so the pro move is not hiding the pointer but drawing a smooth synthetic one to each target.</li>
+    <li>Decide by whether the pointer teaches anything: hide it for previews and keyboard flows; keep and enlarge it for live sales and click-here how-tos.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="you-cant-subtract-a-cursor-in-post">You can&#39;t subtract a cursor in post<a class="hanchor" href="#you-cant-subtract-a-cursor-in-post" aria-label="Link to section: You can't subtract a cursor in post">#</a></h2>
+<p>A screen recording is mostly a story about where to look, and the mouse pointer is the loudest thing in the frame telling that story. Captured raw, it also tells a second story you did not mean to: a small, jittery arrow that overshoots its target and drifts while you read is the clearest single sign a human recorded this live. That raises the question people type into a search box, how do you record without it, and a quieter one underneath it, once you have the take can you take the cursor back out.</p>
+<p>You cannot, not cleanly. Whether the operating-system pointer lands in the video is decided the instant you press record, and it is decided in the pixels. If the cursor was drawn onto frame 900, it is now part of frame 900, fused to whatever button it was hovering over; removing it means reconstructing the covered region on every frame it appears, which is a visual-effects job and not a checkbox. This is the same one-way rule that governs resolution and a clean profile in <a href="/blog/how-to-record-your-screen-in-high-quality/">the capture-quality checklist</a>: some things are re-derivable at compose time and some are baked at record time, and the cursor sits firmly in the second column. So &quot;screen recording without the cursor&quot; is not an editing setting you reach for afterward. It is a switch you flip before the take.</p>
+<p>The good news is that almost every capture tool ships that switch. Here it is, per tool, with the exact name to look for.</p>
+<h2 id="the-switch-that-kills-the-cursor-per-tool">The switch that kills the cursor, per tool<a class="hanchor" href="#the-switch-that-kills-the-cursor-per-tool" aria-label="Link to section: The switch that kills the cursor, per tool">#</a></h2>
+<p>Each of these removes the pointer at capture time, so the recorded frames never contain it to begin with.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool / method</th>
+<th>The exact switch</th>
+<th>Platform</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OBS Studio</td>
+<td>uncheck <strong>Capture Cursor</strong> on the Display / Window / Game Capture source</td>
+<td>Win, macOS, Linux</td>
+<td>cursor drawn</td>
+</tr>
+<tr>
+<td>ffmpeg <code>x11grab</code></td>
+<td>add <code>-draw_mouse 0</code></td>
+<td>Linux (X11)</td>
+<td><code>1</code>, pointer drawn</td>
+</tr>
+<tr>
+<td>ffmpeg <code>gdigrab</code></td>
+<td>add <code>-draw_mouse 0</code></td>
+<td>Windows</td>
+<td><code>1</code>, pointer drawn</td>
+</tr>
+<tr>
+<td>macOS Screenshot toolbar (Shift-Cmd-5)</td>
+<td>Options, uncheck <strong>Show Mouse Pointer</strong></td>
+<td>macOS</td>
+<td>on when checked</td>
+</tr>
+<tr>
+<td>Browser <code>getDisplayMedia</code> recorder</td>
+<td>request <code>cursor: &quot;never&quot;</code></td>
+<td>any getDisplayMedia capture</td>
+<td>user-agent default</td>
+</tr>
+<tr>
+<td>Headless / scripted render</td>
+<td>no OS pointer exists; <code>cursor: none</code> hides any element cursor</td>
+<td>any</td>
+<td>no cursor</td>
+</tr>
+</tbody></table></div>
+<p>OBS labels the control exactly <strong>Capture Cursor</strong> in its shipped source strings, and the toggle rides along on the display, window, and game capture sources alike<sup class="article-cite"><a href="#src-6" title="OBS Studio — capture source UI strings (Capture Cursor label)">6</a></sup>. Uncheck it and OBS composites the frame without the system pointer.</p>
+<p>On the command line the option carries the same name on both platforms where it matters. FFmpeg&#39;s <code>x11grab</code> input takes <code>draw_mouse</code> to &quot;specify whether to draw the mouse pointer. A value of 0 specifies not to draw the pointer,&quot; with a default of 1; <code>gdigrab</code>, the Windows GDI grabber, documents the identical option, &quot;use the value 0 to not draw the pointer&quot;<sup class="article-cite"><a href="#src-1" title="FFmpeg — devices documentation (x11grab and gdigrab draw_mouse option)">1</a></sup>. So <code>ffmpeg -f x11grab -draw_mouse 0 -i :0.0 out.mp4</code> on Linux and the matching <code>-f gdigrab -draw_mouse 0</code> on Windows both write the screen with the pointer omitted.</p>
+<p>macOS keeps its built-in path simple. The Screenshot toolbar you raise with Shift-Command-5 has an Options menu with a <strong>Show Mouse Pointer</strong> entry, and leaving it unchecked records without the pointer<sup class="article-cite"><a href="#src-5" title="Apple Support — Take screenshots or screen recordings on Mac (Show Mouse Pointer)">5</a></sup>. There is no separate hide control to hunt for; the visibility is that one checkbox.</p>
+<p>The browser is the interesting row, because there the pointer is a first-class capture constraint rather than a paint step. A recorder built on <code>getDisplayMedia()</code> can ask for a <code>cursor</code> value of <code>never</code>, <code>always</code>, or <code>motion</code>. MDN spells them out: <code>never</code> means &quot;the mouse cursor is never included in the shared video,&quot; <code>always</code> keeps it visible, and <code>motion</code> says the cursor &quot;should always be included in the video if it&#39;s moving, and for a short time after it stops moving&quot;<sup class="article-cite"><a href="#src-2" title="MDN — MediaTrackSettings: cursor (never, always, motion)">2</a></sup>; the Screen Capture specification carries the same three-value enum, with <code>motion</code> including the cursor &quot;when the cursor/pointer is moved&quot; and removing it after a pause<sup class="article-cite"><a href="#src-3" title="W3C — Screen Capture specification (cursor constrainable property)">3</a></sup>. That <code>motion</code> value is the quiet gem: it shows the pointer while it travels and fades it when it parks, which is close to what a demo actually wants and impossible to coax out of a physical mouse.</p>
+<p>The last row is not a switch at all, and it is the cleanest of the set. A scripted or headless browser render, the kind that captures <a href="/blog/record-a-browser-tab/">one tab under program control</a>, has no operating-system pointer to capture, because there is no mouse and often no desktop session running. Nothing draws a cursor unless you ask it to, and any stray CSS cursor sitting over an element is removed with <code>cursor: none</code>, which MDN defines as simply &quot;no cursor is rendered&quot;<sup class="article-cite"><a href="#src-4" title="MDN — CSS cursor property (the none value)">4</a></sup>. You do not turn the cursor off. It was never on.</p>
+<h2 id="why-you-would-want-no-cursor-at-all">Why you would want no cursor at all<a class="hanchor" href="#why-you-would-want-no-cursor-at-all" aria-label="Link to section: Why you would want no cursor at all">#</a></h2>
+<p>Hiding the pointer sounds like discarding information, so it is worth being precise about when it is the right call.</p>
+<ul>
+<li><strong>A poster frame or store preview.</strong> An <a href="/blog/app-preview-video/">app-store preview or thumbnail</a> is about the UI, and a frozen arrow parked on a button is pure noise in a still that has to sell the screen at a glance.</li>
+<li><strong>A keyboard- or command-line-driven flow.</strong> If the demo is someone typing commands or tabbing through a form, there is nothing for a pointer to point at, and a cursor idling in a corner only pulls the eye away from the keys.</li>
+<li><strong>A rendered, unattended demo.</strong> When the video regenerates on every UI change, there is no hand on a mouse to smooth. The take is a <a href="/blog/deterministic-browser-automation-for-video/">deterministic replay</a>, so a captured pointer would be a liability, not a feature.</li>
+</ul>
+<p>The thread through all three is the same: hide the cursor when the pointer carries no information the viewer needs. When it does carry information, this is the control I clicked, watch it respond, hiding it is the wrong move, and so is leaving the raw one in. There is a third option, and it is the one most people are actually looking for.</p>
+<h2 id="the-better-cursor-replace-it-dont-just-remove-it">The better cursor: replace it, don&#39;t just remove it<a class="hanchor" href="#the-better-cursor-replace-it-dont-just-remove-it" aria-label="Link to section: The better cursor: replace it, don't just remove it">#</a></h2>
+<p>The reason people search for &quot;record without the cursor&quot; is usually not that they want no pointer. It is that they want no bad pointer. The real mouse path between two clicks is high-frequency noise, and rendered faithfully that noise is the amateur tell. Switching the cursor off removes the noise by removing the signal. What a produced demo does instead is remove the real pointer and draw a synthetic one that travels a smooth, eased arc between the targets that matter.</p>
+<p>The mechanics of that smoothing, fitting a curve through the sampled points and resampling it at the frame rate, plus the click ripple that lands the eye, belong to <a href="/blog/professional-screen-recordings/">the anatomy of a professional recording</a>, and there is no reason to re-derive them here. The point for this page is the decision, not the math. Once you accept that the cursor is a capture-time choice, you have three treatments rather than two: capture the real one, hide it entirely, or hide the real one and render a synthetic one on top. The last is exactly what the browser&#39;s <code>motion</code> constraint gestures at and what a scripted pipeline gets for nothing, because a headless render begins with no pointer and adds only the one you specify.</p>
+<p>That is the bet our own engine, aidemo, makes, and honesty requires disclosing both that it is ours and where it stops. Because it drives a browser tab through an agent-authored storyboard instead of a hand on a mouse, there is no OS cursor to capture, so it draws a synthetic pointer along an eased path to each target and never renders a jittery one. The limits are the shape of that design: it records a browser tab and nothing native, the storyboard is authored as code instead of nudged on a drag-and-drop timeline, and no visual editor exists. For a one-off clip you will perform exactly once, unchecking Capture Cursor in OBS is far less setup than any of that.</p>
+<h2 id="pick-the-treatment-by-what-the-demo-is-for">Pick the treatment by what the demo is for<a class="hanchor" href="#pick-the-treatment-by-what-the-demo-is-for" aria-label="Link to section: Pick the treatment by what the demo is for">#</a></h2>
+<p>Hide, tame, or replace is a decision you can read off the job rather than argue about as taste.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The recording</th>
+<th>Cursor treatment</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Landing-page or launch walkthrough</td>
+<td>synthetic, smoothed pointer</td>
+<td>the eye has to follow the action; raw jitter reads amateur</td>
+</tr>
+<tr>
+<td>App-store preview or poster frame</td>
+<td>hidden</td>
+<td>the frame sells the UI; a parked arrow is noise</td>
+</tr>
+<tr>
+<td>Keyboard, CLI, or form-fill flow</td>
+<td>hidden</td>
+<td>there is nothing to point at</td>
+</tr>
+<tr>
+<td>Live sales or talking-head demo</td>
+<td>real pointer, enlarged, click highlights</td>
+<td>authenticity matters; a tamed live cursor is honest</td>
+</tr>
+<tr>
+<td>CI-rendered or auto-updating demo</td>
+<td>synthetic by construction</td>
+<td>no mouse on a headless runner to begin with</td>
+</tr>
+<tr>
+<td>Click-here support how-to</td>
+<td>real or enlarged, with a click ripple</td>
+<td>the pointer location is the instruction</td>
+</tr>
+</tbody></table></div>
+<p>The column that trips people up is the middle one. A live sales recording or a support how-to is exactly where the cursor carries information, where I clicked is the lesson, so hiding it defeats the video. There the fix is not removal but size and feedback: enlarge the pointer through your operating system&#39;s accessibility settings and turn on click highlights so the viewer&#39;s eye lands where yours did. Everywhere the pointer is decoration rather than instruction, hide it or replace it. That one question, does the pointer teach anything here, sorts the treatment more reliably than any style guide, and it is a question you can answer before you record, which is the only time the answer is cheap to act on.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://ffmpeg.org/ffmpeg-devices.html" rel="noopener">FFmpeg — devices documentation (x11grab and gdigrab draw_mouse option)</a></li>
+<li id="src-2"><a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/cursor" rel="noopener">MDN — MediaTrackSettings: cursor (never, always, motion)</a></li>
+<li id="src-3"><a href="https://w3c.github.io/mediacapture-screen-share/" rel="noopener">W3C — Screen Capture specification (cursor constrainable property)</a></li>
+<li id="src-4"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/cursor" rel="noopener">MDN — CSS cursor property (the none value)</a></li>
+<li id="src-5"><a href="https://support.apple.com/guide/mac-help/take-screenshots-or-screen-recordings-mh26782/mac" rel="noopener">Apple Support — Take screenshots or screen recordings on Mac (Show Mouse Pointer)</a></li>
+<li id="src-6"><a href="https://raw.githubusercontent.com/obsproject/obs-studio/master/plugins/win-capture/data/locale/en-US.ini" rel="noopener">OBS Studio — capture source UI strings (Capture Cursor label)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-record-my-screen-without-showing-the-mouse-cursor" class="blog-faq-q">How do I record my screen without showing the mouse cursor?<a class="hanchor" href="#how-do-i-record-my-screen-without-showing-the-mouse-cursor" aria-label="Link to section: How do I record my screen without showing the mouse cursor?">#</a></h3>
+<p>Flip the capture-time switch in your tool. In OBS, uncheck Capture Cursor on the display or window source. With ffmpeg, add <code>-draw_mouse 0</code> to an <code>x11grab</code> (Linux) or <code>gdigrab</code> (Windows) capture, since both default to drawing the pointer. On a Mac, open the Shift-Command-5 toolbar and uncheck Show Mouse Pointer under Options. A browser recorder built on getDisplayMedia can request a <code>cursor</code> value of <code>never</code>. Each removes the pointer before it is written to the file, and there is no reliable way to strip it out afterward, so decide before you record.</p>
+<h3 id="can-i-remove-the-mouse-cursor-from-a-video-after-recording" class="blog-faq-q">Can I remove the mouse cursor from a video after recording?<a class="hanchor" href="#can-i-remove-the-mouse-cursor-from-a-video-after-recording" aria-label="Link to section: Can I remove the mouse cursor from a video after recording?">#</a></h3>
+<p>Not cleanly. Once a frame is captured with the pointer drawn on it, the cursor is part of the image, sitting on top of whatever it was hovering, so removing it means reconstructing the covered pixels on every frame it appears, which is a manual visual-effects job rather than a setting. The practical answer is to prevent it at capture time with your tool&#39;s cursor toggle, or to record a scripted or headless take that never had an operating-system pointer in the first place.</p>
+<h3 id="should-a-demo-video-show-the-mouse-cursor-or-not" class="blog-faq-q">Should a demo video show the mouse cursor or not?<a class="hanchor" href="#should-a-demo-video-show-the-mouse-cursor-or-not" aria-label="Link to section: Should a demo video show the mouse cursor or not?">#</a></h3>
+<p>It depends on whether the pointer teaches the viewer anything at that moment. In a landing-page walkthrough or an app-store preview the pointer is decoration, so hide it or replace the jittery real one with a smooth synthetic pointer. In a live sales demo or a click-here support video the pointer location is the instruction, so keep it, but enlarge it and add click highlights so it reads clearly. When in doubt, ask what the cursor is telling the viewer; if the answer is nothing, take it out.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">cursor</span>
+        <span class="article-tag">ffmpeg</span>
+        <span class="article-tag">obs studio</span>
+        <span class="article-tag">getDisplayMedia</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#you-cant-subtract-a-cursor-in-post">You can't subtract a cursor in post</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-switch-that-kills-the-cursor-per-tool">The switch that kills the cursor, per tool</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-you-would-want-no-cursor-at-all">Why you would want no cursor at all</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-better-cursor-replace-it-dont-just-remove-it">The better cursor: replace it, don't just remove it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pick-the-treatment-by-what-the-demo-is-for">Pick the treatment by what the demo is for</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
