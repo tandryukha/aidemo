@@ -752,6 +752,97 @@ Two causes dominate. Either the downscale used a fast, soft filter (ffmpeg defau
 
 ---
 
+# Best format for screen recording: container vs codec, decided
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/best-video-format-for-screen-recording/
+
+> The .mp4 in the filename is the box, not the codec inside it, and the codec is what sets the size. Container and codec, separated and decided.
+
+## The file extension names the box, not what is inside it
+
+Rename a `.mov` to `.mp4` and, more often than not, it still plays. That is the tell that "MP4 vs MOV vs WebM" is the wrong question to open with, because those three names describe the container, the outer wrapper that holds the video and audio streams, and the container is not the thing that decides how large the file is or where it will play. That job belongs to the codec, the algorithm that actually compressed the pixels, and it sits one layer down where the extension cannot show it. An `.mp4` can hold H.264, HEVC, or AV1; a `.webm` holds VP9 or AV1; a `.mov` holds H.264 or ProRes. Two files with the same extension can be a tenth of each other's size and open on completely different sets of devices, because the extension was never the format that mattered.
+
+So this page splits the one decision your recorder hides behind a "format" dropdown into the two it really is: which container to wrap the file in, and which codec to compress it with. Get both right and a screen recording plays everywhere at the smallest honest size. This is the format layer of [the wider capture-settings checklist](/blog/how-to-record-your-screen-in-high-quality); resolution and frame rate, which set how many pixels you are compressing in the first place, are decided [one step before this](/blog/best-resolution-for-screen-recording).
+
+## Two decisions hide behind one dropdown
+
+The container picks compatibility and what codecs it is allowed to carry. MDN calls MP4 "the industry standard for video content, widely supported across devices and browsers" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers)), which is why it is the safe wrapper for anything you hand to another person. WebM is "an open, royalty-free container" designed for the web ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers)), and QuickTime's `.mov` is, in MDN's words, effectively "primarily available on Apple devices" and "no longer widely used on the internet": useful as an editing wrapper on a Mac, wrong as a thing you send.
+
+The codec picks size and, again, compatibility, plus a third axis the container does not have: licensing. Here is the pairing, because the cell you land in is the combination, not either axis alone.
+
+| Container (extension) | Codecs it commonly carries | Opens on another device? | Its job |
+|---|---|---|---|
+| MP4 (`.mp4`) | H.264, HEVC, AV1, VP9 | Yes, universally with H.264 | Send-anywhere delivery |
+| WebM (`.webm`) | VP9, VP8, AV1 | Every modern browser | Smallest self-hosted embed |
+| QuickTime (`.mov`) | ProRes, H.264 | No, deprecated for the web | Editing master on a Mac |
+
+Read it as two questions. The container decides whether a browser or a colleague's phone will open the file at all; the codec decides how many bytes it took to get there. The rest of this page is the codec column, because that is where the up-to-50-percent decisions live.
+
+## Three codecs, and the bytes each one saves
+
+| Codec (pairs with) | Size vs H.264 | Browser reach | Licensing |
+|---|---|---|---|
+| H.264 / AVC (MP4, MOV) | baseline | Every browser; hardware everywhere | Patented, no fee for free-to-viewer streaming |
+| VP9 (WebM) | up to ~50% smaller | All current browsers, not old Safari | Open, royalty-free |
+| AV1 (WebM or MP4) | up to ~50% smaller than AVC | ~93%, Safari partial since 17.0 | Royalty-free (AOMedia) |
+| HEVC / H.265 (MP4, MOV) | ~50% smaller | Narrow on the open web | Developer-fee patents |
+
+H.264, also called AVC, is the one that plays everywhere. MDN lists it as supported by "all versions of Chrome, Edge, Firefox, Opera, and Safari" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)), and hardware to decode it sits in nearly every device shipped in the last decade. It is patented, but the Via LA pool "does not require license fees for streaming internet video ... as long as the video is free for end users" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)), so a free-to-watch product demo owes nothing. It is also the least efficient of the three, which is the price of being universal.
+
+VP9 is Google's open codec, and per Google it "can reduce video bit rates by as much as 50% compared with other known codecs" ([Google](https://developers.google.com/media/vp9)) at the same quality; MDN rates its quality "comparable to that of HEVC at similar bit rates" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)). It plays in every current browser and is the native codec for a WebM file. AV1, from the Alliance for Open Media, goes further: MDN credits it with "as much as 50% higher" compression "rates than AVC," and unlike H.264 it is "fully royalty-free" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)). Both buy a much smaller file. Both charge for it in a currency the next section spends. HEVC/H.265, the fourth row, matches that efficiency but is licensed by developer fees and barely plays on the open web ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)), so it rarely earns a place in a screen-recording pipeline.
+
+## The compatibility tax: when a smaller file costs more than it saves
+
+A codec that halves the file is a win only if the viewer's device can decode it, and this is where the newer codecs bill you. AV1's reach is broad but not total: caniuse puts global support near 93% (roughly 79% full plus 14% partial) as of 2026, with Safari on macOS and iOS only partially supporting it since version 17.0 ([caniuse, 2026](https://caniuse.com/av1)). VP9 is safer but still misses older Safari. H.264, again, misses nothing.
+
+The second half of the tax is encode time. AV1 in particular is slow to compress: footage that H.264 encodes in real time on hardware can take many times longer in a good AV1 software encoder, so the bytes you save on delivery you pay back in CPU on the way out. And because no single modern codec plays truly everywhere, using one for a web embed means shipping a fallback: list a WebM or AV1 source and an MP4/H.264 source, so that when a browser cannot play the first, in MDN's phrasing, "it moves on to the next option" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers)). That two-file arrangement is [worth it for a self-hosted embed watched at scale](/blog/embed-video-on-website) and pure overhead for a clip you are emailing one person. The tax is only worth paying when the same file is served many times.
+
+## Capture format and delivery format are not the same file
+
+The costly mistake is treating the format you record in as the format you ship. They are two jobs. At capture, the recorder wants to write frames fast without pinning the CPU, so its default is a low-compression or near-lossless codec that produces a big file cheaply, which is correct, because compressing hard in real time steals cycles from the thing you are recording. At delivery you want the opposite: the smallest file that still plays, compressed once, slowly, offline. Compress twice, a heavy codec at capture and again at export, and the second pass quantizes the artifacts the first one introduced, so the text you were careful to keep crisp softens for nothing.
+
+That is what a mastering codec is for. Apple's ProRes, wrapped in a `.mov`, is Apple's professional post-production codec ([Apple](https://support.apple.com/en-us/102207)): it stores each frame nearly whole, so quality survives being cut, color-graded, and re-exported without generation loss, at the cost of a file many times larger than the H.264 you finally deliver. ffmpeg ships a ProRes encoder (`prores_ks`) alongside its H.264, VP9, and AV1 encoders, and it exposes AV1's own constant-quality knob on a 0-to-63 scale where higher means smaller and worse ([FFmpeg](https://ffmpeg.org/ffmpeg-codecs.html)), so one tool takes the master to the deliverable. The rule the pillar states for bitrate holds for format too: [record at near-lossless quality and compress once on export](/blog/how-to-record-your-screen-in-high-quality), never at both ends.
+
+## Pick the format from where the video lands
+
+| Where the file lands | Container / codec | Why |
+|---|---|---|
+| Email, Slack, a PR, a colleague | MP4 / H.264 | Plays on every device, no fallback needed |
+| Self-hosted web embed, bytes matter | WebM / VP9 + MP4 fallback | up to ~50% fewer bytes, browser picks the source |
+| Smallest embed, served at scale | AV1 + MP4 fallback | Best compression, slow encode, partial Safari |
+| App Store preview upload | MP4 / H.264 | Apple's spec fixes it for you |
+| A master you will keep editing | MOV / ProRes, or lossless | Survives repeated re-exports without loss |
+| YouTube or a streaming host | MP4 / H.264 | They re-encode anyway, so upload clean |
+
+The pattern under the table is one line: default to MP4/H.264 and leave it only for a named reason. Sending the clip to a person, a channel, or a pull request keeps MP4/H.264, which plays with zero fallback and no thought. A self-hosted web embed where bytes are your bill earns WebM/VP9 with an MP4 fallback, banking as much as half the bytes while the browser chooses. An [App Store upload](/blog/app-preview-video) is decided for you: Apple fixes container and codec, and it is H.264. A file you will keep editing wants a ProRes master in a `.mov`, exported to a delivery codec when the edit is done. And a clip bound for YouTube or a streaming host should go up as clean H.264, because they will transcode it to their own ladder regardless, so a slow AV1 upload buys nothing.
+
+Making that choice once and never fumbling it again is easier when the container and codec are written down rather than picked from an export menu under deadline. In our own engine, aidemo, both live in the storyboard, so every re-render of a demo comes out as the same H.264 MP4 because [the whole capture is deterministic](/blog/deterministic-browser-automation-for-video), with no dropdown to get wrong. The honest limits are the usual ones: aidemo captures a browser and not a native desktop app, a coding agent writes the storyboard in code instead of dragging clips through a GUI editor, and for one throwaway clip a point-and-click recorder beats setting up a spec.
+
+## Sources
+
+- [MDN — Media container formats (MP4, WebM, QuickTime; which codecs each holds)](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers)
+- [MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)
+- [Google — VP9 (bit-rate reduction up to 50%)](https://developers.google.com/media/vp9)
+- [caniuse — AV1 video format (browser support, 2026)](https://caniuse.com/av1)
+- [FFmpeg — Codecs documentation (libaom-av1 crf 0-63, prores_ks encoder)](https://ffmpeg.org/ffmpeg-codecs.html)
+- [Apple — About Apple ProRes](https://support.apple.com/en-us/102207)
+
+## FAQ
+
+### What is the best format for screen recording?
+
+For almost everything you send or embed, an MP4 file with the H.264 codec, because it plays in every browser and on nearly every device with no fallback and owes no license fee for free-to-watch video. Leave that default only for a specific reason: WebM with VP9 (or AV1) for a self-hosted web embed where a file up to half the size is worth shipping an MP4 fallback beside it, and a ProRes `.mov` when the file is a master you will keep editing rather than a thing you deliver.
+
+### What is the difference between a video container and a codec?
+
+The codec is the algorithm that compressed the pixels (H.264, VP9, AV1); the container is the wrapper that holds the compressed video and audio together (`.mp4`, `.webm`, `.mov`). The extension names the container, not the codec, which is why two `.mp4` files can differ tenfold in size and play on different devices depending on which codec is inside. Pick the container for compatibility and the codec for file size, then confirm the codec you chose is one your container is allowed to carry.
+
+### Is MP4 or MOV better for a screen recording you send to someone?
+
+MP4. MDN calls MP4 the industry-standard video container, widely supported across devices and browsers, while it describes QuickTime's `.mov` as primarily an Apple-device format that is no longer widely used online and deprecated for the web. MOV still earns its place as an editing master, since ProRes lives in a `.mov`, but for a file another person has to open, export to MP4/H.264 so it plays without them installing anything.
+
+---
+
 # Camtasia alternatives for software demos and tutorials
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/camtasia-alternatives/
@@ -1540,6 +1631,100 @@ Write it word for word. Bullet points let the pace drift, and drift is what blow
 ### Where does the call to action go in a demo script?
 
 At the end, as exactly one action — start a trial, book a demo, open the repo — pointed at one destination. Vidyard's guidance is a single clear CTA rather than a menu of options ([Vidyard](https://www.vidyard.com/blog/demo-videos/)). Keep it to about 15 words: a viewer who reached the end is already convinced, so they need a next step, not another pitch.
+
+---
+
+# Demo video software pricing landscape, per finished minute
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/demo-video-software-pricing/
+
+> Sticker prices lie because the units differ: per seat, per minute, per demo, per view. Normalized to cost per finished demo-minute, the ranking flips.
+
+## Five pricing units, one deliverable
+
+Put six demo tools' pricing pages side by side and you cannot add them up, because no two charge for the same thing. Screen Studio bills a flat monthly fee for one app. Loom bills per seat. Synthesia bills per minute of rendered video. Storylane and Navattic gate the feature you want behind a tier priced per seat, per demo, or per visitor. OBS bills nothing at all. The stickers sit in one comparison grid and mean five different things, so the "cheapest" tool on the page is an artifact of which unit its marketing chose, not of what a demo will actually cost you.
+
+The only way to compare them is to convert every price into one shared unit, and the natural one is cost per finished demo-minute: dollars spent divided by minutes of video delivered. This piece normalizes the market to that number at a realistic monthly output, and the ranking that falls out is not the one the pricing pages imply. Every figure below comes straight from each vendor's pricing page, checked in July 2026; the tools themselves are sorted by mechanism rather than price in [what the AI-demo-video-generator label actually covers](/blog/ai-demo-video-generators).
+
+## The unit each tool actually bills you by
+
+Before the arithmetic, here is what you are being charged for, because the unit is the whole story: it decides whether your bill tracks your output, your headcount, your traffic, or nothing.
+
+| Tool | Priced by | Sticker (July 2026) | What the unit hides |
+|---|---|---|---|
+| Screen Studio | flat app subscription | $20/mo, or $9/mo billed yearly, macOS only ([Screen Studio, July 2026](https://screen.studio/)) | the per-minute cost falls the more you produce |
+| Loom | per seat | Business $18/user/mo, Business + AI $24 ([Loom, July 2026](https://www.loom.com/pricing)) | the bill scales with headcount, not demos |
+| Synthesia | per rendered minute | Starter $29/mo ($18 yearly) for 120 min/year; Creator $89 for 360 ([Synthesia, July 2026](https://www.synthesia.io/pricing)) | unused minutes expire, and they are avatar video, not your UI |
+| Storylane | per seat, feature gated by tier | Free (1 demo); Starter $50/mo; Growth $500/mo yearly unlocks the HTML editor ([Storylane, July 2026](https://www.storylane.io/pricing)) | the fidelity you came for is a four-figure line item |
+| Navattic | quote-only above free | Free (1 seat, 1 demo); Base, Growth, Enterprise by sales call ([Navattic, July 2026](https://www.navattic.com/pricing)) | you cannot compare a price you are never shown |
+| OBS Studio | free (GPLv2) | $0 | you pay in labor, one hand-made minute at a time |
+| Spec-driven CI render | compute plus TTS | about $0.014/min TTS plus CI minutes ([OpenAI, July 2026](https://developers.openai.com/api/docs/models/tts-1)) | the real cost is one-time authoring, not each render |
+
+Two of these rows are not selling video at all. Storylane and Navattic sell an interactive HTML tour a prospect clicks through, and their upper tiers increasingly price by monthly visitors: Storylane's conversational tier starts at $2,000 a month for up to 10,000 visitors, about twenty cents a head. That is a per-view unit, and the full tour-pricing breakdown is in [Arcade vs Navattic vs Storylane](/blog/arcade-vs-navattic-vs-storylane). Hold that thought; it is why they drop out of the per-minute table below.
+
+## Normalizing to cost per finished demo-minute
+
+Cost per finished minute is not a property of a tool. It is the tool's price divided by how many minutes of video you actually ship, so it moves with your volume. To make that visible, here is each video-producing tool at three monthly outputs: light (2 finished minutes, an occasional clip), steady (10 minutes, a small maintained library), and heavy (40 minutes, a docs-and-changelog habit).
+
+| Tool (one seat unless noted) | 2 min/mo | 10 min/mo | 40 min/mo |
+|---|---|---|---|
+| Screen Studio, yearly ($9/mo) | $4.50 | $0.90 | $0.23 |
+| Screen Studio, monthly ($20/mo) | $10.00 | $2.00 | $0.50 |
+| Loom Business, 1 seat ($18/mo) | $9.00 | $1.80 | $0.45 |
+| Loom Business, 5 seats ($90/mo) | $45.00 | $9.00 | $2.25 |
+| Synthesia Starter, yearly ($18/mo, 120 min/yr) | $9.00 | $1.80 | exceeds allotment |
+| Spec-driven CI render | ~$0.02 | ~$0.02 | ~$0.02 |
+
+Read across the top row: one subscription, unchanged, costs $4.50 a minute or 23 cents a minute depending only on how much you make with it, a twentyfold swing from a single price tag. The point is not that Screen Studio is cheap or dear. It is that "how much per finished minute" has no answer until you say how many minutes you produce, and any vendor who quotes you a per-minute figure has quietly assumed a volume you may never reach.
+
+## The per-seat trap and the enterprise floor
+
+Two rows behave differently from the rest, and both catch buyers out.
+
+The per-seat trap is the Loom pair. A per-seat price decouples your bill from your deliverable: you pay for chairs, whether or not the person in each one makes a demo. Five Loom seats at a steady 10 minutes of finished demo a month works out to $9 a minute, exactly what a single seat costs at the light 2-minute volume, because four of those seats are paying to exist rather than to produce. Messaging tools get bought team-wide for good reasons, but the moment you reframe one as demo-production spend, every non-producing seat is dead weight in the per-minute math. That mismatch is the whole argument of [Loom alternatives sorted by the job you are replacing](/blog/loom-alternatives-for-product-demos).
+
+The enterprise floor is the tour tools, which fell out of the per-minute table because their artifact is not a video. Force them in by exporting the tour to a flat MP4 and the number turns absurd: Storylane's HTML-fidelity tier is $500 a month billed yearly, so a lone exported two-minute clip reads as $250 a minute, and Navattic will not quote the comparable tier without a call. The figure is meaningless because you are not buying minutes; you are buying an interactive embed and its analytics. That is a real product for a self-serve page, and whether you need a clickable embed or a video file that plays anywhere is a separate decision.
+
+Metered pricing has a floor of its own, in the Synthesia row. Its unit genuinely is the finished minute, which makes it the easy case to normalize, but the minutes come in an annual block that expires. At the light 2-minute volume you burn 24 of your 120 yearly minutes and pay for all 120, so your real rate is $9 a minute, five times the $1.80 you would pay at full use. And those minutes render a synthetic presenter, not your interface, which is why avatar tools answer a different job than a product demo.
+
+## Where marginal cost collapses toward zero
+
+Every hosted subscription in the table has a floor it cannot cross, and the floor is the subscription itself. The cheapest flat recorder at the heavy volume still costs 23 cents a finished minute, and nothing you do with output drives it lower, because you are dividing a fixed fee.
+
+The spec-driven row is the only one whose per-minute cost is set by compute rather than by a seat or a plan. When the demo is a committed spec that a machine replays and narrates, the marginal cost of one more finished minute is text-to-speech at about a cent and a half on OpenAI's tts-1 ([OpenAI, July 2026](https://developers.openai.com/api/docs/models/tts-1)) plus a few CI minutes, which are free on public repositories and cost $0.006 each beyond the 2,000-to-3,000 monthly minutes GitHub includes on paid plans ([GitHub, July 2026](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-actions/about-billing-for-github-actions)). That lands near two cents a finished minute, and it neither falls nor rises with volume, because there is no subscription to amortize. It is roughly ten times cheaper than the best subscription number in the table, and over a hundred times cheaper than the light-volume ones.
+
+The catch is honest, and it is not in the compute. The fixed cost moves to authoring the spec the first time, which is real work, and the full labor accounting sits in [how much a demo video actually costs](/blog/demo-video-cost). Our own engine, aidemo (disclosed as ours), is one MIT-licensed instance of this pattern: it captures a browser tab only, so native desktop and mobile apps are out of scope; its storyboard is written by a coding agent rather than nudged along a timeline; and there is no click-to-trim editor. What that constraint buys is the row above, a per-minute cost that rounds to compute, regenerated on the same commit that moved the UI because [CI renders it for you](/blog/demo-videos-in-ci).
+
+## Reading the table for your own volume
+
+The normalized numbers hand you a decision rather than a winner, because the cheapest column changes with the row you live in.
+
+If you make a demo or two a month, stop optimizing the per-minute rate: at that volume every flat subscription is dominated by its fixed fee, so choose on features and platform and pay the $9-to-$20 a month without guilt. If you are keeping a real library current, the steady column is where per-seat and metered plans start to sting and a single-seat flat recorder or a spec-driven render pull ahead. If you are producing at the heavy end, the only two options that stay cheap are a flat subscription amortized hard across one busy seat and a CI render whose cost is compute. And if your bill is per seat or quote-only, price it against your finished-minute output before you sign rather than against the sticker, because the [free tiers are a separate trap of their own](/blog/free-demo-video-software) and the headline number is rarely the one you end up paying.
+
+## Sources
+
+- [Screen Studio — pricing](https://screen.studio/)
+- [Loom — pricing](https://www.loom.com/pricing)
+- [Synthesia — pricing](https://www.synthesia.io/pricing)
+- [Storylane — pricing](https://www.storylane.io/pricing)
+- [Navattic — pricing](https://www.navattic.com/pricing)
+- [GitHub — about billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-actions/about-billing-for-github-actions)
+- [OpenAI — tts-1 model and pricing](https://developers.openai.com/api/docs/models/tts-1)
+- [aidemo — repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### How much does demo video software cost per month?
+
+Screen recorders run $9 to $24 a month: Screen Studio is $20, or $9 billed yearly, and Loom Business is $18 per user ([Loom, July 2026](https://www.loom.com/pricing)). Synthesia's avatar plans start at $29 a month, and interactive-tour tools like Storylane jump from $50 a month to $500 for their high-fidelity tier ([Storylane, July 2026](https://www.storylane.io/pricing)). The monthly sticker only names the fixed fee, though; what a demo actually costs depends on how many you make, which is why the useful number is cost per finished minute.
+
+### What is the cheapest demo video software for a small team?
+
+For a team making a demo or two a month, a flat single-seat recorder like Screen Studio at $9 a month billed yearly is cheapest, because per-seat tools charge for every chair whether or not it makes a video. For a team keeping a library current, the cheapest option is a spec-driven render in CI, whose marginal cost is about two cents a finished minute of compute rather than a subscription. Free open-source recorders like OBS cost nothing in cash but bill you in hand-editing labor per clip.
+
+### Do interactive demo tools cost more than screen recorders?
+
+Usually yes, and they are priced for a different job. A screen recorder is a flat $9 to $24 a month; an interactive-tour platform's comparable-fidelity tier is a four-figure line item, such as Storylane's $500-a-month Growth plan billed yearly, and Navattic quotes its paid tiers only by a sales call ([Navattic, July 2026](https://www.navattic.com/pricing)). You pay more because you are buying a clickable HTML embed and its visitor analytics, not a video file, so the two do not compare on cost per minute at all.
 
 ---
 
@@ -3195,6 +3380,88 @@ Short enough that a viewer one click from leaving still finishes it: 30-60 secon
 
 ---
 
+# Product launch video: one recording, every launch-day cut
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/product-launch-video/
+
+> A launch fires six surfaces in one day, all pointing at each other. Here is the cut list from one recording, mapped to the clock and to the 11pm change.
+
+## A launch is one date, and everything ships on it
+
+Distribution is normally something you can stagger. Post the YouTube walkthrough this week, cut a LinkedIn clip next week, add the docs loop when a ticket asks for it. A launch takes that slack away. On launch day the Product Hunt post, the announcement page, the email blast, the social thread, and the changelog entry all go live inside one window, each pointing at the others, and the urgency you are trading on, the "it's live today" and the upvotes and the reshares, does not reschedule if you slip.
+
+That compression is the actual problem. Counted as separate productions, a launch kit is five or six scripts, recordings, voice tracks, and edits, all due the same morning, which is how a team ends up at 11pm with three of the six finished. [The evergreen distribution case](/blog/video-marketing-for-software), one recording spread across many channels, still applies, but a launch adds two things a slow rollout never has to handle: a deadline that cannot move, and a set of cuts that must agree with each other because they are all on screen at the same time. The way out is the ordinary distribution move made stricter: one recording, cut per launch surface, planned before you hit record instead of assembled after.
+
+## The launch-day cut list: what goes live where, and how long
+
+A launch does not need every surface a product ever uses. It needs a specific, smaller set, the surfaces that actually carry a launch, and each wants the recording in a particular length and shape. Here is that kit as one spec.
+
+| Cut | Where it goes live | Length | Aspect | Format |
+| --- | --- | --- | --- | --- |
+| Hero / announcement | Launch or changelog page, above the fold | 30-60s, muted autoplay loop | 16:9 | MP4 / H.264 |
+| Product Hunt gallery | The PH product page | 30-60s | 16:9 | YouTube link, not a file |
+| Social launch clip | LinkedIn and X feed posts | 15-30s | 9:16 and 1:1 | MP4, captions burned in |
+| Email GIF | The launch email body | first frame + 5-10s | ~16:9 | animated GIF linking out |
+| Deep walkthrough | YouTube, "watch the full demo" | 1-3 min | 16:9 | MP4 / H.264 High Profile |
+| Show HN | The Hacker News thread | no video | n/a | a working link people can try |
+
+Four rows carry a spec worth pinning down. The Product Hunt gallery does not accept an upload; it takes a public YouTube URL, so its video inherits YouTube's encoding: an MP4 in H.264 High Profile, AAC at 48kHz, 16:9 and 1080p at roughly 8 Mbps ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/1722171)). That is the identical 16:9 file behind the hero and the deep cut, which is why [the Product Hunt cut is close to free once the flow is recorded](/blog/product-hunt-launch-video). The social clip has to work muted and in-feed: LinkedIn accepts 16:9, 1:1, 4:5, and 9:16, and puts the sweet spot at 15-30 seconds, short enough to clear every feed placement ([LinkedIn, accessed July 2026](https://www.linkedin.com/help/lms/answer/a424737)), which is why the vertical and square framings get [their own week-of-launch treatment](/blog/social-cuts-for-product-launch). Length is a retention decision, not a house style: Wistia's data puts videos under one minute at about a 52% average engagement rate and product videos near 50%, with 1-5 minute explainers still watched past the halfway mark ([Wistia, accessed July 2026](https://wistia.com/learn/marketing/optimal-video-length)), so the hero loop stays under a minute and the deep cut spends its extra minutes only where a viewer chose to watch.
+
+The last row is the one that breaks the "one recording feeds everything" rule, and it is worth naming. Hacker News takes no video. A Show HN is a link to "something you've made that other people can play with," ideally with no signup wall, and blog posts, sign-up pages, and landing pages are explicitly off topic ([Hacker News, accessed July 2026](https://news.ycombinator.com/showhn.html)). If Hacker News is on your list, the deliverable there is a URL that works, not a cut of the film, a clean reminder that a launch kit is a set of surface-specific assets rather than one file pasted six places.
+
+## The run-of-show: choreographing the cuts across 24 hours
+
+The part no "product launch video examples" roundup gives you is the order. A launch is not a pile of clips published whenever each finishes rendering; it is a timed event, and the assets fire in sequence. Product Hunt runs its leaderboard on a 24-hour cycle in Pacific time, and its own guide is blunt that "posting at 12:01am PST gives people a full 24 hours" on the board ([Product Hunt, accessed July 2026](https://www.producthunt.com/launch/preparing-for-launch)). That single line anchors the day: the Product Hunt cut has to be public before midnight Pacific, and everything else keys off it.
+
+Here is the kit mapped to the clock for a US-timed launch.
+
+| When | What publishes | The cut it uses |
+| --- | --- | --- |
+| T-minus 1 day | YouTube video set public, link confirmed | Deep walkthrough + the PH gallery link |
+| 12:01am PT | Product Hunt post goes live | PH gallery cut (the YouTube link) |
+| Launch morning | Announcement page live, email sends | Hero loop + email GIF |
+| Mid-morning | Founder's LinkedIn and X posts | Social clip (9:16, 1:1) |
+| Through the day | Show HN, community threads, replies | The working link, no video |
+| Next day | Recap and thank-you post | Trimmed social clip |
+
+Writing this down matters because every asset in the middle column points at another: the email drives traffic to the Product Hunt page, the LinkedIn clip links the announcement, the recap thanks the people who upvoted. If a feature gets renamed or a price changes between the day you recorded and the day you publish, that inconsistency is now visible on six surfaces at once, the exact failure a slow rollout never risks. Product Hunt lets you schedule a launch up to a month ahead, which is enough runway to record the master and cut the kit without panic ([Product Hunt, accessed July 2026](https://www.producthunt.com/launch/preparing-for-launch)), as long as the kit can absorb a late change without a reshoot.
+
+## The 11pm change is the whole argument for a re-renderable kit
+
+Every launch has one. A pricing tier gets a new name, legal wants a word off the plan card, a beta badge comes off a feature the night before the date. In a kit of separately recorded clips, that one edit lands on all six deliverables at once: re-record the hero, re-cut both social versions, re-shoot the Product Hunt walkthrough, rebuild the email GIF, re-render the YouTube upload, and re-sync every caption track, at 11pm, against a date that will not move for you.
+
+The fix is to stop storing the demo as footage and start storing it as instructions. When the flow lives as a committed spec, the narration and the click targets and the pacing all held as text, the late change is a one-line edit and every deliverable rebuilds from it, because the six cuts were only ever the same source rendered at different sizes and lengths, [each trimmed to what its placement rewards](/blog/how-long-should-a-demo-video-be). aidemo, our own open-source engine, works exactly this way: a coding agent writes the spec, the engine replays it in a real browser, and the midnight rename becomes a re-render instead of six reshoots. Its honest boundaries: it drives a browser and nothing else, there is no timeline you drag clips around on, and the spec is agent-written rather than clicked together by hand in an editor. That makes it a poor pick for a one-take screencast and a strong one for a kit that has to absorb a change arriving hours before it ships.
+
+## What a launch cut carries that an evergreen demo doesn't
+
+A launch cut and a standing product demo come off the same recording, but they open differently, because they answer different questions. An evergreen demo answers "what is this, and why should I care." A launch cut answers "what is new, and why now." That reorders the first five seconds: the launch cut leads with the capability that did not exist last week rather than the product's name or a logo card, and it carries a dated ask, "live on Product Hunt today" or "shipping this week," that a permanent demo cannot make, because a permanent demo has no today. [The playbook for the underlying master](/blog/how-to-make-a-product-demo-video) is the same either way; the launch is a framing and an ask laid over it.
+
+That timestamp is also the launch cut's expiry date, and planning for it saves money. The social clips and the email GIF are disposable by design: they did their job inside the launch window and can be archived after. The survivors are the hero loop and the deep walkthrough, and if you strip the "today" framing they become the standing demo on the marketing page and the [evergreen feature-announcement clip](/blog/feature-announcement-video) for the next release. Build the kit so the durable cuts outlive the day and the disposable ones were cheap enough that their short life costs nothing. That is the line between a launch that costs one recording and a launch that costs six.
+
+## Sources
+
+- [Product Hunt - Preparing for your launch (24-hour Pacific cycle, 12:01am timing, scheduling, video guidance)](https://www.producthunt.com/launch/preparing-for-launch)
+- [YouTube Help - Recommended upload encoding settings](https://support.google.com/youtube/answer/1722171)
+- [LinkedIn Help - Video ad specifications (aspect ratios and length)](https://www.linkedin.com/help/lms/answer/a424737)
+- [Wistia - What's the optimal video length? (engagement by length)](https://wistia.com/learn/marketing/optimal-video-length)
+- [Hacker News - Show HN guidelines](https://news.ycombinator.com/showhn.html)
+
+## FAQ
+
+### What should a product launch video include?
+
+Lead with what is new, not with what the product is: the first five seconds should show the capability that did not exist last week, then the one workflow that proves it, then a dated call to action such as "live on Product Hunt today." Keep the launch-day hero loop under a minute, burn in captions because feed and gallery views start muted, and end on a single ask rather than a menu of links.
+
+### How many videos do you need for a product launch?
+
+One recording, cut several ways, not several videos. A typical launch kit is a sub-60-second hero loop for the announcement page, a Product Hunt gallery cut (a YouTube link), a 15-30 second vertical and square social clip, an email GIF, and a 1-3 minute deep walkthrough for YouTube. They come off the same captured flow at different lengths and aspect ratios, so the marginal cost of the fifth cut is a re-encode, not a reshoot.
+
+### What is the difference between a launch video and a regular demo video?
+
+A demo video is evergreen and answers "what is this and why should I care"; a launch video is time-boxed and answers "what is new and why now." The launch cut leads with the just-shipped capability, carries a dated ask tied to the launch surface, and has a short shelf life: after the launch window the disposable social clips are archived and only the hero loop and deep walkthrough live on as the standing demo.
+
+---
+
 # What makes a screen recording look professional
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/professional-screen-recordings/
@@ -3848,6 +4115,87 @@ Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and L
 ### Does Screen Studio still sell a one-time license?
 
 Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.
+
+---
+
+# Support and knowledge-base videos that actually deflect tickets
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/support-videos-knowledge-base/
+
+> Most help-center videos deflect zero tickets because they are too long, unsearchable, or stale. Here is which ones pay off, and the deflection math.
+
+## A knowledge-base video is only worth its cost when a ticket goes unfiled
+
+Every case for support video opens with a preference statistic, and the numbers are genuinely large. Wyzowl's 2026 survey found 63% of people would most like to watch a short video to learn about a product, and 96% have watched an explainer video to understand how something works ([Wyzowl, 2026](https://www.wyzowl.com/video-marketing-statistics/)). Help Scout puts customer preference for video over text at 69% ([Stoss, Help Scout, 2025](https://www.helpscout.com/blog/video-knowledge-base/)). None of that is an argument for putting a video in your help center, because preference is not deflection. A survey measures what a customer enjoys in the abstract; a help center is graded on one thing, whether the person who came looking for an answer found it and did not open a ticket.
+
+The appetite for self-service is real, and it is a separate fact from the enjoyment poll. Harvard Business Review's contact-center research found that "81% of all customers attempt to take care of matters themselves before reaching out to a live representative" ([Dixon et al., HBR, 2017](https://hbr.org/2017/01/kick-ass-customer-service)), and Zendesk's survey work puts the latent demand even higher: 91% "say they would use a knowledge base if it met their needs" ([Zendesk, 2023](https://www.zendesk.com/blog/searching-for-self-service/)). People arrive at your docs wanting to solve it themselves. The question a video has to answer is not whether people like video but whether this particular clip turns one more of those self-service attempts into a resolved problem. The one figure in the marketing surveys that even points at that is self-reported and soft: 57% of video marketers told Wyzowl that video "helped them reduce support queries" ([Wyzowl, 2026](https://www.wyzowl.com/video-marketing-statistics/)), a claim from the people who made the videos, not a measured deflection rate. Read it as a reason to try, not proof it worked. This spoke is about which support videos deflect and how to prove the ones you keep are pulling their weight; the [broader case for video as a documentation medium](/blog/video-documentation) is the pillar above it.
+
+## Which tickets earn a video, and which never will
+
+A ticket earns a video when three conditions hold at once, and it fails the moment any one drops. It has to be high-volume, because deflection value scales with how many people hit the same wall. It has to be procedural and spatial, the kind of "where do I click, in what order" problem a paragraph describes clumsily and a clip settles in ten seconds. And the underlying screen has to change slowly enough that the clip outlives its own production cost, because a video of a flow that gets redesigned next sprint deflects tickets for six weeks and then quietly starts generating them.
+
+Miss any leg and the video is the wrong tool. A high-volume but trivial ticket like resetting a password is answered faster by a one-line text step than by making someone press play. An account-specific ticket like a disputed charge is not showable at all, because the answer lives in that customer's data, not in the UI. A genuinely rare question does not earn its production and maintenance no matter how visual it is. The clips that pay off cluster on the top handful of repeat, how-do-I tickets that turn on navigating a stable interface.
+
+| Ticket topic | Volume | Showable? | UI churn | Verdict |
+|---|---|---|---|---|
+| Connect a third-party integration | high | yes, multi-step spatial | moderate | Video plus written steps |
+| Find and use the export control | high | yes, pure spatial | low | 10-15s silent microvideo |
+| Reset a password | high | trivial | low | Text only, no video |
+| Understand a specific charge | high | no, account-specific | n/a | Human, not a doc |
+| Configure a rarely-touched setting | low | yes | high | Text; skip the video |
+
+The churn column is the one teams underestimate. The highest-deflection clips sit on the flows a product reshapes most, so [the same staleness that breaks a marketing demo](/blog/why-product-demos-go-stale) turns a deflecting help video into a misleading one, and a help center that contradicts the live product manufactures the tickets it was built to prevent.
+
+## Put the clip inside the article, not instead of it
+
+The most common way a support video fails is by being the whole answer. A help-center search box indexes text, not frames, so a video-only article is invisible to the customer typing the exact error into it, and to Google. The first play is almost always muted, so a clip that carries its meaning in a voice-over says nothing to most viewers. And a screen reader has nothing to read out. Each of those is a customer who came to self-serve and now opens a ticket, which is the precise outcome the video was meant to prevent.
+
+The rule that fixes all three is one rule: the article answers the question in writing, and the video reinforces it. Help Scout's own knowledge-base guidance models this, pairing "a simple video that walks through the steps visually" with the written steps rather than replacing them ([Stoss, Help Scout, 2025](https://www.helpscout.com/blog/video-knowledge-base/)). The written steps are what search surfaces, what a hurried reader skims, and what a screen reader speaks; the clip is what removes the ambiguity about which control and in what order. Caption the video too, because the muted first view is the default rather than the exception, and the [mechanics of captioning for muted, accessible playback](/blog/demo-video-captions) are already a solved problem. A transcript underneath does double duty as the searchable text the MP4 hides. A support video is a paragraph's illustration, not its stand-in.
+
+## The deflection math: what a clip saves against what it costs
+
+Because deflection value scales with volume, the arithmetic is both brutal and clarifying. Put a number on a human-handled ticket first: the agent's fully-loaded hourly cost divided by tickets resolved per hour. Teams that measure it land anywhere from a few dollars for a canned reply to well over twenty for anything needing investigation, so plug in your own; the example below uses a deliberately modest twelve dollars. Against that sits the cost of the clip: a few hours to script, record, and caption it once, plus a recurring maintenance bill, because a support video is a living artifact that rots with the UI, roughly [two hours per video per year for a hand-maintained library](/blog/keeping-tutorial-libraries-current).
+
+Run the same clip on a top-volume topic and a long-tail one, at a sixty-dollar blended hourly rate for the production and upkeep.
+
+| Per clip, per year | Top-volume how-to | Long-tail how-to |
+|---|---|---|
+| Relevant help-center views / month | ~1,000 | ~20 |
+| Extra tickets deflected / month | ~40 | ~1 |
+| Tickets saved / year | ~480 | ~12 |
+| Labor saved at ~$12 / ticket | ~$5,760 | ~$144 |
+| Production, once (~4h @ $60) | ~$240 | ~$240 |
+| Maintenance (~2h / yr @ $60) | ~$120 | ~$120 |
+| Payback | under a month | never |
+
+The top row is doing all the work. A clip on a genuinely high-traffic ticket clears its production inside a month and covers its maintenance many times over; the identical clip on a rarely-visited topic never earns back the four hours it took to make, and its maintenance quietly bleeds. That is why "add videos to the help center" is the wrong instruction and "add a video to the five tickets you answer most" is the right one. The recurring maintenance line is also the argument for making the clip rebuild from a spec rather than a hand-recording, so a UI change re-renders it instead of silently invalidating it. One engine built for exactly that is our own, aidemo, and it comes with caveats worth stating up front: it records inside a browser and nowhere else, the storyboard behind each clip is authored by a coding agent instead of assembled by hand, and there is no timeline anyone drags clips around on. The tool is beside the point; the recurring cost is what decides whether a support video keeps deflecting or starts lying.
+
+## Instrumenting deflection so you can retire the duds
+
+You cannot run a deflection program on view counts, because a video with ten thousand plays and no effect on ticket volume is a cost, not a win. The measurable question is whether the article that carries the clip prevents the contact. The cleanest signal is a controlled comparison: publish the article with the video for half the traffic and without it for the other half, and watch the ticket rate on that topic move, or fail to. Short of a clean split, track the self-service ratio for the topic (help-center sessions on it divided by tickets opened on it) before and after the video ships, plus the "viewed the article, then did not file within a day" rate that most help desks can approximate from their own logs.
+
+Two habits keep the program honest. Instrument at the topic level, not the video level, so you are measuring whether the customer's problem went away, not whether they hit play. And prune on the numbers: a clip that has not moved its topic's ticket rate after a fair window is a maintenance liability with no offsetting deflection, and it should be cut, not re-recorded. The full metric stack, from completion curves to the search-to-answer ratio, is its own subject in [measuring whether documentation videos actually work](/blog/measuring-documentation-video-effectiveness). The discipline underneath all of it is plain: a support video is a ticket-deflection instrument first, so measure the tickets, not the plays.
+
+## Sources
+
+- [Wyzowl — Video Marketing Statistics 2026](https://www.wyzowl.com/video-marketing-statistics/)
+- [Stoss, Help Scout (2025) — Creating Knowledge Base Videos: Tips, Tools, and Examples](https://www.helpscout.com/blog/video-knowledge-base/)
+- [Zendesk (2023) — Searching for self-service: why a knowledge base matters](https://www.zendesk.com/blog/searching-for-self-service/)
+- [Dixon, Ponomareff, Turner, and DeLisi, Harvard Business Review (2017) — Kick-Ass Customer Service](https://hbr.org/2017/01/kick-ass-customer-service)
+
+## FAQ
+
+### Do help center videos actually reduce support tickets?
+
+They can, but only on the right tickets, and the evidence is softer than the marketing implies. 57% of video marketers told Wyzowl that video helped reduce support queries, which is a self-report, not a measured deflection rate. A video reliably deflects when it sits on a high-volume, procedural, slow-changing ticket and is paired with searchable text; on a trivial, account-specific, or rarely-asked ticket it deflects nothing and still costs maintenance. Measure the ticket rate on the topic before and after to know which kind you shipped.
+
+### How long should a knowledge base video be?
+
+Short enough to answer one question and stop. A help-center clip is not entertainment; the viewer wants a specific step, so scope each video to a single ticket topic and cut everything else. For a pure "where do I click" answer, ten to twenty silent seconds beside the written steps is plenty; a multi-step setup might run one to two minutes. If a clip is pushing past a couple of minutes, it is answering more than one question and should be split into per-topic clips a reader can jump between.
+
+### Should a support video have narration or be silent?
+
+Default to silent-plus-captions for short procedural clips, because the first play is muted and the written article beside it already carries the words. A ten-second "click here, then here" microvideo needs no voice-over at all. Save narration for longer, multi-step walkthroughs where the sequence genuinely benefits from being talked through, and caption it either way, because a support video that only works with the sound on is one most of your customers cannot use.
 
 ---
 
@@ -4532,3 +4880,84 @@ Between redesigns, roughly two months to a half-life: at one to two visible chan
 ### Do outdated screenshots and demo videos hurt conversion or trust?
 
 They cost more than the re-recording time. A demo sets an expectation the trial has to meet, and when a prospect signs up to find an interface that looks nothing like the video, the first thing the product communicates is that the marketing is stale. Tools like shot-scraper exist because drifted documentation screenshots erode credibility, and a demo video, with far more frames to drift, carries the same risk to a warmer, earlier-funnel audience.
+
+---
+
+# YouTube marketing for developer tools: teach, don't advertise
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/youtube-marketing-for-dev-tools/
+
+> Developers block ads and skip intros, then watch half an hour of a tool that teaches them. The content mix and YouTube-SEO checklist for a dev channel.
+
+## Developers came to learn, not to be pitched
+
+Point a conventional marketing playbook at a developer audience and it slides right off. The people who market to developers for a living say why without hedging: markepear's developer-marketing guide states that "Developers DO NOT want to be persuaded" and names the group they trust least as "People working in marketing and sales" ([markepear, 2026](https://www.markepear.dev/blog/developer-marketing-guide)). What a developer will give you instead is attention, on one condition: that you are teaching them something they can use right now.
+
+The behavior backs the claim. The 2024 Stack Overflow Developer Survey ran across 65,437 respondents ([Stack Overflow, 2024](https://survey.stackoverflow.co/2024/)). Asked which online resources they use to learn to code, 49.9% of developers named video-based courses, behind technical documentation at 83.9% and Stack Overflow at 80.3% ([Stack Overflow, 2024](https://survey.stackoverflow.co/2024/developer-profile)). Half of all developers already learn from video. The same person who installs an ad blocker on Monday will watch a 25-minute walkthrough of the exact library they are evaluating on Tuesday, because one is an interruption and the other is the documentation they were already hunting for.
+
+So the useful reframing of a developer-tool YouTube channel is that it is not an ad channel at all. It is documentation with a play button, indexed by the second-largest search engine on the internet, and it earns its audience the way good docs do: by answering the question the developer typed, in the words they typed it. YouTube is one row in [the wider channel matrix](/blog/video-marketing-for-software), but it is the row where "teach" is not a nice-to-have style choice. It is the only register the audience accepts.
+
+## The 70/20/10 mix, keyed to the funnel
+
+"Teach, don't advertise" is not the same as "never promote." It is a budget. Borrow the content-allocation heuristic marketers call 70/20/10 and translate the three slices into the jobs a developer channel actually does, each mapped to where the viewer sits in the funnel and the number that tells you it worked.
+
+| Slice | Job | Content for a dev tool | Funnel stage | Grades on |
+| --- | --- | --- | --- | --- |
+| 70% Teach | Answer a question the dev already has | "How to do X", debugging walkthroughs, conference-talk recordings, concept explainers | Awareness, consideration | Watch time, search impressions |
+| 20% Enable | Deepen the people already using it | Feature walkthroughs, changelog videos, live coding, office hours, integration guides | Activation, retention | Returning viewers, comments |
+| 10% Promote | Ask, once you have earned it | Product overview, honest comparison, launch and the [Product Hunt cut](/blog/product-hunt-launch-video) | Decision | Click-through to docs or signup |
+
+The ratio is the point. A channel that is 70% product overview reads as a billboard and a developer audience leaves; a channel that is 70% genuinely useful teaching earns the right to the 10% that asks for the install. The bulk of that 70% is the [walkthrough that follows one real task end to end](/blog/product-walkthrough-video), because it teaches and demonstrates at once. And the awkward truth about the teaching tier is that it rots: a tutorial recorded against last quarter's UI teaches the wrong buttons the moment you ship the next release. Regenerating that library from a committed spec, instead of re-recording it by hand every sprint, is what keeps a teaching channel honest at scale. aidemo, the open-source engine this blog belongs to, does that from a committed, agent-authored storyboard. Its limits are worth naming: it records inside a browser and nothing native, there is no GUI where you nudge clips on a timeline, and the script is generated by a coding agent, not hand-edited in a video app. That suits a maintained tutorial library far more than a single talking-head take.
+
+## The YouTube-SEO checklist for a code-reading audience
+
+YouTube SEO for developers is ordinary YouTube SEO with the vanity stripped out, because the audience behaves differently: they search literal strings, they skip intros, and they read code faster than you can narrate it. Here is the checklist, with the dev-specific reason each line earns its place.
+
+| Element | Do | Why, for this audience |
+| --- | --- | --- |
+| Title | Name the exact task, error, or API, not a clever phrase | Developers search the literal error message or method name |
+| Thumbnail | Show the terminal, the code, or the result, not your face | The viewer wants to see the thing work, and can tell at a glance if it is their stack |
+| Chapters | First at 00:00, at least three, each 10s or longer | Let a viewer jump to "step 3: auth" without sitting through a preamble |
+| Transcript | Upload your own, do not lean on auto-captions | Speech recognition cannot spell your API, covered below |
+| Description | Lead with links to the docs, the repo, and the timestamps | It is a landing page, and the first two lines show before the fold |
+| End screen | One call to action, to the docs or signup | A menu of five asks converts worse than a single one |
+
+Every row is downstream of the same fact: this viewer arrived mid-problem and will leave the instant the video stops being about their problem. The opening especially cannot be a warm-up. [The first five seconds decide the view](/blog/demo-video-hook), and a founder introducing themselves before anything happens on screen wastes the exact window a developer uses to hit back. Cold-open on the terminal or the finished result, then let the chapters carry anyone who wants the earlier context.
+
+## Auto-captions can't spell your API
+
+The single most avoidable mistake on a developer channel is trusting YouTube's automatic captions. They run on speech recognition, and speech recognition was never trained to transcribe `useEffect`, `kubectl`, `pnpm`, or the name of your three-week-old product. It hears "react use effect" and writes "react use a fect," and now the transcript that YouTube indexes for search, and that a muted viewer reads to follow along, is wrong on exactly the terms that matter most. YouTube's own help documentation is explicit that you can upload your own captions with full control, and that automatic captions are generated in the video's default language only ([YouTube, 2026](https://support.google.com/youtube/answer/2734796)).
+
+The fix is to upload a creator transcript, which does double duty: it feeds YouTube's search index the correct spelling of every identifier, and it gives the large share of people who watch muted a caption track that reads like code instead of like a bad phone call. The general case for treating captions as a first-class deliverable rather than an afterthought is [made in full elsewhere](/blog/demo-video-captions); the developer-specific twist is only that your vocabulary is adversarial to the machine, so the manual pass stops being optional.
+
+## Chapters are the entry points, not the intro
+
+Chapters are the feature that most respects how a developer watches, which is rarely start to finish. Someone who searched "configure OAuth in your-tool" wants the OAuth part, and chapters let them land on it. YouTube's rules are specific: the first timestamp has to be 00:00, you need at least three timestamps listed in ascending order, and each chapter must run at least 10 seconds ([YouTube, 2026](https://support.google.com/youtube/answer/9884579)). Miss any of those and the chapter bar silently fails to appear.
+
+Structure the video so the chapters read as a table of contents a busy engineer can scan: "The problem", "Install", "The core workflow", "Handling errors", "Wrapping up". Each becomes a jump target, and on the search results page a set of key-moment links Google can surface on its own. The same discipline that makes a tutorial skimmable makes it indexable, which is the whole reason the teaching tier of the mix keeps paying out long past the first watch.
+
+## Optimize watch time, ignore the subscriber count
+
+The metric a developer channel should optimize is watch time, because it is both what YouTube's ranking rewards and the honest signal that the teaching landed: nobody sits through twelve minutes of a tool they have already dismissed. Subscribers and raw view counts are the vanity numbers here. A channel of 2,000 subscribers who each install the tool is worth more than 50,000 who watched one clip and bounced, and only the second kind of number looks impressive in a board deck. Instrument the thing that actually pays the channel's cost, which is the click from a video to the docs or the signup, and read it as an assisted conversion rather than a direct one. [Which numbers to trust, and which drop-off cliffs mean "cut here"](/blog/demo-video-metrics), is a study of its own; for a dev channel the short version is that watch time tells you the teaching worked and the doc click tells you it mattered.
+
+## Sources
+
+- [markepear - The Ultimate Developer Marketing Guide](https://www.markepear.dev/blog/developer-marketing-guide)
+- [Stack Overflow - 2024 Developer Survey](https://survey.stackoverflow.co/2024/)
+- [Stack Overflow - 2024 Developer Survey, developer profile and learning resources](https://survey.stackoverflow.co/2024/developer-profile)
+- [YouTube Help - Add subtitles and captions](https://support.google.com/youtube/answer/2734796)
+- [YouTube Help - Add video chapters](https://support.google.com/youtube/answer/9884579)
+
+## FAQ
+
+### How do you market a developer tool on YouTube without sounding like an ad?
+
+Budget the channel so teaching dominates. Roughly 70% of videos should answer a question a developer already has (how-tos, debugging walkthroughs, concept explainers), 20% should deepen current users (feature walkthroughs, changelog videos, live coding), and only about 10% should promote directly. A developer audience tolerates the 10% ask precisely because the other 90% was useful. The markepear developer-marketing guide puts it bluntly: developers do not want to be persuaded, they want to be taught, so the register that works is documentation with a play button.
+
+### Should I upload my own captions or use YouTube's automatic ones?
+
+Upload your own on a developer channel. YouTube's automatic captions run on speech recognition that mangles API names, CLI flags, and package names, so the transcript that gets indexed for search and read by muted viewers is wrong on the exact terms that matter. YouTube's help docs let you upload a caption file or transcript with full control, and note that auto-captions are generated only in the video's default language. A creator transcript fixes both discoverability and accessibility in one pass.
+
+### How many chapters does a YouTube video need to show the chapter bar?
+
+At least three. YouTube requires the first timestamp to be 00:00, the timestamps to be listed in ascending order, and each chapter to run a minimum of 10 seconds. If any of those conditions is unmet, the chapter markers do not render. Beyond the mechanics, treat chapters as a table of contents so a developer can jump straight to the section they searched for, such as install, the core workflow, or error handling.

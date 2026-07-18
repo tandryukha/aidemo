@@ -1,0 +1,86 @@
+# YouTube marketing for developer tools: teach, don't advertise
+
+July 18, 2026 · Video Marketing for Software · 7 min read · https://aidemo.top/blog/youtube-marketing-for-dev-tools/
+
+> Developers block ads and skip intros, then watch half an hour of a tool that teaches them. The content mix and YouTube-SEO checklist for a dev channel.
+
+**Key takeaways**
+
+- Half of developers already learn from video: 49.9% use video-based courses, behind technical docs (83.9%) and Stack Overflow (80.3%) in the 2024 Stack Overflow survey of 65,437 devs.
+- Budget the channel 70/20/10: 70% teaching, 20% enabling current users, 10% promotion; a channel that is mostly product overview reads as a billboard and loses the audience.
+- YouTube chapters need a 00:00 first timestamp, at least three timestamps in ascending order, and 10-second minimum segments, or the chapter bar never appears.
+- Never trust auto-captions on a dev channel: speech recognition mangles API names and CLI flags, so upload your own transcript to fix search indexing and muted viewers at once.
+- Optimize watch time, not subscribers or raw views: watch time is what YouTube ranks and the honest signal that your teaching landed.
+
+## Developers came to learn, not to be pitched
+
+Point a conventional marketing playbook at a developer audience and it slides right off. The people who market to developers for a living say why without hedging: markepear's developer-marketing guide states that "Developers DO NOT want to be persuaded" and names the group they trust least as "People working in marketing and sales" ([markepear, 2026](https://www.markepear.dev/blog/developer-marketing-guide)). What a developer will give you instead is attention, on one condition: that you are teaching them something they can use right now.
+
+The behavior backs the claim. The 2024 Stack Overflow Developer Survey ran across 65,437 respondents ([Stack Overflow, 2024](https://survey.stackoverflow.co/2024/)). Asked which online resources they use to learn to code, 49.9% of developers named video-based courses, behind technical documentation at 83.9% and Stack Overflow at 80.3% ([Stack Overflow, 2024](https://survey.stackoverflow.co/2024/developer-profile)). Half of all developers already learn from video. The same person who installs an ad blocker on Monday will watch a 25-minute walkthrough of the exact library they are evaluating on Tuesday, because one is an interruption and the other is the documentation they were already hunting for.
+
+So the useful reframing of a developer-tool YouTube channel is that it is not an ad channel at all. It is documentation with a play button, indexed by the second-largest search engine on the internet, and it earns its audience the way good docs do: by answering the question the developer typed, in the words they typed it. YouTube is one row in [the wider channel matrix](/blog/video-marketing-for-software), but it is the row where "teach" is not a nice-to-have style choice. It is the only register the audience accepts.
+
+## The 70/20/10 mix, keyed to the funnel
+
+"Teach, don't advertise" is not the same as "never promote." It is a budget. Borrow the content-allocation heuristic marketers call 70/20/10 and translate the three slices into the jobs a developer channel actually does, each mapped to where the viewer sits in the funnel and the number that tells you it worked.
+
+| Slice | Job | Content for a dev tool | Funnel stage | Grades on |
+| --- | --- | --- | --- | --- |
+| 70% Teach | Answer a question the dev already has | "How to do X", debugging walkthroughs, conference-talk recordings, concept explainers | Awareness, consideration | Watch time, search impressions |
+| 20% Enable | Deepen the people already using it | Feature walkthroughs, changelog videos, live coding, office hours, integration guides | Activation, retention | Returning viewers, comments |
+| 10% Promote | Ask, once you have earned it | Product overview, honest comparison, launch and the [Product Hunt cut](/blog/product-hunt-launch-video) | Decision | Click-through to docs or signup |
+
+The ratio is the point. A channel that is 70% product overview reads as a billboard and a developer audience leaves; a channel that is 70% genuinely useful teaching earns the right to the 10% that asks for the install. The bulk of that 70% is the [walkthrough that follows one real task end to end](/blog/product-walkthrough-video), because it teaches and demonstrates at once. And the awkward truth about the teaching tier is that it rots: a tutorial recorded against last quarter's UI teaches the wrong buttons the moment you ship the next release. Regenerating that library from a committed spec, instead of re-recording it by hand every sprint, is what keeps a teaching channel honest at scale. aidemo, the open-source engine this blog belongs to, does that from a committed, agent-authored storyboard. Its limits are worth naming: it records inside a browser and nothing native, there is no GUI where you nudge clips on a timeline, and the script is generated by a coding agent, not hand-edited in a video app. That suits a maintained tutorial library far more than a single talking-head take.
+
+## The YouTube-SEO checklist for a code-reading audience
+
+YouTube SEO for developers is ordinary YouTube SEO with the vanity stripped out, because the audience behaves differently: they search literal strings, they skip intros, and they read code faster than you can narrate it. Here is the checklist, with the dev-specific reason each line earns its place.
+
+| Element | Do | Why, for this audience |
+| --- | --- | --- |
+| Title | Name the exact task, error, or API, not a clever phrase | Developers search the literal error message or method name |
+| Thumbnail | Show the terminal, the code, or the result, not your face | The viewer wants to see the thing work, and can tell at a glance if it is their stack |
+| Chapters | First at 00:00, at least three, each 10s or longer | Let a viewer jump to "step 3: auth" without sitting through a preamble |
+| Transcript | Upload your own, do not lean on auto-captions | Speech recognition cannot spell your API, covered below |
+| Description | Lead with links to the docs, the repo, and the timestamps | It is a landing page, and the first two lines show before the fold |
+| End screen | One call to action, to the docs or signup | A menu of five asks converts worse than a single one |
+
+Every row is downstream of the same fact: this viewer arrived mid-problem and will leave the instant the video stops being about their problem. The opening especially cannot be a warm-up. [The first five seconds decide the view](/blog/demo-video-hook), and a founder introducing themselves before anything happens on screen wastes the exact window a developer uses to hit back. Cold-open on the terminal or the finished result, then let the chapters carry anyone who wants the earlier context.
+
+## Auto-captions can't spell your API
+
+The single most avoidable mistake on a developer channel is trusting YouTube's automatic captions. They run on speech recognition, and speech recognition was never trained to transcribe `useEffect`, `kubectl`, `pnpm`, or the name of your three-week-old product. It hears "react use effect" and writes "react use a fect," and now the transcript that YouTube indexes for search, and that a muted viewer reads to follow along, is wrong on exactly the terms that matter most. YouTube's own help documentation is explicit that you can upload your own captions with full control, and that automatic captions are generated in the video's default language only ([YouTube, 2026](https://support.google.com/youtube/answer/2734796)).
+
+The fix is to upload a creator transcript, which does double duty: it feeds YouTube's search index the correct spelling of every identifier, and it gives the large share of people who watch muted a caption track that reads like code instead of like a bad phone call. The general case for treating captions as a first-class deliverable rather than an afterthought is [made in full elsewhere](/blog/demo-video-captions); the developer-specific twist is only that your vocabulary is adversarial to the machine, so the manual pass stops being optional.
+
+## Chapters are the entry points, not the intro
+
+Chapters are the feature that most respects how a developer watches, which is rarely start to finish. Someone who searched "configure OAuth in your-tool" wants the OAuth part, and chapters let them land on it. YouTube's rules are specific: the first timestamp has to be 00:00, you need at least three timestamps listed in ascending order, and each chapter must run at least 10 seconds ([YouTube, 2026](https://support.google.com/youtube/answer/9884579)). Miss any of those and the chapter bar silently fails to appear.
+
+Structure the video so the chapters read as a table of contents a busy engineer can scan: "The problem", "Install", "The core workflow", "Handling errors", "Wrapping up". Each becomes a jump target, and on the search results page a set of key-moment links Google can surface on its own. The same discipline that makes a tutorial skimmable makes it indexable, which is the whole reason the teaching tier of the mix keeps paying out long past the first watch.
+
+## Optimize watch time, ignore the subscriber count
+
+The metric a developer channel should optimize is watch time, because it is both what YouTube's ranking rewards and the honest signal that the teaching landed: nobody sits through twelve minutes of a tool they have already dismissed. Subscribers and raw view counts are the vanity numbers here. A channel of 2,000 subscribers who each install the tool is worth more than 50,000 who watched one clip and bounced, and only the second kind of number looks impressive in a board deck. Instrument the thing that actually pays the channel's cost, which is the click from a video to the docs or the signup, and read it as an assisted conversion rather than a direct one. [Which numbers to trust, and which drop-off cliffs mean "cut here"](/blog/demo-video-metrics), is a study of its own; for a dev channel the short version is that watch time tells you the teaching worked and the doc click tells you it mattered.
+
+## Sources
+
+- [markepear - The Ultimate Developer Marketing Guide](https://www.markepear.dev/blog/developer-marketing-guide)
+- [Stack Overflow - 2024 Developer Survey](https://survey.stackoverflow.co/2024/)
+- [Stack Overflow - 2024 Developer Survey, developer profile and learning resources](https://survey.stackoverflow.co/2024/developer-profile)
+- [YouTube Help - Add subtitles and captions](https://support.google.com/youtube/answer/2734796)
+- [YouTube Help - Add video chapters](https://support.google.com/youtube/answer/9884579)
+
+## FAQ
+
+### How do you market a developer tool on YouTube without sounding like an ad?
+
+Budget the channel so teaching dominates. Roughly 70% of videos should answer a question a developer already has (how-tos, debugging walkthroughs, concept explainers), 20% should deepen current users (feature walkthroughs, changelog videos, live coding), and only about 10% should promote directly. A developer audience tolerates the 10% ask precisely because the other 90% was useful. The markepear developer-marketing guide puts it bluntly: developers do not want to be persuaded, they want to be taught, so the register that works is documentation with a play button.
+
+### Should I upload my own captions or use YouTube's automatic ones?
+
+Upload your own on a developer channel. YouTube's automatic captions run on speech recognition that mangles API names, CLI flags, and package names, so the transcript that gets indexed for search and read by muted viewers is wrong on the exact terms that matter. YouTube's help docs let you upload a caption file or transcript with full control, and note that auto-captions are generated only in the video's default language. A creator transcript fixes both discoverability and accessibility in one pass.
+
+### How many chapters does a YouTube video need to show the chapter bar?
+
+At least three. YouTube requires the first timestamp to be 00:00, the timestamps to be listed in ascending order, and each chapter to run a minimum of 10 seconds. If any of those conditions is unmet, the chapter markers do not render. Beyond the mechanics, treat chapters as a table of contents so a developer can jump straight to the section they searched for, such as install, the core workflow, or error handling.

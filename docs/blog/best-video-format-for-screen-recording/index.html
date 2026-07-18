@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Best screen recording format: MP4 vs WebM | aidemo</title>
+<meta name="description" content="MP4 vs MOV vs WebM, decided by separating container from codec: H.264 to send anywhere, VP9 or AV1 for the smallest web embed, ProRes to keep editing.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/best-video-format-for-screen-recording/">
+<link rel="alternate" type="text/markdown" href="/blog/best-video-format-for-screen-recording/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Best screen recording format: MP4 vs WebM | aidemo">
+<meta property="og:description" content="MP4 vs MOV vs WebM, decided by separating container from codec: H.264 to send anywhere, VP9 or AV1 for the smallest web embed, ProRes to keep editing.">
+<meta property="og:url" content="https://aidemo.top/blog/best-video-format-for-screen-recording/">
+<meta property="og:image" content="https://aidemo.top/blog/images/best-video-format-for-screen-recording-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Best screen recording format: MP4 vs WebM | aidemo">
+<meta name="twitter:description" content="MP4 vs MOV vs WebM, decided by separating container from codec: H.264 to send anywhere, VP9 or AV1 for the smallest web embed, ProRes to keep editing.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/best-video-format-for-screen-recording-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Best format for screen recording: container vs codec, decided",
+  "description": "MP4 vs MOV vs WebM, decided by separating container from codec: H.264 to send anywhere, VP9 or AV1 for the smallest web embed, ProRes to keep editing.",
+  "image": [
+    "https://aidemo.top/blog/images/best-video-format-for-screen-recording-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/best-video-format-for-screen-recording/"
+  },
+  "wordCount": 2017,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Media container formats (MP4, WebM, QuickTime; which codecs each holds)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google — VP9 (bit-rate reduction up to 50%)",
+      "url": "https://developers.google.com/media/vp9"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "caniuse — AV1 video format (browser support, 2026)",
+      "url": "https://caniuse.com/av1"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Codecs documentation (libaom-av1 crf 0-63, prores_ks encoder)",
+      "url": "https://ffmpeg.org/ffmpeg-codecs.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — About Apple ProRes",
+      "url": "https://support.apple.com/en-us/102207"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Best format for screen recording: container vs codec, decided",
+      "item": "https://aidemo.top/blog/best-video-format-for-screen-recording/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the best format for screen recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For almost everything you send or embed, an MP4 file with the H.264 codec, because it plays in every browser and on nearly every device with no fallback and owes no license fee for free-to-watch video. Leave that default only for a specific reason: WebM with VP9 (or AV1) for a self-hosted web embed where a file up to half the size is worth shipping an MP4 fallback beside it, and a ProRes .mov when the file is a master you will keep editing rather than a thing you deliver."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between a video container and a codec?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The codec is the algorithm that compressed the pixels (H.264, VP9, AV1); the container is the wrapper that holds the compressed video and audio together (.mp4, .webm, .mov). The extension names the container, not the codec, which is why two .mp4 files can differ tenfold in size and play on different devices depending on which codec is inside. Pick the container for compatibility and the codec for file size, then confirm the codec you chose is one your container is allowed to carry."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is MP4 or MOV better for a screen recording you send to someone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MP4. MDN calls MP4 the industry-standard video container, widely supported across devices and browsers, while it describes QuickTime's .mov as primarily an Apple-device format that is no longer widely used online and deprecated for the web. MOV still earns its place as an editing master, since ProRes lives in a .mov, but for a file another person has to open, export to MP4/H.264 so it plays without them installing anything."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Best format for screen recording: container vs codec, decided</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Best format for screen recording: container vs codec, decided</h1>
+        <p class="article-dek">The .mp4 in the filename is the box, not the codec inside it, and the codec is what sets the size. Container and codec, separated and decided.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-file-extension-names-the-box-not-what-is-inside-it">The file extension names the box, not what is inside it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-decisions-hide-behind-one-dropdown">Two decisions hide behind one dropdown</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-codecs-and-the-bytes-each-one-saves">Three codecs, and the bytes each one saves</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-compatibility-tax-when-a-smaller-file-costs-more-than-it-saves">The compatibility tax: when a smaller file costs more than it saves</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#capture-format-and-delivery-format-are-not-the-same-file">Capture format and delivery format are not the same file</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pick-the-format-from-where-the-video-lands">Pick the format from where the video lands</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/best-video-format-for-screen-recording-800.webp" srcset="/blog/images/best-video-format-for-screen-recording-400.webp 400w, /blog/images/best-video-format-for-screen-recording-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A family of matte-clay matryoshka dolls lined up in descending sizes"><figcaption>The label on the outside tells you nothing about how much was packed within, or how far it can travel.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The file extension names the container (.mp4/.mov/.webm); the codec inside (H.264, VP9, AV1) sets file size and where it plays. Decide both, not one.</li>
+    <li>Default to MP4/H.264: it plays in every browser (MDN) and owes no license fee for free-to-watch video. Leave it only for a named reason.</li>
+    <li>VP9 cuts bit rate up to 50% vs other codecs (Google) and AV1 up to 50% below AVC (MDN), but AV1 encodes slowly and Safari support is only partial since 17.0 (caniuse 2026, ~93%).</li>
+    <li>Ship a smaller codec only with an MP4 fallback and only for a file served many times; for a clip you email once, the two-file dance is pure overhead.</li>
+    <li>Capture format is not delivery format: record near-lossless (or a ProRes .mov master), compress once on export, or a double pass softens the text you kept crisp.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-file-extension-names-the-box-not-what-is-inside-it">The file extension names the box, not what is inside it<a class="hanchor" href="#the-file-extension-names-the-box-not-what-is-inside-it" aria-label="Link to section: The file extension names the box, not what is inside it">#</a></h2>
+<p>Rename a <code>.mov</code> to <code>.mp4</code> and, more often than not, it still plays. That is the tell that &quot;MP4 vs MOV vs WebM&quot; is the wrong question to open with, because those three names describe the container, the outer wrapper that holds the video and audio streams, and the container is not the thing that decides how large the file is or where it will play. That job belongs to the codec, the algorithm that actually compressed the pixels, and it sits one layer down where the extension cannot show it. An <code>.mp4</code> can hold H.264, HEVC, or AV1; a <code>.webm</code> holds VP9 or AV1; a <code>.mov</code> holds H.264 or ProRes. Two files with the same extension can be a tenth of each other&#39;s size and open on completely different sets of devices, because the extension was never the format that mattered.</p>
+<p>So this page splits the one decision your recorder hides behind a &quot;format&quot; dropdown into the two it really is: which container to wrap the file in, and which codec to compress it with. Get both right and a screen recording plays everywhere at the smallest honest size. This is the format layer of <a href="/blog/how-to-record-your-screen-in-high-quality/">the wider capture-settings checklist</a>; resolution and frame rate, which set how many pixels you are compressing in the first place, are decided <a href="/blog/best-resolution-for-screen-recording/">one step before this</a>.</p>
+<h2 id="two-decisions-hide-behind-one-dropdown">Two decisions hide behind one dropdown<a class="hanchor" href="#two-decisions-hide-behind-one-dropdown" aria-label="Link to section: Two decisions hide behind one dropdown">#</a></h2>
+<p>The container picks compatibility and what codecs it is allowed to carry. MDN calls MP4 &quot;the industry standard for video content, widely supported across devices and browsers&quot;<sup class="article-cite"><a href="#src-1" title="MDN — Media container formats (MP4, WebM, QuickTime; which codecs each holds)">1</a></sup>, which is why it is the safe wrapper for anything you hand to another person. WebM is &quot;an open, royalty-free container&quot; designed for the web<sup class="article-cite"><a href="#src-1" title="MDN — Media container formats (MP4, WebM, QuickTime; which codecs each holds)">1</a></sup>, and QuickTime&#39;s <code>.mov</code> is, in MDN&#39;s words, effectively &quot;primarily available on Apple devices&quot; and &quot;no longer widely used on the internet&quot;: useful as an editing wrapper on a Mac, wrong as a thing you send.</p>
+<p>The codec picks size and, again, compatibility, plus a third axis the container does not have: licensing. Here is the pairing, because the cell you land in is the combination, not either axis alone.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Container (extension)</th>
+<th>Codecs it commonly carries</th>
+<th>Opens on another device?</th>
+<th>Its job</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MP4 (<code>.mp4</code>)</td>
+<td>H.264, HEVC, AV1, VP9</td>
+<td>Yes, universally with H.264</td>
+<td>Send-anywhere delivery</td>
+</tr>
+<tr>
+<td>WebM (<code>.webm</code>)</td>
+<td>VP9, VP8, AV1</td>
+<td>Every modern browser</td>
+<td>Smallest self-hosted embed</td>
+</tr>
+<tr>
+<td>QuickTime (<code>.mov</code>)</td>
+<td>ProRes, H.264</td>
+<td>No, deprecated for the web</td>
+<td>Editing master on a Mac</td>
+</tr>
+</tbody></table></div>
+<p>Read it as two questions. The container decides whether a browser or a colleague&#39;s phone will open the file at all; the codec decides how many bytes it took to get there. The rest of this page is the codec column, because that is where the up-to-50-percent decisions live.</p>
+<h2 id="three-codecs-and-the-bytes-each-one-saves">Three codecs, and the bytes each one saves<a class="hanchor" href="#three-codecs-and-the-bytes-each-one-saves" aria-label="Link to section: Three codecs, and the bytes each one saves">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Codec (pairs with)</th>
+<th>Size vs H.264</th>
+<th>Browser reach</th>
+<th>Licensing</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>H.264 / AVC (MP4, MOV)</td>
+<td>baseline</td>
+<td>Every browser; hardware everywhere</td>
+<td>Patented, no fee for free-to-viewer streaming</td>
+</tr>
+<tr>
+<td>VP9 (WebM)</td>
+<td>up to ~50% smaller</td>
+<td>All current browsers, not old Safari</td>
+<td>Open, royalty-free</td>
+</tr>
+<tr>
+<td>AV1 (WebM or MP4)</td>
+<td>up to ~50% smaller than AVC</td>
+<td>~93%, Safari partial since 17.0</td>
+<td>Royalty-free (AOMedia)</td>
+</tr>
+<tr>
+<td>HEVC / H.265 (MP4, MOV)</td>
+<td>~50% smaller</td>
+<td>Narrow on the open web</td>
+<td>Developer-fee patents</td>
+</tr>
+</tbody></table></div>
+<p>H.264, also called AVC, is the one that plays everywhere. MDN lists it as supported by &quot;all versions of Chrome, Edge, Firefox, Opera, and Safari&quot;<sup class="article-cite"><a href="#src-2" title="MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)">2</a></sup>, and hardware to decode it sits in nearly every device shipped in the last decade. It is patented, but the Via LA pool &quot;does not require license fees for streaming internet video ... as long as the video is free for end users&quot;<sup class="article-cite"><a href="#src-2" title="MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)">2</a></sup>, so a free-to-watch product demo owes nothing. It is also the least efficient of the three, which is the price of being universal.</p>
+<p>VP9 is Google&#39;s open codec, and per Google it &quot;can reduce video bit rates by as much as 50% compared with other known codecs&quot;<sup class="article-cite"><a href="#src-3" title="Google — VP9 (bit-rate reduction up to 50%)">3</a></sup> at the same quality; MDN rates its quality &quot;comparable to that of HEVC at similar bit rates&quot;<sup class="article-cite"><a href="#src-2" title="MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)">2</a></sup>. It plays in every current browser and is the native codec for a WebM file. AV1, from the Alliance for Open Media, goes further: MDN credits it with &quot;as much as 50% higher&quot; compression &quot;rates than AVC,&quot; and unlike H.264 it is &quot;fully royalty-free&quot;<sup class="article-cite"><a href="#src-2" title="MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)">2</a></sup>. Both buy a much smaller file. Both charge for it in a currency the next section spends. HEVC/H.265, the fourth row, matches that efficiency but is licensed by developer fees and barely plays on the open web<sup class="article-cite"><a href="#src-2" title="MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)">2</a></sup>, so it rarely earns a place in a screen-recording pipeline.</p>
+<h2 id="the-compatibility-tax-when-a-smaller-file-costs-more-than-it-saves">The compatibility tax: when a smaller file costs more than it saves<a class="hanchor" href="#the-compatibility-tax-when-a-smaller-file-costs-more-than-it-saves" aria-label="Link to section: The compatibility tax: when a smaller file costs more than it saves">#</a></h2>
+<p>A codec that halves the file is a win only if the viewer&#39;s device can decode it, and this is where the newer codecs bill you. AV1&#39;s reach is broad but not total: caniuse puts global support near 93% (roughly 79% full plus 14% partial) as of 2026, with Safari on macOS and iOS only partially supporting it since version 17.0<sup class="article-cite"><a href="#src-4" title="caniuse — AV1 video format (browser support, 2026)">4</a></sup>. VP9 is safer but still misses older Safari. H.264, again, misses nothing.</p>
+<p>The second half of the tax is encode time. AV1 in particular is slow to compress: footage that H.264 encodes in real time on hardware can take many times longer in a good AV1 software encoder, so the bytes you save on delivery you pay back in CPU on the way out. And because no single modern codec plays truly everywhere, using one for a web embed means shipping a fallback: list a WebM or AV1 source and an MP4/H.264 source, so that when a browser cannot play the first, in MDN&#39;s phrasing, &quot;it moves on to the next option&quot;<sup class="article-cite"><a href="#src-1" title="MDN — Media container formats (MP4, WebM, QuickTime; which codecs each holds)">1</a></sup>. That two-file arrangement is <a href="/blog/embed-video-on-website/">worth it for a self-hosted embed watched at scale</a> and pure overhead for a clip you are emailing one person. The tax is only worth paying when the same file is served many times.</p>
+<h2 id="capture-format-and-delivery-format-are-not-the-same-file">Capture format and delivery format are not the same file<a class="hanchor" href="#capture-format-and-delivery-format-are-not-the-same-file" aria-label="Link to section: Capture format and delivery format are not the same file">#</a></h2>
+<p>The costly mistake is treating the format you record in as the format you ship. They are two jobs. At capture, the recorder wants to write frames fast without pinning the CPU, so its default is a low-compression or near-lossless codec that produces a big file cheaply, which is correct, because compressing hard in real time steals cycles from the thing you are recording. At delivery you want the opposite: the smallest file that still plays, compressed once, slowly, offline. Compress twice, a heavy codec at capture and again at export, and the second pass quantizes the artifacts the first one introduced, so the text you were careful to keep crisp softens for nothing.</p>
+<p>That is what a mastering codec is for. Apple&#39;s ProRes, wrapped in a <code>.mov</code>, is Apple&#39;s professional post-production codec<sup class="article-cite"><a href="#src-6" title="Apple — About Apple ProRes">6</a></sup>: it stores each frame nearly whole, so quality survives being cut, color-graded, and re-exported without generation loss, at the cost of a file many times larger than the H.264 you finally deliver. ffmpeg ships a ProRes encoder (<code>prores_ks</code>) alongside its H.264, VP9, and AV1 encoders, and it exposes AV1&#39;s own constant-quality knob on a 0-to-63 scale where higher means smaller and worse<sup class="article-cite"><a href="#src-5" title="FFmpeg — Codecs documentation (libaom-av1 crf 0-63, prores_ks encoder)">5</a></sup>, so one tool takes the master to the deliverable. The rule the pillar states for bitrate holds for format too: <a href="/blog/how-to-record-your-screen-in-high-quality/">record at near-lossless quality and compress once on export</a>, never at both ends.</p>
+<h2 id="pick-the-format-from-where-the-video-lands">Pick the format from where the video lands<a class="hanchor" href="#pick-the-format-from-where-the-video-lands" aria-label="Link to section: Pick the format from where the video lands">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Where the file lands</th>
+<th>Container / codec</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email, Slack, a PR, a colleague</td>
+<td>MP4 / H.264</td>
+<td>Plays on every device, no fallback needed</td>
+</tr>
+<tr>
+<td>Self-hosted web embed, bytes matter</td>
+<td>WebM / VP9 + MP4 fallback</td>
+<td>up to ~50% fewer bytes, browser picks the source</td>
+</tr>
+<tr>
+<td>Smallest embed, served at scale</td>
+<td>AV1 + MP4 fallback</td>
+<td>Best compression, slow encode, partial Safari</td>
+</tr>
+<tr>
+<td>App Store preview upload</td>
+<td>MP4 / H.264</td>
+<td>Apple&#39;s spec fixes it for you</td>
+</tr>
+<tr>
+<td>A master you will keep editing</td>
+<td>MOV / ProRes, or lossless</td>
+<td>Survives repeated re-exports without loss</td>
+</tr>
+<tr>
+<td>YouTube or a streaming host</td>
+<td>MP4 / H.264</td>
+<td>They re-encode anyway, so upload clean</td>
+</tr>
+</tbody></table></div>
+<p>The pattern under the table is one line: default to MP4/H.264 and leave it only for a named reason. Sending the clip to a person, a channel, or a pull request keeps MP4/H.264, which plays with zero fallback and no thought. A self-hosted web embed where bytes are your bill earns WebM/VP9 with an MP4 fallback, banking as much as half the bytes while the browser chooses. An <a href="/blog/app-preview-video/">App Store upload</a> is decided for you: Apple fixes container and codec, and it is H.264. A file you will keep editing wants a ProRes master in a <code>.mov</code>, exported to a delivery codec when the edit is done. And a clip bound for YouTube or a streaming host should go up as clean H.264, because they will transcode it to their own ladder regardless, so a slow AV1 upload buys nothing.</p>
+<p>Making that choice once and never fumbling it again is easier when the container and codec are written down rather than picked from an export menu under deadline. In our own engine, aidemo, both live in the storyboard, so every re-render of a demo comes out as the same H.264 MP4 because <a href="/blog/deterministic-browser-automation-for-video/">the whole capture is deterministic</a>, with no dropdown to get wrong. The honest limits are the usual ones: aidemo captures a browser and not a native desktop app, a coding agent writes the storyboard in code instead of dragging clips through a GUI editor, and for one throwaway clip a point-and-click recorder beats setting up a spec.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers" rel="noopener">MDN — Media container formats (MP4, WebM, QuickTime; which codecs each holds)</a></li>
+<li id="src-2"><a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs" rel="noopener">MDN — Web video codec guide (H.264, VP9, AV1, HEVC efficiency and licensing)</a></li>
+<li id="src-3"><a href="https://developers.google.com/media/vp9" rel="noopener">Google — VP9 (bit-rate reduction up to 50%)</a></li>
+<li id="src-4"><a href="https://caniuse.com/av1" rel="noopener">caniuse — AV1 video format (browser support, 2026)</a></li>
+<li id="src-5"><a href="https://ffmpeg.org/ffmpeg-codecs.html" rel="noopener">FFmpeg — Codecs documentation (libaom-av1 crf 0-63, prores_ks encoder)</a></li>
+<li id="src-6"><a href="https://support.apple.com/en-us/102207" rel="noopener">Apple — About Apple ProRes</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-the-best-format-for-screen-recording" class="blog-faq-q">What is the best format for screen recording?<a class="hanchor" href="#what-is-the-best-format-for-screen-recording" aria-label="Link to section: What is the best format for screen recording?">#</a></h3>
+<p>For almost everything you send or embed, an MP4 file with the H.264 codec, because it plays in every browser and on nearly every device with no fallback and owes no license fee for free-to-watch video. Leave that default only for a specific reason: WebM with VP9 (or AV1) for a self-hosted web embed where a file up to half the size is worth shipping an MP4 fallback beside it, and a ProRes <code>.mov</code> when the file is a master you will keep editing rather than a thing you deliver.</p>
+<h3 id="what-is-the-difference-between-a-video-container-and-a-codec" class="blog-faq-q">What is the difference between a video container and a codec?<a class="hanchor" href="#what-is-the-difference-between-a-video-container-and-a-codec" aria-label="Link to section: What is the difference between a video container and a codec?">#</a></h3>
+<p>The codec is the algorithm that compressed the pixels (H.264, VP9, AV1); the container is the wrapper that holds the compressed video and audio together (<code>.mp4</code>, <code>.webm</code>, <code>.mov</code>). The extension names the container, not the codec, which is why two <code>.mp4</code> files can differ tenfold in size and play on different devices depending on which codec is inside. Pick the container for compatibility and the codec for file size, then confirm the codec you chose is one your container is allowed to carry.</p>
+<h3 id="is-mp4-or-mov-better-for-a-screen-recording-you-send-to-someone" class="blog-faq-q">Is MP4 or MOV better for a screen recording you send to someone?<a class="hanchor" href="#is-mp4-or-mov-better-for-a-screen-recording-you-send-to-someone" aria-label="Link to section: Is MP4 or MOV better for a screen recording you send to someone?">#</a></h3>
+<p>MP4. MDN calls MP4 the industry-standard video container, widely supported across devices and browsers, while it describes QuickTime&#39;s <code>.mov</code> as primarily an Apple-device format that is no longer widely used online and deprecated for the web. MOV still earns its place as an editing master, since ProRes lives in a <code>.mov</code>, but for a file another person has to open, export to MP4/H.264 so it plays without them installing anything.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">video format</span>
+        <span class="article-tag">codec</span>
+        <span class="article-tag">mp4 vs webm</span>
+        <span class="article-tag">av1</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-file-extension-names-the-box-not-what-is-inside-it">The file extension names the box, not what is inside it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-decisions-hide-behind-one-dropdown">Two decisions hide behind one dropdown</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-codecs-and-the-bytes-each-one-saves">Three codecs, and the bytes each one saves</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-compatibility-tax-when-a-smaller-file-costs-more-than-it-saves">The compatibility tax: when a smaller file costs more than it saves</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#capture-format-and-delivery-format-are-not-the-same-file">Capture format and delivery format are not the same file</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pick-the-format-from-where-the-video-lands">Pick the format from where the video lands</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

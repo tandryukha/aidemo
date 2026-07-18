@@ -261,7 +261,7 @@
 <td>~3x</td>
 </tr>
 </tbody></table></div>
-<p>A 4K master of a video that will play at 1080p runs roughly three times the bytes of the 1080p version, and if the destination is a hosting platform, it transcodes your upload down to its own per-resolution bitrate on the way in, so the surplus never reaches a viewer. You paid the upload, the storage, and the longer encode for pixels the delivery discards. Where the file is self-hosted, a mostly-static UI compresses well below these figures, but the ratio between resolutions holds. The codec and container that carry the bits are a separate decision, and no codec makes 4K cheaper than 1080p for the same footage.</p>
+<p>A 4K master of a video that will play at 1080p runs roughly three times the bytes of the 1080p version, and if the destination is a hosting platform, it transcodes your upload down to its own per-resolution bitrate on the way in, so the surplus never reaches a viewer. You paid the upload, the storage, and the longer encode for pixels the delivery discards. Where the file is self-hosted, a mostly-static UI compresses well below these figures, but the ratio between resolutions holds. The codec and container that carry the bits are <a href="/blog/best-video-format-for-screen-recording/">a separate decision</a>, and no codec makes 4K cheaper than 1080p for the same footage.</p>
 <h2 id="how-a-4k-capture-can-make-1080p-text-worse-not-better">How a 4K capture can make 1080p text worse, not better<a class="hanchor" href="#how-a-4k-capture-can-make-1080p-text-worse-not-better" aria-label="Link to section: How a 4K capture can make 1080p text worse, not better">#</a></h2>
 <p>Wasting bits is the forgivable half. The surprising half is that a 4K capture can deliver softer 1080p than a 1080p capture does, and the cause is content density, not the shrink itself. Record the whole 4K desktop and you are fitting four times the screen area into the frame. Downscale that to 1080p and every element, text included, lands at roughly half its original linear pixel count. A 14-pixel label that was legible on the 4K grid is drawn with about seven vertical pixels after the shrink, under the floor where fine strokes stay distinct, so it goes fuzzy. Capture a DPR-2 window sized to the delivery target instead and that same label keeps its full pixel budget. TechSmith names the same trap from the recorder&#39;s side, warning that footage &quot;becomes blurry when you zoom in or scale footage larger than what you originally recorded at&quot;<sup class="article-cite"><a href="#src-3" title="TechSmith — How to fix a blurry video">3</a></sup>; the mirror image is shrinking so much content into so few pixels that the text can no longer resolve.</p>
 <h2 id="the-downscale-filter-decides-whether-the-sharpness-survives">The downscale filter decides whether the sharpness survives<a class="hanchor" href="#the-downscale-filter-decides-whether-the-sharpness-survives" aria-label="Link to section: The downscale filter decides whether the sharpness survives">#</a></h2>
@@ -335,13 +335,13 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
   </div>
 </a>
-<a class="article-card" href="/blog/record-a-browser-tab/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/record-a-browser-tab-400.webp" srcset="/blog/images/record-a-browser-tab-400.webp 400w, /blog/images/record-a-browser-tab-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay star-shaped cookie cutter standing upright in a flat sheet of dough"></div>
+<a class="article-card" href="/blog/best-video-format-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-video-format-for-screen-recording-400.webp" srcset="/blog/images/best-video-format-for-screen-recording-400.webp 400w, /blog/images/best-video-format-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A family of matte-clay matryoshka dolls lined up in descending sizes"></div>
   <div class="article-card-content">
     <div class="article-card-category">Screen Recording</div>
-    <h3 class="article-card-title">How to record just one browser tab (three ways, one clean result)</h3>
-    <p class="article-card-excerpt">Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+    <h3 class="article-card-title">Best format for screen recording: container vs codec, decided</h3>
+    <p class="article-card-excerpt">The .mp4 in the filename is the box, not the codec inside it, and the codec is what sets the size. Container and codec, separated and decided.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
   </div>
 </a>
   </div>

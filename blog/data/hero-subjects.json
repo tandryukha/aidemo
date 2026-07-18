@@ -150,5 +150,22 @@
   },
   "free-demo-video-software": {
     "subject": "an iceberg floating with most of its mass below the waterline"
+  },
+  "product-launch-video": {
+    "subject": "a party confetti cannon mid-burst, scattering rounded pieces"
+  },
+  "best-video-format-for-screen-recording": {
+    "subject": "a matryoshka doll opened to reveal a smaller doll inside",
+    "seedOffset": 1
+  },
+  "youtube-marketing-for-dev-tools": {
+    "subject": "a snowball rolling down a slope, grown large",
+    "seedOffset": 2
+  },
+  "demo-video-software-pricing": {
+    "subject": "a wooden abacus with rows of round sliding beads"
+  },
+  "support-videos-knowledge-base": {
+    "subject": "a bright dome umbrella open and standing upright"
   }
 }
