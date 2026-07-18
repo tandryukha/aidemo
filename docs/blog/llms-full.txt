@@ -588,6 +588,81 @@ They are the same mechanism pointed at two goals. A deterministic screenshot pip
 
 ---
 
+# B2B vs PLG demo videos: seven axes that change the cut
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/b2b-demo-video/
+
+> The same product needs two demos: one for a self-serve user, one for a buying committee. Seven axes that decide where each cut lands.
+
+## The buyer decides the cut: a committee or a practitioner
+
+"B2B" and "PLG" get used as if they named two kinds of company, but for a demo video they name two kinds of viewer, and the viewer is what rewrites the edit. A sales-led B2B demo is watched by a buying group: Forrester's 2024 State of Business Buying counts 13 people in the average buying decision, with 89% of purchases crossing two or more departments, and 86% of deals stalling before anyone signs ([Forrester, 2024](https://www.forrester.com/press-newsroom/forrester-the-state-of-business-buying-2024/)). A product-led demo is watched by one person deciding, in the next thirty seconds, whether to sign up. ProductLed's own research claims 97% of modern buyers would rather try a product than talk to a sales rep ([ProductLed, 2026](https://productled.com/)), a round number worth reading as directional, but pointed the same way as the harder data. Navattic's 2025 State of the Interactive Product Demo, built on over 28,000 demos, finds about 71% of top-performing interactive demos carry no form gate and demo-sourced leads making up 10 to 20% of inbound volume ([Navattic, 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)): the self-serve buyer educates themselves long before anyone at your company learns their name.
+
+Two viewers, two economics. The B2B view is expensive and there are few of them, so the demo can be long, tailored, and routed to a human. The PLG view is cheap and there are thousands, so the demo has to work cold, unattended, and in seconds. Everything below falls out of that split. [The production playbook](/blog/how-to-make-a-product-demo-video) is the same for both cuts; what changes is where every dial lands.
+
+## Seven axes where a B2B cut and a PLG cut diverge
+
+Take one recording of one product and ask what a sales-led team and a product-led team would each do with it. They pull seven dials in opposite directions, and not one of the moves is a matter of taste. Each traces back to who is watching and what a deal is worth.
+
+| Axis | B2B, sales-led | PLG, self-serve |
+|---|---|---|
+| Length | 90 s to 3 min, chaptered; the committee opted in | 30 to 90 s; competing for a cold click |
+| Narration | First person, business-outcome and ROI framing | Second person, "here is how you do this" |
+| Who's the hero | The buyer's organization and the result it gets | The individual user and the task in their hands |
+| Depth | One workflow to a business result, plus admin, security, and integration for the committee | The shortest path to first value, nothing else |
+| Call to action | Book a call, see team pricing: routed to a human | Start free, try it now: no human in the path |
+| Personalization | Per-account variant with the prospect's name and data | Per-segment at most; volume rules out per-prospect |
+| Where it lives | Sales email, deal room, Slack forward, procurement review | Pricing page, product tour, in-app, social, README |
+
+Read down either column and it describes a coherent object, which is the test: a B2B demo that opens with a cold start-free button, or a PLG demo that makes a solo developer sit through an admin-and-security chapter, is a cut aimed at the wrong buyer. The rest of this piece is the reasoning behind each row.
+
+## Length, depth, and the protagonist
+
+The three dials that set the shape of the video move together. A PLG demo lives on a public surface, a pricing page, a feed, a README, where it competes for a click it has not earned, so it runs short and shows the fastest route to first value. Vidyard's 2025 benchmark of 943,305 videos put completion at 65% for a sub-minute clip, and Wistia's 2026 State of Video reports the same gradient across more than 13 million videos: the shorter the clip, the higher the share watched ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). The self-serve buyer would rather click than watch anyway, and Navattic clocks the average hands-on demo at about two minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)), so a PLG video's job is narrow: show the one move that makes the product click, then clear out of the way of the signup button.
+
+A B2B demo has the opposite permission. It arrives after discovery, into a warm inbox, aimed at a committee that has already agreed to evaluate, so it can run two or three minutes and break into chapters for the stakeholders who each care about a different part. That is where the protagonist flips. A PLG demo's hero is the individual practitioner and the task in their hands; the product does the work and the viewer pictures themselves doing it in a minute. A B2B demo's hero is the buyer's organization and the outcome it purchases: the champion needs material to make the case internally, and IT, security, and procurement each need to see their own concern answered, which is why the B2B cut earns its extra depth and the PLG cut is punished for it. The [deal economics that decide live versus recorded](/blog/sales-demo-video) sit under the length call as well, since a longer async recording is cheap exactly where a rep-hour is not.
+
+## Narration, the ask, and the surface it lives on
+
+Point the microphone at the same screen and the two cuts say different sentences. A PLG narration is second person and instructional, "type a question here and get a chart, not a data-team ticket," because the viewer is about to do that very thing. A B2B narration frames the same click as a business outcome, what the workflow removes and what it returns in hours or dollars, because the person forwarding it is assembling a case, not learning a keystroke. [Which story framework you hang that on](/blog/product-demo-storytelling) changes the beats, but the motion sets the register.
+
+The ask changes with it. A PLG demo ends on a self-serve door, start free or try it now, no human in the path, because the whole motion is built to let the buyer skip one. A B2B demo ends on a routed ask, book a call or see pricing for your team, because a 13-person committee carrying an 86% chance of stalling needs a rep to shepherd it, and the video's job is to earn that meeting rather than close in place. Then there is the surface. A PLG demo has to survive the places a buyer self-educates, a pricing page, a muted social autoplay, a GitHub README, an in-product tour, ungated and embeddable and captioned, because most of those play with the sound off. Gating a demo costs engagement here: Navattic measures roughly a 10% penalty, and a form on a PLG surface adds cost right where a cold visitor is most likely to leave. A B2B demo lives in the gated, asynchronous places instead: the sales email, the deal room, the Slack channel where a champion drops it for the rest of the buying group who never joined the call. If the choice on those surfaces is a video or a clickable tour, [that trade is its own decision](/blog/interactive-demo-vs-video-demo).
+
+## Personalization: an overlay for one buyer, a UI state for many
+
+The personalization dial is where teams either overspend or fool themselves. In a B2B motion the math supports real per-account tailoring: high ACV, a named committee, and few enough deals that rendering a variant with the prospect's name, their seeded data, and their actual use case earns back the effort. In a PLG motion the volume forbids it. You cannot hand-build a video that ten thousand cold visitors will see, and a name pasted over a mass-market clip is theater, not personalization. The honest PLG lever is segment-level: a different cut per persona or plan, where what changes is the workflow and the on-screen state, not a first name. [Rendering that matrix from one storyboard](/blog/personalized-demo-videos-at-scale) is the only way per-segment tailoring pays for itself, and even then the line holds: changing the seeded data in the UI is personalization, changing the caption over it is decoration.
+
+## Most motions are hybrid, so cut both from one take
+
+Few companies are purely one or the other. The common shape is product-led acquisition with a sales-assisted expansion motion stacked on top: a solo developer signs up through the self-serve door, and six months later an account team is running a committee deal to roll the tool across the org. That company needs both cuts, the 45-second self-serve clip on the pricing page and the two-minute outcome-framed recording the rep forwards, and they are demos of the same product, often the same workflow.
+
+Recording them as two separate hand-made takes doubles the work and, worse, doubles the [maintenance bill when the UI moves](/blog/why-product-demos-go-stale), because now two videos rot instead of one. The cheaper structure is one recording of the workflow and two edits of it, so the PLG cut is a shorter, second-person, self-serve version of the B2B cut, re-voiced and re-trimmed rather than re-shot. That is the case for treating a demo as a spec instead of a performance: aidemo, our open-source engine, records one agent-authored storyboard of a real browser flow and renders variants, a length, a voice track, a CTA card, from the same take. Its honest limits are that it captures a browser only, offers no drag-on-a-timeline editor, and needs the storyboard authored as text by an agent, so it is a poor trade for a single quick screencast and a good one exactly when you need the same flow cut two ways for two motions. Whichever tool you reach for, decide the motion first, because the buyer has already written most of the edit for you.
+
+## Sources
+
+- [Forrester — The State of Business Buying, 2024](https://www.forrester.com/press-newsroom/forrester-the-state-of-business-buying-2024/)
+- [ProductLed — 97% of buyers would rather try a product than talk to a rep](https://productled.com/)
+- [Navattic — State of the Interactive Product Demo 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)
+- [Vidyard — Video in Business Benchmark Report (2025)](https://www.vidyard.com/business-video-benchmarks/)
+- [Wistia — State of Video: video marketing statistics](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [Gong Labs — Sales demos: data-backed tips from 67,149 demos](https://www.gong.io/blog/sales-demos)
+
+## FAQ
+
+### Should a B2B demo video be longer than a PLG demo video?
+
+Usually, yes, because the two are watched under different conditions. A PLG demo runs on a public, often muted surface where it competes for a cold click, so 30 to 90 seconds is the working range, and Vidyard's 2025 benchmark put completion at 65% for a sub-minute clip and far lower past twenty minutes. A B2B demo arrives after discovery to a committee that agreed to evaluate, so it can run 90 seconds to three minutes and chapter for different stakeholders. If it needs to run longer than that, it is really a chaptered recording or a live call, not one continuous clip.
+
+### What is the difference between a B2B and a PLG product demo video?
+
+The viewer and the economics, which then set every editing choice. A B2B demo is made for a group of buyers, Forrester's 2024 count is 13, so it frames a business outcome, runs longer, ends on a routed "book a call," and can be personalized per account. A PLG demo is made for one self-serve user deciding whether to sign up, so it is short and instructional, makes the individual the hero, ends on "start free," and personalizes only by segment. Same product, opposite cuts.
+
+### Does a PLG demo need a sales rep or a "book a call" CTA?
+
+No. A product-led motion exists to let the buyer evaluate without talking to anyone: ProductLed's research claims 97% of buyers would rather try a product than talk to a rep, and Navattic finds about 71% of top demos skip the lead-gen form entirely. A "book a call" button on a PLG surface adds a human where the buyer is trying to avoid one; the right CTA is a self-serve door, start free, try it, open the docs. Save the routed ask for the sales-assisted cut.
+
+---
+
 # Best frame rate for screen recording: 30 vs 60 fps by content
 
 July 18, 2026 · Screen Recording · https://aidemo.top/blog/best-frame-rate-for-screen-recording/
@@ -3092,6 +3167,107 @@ As of July 2026, OpenAI's speech models take text in 99 languages though the voi
 
 ---
 
+# OBS Studio for product demos: what it does and doesn't do
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/obs-for-product-demos/
+
+> OBS is free and captures anything, but it finishes nothing: no auto-zoom, no cursor smoothing, no trim. Here is what the hand-labor actually costs.
+
+## OBS captures anything and finishes nothing
+
+OBS Studio bills itself as "free and open source software for video recording and live streaming" ([OBS, July 2026](https://obsproject.com/)) and is released under the GNU General Public License v2 ([OBS Studio, July 2026](https://github.com/obsproject/obs-studio)). It runs on Windows, macOS, and Linux, records at your source resolution with no time cap and no watermark, and captures nearly any surface on the machine. For raw capture at a price of zero, nothing beats it.
+
+It is also, by its own description, a broadcast tool. The README says OBS is engineered for "capturing, compositing, encoding, recording, and streaming video content" ([OBS Studio, July 2026](https://github.com/obsproject/obs-studio)) — the live loop a streamer runs in real time. Read that list again and notice the word that is absent: editing. OBS mixes sources into a scene and writes the result to a file. It does not punch in on a click, calm a cursor, cut dead air, or caption a transcript. Those four are what a product demo lives or dies on, and OBS does none of them.
+
+This is a build-vs-buy accounting: what OBS hands you for nothing, what you rebuild by hand once the recording stops, and the point where the labor costs more than a produced recorder or a spec you re-render. It sits inside a wider market [sorted by mechanism rather than price](/blog/ai-demo-video-generators), and the caps and watermarks that other "free" tools hide are [charted in their own piece](/blog/free-demo-video-software). Here the question is narrower. Free is only half of a price. The other half is your afternoon.
+
+## What OBS hands you for free
+
+The capture engine is genuinely good, and worth naming before the criticism. OBS is built around scenes and sources: you "create scenes made up of multiple sources including window captures, images, text, browser windows, webcams, capture cards and more," and switch between an unlimited number of them ([OBS, July 2026](https://obsproject.com/)). Display Capture grabs a whole monitor, Window Capture isolates one window, and a Browser source drops a web page into the frame — though the docs note that source is "primarily used for stream alert overlays and chat boxes," not clean product capture ([OBS, July 2026](https://obsproject.com/kb/sources-guide)).
+
+For a demo, three of those strengths matter. It captures native desktop apps and games, not just a browser tab, which is exactly where a browser-only pipeline cannot follow. It composites a webcam bubble, a logo, and a screen into one live frame without a separate editor. And it costs nothing, forever, with no export ceiling — the real deal among the [genuinely open tools](/blog/open-source-demo-video-tools). If your demo is a live-narrated walkthrough you will record once and post as-is, OBS is a complete answer.
+
+The trouble starts the moment you want it to look produced.
+
+## The four jobs OBS leaves on your desk
+
+Set OBS beside a produced recorder and the gap is four specific effects, each automatic there and manual here.
+
+Screen Studio, the reference for the produced look, "automatically zooms in on actions you perform on your screen" and turns the "shaky and rapid movement of your cursor" into "a smooth and beautiful glide" ([Screen Studio, July 2026](https://screen.studio/)). OBS does neither. There is no click-triggered zoom in the core app, and there is no filter that de-jitters a cursor after the fact, because by the time OBS writes the file, the cursor path is already fused into the pixels. The mechanics of what those transforms actually are — the ease curve, the focus point, the idle threshold — are [decomposed in the professional-recording piece](/blog/professional-screen-recordings); the point here is only that OBS ships none of them.
+
+So the four jobs land on you:
+
+- **Zoom on interaction.** No auto-zoom. You either build zoom scenes and cut to them live with a hotkey (which turns every take into a performance you can fumble), or you add the zoom in post. In an editor that means hand-keyframing a scale and position on every moment worth emphasizing. In ffmpeg it means the `zoompan` filter, which sets "zoom expression, x and y offset expressions which will be evaluated for each frame" ([FFmpeg, July 2026](https://ffmpeg.org/ffmpeg-filters.html)) — one expression triple per segment, written by hand.
+- **Cursor smoothing.** Not fixable in post at all. The recorded pointer is already pixels; there is no path left to resample. Your only levers are to move the mouse deliberately during the take, or to hide the cursor and ship a demo with no pointer.
+- **Dead-time trimming.** OBS writes every load spinner and every pause where you hunted for the next control. Removing them is manual timeline work in whatever editor you pair it with.
+- **Captions.** OBS has no transcript feature. You caption in a separate tool or by hand, which is not optional busywork: most demo views start muted.
+
+A community Lua script, obs-zoom-to-mouse, closes part of the first gap. It animates a crop-and-pan to "zoom a display-capture source to focus on the mouse" on a hotkey, with an optional follow-the-cursor mode ([BlankSourceCode, July 2026](https://github.com/BlankSourceCode/obs-zoom-to-mouse)). It is a real help, but it is a live pan-follow you configure and trigger yourself, not the eased punch-in-and-hold a produced tool applies on its own, and it adds one more thing to operate while you record.
+
+## The hand-labor bill, per finished minute
+
+Here is the accounting nobody prints on the OBS pricing page, because OBS has no pricing page. Take a routine target: a two-minute product walkthrough with narration, roughly ten moments worth a zoom, captions, and light music. The figures below are order-of-magnitude estimates with the assumptions stated, not stopwatch readings — but the shape is the point.
+
+| Task (~2-min demo) | OBS + manual post | Produced GUI recorder | Spec-driven re-render |
+|---|---|---|---|
+| Clean environment (profile, notifications, viewport) | ~10 min, every take | ~10 min, every take | pinned in the spec, once |
+| Land a clean take | 3-5 tries, ~15-25 min | 1-2 tries, ~5-10 min | 0 (deterministic replay) |
+| Zoom on ~10 interactions | hand-keyframe each, ~20-40 min | automatic | one parameter, re-runs free |
+| Cursor smoothing | impossible in post; re-record | automatic | synthetic cursor built in |
+| Trim dead time | manual cuts, ~10-15 min | semi-automatic | idle threshold, re-runs free |
+| Captions | transcribe and time, ~30 min | auto transcript | word-timed transcript |
+| Music, export | ~10 min | ~5 min | in the render step |
+| **First demo, human time** | **~90-150 min** | **~30-45 min** | **~45-75 min to author** |
+| **Each later revision** | repeat most of the above | re-edit the take | **~0 — CI re-renders** |
+
+Two readings of that table. First, OBS is not free; it trades dollars for something like ninety minutes to two and a half hours of skilled human time per two-minute demo, most of it spent rebuilding the four effects a produced tool applies in seconds. Second, the columns have different shapes. OBS charges that labor every single time — every new demo, and every revision of an old one. A produced recorder charges a subscription (Screen Studio is $9 a month billed yearly, macOS only) to cut the per-take labor. A spec-driven pipeline front-loads the authoring and then drops the marginal cost of a re-render toward zero.
+
+That difference is the crossover. For exactly one demo you will never touch again, OBS at $0 wins outright. The moment you will revise a demo more than two or three times, or maintain more than a handful of them, the accumulated hand-labor overtakes both the price of a produced recorder and the authoring cost of a spec you keep in the repo.
+
+## No compose layer means every fix is a re-performance
+
+There is a deeper reason the OBS bill never stops. A produced pipeline keeps two things apart: the capture, and the parameters applied to it. Zoom scale, cursor path, and trim points live in a layer you can change and re-run over the same footage, which is why a bad zoom in that world is a re-render rather than a reshoot. OBS has no such layer. It emits one flat file with the timing, the framing, and the cursor already welded into the pixels.
+
+The consequence is that in OBS-land, everything a produced tool treats as a cheap parameter change is either baked into a live performance or reconstructed by hand in a separate editor, with nothing reusable carried between takes. Punch in a beat too late and the zoom is in the pixels: fix it in the editor or shoot the take again. And when the product ships a UI change — which it will — the recording is simply wrong, and there is no spec to re-run. You re-perform the take and redo the whole post pass. That staleness tax gets [its own piece](/blog/why-product-demos-go-stale); OBS is the tool that pays it in full, every time, because it keeps no record of how the demo was made.
+
+This is the honest place for our own tool. aidemo, which we build and disclose as ours, makes the reverse bet: an agent authors a storyboard, a deterministic player drives your live web app through it, and zoom, a synthetic cursor, and word-timed captions are compose-time parameters you re-run for nothing. The trade is real and worth stating plainly. It captures a browser tab and only a browser tab, so the native apps and games OBS handles are out of scope; the storyboard is authored in code rather than nudged on a canvas, and no drag-and-drop editor exists at all. Where OBS is all manual capture and no spec, it is all spec and no manual capture. Opposite bets, opposite failure modes.
+
+## When OBS is still the right tool
+
+None of this makes OBS the wrong choice; it makes it a specific one. Reach for OBS when:
+
+- **The demo is a native app or a game.** A browser-only pipeline cannot record it, and OBS's window and game capture can. This is its genuine home turf.
+- **You need a live multi-source composite.** Webcam plus screen plus overlays, mixed in real time — OBS was built for exactly this, and it is the free tool that does it well.
+- **It is a one-off you will never revise.** If the recording ships once and dies, the per-take labor is paid once, and $0 beats every subscription.
+- **Free and cross-platform are hard constraints and you will do the post yourself.** OBS plus an editor is the zero-dollar route across all three operating systems.
+
+Skip it when the demo is a web UI you will polish, retarget, or keep current as the product ships. There the produced-recorder route ([mapped by platform here](/blog/screen-studio-alternatives)) or a spec-driven re-render buys back the afternoon OBS quietly charges. OBS is a superb broadcast switcher pressed into service as a demo tool. It captures everything and finishes nothing, and the finishing is the part your viewer actually sees.
+
+## Sources
+
+- [OBS Studio — homepage (free and open source, scenes and sources)](https://obsproject.com/)
+- [OBS Studio — GitHub repository (GPL v2, capturing/compositing/recording/streaming)](https://github.com/obsproject/obs-studio)
+- [OBS Studio — sources knowledge base (Display, Window, Browser capture)](https://obsproject.com/kb/sources-guide)
+- [FFmpeg — filters documentation (zoompan, crop)](https://ffmpeg.org/ffmpeg-filters.html)
+- [Screen Studio — automatic zoom, cursor smoothing, and pricing](https://screen.studio/)
+- [obs-zoom-to-mouse — OBS Lua script for hotkey zoom to the cursor](https://github.com/BlankSourceCode/obs-zoom-to-mouse)
+
+## FAQ
+
+### Can OBS automatically zoom in on clicks like Screen Studio?
+
+No. The core OBS app has no click-triggered auto-zoom; Screen Studio and similar produced recorders apply that on their own, OBS does not. A community Lua script, obs-zoom-to-mouse, adds a hotkey zoom that can follow the cursor, but you configure and trigger it yourself, and it is a live pan-follow rather than the eased punch-in-and-hold a produced tool applies automatically. The other route is to add the zoom in post with an editor's keyframes or ffmpeg's zoompan filter, which is manual work on every moment you want to emphasize.
+
+### Is OBS Studio good for recording product demos?
+
+For the capture step, yes: it is free, records any window or app at full resolution with no watermark or time cap, and composites multiple sources live. For the finished look, no: it has no auto-zoom, no cursor smoothing, no dead-time trimming, and no captions, so a produced demo means an hour or more of manual post per two-minute video. Use OBS when the demo is a native app, a live multi-source composite, or a one-off you will never revise; look elsewhere when it is a web UI you will polish or keep current.
+
+### How do you add zoom and cursor smoothing to an OBS recording?
+
+Zoom is added after the fact, in a separate editor by keyframing a scale and position on each emphasis point, or in ffmpeg with the zoompan filter's per-frame expressions. Cursor smoothing cannot be added in post at all: OBS records the real pointer path straight into the pixels, so there is no path left to resample. Your only options for a calmer cursor are to move the mouse deliberately during the take, hide the cursor entirely, or use a tool that draws a synthetic pointer instead of capturing the real one.
+
+---
+
 # Open-source demo video tools, scored by license and install reality
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/open-source-demo-video-tools/
@@ -4013,6 +4189,80 @@ Shorter than the live call it replaces. Vidyard's 2025 data across 943,305 video
 
 ---
 
+# Screen recording aspect ratio: 16:9, 9:16, and the black-bar problem
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/screen-recording-aspect-ratio/
+
+> Black bars are an aspect mismatch, not a look. The destination-to-aspect table with real pixels, and how to get a clean vertical cut from a landscape UI.
+
+## Black bars are an aspect mismatch, not a style choice
+
+Those black bands around a video are not a look. They are a receipt for a decision made earlier: the frame you captured is a different shape than the frame you are delivering into, and the player padded the difference. The shape of a video is its aspect ratio, its width-to-height proportion, and at the destination it is a hard constraint. A YouTube player is 16:9. A Reels slot is 9:16. Hand either one a video of the wrong proportion and it does one of three things, all of them yours to prevent: pad it with bars, crop it, or stretch it into distortion.
+
+The direction of the bars tells you exactly which way the shapes disagreed, and the two cases have proper names. When the source is wider than the target frame, the bars run along the top and bottom; this is letterboxing, "the practice of transferring film shot in a widescreen aspect ratio to standard-width video formats while preserving the film's original aspect ratio" ([Wikipedia, accessed July 2026](https://en.wikipedia.org/wiki/Letterboxing_%28filming%29)). When the source is narrower than the target, the bars run down the left and right instead; that is pillarboxing, the same fit problem rotated ninety degrees. A 16:9 desktop recording dropped into a 9:16 feed letterboxes; a 9:16 phone clip uploaded to a 16:9 YouTube frame pillarboxes. Both are the identical error, a proportion fixed at capture that did not match the one required at delivery. This is [the aspect layer of the capture-settings checklist](/blog/how-to-record-your-screen-in-high-quality), and its one rule is that the shape is far cheaper to get right before you record than to salvage afterward.
+
+## A destination-to-aspect table, with the pixels and not just the ratio
+
+Most aspect-ratio guides stop at the ratio, and the ratio alone will not let you size a capture window. Here is each common destination with the proportion it demands and the pixel dimensions to render at, taking 1080 as the short side. Halve every number for a 720p deliverable; double it for 4K.
+
+| Destination | Aspect | Deliver at (1080-class) | The spec it comes from |
+|---|---|---|---|
+| YouTube, landing hero, docs clip, sales send | 16:9 | 1920 x 1080 | YouTube's standard is 16:9 ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/1722171)) |
+| Shorts, Reels, TikTok, Stories | 9:16 | 1080 x 1920 | Shorts are vertical, up to 1080p ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/10059070)) |
+| LinkedIn or X feed, square post | 1:1 | 1080 x 1080 | LinkedIn accepts 1:1 ([LinkedIn, accessed July 2026](https://www.linkedin.com/help/lms/answer/a424737)) |
+| Instagram or Facebook feed, tallest allowed | 4:5 | 1080 x 1350 | Meta feed video is 4:5 ([Meta, accessed July 2026](https://www.facebook.com/business/ads-guide/video)) |
+
+The pixel dimensions follow from the ratio by arithmetic, not from any one vendor: 9:16 at 1080 wide is 1920 tall, 4:5 at 1080 wide is 1350 tall, 1:1 is square at 1080. Two rows earn a footnote. LinkedIn is the shape omnivore, accepting 16:9, 1:1, 4:5, and 9:16 and recommending fifteen to thirty seconds so a clip clears every feed placement ([LinkedIn, accessed July 2026](https://www.linkedin.com/help/lms/answer/a424737)); on a professional feed, a 1:1 or 4:5 cut reads well in-column without committing to full vertical. And 4:5 is the tallest a Meta feed will show before it wants a dedicated Reel, which makes it the efficient middle ground for a mostly-16:9 workflow that needs one taller cut without a second recording. Mobile app-store previews are a separate fixed target, an exact 886 x 1920 for the current iPhone class, covered in [the app-preview spec](/blog/app-preview-video).
+
+## Letterbox or crop: the two lossy fixes, applied after the fact
+
+Once a recording exists at the wrong shape, there are exactly two honest ways to change it, and each charges a fee. Letterbox (or pillarbox) keeps every pixel and pays in wasted frame: the content shrinks into a band and the remainder is padding. Crop keeps the frame full and pays in lost content: you fill the target and throw away whatever fell outside it. The third move people reach for, stretching the source to fit, is not a fix at all; it distorts every proportion in the interface and reads as broken on sight, so leave it off the table entirely.
+
+Which fee stings more depends on how far apart the two shapes are, and the arithmetic of what a 16:9-to-9:16 reframe costs in each direction is [worked out in the polish breakdown](/blog/professional-screen-recordings) rather than repeated here. The short version: a landscape-to-vertical reframe is the expensive one whichever way you take it. Letterbox it and the action sits in a thin strip with most of the frame dark. Crop it and you keep a narrow vertical slice of a horizontal layout, which for a desktop UI is usually a sidebar or half a form instead of the thing you set out to show. No reframe from wide to tall keeps both all the pixels and all the content, which is exactly why the reframe is the wrong place to solve the problem.
+
+## Record a narrow viewport; don't crop a cropped desktop
+
+The desktop you record is 16:9 because the monitor is, and a screen recorder captures whatever surface you point it at, in that surface's shape. Cropping that capture to vertical means slicing a tall, thin strip out of a wide layout, and a wide layout puts almost nothing useful in a tall, thin strip. The escape is to stop treating aspect as an export setting and treat it as a capture setting: make the recorded frame the delivery shape before a single frame is written.
+
+For anything with a web surface, that is a window size, not a crop. Set the browser viewport to the target dimensions, 1080 x 1920 for a vertical cut, and record that. The capture is now natively 9:16, full of whatever the app draws at that size, with no bars to pad and no strip to discard. This is the same discipline as [sizing the capture to where the video will play rather than to your monitor](/blog/best-resolution-for-screen-recording), applied to shape instead of to pixel count: you choose the frame, then feed it, rather than capturing something arbitrary and rescuing it later.
+
+## Why a responsive UI hands you a vertical cut for free
+
+Shrinking a browser to a phone-width viewport does more than narrow the desktop layout. A responsive web app reflows: the multi-column dashboard collapses into a single stacked column, the top navigation folds into a menu button, side panels drop below the content. That mobile layout is built to fill a tall, narrow screen with real content, which is precisely the frame a 9:16 cut needs. Capture a responsive app at a 1080 x 1920 viewport and you are not cropping a desktop, you are recording the product's own vertical layout, the one it already ships to phones.
+
+The honest exception is a UI that will not reflow. A fixed-width desktop-only app, or a web app with a minimum width that throws a horizontal scrollbar instead of a mobile layout, gives you no vertical arrangement to capture; shrinking its window merely clips it. For those you are back to the two lossy fixes, or to composing the vertical frame on purpose: place the landscape capture in the center and fill the rest with a branded background, a device mockup, or a caption band, so the frame reads as designed rather than padded. Polished recorders lean on this; Screen Studio, for one, offers horizontal and vertical output with export presets that adjust the composition automatically ([Screen Studio, accessed July 2026](https://screen.studio/)). One more thing to leave room for in any vertical cut: the feed player draws its own controls, caption, and buttons over the lower portion and one edge of the frame, so keep the key action out of the bottom sixth where the platform's UI will sit on top of it.
+
+## Aspect becomes a render setting when the viewport is a value
+
+Notice what changed once the frame is decided at capture. Aspect ratio stopped being an irreversible property of the footage and became an input you can name. If the capture window is a value, one flow can render into 16:9 for the landing page and 1080 x 1920 for the Shorts cut without a second take, because the difference between them is a number rather than a reshoot. That is the whole reason [distribution wants one recording cut for every channel, not one shoot per channel](/blog/social-cuts-for-product-launch): the shapes are re-renders of the same source.
+
+Our own engine, aidemo, is built on that idea: the viewport width, height, and device pixel ratio live in a storyboard, so the same flow renders at 1920 x 1080 or at 1080 x 1920 by changing the output size, and a responsive app reflows into the narrow viewport at capture time instead of getting cropped. The limits are worth stating plainly. aidemo drives a browser and nothing else, so it will not reshape a native desktop or mobile binary; its storyboard is written as code by an agent, not laid out on a visual timeline; and for a single throwaway vertical clip, a point-and-click recorder with a crop box beats writing a spec. What the spec buys is the shape you chose on purpose, reproduced at every aspect your channels ask for, without recording the flow again for each one.
+
+## Sources
+
+- [YouTube — Recommended upload encoding settings (16:9 standard aspect)](https://support.google.com/youtube/answer/1722171)
+- [YouTube — Create Shorts / upload vertical video (up to 1080p, 3 minutes)](https://support.google.com/youtube/answer/10059070)
+- [LinkedIn — Video ad specifications (accepts 16:9, 1:1, 4:5, 9:16)](https://www.linkedin.com/help/lms/answer/a424737)
+- [Meta — Ads Guide, video (feed video at 4:5)](https://www.facebook.com/business/ads-guide/video)
+- [Wikipedia — Letterboxing and pillarboxing](https://en.wikipedia.org/wiki/Letterboxing_%28filming%29)
+- [Screen Studio — horizontal and vertical output, export presets](https://screen.studio/)
+
+## FAQ
+
+### How do I make a vertical 9:16 video from a landscape screen recording?
+
+Don't crop the landscape capture; a 9:16 slice of a 16:9 desktop keeps a narrow vertical strip of a horizontal layout, usually a sidebar or half a form. Set the capture frame to the target shape first: for a web UI, resize the browser viewport to 1080 x 1920 and record that, so a responsive app reflows into its mobile layout and fills the frame with real content. If the UI cannot reflow, compose the vertical frame on purpose with a background or a device mockup rather than leaving the bars black.
+
+### Why does my screen recording have black bars?
+
+Black bars mean the video's aspect ratio does not match the frame it is playing in, so the player pads the gap. Bars on the top and bottom (letterboxing) mean the source is wider than the target, such as a 16:9 recording in a 9:16 feed; bars on the left and right (pillarboxing) mean it is narrower, such as a vertical clip on 16:9 YouTube. The fix is to record at the destination's shape rather than pad or crop afterward.
+
+### What aspect ratio should a screen recording be?
+
+Match it to where the video plays: 16:9 (1920 x 1080) for YouTube, a landing hero, or docs; 9:16 (1080 x 1920) for Reels, Shorts, TikTok, and Stories; 1:1 (1080 x 1080) or 4:5 (1080 x 1350) for a feed post. LinkedIn accepts all four, so a 1:1 or 4:5 cut is the safe default there. Decide the shape before you record, because changing it afterward costs a lossy crop or letterbox.
+
+---
+
 # Screen Studio alternatives for Windows, Linux, and CI
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/screen-studio-alternatives/
@@ -4115,6 +4365,96 @@ Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and L
 ### Does Screen Studio still sell a one-time license?
 
 Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.
+
+---
+
+# Social cuts for a launch: one demo into a week of clips
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/social-cuts-for-product-launch/
+
+> A launch week wants twenty posts across four feeds. You shot one demo. Here is how to cut it into a week of clips instead of reshooting each one.
+
+## A launch week wants twenty posts from one recording
+
+The framing everyone starts with is the one that sinks the week: "we need a launch video for social." A launch is not one social video. It is a week of feed activity across three or four networks, and each network wants more than a single post to register. Run the tape on a modest launch, a teaser the day before, the hero clip on launch morning, a follow-up the next day, a detail nobody noticed, the proof, a recap, spread across LinkedIn, X, and one vertical feed, and you are staring at fifteen to twenty individual posts, each of which is nominally a video.
+
+You did not record twenty videos. You recorded one. The teams whose launches look loud are not the ones who shot twenty clips: more than half of companies already repurpose video into social clips, per Wistia's State of Video, but most do it ad hoc, one clip cropped and posted twice ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). The upgrade is to treat the single 60-to-90-second demo as a quarry and cut a week of distinct clips out of it on purpose. [The launch-day kit](/blog/product-launch-video) covers the surfaces that fire once each; this is the part that has to keep firing for five days.
+
+## The social feed spec, platform by platform
+
+Before the cutting, the shapes. The feed platforms disagree on almost everything except that a launch clip should be short and legible with the sound off. Here is what each one rewards, current as of July 2026.
+
+| Feed | Aspect | Length | Judged on | Opening that works |
+| --- | --- | --- | --- | --- |
+| LinkedIn | 1:1 or 4:5 (16:9 and 9:16 also accepted) | 15-30s | Three-second views | Outcome plus a reason to trust it |
+| X (Twitter) | 16:9 or 1:1 | 10-30s | Reposts and replies | A flat claim landing on motion |
+| Instagram Reels | 9:16, 1080x1920 | 10-20s | Completion, replays | A pattern interrupt, text on screen |
+| Instagram feed | 4:5 or 1:1 | 10-30s | Saves and shares | The result, in the first frame |
+| TikTok | 9:16, 1080x1920 | 10-20s | Completion, rewatches | A text hook before the voice |
+| YouTube Shorts | 9:16, up to 3 min (1080p max) | 15-45s | Watch-through | The aha, no intro |
+
+Two cells carry a source. The vertical family, TikTok, Instagram Reels, and YouTube Shorts, shares one shape, 9:16 at 1080x1920; YouTube caps a Short at three minutes and 1080p ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/10059070)), and the other two reward far less than that ceiling. LinkedIn is the flexible one: it accepts 16:9, 1:1, 4:5, and 9:16, and recommends 15 to 30 seconds so a clip qualifies for every feed placement ([LinkedIn, accessed July 2026](https://www.linkedin.com/help/lms/answer/a424737)). Length is retention math, not house style: Wistia clocks clips under a minute near 52% average engagement, with product videos holding roughly half their runtime ([Wistia, accessed July 2026](https://wistia.com/learn/marketing/optimal-video-length)), so a 15-second launch clip is watched and a 90-second one is sampled.
+
+One nuance the roundups miss: vertical is not automatically the answer. X and LinkedIn are read on desktops as much as phones, where a 9:16 clip is a thin ribbon in a wide feed, so a square or 4:5 cut out-reaches a portrait one there; the vertical shape earns its place on Reels, TikTok, and Shorts, which are phone-first by construction. Where to spend the effort is a distribution question anyway. Wistia's corpus has 81% of teams posting video to LinkedIn and 76% to YouTube, about half to Instagram, and under a quarter to TikTok ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). For B2B software that ordering is your priority list: a LinkedIn native cut and a YouTube Short earn the first two clips, and TikTok earns one only if your buyers actually live there. [The LinkedIn-specific playbook](/blog/linkedin-video-for-b2b-software) goes deeper on why a native upload beats a pasted link.
+
+## One recording, decomposed into a week of clips
+
+This is the part the "repurpose your video" advice skips. Repurposing usually means one clip reframed to three aspects. Decomposition means cutting different moments of the same take into different clips, each with its own job and its own day. A clean 60-to-90-second demo holds roughly six or seven distinct beats, and each beat is a post.
+
+| Day | The clip and its job | Cut from the master | Platforms | Shape / length |
+| --- | --- | --- | --- | --- |
+| Day 0, morning | Hero: the one workflow that is the point | The aha beat (~12s) | TikTok, Reels, Shorts | 9:16, ~15s |
+| Day 0, afternoon | Teaser: "this is live now" | The cold-open outcome (~6s) | X, LinkedIn | 1:1, ~10s |
+| Day 1 | Problem to fix, in one line | Problem beat plus aha (~20s) | LinkedIn, Reels | 4:5, ~20s |
+| Day 2 | The detail nobody noticed | A secondary-feature beat (~10s) | Shorts, X | 9:16, ~12s |
+| Day 3 | Proof: the real result on screen | The result beat (~10s) | LinkedIn, X | 1:1, ~15s |
+| Day 4 | The full walkthrough | The whole take (60-90s) | YouTube, LinkedIn | 16:9, 60-90s |
+| Day 5 | Recap and thank-you | Best 10s, over a card | X, LinkedIn | 1:1, ~15s |
+
+Read the middle column: every clip is a slice of one recording, not a new shoot. Make it concrete with a dashboard demo. The master opens on a finished report (the outcome), shows the empty state you started from (the problem), clicks one filter to build the view (the aha), toggles a saved segment (the secondary feature), and lands on the exported number (the proof). That is five posts already, before the full cut and the recap, and not one of them needed a second recording: each is a timecode and a caption. You are not writing seven scripts; you are indexing one take into seven moments.
+
+The order matters as much as the cuts, because a launch is a timed event and the feed rewards a cadence over a dump. Front-load the aha on launch morning where attention peaks, hold the secondary beats for the days after to keep the thread alive, and save the full walkthrough for YouTube, where the people who already clicked through will spend the minutes. The full cut is the plain 16:9 master, an MP4 in H.264 at 1080p ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/1722171)); every short clip above it is that same file, sliced and reshaped.
+
+## Vertical from a landscape UI, without a second take
+
+One cut on that map has real cost, and it is the vertical one. Cropping a 16:9 desktop capture to 9:16 discards about two-thirds of the frame, and padding instead leaves a thin band of product marooned between black bars, neither of which flatters a UI whose whole point was the panel you just threw away. Under a launch deadline you cannot re-record a narrow-viewport take per platform the night before, and [the aspect-ratio mechanics](/blog/screen-recording-aspect-ratio) are unforgiving when you try to crop your way out.
+
+The way out is to stop cropping footage and start re-rendering the flow. If the demo is a spec rather than a captured file, a vertical cut is the same flow rendered into a 1080x1920 viewport, so the product fills the frame instead of surviving a crop. aidemo, our open-source engine, works this way: it replays an agent-authored storyboard in a real browser and can render the same flow at any output size. The honest limits are that it captures a browser and nothing else, has no drag-on-a-timeline editor, and the storyboard is agent-written rather than assembled by hand. For a one-off phone-shot clip that is the wrong tool; for a launch week that needs the same flow in three aspects, it turns the reframe into a render setting.
+
+## The first second is a platform dialect
+
+A feed clip is judged in its first second, muted, and the register differs by network. X rewards a flat claim landing on motion, the outcome already happening, no logo card. TikTok and Reels reward a pattern interrupt with an on-screen text hook that reads before the voice starts. LinkedIn rewards an outcome plus a reason to trust it. The opening that fails on every network is the wind-up, a name and a logo and a promise to "walk you through," because it burns the one second the feed gives you to earn the next; [the catalog of openings that survive the scroll](/blog/demo-video-hook) applies to every cut on the map.
+
+Captions are not optional on any of these surfaces, because the first view is silent. A Verizon Media and Publicis study put 69% of viewers watching muted in public settings, with 80% more likely to finish a captioned clip ([via Forbes, 2019](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)). Burn the words into the pixels rather than relying on each platform's auto-captions, which land late and mangle product names; [the case for captions as pixels](/blog/demo-video-captions) holds for every network in the table.
+
+## Why the twelfth clip costs minutes, not a reshoot
+
+Put the two production models side by side. Shoot per post, and a seven-clip week across three platforms is seven recordings and fifteen-plus exports, each one atomic, so a single copy change reruns most of the bill. Decompose one master, and the same week is one recording plus per-clip work: a trim, a reframe, a caption burn. Even by hand in an editor that is minutes per clip, and the marginal cost of the twelfth clip rounds to a re-encode.
+
+The recurring cost is where the gap decides it. Launches always ship one late change, a tier renamed, a badge pulled, a price edited the night before, and in a pile of separately shot clips that edit lands on all of them at once. Stored as a spec, the change is one edit and every clip re-renders from it, because the whole week was only ever one recording sliced and reshaped. It is the render-don't-reshoot move [the channel matrix](/blog/video-marketing-for-software) makes across placements, turned sideways to run across a week of posts instead of a wall of surfaces. The launch that looks like a sustained campaign and the launch that eats a week of production time can start from the identical recording; the difference is whether you indexed it or reshot it.
+
+## Sources
+
+- [YouTube Help - Create YouTube Shorts (up to 3 minutes, vertical, 1080p max)](https://support.google.com/youtube/answer/10059070)
+- [YouTube Help - Recommended upload encoding settings (MP4/H.264, 16:9, 1080p ~8 Mbps, AAC 48kHz)](https://support.google.com/youtube/answer/1722171)
+- [LinkedIn Help - Video ad specifications (accepted aspect ratios and 15-30s recommendation)](https://www.linkedin.com/help/lms/answer/a424737)
+- [Wistia - What's the optimal video length? (sub-one-minute engagement ~52%)](https://wistia.com/learn/marketing/optimal-video-length)
+- [Wistia - State of Video: video marketing statistics (repurposing and platform share)](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [Forbes - Verizon Media says 69% of consumers watch video with sound off (and 80% caption lift)](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)
+
+## FAQ
+
+### How do you turn one demo recording into multiple social clips?
+
+Decompose it by moment, not just by aspect. A clean 60-to-90-second demo holds six or seven distinct beats, the cold-open outcome, the problem, the aha workflow, a secondary feature, the proof, and a recap, and each beat is a separate short clip with its own caption, aspect, and posting day. You are not scripting seven videos; you are indexing one take into seven timecodes, then trimming, reframing, and captioning each. That is how a launch fields a week of posts off a single afternoon of capture.
+
+### What length should a launch clip be for TikTok, Reels, and Shorts?
+
+Short: aim for 10 to 20 seconds on TikTok and Reels, and 15 to 45 on a YouTube Short, even though YouTube now allows a Short up to three minutes at 1080p. The ceiling is not the target. Wistia's data has clips under a minute averaging roughly 52% engagement, so a 15-second cut gets watched while a 90-second one gets sampled and abandoned. Lead with the outcome, cut the dead time between clicks, and end before the viewer decides to scroll.
+
+### How many social clips should a product launch produce?
+
+More than one per platform, fewer than one per idea. A five-day launch across LinkedIn, X, and one vertical feed can want fifteen to twenty posts, but those come from six or seven distinct clips cut from a single recording and reframed per network, not from twenty separate shoots. Prioritize by where your audience is: Wistia reports 81% of teams post video to LinkedIn and 76% to YouTube, so B2B software earns a LinkedIn native cut and a Short before it spends a minute on TikTok.
 
 ---
 
@@ -4289,6 +4629,83 @@ If the goal is the actual running software on screen, the alternative is not ano
 ### Can Synthesia record my screen and show my actual product?
 
 Yes. Synthesia added an AI screen recorder that captures a browser tab, transcribes your narration, and lays an AI avatar and voice clone over the footage ([Synthesia, July 2026](https://www.synthesia.io/features/ai-screen-recorder)). The catch is that the screen clip is a manual recording you perform yourself, so while the script and avatar regenerate when you edit them, the footage of your product does not, and when the UI changes you re-record the take by hand.
+
+---
+
+# Testing demos like code: golden files and drift gates
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/testing-demos-like-code/
+
+> Your code has a test suite; the demo video of it has a filename and a vibe. Golden-file testing closes that gap, once you pick the right layer to freeze.
+
+## The line between a demo and a regression test is one committed file
+
+The demo video is usually the least-tested thing a team ships. The code behind the screen has unit tests, integration tests, and a CI gate; the recording of that same screen has a filename and a vibe. That gap is not laziness. A captured performance has nothing to test against: no baseline, no assertion, no way to say "this is what it should look like" other than a person watching all ninety seconds and deciding it seems fine.
+
+Turn the demo into [a committed spec instead of a captured performance](/blog/demos-as-code) and the gap closes in one move. Once a demo is text that renders footage, a storyboard naming the pages to visit, the elements to click, and the lines to narrate, it can carry the thing a test needs and a recording never had: a recorded expectation to fail against. That expectation is a golden file. Commit it, re-render on every change, diff the new run against it, and the demo is now a regression test that happens to double as marketing footage.
+
+None of this is new. It is the oldest pattern in output testing, and every piece already ships in tools developers touch daily. The work is knowing which flavor applies, what to freeze, and how to stop the baseline from decaying into a rubber stamp.
+
+## Golden master, approval, snapshot: one pattern wearing four names
+
+Pinning a reference output and failing on any deviation has been rediscovered enough times to have a naming problem. Golden master testing, characterization testing, approval testing, snapshot testing: one mechanism seen from four angles, differing mostly in who reviews the baseline and how it updates.
+
+The shared shape is four steps. Capture the output of a run, commit it as the approved baseline, diff every later run against it, and require a human to bless a changed baseline before it counts. ApprovalTests, which carries the approval-testing name across seventeen languages, puts the whole loop in one line: it works "by taking a snapshot of the results, and confirming that they have not changed," with a reviewer validating any change before it becomes the new baseline ([ApprovalTests, accessed July 2026](https://approvaltests.com/)). Jest carried the same idea into the JavaScript mainstream as snapshot testing, where a reference is stored beside the test and a mismatch fails the run unless you deliberately re-record it ([Jest, accessed July 2026](https://jestjs.io/docs/snapshot-testing)).
+
+| Tool | What it freezes | How you bless a change |
+|---|---|---|
+| ApprovalTests | any serialized program output | approve the received file as the approved file |
+| Jest snapshots | a rendered tree or any value | `jest --updateSnapshot` / `-u` |
+| Playwright `toHaveScreenshot` | a PNG of a page or element | `--update-snapshots` (all / changed / missing / none) |
+| vhs (terminal) | a tape's `.txt` or `.ascii` output | re-run the tape, commit the new text |
+
+The terminal world made this ordinary for demos first. vhs renders a `.tape` file into a terminal recording and can emit the same run as plain text, which teams commit and diff in CI to catch an unintended change in a CLI's output ([Charmbracelet, accessed July 2026](https://github.com/charmbracelet/vhs)). A browser product demo is the harder, more valuable version of that: the recording that sells the product is, in the same run, the check that proves the product still does what the recording claims.
+
+## What exactly do you golden? Five candidate baselines for one demo
+
+Here is where "test the video" instincts go wrong. A demo is not one output; it is a stack of them, and each layer makes a different golden with a different stability, review cost, and blind spot. Choosing the layer is the whole decision, and the obvious pick, the finished video file, is the worst one on the board.
+
+| Golden layer | Deterministic? | Reviewable in a PR? | Catches | Misses |
+|---|---|---|---|---|
+| Storyboard spec (text) | fully | yes, a text diff | edits you made to the script | anything about the live product |
+| Resolved action-spec (which selectors resolved, where navigation landed) | yes, if timing is normalized out | yes, a small JSON diff | a moved, renamed, or removed control; a broken navigation | anything that resolves but looks wrong |
+| Named still frames (a PNG per key state) | mostly, with pinned rendering | yes, an image diff over a few frames | a visibly wrong key screen | the states between the stills; motion |
+| Per-frame pixel diff | no, without heavy pinning | poorly, thousands of frames | every visible change | nothing, which is the problem |
+| Final MP4 bytes | never | no, a binary blob | re-encode noise, nothing useful | the actual product |
+
+Read the table bottom-up and the folk wisdom inverts. Byte-diffing the MP4 fails on every run because two encodes of identical footage are never bit-for-bit equal, so it tests the encoder, not the product. Pixel-diffing every frame is the noisiest check possible, tripping on a font-hinting change or a ticking clock; it belongs behind a tuned perceptual threshold, which is [its own tunable-threshold problem](/blog/detecting-ui-drift) and [its own choice of diff engine](/blog/visual-regression-testing-tools), not a raw compare.
+
+The sweet spot is the second row. A demo's most stable, most reviewable golden is not its pixels but its resolved behavior: the ordered list of which selectors resolved to a live element and where each navigation actually landed. That artifact is small, it is text, it diffs cleanly in a pull request, and it fails precisely when the flow breaks while staying silent when only the paint changes. Our own engine, aidemo (ours, and browser-only: an agent writes the storyboard, and there is no drag-and-drop timeline), freezes exactly this layer. `aidemo probe --update-golden` writes a normalized projection of a dry run to `golden/probe.json`, and `aidemo probe --golden` re-runs it and exits non-zero on any drift, printing a field-level diff such as `$.scenes[2].actions[0].ok: expected true, got false`. The projection is timing-free by construction, recording the operation, the resolved target, whether an element was found, and a navigation's final URL, and nothing with a clock in it, so a mismatch means a real change in the flow rather than jitter. The finished video and the regression check come out of one run.
+
+## The rubber stamp, not the diff, is the failure mode
+
+Every team that adopts snapshot testing meets its dark side within a month. A test fails, someone runs the update flag without reading the diff, the new and wrong output becomes the blessed baseline, and the test now guards a bug. The diff worked. The gate did not. Jest's own best-practices name the enemy: the goal is to "fight against the habit of regenerating snapshots when test suites fail instead of examining the root causes of their failure" ([Jest, accessed July 2026](https://jestjs.io/docs/snapshot-testing)).
+
+Two mechanisms keep a golden gate honest, and both port straight to demo media. The first separates "a change happened" from "the change is approved." Blessing a golden has to be a deliberate act, committed in the same pull request as the change that caused it, so a reviewer sees the button rename and the golden's matching update side by side and can rule on whether they belong together. Playwright bakes the intent into its update modes: `--update-snapshots` accepts `all`, `changed`, `missing`, or `none`, so you can add only genuinely new baselines without silently overwriting the ones you already trust ([Playwright, accessed July 2026](https://playwright.dev/docs/test-cli)). That is the approval reviewer of ApprovalTests wearing a CLI flag.
+
+The second mechanism makes CI refuse to write a baseline at all. Locally, a missing snapshot is helpfully auto-created; in CI, auto-creation means any new, unreviewed output passes forever. Jest closes this since version 20: run with `--ci` and, in its words, "instead of the regular behavior of storing a new snapshot automatically, it will fail the test and require Jest to be run with `--updateSnapshot`" ([Jest, accessed July 2026](https://jestjs.io/docs/cli)). The rule generalizes to any demo gate: locally, blessing a change is a command; in CI, an unblessed change is a red build. A golden you can update without a human reading the diff is not a test, just a slow way to commit whatever the code happens to do today.
+
+## A golden only holds if the render is boring
+
+A golden file is a bet that the same input yields the same output. For a terminal that bet is nearly free; for a browser it is the whole engineering problem, because animations, web fonts, network timing, and device-pixel ratio all pull two runs of the same flow into two different sets of frames. Without [deterministic browser automation](/blog/deterministic-browser-automation-for-video), a pinned viewport and DPR, disabled animations, a frozen clock, the network taken out of the shot, a pixel or still golden flakes on noise, and a flaky gate is one somebody quietly disables. Getting the render [reproducible enough that the golden actually holds](/blog/reproducible-demo-renders) is the prerequisite, not the polish.
+
+The layer table hides a shortcut, though. The reason to reach for a behavior golden first is that it sidesteps most of the determinism tax. A pixel baseline needs every rendering variable pinned before it will hold; a resolved-action-spec baseline is timing-free and paint-free by design, so it holds across machines and browser versions with no threshold to tune, and it still catches the one failure that actually ruins a demo, a click that lands where the button used to be. So assert the flow with a fast behavior golden that hard-fails the merge, then, for visual coverage, add a handful of still-frame goldens behind a perceptual threshold that open a review rather than block it. That two-tier gate rides inside the [CI job that already re-renders the demo when a commit changes the UI](/blog/demo-videos-in-ci): the cheap check runs on every push, the expensive one on a schedule, and the demo stops being the one artifact nobody tests.
+
+## Sources
+- [ApprovalTests — approval testing: snapshot the results and confirm they have not changed](https://approvaltests.com/)
+- [Jest — Snapshot Testing (a mismatch fails the run; best-practice against blindly regenerating)](https://jestjs.io/docs/snapshot-testing)
+- [Jest — CLI reference (--ci fails on new snapshots; --updateSnapshot / -u)](https://jestjs.io/docs/cli)
+- [Playwright — Visual comparisons (toHaveScreenshot, baseline storage, environment consistency)](https://playwright.dev/docs/test-snapshots)
+- [Playwright — Test CLI (--update-snapshots modes: all / changed / missing / none)](https://playwright.dev/docs/test-cli)
+- [Charmbracelet vhs — terminal recordings and golden-file integration testing](https://github.com/charmbracelet/vhs)
+
+## FAQ
+### What is golden file testing?
+Golden file testing captures the output of a run once, commits that output as the approved reference (the golden file), and fails a later run whose output differs from it. It is the same pattern as approval testing and Jest-style snapshot testing: the assertion is not a hand-written expectation but a whole recorded output you agreed was correct. For a product demo the golden can be the resolved action-spec, a set of still frames, or a screenshot, and the diff tells you the product changed under the demo.
+### How is golden file testing different from snapshot testing?
+They are the same mechanism under two names, with a nuance of scale and culture. "Golden file" comes from systems and CLI testing, where the reference is often a sizeable file on disk updated with an explicit `-update` flag; "snapshot testing" is the name Jest popularized for inline or co-located references in unit tests. Both capture output, commit it, diff against it, and require a deliberate update to change the baseline. Any difference is convention, not concept.
+### Why not just diff the MP4 file to test a demo?
+Because an MP4 is the worst possible golden. Two encodes of identical footage are never byte-for-byte equal, so a byte diff fails on every run and tests your encoder instead of your product. A per-frame pixel diff swings the other way, firing on font hinting and a one-minute clock tick unless you pin the whole render and set a perceptual threshold. The stable thing to freeze is the demo's resolved behavior, which selectors resolved and where navigation landed, because it is deterministic text that fails only when the flow actually breaks.
 
 ---
 

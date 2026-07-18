@@ -1,0 +1,95 @@
+# Social cuts for a launch: one demo into a week of clips
+
+July 18, 2026 · Video Marketing for Software · 8 min read · https://aidemo.top/blog/social-cuts-for-product-launch/
+
+> A launch week wants twenty posts across four feeds. You shot one demo. Here is how to cut it into a week of clips instead of reshooting each one.
+
+**Key takeaways**
+
+- A five-day launch across LinkedIn, X, and one vertical feed can want 15-20 posts; you recorded one demo, so the job is decomposition, not reshooting each clip.
+- One 60-90s demo holds ~6-7 distinct beats (cold open, problem, aha, detail, proof, recap); each beat is a separate clip with its own day and aspect.
+- TikTok, Reels, and Shorts share 9:16 at 1080x1920; YouTube caps a Short at 3 minutes, but sub-one-minute clips average ~52% engagement (Wistia), so cut to about 15s.
+- Prioritize by where teams post: LinkedIn 81% and YouTube 76% (Wistia), Instagram ~50%, TikTok under 25%; B2B software earns LinkedIn and a Short first.
+- 69% of viewers watch muted in public and 80% are likelier to finish with captions (Verizon/Publicis), so burn captions into every feed cut, not auto-captions.
+
+## A launch week wants twenty posts from one recording
+
+The framing everyone starts with is the one that sinks the week: "we need a launch video for social." A launch is not one social video. It is a week of feed activity across three or four networks, and each network wants more than a single post to register. Run the tape on a modest launch, a teaser the day before, the hero clip on launch morning, a follow-up the next day, a detail nobody noticed, the proof, a recap, spread across LinkedIn, X, and one vertical feed, and you are staring at fifteen to twenty individual posts, each of which is nominally a video.
+
+You did not record twenty videos. You recorded one. The teams whose launches look loud are not the ones who shot twenty clips: more than half of companies already repurpose video into social clips, per Wistia's State of Video, but most do it ad hoc, one clip cropped and posted twice ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). The upgrade is to treat the single 60-to-90-second demo as a quarry and cut a week of distinct clips out of it on purpose. [The launch-day kit](/blog/product-launch-video) covers the surfaces that fire once each; this is the part that has to keep firing for five days.
+
+## The social feed spec, platform by platform
+
+Before the cutting, the shapes. The feed platforms disagree on almost everything except that a launch clip should be short and legible with the sound off. Here is what each one rewards, current as of July 2026.
+
+| Feed | Aspect | Length | Judged on | Opening that works |
+| --- | --- | --- | --- | --- |
+| LinkedIn | 1:1 or 4:5 (16:9 and 9:16 also accepted) | 15-30s | Three-second views | Outcome plus a reason to trust it |
+| X (Twitter) | 16:9 or 1:1 | 10-30s | Reposts and replies | A flat claim landing on motion |
+| Instagram Reels | 9:16, 1080x1920 | 10-20s | Completion, replays | A pattern interrupt, text on screen |
+| Instagram feed | 4:5 or 1:1 | 10-30s | Saves and shares | The result, in the first frame |
+| TikTok | 9:16, 1080x1920 | 10-20s | Completion, rewatches | A text hook before the voice |
+| YouTube Shorts | 9:16, up to 3 min (1080p max) | 15-45s | Watch-through | The aha, no intro |
+
+Two cells carry a source. The vertical family, TikTok, Instagram Reels, and YouTube Shorts, shares one shape, 9:16 at 1080x1920; YouTube caps a Short at three minutes and 1080p ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/10059070)), and the other two reward far less than that ceiling. LinkedIn is the flexible one: it accepts 16:9, 1:1, 4:5, and 9:16, and recommends 15 to 30 seconds so a clip qualifies for every feed placement ([LinkedIn, accessed July 2026](https://www.linkedin.com/help/lms/answer/a424737)). Length is retention math, not house style: Wistia clocks clips under a minute near 52% average engagement, with product videos holding roughly half their runtime ([Wistia, accessed July 2026](https://wistia.com/learn/marketing/optimal-video-length)), so a 15-second launch clip is watched and a 90-second one is sampled.
+
+One nuance the roundups miss: vertical is not automatically the answer. X and LinkedIn are read on desktops as much as phones, where a 9:16 clip is a thin ribbon in a wide feed, so a square or 4:5 cut out-reaches a portrait one there; the vertical shape earns its place on Reels, TikTok, and Shorts, which are phone-first by construction. Where to spend the effort is a distribution question anyway. Wistia's corpus has 81% of teams posting video to LinkedIn and 76% to YouTube, about half to Instagram, and under a quarter to TikTok ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). For B2B software that ordering is your priority list: a LinkedIn native cut and a YouTube Short earn the first two clips, and TikTok earns one only if your buyers actually live there. [The LinkedIn-specific playbook](/blog/linkedin-video-for-b2b-software) goes deeper on why a native upload beats a pasted link.
+
+## One recording, decomposed into a week of clips
+
+This is the part the "repurpose your video" advice skips. Repurposing usually means one clip reframed to three aspects. Decomposition means cutting different moments of the same take into different clips, each with its own job and its own day. A clean 60-to-90-second demo holds roughly six or seven distinct beats, and each beat is a post.
+
+| Day | The clip and its job | Cut from the master | Platforms | Shape / length |
+| --- | --- | --- | --- | --- |
+| Day 0, morning | Hero: the one workflow that is the point | The aha beat (~12s) | TikTok, Reels, Shorts | 9:16, ~15s |
+| Day 0, afternoon | Teaser: "this is live now" | The cold-open outcome (~6s) | X, LinkedIn | 1:1, ~10s |
+| Day 1 | Problem to fix, in one line | Problem beat plus aha (~20s) | LinkedIn, Reels | 4:5, ~20s |
+| Day 2 | The detail nobody noticed | A secondary-feature beat (~10s) | Shorts, X | 9:16, ~12s |
+| Day 3 | Proof: the real result on screen | The result beat (~10s) | LinkedIn, X | 1:1, ~15s |
+| Day 4 | The full walkthrough | The whole take (60-90s) | YouTube, LinkedIn | 16:9, 60-90s |
+| Day 5 | Recap and thank-you | Best 10s, over a card | X, LinkedIn | 1:1, ~15s |
+
+Read the middle column: every clip is a slice of one recording, not a new shoot. Make it concrete with a dashboard demo. The master opens on a finished report (the outcome), shows the empty state you started from (the problem), clicks one filter to build the view (the aha), toggles a saved segment (the secondary feature), and lands on the exported number (the proof). That is five posts already, before the full cut and the recap, and not one of them needed a second recording: each is a timecode and a caption. You are not writing seven scripts; you are indexing one take into seven moments.
+
+The order matters as much as the cuts, because a launch is a timed event and the feed rewards a cadence over a dump. Front-load the aha on launch morning where attention peaks, hold the secondary beats for the days after to keep the thread alive, and save the full walkthrough for YouTube, where the people who already clicked through will spend the minutes. The full cut is the plain 16:9 master, an MP4 in H.264 at 1080p ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/1722171)); every short clip above it is that same file, sliced and reshaped.
+
+## Vertical from a landscape UI, without a second take
+
+One cut on that map has real cost, and it is the vertical one. Cropping a 16:9 desktop capture to 9:16 discards about two-thirds of the frame, and padding instead leaves a thin band of product marooned between black bars, neither of which flatters a UI whose whole point was the panel you just threw away. Under a launch deadline you cannot re-record a narrow-viewport take per platform the night before, and [the aspect-ratio mechanics](/blog/screen-recording-aspect-ratio) are unforgiving when you try to crop your way out.
+
+The way out is to stop cropping footage and start re-rendering the flow. If the demo is a spec rather than a captured file, a vertical cut is the same flow rendered into a 1080x1920 viewport, so the product fills the frame instead of surviving a crop. aidemo, our open-source engine, works this way: it replays an agent-authored storyboard in a real browser and can render the same flow at any output size. The honest limits are that it captures a browser and nothing else, has no drag-on-a-timeline editor, and the storyboard is agent-written rather than assembled by hand. For a one-off phone-shot clip that is the wrong tool; for a launch week that needs the same flow in three aspects, it turns the reframe into a render setting.
+
+## The first second is a platform dialect
+
+A feed clip is judged in its first second, muted, and the register differs by network. X rewards a flat claim landing on motion, the outcome already happening, no logo card. TikTok and Reels reward a pattern interrupt with an on-screen text hook that reads before the voice starts. LinkedIn rewards an outcome plus a reason to trust it. The opening that fails on every network is the wind-up, a name and a logo and a promise to "walk you through," because it burns the one second the feed gives you to earn the next; [the catalog of openings that survive the scroll](/blog/demo-video-hook) applies to every cut on the map.
+
+Captions are not optional on any of these surfaces, because the first view is silent. A Verizon Media and Publicis study put 69% of viewers watching muted in public settings, with 80% more likely to finish a captioned clip ([via Forbes, 2019](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)). Burn the words into the pixels rather than relying on each platform's auto-captions, which land late and mangle product names; [the case for captions as pixels](/blog/demo-video-captions) holds for every network in the table.
+
+## Why the twelfth clip costs minutes, not a reshoot
+
+Put the two production models side by side. Shoot per post, and a seven-clip week across three platforms is seven recordings and fifteen-plus exports, each one atomic, so a single copy change reruns most of the bill. Decompose one master, and the same week is one recording plus per-clip work: a trim, a reframe, a caption burn. Even by hand in an editor that is minutes per clip, and the marginal cost of the twelfth clip rounds to a re-encode.
+
+The recurring cost is where the gap decides it. Launches always ship one late change, a tier renamed, a badge pulled, a price edited the night before, and in a pile of separately shot clips that edit lands on all of them at once. Stored as a spec, the change is one edit and every clip re-renders from it, because the whole week was only ever one recording sliced and reshaped. It is the render-don't-reshoot move [the channel matrix](/blog/video-marketing-for-software) makes across placements, turned sideways to run across a week of posts instead of a wall of surfaces. The launch that looks like a sustained campaign and the launch that eats a week of production time can start from the identical recording; the difference is whether you indexed it or reshot it.
+
+## Sources
+
+- [YouTube Help - Create YouTube Shorts (up to 3 minutes, vertical, 1080p max)](https://support.google.com/youtube/answer/10059070)
+- [YouTube Help - Recommended upload encoding settings (MP4/H.264, 16:9, 1080p ~8 Mbps, AAC 48kHz)](https://support.google.com/youtube/answer/1722171)
+- [LinkedIn Help - Video ad specifications (accepted aspect ratios and 15-30s recommendation)](https://www.linkedin.com/help/lms/answer/a424737)
+- [Wistia - What's the optimal video length? (sub-one-minute engagement ~52%)](https://wistia.com/learn/marketing/optimal-video-length)
+- [Wistia - State of Video: video marketing statistics (repurposing and platform share)](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [Forbes - Verizon Media says 69% of consumers watch video with sound off (and 80% caption lift)](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)
+
+## FAQ
+
+### How do you turn one demo recording into multiple social clips?
+
+Decompose it by moment, not just by aspect. A clean 60-to-90-second demo holds six or seven distinct beats, the cold-open outcome, the problem, the aha workflow, a secondary feature, the proof, and a recap, and each beat is a separate short clip with its own caption, aspect, and posting day. You are not scripting seven videos; you are indexing one take into seven timecodes, then trimming, reframing, and captioning each. That is how a launch fields a week of posts off a single afternoon of capture.
+
+### What length should a launch clip be for TikTok, Reels, and Shorts?
+
+Short: aim for 10 to 20 seconds on TikTok and Reels, and 15 to 45 on a YouTube Short, even though YouTube now allows a Short up to three minutes at 1080p. The ceiling is not the target. Wistia's data has clips under a minute averaging roughly 52% engagement, so a 15-second cut gets watched while a 90-second one gets sampled and abandoned. Lead with the outcome, cut the dead time between clicks, and end before the viewer decides to scroll.
+
+### How many social clips should a product launch produce?
+
+More than one per platform, fewer than one per idea. A five-day launch across LinkedIn, X, and one vertical feed can want fifteen to twenty posts, but those come from six or seven distinct clips cut from a single recording and reframed per network, not from twenty separate shoots. Prioritize by where your audience is: Wistia reports 81% of teams post video to LinkedIn and 76% to YouTube, so B2B software earns a LinkedIn native cut and a Short before it spends a minute on TikTok.

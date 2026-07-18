@@ -167,5 +167,21 @@
   },
   "support-videos-knowledge-base": {
     "subject": "a bright dome umbrella open and standing upright"
+  },
+  "b2b-demo-video": {
+    "subject": "a bespoke suit jacket on a wooden hanger"
+  },
+  "screen-recording-aspect-ratio": {
+    "subject": "a wooden tangram puzzle arranged into a tall narrow rectangle"
+  },
+  "social-cuts-for-product-launch": {
+    "subject": "a round pizza with one slice lifted away"
+  },
+  "obs-for-product-demos": {
+    "subject": "a broadcast mixing desk crowded with knobs and sliding faders"
+  },
+  "testing-demos-like-code": {
+    "subject": "a polished brass calibration weight resting in a felt-lined slot",
+    "seedOffset": 1
   }
 }

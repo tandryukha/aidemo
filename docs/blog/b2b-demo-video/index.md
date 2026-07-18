@@ -1,0 +1,80 @@
+# B2B vs PLG demo videos: seven axes that change the cut
+
+July 18, 2026 · Product Demo Videos · 8 min read · https://aidemo.top/blog/b2b-demo-video/
+
+> The same product needs two demos: one for a self-serve user, one for a buying committee. Seven axes that decide where each cut lands.
+
+**Key takeaways**
+
+- B2B and PLG name two viewers, not two companies: a ~13-person buying committee (Forrester 2024) versus one self-serve user who, per ProductLed, would rather try than talk to a rep.
+- Seven axes diverge by motion: length, narration, hero, depth, CTA, personalization, and surface. A PLG cut runs 30-90s; a B2B cut runs 90s-3min and chapters.
+- CTA tracks the motion: PLG ends on start-free (Navattic: ~71% of top demos are ungated); B2B ends on book-a-call because a committee with an 86% stall rate needs a rep.
+- Personalization: B2B supports per-account variants (high ACV, named committee); PLG only per-segment, and changing the on-screen UI state beats a name overlay.
+- Most companies are hybrid (PLG acquisition plus sales-assisted expansion): cut both from one recording so one take rots when the UI moves, not two.
+
+## The buyer decides the cut: a committee or a practitioner
+
+"B2B" and "PLG" get used as if they named two kinds of company, but for a demo video they name two kinds of viewer, and the viewer is what rewrites the edit. A sales-led B2B demo is watched by a buying group: Forrester's 2024 State of Business Buying counts 13 people in the average buying decision, with 89% of purchases crossing two or more departments, and 86% of deals stalling before anyone signs ([Forrester, 2024](https://www.forrester.com/press-newsroom/forrester-the-state-of-business-buying-2024/)). A product-led demo is watched by one person deciding, in the next thirty seconds, whether to sign up. ProductLed's own research claims 97% of modern buyers would rather try a product than talk to a sales rep ([ProductLed, 2026](https://productled.com/)), a round number worth reading as directional, but pointed the same way as the harder data. Navattic's 2025 State of the Interactive Product Demo, built on over 28,000 demos, finds about 71% of top-performing interactive demos carry no form gate and demo-sourced leads making up 10 to 20% of inbound volume ([Navattic, 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)): the self-serve buyer educates themselves long before anyone at your company learns their name.
+
+Two viewers, two economics. The B2B view is expensive and there are few of them, so the demo can be long, tailored, and routed to a human. The PLG view is cheap and there are thousands, so the demo has to work cold, unattended, and in seconds. Everything below falls out of that split. [The production playbook](/blog/how-to-make-a-product-demo-video) is the same for both cuts; what changes is where every dial lands.
+
+## Seven axes where a B2B cut and a PLG cut diverge
+
+Take one recording of one product and ask what a sales-led team and a product-led team would each do with it. They pull seven dials in opposite directions, and not one of the moves is a matter of taste. Each traces back to who is watching and what a deal is worth.
+
+| Axis | B2B, sales-led | PLG, self-serve |
+|---|---|---|
+| Length | 90 s to 3 min, chaptered; the committee opted in | 30 to 90 s; competing for a cold click |
+| Narration | First person, business-outcome and ROI framing | Second person, "here is how you do this" |
+| Who's the hero | The buyer's organization and the result it gets | The individual user and the task in their hands |
+| Depth | One workflow to a business result, plus admin, security, and integration for the committee | The shortest path to first value, nothing else |
+| Call to action | Book a call, see team pricing: routed to a human | Start free, try it now: no human in the path |
+| Personalization | Per-account variant with the prospect's name and data | Per-segment at most; volume rules out per-prospect |
+| Where it lives | Sales email, deal room, Slack forward, procurement review | Pricing page, product tour, in-app, social, README |
+
+Read down either column and it describes a coherent object, which is the test: a B2B demo that opens with a cold start-free button, or a PLG demo that makes a solo developer sit through an admin-and-security chapter, is a cut aimed at the wrong buyer. The rest of this piece is the reasoning behind each row.
+
+## Length, depth, and the protagonist
+
+The three dials that set the shape of the video move together. A PLG demo lives on a public surface, a pricing page, a feed, a README, where it competes for a click it has not earned, so it runs short and shows the fastest route to first value. Vidyard's 2025 benchmark of 943,305 videos put completion at 65% for a sub-minute clip, and Wistia's 2026 State of Video reports the same gradient across more than 13 million videos: the shorter the clip, the higher the share watched ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). The self-serve buyer would rather click than watch anyway, and Navattic clocks the average hands-on demo at about two minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)), so a PLG video's job is narrow: show the one move that makes the product click, then clear out of the way of the signup button.
+
+A B2B demo has the opposite permission. It arrives after discovery, into a warm inbox, aimed at a committee that has already agreed to evaluate, so it can run two or three minutes and break into chapters for the stakeholders who each care about a different part. That is where the protagonist flips. A PLG demo's hero is the individual practitioner and the task in their hands; the product does the work and the viewer pictures themselves doing it in a minute. A B2B demo's hero is the buyer's organization and the outcome it purchases: the champion needs material to make the case internally, and IT, security, and procurement each need to see their own concern answered, which is why the B2B cut earns its extra depth and the PLG cut is punished for it. The [deal economics that decide live versus recorded](/blog/sales-demo-video) sit under the length call as well, since a longer async recording is cheap exactly where a rep-hour is not.
+
+## Narration, the ask, and the surface it lives on
+
+Point the microphone at the same screen and the two cuts say different sentences. A PLG narration is second person and instructional, "type a question here and get a chart, not a data-team ticket," because the viewer is about to do that very thing. A B2B narration frames the same click as a business outcome, what the workflow removes and what it returns in hours or dollars, because the person forwarding it is assembling a case, not learning a keystroke. [Which story framework you hang that on](/blog/product-demo-storytelling) changes the beats, but the motion sets the register.
+
+The ask changes with it. A PLG demo ends on a self-serve door, start free or try it now, no human in the path, because the whole motion is built to let the buyer skip one. A B2B demo ends on a routed ask, book a call or see pricing for your team, because a 13-person committee carrying an 86% chance of stalling needs a rep to shepherd it, and the video's job is to earn that meeting rather than close in place. Then there is the surface. A PLG demo has to survive the places a buyer self-educates, a pricing page, a muted social autoplay, a GitHub README, an in-product tour, ungated and embeddable and captioned, because most of those play with the sound off. Gating a demo costs engagement here: Navattic measures roughly a 10% penalty, and a form on a PLG surface adds cost right where a cold visitor is most likely to leave. A B2B demo lives in the gated, asynchronous places instead: the sales email, the deal room, the Slack channel where a champion drops it for the rest of the buying group who never joined the call. If the choice on those surfaces is a video or a clickable tour, [that trade is its own decision](/blog/interactive-demo-vs-video-demo).
+
+## Personalization: an overlay for one buyer, a UI state for many
+
+The personalization dial is where teams either overspend or fool themselves. In a B2B motion the math supports real per-account tailoring: high ACV, a named committee, and few enough deals that rendering a variant with the prospect's name, their seeded data, and their actual use case earns back the effort. In a PLG motion the volume forbids it. You cannot hand-build a video that ten thousand cold visitors will see, and a name pasted over a mass-market clip is theater, not personalization. The honest PLG lever is segment-level: a different cut per persona or plan, where what changes is the workflow and the on-screen state, not a first name. [Rendering that matrix from one storyboard](/blog/personalized-demo-videos-at-scale) is the only way per-segment tailoring pays for itself, and even then the line holds: changing the seeded data in the UI is personalization, changing the caption over it is decoration.
+
+## Most motions are hybrid, so cut both from one take
+
+Few companies are purely one or the other. The common shape is product-led acquisition with a sales-assisted expansion motion stacked on top: a solo developer signs up through the self-serve door, and six months later an account team is running a committee deal to roll the tool across the org. That company needs both cuts, the 45-second self-serve clip on the pricing page and the two-minute outcome-framed recording the rep forwards, and they are demos of the same product, often the same workflow.
+
+Recording them as two separate hand-made takes doubles the work and, worse, doubles the [maintenance bill when the UI moves](/blog/why-product-demos-go-stale), because now two videos rot instead of one. The cheaper structure is one recording of the workflow and two edits of it, so the PLG cut is a shorter, second-person, self-serve version of the B2B cut, re-voiced and re-trimmed rather than re-shot. That is the case for treating a demo as a spec instead of a performance: aidemo, our open-source engine, records one agent-authored storyboard of a real browser flow and renders variants, a length, a voice track, a CTA card, from the same take. Its honest limits are that it captures a browser only, offers no drag-on-a-timeline editor, and needs the storyboard authored as text by an agent, so it is a poor trade for a single quick screencast and a good one exactly when you need the same flow cut two ways for two motions. Whichever tool you reach for, decide the motion first, because the buyer has already written most of the edit for you.
+
+## Sources
+
+- [Forrester — The State of Business Buying, 2024](https://www.forrester.com/press-newsroom/forrester-the-state-of-business-buying-2024/)
+- [ProductLed — 97% of buyers would rather try a product than talk to a rep](https://productled.com/)
+- [Navattic — State of the Interactive Product Demo 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)
+- [Vidyard — Video in Business Benchmark Report (2025)](https://www.vidyard.com/business-video-benchmarks/)
+- [Wistia — State of Video: video marketing statistics](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [Gong Labs — Sales demos: data-backed tips from 67,149 demos](https://www.gong.io/blog/sales-demos)
+
+## FAQ
+
+### Should a B2B demo video be longer than a PLG demo video?
+
+Usually, yes, because the two are watched under different conditions. A PLG demo runs on a public, often muted surface where it competes for a cold click, so 30 to 90 seconds is the working range, and Vidyard's 2025 benchmark put completion at 65% for a sub-minute clip and far lower past twenty minutes. A B2B demo arrives after discovery to a committee that agreed to evaluate, so it can run 90 seconds to three minutes and chapter for different stakeholders. If it needs to run longer than that, it is really a chaptered recording or a live call, not one continuous clip.
+
+### What is the difference between a B2B and a PLG product demo video?
+
+The viewer and the economics, which then set every editing choice. A B2B demo is made for a group of buyers, Forrester's 2024 count is 13, so it frames a business outcome, runs longer, ends on a routed "book a call," and can be personalized per account. A PLG demo is made for one self-serve user deciding whether to sign up, so it is short and instructional, makes the individual the hero, ends on "start free," and personalizes only by segment. Same product, opposite cuts.
+
+### Does a PLG demo need a sales rep or a "book a call" CTA?
+
+No. A product-led motion exists to let the buyer evaluate without talking to anyone: ProductLed's research claims 97% of buyers would rather try a product than talk to a rep, and Navattic finds about 71% of top demos skip the lead-gen form entirely. A "book a call" button on a PLG surface adds a human where the buyer is trying to avoid one; the right CTA is a self-serve door, start free, try it, open the docs. Save the routed ask for the sales-assisted cut.

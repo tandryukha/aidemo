@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OBS Studio for product demos: the limits | aidemo</title>
+<meta name="description" content="OBS is free and GPLv2 and records any app, but has no auto-zoom, cursor smoothing, or dead-time trim. A build-vs-buy accounting for product demos.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/obs-for-product-demos/">
+<link rel="alternate" type="text/markdown" href="/blog/obs-for-product-demos/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="OBS Studio for product demos: the limits | aidemo">
+<meta property="og:description" content="OBS is free and GPLv2 and records any app, but has no auto-zoom, cursor smoothing, or dead-time trim. A build-vs-buy accounting for product demos.">
+<meta property="og:url" content="https://aidemo.top/blog/obs-for-product-demos/">
+<meta property="og:image" content="https://aidemo.top/blog/images/obs-for-product-demos-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OBS Studio for product demos: the limits | aidemo">
+<meta name="twitter:description" content="OBS is free and GPLv2 and records any app, but has no auto-zoom, cursor smoothing, or dead-time trim. A build-vs-buy accounting for product demos.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/obs-for-product-demos-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "OBS Studio for product demos: what it does and doesn't do",
+  "description": "OBS is free and GPLv2 and records any app, but has no auto-zoom, cursor smoothing, or dead-time trim. A build-vs-buy accounting for product demos.",
+  "image": [
+    "https://aidemo.top/blog/images/obs-for-product-demos-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/obs-for-product-demos/"
+  },
+  "wordCount": 2206,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — homepage (free and open source, scenes and sources)",
+      "url": "https://obsproject.com/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — GitHub repository (GPL v2, capturing/compositing/recording/streaming)",
+      "url": "https://github.com/obsproject/obs-studio"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — sources knowledge base (Display, Window, Browser capture)",
+      "url": "https://obsproject.com/kb/sources-guide"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — filters documentation (zoompan, crop)",
+      "url": "https://ffmpeg.org/ffmpeg-filters.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — automatic zoom, cursor smoothing, and pricing",
+      "url": "https://screen.studio/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "obs-zoom-to-mouse — OBS Lua script for hotkey zoom to the cursor",
+      "url": "https://github.com/BlankSourceCode/obs-zoom-to-mouse"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "OBS Studio for product demos: what it does and doesn't do",
+      "item": "https://aidemo.top/blog/obs-for-product-demos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can OBS automatically zoom in on clicks like Screen Studio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The core OBS app has no click-triggered auto-zoom; Screen Studio and similar produced recorders apply that on their own, OBS does not. A community Lua script, obs-zoom-to-mouse, adds a hotkey zoom that can follow the cursor, but you configure and trigger it yourself, and it is a live pan-follow rather than the eased punch-in-and-hold a produced tool applies automatically. The other route is to add the zoom in post with an editor's keyframes or ffmpeg's zoompan filter, which is manual work on every moment you want to emphasize."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is OBS Studio good for recording product demos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For the capture step, yes: it is free, records any window or app at full resolution with no watermark or time cap, and composites multiple sources live. For the finished look, no: it has no auto-zoom, no cursor smoothing, no dead-time trimming, and no captions, so a produced demo means an hour or more of manual post per two-minute video. Use OBS when the demo is a native app, a live multi-source composite, or a one-off you will never revise; look elsewhere when it is a web UI you will polish or keep current."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you add zoom and cursor smoothing to an OBS recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zoom is added after the fact, in a separate editor by keyframing a scale and position on each emphasis point, or in ffmpeg with the zoompan filter's per-frame expressions. Cursor smoothing cannot be added in post at all: OBS records the real pointer path straight into the pixels, so there is no path left to resample. Your only options for a calmer cursor are to move the mouse deliberately during the take, hide the cursor entirely, or use a tool that draws a synthetic pointer instead of capturing the real one."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>OBS Studio for product demos: what it does and doesn't do</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">OBS Studio for product demos: what it does and doesn't do</h1>
+        <p class="article-dek">OBS is free and captures anything, but it finishes nothing: no auto-zoom, no cursor smoothing, no trim. Here is what the hand-labor actually costs.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>9 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#obs-captures-anything-and-finishes-nothing">OBS captures anything and finishes nothing</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-obs-hands-you-for-free">What OBS hands you for free</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-four-jobs-obs-leaves-on-your-desk">The four jobs OBS leaves on your desk</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-hand-labor-bill-per-finished-minute">The hand-labor bill, per finished minute</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#no-compose-layer-means-every-fix-is-a-re-performance">No compose layer means every fix is a re-performance</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-obs-is-still-the-right-tool">When OBS is still the right tool</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/obs-for-product-demos-800.webp" srcset="/blog/images/obs-for-product-demos-400.webp 400w, /blog/images/obs-for-product-demos-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A broadcast mixing desk covered in rows of knobs and sliding faders"><figcaption>OBS hands you every control and automates none of them, which is the whole bill.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>OBS is free, open source (GPLv2), and records any app at source resolution with no watermark or time cap, but adds no auto-zoom, cursor smoothing, dead-time trim, or captions.</li>
+    <li>Those four effects are manual in OBS: budget roughly 90-150 minutes of hand-labor to finish a 2-minute demo that a produced recorder polishes in about 30-45.</li>
+    <li>OBS has no compose layer: timing, framing, and cursor are welded into one flat file, so a bad zoom is a reshoot, not a parameter change.</li>
+    <li>Crossover math: for a one-off you'll never touch, $0 OBS wins; past ~2-3 revisions the hand-labor overtakes a $9/mo produced tool or a spec you re-render.</li>
+    <li>Use OBS for native apps, games, or live multi-source composites; skip it for a web UI you'll polish, retarget, or keep current as the product ships.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="obs-captures-anything-and-finishes-nothing">OBS captures anything and finishes nothing<a class="hanchor" href="#obs-captures-anything-and-finishes-nothing" aria-label="Link to section: OBS captures anything and finishes nothing">#</a></h2>
+<p>OBS Studio bills itself as &quot;free and open source software for video recording and live streaming&quot;<sup class="article-cite"><a href="#src-1" title="OBS Studio — homepage (free and open source, scenes and sources)">1</a></sup> and is released under the GNU General Public License v2<sup class="article-cite"><a href="#src-2" title="OBS Studio — GitHub repository (GPL v2, capturing/compositing/recording/streaming)">2</a></sup>. It runs on Windows, macOS, and Linux, records at your source resolution with no time cap and no watermark, and captures nearly any surface on the machine. For raw capture at a price of zero, nothing beats it.</p>
+<p>It is also, by its own description, a broadcast tool. The README says OBS is engineered for &quot;capturing, compositing, encoding, recording, and streaming video content&quot;<sup class="article-cite"><a href="#src-2" title="OBS Studio — GitHub repository (GPL v2, capturing/compositing/recording/streaming)">2</a></sup> — the live loop a streamer runs in real time. Read that list again and notice the word that is absent: editing. OBS mixes sources into a scene and writes the result to a file. It does not punch in on a click, calm a cursor, cut dead air, or caption a transcript. Those four are what a product demo lives or dies on, and OBS does none of them.</p>
+<p>This is a build-vs-buy accounting: what OBS hands you for nothing, what you rebuild by hand once the recording stops, and the point where the labor costs more than a produced recorder or a spec you re-render. It sits inside a wider market <a href="/blog/ai-demo-video-generators/">sorted by mechanism rather than price</a>, and the caps and watermarks that other &quot;free&quot; tools hide are <a href="/blog/free-demo-video-software/">charted in their own piece</a>. Here the question is narrower. Free is only half of a price. The other half is your afternoon.</p>
+<h2 id="what-obs-hands-you-for-free">What OBS hands you for free<a class="hanchor" href="#what-obs-hands-you-for-free" aria-label="Link to section: What OBS hands you for free">#</a></h2>
+<p>The capture engine is genuinely good, and worth naming before the criticism. OBS is built around scenes and sources: you &quot;create scenes made up of multiple sources including window captures, images, text, browser windows, webcams, capture cards and more,&quot; and switch between an unlimited number of them<sup class="article-cite"><a href="#src-1" title="OBS Studio — homepage (free and open source, scenes and sources)">1</a></sup>. Display Capture grabs a whole monitor, Window Capture isolates one window, and a Browser source drops a web page into the frame — though the docs note that source is &quot;primarily used for stream alert overlays and chat boxes,&quot; not clean product capture<sup class="article-cite"><a href="#src-3" title="OBS Studio — sources knowledge base (Display, Window, Browser capture)">3</a></sup>.</p>
+<p>For a demo, three of those strengths matter. It captures native desktop apps and games, not just a browser tab, which is exactly where a browser-only pipeline cannot follow. It composites a webcam bubble, a logo, and a screen into one live frame without a separate editor. And it costs nothing, forever, with no export ceiling — the real deal among the <a href="/blog/open-source-demo-video-tools/">genuinely open tools</a>. If your demo is a live-narrated walkthrough you will record once and post as-is, OBS is a complete answer.</p>
+<p>The trouble starts the moment you want it to look produced.</p>
+<h2 id="the-four-jobs-obs-leaves-on-your-desk">The four jobs OBS leaves on your desk<a class="hanchor" href="#the-four-jobs-obs-leaves-on-your-desk" aria-label="Link to section: The four jobs OBS leaves on your desk">#</a></h2>
+<p>Set OBS beside a produced recorder and the gap is four specific effects, each automatic there and manual here.</p>
+<p>Screen Studio, the reference for the produced look, &quot;automatically zooms in on actions you perform on your screen&quot; and turns the &quot;shaky and rapid movement of your cursor&quot; into &quot;a smooth and beautiful glide&quot;<sup class="article-cite"><a href="#src-5" title="Screen Studio — automatic zoom, cursor smoothing, and pricing">5</a></sup>. OBS does neither. There is no click-triggered zoom in the core app, and there is no filter that de-jitters a cursor after the fact, because by the time OBS writes the file, the cursor path is already fused into the pixels. The mechanics of what those transforms actually are — the ease curve, the focus point, the idle threshold — are <a href="/blog/professional-screen-recordings/">decomposed in the professional-recording piece</a>; the point here is only that OBS ships none of them.</p>
+<p>So the four jobs land on you:</p>
+<ul>
+<li><strong>Zoom on interaction.</strong> No auto-zoom. You either build zoom scenes and cut to them live with a hotkey (which turns every take into a performance you can fumble), or you add the zoom in post. In an editor that means hand-keyframing a scale and position on every moment worth emphasizing. In ffmpeg it means the <code>zoompan</code> filter, which sets &quot;zoom expression, x and y offset expressions which will be evaluated for each frame&quot;<sup class="article-cite"><a href="#src-4" title="FFmpeg — filters documentation (zoompan, crop)">4</a></sup> — one expression triple per segment, written by hand.</li>
+<li><strong>Cursor smoothing.</strong> Not fixable in post at all. The recorded pointer is already pixels; there is no path left to resample. Your only levers are to move the mouse deliberately during the take, or to hide the cursor and ship a demo with no pointer.</li>
+<li><strong>Dead-time trimming.</strong> OBS writes every load spinner and every pause where you hunted for the next control. Removing them is manual timeline work in whatever editor you pair it with.</li>
+<li><strong>Captions.</strong> OBS has no transcript feature. You caption in a separate tool or by hand, which is not optional busywork: most demo views start muted.</li>
+</ul>
+<p>A community Lua script, obs-zoom-to-mouse, closes part of the first gap. It animates a crop-and-pan to &quot;zoom a display-capture source to focus on the mouse&quot; on a hotkey, with an optional follow-the-cursor mode<sup class="article-cite"><a href="#src-6" title="obs-zoom-to-mouse — OBS Lua script for hotkey zoom to the cursor">6</a></sup>. It is a real help, but it is a live pan-follow you configure and trigger yourself, not the eased punch-in-and-hold a produced tool applies on its own, and it adds one more thing to operate while you record.</p>
+<h2 id="the-hand-labor-bill-per-finished-minute">The hand-labor bill, per finished minute<a class="hanchor" href="#the-hand-labor-bill-per-finished-minute" aria-label="Link to section: The hand-labor bill, per finished minute">#</a></h2>
+<p>Here is the accounting nobody prints on the OBS pricing page, because OBS has no pricing page. Take a routine target: a two-minute product walkthrough with narration, roughly ten moments worth a zoom, captions, and light music. The figures below are order-of-magnitude estimates with the assumptions stated, not stopwatch readings — but the shape is the point.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Task (~2-min demo)</th>
+<th>OBS + manual post</th>
+<th>Produced GUI recorder</th>
+<th>Spec-driven re-render</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Clean environment (profile, notifications, viewport)</td>
+<td>~10 min, every take</td>
+<td>~10 min, every take</td>
+<td>pinned in the spec, once</td>
+</tr>
+<tr>
+<td>Land a clean take</td>
+<td>3-5 tries, ~15-25 min</td>
+<td>1-2 tries, ~5-10 min</td>
+<td>0 (deterministic replay)</td>
+</tr>
+<tr>
+<td>Zoom on ~10 interactions</td>
+<td>hand-keyframe each, ~20-40 min</td>
+<td>automatic</td>
+<td>one parameter, re-runs free</td>
+</tr>
+<tr>
+<td>Cursor smoothing</td>
+<td>impossible in post; re-record</td>
+<td>automatic</td>
+<td>synthetic cursor built in</td>
+</tr>
+<tr>
+<td>Trim dead time</td>
+<td>manual cuts, ~10-15 min</td>
+<td>semi-automatic</td>
+<td>idle threshold, re-runs free</td>
+</tr>
+<tr>
+<td>Captions</td>
+<td>transcribe and time, ~30 min</td>
+<td>auto transcript</td>
+<td>word-timed transcript</td>
+</tr>
+<tr>
+<td>Music, export</td>
+<td>~10 min</td>
+<td>~5 min</td>
+<td>in the render step</td>
+</tr>
+<tr>
+<td><strong>First demo, human time</strong></td>
+<td><strong>~90-150 min</strong></td>
+<td><strong>~30-45 min</strong></td>
+<td><strong>~45-75 min to author</strong></td>
+</tr>
+<tr>
+<td><strong>Each later revision</strong></td>
+<td>repeat most of the above</td>
+<td>re-edit the take</td>
+<td><strong>~0 — CI re-renders</strong></td>
+</tr>
+</tbody></table></div>
+<p>Two readings of that table. First, OBS is not free; it trades dollars for something like ninety minutes to two and a half hours of skilled human time per two-minute demo, most of it spent rebuilding the four effects a produced tool applies in seconds. Second, the columns have different shapes. OBS charges that labor every single time — every new demo, and every revision of an old one. A produced recorder charges a subscription (Screen Studio is $9 a month billed yearly, macOS only) to cut the per-take labor. A spec-driven pipeline front-loads the authoring and then drops the marginal cost of a re-render toward zero.</p>
+<p>That difference is the crossover. For exactly one demo you will never touch again, OBS at $0 wins outright. The moment you will revise a demo more than two or three times, or maintain more than a handful of them, the accumulated hand-labor overtakes both the price of a produced recorder and the authoring cost of a spec you keep in the repo.</p>
+<h2 id="no-compose-layer-means-every-fix-is-a-re-performance">No compose layer means every fix is a re-performance<a class="hanchor" href="#no-compose-layer-means-every-fix-is-a-re-performance" aria-label="Link to section: No compose layer means every fix is a re-performance">#</a></h2>
+<p>There is a deeper reason the OBS bill never stops. A produced pipeline keeps two things apart: the capture, and the parameters applied to it. Zoom scale, cursor path, and trim points live in a layer you can change and re-run over the same footage, which is why a bad zoom in that world is a re-render rather than a reshoot. OBS has no such layer. It emits one flat file with the timing, the framing, and the cursor already welded into the pixels.</p>
+<p>The consequence is that in OBS-land, everything a produced tool treats as a cheap parameter change is either baked into a live performance or reconstructed by hand in a separate editor, with nothing reusable carried between takes. Punch in a beat too late and the zoom is in the pixels: fix it in the editor or shoot the take again. And when the product ships a UI change — which it will — the recording is simply wrong, and there is no spec to re-run. You re-perform the take and redo the whole post pass. That staleness tax gets <a href="/blog/why-product-demos-go-stale/">its own piece</a>; OBS is the tool that pays it in full, every time, because it keeps no record of how the demo was made.</p>
+<p>This is the honest place for our own tool. aidemo, which we build and disclose as ours, makes the reverse bet: an agent authors a storyboard, a deterministic player drives your live web app through it, and zoom, a synthetic cursor, and word-timed captions are compose-time parameters you re-run for nothing. The trade is real and worth stating plainly. It captures a browser tab and only a browser tab, so the native apps and games OBS handles are out of scope; the storyboard is authored in code rather than nudged on a canvas, and no drag-and-drop editor exists at all. Where OBS is all manual capture and no spec, it is all spec and no manual capture. Opposite bets, opposite failure modes.</p>
+<h2 id="when-obs-is-still-the-right-tool">When OBS is still the right tool<a class="hanchor" href="#when-obs-is-still-the-right-tool" aria-label="Link to section: When OBS is still the right tool">#</a></h2>
+<p>None of this makes OBS the wrong choice; it makes it a specific one. Reach for OBS when:</p>
+<ul>
+<li><strong>The demo is a native app or a game.</strong> A browser-only pipeline cannot record it, and OBS&#39;s window and game capture can. This is its genuine home turf.</li>
+<li><strong>You need a live multi-source composite.</strong> Webcam plus screen plus overlays, mixed in real time — OBS was built for exactly this, and it is the free tool that does it well.</li>
+<li><strong>It is a one-off you will never revise.</strong> If the recording ships once and dies, the per-take labor is paid once, and $0 beats every subscription.</li>
+<li><strong>Free and cross-platform are hard constraints and you will do the post yourself.</strong> OBS plus an editor is the zero-dollar route across all three operating systems.</li>
+</ul>
+<p>Skip it when the demo is a web UI you will polish, retarget, or keep current as the product ships. There the produced-recorder route (<a href="/blog/screen-studio-alternatives/">mapped by platform here</a>) or a spec-driven re-render buys back the afternoon OBS quietly charges. OBS is a superb broadcast switcher pressed into service as a demo tool. It captures everything and finishes nothing, and the finishing is the part your viewer actually sees.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://obsproject.com/" rel="noopener">OBS Studio — homepage (free and open source, scenes and sources)</a></li>
+<li id="src-2"><a href="https://github.com/obsproject/obs-studio" rel="noopener">OBS Studio — GitHub repository (GPL v2, capturing/compositing/recording/streaming)</a></li>
+<li id="src-3"><a href="https://obsproject.com/kb/sources-guide" rel="noopener">OBS Studio — sources knowledge base (Display, Window, Browser capture)</a></li>
+<li id="src-4"><a href="https://ffmpeg.org/ffmpeg-filters.html" rel="noopener">FFmpeg — filters documentation (zoompan, crop)</a></li>
+<li id="src-5"><a href="https://screen.studio/" rel="noopener">Screen Studio — automatic zoom, cursor smoothing, and pricing</a></li>
+<li id="src-6"><a href="https://github.com/BlankSourceCode/obs-zoom-to-mouse" rel="noopener">obs-zoom-to-mouse — OBS Lua script for hotkey zoom to the cursor</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="can-obs-automatically-zoom-in-on-clicks-like-screen-studio" class="blog-faq-q">Can OBS automatically zoom in on clicks like Screen Studio?<a class="hanchor" href="#can-obs-automatically-zoom-in-on-clicks-like-screen-studio" aria-label="Link to section: Can OBS automatically zoom in on clicks like Screen Studio?">#</a></h3>
+<p>No. The core OBS app has no click-triggered auto-zoom; Screen Studio and similar produced recorders apply that on their own, OBS does not. A community Lua script, obs-zoom-to-mouse, adds a hotkey zoom that can follow the cursor, but you configure and trigger it yourself, and it is a live pan-follow rather than the eased punch-in-and-hold a produced tool applies automatically. The other route is to add the zoom in post with an editor&#39;s keyframes or ffmpeg&#39;s zoompan filter, which is manual work on every moment you want to emphasize.</p>
+<h3 id="is-obs-studio-good-for-recording-product-demos" class="blog-faq-q">Is OBS Studio good for recording product demos?<a class="hanchor" href="#is-obs-studio-good-for-recording-product-demos" aria-label="Link to section: Is OBS Studio good for recording product demos?">#</a></h3>
+<p>For the capture step, yes: it is free, records any window or app at full resolution with no watermark or time cap, and composites multiple sources live. For the finished look, no: it has no auto-zoom, no cursor smoothing, no dead-time trimming, and no captions, so a produced demo means an hour or more of manual post per two-minute video. Use OBS when the demo is a native app, a live multi-source composite, or a one-off you will never revise; look elsewhere when it is a web UI you will polish or keep current.</p>
+<h3 id="how-do-you-add-zoom-and-cursor-smoothing-to-an-obs-recording" class="blog-faq-q">How do you add zoom and cursor smoothing to an OBS recording?<a class="hanchor" href="#how-do-you-add-zoom-and-cursor-smoothing-to-an-obs-recording" aria-label="Link to section: How do you add zoom and cursor smoothing to an OBS recording?">#</a></h3>
+<p>Zoom is added after the fact, in a separate editor by keyframing a scale and position on each emphasis point, or in ffmpeg with the zoompan filter&#39;s per-frame expressions. Cursor smoothing cannot be added in post at all: OBS records the real pointer path straight into the pixels, so there is no path left to resample. Your only options for a calmer cursor are to move the mouse deliberately during the take, hide the cursor entirely, or use a tool that draws a synthetic pointer instead of capturing the real one.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">obs studio</span>
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">demo videos</span>
+        <span class="article-tag">open source</span>
+        <span class="article-tag">ffmpeg</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-demo-video-generators-400.webp" srcset="/blog/images/ai-demo-video-generators-400.webp 400w, /blog/images/ai-demo-video-generators-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="One search bar branching into four outputs: a video, an interactive embed, an avatar clip, and a real-UI render"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/arcade-vs-navattic-vs-storylane/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/arcade-vs-navattic-vs-storylane-400.webp" srcset="/blog/images/arcade-vs-navattic-vs-storylane-400.webp 400w, /blog/images/arcade-vs-navattic-vs-storylane-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single ice cream cone piled with scoops of ice cream in different colors"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Arcade vs Navattic vs Storylane: picking an interactive demo platform</h3>
+    <p class="article-card-excerpt">They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/camtasia-alternatives/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/camtasia-alternatives-400.webp" srcset="/blog/images/camtasia-alternatives-400.webp 400w, /blog/images/camtasia-alternatives-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An overloaded key ring crowded with chunky keys"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Camtasia alternatives for software demos and tutorials</h3>
+    <p class="article-card-excerpt">TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#obs-captures-anything-and-finishes-nothing">OBS captures anything and finishes nothing</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-obs-hands-you-for-free">What OBS hands you for free</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-four-jobs-obs-leaves-on-your-desk">The four jobs OBS leaves on your desk</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-hand-labor-bill-per-finished-minute">The hand-labor bill, per finished minute</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#no-compose-layer-means-every-fix-is-a-re-performance">No compose layer means every fix is a re-performance</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-obs-is-still-the-right-tool">When OBS is still the right tool</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

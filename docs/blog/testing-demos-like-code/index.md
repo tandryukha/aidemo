@@ -1,0 +1,82 @@
+# Testing demos like code: golden files and drift gates
+
+July 18, 2026 · Demos as Code · 8 min read · https://aidemo.top/blog/testing-demos-like-code/
+
+> Your code has a test suite; the demo video of it has a filename and a vibe. Golden-file testing closes that gap, once you pick the right layer to freeze.
+
+**Key takeaways**
+
+- A demo becomes a regression test the moment it has a committed golden to fail against, the same pattern behind Jest snapshots, Playwright toHaveScreenshot, and vhs terminal tapes.
+- Pick the golden layer: freeze the resolved action-spec (deterministic text that diffs in a PR), still-frame key states, and never byte-diff the MP4, whose two encodes never match.
+- The failure mode is the rubber stamp, not the diff: Jest's --ci flag refuses to auto-write a new snapshot in CI (since v20), forcing a human to bless changes with --updateSnapshot.
+- A behavior golden dodges the determinism tax: being timing- and paint-free, it holds across machines with no threshold, unlike a pixel golden that needs pinned fonts, clock, and DPR.
+- Two-tier gate: a fast behavior golden hard-fails the merge on a broken flow; slower still/pixel goldens open a review. aidemo ships the behavior half as probe --golden (browser-only).
+
+## The line between a demo and a regression test is one committed file
+
+The demo video is usually the least-tested thing a team ships. The code behind the screen has unit tests, integration tests, and a CI gate; the recording of that same screen has a filename and a vibe. That gap is not laziness. A captured performance has nothing to test against: no baseline, no assertion, no way to say "this is what it should look like" other than a person watching all ninety seconds and deciding it seems fine.
+
+Turn the demo into [a committed spec instead of a captured performance](/blog/demos-as-code) and the gap closes in one move. Once a demo is text that renders footage, a storyboard naming the pages to visit, the elements to click, and the lines to narrate, it can carry the thing a test needs and a recording never had: a recorded expectation to fail against. That expectation is a golden file. Commit it, re-render on every change, diff the new run against it, and the demo is now a regression test that happens to double as marketing footage.
+
+None of this is new. It is the oldest pattern in output testing, and every piece already ships in tools developers touch daily. The work is knowing which flavor applies, what to freeze, and how to stop the baseline from decaying into a rubber stamp.
+
+## Golden master, approval, snapshot: one pattern wearing four names
+
+Pinning a reference output and failing on any deviation has been rediscovered enough times to have a naming problem. Golden master testing, characterization testing, approval testing, snapshot testing: one mechanism seen from four angles, differing mostly in who reviews the baseline and how it updates.
+
+The shared shape is four steps. Capture the output of a run, commit it as the approved baseline, diff every later run against it, and require a human to bless a changed baseline before it counts. ApprovalTests, which carries the approval-testing name across seventeen languages, puts the whole loop in one line: it works "by taking a snapshot of the results, and confirming that they have not changed," with a reviewer validating any change before it becomes the new baseline ([ApprovalTests, accessed July 2026](https://approvaltests.com/)). Jest carried the same idea into the JavaScript mainstream as snapshot testing, where a reference is stored beside the test and a mismatch fails the run unless you deliberately re-record it ([Jest, accessed July 2026](https://jestjs.io/docs/snapshot-testing)).
+
+| Tool | What it freezes | How you bless a change |
+|---|---|---|
+| ApprovalTests | any serialized program output | approve the received file as the approved file |
+| Jest snapshots | a rendered tree or any value | `jest --updateSnapshot` / `-u` |
+| Playwright `toHaveScreenshot` | a PNG of a page or element | `--update-snapshots` (all / changed / missing / none) |
+| vhs (terminal) | a tape's `.txt` or `.ascii` output | re-run the tape, commit the new text |
+
+The terminal world made this ordinary for demos first. vhs renders a `.tape` file into a terminal recording and can emit the same run as plain text, which teams commit and diff in CI to catch an unintended change in a CLI's output ([Charmbracelet, accessed July 2026](https://github.com/charmbracelet/vhs)). A browser product demo is the harder, more valuable version of that: the recording that sells the product is, in the same run, the check that proves the product still does what the recording claims.
+
+## What exactly do you golden? Five candidate baselines for one demo
+
+Here is where "test the video" instincts go wrong. A demo is not one output; it is a stack of them, and each layer makes a different golden with a different stability, review cost, and blind spot. Choosing the layer is the whole decision, and the obvious pick, the finished video file, is the worst one on the board.
+
+| Golden layer | Deterministic? | Reviewable in a PR? | Catches | Misses |
+|---|---|---|---|---|
+| Storyboard spec (text) | fully | yes, a text diff | edits you made to the script | anything about the live product |
+| Resolved action-spec (which selectors resolved, where navigation landed) | yes, if timing is normalized out | yes, a small JSON diff | a moved, renamed, or removed control; a broken navigation | anything that resolves but looks wrong |
+| Named still frames (a PNG per key state) | mostly, with pinned rendering | yes, an image diff over a few frames | a visibly wrong key screen | the states between the stills; motion |
+| Per-frame pixel diff | no, without heavy pinning | poorly, thousands of frames | every visible change | nothing, which is the problem |
+| Final MP4 bytes | never | no, a binary blob | re-encode noise, nothing useful | the actual product |
+
+Read the table bottom-up and the folk wisdom inverts. Byte-diffing the MP4 fails on every run because two encodes of identical footage are never bit-for-bit equal, so it tests the encoder, not the product. Pixel-diffing every frame is the noisiest check possible, tripping on a font-hinting change or a ticking clock; it belongs behind a tuned perceptual threshold, which is [its own tunable-threshold problem](/blog/detecting-ui-drift) and [its own choice of diff engine](/blog/visual-regression-testing-tools), not a raw compare.
+
+The sweet spot is the second row. A demo's most stable, most reviewable golden is not its pixels but its resolved behavior: the ordered list of which selectors resolved to a live element and where each navigation actually landed. That artifact is small, it is text, it diffs cleanly in a pull request, and it fails precisely when the flow breaks while staying silent when only the paint changes. Our own engine, aidemo (ours, and browser-only: an agent writes the storyboard, and there is no drag-and-drop timeline), freezes exactly this layer. `aidemo probe --update-golden` writes a normalized projection of a dry run to `golden/probe.json`, and `aidemo probe --golden` re-runs it and exits non-zero on any drift, printing a field-level diff such as `$.scenes[2].actions[0].ok: expected true, got false`. The projection is timing-free by construction, recording the operation, the resolved target, whether an element was found, and a navigation's final URL, and nothing with a clock in it, so a mismatch means a real change in the flow rather than jitter. The finished video and the regression check come out of one run.
+
+## The rubber stamp, not the diff, is the failure mode
+
+Every team that adopts snapshot testing meets its dark side within a month. A test fails, someone runs the update flag without reading the diff, the new and wrong output becomes the blessed baseline, and the test now guards a bug. The diff worked. The gate did not. Jest's own best-practices name the enemy: the goal is to "fight against the habit of regenerating snapshots when test suites fail instead of examining the root causes of their failure" ([Jest, accessed July 2026](https://jestjs.io/docs/snapshot-testing)).
+
+Two mechanisms keep a golden gate honest, and both port straight to demo media. The first separates "a change happened" from "the change is approved." Blessing a golden has to be a deliberate act, committed in the same pull request as the change that caused it, so a reviewer sees the button rename and the golden's matching update side by side and can rule on whether they belong together. Playwright bakes the intent into its update modes: `--update-snapshots` accepts `all`, `changed`, `missing`, or `none`, so you can add only genuinely new baselines without silently overwriting the ones you already trust ([Playwright, accessed July 2026](https://playwright.dev/docs/test-cli)). That is the approval reviewer of ApprovalTests wearing a CLI flag.
+
+The second mechanism makes CI refuse to write a baseline at all. Locally, a missing snapshot is helpfully auto-created; in CI, auto-creation means any new, unreviewed output passes forever. Jest closes this since version 20: run with `--ci` and, in its words, "instead of the regular behavior of storing a new snapshot automatically, it will fail the test and require Jest to be run with `--updateSnapshot`" ([Jest, accessed July 2026](https://jestjs.io/docs/cli)). The rule generalizes to any demo gate: locally, blessing a change is a command; in CI, an unblessed change is a red build. A golden you can update without a human reading the diff is not a test, just a slow way to commit whatever the code happens to do today.
+
+## A golden only holds if the render is boring
+
+A golden file is a bet that the same input yields the same output. For a terminal that bet is nearly free; for a browser it is the whole engineering problem, because animations, web fonts, network timing, and device-pixel ratio all pull two runs of the same flow into two different sets of frames. Without [deterministic browser automation](/blog/deterministic-browser-automation-for-video), a pinned viewport and DPR, disabled animations, a frozen clock, the network taken out of the shot, a pixel or still golden flakes on noise, and a flaky gate is one somebody quietly disables. Getting the render [reproducible enough that the golden actually holds](/blog/reproducible-demo-renders) is the prerequisite, not the polish.
+
+The layer table hides a shortcut, though. The reason to reach for a behavior golden first is that it sidesteps most of the determinism tax. A pixel baseline needs every rendering variable pinned before it will hold; a resolved-action-spec baseline is timing-free and paint-free by design, so it holds across machines and browser versions with no threshold to tune, and it still catches the one failure that actually ruins a demo, a click that lands where the button used to be. So assert the flow with a fast behavior golden that hard-fails the merge, then, for visual coverage, add a handful of still-frame goldens behind a perceptual threshold that open a review rather than block it. That two-tier gate rides inside the [CI job that already re-renders the demo when a commit changes the UI](/blog/demo-videos-in-ci): the cheap check runs on every push, the expensive one on a schedule, and the demo stops being the one artifact nobody tests.
+
+## Sources
+- [ApprovalTests — approval testing: snapshot the results and confirm they have not changed](https://approvaltests.com/)
+- [Jest — Snapshot Testing (a mismatch fails the run; best-practice against blindly regenerating)](https://jestjs.io/docs/snapshot-testing)
+- [Jest — CLI reference (--ci fails on new snapshots; --updateSnapshot / -u)](https://jestjs.io/docs/cli)
+- [Playwright — Visual comparisons (toHaveScreenshot, baseline storage, environment consistency)](https://playwright.dev/docs/test-snapshots)
+- [Playwright — Test CLI (--update-snapshots modes: all / changed / missing / none)](https://playwright.dev/docs/test-cli)
+- [Charmbracelet vhs — terminal recordings and golden-file integration testing](https://github.com/charmbracelet/vhs)
+
+## FAQ
+### What is golden file testing?
+Golden file testing captures the output of a run once, commits that output as the approved reference (the golden file), and fails a later run whose output differs from it. It is the same pattern as approval testing and Jest-style snapshot testing: the assertion is not a hand-written expectation but a whole recorded output you agreed was correct. For a product demo the golden can be the resolved action-spec, a set of still frames, or a screenshot, and the diff tells you the product changed under the demo.
+### How is golden file testing different from snapshot testing?
+They are the same mechanism under two names, with a nuance of scale and culture. "Golden file" comes from systems and CLI testing, where the reference is often a sizeable file on disk updated with an explicit `-update` flag; "snapshot testing" is the name Jest popularized for inline or co-located references in unit tests. Both capture output, commit it, diff against it, and require a deliberate update to change the baseline. Any difference is convention, not concept.
+### Why not just diff the MP4 file to test a demo?
+Because an MP4 is the worst possible golden. Two encodes of identical footage are never byte-for-byte equal, so a byte diff fails on every run and tests your encoder instead of your product. A per-frame pixel diff swings the other way, firing on font hinting and a one-minute clock tick unless you pin the whole render and set a perceptual threshold. The stable thing to freeze is the demo's resolved behavior, which selectors resolved and where navigation landed, because it is deterministic text that fails only when the flow actually breaks.

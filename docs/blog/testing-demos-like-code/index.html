@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing demos like code: golden files | aidemo</title>
+<meta name="description" content="Golden-file and snapshot testing for product demos: what to freeze as a baseline, how a CI gate blesses intended changes, and why renders must be deterministic.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/testing-demos-like-code/">
+<link rel="alternate" type="text/markdown" href="/blog/testing-demos-like-code/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Testing demos like code: golden files | aidemo">
+<meta property="og:description" content="Golden-file and snapshot testing for product demos: what to freeze as a baseline, how a CI gate blesses intended changes, and why renders must be deterministic.">
+<meta property="og:url" content="https://aidemo.top/blog/testing-demos-like-code/">
+<meta property="og:image" content="https://aidemo.top/blog/images/testing-demos-like-code-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Testing demos like code: golden files | aidemo">
+<meta name="twitter:description" content="Golden-file and snapshot testing for product demos: what to freeze as a baseline, how a CI gate blesses intended changes, and why renders must be deterministic.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/testing-demos-like-code-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Testing demos like code: golden files and drift gates",
+  "description": "Golden-file and snapshot testing for product demos: what to freeze as a baseline, how a CI gate blesses intended changes, and why renders must be deterministic.",
+  "image": [
+    "https://aidemo.top/blog/images/testing-demos-like-code-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/testing-demos-like-code/"
+  },
+  "wordCount": 2034,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "ApprovalTests — approval testing: snapshot the results and confirm they have not changed",
+      "url": "https://approvaltests.com/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Jest — Snapshot Testing (a mismatch fails the run; best-practice against blindly regenerating)",
+      "url": "https://jestjs.io/docs/snapshot-testing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Jest — CLI reference (--ci fails on new snapshots; --updateSnapshot / -u)",
+      "url": "https://jestjs.io/docs/cli"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Visual comparisons (toHaveScreenshot, baseline storage, environment consistency)",
+      "url": "https://playwright.dev/docs/test-snapshots"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Test CLI (--update-snapshots modes: all / changed / missing / none)",
+      "url": "https://playwright.dev/docs/test-cli"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Charmbracelet vhs — terminal recordings and golden-file integration testing",
+      "url": "https://github.com/charmbracelet/vhs"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Testing demos like code: golden files and drift gates",
+      "item": "https://aidemo.top/blog/testing-demos-like-code/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is golden file testing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Golden file testing captures the output of a run once, commits that output as the approved reference (the golden file), and fails a later run whose output differs from it. It is the same pattern as approval testing and Jest-style snapshot testing: the assertion is not a hand-written expectation but a whole recorded output you agreed was correct. For a product demo the golden can be the resolved action-spec, a set of still frames, or a screenshot, and the diff tells you the product changed under the demo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is golden file testing different from snapshot testing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They are the same mechanism under two names, with a nuance of scale and culture. \"Golden file\" comes from systems and CLI testing, where the reference is often a sizeable file on disk updated with an explicit -update flag; \"snapshot testing\" is the name Jest popularized for inline or co-located references in unit tests. Both capture output, commit it, diff against it, and require a deliberate update to change the baseline. Any difference is convention, not concept."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just diff the MP4 file to test a demo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because an MP4 is the worst possible golden. Two encodes of identical footage are never byte-for-byte equal, so a byte diff fails on every run and tests your encoder instead of your product. A per-frame pixel diff swings the other way, firing on font hinting and a one-minute clock tick unless you pin the whole render and set a perceptual threshold. The stable thing to freeze is the demo's resolved behavior, which selectors resolved and where navigation landed, because it is deterministic text that fails only when the flow actually breaks."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Testing demos like code: golden files and drift gates</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Testing demos like code: golden files and drift gates</h1>
+        <p class="article-dek">Your code has a test suite; the demo video of it has a filename and a vibe. Golden-file testing closes that gap, once you pick the right layer to freeze.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-line-between-a-demo-and-a-regression-test-is-one-committed-file">The line between a demo and a regression test is one committed file</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#golden-master-approval-snapshot-one-pattern-wearing-four-names">Golden master, approval, snapshot: one pattern wearing four names</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-exactly-do-you-golden-five-candidate-baselines-for-one-demo">What exactly do you golden? Five candidate baselines for one demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-rubber-stamp-not-the-diff-is-the-failure-mode">The rubber stamp, not the diff, is the failure mode</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-golden-only-holds-if-the-render-is-boring">A golden only holds if the render is boring</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/testing-demos-like-code-800.webp" srcset="/blog/images/testing-demos-like-code-400.webp 400w, /blog/images/testing-demos-like-code-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A polished brass calibration weight resting in a felt-lined case slot"><figcaption>A calibration weight is only trusted because someone once certified it against a standard; a demo baseline is worth exactly as much as the review that blesses each change to it.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A demo becomes a regression test the moment it has a committed golden to fail against, the same pattern behind Jest snapshots, Playwright toHaveScreenshot, and vhs terminal tapes.</li>
+    <li>Pick the golden layer: freeze the resolved action-spec (deterministic text that diffs in a PR), still-frame key states, and never byte-diff the MP4, whose two encodes never match.</li>
+    <li>The failure mode is the rubber stamp, not the diff: Jest's --ci flag refuses to auto-write a new snapshot in CI (since v20), forcing a human to bless changes with --updateSnapshot.</li>
+    <li>A behavior golden dodges the determinism tax: being timing- and paint-free, it holds across machines with no threshold, unlike a pixel golden that needs pinned fonts, clock, and DPR.</li>
+    <li>Two-tier gate: a fast behavior golden hard-fails the merge on a broken flow; slower still/pixel goldens open a review. aidemo ships the behavior half as probe --golden (browser-only).</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-line-between-a-demo-and-a-regression-test-is-one-committed-file">The line between a demo and a regression test is one committed file<a class="hanchor" href="#the-line-between-a-demo-and-a-regression-test-is-one-committed-file" aria-label="Link to section: The line between a demo and a regression test is one committed file">#</a></h2>
+<p>The demo video is usually the least-tested thing a team ships. The code behind the screen has unit tests, integration tests, and a CI gate; the recording of that same screen has a filename and a vibe. That gap is not laziness. A captured performance has nothing to test against: no baseline, no assertion, no way to say &quot;this is what it should look like&quot; other than a person watching all ninety seconds and deciding it seems fine.</p>
+<p>Turn the demo into <a href="/blog/demos-as-code/">a committed spec instead of a captured performance</a> and the gap closes in one move. Once a demo is text that renders footage, a storyboard naming the pages to visit, the elements to click, and the lines to narrate, it can carry the thing a test needs and a recording never had: a recorded expectation to fail against. That expectation is a golden file. Commit it, re-render on every change, diff the new run against it, and the demo is now a regression test that happens to double as marketing footage.</p>
+<p>None of this is new. It is the oldest pattern in output testing, and every piece already ships in tools developers touch daily. The work is knowing which flavor applies, what to freeze, and how to stop the baseline from decaying into a rubber stamp.</p>
+<h2 id="golden-master-approval-snapshot-one-pattern-wearing-four-names">Golden master, approval, snapshot: one pattern wearing four names<a class="hanchor" href="#golden-master-approval-snapshot-one-pattern-wearing-four-names" aria-label="Link to section: Golden master, approval, snapshot: one pattern wearing four names">#</a></h2>
+<p>Pinning a reference output and failing on any deviation has been rediscovered enough times to have a naming problem. Golden master testing, characterization testing, approval testing, snapshot testing: one mechanism seen from four angles, differing mostly in who reviews the baseline and how it updates.</p>
+<p>The shared shape is four steps. Capture the output of a run, commit it as the approved baseline, diff every later run against it, and require a human to bless a changed baseline before it counts. ApprovalTests, which carries the approval-testing name across seventeen languages, puts the whole loop in one line: it works &quot;by taking a snapshot of the results, and confirming that they have not changed,&quot; with a reviewer validating any change before it becomes the new baseline<sup class="article-cite"><a href="#src-1" title="ApprovalTests — approval testing: snapshot the results and confirm they have not changed">1</a></sup>. Jest carried the same idea into the JavaScript mainstream as snapshot testing, where a reference is stored beside the test and a mismatch fails the run unless you deliberately re-record it<sup class="article-cite"><a href="#src-2" title="Jest — Snapshot Testing (a mismatch fails the run; best-practice against blindly regenerating)">2</a></sup>.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it freezes</th>
+<th>How you bless a change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ApprovalTests</td>
+<td>any serialized program output</td>
+<td>approve the received file as the approved file</td>
+</tr>
+<tr>
+<td>Jest snapshots</td>
+<td>a rendered tree or any value</td>
+<td><code>jest --updateSnapshot</code> / <code>-u</code></td>
+</tr>
+<tr>
+<td>Playwright <code>toHaveScreenshot</code></td>
+<td>a PNG of a page or element</td>
+<td><code>--update-snapshots</code> (all / changed / missing / none)</td>
+</tr>
+<tr>
+<td>vhs (terminal)</td>
+<td>a tape&#39;s <code>.txt</code> or <code>.ascii</code> output</td>
+<td>re-run the tape, commit the new text</td>
+</tr>
+</tbody></table></div>
+<p>The terminal world made this ordinary for demos first. vhs renders a <code>.tape</code> file into a terminal recording and can emit the same run as plain text, which teams commit and diff in CI to catch an unintended change in a CLI&#39;s output<sup class="article-cite"><a href="#src-6" title="Charmbracelet vhs — terminal recordings and golden-file integration testing">6</a></sup>. A browser product demo is the harder, more valuable version of that: the recording that sells the product is, in the same run, the check that proves the product still does what the recording claims.</p>
+<h2 id="what-exactly-do-you-golden-five-candidate-baselines-for-one-demo">What exactly do you golden? Five candidate baselines for one demo<a class="hanchor" href="#what-exactly-do-you-golden-five-candidate-baselines-for-one-demo" aria-label="Link to section: What exactly do you golden? Five candidate baselines for one demo">#</a></h2>
+<p>Here is where &quot;test the video&quot; instincts go wrong. A demo is not one output; it is a stack of them, and each layer makes a different golden with a different stability, review cost, and blind spot. Choosing the layer is the whole decision, and the obvious pick, the finished video file, is the worst one on the board.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Golden layer</th>
+<th>Deterministic?</th>
+<th>Reviewable in a PR?</th>
+<th>Catches</th>
+<th>Misses</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Storyboard spec (text)</td>
+<td>fully</td>
+<td>yes, a text diff</td>
+<td>edits you made to the script</td>
+<td>anything about the live product</td>
+</tr>
+<tr>
+<td>Resolved action-spec (which selectors resolved, where navigation landed)</td>
+<td>yes, if timing is normalized out</td>
+<td>yes, a small JSON diff</td>
+<td>a moved, renamed, or removed control; a broken navigation</td>
+<td>anything that resolves but looks wrong</td>
+</tr>
+<tr>
+<td>Named still frames (a PNG per key state)</td>
+<td>mostly, with pinned rendering</td>
+<td>yes, an image diff over a few frames</td>
+<td>a visibly wrong key screen</td>
+<td>the states between the stills; motion</td>
+</tr>
+<tr>
+<td>Per-frame pixel diff</td>
+<td>no, without heavy pinning</td>
+<td>poorly, thousands of frames</td>
+<td>every visible change</td>
+<td>nothing, which is the problem</td>
+</tr>
+<tr>
+<td>Final MP4 bytes</td>
+<td>never</td>
+<td>no, a binary blob</td>
+<td>re-encode noise, nothing useful</td>
+<td>the actual product</td>
+</tr>
+</tbody></table></div>
+<p>Read the table bottom-up and the folk wisdom inverts. Byte-diffing the MP4 fails on every run because two encodes of identical footage are never bit-for-bit equal, so it tests the encoder, not the product. Pixel-diffing every frame is the noisiest check possible, tripping on a font-hinting change or a ticking clock; it belongs behind a tuned perceptual threshold, which is <a href="/blog/detecting-ui-drift/">its own tunable-threshold problem</a> and <a href="/blog/visual-regression-testing-tools/">its own choice of diff engine</a>, not a raw compare.</p>
+<p>The sweet spot is the second row. A demo&#39;s most stable, most reviewable golden is not its pixels but its resolved behavior: the ordered list of which selectors resolved to a live element and where each navigation actually landed. That artifact is small, it is text, it diffs cleanly in a pull request, and it fails precisely when the flow breaks while staying silent when only the paint changes. Our own engine, aidemo (ours, and browser-only: an agent writes the storyboard, and there is no drag-and-drop timeline), freezes exactly this layer. <code>aidemo probe --update-golden</code> writes a normalized projection of a dry run to <code>golden/probe.json</code>, and <code>aidemo probe --golden</code> re-runs it and exits non-zero on any drift, printing a field-level diff such as <code>$.scenes[2].actions[0].ok: expected true, got false</code>. The projection is timing-free by construction, recording the operation, the resolved target, whether an element was found, and a navigation&#39;s final URL, and nothing with a clock in it, so a mismatch means a real change in the flow rather than jitter. The finished video and the regression check come out of one run.</p>
+<h2 id="the-rubber-stamp-not-the-diff-is-the-failure-mode">The rubber stamp, not the diff, is the failure mode<a class="hanchor" href="#the-rubber-stamp-not-the-diff-is-the-failure-mode" aria-label="Link to section: The rubber stamp, not the diff, is the failure mode">#</a></h2>
+<p>Every team that adopts snapshot testing meets its dark side within a month. A test fails, someone runs the update flag without reading the diff, the new and wrong output becomes the blessed baseline, and the test now guards a bug. The diff worked. The gate did not. Jest&#39;s own best-practices name the enemy: the goal is to &quot;fight against the habit of regenerating snapshots when test suites fail instead of examining the root causes of their failure&quot;<sup class="article-cite"><a href="#src-2" title="Jest — Snapshot Testing (a mismatch fails the run; best-practice against blindly regenerating)">2</a></sup>.</p>
+<p>Two mechanisms keep a golden gate honest, and both port straight to demo media. The first separates &quot;a change happened&quot; from &quot;the change is approved.&quot; Blessing a golden has to be a deliberate act, committed in the same pull request as the change that caused it, so a reviewer sees the button rename and the golden&#39;s matching update side by side and can rule on whether they belong together. Playwright bakes the intent into its update modes: <code>--update-snapshots</code> accepts <code>all</code>, <code>changed</code>, <code>missing</code>, or <code>none</code>, so you can add only genuinely new baselines without silently overwriting the ones you already trust<sup class="article-cite"><a href="#src-5" title="Playwright — Test CLI (--update-snapshots modes: all / changed / missing / none)">5</a></sup>. That is the approval reviewer of ApprovalTests wearing a CLI flag.</p>
+<p>The second mechanism makes CI refuse to write a baseline at all. Locally, a missing snapshot is helpfully auto-created; in CI, auto-creation means any new, unreviewed output passes forever. Jest closes this since version 20: run with <code>--ci</code> and, in its words, &quot;instead of the regular behavior of storing a new snapshot automatically, it will fail the test and require Jest to be run with <code>--updateSnapshot</code>&quot;<sup class="article-cite"><a href="#src-3" title="Jest — CLI reference (--ci fails on new snapshots; --updateSnapshot / -u)">3</a></sup>. The rule generalizes to any demo gate: locally, blessing a change is a command; in CI, an unblessed change is a red build. A golden you can update without a human reading the diff is not a test, just a slow way to commit whatever the code happens to do today.</p>
+<h2 id="a-golden-only-holds-if-the-render-is-boring">A golden only holds if the render is boring<a class="hanchor" href="#a-golden-only-holds-if-the-render-is-boring" aria-label="Link to section: A golden only holds if the render is boring">#</a></h2>
+<p>A golden file is a bet that the same input yields the same output. For a terminal that bet is nearly free; for a browser it is the whole engineering problem, because animations, web fonts, network timing, and device-pixel ratio all pull two runs of the same flow into two different sets of frames. Without <a href="/blog/deterministic-browser-automation-for-video/">deterministic browser automation</a>, a pinned viewport and DPR, disabled animations, a frozen clock, the network taken out of the shot, a pixel or still golden flakes on noise, and a flaky gate is one somebody quietly disables. Getting the render reproducible enough that the golden actually holds is the prerequisite, not the polish.</p>
+<p>The layer table hides a shortcut, though. The reason to reach for a behavior golden first is that it sidesteps most of the determinism tax. A pixel baseline needs every rendering variable pinned before it will hold; a resolved-action-spec baseline is timing-free and paint-free by design, so it holds across machines and browser versions with no threshold to tune, and it still catches the one failure that actually ruins a demo, a click that lands where the button used to be. So assert the flow with a fast behavior golden that hard-fails the merge, then, for visual coverage, add a handful of still-frame goldens behind a perceptual threshold that open a review rather than block it. That two-tier gate rides inside the <a href="/blog/demo-videos-in-ci/">CI job that already re-renders the demo when a commit changes the UI</a>: the cheap check runs on every push, the expensive one on a schedule, and the demo stops being the one artifact nobody tests.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://approvaltests.com/" rel="noopener">ApprovalTests — approval testing: snapshot the results and confirm they have not changed</a></li>
+<li id="src-2"><a href="https://jestjs.io/docs/snapshot-testing" rel="noopener">Jest — Snapshot Testing (a mismatch fails the run; best-practice against blindly regenerating)</a></li>
+<li id="src-3"><a href="https://jestjs.io/docs/cli" rel="noopener">Jest — CLI reference (--ci fails on new snapshots; --updateSnapshot / -u)</a></li>
+<li id="src-4"><a href="https://playwright.dev/docs/test-snapshots" rel="noopener">Playwright — Visual comparisons (toHaveScreenshot, baseline storage, environment consistency)</a></li>
+<li id="src-5"><a href="https://playwright.dev/docs/test-cli" rel="noopener">Playwright — Test CLI (--update-snapshots modes: all / changed / missing / none)</a></li>
+<li id="src-6"><a href="https://github.com/charmbracelet/vhs" rel="noopener">Charmbracelet vhs — terminal recordings and golden-file integration testing</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-golden-file-testing" class="blog-faq-q">What is golden file testing?<a class="hanchor" href="#what-is-golden-file-testing" aria-label="Link to section: What is golden file testing?">#</a></h3>
+<p>Golden file testing captures the output of a run once, commits that output as the approved reference (the golden file), and fails a later run whose output differs from it. It is the same pattern as approval testing and Jest-style snapshot testing: the assertion is not a hand-written expectation but a whole recorded output you agreed was correct. For a product demo the golden can be the resolved action-spec, a set of still frames, or a screenshot, and the diff tells you the product changed under the demo.</p>
+<h3 id="how-is-golden-file-testing-different-from-snapshot-testing" class="blog-faq-q">How is golden file testing different from snapshot testing?<a class="hanchor" href="#how-is-golden-file-testing-different-from-snapshot-testing" aria-label="Link to section: How is golden file testing different from snapshot testing?">#</a></h3>
+<p>They are the same mechanism under two names, with a nuance of scale and culture. &quot;Golden file&quot; comes from systems and CLI testing, where the reference is often a sizeable file on disk updated with an explicit <code>-update</code> flag; &quot;snapshot testing&quot; is the name Jest popularized for inline or co-located references in unit tests. Both capture output, commit it, diff against it, and require a deliberate update to change the baseline. Any difference is convention, not concept.</p>
+<h3 id="why-not-just-diff-the-mp4-file-to-test-a-demo" class="blog-faq-q">Why not just diff the MP4 file to test a demo?<a class="hanchor" href="#why-not-just-diff-the-mp4-file-to-test-a-demo" aria-label="Link to section: Why not just diff the MP4 file to test a demo?">#</a></h3>
+<p>Because an MP4 is the worst possible golden. Two encodes of identical footage are never byte-for-byte equal, so a byte diff fails on every run and tests your encoder instead of your product. A per-frame pixel diff swings the other way, firing on font hinting and a one-minute clock tick unless you pin the whole render and set a perceptual threshold. The stable thing to freeze is the demo&#39;s resolved behavior, which selectors resolved and where navigation landed, because it is deterministic text that fails only when the flow actually breaks.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">golden files</span>
+        <span class="article-tag">snapshot testing</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">regression testing</span>
+        <span class="article-tag">ci</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/deterministic-browser-automation-for-video-400.webp" srcset="/blog/images/deterministic-browser-automation-for-video-400.webp 400w, /blog/images/deterministic-browser-automation-for-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Two stacked filmstrips of one demo flow, the pinned one identical frame for frame, the unpinned one drifting on a spinner, a font swap, and a layout column"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-line-between-a-demo-and-a-regression-test-is-one-committed-file">The line between a demo and a regression test is one committed file</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#golden-master-approval-snapshot-one-pattern-wearing-four-names">Golden master, approval, snapshot: one pattern wearing four names</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-exactly-do-you-golden-five-candidate-baselines-for-one-demo">What exactly do you golden? Five candidate baselines for one demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-rubber-stamp-not-the-diff-is-the-failure-mode">The rubber stamp, not the diff, is the failure mode</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-golden-only-holds-if-the-render-is-boring">A golden only holds if the render is boring</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

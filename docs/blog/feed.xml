@@ -50,6 +50,13 @@
       <description>The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</description>
     </item>
     <item>
+      <title>B2B vs PLG demo videos: seven axes that change the cut</title>
+      <link>https://aidemo.top/blog/b2b-demo-video/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/b2b-demo-video/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>The same product needs two demos: one for a self-serve user, one for a buying committee. Seven axes that decide where each cut lands.</description>
+    </item>
+    <item>
       <title>Best frame rate for screen recording: 30 vs 60 fps by content</title>
       <link>https://aidemo.top/blog/best-frame-rate-for-screen-recording/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/best-frame-rate-for-screen-recording/</guid>
@@ -209,13 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/interactive-demo-vs-video-demo/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.</description>
-    </item>
-    <item>
-      <title>Keeping a tutorial video library current at scale</title>
-      <link>https://aidemo.top/blog/keeping-tutorial-libraries-current/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/keeping-tutorial-libraries-current/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</description>
     </item>
   </channel>
 </rss>

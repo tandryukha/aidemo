@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen recording aspect ratio: 16:9 vs 9:16 | aidemo</title>
+<meta name="description" content="Screen recording aspect ratios: 16:9, 9:16, 1:1, and 4:5 with pixel dimensions, why black bars appear, and how to record vertical without cropping a desktop.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/screen-recording-aspect-ratio/">
+<link rel="alternate" type="text/markdown" href="/blog/screen-recording-aspect-ratio/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Screen recording aspect ratio: 16:9 vs 9:16 | aidemo">
+<meta property="og:description" content="Screen recording aspect ratios: 16:9, 9:16, 1:1, and 4:5 with pixel dimensions, why black bars appear, and how to record vertical without cropping a desktop.">
+<meta property="og:url" content="https://aidemo.top/blog/screen-recording-aspect-ratio/">
+<meta property="og:image" content="https://aidemo.top/blog/images/screen-recording-aspect-ratio-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Screen recording aspect ratio: 16:9 vs 9:16 | aidemo">
+<meta name="twitter:description" content="Screen recording aspect ratios: 16:9, 9:16, 1:1, and 4:5 with pixel dimensions, why black bars appear, and how to record vertical without cropping a desktop.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/screen-recording-aspect-ratio-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Screen recording aspect ratio: 16:9, 9:16, and the black-bar problem",
+  "description": "Screen recording aspect ratios: 16:9, 9:16, 1:1, and 4:5 with pixel dimensions, why black bars appear, and how to record vertical without cropping a desktop.",
+  "image": [
+    "https://aidemo.top/blog/images/screen-recording-aspect-ratio-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/screen-recording-aspect-ratio/"
+  },
+  "wordCount": 1904,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube — Recommended upload encoding settings (16:9 standard aspect)",
+      "url": "https://support.google.com/youtube/answer/1722171"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube — Create Shorts / upload vertical video (up to 1080p, 3 minutes)",
+      "url": "https://support.google.com/youtube/answer/10059070"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "LinkedIn — Video ad specifications (accepts 16:9, 1:1, 4:5, 9:16)",
+      "url": "https://www.linkedin.com/help/lms/answer/a424737"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Meta — Ads Guide, video (feed video at 4:5)",
+      "url": "https://www.facebook.com/business/ads-guide/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wikipedia — Letterboxing and pillarboxing",
+      "url": "https://en.wikipedia.org/wiki/Letterboxing_%28filming%29"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — horizontal and vertical output, export presets",
+      "url": "https://screen.studio/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Screen recording aspect ratio: 16:9, 9:16, and the black-bar problem",
+      "item": "https://aidemo.top/blog/screen-recording-aspect-ratio/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I make a vertical 9:16 video from a landscape screen recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Don't crop the landscape capture; a 9:16 slice of a 16:9 desktop keeps a narrow vertical strip of a horizontal layout, usually a sidebar or half a form. Set the capture frame to the target shape first: for a web UI, resize the browser viewport to 1080 x 1920 and record that, so a responsive app reflows into its mobile layout and fills the frame with real content. If the UI cannot reflow, compose the vertical frame on purpose with a background or a device mockup rather than leaving the bars black."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my screen recording have black bars?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Black bars mean the video's aspect ratio does not match the frame it is playing in, so the player pads the gap. Bars on the top and bottom (letterboxing) mean the source is wider than the target, such as a 16:9 recording in a 9:16 feed; bars on the left and right (pillarboxing) mean it is narrower, such as a vertical clip on 16:9 YouTube. The fix is to record at the destination's shape rather than pad or crop afterward."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What aspect ratio should a screen recording be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Match it to where the video plays: 16:9 (1920 x 1080) for YouTube, a landing hero, or docs; 9:16 (1080 x 1920) for Reels, Shorts, TikTok, and Stories; 1:1 (1080 x 1080) or 4:5 (1080 x 1350) for a feed post. LinkedIn accepts all four, so a 1:1 or 4:5 cut is the safe default there. Decide the shape before you record, because changing it afterward costs a lossy crop or letterbox."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Screen recording aspect ratio: 16:9, 9:16, and the black-bar problem</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Screen recording aspect ratio: 16:9, 9:16, and the black-bar problem</h1>
+        <p class="article-dek">Black bars are an aspect mismatch, not a look. The destination-to-aspect table with real pixels, and how to get a clean vertical cut from a landscape UI.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#black-bars-are-an-aspect-mismatch-not-a-style-choice">Black bars are an aspect mismatch, not a style choice</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-destination-to-aspect-table-with-the-pixels-and-not-just-the-ratio">A destination-to-aspect table, with the pixels and not just the ratio</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#letterbox-or-crop-the-two-lossy-fixes-applied-after-the-fact">Letterbox or crop: the two lossy fixes, applied after the fact</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#record-a-narrow-viewport-dont-crop-a-cropped-desktop">Record a narrow viewport; don't crop a cropped desktop</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-a-responsive-ui-hands-you-a-vertical-cut-for-free">Why a responsive UI hands you a vertical cut for free</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#aspect-becomes-a-render-setting-when-the-viewport-is-a-value">Aspect becomes a render setting when the viewport is a value</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/screen-recording-aspect-ratio-800.webp" srcset="/blog/images/screen-recording-aspect-ratio-400.webp 400w, /blog/images/screen-recording-aspect-ratio-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A set of matte-clay tangram puzzle pieces assembled into a tall, narrow rectangle"><figcaption>The same pieces fit a wide outline or a tall one; the trick is to rearrange them to the shape, not to saw off whatever sticks past the frame.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Black bars mean an aspect mismatch: a source wider than the frame letterboxes (bars top and bottom), a narrower source pillarboxes (bars left and right).</li>
+    <li>Deliver at 1080-class pixels per ratio: 16:9 is 1920x1080, 9:16 is 1080x1920, 1:1 is 1080x1080, 4:5 is 1080x1350; halve for 720p, double for 4K.</li>
+    <li>Cropping 16:9 to 9:16 keeps a narrow vertical slice of a horizontal layout, usually a sidebar or half a form; record a 1080x1920 viewport so there is nothing to crop.</li>
+    <li>A responsive web app reflows at a phone-width viewport into its mobile layout, which fills a 9:16 frame with real content, no bars and no crop.</li>
+    <li>When a fixed-width desktop app won't reflow, compose the vertical frame with a background or device mockup, and keep the action out of the bottom sixth the feed UI covers.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="black-bars-are-an-aspect-mismatch-not-a-style-choice">Black bars are an aspect mismatch, not a style choice<a class="hanchor" href="#black-bars-are-an-aspect-mismatch-not-a-style-choice" aria-label="Link to section: Black bars are an aspect mismatch, not a style choice">#</a></h2>
+<p>Those black bands around a video are not a look. They are a receipt for a decision made earlier: the frame you captured is a different shape than the frame you are delivering into, and the player padded the difference. The shape of a video is its aspect ratio, its width-to-height proportion, and at the destination it is a hard constraint. A YouTube player is 16:9. A Reels slot is 9:16. Hand either one a video of the wrong proportion and it does one of three things, all of them yours to prevent: pad it with bars, crop it, or stretch it into distortion.</p>
+<p>The direction of the bars tells you exactly which way the shapes disagreed, and the two cases have proper names. When the source is wider than the target frame, the bars run along the top and bottom; this is letterboxing, &quot;the practice of transferring film shot in a widescreen aspect ratio to standard-width video formats while preserving the film&#39;s original aspect ratio&quot;<sup class="article-cite"><a href="#src-5" title="Wikipedia — Letterboxing and pillarboxing">5</a></sup>. When the source is narrower than the target, the bars run down the left and right instead; that is pillarboxing, the same fit problem rotated ninety degrees. A 16:9 desktop recording dropped into a 9:16 feed letterboxes; a 9:16 phone clip uploaded to a 16:9 YouTube frame pillarboxes. Both are the identical error, a proportion fixed at capture that did not match the one required at delivery. This is <a href="/blog/how-to-record-your-screen-in-high-quality/">the aspect layer of the capture-settings checklist</a>, and its one rule is that the shape is far cheaper to get right before you record than to salvage afterward.</p>
+<h2 id="a-destination-to-aspect-table-with-the-pixels-and-not-just-the-ratio">A destination-to-aspect table, with the pixels and not just the ratio<a class="hanchor" href="#a-destination-to-aspect-table-with-the-pixels-and-not-just-the-ratio" aria-label="Link to section: A destination-to-aspect table, with the pixels and not just the ratio">#</a></h2>
+<p>Most aspect-ratio guides stop at the ratio, and the ratio alone will not let you size a capture window. Here is each common destination with the proportion it demands and the pixel dimensions to render at, taking 1080 as the short side. Halve every number for a 720p deliverable; double it for 4K.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Destination</th>
+<th>Aspect</th>
+<th>Deliver at (1080-class)</th>
+<th>The spec it comes from</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>YouTube, landing hero, docs clip, sales send</td>
+<td>16:9</td>
+<td>1920 x 1080</td>
+<td>YouTube&#39;s standard is 16:9<sup class="article-cite"><a href="#src-1" title="YouTube — Recommended upload encoding settings (16:9 standard aspect)">1</a></sup></td>
+</tr>
+<tr>
+<td>Shorts, Reels, TikTok, Stories</td>
+<td>9:16</td>
+<td>1080 x 1920</td>
+<td>Shorts are vertical, up to 1080p<sup class="article-cite"><a href="#src-2" title="YouTube — Create Shorts / upload vertical video (up to 1080p, 3 minutes)">2</a></sup></td>
+</tr>
+<tr>
+<td>LinkedIn or X feed, square post</td>
+<td>1:1</td>
+<td>1080 x 1080</td>
+<td>LinkedIn accepts 1:1<sup class="article-cite"><a href="#src-3" title="LinkedIn — Video ad specifications (accepts 16:9, 1:1, 4:5, 9:16)">3</a></sup></td>
+</tr>
+<tr>
+<td>Instagram or Facebook feed, tallest allowed</td>
+<td>4:5</td>
+<td>1080 x 1350</td>
+<td>Meta feed video is 4:5<sup class="article-cite"><a href="#src-4" title="Meta — Ads Guide, video (feed video at 4:5)">4</a></sup></td>
+</tr>
+</tbody></table></div>
+<p>The pixel dimensions follow from the ratio by arithmetic, not from any one vendor: 9:16 at 1080 wide is 1920 tall, 4:5 at 1080 wide is 1350 tall, 1:1 is square at 1080. Two rows earn a footnote. LinkedIn is the shape omnivore, accepting 16:9, 1:1, 4:5, and 9:16 and recommending fifteen to thirty seconds so a clip clears every feed placement<sup class="article-cite"><a href="#src-3" title="LinkedIn — Video ad specifications (accepts 16:9, 1:1, 4:5, 9:16)">3</a></sup>; on a professional feed, a 1:1 or 4:5 cut reads well in-column without committing to full vertical. And 4:5 is the tallest a Meta feed will show before it wants a dedicated Reel, which makes it the efficient middle ground for a mostly-16:9 workflow that needs one taller cut without a second recording. Mobile app-store previews are a separate fixed target, an exact 886 x 1920 for the current iPhone class, covered in <a href="/blog/app-preview-video/">the app-preview spec</a>.</p>
+<h2 id="letterbox-or-crop-the-two-lossy-fixes-applied-after-the-fact">Letterbox or crop: the two lossy fixes, applied after the fact<a class="hanchor" href="#letterbox-or-crop-the-two-lossy-fixes-applied-after-the-fact" aria-label="Link to section: Letterbox or crop: the two lossy fixes, applied after the fact">#</a></h2>
+<p>Once a recording exists at the wrong shape, there are exactly two honest ways to change it, and each charges a fee. Letterbox (or pillarbox) keeps every pixel and pays in wasted frame: the content shrinks into a band and the remainder is padding. Crop keeps the frame full and pays in lost content: you fill the target and throw away whatever fell outside it. The third move people reach for, stretching the source to fit, is not a fix at all; it distorts every proportion in the interface and reads as broken on sight, so leave it off the table entirely.</p>
+<p>Which fee stings more depends on how far apart the two shapes are, and the arithmetic of what a 16:9-to-9:16 reframe costs in each direction is <a href="/blog/professional-screen-recordings/">worked out in the polish breakdown</a> rather than repeated here. The short version: a landscape-to-vertical reframe is the expensive one whichever way you take it. Letterbox it and the action sits in a thin strip with most of the frame dark. Crop it and you keep a narrow vertical slice of a horizontal layout, which for a desktop UI is usually a sidebar or half a form instead of the thing you set out to show. No reframe from wide to tall keeps both all the pixels and all the content, which is exactly why the reframe is the wrong place to solve the problem.</p>
+<h2 id="record-a-narrow-viewport-dont-crop-a-cropped-desktop">Record a narrow viewport; don&#39;t crop a cropped desktop<a class="hanchor" href="#record-a-narrow-viewport-dont-crop-a-cropped-desktop" aria-label="Link to section: Record a narrow viewport; don't crop a cropped desktop">#</a></h2>
+<p>The desktop you record is 16:9 because the monitor is, and a screen recorder captures whatever surface you point it at, in that surface&#39;s shape. Cropping that capture to vertical means slicing a tall, thin strip out of a wide layout, and a wide layout puts almost nothing useful in a tall, thin strip. The escape is to stop treating aspect as an export setting and treat it as a capture setting: make the recorded frame the delivery shape before a single frame is written.</p>
+<p>For anything with a web surface, that is a window size, not a crop. Set the browser viewport to the target dimensions, 1080 x 1920 for a vertical cut, and record that. The capture is now natively 9:16, full of whatever the app draws at that size, with no bars to pad and no strip to discard. This is the same discipline as <a href="/blog/best-resolution-for-screen-recording/">sizing the capture to where the video will play rather than to your monitor</a>, applied to shape instead of to pixel count: you choose the frame, then feed it, rather than capturing something arbitrary and rescuing it later.</p>
+<h2 id="why-a-responsive-ui-hands-you-a-vertical-cut-for-free">Why a responsive UI hands you a vertical cut for free<a class="hanchor" href="#why-a-responsive-ui-hands-you-a-vertical-cut-for-free" aria-label="Link to section: Why a responsive UI hands you a vertical cut for free">#</a></h2>
+<p>Shrinking a browser to a phone-width viewport does more than narrow the desktop layout. A responsive web app reflows: the multi-column dashboard collapses into a single stacked column, the top navigation folds into a menu button, side panels drop below the content. That mobile layout is built to fill a tall, narrow screen with real content, which is precisely the frame a 9:16 cut needs. Capture a responsive app at a 1080 x 1920 viewport and you are not cropping a desktop, you are recording the product&#39;s own vertical layout, the one it already ships to phones.</p>
+<p>The honest exception is a UI that will not reflow. A fixed-width desktop-only app, or a web app with a minimum width that throws a horizontal scrollbar instead of a mobile layout, gives you no vertical arrangement to capture; shrinking its window merely clips it. For those you are back to the two lossy fixes, or to composing the vertical frame on purpose: place the landscape capture in the center and fill the rest with a branded background, a device mockup, or a caption band, so the frame reads as designed rather than padded. Polished recorders lean on this; Screen Studio, for one, offers horizontal and vertical output with export presets that adjust the composition automatically<sup class="article-cite"><a href="#src-6" title="Screen Studio — horizontal and vertical output, export presets">6</a></sup>. One more thing to leave room for in any vertical cut: the feed player draws its own controls, caption, and buttons over the lower portion and one edge of the frame, so keep the key action out of the bottom sixth where the platform&#39;s UI will sit on top of it.</p>
+<h2 id="aspect-becomes-a-render-setting-when-the-viewport-is-a-value">Aspect becomes a render setting when the viewport is a value<a class="hanchor" href="#aspect-becomes-a-render-setting-when-the-viewport-is-a-value" aria-label="Link to section: Aspect becomes a render setting when the viewport is a value">#</a></h2>
+<p>Notice what changed once the frame is decided at capture. Aspect ratio stopped being an irreversible property of the footage and became an input you can name. If the capture window is a value, one flow can render into 16:9 for the landing page and 1080 x 1920 for the Shorts cut without a second take, because the difference between them is a number rather than a reshoot. That is the whole reason <a href="/blog/social-cuts-for-product-launch/">distribution wants one recording cut for every channel, not one shoot per channel</a>: the shapes are re-renders of the same source.</p>
+<p>Our own engine, aidemo, is built on that idea: the viewport width, height, and device pixel ratio live in a storyboard, so the same flow renders at 1920 x 1080 or at 1080 x 1920 by changing the output size, and a responsive app reflows into the narrow viewport at capture time instead of getting cropped. The limits are worth stating plainly. aidemo drives a browser and nothing else, so it will not reshape a native desktop or mobile binary; its storyboard is written as code by an agent, not laid out on a visual timeline; and for a single throwaway vertical clip, a point-and-click recorder with a crop box beats writing a spec. What the spec buys is the shape you chose on purpose, reproduced at every aspect your channels ask for, without recording the flow again for each one.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://support.google.com/youtube/answer/1722171" rel="noopener">YouTube — Recommended upload encoding settings (16:9 standard aspect)</a></li>
+<li id="src-2"><a href="https://support.google.com/youtube/answer/10059070" rel="noopener">YouTube — Create Shorts / upload vertical video (up to 1080p, 3 minutes)</a></li>
+<li id="src-3"><a href="https://www.linkedin.com/help/lms/answer/a424737" rel="noopener">LinkedIn — Video ad specifications (accepts 16:9, 1:1, 4:5, 9:16)</a></li>
+<li id="src-4"><a href="https://www.facebook.com/business/ads-guide/video" rel="noopener">Meta — Ads Guide, video (feed video at 4:5)</a></li>
+<li id="src-5"><a href="https://en.wikipedia.org/wiki/Letterboxing_%28filming%29" rel="noopener">Wikipedia — Letterboxing and pillarboxing</a></li>
+<li id="src-6"><a href="https://screen.studio/" rel="noopener">Screen Studio — horizontal and vertical output, export presets</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-make-a-vertical-916-video-from-a-landscape-screen-recording" class="blog-faq-q">How do I make a vertical 9:16 video from a landscape screen recording?<a class="hanchor" href="#how-do-i-make-a-vertical-916-video-from-a-landscape-screen-recording" aria-label="Link to section: How do I make a vertical 9:16 video from a landscape screen recording?">#</a></h3>
+<p>Don&#39;t crop the landscape capture; a 9:16 slice of a 16:9 desktop keeps a narrow vertical strip of a horizontal layout, usually a sidebar or half a form. Set the capture frame to the target shape first: for a web UI, resize the browser viewport to 1080 x 1920 and record that, so a responsive app reflows into its mobile layout and fills the frame with real content. If the UI cannot reflow, compose the vertical frame on purpose with a background or a device mockup rather than leaving the bars black.</p>
+<h3 id="why-does-my-screen-recording-have-black-bars" class="blog-faq-q">Why does my screen recording have black bars?<a class="hanchor" href="#why-does-my-screen-recording-have-black-bars" aria-label="Link to section: Why does my screen recording have black bars?">#</a></h3>
+<p>Black bars mean the video&#39;s aspect ratio does not match the frame it is playing in, so the player pads the gap. Bars on the top and bottom (letterboxing) mean the source is wider than the target, such as a 16:9 recording in a 9:16 feed; bars on the left and right (pillarboxing) mean it is narrower, such as a vertical clip on 16:9 YouTube. The fix is to record at the destination&#39;s shape rather than pad or crop afterward.</p>
+<h3 id="what-aspect-ratio-should-a-screen-recording-be" class="blog-faq-q">What aspect ratio should a screen recording be?<a class="hanchor" href="#what-aspect-ratio-should-a-screen-recording-be" aria-label="Link to section: What aspect ratio should a screen recording be?">#</a></h3>
+<p>Match it to where the video plays: 16:9 (1920 x 1080) for YouTube, a landing hero, or docs; 9:16 (1080 x 1920) for Reels, Shorts, TikTok, and Stories; 1:1 (1080 x 1080) or 4:5 (1080 x 1350) for a feed post. LinkedIn accepts all four, so a 1:1 or 4:5 cut is the safe default there. Decide the shape before you record, because changing it afterward costs a lossy crop or letterbox.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">aspect ratio</span>
+        <span class="article-tag">vertical video</span>
+        <span class="article-tag">9:16</span>
+        <span class="article-tag">letterbox</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#black-bars-are-an-aspect-mismatch-not-a-style-choice">Black bars are an aspect mismatch, not a style choice</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-destination-to-aspect-table-with-the-pixels-and-not-just-the-ratio">A destination-to-aspect table, with the pixels and not just the ratio</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#letterbox-or-crop-the-two-lossy-fixes-applied-after-the-fact">Letterbox or crop: the two lossy fixes, applied after the fact</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#record-a-narrow-viewport-dont-crop-a-cropped-desktop">Record a narrow viewport; don't crop a cropped desktop</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-a-responsive-ui-hands-you-a-vertical-cut-for-free">Why a responsive UI hands you a vertical cut for free</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#aspect-becomes-a-render-setting-when-the-viewport-is-a-value">Aspect becomes a render setting when the viewport is a value</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
