@@ -17,6 +17,18 @@
     "demos-as-code": {
       "title": "Demos as Code",
       "description": "Treating the demo as a committed artifact: agent-authored storyboards, deterministic browser replay, multi-language and per-prospect renders from one recording."
+    },
+    "screen-recording": {
+      "title": "Screen Recording",
+      "description": "The practical mechanics of a clean screen capture — resolution, framerate, format, cursor, notifications, audio, and doing it on Linux or with no display at all — answered with settings tables instead of vibes."
+    },
+    "video-marketing": {
+      "title": "Video Marketing for Software",
+      "description": "Where a demo video meets distribution: landing pages, email, YouTube, Product Hunt, social, and search — one recording turned into every placement, with the format, length, and metric each channel actually wants."
+    },
+    "video-docs": {
+      "title": "Video Documentation & Tutorials",
+      "description": "Video as a documentation medium: when a clip beats a paragraph, how microvideos and GIFs live in docs sites, and how to keep a tutorial library from lying about the product as the product ships."
     }
   },
   "topics": [
@@ -316,7 +328,7 @@
       ],
       "crossLinks": ["automated-product-demo-videos", "coding-agents-that-make-demo-videos", "deterministic-browser-automation-for-video", "video-as-code-tools"],
       "wave": 2,
-      "productMentionCap": 6
+      "productMentionCap": 4
     },
     {
       "slug": "coding-agents-that-make-demo-videos",
@@ -406,6 +418,1402 @@
       "crossLinks": ["demos-as-code", "multi-language-product-demo-videos", "automated-product-demo-videos"],
       "wave": 5,
       "productMentionCap": 4
+    },
+    {
+      "slug": "product-onboarding-video",
+      "title": "Product onboarding videos that shorten time-to-value",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["product onboarding video", "customer onboarding video", "onboarding video examples", "saas onboarding video"],
+      "intent": "informational",
+      "angle": "A taxonomy of onboarding-video jobs (welcome, first-run walkthrough, feature-unlock nudge, empty-state prompt) mapped to the activation metric each one moves, with a length budget per type and the time-to-value arithmetic behind why a focused 2-minute walkthrough beats a 20-minute tour.",
+      "evidenceHooks": [
+        "Vidyard customer-onboarding-videos guide, dated",
+        "a published time-to-value / activation benchmark with traceable sourcing (ProductFruits or Userpilot)",
+        "Slack or Duolingo first-run onboarding as a linkable teardown",
+        "Wistia engagement-by-length data"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "how-long-should-a-demo-video-be", "product-walkthrough-video", "demo-video-script-template"],
+      "wave": 13
+    },
+    {
+      "slug": "sales-demo-video",
+      "title": "The async sales demo video: a repeatable asset, not a live call",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["sales demo video", "sales demo video examples", "b2b sales demo video", "demo video for sales"],
+      "intent": "informational",
+      "angle": "A shot-list for the three moments a buyer actually needs (problem framing, the aha workflow, proof) plus a decision table for live demo vs recorded demo vs interactive tour keyed to deal stage and ACV.",
+      "evidenceHooks": [
+        "Vidyard or Wistia sales-video benchmark data, dated",
+        "a buyer-enablement finding with traceable sourcing (Gartner or Forrester buyer behavior)",
+        "Gong or similar sales-conversation data if publicly cited"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "b2b-demo-video", "demo-video-script-template", "where-to-use-your-demo-video"],
+      "wave": 9
+    },
+    {
+      "slug": "product-launch-video",
+      "title": "Product launch video: one recording, every launch-day cut",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["product launch video", "product launch video examples", "saas launch video", "launch video"],
+      "intent": "informational",
+      "angle": "A launch-day kit from one take — the hero cut, the 60-second social cut, the Product Hunt cut, the email GIF — laid out as a single spec table of length/aspect/format per destination so one recording feeds the whole launch.",
+      "evidenceHooks": [
+        "Product Hunt launch guidance, dated",
+        "platform native-video specs (YouTube, LinkedIn, X), dated",
+        "Wistia or Vidyard launch/engagement benchmark data"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "product-hunt-launch-video", "social-cuts-for-product-launch", "feature-announcement-video"],
+      "wave": 11
+    },
+    {
+      "slug": "app-preview-video",
+      "title": "App preview videos: hitting App Store and Play specs without a reshoot",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["app preview video", "app store preview video", "app store video specs", "app preview video size"],
+      "intent": "informational",
+      "angle": "Apple's and Google's exact preview specs (duration, resolution, codec, orientation) collapsed into one cross-store table, plus why the in-app-footage-only rule makes a deterministic screen-capture pipeline the safe way to hit 886x1920 H.264 without a live reshoot.",
+      "evidenceHooks": [
+        "Apple App Store Connect 'App preview specifications' reference (developer.apple.com)",
+        "Apple 'App Previews' App Store page",
+        "Google Play promo/preview video requirements docs"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "screen-recording-aspect-ratio", "best-video-format-for-screen-recording", "where-to-use-your-demo-video"],
+      "wave": 7,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "demo-video-background-music",
+      "title": "Background music for demo videos: licensing and the loudness math",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["demo video background music", "royalty free music for demo video", "product video music", "background music for product demo"],
+      "intent": "informational",
+      "angle": "A licensing table (royalty-free libraries, YouTube Audio Library, Creative Commons) with the actual terms, plus the one number that separates amateur from pro: ducking music to roughly -18 to -20 LUFS under narration so the voice stays intelligible, with the loudness arithmetic.",
+      "evidenceHooks": [
+        "YouTube Audio Library license terms",
+        "Creative Commons license deeds (attribution/commercial conditions)",
+        "EBU R128 / ITU-R BS.1770 loudness recommendation",
+        "a royalty-free library license page (Storyblocks or AudioJungle), dated"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "ai-voiceover-for-demo-videos", "record-screen-with-audio", "demo-video-mistakes"],
+      "wave": 20
+    },
+    {
+      "slug": "demo-video-thumbnail",
+      "title": "The demo video thumbnail: poster frame vs marketing cover",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["demo video thumbnail", "video poster frame", "demo video cover image", "video thumbnail best practices"],
+      "intent": "informational",
+      "angle": "Separate the technical poster (the <video poster> attribute and the iOS #t=0.001 trick) from the marketing thumbnail (YouTube CTR), then a checklist for picking a frame that shows a populated UI, not a spinner or a login screen.",
+      "evidenceHooks": [
+        "MDN <video> element poster attribute docs",
+        "SiteLint or web.dev on iOS Safari poster and the #t=0.001 workaround",
+        "a published thumbnail/CTR study with traceable sourcing (YouTube Creator data)"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "autoplay-video-on-website", "demo-video-hook", "video-seo-for-product-pages"],
+      "wave": 19
+    },
+    {
+      "slug": "demo-video-hook",
+      "title": "How to start a demo video: the first five seconds",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["how to start a demo video", "demo video hook", "video first 5 seconds", "video intro"],
+      "intent": "informational",
+      "angle": "A pattern library of six opening moves (outcome-first cold open, problem-in-one-line, watch-this-happen, and three more) with drop-off curves showing why 'Hi, I'm X and today I'll show you' is the single highest-cost mistake, especially on muted autoplay.",
+      "evidenceHooks": [
+        "Wistia or Vidyard engagement drop-off data",
+        "Product Hunt note that gallery videos autoplay muted and the first 5 seconds decide the view",
+        "a retention-curve dataset with traceable sourcing"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "demo-video-script-template", "demo-video-call-to-action", "how-long-should-a-demo-video-be"],
+      "wave": 10
+    },
+    {
+      "slug": "demo-video-call-to-action",
+      "title": "Demo video CTAs: one ask, placed where viewers still are",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["demo video call to action", "video cta", "end screen cta", "video call to action examples"],
+      "intent": "informational",
+      "angle": "A taxonomy of demo-video CTAs by funnel stage (start free, book a call, read the docs, star the repo) with placement rules (end card vs mid-roll vs description) and the retention arithmetic behind why a single end-card ask beats a menu of five.",
+      "evidenceHooks": [
+        "Wistia or Vidyard CTA / end-card engagement data",
+        "a landing-page or CTA study with traceable sourcing",
+        "YouTube end-screen guidance docs"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "demo-video-hook", "does-video-increase-conversion", "where-to-use-your-demo-video"],
+      "wave": 18
+    },
+    {
+      "slug": "product-demo-storytelling",
+      "title": "Product demo storytelling: three frameworks on one timeline",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["product demo storytelling", "demo video story structure", "product story framework", "narrative demo video"],
+      "intent": "informational",
+      "angle": "Map three named story frameworks (problem-agitate-solve, before-after-bridge, and the job-to-be-done hero) onto a demo timeline with per-beat second budgets, and show why feature-tour ordering is the anti-pattern that flattens retention.",
+      "evidenceHooks": [
+        "a primary source on narrative structure (Nielsen Norman Group on storytelling, or the StoryBrand framework page)",
+        "Wistia retention-by-structure data",
+        "a linkable public demo transcript to dissect beat by beat"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "demo-video-script-template", "demo-video-hook", "b2b-demo-video"],
+      "wave": 17
+    },
+    {
+      "slug": "b2b-demo-video",
+      "title": "B2B vs PLG demo videos: seven axes that change the cut",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["b2b demo video", "b2b product demo video", "plg demo video", "enterprise demo video"],
+      "intent": "informational",
+      "angle": "A side-by-side of sales-led B2B and self-serve PLG demo styles across seven axes (length, narration, who's the hero, depth, CTA, personalization, where it lives), as a decision table keyed to motion and ACV rather than taste.",
+      "evidenceHooks": [
+        "a PLG vs sales-led motion report with traceable sourcing (OpenView PLG index or ProductLed data)",
+        "Vidyard or Wistia B2B video benchmark, dated",
+        "a buyer-enablement source on self-serve vs sales-assisted"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "sales-demo-video", "interactive-demo-vs-video-demo", "product-demo-storytelling"],
+      "wave": 12
+    },
+    {
+      "slug": "demo-video-mistakes",
+      "title": "Ten demo video mistakes, ranked by how many viewers they cost",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["demo video mistakes", "common demo video mistakes", "bad demo video", "product demo mistakes"],
+      "intent": "informational",
+      "angle": "A ranked anti-pattern catalog (too long, no hook, feature-tour ordering, unreadable UI, no captions, music over voice, laggy cursor, dead air, no CTA, stale UI), each paired with its measurable symptom and the specific fix.",
+      "evidenceHooks": [
+        "W3C WCAG captions success criteria (1.2.2)",
+        "Wistia length/retention data for the too-long point",
+        "EBU R128 loudness recommendation for the music-over-voice point"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "how-long-should-a-demo-video-be", "demo-video-captions", "demo-video-background-music"],
+      "wave": 15
+    },
+    {
+      "slug": "feature-announcement-video",
+      "title": "Feature announcement and changelog videos: a 30-second template",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["feature announcement video", "changelog video", "product update video", "release notes video"],
+      "intent": "informational",
+      "angle": "The changelog video as a repeatable 30-second format (what shipped, why it matters, the one click to try it), a sustainable cadence table (per-release vs biweekly vs monthly), and why regenerating from a spec beats re-recording every sprint.",
+      "evidenceHooks": [
+        "AnnounceKit video-release-notes writeup, dated",
+        "a public changelog with cadence to cite (Linear, Stripe, or GitHub changelog)",
+        "a source on release-note engagement or read-through"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "product-launch-video", "where-to-use-your-demo-video", "product-walkthrough-video"],
+      "wave": 16
+    },
+    {
+      "slug": "product-walkthrough-video",
+      "title": "Product walkthrough video: follow one real task end to end",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["product walkthrough video", "software walkthrough video", "app walkthrough video", "walkthrough video examples"],
+      "intent": "informational",
+      "angle": "A crisp definition table separating walkthrough, demo, and tutorial, then a shot-list for a walkthrough that follows one real task from start to finish with pacing rules (pause on decisions, cut dead time between clicks) and a length budget by depth.",
+      "evidenceHooks": [
+        "Vidyard or Wistia guidance on walkthrough structure, dated",
+        "a UX task-completion source (Nielsen Norman Group)",
+        "a linkable walkthrough example to timestamp"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "product-onboarding-video", "how-long-should-a-demo-video-be", "demo-video-script-template"],
+      "wave": 14
+    },
+    {
+      "slug": "demo-video-cost",
+      "title": "How much does a demo video cost? Four tiers and the hidden recurring bill",
+      "cluster": "demo-videos",
+      "role": "spoke",
+      "pillar": "how-to-make-a-product-demo-video",
+      "keywords": ["how much does a demo video cost", "demo video cost", "product demo video price", "saas demo video cost"],
+      "intent": "commercial",
+      "angle": "A real cost table across four production tiers (agency, freelancer, in-house recorded, spec-driven regeneration) with per-finished-minute math and the recurring cost everyone omits from the quote: re-recording the whole thing when the UI changes.",
+      "evidenceHooks": [
+        "Vidico product-video-cost guide with dated ranges",
+        "a video-production pricing guide (Synthesia or Beverly Boy), dated",
+        "OpenAI or ElevenLabs TTS pricing for the DIY-tier arithmetic"
+      ],
+      "crossLinks": ["how-to-make-a-product-demo-video", "ai-voiceover-for-demo-videos", "why-product-demos-go-stale", "does-video-increase-conversion"],
+      "wave": 8
+    },
+    {
+      "slug": "how-to-record-your-screen-in-high-quality",
+      "title": "How to record your screen in high quality: the settings that matter",
+      "cluster": "screen-recording",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["how to record your screen", "high quality screen recording", "screen recording quality", "record screen high resolution"],
+      "intent": "informational",
+      "angle": "The whole quality checklist as one settings table — resolution, framerate, bitrate/codec, cursor, notifications, audio, aspect — each with why it matters and the one-line fix, anchored by the 'record at 2x, deliver at 1x' rule that resolves most blurry-text recordings. Routes to every spoke.",
+      "evidenceHooks": [
+        "TechSmith frame-rate and recording-quality guides",
+        "OBS Studio output/encoding settings docs",
+        "ffmpeg x264 encoding (CRF) docs",
+        "a HiDPI / Retina display-scaling source"
+      ],
+      "crossLinks": ["best-resolution-for-screen-recording", "best-frame-rate-for-screen-recording", "best-video-format-for-screen-recording", "record-a-browser-tab"],
+      "wave": 6
+    },
+    {
+      "slug": "record-a-browser-tab",
+      "title": "How to record just one browser tab (three ways, one clean result)",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["how to record a browser tab", "record browser tab", "record single chrome tab", "capture browser tab video"],
+      "intent": "informational",
+      "angle": "The three mechanisms for capturing one tab (the browser's getDisplayMedia 'This Tab' surface, an extension, or a headless browser driven programmatically) in a tradeoff table by fidelity, notification leakage, and repeatability — and why tab-scoped capture beats full-screen for clean product demos.",
+      "evidenceHooks": [
+        "MDN Screen Capture API / getDisplayMedia docs (displaySurface 'browser')",
+        "Chrome tab-capture or getDisplayMedia documentation",
+        "a linkable extension doc (Screencastify 'record a specific tab'), dated"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "hide-notifications-while-recording", "headless-screen-recording", "screen-recording-without-cursor"],
+      "wave": 7,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "screen-recording-without-cursor",
+      "title": "Screen recording without the mouse cursor (or with a better one)",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["screen recording without cursor", "hide mouse cursor recording", "record screen without mouse", "remove cursor from screen recording"],
+      "intent": "informational",
+      "angle": "A per-tool cheat sheet for killing or taming the cursor (OBS 'Capture Cursor' off, the Xbox Game Bar setting, macOS options, ffmpeg -draw_mouse 0), plus the middle path pros actually want: not hiding the cursor but replacing it with a smooth synthetic one.",
+      "evidenceHooks": [
+        "OBS source-properties docs (Capture Cursor toggle)",
+        "ffmpeg x11grab / gdigrab -draw_mouse option docs",
+        "a Microsoft or Apple support page on the built-in cursor-capture setting"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "professional-screen-recordings", "record-a-browser-tab", "hide-notifications-while-recording"],
+      "wave": 14
+    },
+    {
+      "slug": "hide-notifications-while-recording",
+      "title": "Hide notifications while screen recording, on every OS",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["hide notifications while screen recording", "turn off notifications screen recording", "do not disturb screen recording", "hide notifications during recording"],
+      "intent": "informational",
+      "angle": "A cross-OS Do-Not-Disturb / Focus setup table (macOS Focus, Windows Focus Assist / Do Not Disturb, Linux GNOME) plus the belt-and-suspenders move for demos that must never leak: record in a clean browser profile or headless environment where a notification can't fire at all.",
+      "evidenceHooks": [
+        "Apple Support page on macOS Focus / Do Not Disturb",
+        "Microsoft Support page on Windows notifications / Do Not Disturb",
+        "GNOME notifications / Do Not Disturb documentation"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "record-a-browser-tab", "professional-screen-recordings", "headless-screen-recording"],
+      "wave": 13
+    },
+    {
+      "slug": "best-resolution-for-screen-recording",
+      "title": "Best resolution for screen recording: match delivery, not your monitor",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["best resolution for screen recording", "screen recording resolution", "1080p vs 4k screen recording", "screen recording resolution settings"],
+      "intent": "informational",
+      "angle": "A table of source-to-delivery pairings (1080p, 1440p, 4K) with the 'record at 2x, downscale for crispness' rule and file-size math, plus why capturing a 4K desktop for a 1080p embed both wastes bits and blurs text.",
+      "evidenceHooks": [
+        "TechSmith resolution guidance",
+        "YouTube recommended upload encoding settings (resolutions and bitrates)",
+        "a Retina / HiDPI scaling source",
+        "ffmpeg scale filter docs"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "best-frame-rate-for-screen-recording", "screen-recording-aspect-ratio", "best-video-format-for-screen-recording"],
+      "wave": 9
+    },
+    {
+      "slug": "best-frame-rate-for-screen-recording",
+      "title": "Best frame rate for screen recording: 30 vs 60 fps by content",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["best frame rate for screen recording", "screen recording frame rate", "30 vs 60 fps screen recording", "screen recording fps"],
+      "intent": "informational",
+      "angle": "A table mapping content type (static UI, scrolling, animation, video-in-video, games) to the framerate worth its file-size cost, with the bitrate penalty of doubling framerate and why 60fps rarely earns its keep on a form-filling demo.",
+      "evidenceHooks": [
+        "TechSmith frame-rate beginner's guide",
+        "YouTube upload framerate guidance",
+        "a source on human motion perception / constant frame rate"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "best-resolution-for-screen-recording", "best-video-format-for-screen-recording", "professional-screen-recordings"],
+      "wave": 8
+    },
+    {
+      "slug": "screen-recording-aspect-ratio",
+      "title": "Screen recording aspect ratio: 16:9, 9:16, and the black-bar problem",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["screen recording aspect ratio", "vertical screen recording", "9:16 screen recording", "16:9 vs 9:16"],
+      "intent": "informational",
+      "angle": "A destination-to-aspect table (16:9 for YouTube and landing, 9:16 for Reels/Shorts/TikTok, 1:1 and 4:5 for feed) with pixel dimensions, plus how to get vertical output from a landscape desktop UI without black bars — record a narrow viewport, don't crop a cropped desktop.",
+      "evidenceHooks": [
+        "platform aspect specs (TikTok, Instagram Reels, YouTube Shorts), dated",
+        "a video aspect-ratio reference cheat sheet",
+        "Screen Studio aspect-ratio guide, dated"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "best-resolution-for-screen-recording", "social-cuts-for-product-launch", "app-preview-video"],
+      "wave": 12
+    },
+    {
+      "slug": "best-video-format-for-screen-recording",
+      "title": "Best format for screen recording: container vs codec, decided",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["best video format for screen recording", "screen recording file format", "mp4 vs mov vs webm", "best codec for screen recording"],
+      "intent": "informational",
+      "angle": "Separate container from codec, then a decision table: MP4/H.264 for send-anywhere, WebM/VP9 or AV1 for the smallest web embed, MOV/ProRes for editing masters — with the 30-50% bandwidth math for VP9 vs H.264 and when the compatibility tax is not worth paying.",
+      "evidenceHooks": [
+        "MDN media container and codec guides",
+        "a WebM/VP9 vs H.264 bandwidth comparison (Cloudinary or Mux)",
+        "AV1 browser-support status (caniuse), dated"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "best-resolution-for-screen-recording", "embed-video-on-website", "app-preview-video"],
+      "wave": 11
+    },
+    {
+      "slug": "record-a-terminal-session",
+      "title": "How to record a terminal session (and when to skip the video)",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["how to record a terminal session", "record terminal session", "terminal recording", "record command line demo"],
+      "intent": "informational",
+      "angle": "A tradeoff table across the three ways to capture a terminal — asciinema (.cast text, copyable, tiny), a real screen recording (MP4/GIF), and tape-driven replay — scored on file size, editability, and whether viewers can copy the commands, so you pick the right one per destination.",
+      "evidenceHooks": [
+        "asciinema GitHub repo and asciicast format docs",
+        "the awesome-terminal-recorder roundup for the tool matrix",
+        "GitHub docs on embedding media in READMEs"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "headless-screen-recording", "record-screen-on-linux", "readme-gifs-that-update-themselves"],
+      "wave": 17
+    },
+    {
+      "slug": "screen-recording-with-webcam",
+      "title": "Screen recording with a webcam: when the talking-head bubble helps",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["screen recording with webcam", "webcam overlay screen recording", "screen recording with face cam", "picture in picture screen recording"],
+      "intent": "informational",
+      "angle": "A yes/no framework for the webcam overlay: when it lifts trust (founder story, sales follow-up, Product Hunt) vs when it distracts (docs, onboarding, feature clips), plus placement/size specs and the accessibility trap of covering the UI you are demoing.",
+      "evidenceHooks": [
+        "Product Hunt guidance on webcam / maker-story video, dated",
+        "a Vidyard or Wistia data point on personal / talking-head video",
+        "OBS docs on adding a video-capture (webcam) source"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "sales-demo-video", "product-hunt-launch-video", "professional-screen-recordings"],
+      "wave": 18
+    },
+    {
+      "slug": "record-screen-on-linux",
+      "title": "How to record your screen on Linux (X11 and Wayland)",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["how to record screen on linux", "linux screen recorder", "record screen ubuntu", "wayland screen recording"],
+      "intent": "informational",
+      "angle": "A capture matrix keyed to the display server: X11 (ffmpeg x11grab, OBS) vs Wayland (the PipeWire / xdg-desktop-portal path, GNOME's built-in Ctrl+Alt+Shift+R, Kooha) — a table of what works where with the command lines, because the X11 answers all over the internet silently fail under Wayland.",
+      "evidenceHooks": [
+        "Arch Wiki 'Screen capture' page",
+        "GNOME built-in screencast documentation",
+        "OBS PipeWire / Wayland capture docs",
+        "ffmpeg x11grab documentation"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "headless-screen-recording", "record-a-terminal-session", "best-video-format-for-screen-recording"],
+      "wave": 16
+    },
+    {
+      "slug": "headless-screen-recording",
+      "title": "Headless screen recording: capturing a screen with no display",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["headless screen recording", "record screen without display", "xvfb ffmpeg screen recording", "record browser headless"],
+      "intent": "informational",
+      "angle": "How to record a screen with no monitor attached: the Xvfb virtual-framebuffer plus ffmpeg x11grab recipe, the headless-Chrome / CDP screencast alternative, and a table of when each wins — the technique underneath any demo video rendered on a CI runner.",
+      "evidenceHooks": [
+        "a documented Xvfb + ffmpeg x11grab recipe (gist or blog), verified live",
+        "Chrome DevTools Protocol Page.startScreencast docs",
+        "Playwright or Puppeteer video-recording docs",
+        "GitHub Actions runner docs (no attached display)"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "record-screen-on-linux", "record-a-browser-tab", "deterministic-browser-automation-for-video"],
+      "wave": 15,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "record-screen-with-audio",
+      "title": "How to record your screen with audio (system, mic, or both)",
+      "cluster": "screen-recording",
+      "role": "spoke",
+      "pillar": "how-to-record-your-screen-in-high-quality",
+      "keywords": ["how to record screen with audio", "record screen with system audio", "screen recording with sound", "capture system audio recording"],
+      "intent": "informational",
+      "angle": "The audio-routing problem nobody warns you about: capturing system audio vs mic vs both, per OS (macOS needs a loopback like BlackHole, Windows WASAPI, Linux PulseAudio/PipeWire monitor), as a routing table, plus the levels rule so voice and UI sound don't clip against each other.",
+      "evidenceHooks": [
+        "OBS audio-capture (desktop vs mic) docs",
+        "a macOS loopback (BlackHole) setup doc",
+        "a PulseAudio / PipeWire monitor-source doc",
+        "EBU R128 loudness recommendation for levels"
+      ],
+      "crossLinks": ["how-to-record-your-screen-in-high-quality", "record-screen-on-linux", "demo-video-background-music", "ai-voiceover-for-demo-videos"],
+      "wave": 10
+    },
+    {
+      "slug": "video-marketing-for-software",
+      "title": "Video marketing for software: one recording, every channel",
+      "cluster": "video-marketing",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["video marketing for software", "saas video marketing", "video marketing for startups", "product video marketing"],
+      "intent": "informational",
+      "angle": "The distribution map for one demo video: a channel table (landing hero, email, YouTube, Product Hunt, LinkedIn, docs, sales, app store, social) with the format, length, aspect, and success metric each channel wants, so one recording earns its production cost across N placements. Routes to every spoke.",
+      "evidenceHooks": [
+        "Wistia State of Video report",
+        "HubSpot video marketing statistics report",
+        "platform native-video specs (YouTube, LinkedIn), dated",
+        "Vidyard video benchmark report"
+      ],
+      "crossLinks": ["demo-video-on-landing-page", "youtube-marketing-for-dev-tools", "product-hunt-launch-video", "where-to-use-your-demo-video"],
+      "wave": 6
+    },
+    {
+      "slug": "demo-video-on-landing-page",
+      "title": "Putting a demo video on your landing page without wrecking load time",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["demo video on landing page", "landing page video", "product video placement", "hero video landing page"],
+      "intent": "informational",
+      "angle": "Where the video goes and how it behaves: above vs below the fold, autoplay-muted-loop vs click-to-play with a poster, and the performance tax (a heavy hero video can erase its own conversion lift) — with the lazy-load and poster recipe that keeps LCP fast.",
+      "evidenceHooks": [
+        "web.dev lazy-loading-video article",
+        "Mux best-practices-for-video-playback guide",
+        "a video-on-landing-page conversion stat with traceable sourcing (Wistia or Unbounce)",
+        "Core Web Vitals / LCP documentation"
+      ],
+      "crossLinks": ["video-marketing-for-software", "autoplay-video-on-website", "does-video-increase-conversion", "embed-video-on-website"],
+      "wave": 8
+    },
+    {
+      "slug": "autoplay-video-on-website",
+      "title": "Autoplay video on a website: the recipe that works everywhere",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["autoplay video on website", "muted autoplay video", "html5 video autoplay", "background video website"],
+      "intent": "informational",
+      "angle": "The exact attribute set that autoplays across browsers (autoplay muted loop playsinline), why sound is blocked, the iOS poster / #t=0.001 gotcha, and a preload table (metadata vs none vs auto) so a background video doesn't wreck page load.",
+      "evidenceHooks": [
+        "MDN <video> element docs (autoplay, muted, playsinline, preload)",
+        "Chrome autoplay policy documentation",
+        "web.dev or SiteLint on the iOS poster / #t=0.001 workaround",
+        "Mux add-background-video-to-website article"
+      ],
+      "crossLinks": ["video-marketing-for-software", "demo-video-on-landing-page", "demo-video-thumbnail", "embed-video-on-website"],
+      "wave": 15
+    },
+    {
+      "slug": "video-in-email-marketing",
+      "title": "Video in email marketing: the GIF workaround that actually ships",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["video in email marketing", "how to embed video in email", "video email gif", "email video thumbnail"],
+      "intent": "informational",
+      "angle": "You cannot reliably play video in email, so the pattern is a clickable animated GIF or static thumbnail linking to a hosted page. A client-support table (Gmail, Outlook, Apple Mail) plus the GIF budget (under 1MB, first frame carries the message) and the real limits of the 'faux video' hover trick.",
+      "evidenceHooks": [
+        "Litmus 'Faux Video: A Fallback for Video in Email'",
+        "Litmus 'How to Embed Video in Your Email Marketing Campaigns'",
+        "Campaign Monitor video-in-email guide",
+        "an email-client GIF-support reference"
+      ],
+      "crossLinks": ["video-marketing-for-software", "readme-gifs-that-update-themselves", "demo-video-thumbnail", "where-to-use-your-demo-video"],
+      "wave": 16
+    },
+    {
+      "slug": "youtube-marketing-for-dev-tools",
+      "title": "YouTube marketing for developer tools: teach, don't advertise",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["youtube marketing for developers", "youtube for dev tools", "developer marketing youtube", "devtools youtube strategy"],
+      "intent": "informational",
+      "angle": "Why demo and tutorial videos outperform ads for developer tools, the 70/20/10 content mix (teach / community / promote) mapped to funnel stages, and a YouTube-SEO checklist (title, chapters, transcript, thumbnail) tuned for an audience that skips intros and reads code.",
+      "evidenceHooks": [
+        "a developer-marketing primary source (markepear.dev developer-marketing guide or Inflection devtools post), dated",
+        "YouTube Creator docs on chapters and captions",
+        "Stack Overflow Developer Survey for developer channel behavior"
+      ],
+      "crossLinks": ["video-marketing-for-software", "video-seo-for-product-pages", "product-walkthrough-video", "demo-video-metrics"],
+      "wave": 11
+    },
+    {
+      "slug": "product-hunt-launch-video",
+      "title": "The Product Hunt launch video: spec, format, and the first five seconds",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["product hunt launch video", "product hunt video", "product hunt gallery video", "launch video product hunt"],
+      "intent": "informational",
+      "angle": "The Product Hunt video spec and playbook: gallery and thumbnail dimensions, the muted-autoplay first-5-seconds rule, demo-walkthrough vs maker-story formats, and the data point that video correlates with Product-of-the-Day, with a shot-list you can record the night before.",
+      "evidenceHooks": [
+        "Product Hunt 'preparing for launch' / launch guide",
+        "a Product Hunt asset-dimensions reference",
+        "the '~53% of Product-of-the-Day winners had a video' stat traced to its origin"
+      ],
+      "crossLinks": ["video-marketing-for-software", "product-launch-video", "screen-recording-with-webcam", "social-cuts-for-product-launch"],
+      "wave": 9
+    },
+    {
+      "slug": "demo-video-metrics",
+      "title": "Demo video metrics: play rate, retention, and assisted conversions",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["demo video metrics", "video engagement metrics", "how to measure video performance", "video analytics"],
+      "intent": "informational",
+      "angle": "The metrics that matter by goal — play rate, engagement/retention curve, and the one nobody instruments, assisted conversions — defined precisely, with a guide to reading the drop-off curve (where a cliff means 'cut here') and benchmark ranges to compare against.",
+      "evidenceHooks": [
+        "Wistia or Vidyard engagement-benchmark report defining play rate and engagement",
+        "a video-analytics docs page (Mux Data or YouTube Analytics) for metric definitions"
+      ],
+      "crossLinks": ["video-marketing-for-software", "how-long-should-a-demo-video-be", "does-video-increase-conversion", "demo-video-hook"],
+      "wave": 14
+    },
+    {
+      "slug": "video-seo-for-product-pages",
+      "title": "Video SEO for product pages: VideoObject schema, done right",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["video seo", "video schema markup", "video seo for product pages", "videoobject structured data"],
+      "intent": "informational",
+      "angle": "A copy-pasteable VideoObject JSON-LD template with the properties Google actually requires (name, description, thumbnailUrl, uploadDate, contentUrl), how it nests inside Product schema, and the transcript/caption practices that make video content indexable, with the rich-result CTR data.",
+      "evidenceHooks": [
+        "Google Search Central video structured-data (VideoObject) docs",
+        "schema.org VideoObject reference",
+        "a rich-result CTR study with traceable sourcing (Milestone or a Google case study)"
+      ],
+      "crossLinks": ["video-marketing-for-software", "demo-video-captions", "demo-video-thumbnail", "embed-video-on-website"],
+      "wave": 13
+    },
+    {
+      "slug": "social-cuts-for-product-launch",
+      "title": "Social cuts for a launch: one demo into a week of clips",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["social media product video", "repurpose demo video for social", "product launch social clips", "short form product video"],
+      "intent": "informational",
+      "angle": "Turn one demo into a launch's worth of social clips: a per-platform cut table (aspect, length, caption-burn, hook) for LinkedIn, X, and TikTok/Reels/Shorts, plus the editing rule set (cold open, burned captions, 9:16 reframe) so you're not re-recording per network.",
+      "evidenceHooks": [
+        "platform native-video specs (TikTok, Instagram, LinkedIn, X), dated",
+        "a short-form retention or watch-time source",
+        "a captions-lift stat for muted autoplay"
+      ],
+      "crossLinks": ["video-marketing-for-software", "product-launch-video", "screen-recording-aspect-ratio", "linkedin-video-for-b2b-software"],
+      "wave": 12
+    },
+    {
+      "slug": "linkedin-video-for-b2b-software",
+      "title": "LinkedIn video for B2B software: native, captioned, and square",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["linkedin video marketing", "linkedin video for b2b", "linkedin product video", "b2b video linkedin"],
+      "intent": "informational",
+      "angle": "LinkedIn-specific mechanics for B2B software: native upload beats a YouTube link for reach, square/vertical beats 16:9 in-feed, muted autoplay demands burned captions and a text hook, with a length/spec table and the document-carousel alternative for non-video weeks.",
+      "evidenceHooks": [
+        "LinkedIn native-video specs / best-practices help docs",
+        "a LinkedIn native-vs-external-link reach source",
+        "a B2B video benchmark (LinkedIn or Vidyard), dated"
+      ],
+      "crossLinks": ["video-marketing-for-software", "b2b-demo-video", "social-cuts-for-product-launch", "demo-video-captions"],
+      "wave": 17
+    },
+    {
+      "slug": "does-video-increase-conversion",
+      "title": "Does video actually increase conversion? Tracing the 80% claim",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["does video increase conversion", "video conversion rate", "does video on landing page increase conversion", "video marketing roi"],
+      "intent": "informational",
+      "angle": "An honest read of the 'video lifts conversion 80%' claims: trace the widely-cited stats to their source, separate correlation from causation, and give the conditions under which video actually helps (complex product, fast load, relevant content) vs when it backfires (heavy hero, slow LCP).",
+      "evidenceHooks": [
+        "the Wistia / Unbounce / EyeView conversion-lift stats traced to their origin",
+        "a large-scale study showing mixed or negative video results",
+        "Core Web Vitals / page-speed-vs-conversion data"
+      ],
+      "crossLinks": ["video-marketing-for-software", "demo-video-on-landing-page", "demo-video-metrics", "how-long-should-a-demo-video-be"],
+      "wave": 7
+    },
+    {
+      "slug": "embed-video-on-website",
+      "title": "How to embed video on a website: self-host vs YouTube vs streaming host",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["embed video on website", "self host video vs youtube", "html5 video embed", "how to add video to website"],
+      "intent": "informational",
+      "angle": "Self-hosted <video> vs a YouTube/Vimeo embed vs a streaming host (Mux, Cloudflare Stream, Bunny) as a decision table on control, performance, cost, and privacy, plus the lazy-load facade pattern that stops a YouTube embed from loading a megabyte of JavaScript on page load.",
+      "evidenceHooks": [
+        "web.dev lazy-loading-video article (and the lite-youtube facade)",
+        "MDN <video> element docs",
+        "a streaming-host docs page (Mux or Cloudflare Stream), dated",
+        "a YouTube-embed page-weight measurement source"
+      ],
+      "crossLinks": ["video-marketing-for-software", "demo-video-on-landing-page", "autoplay-video-on-website", "best-video-format-for-screen-recording"],
+      "wave": 10
+    },
+    {
+      "slug": "where-to-use-your-demo-video",
+      "title": "Where to use your demo video: one recording, ten placements",
+      "cluster": "video-marketing",
+      "role": "spoke",
+      "pillar": "video-marketing-for-software",
+      "keywords": ["where to use demo video", "how to use a product demo video", "demo video distribution", "product video placement"],
+      "intent": "informational",
+      "angle": "A distribution checklist that turns one recording into ten placements (landing hero, README, docs, onboarding email, sales follow-up, Product Hunt, LinkedIn, app store, changelog, YouTube), each with the format, length, and aspect it needs — the reuse map that makes a demo video pay for itself.",
+      "evidenceHooks": [
+        "Wistia State of Video on reuse and placement",
+        "app-store and platform specs referenced across the map",
+        "a video-repurposing / atomization source"
+      ],
+      "crossLinks": ["video-marketing-for-software", "demo-video-on-landing-page", "feature-announcement-video", "social-cuts-for-product-launch"],
+      "wave": 18,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "visual-regression-testing-for-marketing-assets",
+      "title": "Visual regression testing for marketing assets, not just components",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["visual regression testing marketing", "screenshot testing marketing pages", "visual regression marketing assets", "diff marketing screenshots"],
+      "intent": "informational",
+      "angle": "Engineering teams pixel-diff their component library but let the homepage, pricing page, and demo stills drift unchecked. A taxonomy of marketing assets worth baselining (full-page screenshots, hero stills, embedded demo frames) mapped to the diff tool that fits each, plus the threshold/anti-aliasing settings that stop a font-render change from failing every build.",
+      "evidenceHooks": [
+        "Percy docs on baselines and per-snapshot diff review (percy.io)",
+        "BackstopJS README (full-page/section diffing for CMS pages)",
+        "Chromatic docs on visual review and diff thresholds"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "detecting-ui-drift", "visual-regression-testing-tools", "automating-product-screenshots"],
+      "wave": 18,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "app-store-screenshot-automation",
+      "title": "Keeping App Store screenshots current with automation",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["automate app store screenshots", "app store screenshot automation", "fastlane snapshot screenshots", "keep app store screenshots updated"],
+      "intent": "informational",
+      "angle": "The arithmetic App Store submission forces on you: locales times device sizes times shots is hundreds of PNGs that go stale every redesign. Walk the fastlane snapshot + frameit pipeline (UI-test-driven capture, device frames, localized captions from JSON), do the combinatorics on a real matrix, and show when a browser-capture path beats the simulator path.",
+      "evidenceHooks": [
+        "fastlane snapshot action docs (docs.fastlane.tools/actions/snapshot)",
+        "fastlane frameit docs (device frames + caption JSON)",
+        "Apple App Store Connect screenshot specifications / requirements"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "automating-product-screenshots", "why-product-demos-go-stale", "detecting-ui-drift"],
+      "wave": 19
+    },
+    {
+      "slug": "release-notes-videos",
+      "title": "Release-notes videos generated per release",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["release notes video", "video changelog", "changelog video automation", "release note video per release"],
+      "intent": "informational",
+      "angle": "A monthly recap video that a human edits is a chore that gets skipped; a per-tag video rendered from a spec is a CI artifact. Decision table for which releases earn a video (visual/material vs API/bugfix), a sustainable cadence backed by published practice, and how to wire generation to the same git tag the written changelog already uses.",
+      "evidenceHooks": [
+        "Keep a Changelog specification (keepachangelog.com)",
+        "Appcues release notes examples and cadence guidance",
+        "Clueso 'release-note videos vs changelogs' head-to-head, dated"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "versioned-demos-per-release", "nightly-demo-builds", "demo-videos-in-ci"],
+      "wave": 16,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "docs-that-test-themselves",
+      "title": "Docs that test themselves: executable documentation",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["executable documentation", "docs that test themselves", "doctest", "testable documentation"],
+      "intent": "informational",
+      "angle": "The doctest idea (examples in the docs run as tests, so prose can't drift from behavior) generalized from code snippets to product media: a screenshot or demo that re-captures the live UI is a doctest for the interface. Survey the executable-docs patterns that already ship (Python doctest, Sphinx, Rust/Elixir doctests) and map each to its media equivalent.",
+      "evidenceHooks": [
+        "Python doctest module docs (docs.python.org/3/library/doctest)",
+        "Sphinx doctest extension docs (sphinx-doc.org)",
+        "ExUnit.DocTest docs (Elixir doctests from @doc)"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "testing-demos-like-code", "why-product-demos-go-stale", "video-documentation"],
+      "wave": 20
+    },
+    {
+      "slug": "demo-environments-and-seed-data",
+      "title": "Demo environments and seed data that make a demo reproducible",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["demo environment seed data", "reproducible demo data", "seed demo database", "demo environment setup"],
+      "intent": "informational",
+      "angle": "A demo is only regenerable if the state behind it is. The mechanics of a deterministic demo backend: a fixed RNG seed so the same rows appear every run, believable-but-PII-free personas, and reset-to-clean scripting, with a worked seed script and the failure modes (timestamps that age, external API calls that vary) that silently break replay.",
+      "evidenceHooks": [
+        "Prisma seeding docs (deterministic seed scripts)",
+        "Faker.js README (seeded, reproducible fake data)",
+        "Bunnyshell demo-environments page on pre-loaded data, dated"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "realistic-demo-data-generation", "deterministic-browser-automation-for-video", "reproducible-demo-renders"],
+      "wave": 21
+    },
+    {
+      "slug": "versioned-demos-per-release",
+      "title": "Versioned demos: one demo per product release",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["versioned demo", "demo per release", "demo video versioning", "demo per product version"],
+      "intent": "informational",
+      "angle": "Treat the demo like a release artifact pinned to a version tag: v2.3's demo shows v2.3, and old versions keep their old demo instead of silently being overwritten. How to key demos to SemVer, publish them as release assets, and give docs a stable per-version URL, with the storage math for keeping N versions around.",
+      "evidenceHooks": [
+        "Semantic Versioning specification (semver.org)",
+        "GitHub docs on release assets and downloads",
+        "charmbracelet/vhs (tape files versioned alongside code)"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "release-notes-videos", "nightly-demo-builds", "versioning-media-assets-in-git"],
+      "wave": 19,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "nightly-demo-builds",
+      "title": "Nightly demo builds: re-render the demo while you sleep",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["nightly demo build", "scheduled demo render", "cron demo video", "automated nightly video"],
+      "intent": "informational",
+      "angle": "Borrow the nightly-build habit from compilers: a scheduled job re-records the demo against the current app so drift surfaces the next morning, not in a customer call. The GitHub Actions cron wiring, how to fail the job on a visual diff instead of just publishing, and cost math for running it nightly vs on-merge.",
+      "evidenceHooks": [
+        "GitHub Actions scheduled workflows / cron trigger docs",
+        "charmbracelet/vhs GitHub Action docs",
+        "GitHub Actions runner billing / minutes documentation"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "demo-videos-in-ci", "detecting-ui-drift", "versioned-demos-per-release"],
+      "wave": 13,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "detecting-ui-drift",
+      "title": "Detecting UI drift before your demo lies about the product",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["ui drift detection", "detect ui changes", "visual change detection", "monitor ui changes"],
+      "intent": "informational",
+      "angle": "Drift detection sits between never noticing and re-recording everything: what signal to watch (DOM/selector presence, full-page pixel diff, layout-shift metrics) and how to tune it so a copy tweak doesn't page you but a moved primary button does. A ladder from cheap DOM assertions to perceptual diffing, with the false-positive tradeoff at each rung.",
+      "evidenceHooks": [
+        "Visualping guide to visual regression monitoring / detecting UI changes",
+        "Percy visual diff docs (intelligent diffing vs pixel-matching)",
+        "arXiv paper on AI for context-aware visual change detection in test automation (2405.00874)"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "why-product-demos-go-stale", "visual-regression-testing-tools", "nightly-demo-builds"],
+      "wave": 8
+    },
+    {
+      "slug": "realistic-demo-data-generation",
+      "title": "Generating demo data that looks real (and stays safe)",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["realistic demo data", "generate fake data for demo", "demo data generation", "synthetic demo data"],
+      "intent": "informational",
+      "angle": "Lorem-ipsum data makes a demo look fake; production data makes it a compliance incident. The middle path: seeded synthetic data with coherent relationships (names that match avatars, dates that make a timeline, foreign keys that resolve) using Faker-class generators, plus a checklist for scrubbing real data down to demo-safe.",
+      "evidenceHooks": [
+        "Faker.js README (locales, seeding, deterministic output)",
+        "Python Faker documentation (providers, reproducible seeds)",
+        "SeedBase / FK-consistent synthetic data generator docs"
+      ],
+      "crossLinks": ["automated-product-demo-videos", "demo-environments-and-seed-data", "personalized-demo-videos-at-scale", "reproducible-demo-renders"],
+      "wave": 21
+    },
+    {
+      "slug": "visual-regression-testing-tools",
+      "title": "Visual regression testing tools compared by diff engine",
+      "cluster": "demo-automation",
+      "role": "spoke",
+      "pillar": "automated-product-demo-videos",
+      "keywords": ["visual regression testing tools", "screenshot comparison tools", "visual testing tools compared", "best visual regression tools"],
+      "intent": "commercial",
+      "angle": "Cut the crowded category by the thing that actually differs: the diff engine and where baselines live. Table of pixel diffs (pixelmatch, odiff), DOM/perceptual hybrids (Percy, Chromatic, Applitools), and framework-native runners (Playwright toHaveScreenshot, Vitest) scored on flakiness handling, review UX, and self-hosted vs SaaS baseline storage.",
+      "evidenceHooks": [
+        "Playwright toHaveScreenshot / visual comparison docs",
+        "BackstopJS and pixelmatch repos (open-source pixel diffing)",
+        "Percy and Chromatic docs on baseline storage and review, dated"
+      ],
+      "crossLinks": ["visual-regression-testing-for-marketing-assets", "detecting-ui-drift", "automating-product-screenshots", "automated-product-demo-videos"],
+      "wave": 10
+    },
+    {
+      "slug": "loom-alternatives-for-product-demos",
+      "title": "Loom alternatives for product demos after the Atlassian era",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["loom alternatives", "loom alternative product demo", "loom competitors", "alternative to loom"],
+      "intent": "commercial",
+      "angle": "Loom is a talking-head async recorder that Atlassian bought and re-priced; using it as a polished product-demo tool means fighting its grain. Sort the alternatives by what they actually replace (async messaging vs polished demo vs interactive tour vs code-native render), with Loom's real free-plan caps and each alternative's verified live, aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "Loom pricing page (free-plan video/length caps), dated",
+        "Atlassian announcement of the Loom acquisition, dated",
+        "Supademo / Tella / Vidyard own docs for the categories they occupy, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "screen-studio-alternatives", "interactive-demo-vs-video-demo", "free-demo-video-software"],
+      "wave": 6,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "arcade-vs-navattic-vs-storylane",
+      "title": "Arcade vs Navattic vs Storylane: picking an interactive demo platform",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["arcade vs navattic vs storylane", "navattic vs storylane", "storylane vs arcade", "interactive demo platform comparison"],
+      "intent": "commercial",
+      "angle": "The three market leaders sell the same category with different centers of gravity: Navattic optimizes HTML-clone fidelity and analytics, Storylane optimizes speed and demo hubs, Arcade optimizes design polish and now video export. A decision matrix by capture type, pricing floor (Navattic's enterprise minimum vs Storylane's transparent tiers), and maintenance cost, with when a rendered video beats all three.",
+      "evidenceHooks": [
+        "Navattic, Storylane, and Arcade pricing pages, dated",
+        "Navattic docs on HTML capture / cloning fidelity",
+        "Arcade docs on recording real product into demos and video export"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "interactive-demo-vs-video-demo", "loom-alternatives-for-product-demos", "why-product-demos-go-stale"],
+      "wave": 7,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "camtasia-alternatives",
+      "title": "Camtasia alternatives for software demos and tutorials",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["camtasia alternatives", "camtasia alternative free", "alternative to camtasia", "camtasia vs"],
+      "intent": "commercial",
+      "angle": "Camtasia is a heavyweight timeline editor priced as a perpetual/subscription desktop app; most people searching this want either a lighter recorder or a way to stop hand-editing every tutorial. Split alternatives into record-and-edit (Cap, ScreenPal), AI-assisted docs (Guidde, Clueso), and code-native render, scored on license cost and whether editing is manual or regenerable. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "TechSmith Camtasia pricing / licensing page, dated",
+        "Camtasia system requirements documentation",
+        "each listed alternative's own pricing/docs, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "descript-alternatives-for-demo-editing", "developer-education-screencasts", "free-demo-video-software"],
+      "wave": 6,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "ai-documentation-tools",
+      "title": "AI documentation tools mapped: Guidde, Scribe, Clueso, Supademo",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["ai documentation tools", "guidde alternatives", "scribe vs guidde", "ai how-to video tool"],
+      "intent": "commercial",
+      "angle": "The Guidde/Scribe/Clueso/Tango/Supademo cluster gets sold interchangeably but splits cleanly: capture-to-text step guides (Scribe, Tango), capture-to-video with AI voiceover (Guidde, Clueso), and interactive click-through (Supademo). A matrix of output type, edit-after-record friction, and how each handles the doc going stale, with where an agent-authored render fits. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "Guidde product page and AI-voiceover docs, dated",
+        "Scribe docs on auto-captured step guides",
+        "Clueso and Supademo feature/pricing pages, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "video-documentation", "support-videos-knowledge-base", "camtasia-alternatives"],
+      "wave": 13,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "free-demo-video-software",
+      "title": "Free demo video software: what the free tier actually gives you",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["free demo video software", "free product demo tool", "free screen recorder for demos", "best free demo video maker"],
+      "intent": "commercial",
+      "angle": "'Free' hides three different deals: truly free/open (OBS, Cap), free-tier-with-caps (Loom's video limit, ScreenPal's 15-minute cap, watermarks), and free-trial. A table of every free option's real limit (minutes, watermark, export resolution, video count) so readers stop discovering the paywall mid-project. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "OBS Studio site (free, GPLv2) and Cap pricing/free tier",
+        "Loom and ScreenPal free-plan limits pages, dated",
+        "each listed tool's own pricing page, verified live for watermark/caps"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "open-source-demo-video-tools", "obs-for-product-demos", "loom-alternatives-for-product-demos"],
+      "wave": 10,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "synthesia-alternatives-for-software-demos",
+      "title": "Synthesia alternatives when the job is a software demo, not an avatar",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["synthesia alternatives", "synthesia alternative product demo", "avatar video software demo", "ai avatar video alternative"],
+      "intent": "commercial",
+      "angle": "Avatar video (Synthesia, HeyGen, Colossyan) is built for a talking head reading a script, which is the wrong tool when the point is showing the product. Where avatars genuinely fit software (training, compliance, multi-language talking-head) vs where product-native capture wins, with a decision line drawn on output type rather than avatar quality. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "Synthesia pricing and features docs, dated",
+        "Synthesia's own alternatives page (its stated use-case boundaries)",
+        "HeyGen / Colossyan docs for the training and avatar use cases, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "ai-voiceover-for-demo-videos", "interactive-demo-vs-video-demo", "multi-language-product-demo-videos"],
+      "wave": 8,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "demo-video-software-pricing",
+      "title": "Demo video software pricing landscape, per finished minute",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["demo video software pricing", "demo tool pricing comparison", "product demo software cost", "how much does demo software cost"],
+      "intent": "commercial",
+      "angle": "Sticker prices don't compare because the units differ (per seat, per demo, per minute, per view, enterprise-only). Normalize the market to cost per finished demo-minute at a realistic monthly volume, exposing the enterprise floors (interactive-tour minimums), the per-seat traps, and where open-source/CI collapses marginal cost toward zero. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "Screen Studio, Loom, Synthesia pricing pages, dated",
+        "Storylane and Navattic pricing (transparent tiers vs enterprise minimum), dated",
+        "GitHub Actions minutes billing (the CI-render cost baseline)"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "free-demo-video-software", "loom-alternatives-for-product-demos", "arcade-vs-navattic-vs-storylane"],
+      "wave": 11,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "cap-vs-screen-studio",
+      "title": "Cap vs Screen Studio: open-source polish vs the macOS standard",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["cap vs screen studio", "cap so vs screen studio", "screen studio open source alternative", "cap screen recorder review"],
+      "intent": "commercial",
+      "angle": "The most-searched Screen Studio head-to-head: Cap (open source, cross-platform, cheaper) vs Screen Studio (macOS-only, the polish benchmark). Feature-by-feature on the polish mechanics people cite (auto-zoom, cursor smoothing, backgrounds), the license and platform differences, and the honest gaps in Cap, with where a non-GUI CI render fits neither. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "Cap repo and cap.so pricing/docs, verified live",
+        "Screen Studio pricing page and platform status (macOS-only), dated",
+        "Screen Studio feature docs on auto-zoom and cursor effects"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "screen-studio-alternatives", "professional-screen-recordings", "open-source-demo-video-tools"],
+      "wave": 9,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "obs-for-product-demos",
+      "title": "OBS Studio for product demos: what it does and doesn't do",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["obs for product demos", "obs product demo", "obs studio software demo", "obs screen recording demo"],
+      "intent": "commercial",
+      "angle": "OBS is free, open-source, and captures anything, but it is a live-broadcast tool: no auto-zoom, no cursor smoothing, no dead-time trimming, and every take is a manual performance. A build-vs-buy accounting of what OBS gives free, what you rebuild by hand in post, and when the manual-take cost exceeds a polished or code-native tool. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "OBS Studio documentation (obsproject.com) and GPLv2 license",
+        "OBS docs on scenes/sources (what it captures natively)",
+        "ffmpeg zoompan/crop docs (the post-production OBS omits)"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "professional-screen-recordings", "free-demo-video-software", "open-source-demo-video-tools"],
+      "wave": 12,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "descript-alternatives-for-demo-editing",
+      "title": "Descript alternatives for editing demo videos",
+      "cluster": "ai-demo-tools",
+      "role": "spoke",
+      "pillar": "ai-demo-video-generators",
+      "keywords": ["descript alternatives", "descript alternative for demos", "edit demo video by transcript", "text-based video editor alternative"],
+      "intent": "commercial",
+      "angle": "Descript's hook is transcript-based editing (delete a word, delete the footage); alternatives split into other text-based editors, timeline editors, and the option to not edit at all because the demo re-renders from a spec. A table by editing model, filler-word/overdub features, and export limits, with the honest case for and against editing-by-transcript. aidemo disclosed as ours.",
+      "evidenceHooks": [
+        "Descript pricing page and feature docs, dated",
+        "Descript docs on transcript-based editing and Overdub",
+        "each listed alternative's own docs, verified live"
+      ],
+      "crossLinks": ["ai-demo-video-generators", "camtasia-alternatives", "ai-voiceover-for-demo-videos", "demos-as-code"],
+      "wave": 14,
+      "productMentionCap": 8
+    },
+    {
+      "slug": "storyboard-design-patterns",
+      "title": "Storyboard design patterns for demos as code",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["demo storyboard", "storyboard json", "demo storyboard patterns", "declarative demo script"],
+      "intent": "informational",
+      "angle": "When the demo is a JSON/spec file, storyboard authoring becomes a design-patterns problem: scene granularity, one-assertion-per-beat, separating narration from action-spec, and keeping selectors out of the prose. A catalog of reusable patterns and anti-patterns (the mega-scene, the sleep-driven wait, the hardcoded index) drawn from real declarative-demo formats. aidemo storyboard used as a worked example, disclosed as ours.",
+      "evidenceHooks": [
+        "charmbracelet/vhs tape syntax docs (the proven declarative format)",
+        "Remotion composition/props docs (structuring a programmatic video)",
+        "aidemo AUTHORING.md storyboard schema (disclosed as ours)"
+      ],
+      "crossLinks": ["demos-as-code", "selectors-that-survive-redesigns", "coding-agents-that-make-demo-videos", "testing-demos-like-code"],
+      "wave": 17,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "reviewing-video-diffs-in-pull-requests",
+      "title": "Reviewing video and media diffs in pull requests",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["review video in pull request", "video diff pull request", "media diff code review", "review demo changes pr"],
+      "intent": "informational",
+      "angle": "A binary MP4 shows as 'Binary file changed' in a diff, which is useless for review. The techniques that make a media change reviewable: diff the spec not the pixels, attach a rendered preview to the PR, use GitHub's image diff modes (2-up, swipe, onion-skin) for stills, and gate merge on a visual-diff check. A checklist of what a reviewer actually approves.",
+      "evidenceHooks": [
+        "GitHub docs on viewing image diffs in pull requests (2-up/swipe/onion-skin)",
+        "charmbracelet/vhs docs on tape review and golden output",
+        "Chromatic docs on UI review and PR checks"
+      ],
+      "crossLinks": ["demos-as-code", "testing-demos-like-code", "storyboard-design-patterns", "visual-regression-testing-tools"],
+      "wave": 21,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "testing-demos-like-code",
+      "title": "Testing demos like code: golden files and drift gates",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["golden file testing", "snapshot testing demo", "test demo video", "golden master testing media"],
+      "intent": "informational",
+      "angle": "If a demo is code, it gets a test suite: a golden capture committed as the baseline, a CI job that re-renders and diffs, and a review gate to bless intended changes. Map the golden-file / snapshot-testing pattern (vhs, Jest snapshots, Playwright toHaveScreenshot) onto product media, including how to make renders deterministic enough that the golden actually holds.",
+      "evidenceHooks": [
+        "charmbracelet/vhs golden-file / output testing docs",
+        "Jest snapshot testing documentation (jestjs.io)",
+        "Playwright toHaveScreenshot / visual comparison docs"
+      ],
+      "crossLinks": ["demos-as-code", "reproducible-demo-renders", "reviewing-video-diffs-in-pull-requests", "docs-that-test-themselves"],
+      "wave": 12,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "mcp-servers-for-media-generation",
+      "title": "MCP servers for media generation: the agent-to-render interface",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["mcp server media generation", "mcp video generation", "mcp server for video", "agent media tools mcp"],
+      "intent": "informational",
+      "angle": "How a coding agent should talk to a render pipeline: the Model Context Protocol job model (submit spec, poll status, fetch artifact) versus a synchronous tool call, why long media renders demand async jobs and progress, and what a good media MCP surface exposes (validate, probe, render, artifacts). aidemo's MCP used as a worked example, disclosed as ours.",
+      "evidenceHooks": [
+        "Model Context Protocol specification (modelcontextprotocol.io)",
+        "MCP docs on tools/resources and long-running operations",
+        "Remotion agent skills / an existing media MCP server, verified live"
+      ],
+      "crossLinks": ["demos-as-code", "coding-agents-that-make-demo-videos", "agent-friendly-app-instrumentation", "storyboard-design-patterns"],
+      "wave": 20,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "selectors-that-survive-redesigns",
+      "title": "Selectors that survive a redesign",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["resilient selectors", "stable selectors ui", "selectors that don't break", "durable css selectors automation"],
+      "intent": "informational",
+      "angle": "A demo script pinned to nth-child and CSS class hashes breaks the day a designer touches the layout. The selector-resilience ladder (role/accessible-name, text, test-id, structural CSS) ranked by how well each survives a visual redesign, with concrete before/after examples of a redesign that breaks fragile selectors and leaves resilient ones untouched.",
+      "evidenceHooks": [
+        "Testing Library guiding principles / 'which query' priority (getByRole first)",
+        "Playwright locators best-practices docs (user-facing/role/test-id)",
+        "Cypress best-practices docs on selecting elements"
+      ],
+      "crossLinks": ["demos-as-code", "agent-friendly-app-instrumentation", "deterministic-browser-automation-for-video", "storyboard-design-patterns"],
+      "wave": 15
+    },
+    {
+      "slug": "versioning-media-assets-in-git",
+      "title": "Versioning media assets in git: LFS, committed, or external",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["git lfs video", "store video in git", "versioning binary assets git", "git lfs vs committed"],
+      "intent": "informational",
+      "angle": "If demos are code, where do the rendered MP4s live? A three-way decision (commit the binary, Git LFS, or store externally and commit only the spec) with the real numbers: LFS storage/bandwidth quotas and overage pricing, repo-bloat math from committing binaries, and why committing the spec while treating the render as a rebuildable artifact often wins.",
+      "evidenceHooks": [
+        "Git LFS project site (git-lfs.com) on pointer files",
+        "GitHub docs on Git LFS storage and bandwidth quotas / billing",
+        "GitLab LFS docs (.gitattributes tracking of binary assets)"
+      ],
+      "crossLinks": ["demos-as-code", "versioned-demos-per-release", "reproducible-demo-renders", "demo-videos-in-ci"],
+      "wave": 20
+    },
+    {
+      "slug": "agent-friendly-app-instrumentation",
+      "title": "Agent-friendly app instrumentation: data-testid and beyond",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["data-testid best practices", "instrument app for automation", "testable ui for agents", "stable test hooks ui"],
+      "intent": "informational",
+      "angle": "Small instrumentation choices decide whether an agent can script your UI reliably: prefer accessible roles/names, add data-testid only where semantics run out, keep values stable and lint for orphans. A short instrumentation playbook that pays off for tests, agents, and demo capture at once, with the anti-patterns (testid tied to styling, duplicated ids) called out.",
+      "evidenceHooks": [
+        "Testing Library docs on ByRole vs ByTestId priority and rationale",
+        "Playwright test-id docs (configurable data-testid attribute)",
+        "WAI-ARIA roles documentation (accessible names as durable hooks)"
+      ],
+      "crossLinks": ["demos-as-code", "selectors-that-survive-redesigns", "deterministic-browser-automation-for-video", "coding-agents-that-make-demo-videos"],
+      "wave": 21
+    },
+    {
+      "slug": "reproducible-demo-renders",
+      "title": "Reproducible demo renders: byte-for-byte, on purpose",
+      "cluster": "demos-as-code",
+      "role": "spoke",
+      "pillar": "demos-as-code",
+      "keywords": ["reproducible video render", "deterministic video output", "reproducible builds media", "byte for byte video"],
+      "intent": "informational",
+      "angle": "Golden-file testing only works if the same spec renders the same bytes twice, which media pipelines fight by default (embedded timestamps, font-render variance, non-pinned encoders). Apply reproducible-builds discipline to a render: SOURCE_DATE_EPOCH, stripped metadata, pinned ffmpeg/fonts, and output hashing, with the specific non-determinism sources ranked by how often they bite. aidemo's golden/probe flow as a worked example, disclosed as ours.",
+      "evidenceHooks": [
+        "Reproducible Builds project docs (reproducible-builds.org, SOURCE_DATE_EPOCH)",
+        "ffmpeg docs on metadata / -map_metadata and encoder determinism",
+        "charmbracelet/vhs golden-output approach"
+      ],
+      "crossLinks": ["demos-as-code", "testing-demos-like-code", "deterministic-browser-automation-for-video", "versioning-media-assets-in-git"],
+      "wave": 19,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "video-documentation",
+      "title": "Video documentation for software: when the medium earns its keep",
+      "cluster": "video-docs",
+      "role": "pillar",
+      "pillar": null,
+      "keywords": ["video documentation", "video tutorials for software", "documentation videos", "software tutorial videos"],
+      "intent": "informational",
+      "angle": "The end-to-end case for video as a documentation medium, decided by evidence not enthusiasm: where video measurably outperforms text (procedural, first-run, spatial UI) and where it loses (lookup, search, maintenance), a format decision table across the doc surface (onboarding, KB, API, changelog), and the maintenance tax that sinks most tutorial libraries unless the video regenerates.",
+      "evidenceHooks": [
+        "arXiv 'Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering' (1809.00804)",
+        "Nielsen Norman Group research on video content and usability",
+        "Help Scout guide to building a video knowledge base"
+      ],
+      "crossLinks": ["video-vs-written-documentation", "microvideos-in-documentation", "support-videos-knowledge-base", "keeping-tutorial-libraries-current"],
+      "wave": 6,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "video-vs-written-documentation",
+      "title": "Video vs written documentation: the decision, with evidence",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["video vs written documentation", "should documentation be video", "video or text docs", "video vs text tutorials"],
+      "intent": "informational",
+      "angle": "Not a versus, a routing decision. A rubric that maps each doc job to a format on four axes (task type, lookup vs learn, maintenance cost, searchability), grounded in the software-engineering research on video as a documentation medium rather than the usual 'people love video' stat, and honest that text still wins on SEO and quick reference.",
+      "evidenceHooks": [
+        "arXiv 'Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering' (1809.00804)",
+        "arXiv 'Software Professionals are Not Directors: What Constitutes a Good Video?' (1808.04986)",
+        "Nielsen Norman Group articles on video usability and scanning behavior"
+      ],
+      "crossLinks": ["video-documentation", "microvideos-in-documentation", "gifs-in-documentation", "measuring-documentation-video-effectiveness"],
+      "wave": 7
+    },
+    {
+      "slug": "microvideos-in-documentation",
+      "title": "Microvideos in documentation: the 10-second clip that replaces a paragraph",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["microvideos documentation", "micro videos in docs", "short video in documentation", "helpvids docs"],
+      "intent": "informational",
+      "angle": "The unit that actually works in docs is not the tutorial, it is the 5-15 second silent clip showing one action (the HelpVid pattern). Where microvideos slot into the Diataxis quadrants (how-to and reference, not explanation), a length/format budget, and why a library of tiny clips is more maintainable than a few long walkthroughs.",
+      "evidenceHooks": [
+        "HelpDocs blog on 'HelpVids' (short, silent, single-action clips)",
+        "Diataxis documentation framework (diataxis.fr) on doc types",
+        "ClickHelp guidance on video in technical documentation"
+      ],
+      "crossLinks": ["video-documentation", "gifs-in-documentation", "video-vs-written-documentation", "embedding-videos-in-docs-sites"],
+      "wave": 15
+    },
+    {
+      "slug": "gifs-in-documentation",
+      "title": "GIFs in documentation: when a loop beats a screenshot",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["gifs in documentation", "animated gif docs", "gif vs video docs", "gif in technical docs"],
+      "intent": "informational",
+      "angle": "The GIF is the most abused format in docs: autoplaying, unstoppable, huge, and inaccessible. When a GIF genuinely beats a still or a video, the file-size math (why an MP4 is often 10x smaller than the same GIF), the accessibility rules an auto-looping GIF violates (WCAG pause/stop, prefers-reduced-motion), and the encode settings that keep it small.",
+      "evidenceHooks": [
+        "WCAG 2.2 Success Criterion 2.2.2 Pause, Stop, Hide (moving content)",
+        "MDN prefers-reduced-motion documentation",
+        "ffmpeg palettegen/paletteuse docs (quality vs size) and GitHub image-in-docs docs"
+      ],
+      "crossLinks": ["video-documentation", "microvideos-in-documentation", "readme-gifs-that-update-themselves", "accessible-tutorial-videos"],
+      "wave": 14
+    },
+    {
+      "slug": "onboarding-walkthrough-videos",
+      "title": "In-app onboarding walkthrough videos that survive redesigns",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["onboarding walkthrough video", "in-app onboarding video", "product walkthrough video", "user onboarding video"],
+      "intent": "informational",
+      "angle": "Onboarding walkthroughs are the highest-value and fastest-rotting doc video: they show the exact first-run UI, which is exactly what changes most. Where a video beats an interactive product tour for first-run, the structure that survives small UI changes (narrate outcomes, not pixel positions), and the regeneration loop that keeps the walkthrough matching today's signup flow.",
+      "evidenceHooks": [
+        "Nielsen Norman Group research on onboarding and first-time user experience",
+        "Appcues onboarding documentation/examples, dated",
+        "arXiv research on what makes a good software how-to video (1808.04986)"
+      ],
+      "crossLinks": ["video-documentation", "interactive-demo-vs-video-demo", "keeping-tutorial-libraries-current", "support-videos-knowledge-base"],
+      "wave": 16
+    },
+    {
+      "slug": "support-videos-knowledge-base",
+      "title": "Support and knowledge-base videos that actually deflect tickets",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["knowledge base videos", "support videos", "help center videos", "video knowledge base"],
+      "intent": "informational",
+      "angle": "A KB video only pays off if it deflects a ticket, which most don't because they are too long, unsearchable, or stale. What earns a video in a help center (repeated, procedural, high-volume tickets), the pair-with-text rule for search and muted viewing, and how to instrument deflection so you can tell which videos work, backed by the preference stats with their real source.",
+      "evidenceHooks": [
+        "Help Scout guide to a video knowledge base (tips, tools, examples)",
+        "Wyzowl State of Video Marketing report (video-preference statistics), dated",
+        "a help-desk vendor's docs on video in KB articles (Zendesk/Intercom/HappyFox), verified live"
+      ],
+      "crossLinks": ["video-documentation", "ai-documentation-tools", "measuring-documentation-video-effectiveness", "accessible-tutorial-videos"],
+      "wave": 11
+    },
+    {
+      "slug": "keeping-tutorial-libraries-current",
+      "title": "Keeping a tutorial video library current at scale",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["keep tutorial videos updated", "tutorial library maintenance", "update documentation videos", "maintain video library"],
+      "intent": "informational",
+      "angle": "The reason teams stop making doc videos: 200 tutorials times a UI redesign equals an un-fundable re-record backlog. Estimate the maintenance debt from real ship velocity, contrast the strategies (accept rot, prune aggressively, or regenerate from spec), and show why a library only stays honest if its videos rebuild from source. aidemo used as a worked example, disclosed as ours.",
+      "evidenceHooks": [
+        "public changelogs of 2-3 fast-shipping SaaS products (UI-visible change rate)",
+        "simonwillison.net writeup on automating screenshots with shot-scraper",
+        "GitHub Actions scheduled-workflow docs (cron re-render)"
+      ],
+      "crossLinks": ["video-documentation", "why-product-demos-go-stale", "automated-product-demo-videos", "nightly-demo-builds"],
+      "wave": 9,
+      "productMentionCap": 4
+    },
+    {
+      "slug": "developer-education-screencasts",
+      "title": "Developer-education screencasts: terminal, code, and browser together",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["developer screencast", "coding screencast", "developer education video", "programming tutorial screencast"],
+      "intent": "informational",
+      "angle": "Teaching developers has its own capture problem: readable code, real terminal output, and a browser, none of which a generic recorder handles well. A format guide for dev screencasts (font sizes that survive compression, terminal replay with asciinema/vhs vs raw capture, when to show code vs narrate it) and how to keep a code-heavy screencast from going stale the next release.",
+      "evidenceHooks": [
+        "asciinema documentation (terminal session recording as text)",
+        "charmbracelet/vhs README (scripted terminal screencasts)",
+        "arXiv 'Software Professionals are Not Directors' on what makes a good dev video (1808.04986)"
+      ],
+      "crossLinks": ["video-documentation", "api-documentation-videos", "camtasia-alternatives", "coding-agents-that-make-demo-videos"],
+      "wave": 17
+    },
+    {
+      "slug": "embedding-videos-in-docs-sites",
+      "title": "Embedding video in docs sites without wrecking load time",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["embed video in documentation", "docusaurus video embed", "mkdocs video", "self host video docs"],
+      "intent": "informational",
+      "angle": "The docs-framework how-to nobody writes: self-host vs YouTube-embed vs GIF, lazy-loading so a video-heavy page still passes Core Web Vitals, MP4 vs WebM, and the exact embed syntax for Docusaurus (MDX), MkDocs Material, and plain HTML. A performance-and-portability table, with poster frames and preload settings that matter.",
+      "evidenceHooks": [
+        "Docusaurus docs on MDX and embedding media",
+        "MkDocs Material documentation on embedding video",
+        "MDN <video> element docs and web.dev guidance on lazy-loading video"
+      ],
+      "crossLinks": ["video-documentation", "microvideos-in-documentation", "gifs-in-documentation", "api-documentation-videos"],
+      "wave": 18
+    },
+    {
+      "slug": "accessible-tutorial-videos",
+      "title": "Accessible tutorial videos: captions, transcripts, audio description",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["accessible video documentation", "accessible tutorial video", "video documentation accessibility", "transcripts for tutorial videos"],
+      "intent": "informational",
+      "angle": "Doc video accessibility is more than captions: transcripts (which also give you the SEO text a video lacks), audio description for UI-only moments, and keyboard-operable players. Map each WCAG media criterion to a concrete tutorial requirement and show the transcript doubling as searchable documentation, so accessibility and findability are the same work.",
+      "evidenceHooks": [
+        "W3C WCAG 2.2 media criteria (1.2.1 transcripts, 1.2.2 captions, 1.2.5 audio description)",
+        "W3C WAI 'Making Audio and Video Media Accessible' guide",
+        "MDN docs on the <track> element and caption/subtitle formats (WebVTT)"
+      ],
+      "crossLinks": ["video-documentation", "demo-video-captions", "support-videos-knowledge-base", "measuring-documentation-video-effectiveness"],
+      "wave": 19
+    },
+    {
+      "slug": "measuring-documentation-video-effectiveness",
+      "title": "Measuring whether documentation videos actually work",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["documentation video metrics", "measure tutorial video effectiveness", "video knowledge base analytics", "support deflection video"],
+      "intent": "informational",
+      "angle": "Views are a vanity metric for a doc video; the questions are 'did it deflect a ticket' and 'did people finish the part that matters'. A metric stack for doc video (completion and drop-off curves, ticket-deflection rate, search-to-video ratio) with definitions and how to instrument each, so you can retire the videos nobody watches instead of maintaining them forever.",
+      "evidenceHooks": [
+        "Wistia engagement / play-rate and video-analytics documentation",
+        "a help-desk vendor's definition of self-service / ticket deflection rate (Zendesk/Intercom), verified live",
+        "Nielsen Norman Group research on video engagement and drop-off"
+      ],
+      "crossLinks": ["video-documentation", "support-videos-knowledge-base", "video-vs-written-documentation", "keeping-tutorial-libraries-current"],
+      "wave": 21
+    },
+    {
+      "slug": "api-documentation-videos",
+      "title": "API and SDK documentation videos that stay in sync with the API",
+      "cluster": "video-docs",
+      "role": "spoke",
+      "pillar": "video-documentation",
+      "keywords": ["api documentation video", "sdk tutorial video", "api quickstart video", "developer docs video"],
+      "intent": "informational",
+      "angle": "Quickstart videos for APIs rot faster than any other doc video because a renamed field or changed response breaks them silently. What belongs in an API-docs video (the shape of a call and response, not a 20-minute tour), how to capture terminal + code + JSON legibly, and why an API video should regenerate from the same fixtures the docs are tested against.",
+      "evidenceHooks": [
+        "asciinema docs (recording terminal API calls as replayable text)",
+        "a first-party API-docs example that uses video quickstarts (Stripe or Twilio docs), verified live",
+        "OpenAPI Specification (the source of truth an API video should track)"
+      ],
+      "crossLinks": ["video-documentation", "developer-education-screencasts", "docs-that-test-themselves", "embedding-videos-in-docs-sites"],
+      "wave": 20
     }
   ]
 }
