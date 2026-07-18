@@ -8,7 +8,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://aidemo.top/blog/readme-gifs-that-update-themselves/">
 <link rel="alternate" type="text/markdown" href="/blog/readme-gifs-that-update-themselves/index.md">
-<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
 <link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="aidemo">
@@ -255,15 +255,17 @@
 <p>That table is a scroll-heavy worst case; a click-through demo that holds still between actions compresses far better, because GIF&#39;s frame disposal can skip the unchanged pixels. But the ranking never inverts: for a given clip, MP4 beats WebP beats GIF, every time. WebP is the smart pick for a docs site or landing page you control, where you can serve it with the headers you want; for the GitHub README itself, the GIF is still the format with guaranteed inline motion.</p>
 <h2 id="encoding-a-gif-that-doesnt-look-like-2009">Encoding a GIF that doesn&#39;t look like 2009<a class="hanchor" href="#encoding-a-gif-that-doesnt-look-like-2009" aria-label="Link to section: Encoding a GIF that doesn't look like 2009">#</a></h2>
 <p>The default GIF path in ffmpeg maps every frame onto one generic 256-color palette, which bands gradients and muddies text. The fix, from the ffmpeg filter&#39;s own author, is a two-pass build: analyze the clip and generate a palette tuned to its actual colors with <code>palettegen</code>, then apply that palette with <code>paletteuse</code><sup class="article-cite"><a href="#src-6" title="Clement Boesch — High quality GIF with FFmpeg (palettegen/paletteuse)">6</a></sup>. <code>palettegen</code> builds a histogram across all frames and picks colors with a variant of Heckbert&#39;s 1982 quantization; <code>paletteuse</code> maps each pixel to the nearest palette entry, with optional dithering<sup class="article-cite"><a href="#src-7" title="FFmpeg — filters documentation (palettegen, paletteuse, dither modes)">7</a></sup>.</p>
-<pre><code class="language-sh">  # 1) build a palette tuned to this specific clip
-ffmpeg -i master.mp4 \
-  -vf &quot;fps=15,scale=800:-1:flags=lanczos,palettegen=stats_mode=diff&quot; palette.png
-
-  # 2) apply it (bayer = smaller/compressible; floyd_steinberg = prettier gradients)
-ffmpeg -i master.mp4 -i palette.png \
-  -lavfi &quot;fps=15,scale=800:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:diff_mode=rectangle&quot; \
-  demo.gif
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">  # 1) build a palette tuned to this specific clip</span></span>
+<span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> master.mp4</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">  -vf</span><span style="color:#50A14F"> "fps=15,scale=800:-1:flags=lanczos,palettegen=stats_mode=diff"</span><span style="color:#50A14F"> palette.png</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">  # 2) apply it (bayer = smaller/compressible; floyd_steinberg = prettier gradients)</span></span>
+<span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> master.mp4</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> palette.png</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">  -lavfi</span><span style="color:#50A14F"> "fps=15,scale=800:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:diff_mode=rectangle"</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#50A14F">  demo.gif</span></span></code></pre>
+</div>
 <p>Two knobs earn their place. Scale with <code>flags=lanczos</code>, not the default bilinear, or the edges blur. And choose the dither on purpose: error-diffusion modes like <code>floyd_steinberg</code> and <code>sierra2</code> look best on gradients but, as the filter author puts it, &quot;completely kill the compression of GIF,&quot; while ordered <code>bayer</code> dithering is uglier on smooth ramps yet far more compressible, because its pattern is static and LZW rewards repetition<sup class="article-cite"><a href="#src-6" title="Clement Boesch — High quality GIF with FFmpeg (palettegen/paletteuse)">6</a></sup>. For UI footage that is mostly flat color, bayer is usually the right trade.</p>
 <p>When the GIF still won&#39;t fit, the levers are width, framerate, length, and colors, roughly in that order of impact against the 17.8 MB baseline above.</p>
 <div class="table-scroll"><table>
@@ -301,18 +303,22 @@ ffmpeg -i master.mp4 -i palette.png \
 <h2 id="keep-the-gif-honest-recapture-on-every-change">Keep the GIF honest: recapture on every change<a class="hanchor" href="#keep-the-gif-honest-recapture-on-every-change" aria-label="Link to section: Keep the GIF honest: recapture on every change">#</a></h2>
 <p>A GIF is a photograph of the product at one instant, and the product moves. The only way it stays true is to regenerate it from a script whenever the thing it depicts changes, the same discipline behind <a href="/blog/automated-product-demo-videos/">regenerating a demo from a committed spec instead of re-recording it</a>, applied to the asset with the most eyes on it. Because <a href="/blog/why-product-demos-go-stale/">product media rots the moment the UI ships past it</a>, the recapture has to be automatic, not a line on someone&#39;s to-do list.</p>
 <p>For terminal tools the pattern is settled. vhs turns a committed <code>.tape</code> script into a GIF by replaying it in a headless terminal, needing only <code>ttyd</code> and <code>ffmpeg</code> on the PATH<sup class="article-cite"><a href="#src-8" title="charmbracelet/vhs — write terminal GIFs from a .tape file">8</a></sup>. The tape is the source of truth; edit the CLI, replay the same tape, and the GIF regenerates.</p>
-<pre><code>  # demo.tape, committed next to the CLI
+<div class="code-block">
+<div class="code-block-bar"><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>  # demo.tape, committed next to the CLI
 Output demo.gif
 Set Width 1200
 Set Height 600
 Set FontSize 22
 Type &quot;mytool build ./app&quot; Enter
-Sleep 3s
-</code></pre>
+Sleep 3s</code></pre>
+</div>
 <p>For web UIs the equivalent is a browser-replay engine that drives real Chrome through a scripted flow and emits a GIF. Our engine, aidemo, does this with a <code>gif</code> command that renders the README GIF from the same storyboard it uses for the full video. It is browser-only, the storyboard comes from a coding agent instead of a drag-and-drop timeline, and there is no click-to-edit UI, so it fits a demo you intend to keep current rather than a one-off sizzle reel.</p>
-<pre><code class="language-sh">  # browser replay: same storyboard, README-sized GIF
-aidemo gif ./demos/dashboard --width 800 --fps 12
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">  # browser replay: same storyboard, README-sized GIF</span></span>
+<span class="line"><span style="color:#4078F2">aidemo</span><span style="color:#50A14F"> gif</span><span style="color:#50A14F"> ./demos/dashboard</span><span style="color:#986801"> --width</span><span style="color:#986801"> 800</span><span style="color:#986801"> --fps</span><span style="color:#986801"> 12</span></span></code></pre>
+</div>
 <p>Either way the loop is the same shape, and the plumbing, which trigger fires the render, what the runner needs installed, and the guard that stops a commit-back job from triggering itself, is a solved problem covered in <a href="/blog/demo-videos-in-ci/">the walkthrough for rendering demos in a GitHub Actions job</a>. The craft of the underlying demo, what to show, how long, how to pace it, is <a href="/blog/how-to-make-a-product-demo-video/">its own discipline</a>. What the README owns is the last mile: a committed GIF, encoded under 10 MB, at a stable path a machine overwrites on every change, so the loop on the front page never lies about the product behind it.</p>
 <h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
 <ol class="article-sources">
@@ -469,6 +475,24 @@ aidemo gif ./demos/dashboard --width 800 --fps 12
     headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
     activate(active);
   }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
 })();
 </script>
 </body>

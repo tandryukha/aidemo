@@ -25,6 +25,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { Marked } from 'marked';
+import { createHighlighter } from 'shiki';
 
 const BLOG_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE_ORIGIN = 'https://aidemo.top';
@@ -183,6 +184,47 @@ function cardImageHtml(article, { featured = false } = {}) {
 // Markdown rendering (marked v13+ token-object renderer API)
 // ---------------------------------------------------------------------------
 
+// Build-time syntax highlighting (shiki — grammars/themes are bundled, no
+// network at bake). one-light auditioned best against the warm-paper palette;
+// its background is stripped (the .code-block container owns the tinted
+// panel) and its comment grey is darkened for contrast on that panel.
+// HTML-only: the .md mirrors and llms*.txt keep raw fenced code verbatim.
+// Shiki's async setup is a single top-level await — everything downstream
+// (renderContent, main) stays synchronous.
+const CODE_THEME = 'one-light';
+const CODE_LANGS = ['yaml', 'javascript', 'typescript', 'tsx', 'json', 'jsonc',
+  'json5', 'shellscript', 'html', 'css', 'python', 'diff'];
+const CODE_LANG_ALIASES = {
+  js: 'javascript', mjs: 'javascript', cjs: 'javascript',
+  ts: 'typescript', yml: 'yaml', py: 'python',
+  sh: 'shellscript', bash: 'shellscript', shell: 'shellscript', zsh: 'shellscript',
+};
+const CODE_COLOR_REPLACEMENTS = {
+  '#fafafa': 'transparent', // one-light bg — .code-block owns the panel color
+  '#a0a1a7': '#6f747e',     // comments: 2.3:1 → 4.3:1 on the tinted panel
+};
+const highlighter = await createHighlighter({ themes: [CODE_THEME], langs: CODE_LANGS });
+
+/**
+ * Fenced code block → dev-grade chrome: bordered tinted container, uppercase
+ * language chip (tagged fences only), and a copy button (COPY_JS is injected
+ * only on pages that contain one of these). Tagged fences get inline shiki
+ * token colors; untagged (and unknown-language) fences stay neutral.
+ */
+function codeBlockHtml(code, infostring) {
+  const tag = String(infostring ?? '').trim().split(/\s+/)[0].toLowerCase();
+  const lang = CODE_LANG_ALIASES[tag] ?? tag;
+  const pre = lang && highlighter.getLoadedLanguages().includes(lang)
+    ? highlighter.codeToHtml(code, { lang, theme: CODE_THEME, colorReplacements: CODE_COLOR_REPLACEMENTS })
+    : `<pre class="code-plain" tabindex="0"><code>${escapeHtml(code)}</code></pre>`;
+  const chip = tag ? `<span class="code-lang">${escapeHtml(tag)}</span>` : '';
+  return `<div class="code-block">
+<div class="code-block-bar">${chip}<button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+${pre}
+</div>
+`;
+}
+
 /** Resolve an internal link. Returns a href to keep, or null to unwrap. */
 function resolveLink(href) {
   if (!href || !href.startsWith('/blog')) return href; // external / non-blog: pass through
@@ -205,6 +247,9 @@ function createMarkdown() {
   const md = new Marked();
   md.use({
     renderer: {
+      code(token) {
+        return codeBlockHtml(token.text, token.lang);
+      },
       heading(token) {
         const text = this.parser.parseInline(token.tokens);
         const plain = tokenPlainText(token.tokens).trim();
@@ -623,6 +668,26 @@ const SCROLL_SPY_JS = `(function () {
   }, { passive: true });
 })();`;
 
+/** Per-code-block copy button. Clipboard API only; buttons hide when absent. */
+const COPY_JS = `(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();`;
+
 function bakeArticle(article) {
   const meta = clusterMeta(article.cluster);
   const canonical = `${SITE_ORIGIN}${BASE}/${article.slug}/`;
@@ -760,7 +825,7 @@ ${(article.tags ?? []).map((t) => `        <span class="article-tag">${escapeHtm
 </main>
 ${siteFooter()}
 <script>
-${SCROLL_SPY_JS}
+${SCROLL_SPY_JS}${contentHtml.includes('class="code-block"') ? `\n${COPY_JS}` : ''}
 </script>`;
 
   writePage(path.join(article.slug, 'index.html'), page({
@@ -879,6 +944,7 @@ function bakeEditorialPolicy() {
     description,
     publisher: { '@type': 'Organization', name: 'aidemo', url: SITE_ORIGIN },
   });
+  const policyHtml = renderContent(bodyMd);
   const body = `${siteHeader()}
 <main class="article-page">
   <nav class="article-breadcrumb" aria-label="Breadcrumb">
@@ -890,13 +956,13 @@ function bakeEditorialPolicy() {
         <h1 class="article-title">${escapeHtml(title)}</h1>
       </header>
       <div class="article-content article-content--plain">
-${renderContent(bodyMd)}
+${policyHtml}
       </div>
     </article>
     <aside class="article-sidebar" hidden></aside>
   </div>
 </main>
-${siteFooter()}`;
+${siteFooter()}${policyHtml.includes('class="code-block"') ? `\n<script>\n${COPY_JS}\n</script>` : ''}`;
   writePage(path.join('editorial-policy', 'index.html'), page({
     headHtml: head({ title: `${title} | aidemo blog`, description, canonical, ldBlocks: [ld] }),
     bodyHtml: body,

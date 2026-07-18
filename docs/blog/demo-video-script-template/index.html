@@ -8,7 +8,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://aidemo.top/blog/demo-video-script-template/">
 <link rel="alternate" type="text/markdown" href="/blog/demo-video-script-template/index.md">
-<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
 <link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="aidemo">
@@ -225,7 +225,9 @@
 <p>Product narration belongs at the calm end of the band. You are asking someone to read an interface and listen at the same time, so 140 to 150 words per minute leaves air around each idea. Faster than about 170 and the words outrun the screen; slower than 120 and it drags. Pick the runtime your channel wants first — <a href="/blog/how-long-should-a-demo-video-be/">how long the finished video should run</a> depends on where it plays — then spend the budget the table hands you.</p>
 <h2 id="the-three-act-skeleton-problem-walkthrough-proof">The three-act skeleton: problem, walkthrough, proof<a class="hanchor" href="#the-three-act-skeleton-problem-walkthrough-proof" aria-label="Link to section: The three-act skeleton: problem, walkthrough, proof">#</a></h2>
 <p>Every demo that holds attention answers three questions in order: why should I care, what does this do, and did it actually work. Problem, walkthrough, proof. The structure is old because it works; the discipline is spending each act&#39;s word budget and not a word more. Here is the skeleton sized for a 75-to-80-second cut, a comfortable length for a hero or a sales follow-up.</p>
-<pre><code>[0:00-0:12]  HOOK / PROBLEM        ~30 words
+<div class="code-block">
+<div class="code-block-bar"><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>[0:00-0:12]  HOOK / PROBLEM        ~30 words
   One concrete scene of the pain. Name no product yet.
 
 [0:12-0:20]  PROMISE               ~20 words
@@ -239,8 +241,8 @@
   The result as a number or a before/after. Earned, not asserted.
 
 [1:15-1:22]  CTA                   ~15 words
-  Exactly one action, one destination.
-</code></pre>
+  Exactly one action, one destination.</code></pre>
+</div>
 <p>Two hundred words, eighty seconds. The walkthrough gets more than half the budget because it is the only part that has to be true: the hook can be rewritten, but the three steps have to match what the screen does. If your flow needs four steps, take words from the hook, not from the runtime. A 60-second version is the same shape with a two-step walkthrough and about 150 words total; a 45-second version folds the promise into the hook.</p>
 <p>Cross-check the plan against <a href="/blog/how-to-make-a-product-demo-video/">the end-to-end demo playbook</a> before you record: the script decides the pacing, but recording, captions, and trimming decide whether the pacing survives.</p>
 <h2 id="worked-example-1-a-saas-dashboard-in-75-seconds">Worked example 1: a SaaS dashboard in 75 seconds<a class="hanchor" href="#worked-example-1-a-saas-dashboard-in-75-seconds" aria-label="Link to section: Worked example 1: a SaaS dashboard in 75 seconds">#</a></h2>
@@ -505,6 +507,24 @@
     headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
     activate(active);
   }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
 })();
 </script>
 </body>

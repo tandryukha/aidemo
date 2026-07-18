@@ -8,7 +8,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://aidemo.top/blog/automating-product-screenshots/">
 <link rel="alternate" type="text/markdown" href="/blog/automating-product-screenshots/index.md">
-<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
 <link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="aidemo">
@@ -211,25 +211,27 @@
 <p>The reason to bother is volume. A marketing page localized to eight languages with five hero shots each is 40 images. An App Store listing that ships for the 6.9-inch iPhone and the 13-inch iPad, across eight locales, at up to ten screenshots per device, is as many as 160 required stills<sup class="article-cite"><a href="#src-9" title="Apple App Store screenshot specifications">9</a></sup> — and Apple treats the preview video as optional while the screenshots are mandatory. Nobody captures 160 images by hand once, let alone every release, and every one of them lands stale the day a designer nudges a color token. What it costs to let those images <a href="/blog/why-product-demos-go-stale/">drift out of date</a> is a separate story; this one is about the pipeline that stops it before a customer ever sees the gap.</p>
 <h2 id="one-yaml-file-every-screenshot-in-your-docs">One YAML file, every screenshot in your docs<a class="hanchor" href="#one-yaml-file-every-screenshot-in-your-docs" aria-label="Link to section: One YAML file, every screenshot in your docs">#</a></h2>
 <p>The cleanest place to start is Simon Willison&#39;s shot-scraper, a Playwright-based CLI first released in March 2022 (<a href="https://simonwillison.net/2022/Mar/10/shot-scraper/" rel="noopener">Willison, 2022</a>; <a href="https://github.com/simonw/shot-scraper" rel="noopener">repo, Apache-2.0</a>). Its multi-shot mode reads a YAML file where each entry is one named still, and <code>shot-scraper multi shots.yml</code> renders all of them in a single pass:</p>
-<pre><code class="language-yaml">#shots.yml — one entry per named still
-- output: dashboard-hero.png
-  url: https://app.example.com/dashboard
-  width: 1280
-  height: 720
-  wait: 800
-
-- output: billing-card.png
-  url: https://app.example.com/settings/billing
-  selector: &quot;#billing-card&quot;
-  padding: 24
-  javascript: |
-    document.querySelector(&#39;.cookie-banner&#39;)?.remove()
-
-- output: pricing.png
-  url: https://example.com/pricing
-  height: 900
-  quality: 80
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">yaml</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">#shots.yml — one entry per named still</span></span>
+<span class="line"><span style="color:#383A42">- </span><span style="color:#E45649">output</span><span style="color:#383A42">: </span><span style="color:#50A14F">dashboard-hero.png</span></span>
+<span class="line"><span style="color:#E45649">  url</span><span style="color:#383A42">: </span><span style="color:#50A14F">https://app.example.com/dashboard</span></span>
+<span class="line"><span style="color:#E45649">  width</span><span style="color:#383A42">: </span><span style="color:#986801">1280</span></span>
+<span class="line"><span style="color:#E45649">  height</span><span style="color:#383A42">: </span><span style="color:#986801">720</span></span>
+<span class="line"><span style="color:#E45649">  wait</span><span style="color:#383A42">: </span><span style="color:#986801">800</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#383A42">- </span><span style="color:#E45649">output</span><span style="color:#383A42">: </span><span style="color:#50A14F">billing-card.png</span></span>
+<span class="line"><span style="color:#E45649">  url</span><span style="color:#383A42">: </span><span style="color:#50A14F">https://app.example.com/settings/billing</span></span>
+<span class="line"><span style="color:#E45649">  selector</span><span style="color:#383A42">: </span><span style="color:#50A14F">"#billing-card"</span></span>
+<span class="line"><span style="color:#E45649">  padding</span><span style="color:#383A42">: </span><span style="color:#986801">24</span></span>
+<span class="line"><span style="color:#E45649">  javascript</span><span style="color:#383A42">: </span><span style="color:#A626A4">|</span></span>
+<span class="line"><span style="color:#50A14F">    document.querySelector('.cookie-banner')?.remove()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#383A42">- </span><span style="color:#E45649">output</span><span style="color:#383A42">: </span><span style="color:#50A14F">pricing.png</span></span>
+<span class="line"><span style="color:#E45649">  url</span><span style="color:#383A42">: </span><span style="color:#50A14F">https://example.com/pricing</span></span>
+<span class="line"><span style="color:#E45649">  height</span><span style="color:#383A42">: </span><span style="color:#986801">900</span></span>
+<span class="line"><span style="color:#E45649">  quality</span><span style="color:#383A42">: </span><span style="color:#986801">80</span></span></code></pre>
+</div>
 <p>Every key earns its place. <code>selector</code> crops to one element instead of the whole viewport; <code>padding</code> gives that element breathing room; <code>javascript</code> runs before the shot so you can dismiss a cookie banner or open a menu; <code>wait</code> holds for the page to settle<sup class="article-cite"><a href="#src-3" title="shot-scraper multi command docs">3</a></sup>. The file is plain text, so it diffs, it reviews, and it lives next to the code it documents. shot-scraper also ships a template repo that runs the same YAML on a GitHub Actions schedule, so the machine that has the browser installed is not your laptop.</p>
 <h2 id="the-four-screenshot-options-that-separate-a-docs-shot-from-a-snapshot">The four screenshot options that separate a docs shot from a snapshot<a class="hanchor" href="#the-four-screenshot-options-that-separate-a-docs-shot-from-a-snapshot" aria-label="Link to section: The four screenshot options that separate a docs shot from a snapshot">#</a></h2>
 <p>shot-scraper leans on Playwright underneath, and if you drive Playwright directly, four of its <code>page.screenshot()</code> options decide whether a shot is publishable or merely captured<sup class="article-cite"><a href="#src-5" title="Playwright page.screenshot() API reference">5</a></sup>:</p>
@@ -463,6 +465,24 @@
     headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
     activate(active);
   }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
 })();
 </script>
 </body>

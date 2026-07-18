@@ -8,7 +8,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://aidemo.top/blog/personalized-demo-videos-at-scale/">
 <link rel="alternate" type="text/markdown" href="/blog/personalized-demo-videos-at-scale/index.md">
-<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
 <link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="aidemo">
@@ -206,23 +206,27 @@
 <p>Seeding is the real cost of tier 3, and it splits by where the demo runs. Against a sandbox or fixture you control, you can fabricate believable state per prospect — an account named for their company, sample records drawn from their industry — and drive it from parameters. Against a live product, you are either provisioning a real trial tenant per prospect or you are blocked, because you cannot and must not populate a stranger&#39;s production data to film it. Tier 3 at scale is realistic exactly when the app accepts parameters that dress the set, and infeasible when it does not.</p>
 <p>Given a seedable app, tier 3 is a <a href="/blog/automated-product-demo-videos/">parameterized re-render</a>, not a re-shoot. Each prospect is a set of values — company name, a seeded query, an industry — pushed into a storyboard whose selectors and typed text carry placeholders. A <a href="/blog/deterministic-browser-automation-for-video/">deterministic replay</a> drives the seeded app and captures the take. The same pipeline that turns <a href="/blog/multi-language-product-demo-videos/">one take into a wall of locales</a> turns it into a wall of prospects; the only difference is which column of the CSV you feed it. And the difference from tier 2 is precisely which fields hold the placeholder: a value in a URL or a typed search term changes the recorded footage, so tier 3 re-records the take instead of only re-voicing it.</p>
 <p>Worked in our own engine (disclosed: aidemo is ours, browser-only, storyboard authored by an agent rather than dragged on a timeline, no visual editor). Declare params, reference them as placeholders, then hand the render a row per prospect:</p>
-<pre><code class="language-json">// storyboard.json (excerpt)
-{
-  &quot;params&quot;: { &quot;customer&quot;: &quot;there&quot;, &quot;query&quot;: &quot;whey isolate under 30 euros&quot; },
-  &quot;scenes&quot;: [{
-    &quot;narration&quot;: &quot;Here is how {{customer}} would find the right SKU.&quot;,
-    &quot;actions&quot;: [
-      { &quot;op&quot;: &quot;type&quot;, &quot;target&quot;: { &quot;selector&quot;: &quot;#search&quot; }, &quot;text&quot;: &quot;{{query}}&quot; }
-    ]
-  }]
-}
-</code></pre>
-<pre><code class="language-json">// variants.json — one object per prospect
-[
-  { &quot;name&quot;: &quot;acme&quot;,   &quot;params&quot;: { &quot;customer&quot;: &quot;Acme Corp&quot;, &quot;query&quot;: &quot;creatine&quot; } },
-  { &quot;name&quot;: &quot;globex&quot;, &quot;params&quot;: { &quot;customer&quot;: &quot;Globex&quot;,    &quot;query&quot;: &quot;omega 3&quot;  } }
-]
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">// storyboard.json (excerpt)</span></span>
+<span class="line"><span style="color:#383A42">{</span></span>
+<span class="line"><span style="color:#E45649">  "params"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"customer"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"there"</span><span style="color:#383A42">, </span><span style="color:#E45649">"query"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"whey isolate under 30 euros"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#E45649">  "scenes"</span><span style="color:#383A42">: [{</span></span>
+<span class="line"><span style="color:#E45649">    "narration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Here is how {{customer}} would find the right SKU."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">    "actions"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">      { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"type"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"#search"</span><span style="color:#383A42"> }, </span><span style="color:#E45649">"text"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"{{query}}"</span><span style="color:#383A42"> }</span></span>
+<span class="line"><span style="color:#383A42">    ]</span></span>
+<span class="line"><span style="color:#383A42">  }]</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">// variants.json — one object per prospect</span></span>
+<span class="line"><span style="color:#383A42">[</span></span>
+<span class="line"><span style="color:#383A42">  { </span><span style="color:#E45649">"name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"acme"</span><span style="color:#383A42">,   </span><span style="color:#E45649">"params"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"customer"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Acme Corp"</span><span style="color:#383A42">, </span><span style="color:#E45649">"query"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"creatine"</span><span style="color:#383A42"> } },</span></span>
+<span class="line"><span style="color:#383A42">  { </span><span style="color:#E45649">"name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"globex"</span><span style="color:#383A42">, </span><span style="color:#E45649">"params"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"customer"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Globex"</span><span style="color:#383A42">,    </span><span style="color:#E45649">"query"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"omega 3"</span><span style="color:#383A42">  } }</span></span>
+<span class="line"><span style="color:#383A42">]</span></span></code></pre>
+</div>
 <p><code>render --variants variants.json</code> walks the list and drops each prospect&#39;s video in its own folder. The <code>{{customer}}</code> in the narration re-voices; the <code>{{query}}</code> typed into the search box changes what the recorded screen shows. Fifty rows is fifty renders, sequential and unattended. The engineering that made this cheap already existed for localization — per-prospect is the same substitution aimed at a different field.</p>
 <h2 id="the-arithmetic-for-a-fifty-prospect-sequence">The arithmetic for a fifty-prospect sequence<a class="hanchor" href="#the-arithmetic-for-a-fifty-prospect-sequence" aria-label="Link to section: The arithmetic for a fifty-prospect sequence">#</a></h2>
 <p>Put the tiers side by side for one outbound batch. &quot;Build&quot; is one-time; &quot;per prospect&quot; is what the fifty-first video costs.</p>
@@ -435,6 +439,24 @@
     headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
     activate(active);
   }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
 })();
 </script>
 </body>

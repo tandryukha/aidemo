@@ -8,7 +8,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://aidemo.top/blog/video-as-code-tools/">
 <link rel="alternate" type="text/markdown" href="/blog/video-as-code-tools/index.md">
-<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
 <link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="aidemo">
@@ -241,66 +241,76 @@
 </tbody></table></div>
 <h2 id="remotion-and-revideo-code-that-draws-every-frame">Remotion and Revideo: code that draws every frame<a class="hanchor" href="#remotion-and-revideo-code-that-draws-every-frame" aria-label="Link to section: Remotion and Revideo: code that draws every frame">#</a></h2>
 <p>Remotion hands you &quot;a frame number and a blank canvas, to which you can render anything you want using React&quot;<sup class="article-cite"><a href="#src-1" title="Remotion — The fundamentals (frame number and a blank canvas, React)">1</a></sup>. The frame is a hook; a video is one component evaluated once per frame, with animation expressed as a function of the frame number:</p>
-<pre><code class="language-tsx">import { useCurrentFrame, interpolate } from &quot;remotion&quot;;
-
-export const FadeIn = () =&gt; {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 60], [0, 1], {
-    extrapolateRight: &quot;clamp&quot;,
-  });
-  return &lt;div style={{ opacity }}&gt;Ship it&lt;/div&gt;;
-};
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">tsx</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#A626A4">import</span><span style="color:#383A42"> { </span><span style="color:#E45649">useCurrentFrame</span><span style="color:#383A42">, </span><span style="color:#E45649">interpolate</span><span style="color:#383A42"> } </span><span style="color:#A626A4">from</span><span style="color:#50A14F"> "remotion"</span><span style="color:#383A42">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#A626A4">export</span><span style="color:#A626A4"> const</span><span style="color:#4078F2"> FadeIn</span><span style="color:#0184BC"> =</span><span style="color:#383A42"> () </span><span style="color:#A626A4">=></span><span style="color:#383A42"> {</span></span>
+<span class="line"><span style="color:#A626A4">  const</span><span style="color:#986801"> frame</span><span style="color:#0184BC"> =</span><span style="color:#4078F2"> useCurrentFrame</span><span style="color:#383A42">();</span></span>
+<span class="line"><span style="color:#A626A4">  const</span><span style="color:#986801"> opacity</span><span style="color:#0184BC"> =</span><span style="color:#4078F2"> interpolate</span><span style="color:#383A42">(frame, [</span><span style="color:#986801">0</span><span style="color:#383A42">, </span><span style="color:#986801">60</span><span style="color:#383A42">], [</span><span style="color:#986801">0</span><span style="color:#383A42">, </span><span style="color:#986801">1</span><span style="color:#383A42">], {</span></span>
+<span class="line"><span style="color:#383A42">    extrapolateRight</span><span style="color:#0184BC">:</span><span style="color:#50A14F"> "clamp"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#383A42">  });</span></span>
+<span class="line"><span style="color:#A626A4">  return</span><span style="color:#383A42"> &#x3C;</span><span style="color:#E45649">div</span><span style="color:#986801"> style</span><span style="color:#383A42">={{ opacity }}>Ship it&#x3C;/</span><span style="color:#E45649">div</span><span style="color:#383A42">>;</span></span>
+<span class="line"><span style="color:#383A42">};</span></span></code></pre>
+</div>
 <p>To turn that into a file, Remotion drives a browser: it &quot;is automatically installing Chrome Headless Shell into your <code>node_modules</code> in order to render videos&quot;<sup class="article-cite"><a href="#src-3" title="Remotion — Chrome Headless Shell (renders via a headless browser)">3</a></sup>, screenshots each frame, and hands the sequence to ffmpeg. Revideo takes the same premise with a different grammar. A scene is a generator function you step through with <code>yield*</code>, an imperative style the Motion Canvas project popularized:</p>
-<pre><code class="language-tsx">export default makeScene2D(&#39;scramble&#39;, function* (view) {
-  view.fill(&#39;#0d0d12&#39;);
-  const cube = createRef&lt;RubiksCube&gt;();
-  view.add(&lt;RubiksCube ref={cube} size={620} /&gt;);
-  yield* waitFor(0.5);
-  yield* cube().scramble(18);
-});
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">tsx</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#A626A4">export</span><span style="color:#E45649"> default</span><span style="color:#4078F2"> makeScene2D</span><span style="color:#383A42">(</span><span style="color:#50A14F">'scramble'</span><span style="color:#383A42">, </span><span style="color:#A626A4">function*</span><span style="color:#383A42"> (view) {</span></span>
+<span class="line"><span style="color:#E45649">  view</span><span style="color:#383A42">.</span><span style="color:#4078F2">fill</span><span style="color:#383A42">(</span><span style="color:#50A14F">'#0d0d12'</span><span style="color:#383A42">);</span></span>
+<span class="line"><span style="color:#A626A4">  const</span><span style="color:#986801"> cube</span><span style="color:#0184BC"> =</span><span style="color:#4078F2"> createRef</span><span style="color:#383A42">&#x3C;</span><span style="color:#C18401">RubiksCube</span><span style="color:#383A42">>();</span></span>
+<span class="line"><span style="color:#E45649">  view</span><span style="color:#383A42">.</span><span style="color:#4078F2">add</span><span style="color:#383A42">(&#x3C;</span><span style="color:#C18401">RubiksCube</span><span style="color:#986801"> ref</span><span style="color:#383A42">={cube} </span><span style="color:#986801">size</span><span style="color:#383A42">={</span><span style="color:#986801">620</span><span style="color:#383A42">} />);</span></span>
+<span class="line"><span style="color:#A626A4">  yield*</span><span style="color:#4078F2"> waitFor</span><span style="color:#383A42">(</span><span style="color:#986801">0.5</span><span style="color:#383A42">);</span></span>
+<span class="line"><span style="color:#A626A4">  yield*</span><span style="color:#4078F2"> cube</span><span style="color:#383A42">().</span><span style="color:#4078F2">scramble</span><span style="color:#383A42">(</span><span style="color:#986801">18</span><span style="color:#383A42">);</span></span>
+<span class="line"><span style="color:#383A42">});</span></span></code></pre>
+</div>
 <p>Revideo describes itself as a code-first rendering engine that &quot;borrows concepts from Remotion and Rive&quot; and runs &quot;anywhere Node and a headless browser run&quot;<sup class="article-cite"><a href="#src-4" title="Revideo — GitHub repository (rendering engine, generator scenes)">4</a></sup>. React components versus TypeScript generators is a real ergonomic choice, but it is a small one next to the property both tools share: every pixel is something your code drew. None of it came from your product unless you first rebuilt the product in React or on a canvas — a second implementation to write and then keep in sync.</p>
 <h2 id="editly-and-vhs-compose-clips-or-replay-a-terminal">editly and vhs: compose clips, or replay a terminal<a class="hanchor" href="#editly-and-vhs-compose-clips-or-replay-a-terminal" aria-label="Link to section: editly and vhs: compose clips, or replay a terminal">#</a></h2>
 <p>editly drops a level of abstraction. It is &quot;a tool and framework for declarative NLE (non-linear video editing) using Node.js and ffmpeg&quot;<sup class="article-cite"><a href="#src-5" title="editly — GitHub README (declarative NLE over Node.js and ffmpeg)">5</a></sup>; the source of truth is a JSON or JSON5 edit spec — an array of clips, each a stack of layers:</p>
-<pre><code class="language-json5">{
-  clips: [
-    { layers: [ { type: &#39;title&#39;, text: &#39;Hello&#39; } ] }
-  ]
-}
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json5</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">{</span></span>
+<span class="line"><span style="color:#50A14F">  clips</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">    { </span><span style="color:#50A14F">layers</span><span style="color:#383A42">: [ { </span><span style="color:#50A14F">type</span><span style="color:#383A42">: </span><span style="color:#50A14F">'title'</span><span style="color:#383A42">, </span><span style="color:#50A14F">text</span><span style="color:#383A42">: </span><span style="color:#50A14F">'Hello'</span><span style="color:#383A42"> } ] }</span></span>
+<span class="line"><span style="color:#383A42">  ]</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
 <p>Past <code>title</code>, the layer types include <code>video</code> and <code>image</code>, so the pixels editly emits are the media you feed it: clips cut, resized, captioned, and concatenated with transitions. It arranges footage and captures none. If you do not already have a recording of your product, editly has nothing of your product to show — it is a compositor, not a camera.</p>
 <p>vhs is the terminal&#39;s version of the instinct, and the only model here that is both imperative and captures something real. A <code>.tape</code> file is a script of keystrokes and pauses<sup class="article-cite"><a href="#src-6" title="Charm vhs — GitHub README (terminal GIFs as code, ttyd + ffmpeg)">6</a></sup>:</p>
-<pre><code>Output demo.gif
+<div class="code-block">
+<div class="code-block-bar"><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>Output demo.gif
 
 Set FontSize 46
 Set Width 1200
 Set Height 600
 
-Type &quot;echo &#39;Welcome to VHS!&#39;&quot;
+Type &quot;echo 'Welcome to VHS!'&quot;
 
 Sleep 500ms
 
-Enter
-</code></pre>
+Enter</code></pre>
+</div>
 <p>vhs runs that tape against an actual shell — it needs <code>ttyd</code> and <code>ffmpeg</code> on your PATH — and records the true output. The pixels are your CLI&#39;s real behavior, not an illustration of it, which is why the same tape doubles as an integration test: the README ships a golden-file workflow that diffs a tape&#39;s text output between runs so a changed CLI fails the check.</p>
 <h2 id="real-ui-capture-an-action-spec-the-browser-replays">Real-UI capture: an action-spec the browser replays<a class="hanchor" href="#real-ui-capture-an-action-spec-the-browser-replays" aria-label="Link to section: Real-UI capture: an action-spec the browser replays">#</a></h2>
 <p>The browser version of that bet is a storyboard: a declarative list of steps a deterministic player replays against the running product in real Chrome. aidemo, our engine, uses this model — browser-only, MIT-licensed, and with the storyboard authored by a coding agent rather than dragged together in a timeline editor:</p>
-<pre><code class="language-json">{
-  &quot;scenes&quot;: [
-    {
-      &quot;id&quot;: &quot;s1&quot;,
-      &quot;narration&quot;: &quot;Just tell the app what you need.&quot;,
-      &quot;actions&quot;: [
-        { &quot;op&quot;: &quot;goto&quot;, &quot;url&quot;: &quot;https://app.example.com/&quot; },
-        { &quot;op&quot;: &quot;type&quot;, &quot;target&quot;: { &quot;selector&quot;: &quot;#search&quot; }, &quot;text&quot;: &quot;whey isolate under 30 euros&quot; },
-        { &quot;op&quot;: &quot;click&quot;, &quot;target&quot;: { &quot;selector&quot;: &quot;#search-btn&quot; } },
-        { &quot;op&quot;: &quot;waitForWidget&quot;, &quot;target&quot;: { &quot;selector&quot;: &quot;[data-testid=product-card]&quot; } }
-      ]
-    }
-  ]
-}
-</code></pre>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">{</span></span>
+<span class="line"><span style="color:#E45649">  "scenes"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">    {</span></span>
+<span class="line"><span style="color:#E45649">      "id"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"s1"</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "narration"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"Just tell the app what you need."</span><span style="color:#383A42">,</span></span>
+<span class="line"><span style="color:#E45649">      "actions"</span><span style="color:#383A42">: [</span></span>
+<span class="line"><span style="color:#383A42">        { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"goto"</span><span style="color:#383A42">, </span><span style="color:#E45649">"url"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"https://app.example.com/"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">        { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"type"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"#search"</span><span style="color:#383A42"> }, </span><span style="color:#E45649">"text"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"whey isolate under 30 euros"</span><span style="color:#383A42"> },</span></span>
+<span class="line"><span style="color:#383A42">        { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"click"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"#search-btn"</span><span style="color:#383A42"> } },</span></span>
+<span class="line"><span style="color:#383A42">        { </span><span style="color:#E45649">"op"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"waitForWidget"</span><span style="color:#383A42">, </span><span style="color:#E45649">"target"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"selector"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"[data-testid=product-card]"</span><span style="color:#383A42"> } }</span></span>
+<span class="line"><span style="color:#383A42">      ]</span></span>
+<span class="line"><span style="color:#383A42">    }</span></span>
+<span class="line"><span style="color:#383A42">  ]</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
 <p>The source of truth is the action-spec; the pixels are whatever the live app paints. That is the entire gap between this and Remotion or Revideo: capture does not draw a picture of the product, it films the product. The cost is determinism — replaying one flow into identical frames twice, while animations, web fonts, and network timing all pull the other way, is its own <a href="/blog/deterministic-browser-automation-for-video/">engineering problem</a>. The upside is authorship: because a language model emits structured steps well but cannot perform a screen recording, an action-spec is precisely the artifact a <a href="/blog/coding-agents-that-make-demo-videos/">coding agent can write</a>, where a captured performance is not.</p>
 <h2 id="iteration-loop-and-the-moment-your-ui-changes">Iteration loop and the moment your UI changes<a class="hanchor" href="#iteration-loop-and-the-moment-your-ui-changes" aria-label="Link to section: Iteration loop and the moment your UI changes">#</a></h2>
 <p>Two axes separate these models in daily use: how fast an edit shows up, and what happens when the thing on screen moves.</p>
@@ -531,6 +541,24 @@ Enter
     headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
     activate(active);
   }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
 })();
 </script>
 </body>
