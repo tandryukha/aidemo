@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Captions on Demo Videos: Timing, Formats, WCAG | aidemo</title>
+<meta name="description" content="Captions for demo videos, for engineers: WCAG 1.2.2 stated precisely, word-level vs block timing, open vs closed captions by placement, and burned-in rendering.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/demo-video-captions/">
+<link rel="alternate" type="text/markdown" href="/blog/demo-video-captions/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Captions on Demo Videos: Timing, Formats, WCAG | aidemo">
+<meta property="og:description" content="Captions for demo videos, for engineers: WCAG 1.2.2 stated precisely, word-level vs block timing, open vs closed captions by placement, and burned-in rendering.">
+<meta property="og:url" content="https://aidemo.top/blog/demo-video-captions/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Captions on Demo Videos: Timing, Formats, WCAG | aidemo">
+<meta name="twitter:description" content="Captions for demo videos, for engineers: WCAG 1.2.2 stated precisely, word-level vs block timing, open vs closed captions by placement, and burned-in rendering.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Captions on demo videos: the accessibility case and the numbers",
+  "description": "Captions for demo videos, for engineers: WCAG 1.2.2 stated precisely, word-level vs block timing, open vs closed captions by placement, and burned-in rendering.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/demo-video-captions/"
+  },
+  "wordCount": 1965,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Web Content Accessibility Guidelines (WCAG) 2.2 Recommendation",
+      "url": "https://www.w3.org/TR/WCAG22/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Forbes — Verizon Media Says 69% Of Consumers Watch Video With Sound Off",
+      "url": "https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "openai/whisper — robust speech recognition, MIT-licensed, with word-level timestamps",
+      "url": "https://github.com/openai/whisper"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI — Speech to text guide (timestamp_granularities)",
+      "url": "https://developers.openai.com/api/docs/guides/speech-to-text"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "linto-ai/whisper-timestamped — per-word timestamps via DTW on cross-attention",
+      "url": "https://github.com/linto-ai/whisper-timestamped"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The Embed Text Track element (track) and WebVTT",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Filters documentation (subtitles filter, --enable-libass)",
+      "url": "https://ffmpeg.org/ffmpeg-filters.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Attaching files (video embeds, size limits)",
+      "url": "https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Product Demo Videos",
+      "item": "https://aidemo.top/blog/topics/demo-videos/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Captions on demo videos: the accessibility case and the numbers",
+      "item": "https://aidemo.top/blog/demo-video-captions/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between open and closed captions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open captions are burned into the video frame: always visible, not stylable by the viewer, and impossible to turn off or strip when the file is re-hosted. Closed captions ride alongside the video as a WebVTT or SRT sidecar that a player renders on demand and the viewer can toggle. Closed is friendlier when you control a player with a captions button; open is the safe choice for muted autoplay, README embeds, and social reshares, where a sidecar often never reaches the screen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are subtitles and captions the same thing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not under the accessibility standard, though the words are used interchangeably in some regions. WCAG defines captions as a synchronized alternative for both speech and non-speech audio, so captions carry sound effects, music, and speaker identification for viewers who cannot hear. Subtitles assume you can hear and render only the dialogue, often translated. For a product demo the non-speech load is usually light, but a click cue or a success chime belongs in a caption and not in a plain subtitle."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I add captions to a video in a GitHub README?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GitHub inlines an uploaded MP4 with no \u003ctrack> element and no captions control, so a closed-caption sidecar has nowhere to attach. Burn the captions into the video before you upload it, keep the file under the 10 MB limit on free repositories, and encode with H.264 for the widest compatibility. If the demo is a looping muted clip, which most README demos are, the burned-in text is the only caption a reader will ever see."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-videos/">Product Demo Videos</a><span class="sep">/</span><span>Captions on demo videos: the accessibility case and the numbers</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-videos/">Product Demo Videos</a>
+        <h1 class="article-title">Captions on demo videos: the accessibility case and the numbers</h1>
+        <p class="article-dek">Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>9 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 9 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-first-view-is-muted-so-the-caption-is-the-demo">The first view is muted, so the caption is the demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-wcag-asks-for-stated-precisely">What WCAG asks for, stated precisely</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#word-level-timing-versus-a-block-on-screen">Word-level timing versus a block on screen</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#open-captions-or-a-caption-track-decide-by-placement">Open captions or a caption track: decide by placement</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-portable-pipelines-burn-captions-into-pixels">Why portable pipelines burn captions into pixels</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#fitting-caption-generation-into-the-render">Fitting caption generation into the render</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Most first views are muted: 69% of consumers watch video with sound off in public (Verizon Media/Publicis, 5,616 US adults, 2019), so on-screen text carries the demo.</li>
+    <li>WCAG 2.2 SC 1.2.2 makes captions Level A for all prerecorded audio in synchronized media, and captions (unlike subtitles) must carry non-speech sound and speaker ID.</li>
+    <li>Word-level beats a full-sentence block: OpenAI Whisper has emitted per-word timestamps since v20230306, letting each word highlight as it is spoken.</li>
+    <li>Closed captions (a VTT/SRT sidecar) only reach viewers on a player with a CC toggle; for muted autoplay, README embeds, and social reshares, burn them in.</li>
+    <li>Portable pipelines rasterize captions to timed PNG overlays because FFmpeg subtitles needs a libass build (--enable-libass) that many distributions omit.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-first-view-is-muted-so-the-caption-is-the-demo">The first view is muted, so the caption is the demo<a class="hanchor" href="#the-first-view-is-muted-so-the-caption-is-the-demo" aria-label="Link to section: The first view is muted, so the caption is the demo">#</a></h2>
+<p>A demo on a landing page, in a feed, or looping under a README plays before anyone chose to listen, and it plays with the sound off. Verizon Media and Publicis Media, in an online survey of 5,616 US consumers in 2019, found that 69% watch video with sound off in public places, that 80% are more likely to finish a video when captions are available, and that half say captions matter to them specifically because they watch muted<sup class="article-cite"><a href="#src-3" title="Forbes — Verizon Media Says 69% Of Consumers Watch Video With Sound Off">3</a></sup>. For most first views the narration you wrote is decoration, and the words on screen are the pitch.</p>
+<p>That moves captions from an accessibility checkbox to the primary text track, and it changes when you make them. Captions are not something you bolt onto a finished file; they are the same script the voice reads, timed to the picture. <a href="/blog/how-long-should-a-demo-video-be/">How long a demo should run is decided by where it lives</a>, and so is how much the captions carry: a muted hero loop leans on them entirely, a sound-on onboarding walkthrough less so. Because the caption text is the narration text, <a href="/blog/demo-video-script-template/">the script you write is the caption you ship</a>, and the <a href="/blog/how-to-make-a-product-demo-video/">end-to-end playbook</a> treats both as outputs of one source instead of two transcription passes.</p>
+<h2 id="what-wcag-asks-for-stated-precisely">What WCAG asks for, stated precisely<a class="hanchor" href="#what-wcag-asks-for-stated-precisely" aria-label="Link to section: What WCAG asks for, stated precisely">#</a></h2>
+<p>&quot;Add captions&quot; is vaguer than the standard. WCAG 2.2 Success Criterion 1.2.2, Captions (Prerecorded), sits at Level A, the base tier every conforming page must meet, and reads in full: &quot;Captions are provided for all prerecorded audio content in synchronized media, except when the media is a media alternative for text and is clearly labeled as such&quot;<sup class="article-cite"><a href="#src-1" title="W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2">1</a></sup>. Two clauses decide whether a demo is covered. &quot;Synchronized media&quot; means audio tied to video, so a voiced screen recording qualifies and a silent GIF with no audio track does not. The exception is narrow: it releases only media that is itself an alternative to text already present on the page, which a marketing or product demo never is.</p>
+<p>The standard is also specific about what a caption contains. WCAG defines captions as a synchronized alternative for &quot;both speech and non-speech&quot; audio, covering sound effects, music, and speaker identification, and it names the beneficiaries as people who are deaf or hard of hearing<sup class="article-cite"><a href="#src-2" title="W3C — Web Content Accessibility Guidelines (WCAG) 2.2 Recommendation">2</a></sup>. That is the working difference between captions and subtitles: subtitles assume you can hear and only render the words, while captions assume you cannot and carry everything the audio track conveys. In some regions the two terms are used interchangeably, which is why the distinction has to come from what the file contains, not what it is called. One more boundary is worth knowing so you do not over-scope: live captioning is a separate and stricter criterion, SC 1.2.4 at Level AA, that a prerecorded demo does not trigger.</p>
+<h2 id="word-level-timing-versus-a-block-on-screen">Word-level timing versus a block on screen<a class="hanchor" href="#word-level-timing-versus-a-block-on-screen" aria-label="Link to section: Word-level timing versus a block on screen">#</a></h2>
+<p>There are two ways to put narration on screen, and a muted viewer can tell them apart. Block timing drops a full sentence at its start and holds it until the next one. Word-level timing carries a timestamp on every word, so the line can reveal or highlight in step with the voice. The second keeps a scanning viewer locked to the word being spoken instead of re-reading a static paragraph, and because eyes move faster than a voice, a caption that advances word by word stays synced to attention rather than racing ahead of it.</p>
+<p>Word-level timing used to be the costly part of the pipeline. It is not now. OpenAI&#39;s Whisper, released under the MIT license, has produced per-word timestamps from its <code>transcribe()</code> function since version v20230306<sup class="article-cite"><a href="#src-4" title="openai/whisper — robust speech recognition, MIT-licensed, with word-level timestamps">4</a></sup>, and the hosted transcription API exposes the same data through <code>timestamp_granularities: [&quot;word&quot;]</code> on the <code>whisper-1</code> model<sup class="article-cite"><a href="#src-5" title="OpenAI — Speech to text guide (timestamp_granularities)">5</a></sup>. Knowing how those numbers are produced explains where they wobble: word times are not measured directly but recovered by dynamic time warping over the model&#39;s cross-attention weights, aligning each token to the audio frames it attended to<sup class="article-cite"><a href="#src-6" title="linto-ai/whisper-timestamped — per-word timestamps via DTW on cross-attention">6</a></sup>, so they drift on long pauses and overlapping speakers and want a light sanity pass. Point the transcriber at your own narration audio, whether a person read it or it was <a href="/blog/ai-voiceover-for-demo-videos/">synthesized from the script</a>, and you get back a per-word timeline you can render into whatever the target surface accepts.</p>
+<h2 id="open-captions-or-a-caption-track-decide-by-placement">Open captions or a caption track: decide by placement<a class="hanchor" href="#open-captions-or-a-caption-track-decide-by-placement" aria-label="Link to section: Open captions or a caption track: decide by placement">#</a></h2>
+<p>Captions ship two ways. Open captions are burned into the pixels: part of the frame, unstylable by the viewer, impossible to turn off or strip. Closed captions ride alongside the video as a sidecar file, usually WebVTT (<code>.vtt</code>) or SubRip (<code>.srt</code>), and a player renders them on demand. Closed is the more accessible default in the abstract, because the viewer controls size and can toggle it, but it reaches anyone only when the surface actually reads the sidecar. Most demo surfaces do not.</p>
+<p>The browser will, if you own the markup. A <code>&lt;video&gt;</code> with a <code>&lt;track kind=&quot;captions&quot; srclang=&quot;en&quot; src=&quot;…vtt&quot;&gt;</code> child renders WebVTT natively and gives the viewer a captions control<sup class="article-cite"><a href="#src-7" title="MDN — The Embed Text Track element (track) and WebVTT">7</a></sup>. The catch for demos is autoplay: a muted hero loop shows the track only if you mark it <code>default</code>, and any embed or reshare that re-hosts the MP4 without your <code>&lt;track&gt;</code> drops it silently. A GitHub README is worse: you drag in an MP4 and GitHub inlines it with no <code>&lt;track&gt;</code> affordance at all and a 10 MB cap on free repositories<sup class="article-cite"><a href="#src-9" title="GitHub Docs — Attaching files (video embeds, size limits)">9</a></sup>, so a <a href="/blog/readme-gifs-that-update-themselves/">README demo that loops muted with no caption button</a> has to carry its text in the pixels.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Placement</th>
+<th>Does a caption track reach the viewer?</th>
+<th>Ship it as</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Landing hero <code>&lt;video&gt;</code> you host</td>
+<td>Only if you add <code>default</code>, and any re-host drops the <code>&lt;track&gt;</code></td>
+<td>Burned in</td>
+</tr>
+<tr>
+<td>GitHub README or inline docs</td>
+<td>No <code>&lt;track&gt;</code> affordance, 10 MB cap on free repos</td>
+<td>Burned in</td>
+</tr>
+<tr>
+<td>Social feed, uploaded natively</td>
+<td>The platform re-encodes, and a reshare can strip a sidecar</td>
+<td>Burned in</td>
+</tr>
+<tr>
+<td>Player with a CC toggle you control</td>
+<td>Yes, it reads an uploaded VTT or SRT</td>
+<td>Sidecar (closed)</td>
+</tr>
+<tr>
+<td>Email or chat preview</td>
+<td>No inline playback at all</td>
+<td>Burned in on a still or GIF</td>
+</tr>
+</tbody></table></div>
+<p>The pattern under the table is the whole decision: closed captions win exactly where you control a player that exposes a CC button, and nowhere else. Everywhere a demo autoplays muted, gets embedded, or is re-hosted, the only text that survives is the text you rendered into the frame. So the safe move for a demo you cannot follow across surfaces is to burn captions in and also ship a sidecar wherever a player will honor it.</p>
+<h2 id="why-portable-pipelines-burn-captions-into-pixels">Why portable pipelines burn captions into pixels<a class="hanchor" href="#why-portable-pipelines-burn-captions-into-pixels" aria-label="Link to section: Why portable pipelines burn captions into pixels">#</a></h2>
+<p>Burning captions in sounds like the easy path and is the fiddly one, because the obvious tool is not always present. FFmpeg&#39;s <code>subtitles</code> filter, the usual way to render an SRT or ASS file onto frames, is compiled in only when FFmpeg is built with libass: the documentation states that &quot;to enable compilation of this filter you need to configure FFmpeg with <code>--enable-libass</code>&quot;<sup class="article-cite"><a href="#src-8" title="FFmpeg — Filters documentation (subtitles filter, --enable-libass)">8</a></sup>. Its <code>drawtext</code> sibling likewise needs a libfreetype build. Plenty of distribution and CI FFmpeg binaries ship without either, so a pipeline that shells out to <code>subtitles</code> works on your laptop and dies on a runner.</p>
+<p>The portable answer is to stop asking FFmpeg to typeset. Rasterize each caption cue to a transparent PNG with a real HTML renderer, where you control font, weight, outline, and safe-area padding, then composite the images with a time-gated <code>overlay</code>, a filter every build ships. That is why our own engine, aidemo, renders captions to timed PNGs rather than trusting <code>subtitles</code> to exist. The disclosure that owes you: aidemo is browser-only, an agent writes the storyboard instead of a person dragging clips on a timeline, and there is no visual caption editor, so you restyle by changing a value and re-rendering, not by nudging boxes on a canvas. The portability principle holds whatever renders the pixels, and it comes with the styling rules that keep burned-in text legible: set a heavy weight with an outline or a scrim so the words survive a bright UI, keep them inside a safe area so mobile chrome does not clip them, and never assume a font is installed on the render host.</p>
+<h2 id="fitting-caption-generation-into-the-render">Fitting caption generation into the render<a class="hanchor" href="#fitting-caption-generation-into-the-render" aria-label="Link to section: Fitting caption generation into the render">#</a></h2>
+<p>Because captions come from the narration, they slot into an automated render as one more derived step rather than a manual edit. The order is fixed: produce the narration audio, run word-level speech-to-text over that exact audio, and emit both a burned-in copy for muted and re-hosted surfaces and a <code>.vtt</code> sidecar for the players that will use it. Transcribing the real audio, not the script, is what keeps the timing honest, because it measures what was actually said, drift and all.</p>
+<p>Run this on the same event that changes the product and the captions never fall out of step with the demo. When a build re-records the voice, the same job re-transcribes and re-renders the text, so a UI change and a script edit both flow through to the frames without anyone re-timing a line by hand. That is the payoff of treating captions as generated rather than typed: they are cheap to regenerate, which is what lets you afford to keep them correct. The mechanics of wiring that into a build, browser and fonts and all, are the same ones behind <a href="/blog/demo-videos-in-ci/">rendering a demo in CI</a>.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html" rel="noopener">W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2</a></li>
+<li id="src-2"><a href="https://www.w3.org/TR/WCAG22/" rel="noopener">W3C — Web Content Accessibility Guidelines (WCAG) 2.2 Recommendation</a></li>
+<li id="src-3"><a href="https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/" rel="noopener">Forbes — Verizon Media Says 69% Of Consumers Watch Video With Sound Off</a></li>
+<li id="src-4"><a href="https://github.com/openai/whisper" rel="noopener">openai/whisper — robust speech recognition, MIT-licensed, with word-level timestamps</a></li>
+<li id="src-5"><a href="https://developers.openai.com/api/docs/guides/speech-to-text" rel="noopener">OpenAI — Speech to text guide (timestamp_granularities)</a></li>
+<li id="src-6"><a href="https://github.com/linto-ai/whisper-timestamped" rel="noopener">linto-ai/whisper-timestamped — per-word timestamps via DTW on cross-attention</a></li>
+<li id="src-7"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track" rel="noopener">MDN — The Embed Text Track element (track) and WebVTT</a></li>
+<li id="src-8"><a href="https://ffmpeg.org/ffmpeg-filters.html" rel="noopener">FFmpeg — Filters documentation (subtitles filter, --enable-libass)</a></li>
+<li id="src-9"><a href="https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files" rel="noopener">GitHub Docs — Attaching files (video embeds, size limits)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-the-difference-between-open-and-closed-captions" class="blog-faq-q">What is the difference between open and closed captions?<a class="hanchor" href="#what-is-the-difference-between-open-and-closed-captions" aria-label="Link to section: What is the difference between open and closed captions?">#</a></h3>
+<p>Open captions are burned into the video frame: always visible, not stylable by the viewer, and impossible to turn off or strip when the file is re-hosted. Closed captions ride alongside the video as a WebVTT or SRT sidecar that a player renders on demand and the viewer can toggle. Closed is friendlier when you control a player with a captions button; open is the safe choice for muted autoplay, README embeds, and social reshares, where a sidecar often never reaches the screen.</p>
+<h3 id="are-subtitles-and-captions-the-same-thing" class="blog-faq-q">Are subtitles and captions the same thing?<a class="hanchor" href="#are-subtitles-and-captions-the-same-thing" aria-label="Link to section: Are subtitles and captions the same thing?">#</a></h3>
+<p>Not under the accessibility standard, though the words are used interchangeably in some regions. WCAG defines captions as a synchronized alternative for both speech and non-speech audio, so captions carry sound effects, music, and speaker identification for viewers who cannot hear. Subtitles assume you can hear and render only the dialogue, often translated. For a product demo the non-speech load is usually light, but a click cue or a success chime belongs in a caption and not in a plain subtitle.</p>
+<h3 id="how-do-i-add-captions-to-a-video-in-a-github-readme" class="blog-faq-q">How do I add captions to a video in a GitHub README?<a class="hanchor" href="#how-do-i-add-captions-to-a-video-in-a-github-readme" aria-label="Link to section: How do I add captions to a video in a GitHub README?">#</a></h3>
+<p>GitHub inlines an uploaded MP4 with no <code>&lt;track&gt;</code> element and no captions control, so a closed-caption sidecar has nowhere to attach. Burn the captions into the video before you upload it, keep the file under the 10 MB limit on free repositories, and encode with H.264 for the widest compatibility. If the demo is a looping muted clip, which most README demos are, the burned-in text is the only caption a reader will ever see.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">captions</span>
+        <span class="article-tag">accessibility</span>
+        <span class="article-tag">wcag</span>
+        <span class="article-tag">demo video</span>
+        <span class="article-tag">subtitles</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-make-a-product-demo-video/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">How to make a product demo video (that people finish)</h3>
+    <p class="article-card-excerpt">The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>11 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/ai-voiceover-for-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">AI voiceover for demo videos: quality, cost, and workflow</h3>
+    <p class="article-card-excerpt">AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-script-template/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Demo video script template: problem, walkthrough, proof</h3>
+    <p class="article-card-excerpt">Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-first-view-is-muted-so-the-caption-is-the-demo">The first view is muted, so the caption is the demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-wcag-asks-for-stated-precisely">What WCAG asks for, stated precisely</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#word-level-timing-versus-a-block-on-screen">Word-level timing versus a block on screen</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#open-captions-or-a-caption-track-decide-by-placement">Open captions or a caption track: decide by placement</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-portable-pipelines-burn-captions-into-pixels">Why portable pipelines burn captions into pixels</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#fitting-caption-generation-into-the-render">Fitting caption generation into the render</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

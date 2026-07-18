@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open-source demo video tools, scored | aidemo</title>
+<meta name="description" content="Remotion is source-available, not open source; Cap is AGPLv3; vhs, Revideo, editly and aidemo are MIT. Scored on OSI compliance and real install friction.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/open-source-demo-video-tools/">
+<link rel="alternate" type="text/markdown" href="/blog/open-source-demo-video-tools/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Open-source demo video tools, scored | aidemo">
+<meta property="og:description" content="Remotion is source-available, not open source; Cap is AGPLv3; vhs, Revideo, editly and aidemo are MIT. Scored on OSI compliance and real install friction.">
+<meta property="og:url" content="https://aidemo.top/blog/open-source-demo-video-tools/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Open-source demo video tools, scored | aidemo">
+<meta name="twitter:description" content="Remotion is source-available, not open source; Cap is AGPLv3; vhs, Revideo, editly and aidemo are MIT. Scored on OSI compliance and real install friction.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Open-source demo video tools, scored by license and install reality",
+  "description": "Remotion is source-available, not open source; Cap is AGPLv3; vhs, Revideo, editly and aidemo are MIT. Scored on OSI compliance and real install friction.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/open-source-demo-video-tools/"
+  },
+  "wordCount": 1894,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Open Source Initiative — The Open Source Definition",
+      "url": "https://opensource.org/osd"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion — License FAQ (source-available, not open source)",
+      "url": "https://www.remotion.dev/docs/license/faq"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion — LICENSE.md (company license terms)",
+      "url": "https://github.com/remotion-dev/remotion/blob/main/LICENSE.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion Pro — company license pricing",
+      "url": "https://www.remotion.pro/license"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — GitHub repository (AGPLv3 + MIT crates)",
+      "url": "https://github.com/CapSoftware/Cap"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Charm vhs — GitHub repository (MIT, terminal)",
+      "url": "https://github.com/charmbracelet/vhs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "editly — GitHub repository (MIT, native deps)",
+      "url": "https://github.com/mifi/editly"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "editly — issue #332, source install fails on Node 22 gl build",
+      "url": "https://github.com/mifi/editly/issues/332"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Revideo — GitHub repository (MIT)",
+      "url": "https://github.com/redotvideo/revideo"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "aidemo — GitHub repository (our engine, disclosed as ours)",
+      "url": "https://github.com/tandryukha/aidemo"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Open-source demo video tools, scored by license and install reality",
+      "item": "https://aidemo.top/blog/open-source-demo-video-tools/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Remotion open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Remotion's own FAQ states it is source-available software, not open source under the Open Source Initiative's definition. The code is on GitHub and free for individuals, non-profits, and for-profit companies of up to three employees, but a for-profit organization with four or more people must buy a Company License. That fails the OSD's rule against restricting business use, so it is commercial software with readable source, not open source."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which of these tools installs without a native compile step?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "vhs and aidemo. vhs is a single Go binary that only needs ttyd and ffmpeg already on your PATH, and aidemo runs on Node with your system Chrome and system ffmpeg, downloading no browser and compiling no native modules. editly is the opposite case: its headless-gl dependency is a native module that currently fails to build on recent Node versions without a full C++ toolchain and OpenGL system libraries."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Cap's AGPLv3 license restrict videos I record with it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The videos you record are your own output and are not a derivative work of Cap's source code, so the AGPLv3 does not attach to them. The copyleft applies to Cap's own code: if you modify Cap and then run that modified version as a hosted network service, you must make the modified source available to its users. Recording with the shipped app and keeping your videos never triggers that obligation."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>Open-source demo video tools, scored by license and install reality</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">Open-source demo video tools, scored by license and install reality</h1>
+        <p class="article-dek">Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 10 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#source-available-is-not-open-source-and-the-difference-is-billable">Source-available is not open source, and the difference is billable</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-scoreboard-license-install-and-what-the-pixels-are">The scoreboard: license, install, and what the pixels are</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#reading-each-license-against-the-osi-clauses">Reading each license against the OSI clauses</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-the-install-actually-breaks">Where the install actually breaks</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pick-by-the-constraint-that-binds-you">Pick by the constraint that binds you</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Remotion is source-available, not open source: a for-profit with 4+ employees needs a paid Company License (from $25/seat/mo or $0.01/render, $100/mo minimum).</li>
+    <li>Cap is AGPLv3 (capture crates MIT) and OSI-open; the copyleft touches modified Cap code you host, not the videos you record with the shipped app.</li>
+    <li>vhs, Revideo, editly, and aidemo are all MIT, the most permissive mainstream license, so embedding, forking, and commercial use carry no headcount math.</li>
+    <li>editly's install breaks on current Node: its pinned headless-gl native module fails to compile (open issue #332, a C++ error on Homebrew Node 22).</li>
+    <li>Score three axes: OSI compliance, install friction (native compiles vs system tools), and what the pixels are (real capture, synthetic composition, or terminal).</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="source-available-is-not-open-source-and-the-difference-is-billable">Source-available is not open source, and the difference is billable<a class="hanchor" href="#source-available-is-not-open-source-and-the-difference-is-billable" aria-label="Link to section: Source-available is not open source, and the difference is billable">#</a></h2>
+<p>&quot;Open source&quot; is the most abused word in demo tooling. Remotion, the most popular way to make videos from code, publishes every line on GitHub and lets you read it, fork it, and run it. It is also, by its own admission, not open source: &quot;Remotion is source-available software, but it is not open-source software according to the Open Source Initiative&#39;s Open Source Definition&quot;<sup class="article-cite"><a href="#src-2" title="Remotion — License FAQ (source-available, not open source)">2</a></sup>. That is not pedantry. The Open Source Definition is a ten-clause test, and clause 6 says a license &quot;may not restrict the program from being used in a business&quot;<sup class="article-cite"><a href="#src-1" title="Open Source Initiative — The Open Source Definition">1</a></sup>. Remotion&#39;s license does exactly that: a for-profit organization with four or more people needs a paid Company License, while individuals and companies of up to three employees use it free<sup class="article-cite"><a href="#src-3" title="Remotion — LICENSE.md (company license terms)">3</a></sup>.</p>
+<p>So the first thing to check before you build a pipeline on an &quot;open&quot; tool is whether open means OSI-open or just visible-on-GitHub. The bill is real. Remotion&#39;s company plans start at $25 per seat per month for creators, or usage pricing at $0.01 per render with a $100 monthly minimum for automated systems, with an enterprise tier from $500 per month<sup class="article-cite"><a href="#src-4" title="Remotion Pro — company license pricing">4</a></sup>. That is a fair deal for a tool this capable. It is a nasty surprise if you adopted it believing MIT-style freedom and then crossed the fourth hire.</p>
+<p>This piece scores the genuinely relevant tools on three axes you can verify against their own repos in five minutes: whether the license clears the OSI definition, how hard the install fights you, and what the pixels actually are. The <a href="/blog/ai-demo-video-generators/">four-mechanism map of AI demo generators</a> sorts the whole market by buyer job; this is the open-source slice of it, read at the license file and the command line.</p>
+<h2 id="the-scoreboard-license-install-and-what-the-pixels-are">The scoreboard: license, install, and what the pixels are<a class="hanchor" href="#the-scoreboard-license-install-and-what-the-pixels-are" aria-label="Link to section: The scoreboard: license, install, and what the pixels are">#</a></h2>
+<p>Three columns, three independent questions. The license column is a yes/no against the OSD. The install column is where good intentions meet a C++ compiler. The pixels column is the sleeper: it decides whether a tool can show your product at all.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What the pixels are</th>
+<th>License</th>
+<th>OSI open source?</th>
+<th>Install leans on</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cap</td>
+<td>real screen capture</td>
+<td>AGPLv3 (some crates MIT)</td>
+<td>Yes</td>
+<td>prebuilt app, or Rust + Node + Docker to build</td>
+</tr>
+<tr>
+<td>vhs</td>
+<td>rendered terminal</td>
+<td>MIT</td>
+<td>Yes</td>
+<td>ttyd + ffmpeg on PATH</td>
+</tr>
+<tr>
+<td>Remotion</td>
+<td>synthetic composition (React)</td>
+<td>Remotion License</td>
+<td>No (source-available)</td>
+<td>npm; license gate at 4+ staff</td>
+</tr>
+<tr>
+<td>Revideo</td>
+<td>synthetic composition (TS)</td>
+<td>MIT</td>
+<td>Yes</td>
+<td>npm + a headless browser</td>
+</tr>
+<tr>
+<td>editly</td>
+<td>composed clips and titles</td>
+<td>MIT</td>
+<td>Yes</td>
+<td>ffmpeg + a native headless-gl build</td>
+</tr>
+<tr>
+<td>aidemo (ours)</td>
+<td>real-UI browser replay</td>
+<td>MIT</td>
+<td>Yes</td>
+<td>Node + system Chrome + system ffmpeg</td>
+</tr>
+</tbody></table></div>
+<p>The pixels column separates tools that look interchangeable in a feature list. A recorder like Cap and a real-UI replay both capture the running software; whatever is on screen is the actual product. vhs captures a rendered terminal, which is the right and only choice for a CLI and useless for a web app. Remotion and Revideo draw frames from code you write, so they show your product only if you rebuild its interface in React or TypeScript first, which is a second implementation to maintain. editly composes media you already have, clips and stills and titles, and captures nothing itself. If the job is to prove a feature works on your live UI, only the first group is even in the running, whatever the license says.</p>
+<h2 id="reading-each-license-against-the-osi-clauses">Reading each license against the OSI clauses<a class="hanchor" href="#reading-each-license-against-the-osi-clauses" aria-label="Link to section: Reading each license against the OSI clauses">#</a></h2>
+<p>Only one tool here fails the definition, and it fails on purpose. Remotion discriminates by who you are, a for-profit of four or more, which trips clause 6&#39;s &quot;used in a business&quot; example and clause 5&#39;s bar on discriminating against a group of persons<sup class="article-cite"><a href="#src-1" title="Open Source Initiative — The Open Source Definition">1</a></sup>. Its license also forbids relicensing a derivative of Remotion<sup class="article-cite"><a href="#src-3" title="Remotion — LICENSE.md (company license terms)">3</a></sup>. None of that makes Remotion a bad tool; it makes it commercial software with the source open for reading, and you budget for it as such. Revideo, an MIT-licensed engine that borrows Remotion&#39;s ideas, is the permissive counterpart if code-drawn video is what you actually want<sup class="article-cite"><a href="#src-9" title="Revideo — GitHub repository (MIT)">9</a></sup>.</p>
+<p>The recorders split on copyleft. Cap is AGPLv3, with its capture crates (the <code>cap-camera*</code> and <code>scap-*</code> families) carved out under MIT<sup class="article-cite"><a href="#src-5" title="Cap — GitHub repository (AGPLv3 + MIT crates)">5</a></sup>. AGPLv3 is OSI-approved, so Cap is unambiguously open source, but copyleft has a reach worth understanding before you build on it. The videos you record with Cap are your own output, not a derivative of Cap&#39;s source, so the license never touches them. What AGPL governs is Cap&#39;s code: modify it, then run that modified version as a network service, and you owe your users the modified source. For the large majority of teams who just record with the shipped app, that clause never fires. If you were planning to fork Cap into a hosted product, read it closely. Cap&#39;s per-platform grid and pricing live in the <a href="/blog/screen-studio-alternatives/">Screen Studio alternatives</a> map; here the point is only the license.</p>
+<p>Everything else is MIT, the most permissive of the mainstream licenses: vhs<sup class="article-cite"><a href="#src-6" title="Charm vhs — GitHub repository (MIT, terminal)">6</a></sup>, editly<sup class="article-cite"><a href="#src-7" title="editly — GitHub repository (MIT, native deps)">7</a></sup>, Revideo, and aidemo, which we build and disclose as ours. MIT lets you embed, modify, relicense, and ship commercially with nothing owed but a copyright notice. If license certainty is your top constraint, the MIT group removes the question entirely, and there is no headcount at which the terms change.</p>
+<h2 id="where-the-install-actually-breaks">Where the install actually breaks<a class="hanchor" href="#where-the-install-actually-breaks" aria-label="Link to section: Where the install actually breaks">#</a></h2>
+<p>A license you can read is worthless if <code>npm install</code> never finishes. Install friction on this list comes in two flavors, and they hit at opposite ends of the table.</p>
+<p>The technical flavor is native compilation. editly is the cautionary case: it composes clips through ffmpeg and OpenGL, and its GPU layer is headless-gl, a native module that has to build against your Node headers. On current Node it does not. An open issue reports the source install failing on Homebrew&#39;s Node 22 with the C++ error <code>no template named &#39;is_lvalue_reference_v&#39; in namespace &#39;std&#39;</code>, because the pinned <code>gl</code> dependency predates the compiler<sup class="article-cite"><a href="#src-8" title="editly — issue #332, source install fails on Node 22 gl build">8</a></sup>. On Linux the same module wants build-essential, libxi-dev, libglu1-mesa-dev and friends on the box before it will link. editly is MIT and genuinely useful, but it assumes a toolchain, and containers make that worse, not better. Cap sits at a milder version of the same spot: the shipped desktop app installs like any download, but building from source wants Rust 1.88 or newer, pnpm, Node 20+, and Docker for its local services<sup class="article-cite"><a href="#src-5" title="Cap — GitHub repository (AGPLv3 + MIT crates)">5</a></sup> — native, because fast screen capture has to be.</p>
+<p>The gentler installs lean on tools you already have. vhs needs two binaries on your PATH, ttyd and ffmpeg, then runs as a single Go binary you fetch from Homebrew, Nix, Scoop, or a release download<sup class="article-cite"><a href="#src-6" title="Charm vhs — GitHub repository (MIT, terminal)">6</a></sup>. Remotion and Revideo are npm and React toolchains that render each frame by driving a headless browser their tooling fetches for you; the friction for Remotion is legal, not technical, and for Revideo it is negligible<sup class="article-cite"><a href="#src-9" title="Revideo — GitHub repository (MIT)">9</a></sup>. aidemo, ours, is deliberately at the low-friction end: Node 20+, your system Chrome, and system ffmpeg plus ffprobe on PATH, with no Playwright browser download and no native modules to compile, at around seven runtime dependencies total<sup class="article-cite"><a href="#src-10" title="aidemo — GitHub repository (our engine, disclosed as ours)">10</a></sup>. The trade you make for that is real, and stated below.</p>
+<h2 id="pick-by-the-constraint-that-binds-you">Pick by the constraint that binds you<a class="hanchor" href="#pick-by-the-constraint-that-binds-you" aria-label="Link to section: Pick by the constraint that binds you">#</a></h2>
+<p>None of these wins in the abstract; each wins under a constraint. Name yours and the list collapses to one or two rows.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Your hard constraint</th>
+<th>Reach for</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Must be OSI-open, no license math</td>
+<td>any MIT tool, or Cap (AGPLv3)</td>
+<td>Remotion is the only one that bills by headcount</td>
+</tr>
+<tr>
+<td>The demo is a terminal or CLI</td>
+<td>vhs</td>
+<td>purpose-built; terminal pixels as a tape file</td>
+</tr>
+<tr>
+<td>A web UI kept current in CI</td>
+<td>aidemo (ours)</td>
+<td>real-UI replay, re-renders from a committed spec</td>
+</tr>
+<tr>
+<td>A human-driven screen recording</td>
+<td>Cap</td>
+<td>real capture, produced polish, cross-platform</td>
+</tr>
+<tr>
+<td>Code-drawn motion graphics</td>
+<td>Revideo (MIT) or Remotion (paid at scale)</td>
+<td>synthetic frames; no product capture at all</td>
+</tr>
+<tr>
+<td>Install must not touch a compiler</td>
+<td>vhs or aidemo</td>
+<td>binaries and system tools, no node-gyp</td>
+</tr>
+</tbody></table></div>
+<p>Two honest notes on our own entry. aidemo captures a browser and only a browser, so native desktop and mobile windows are out of scope, and there is no drag-on-a-timeline editor: you, or a coding agent, author a storyboard file and re-render, which is the <a href="/blog/demos-as-code/">demos-as-code</a> bet and not everyone&#39;s taste. For the deeper, feature-by-feature comparison of the code-driven engines specifically, that is the job of video-as-code tools. And if the reason you went shopping for open source is that a rented tool&#39;s output goes stale the day the UI changes, the fix is not a cheaper recorder but a <a href="/blog/demo-videos-in-ci/">pipeline that re-renders in CI</a> from a spec you keep in the repo. Open source solves ownership and cost; it does not, by itself, solve staleness.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://opensource.org/osd" rel="noopener">Open Source Initiative — The Open Source Definition</a></li>
+<li id="src-2"><a href="https://www.remotion.dev/docs/license/faq" rel="noopener">Remotion — License FAQ (source-available, not open source)</a></li>
+<li id="src-3"><a href="https://github.com/remotion-dev/remotion/blob/main/LICENSE.md" rel="noopener">Remotion — LICENSE.md (company license terms)</a></li>
+<li id="src-4"><a href="https://www.remotion.pro/license" rel="noopener">Remotion Pro — company license pricing</a></li>
+<li id="src-5"><a href="https://github.com/CapSoftware/Cap" rel="noopener">Cap — GitHub repository (AGPLv3 + MIT crates)</a></li>
+<li id="src-6"><a href="https://github.com/charmbracelet/vhs" rel="noopener">Charm vhs — GitHub repository (MIT, terminal)</a></li>
+<li id="src-7"><a href="https://github.com/mifi/editly" rel="noopener">editly — GitHub repository (MIT, native deps)</a></li>
+<li id="src-8"><a href="https://github.com/mifi/editly/issues/332" rel="noopener">editly — issue #332, source install fails on Node 22 gl build</a></li>
+<li id="src-9"><a href="https://github.com/redotvideo/revideo" rel="noopener">Revideo — GitHub repository (MIT)</a></li>
+<li id="src-10"><a href="https://github.com/tandryukha/aidemo" rel="noopener">aidemo — GitHub repository (our engine, disclosed as ours)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-remotion-open-source" class="blog-faq-q">Is Remotion open source?<a class="hanchor" href="#is-remotion-open-source" aria-label="Link to section: Is Remotion open source?">#</a></h3>
+<p>No. Remotion&#39;s own FAQ states it is source-available software, not open source under the Open Source Initiative&#39;s definition. The code is on GitHub and free for individuals, non-profits, and for-profit companies of up to three employees, but a for-profit organization with four or more people must buy a Company License. That fails the OSD&#39;s rule against restricting business use, so it is commercial software with readable source, not open source.</p>
+<h3 id="which-of-these-tools-installs-without-a-native-compile-step" class="blog-faq-q">Which of these tools installs without a native compile step?<a class="hanchor" href="#which-of-these-tools-installs-without-a-native-compile-step" aria-label="Link to section: Which of these tools installs without a native compile step?">#</a></h3>
+<p>vhs and aidemo. vhs is a single Go binary that only needs ttyd and ffmpeg already on your PATH, and aidemo runs on Node with your system Chrome and system ffmpeg, downloading no browser and compiling no native modules. editly is the opposite case: its headless-gl dependency is a native module that currently fails to build on recent Node versions without a full C++ toolchain and OpenGL system libraries.</p>
+<h3 id="does-caps-agplv3-license-restrict-videos-i-record-with-it" class="blog-faq-q">Does Cap&#39;s AGPLv3 license restrict videos I record with it?<a class="hanchor" href="#does-caps-agplv3-license-restrict-videos-i-record-with-it" aria-label="Link to section: Does Cap's AGPLv3 license restrict videos I record with it?">#</a></h3>
+<p>No. The videos you record are your own output and are not a derivative work of Cap&#39;s source code, so the AGPLv3 does not attach to them. The copyleft applies to Cap&#39;s own code: if you modify Cap and then run that modified version as a hosted network service, you must make the modified source available to its users. Recording with the shipped app and keeping your videos never triggers that obligation.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">open source</span>
+        <span class="article-tag">demo video tools</span>
+        <span class="article-tag">software licenses</span>
+        <span class="article-tag">remotion</span>
+        <span class="article-tag">video as code</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Tools &amp; Alternatives</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/interactive-demo-vs-video-demo/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Tools &amp; Alternatives</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Interactive product demos vs video demos: when each wins</h3>
+    <p class="article-card-excerpt">One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/screen-studio-alternatives/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Tools &amp; Alternatives</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Screen Studio alternatives for Windows, Linux, and CI</h3>
+    <p class="article-card-excerpt">Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#source-available-is-not-open-source-and-the-difference-is-billable">Source-available is not open source, and the difference is billable</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-scoreboard-license-install-and-what-the-pixels-are">The scoreboard: license, install, and what the pixels are</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#reading-each-license-against-the-osi-clauses">Reading each license against the OSI clauses</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-the-install-actually-breaks">Where the install actually breaks</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pick-by-the-constraint-that-binds-you">Pick by the constraint that binds you</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive demo vs video: when to use each | aidemo</title>
+<meta name="description" content="Interactive demos and demo videos aren't two finishes of one thing. A decision framework by funnel stage, buyer, distribution surface, and maintenance cost.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/interactive-demo-vs-video-demo/">
+<link rel="alternate" type="text/markdown" href="/blog/interactive-demo-vs-video-demo/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Interactive demo vs video: when to use each | aidemo">
+<meta property="og:description" content="Interactive demos and demo videos aren't two finishes of one thing. A decision framework by funnel stage, buyer, distribution surface, and maintenance cost.">
+<meta property="og:url" content="https://aidemo.top/blog/interactive-demo-vs-video-demo/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Interactive demo vs video: when to use each | aidemo">
+<meta name="twitter:description" content="Interactive demos and demo videos aren't two finishes of one thing. A decision framework by funnel stage, buyer, distribution surface, and maintenance cost.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Interactive product demos vs video demos: when each wins",
+  "description": "Interactive demos and demo videos aren't two finishes of one thing. A decision framework by funnel stage, buyer, distribution surface, and maintenance cost.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/interactive-demo-vs-video-demo/"
+  },
+  "wordCount": 2219,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Navattic — Web captures (documentation)",
+      "url": "https://docs.navattic.com/build/captures/web"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Navattic — State of the Interactive Product Demo 2025",
+      "url": "https://www.navattic.com/report/state-of-the-interactive-product-demo-2025"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Storylane — Screenshot or HTML: picking the right demo format",
+      "url": "https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Arcade — Exports (knowledge base)",
+      "url": "https://docs.arcade.software/kb/build/interactive-demo/share/exports"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Mailchimp — Limitations of HTML email",
+      "url": "https://mailchimp.com/help/limitations-of-html-email/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — State of Video: video marketing statistics",
+      "url": "https://wistia.com/learn/marketing/video-marketing-statistics"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Interactive product demos vs video demos: when each wins",
+      "item": "https://aidemo.top/blog/interactive-demo-vs-video-demo/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do interactive demos convert better than video demos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There is no clean apples-to-apples answer, and almost every headline lift number is published by a vendor selling one format. Navattic's own 2025 data shows its top one percent of demos reaching 84.4% engagement and 61.6% completion when buyers drive themselves (Navattic, 2025), which is a strong signal for hands-on evaluation, not a general verdict over video. The defensible read: interactive tends to win where the buyer wants to try the product, and video tends to win where reach and asynchronous viewing matter more than interaction."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you embed an interactive demo in an email or a GitHub README?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Interactive demos run on JavaScript inside an iframe, and email clients strip both — Mailchimp lists scripts, iframes, and embedded video under \"do not use\" (Mailchimp, July 2026) — while a GitHub README sanitizes the same tags. Your only option on those surfaces is to export the tour to a GIF or MP4, which drops the interactivity (and, in Arcade's case, the captions). If the demo has to live in an inbox, a repo, or a feed, build a video for it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I build the interactive demo or the video first?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Build for your highest-traffic surface and funnel stage first. If most of your qualified traffic hits a self-serve web page and wants to evaluate hands-on, the interactive demo earns its place first. If your demo has to travel through email, a README, social autoplay, or a slide deck to do its job, build the video first, because none of those surfaces can host the embed. Teams with both a product-led page and an outbound motion usually end up making one of each, for different surfaces."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>Interactive product demos vs video demos: when each wins</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">Interactive product demos vs video demos: when each wins</h1>
+        <p class="article-dek">One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-objects-not-two-finishes-of-one-thing">Two objects, not two finishes of one thing</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-format-the-funnel-stage-actually-wants">Which format the funnel stage actually wants</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-distribution-test-where-an-iframe-cant-go">The distribution test: where an iframe can't go</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-maintenance-clocks-both-ticking">Two maintenance clocks, both ticking</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-buyer-and-the-channel-cross-referenced">The buyer and the channel, cross-referenced</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-the-answer-is-both">When the answer is both</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Interactive demos are HTML clones you drive in a browser; videos are files that play anywhere. Pick by surface and funnel stage, not by which sounds newer.</li>
+    <li>Interactive wins active evaluation and PLG signup: Navattic's top-1% demos hit 84.4% engagement and 61.6% completion (vendor data, 2025) when buyers drive themselves.</li>
+    <li>Video wins distribution: email clients strip iframes and JavaScript, so only a file plays in an email, README, muted feed, or deck. An exported tour drops to a plain video.</li>
+    <li>Both rot when the UI moves: a tour is re-captured screen by screen; a video is re-recorded, or re-rendered from a spec in CI on the commit that changed the UI.</li>
+    <li>Shipping both is common and not hedging: put the interactive demo on the self-serve page and the video everywhere the iframe is locked out.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="two-objects-not-two-finishes-of-one-thing">Two objects, not two finishes of one thing<a class="hanchor" href="#two-objects-not-two-finishes-of-one-thing" aria-label="Link to section: Two objects, not two finishes of one thing">#</a></h2>
+<p>An interactive demo and a demo video get filed side by side on every comparison page, as if they were two finishes of the same thing. They are not. One is a program and one is a file. An interactive demo is a small state machine: a captured copy of your interface, HTML and CSS cloned from the running app, that a viewer drives with their own clicks. Navattic&#39;s captures are &quot;HTML-based copies of any application that is accessed on a browser,&quot; recorded through a Chrome extension and keeping &quot;scrolling abilities, hover states, and more&quot;<sup class="article-cite"><a href="#src-1" title="Navattic — Web captures (documentation)">1</a></sup>. A video is the opposite: a finished file that plays start to finish, carries a narrated argument, and drops into any place an image or video tag renders. The pillar on <a href="/blog/ai-demo-video-generators/">what the AI-demo label actually covers</a> maps the tools; this piece is only the choice between those two objects.</p>
+<p>Everything below falls out of that one distinction. A program needs a runtime — a browser, JavaScript, an iframe — to exist at all. A file needs nothing but a player. So the useful question is never &quot;which is better.&quot; It is which object this moment in your funnel, sold to this buyer, on this surface, actually needs. The answer changes three times as you walk the funnel, and twice more when you count the costs a feature table leaves off.</p>
+<h2 id="which-format-the-funnel-stage-actually-wants">Which format the funnel stage actually wants<a class="hanchor" href="#which-format-the-funnel-stage-actually-wants" aria-label="Link to section: Which format the funnel stage actually wants">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Funnel stage</th>
+<th>The buyer&#39;s posture</th>
+<th>Format that wins</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Awareness (feed, hero)</td>
+<td>passive, attention not yet earned</td>
+<td>Video</td>
+<td>states the case for someone who only watches; autoplays muted</td>
+</tr>
+<tr>
+<td>Active evaluation</td>
+<td>&quot;let me try it myself&quot;</td>
+<td>Interactive demo</td>
+<td>hands-on beats spectator; the viewer sets the pace</td>
+</tr>
+<tr>
+<td>PLG signup, activation</td>
+<td>in-product, self-serve</td>
+<td>Interactive demo</td>
+<td>a facsimile of the product is the native surface</td>
+</tr>
+<tr>
+<td>Follow-up, docs, README</td>
+<td>asynchronous reference</td>
+<td>Video or GIF</td>
+<td>plays with no runtime; one file to send anywhere</td>
+</tr>
+</tbody></table></div>
+<p>At the top of the funnel you are competing for attention you have not earned. A muted thirty-second video in a feed or a landing hero states the argument for the viewer: they watch, they do not work. An interactive demo asks for a click before it returns anything, which is friction exactly where friction is most expensive. Video wins the top, and it wins short: across the more than 13 million videos in Wistia&#39;s State of Video data, engagement rises as length falls<sup class="article-cite"><a href="#src-6" title="Wistia — State of Video: video marketing statistics">6</a></sup>, so the awareness cut is a fifteen-to-thirty-second file, not a two-minute one.</p>
+<p>In the middle, the &quot;let me poke at it&quot; moment, the ranking flips. A prospect who has decided to care wants to touch the real interface, not watch someone else touch it, and the rep-free evaluation a product-led motion is built around wants that buyer inside a facsimile of the product rather than on a call. This is where the interactive mechanic pays off. Navattic&#39;s 2025 report, drawn from more than 28,000 demos and a 280-user survey, puts its top one percent of demos at 84.4% engagement past the first step and 61.6% completion, averaging 2.1 minutes of hands-on time, and finds ungated demos out-engaging gated ones by roughly ten percent<sup class="article-cite"><a href="#src-2" title="Navattic — State of the Interactive Product Demo 2025">2</a></sup>. Read those as a vendor&#39;s top-decile numbers, a ceiling rather than an expectation. The direction is the honest part: when the buyer is evaluating, doing beats watching.</p>
+<p>At the bottom — the sales follow-up, the README a developer reads before adopting, the recap emailed after a call — you are back on surfaces where a file wins, for a reason that has nothing to do with quality.</p>
+<h2 id="the-distribution-test-where-an-iframe-cant-go">The distribution test: where an iframe can&#39;t go<a class="hanchor" href="#the-distribution-test-where-an-iframe-cant-go" aria-label="Link to section: The distribution test: where an iframe can't go">#</a></h2>
+<p>This is the cost listicles skip. An interactive demo is delivered as an embed, an iframe or a script tag, because it needs a live browser to run. That is fine on a web page you control and a wall everywhere else. Email is the clearest case: Mailchimp files JavaScript, iframes, and embedded video under &quot;do not use,&quot; because the &quot;vast majority of email clients block scripts,&quot; &quot;most email clients block&quot; iframes, and only Apple Mail supports the HTML5 video tag<sup class="article-cite"><a href="#src-5" title="Mailchimp — Limitations of HTML email">5</a></sup>. A GitHub README renders images and autoplays a committed GIF but strips the script and iframe a tour needs; the <a href="/blog/readme-gifs-that-update-themselves/">README-GIF piece</a> works through exactly what GitHub will and will not animate. Slides, PDFs, app-store listings, most CMS bodies: same wall.</p>
+<p>A video has no such wall. It is one file behind an image tag as a GIF, a video tag, or a hosted player, and it plays in a feed, an email preview, a doc, a README, a deck. The interactive vendors concede this inside their own products. Arcade lets only Pro and Growth users export an Arcade to GIF or MP4, and tells them &quot;interactive Arcades are always the most powerful format, so we recommend only exporting when needed for static channels&quot;<sup class="article-cite"><a href="#src-4" title="Arcade — Exports (knowledge base)">4</a></sup>. Read that in reverse: everything that is not a web page you control is a &quot;static channel,&quot; and for those the interactive tool falls back to a video.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Interactive embed (iframe/JS)</th>
+<th>Video or GIF file</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Landing page you own</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Self-serve product page</td>
+<td>Yes (native)</td>
+<td>Works, but passive</td>
+</tr>
+<tr>
+<td>Cold or follow-up email</td>
+<td>No, scripts and iframes stripped</td>
+<td>GIF yes; video as thumbnail plus link</td>
+</tr>
+<tr>
+<td>GitHub README</td>
+<td>No</td>
+<td>GIF autoplays; MP4 via link</td>
+</tr>
+<tr>
+<td>Muted social autoplay</td>
+<td>No</td>
+<td>Yes (native)</td>
+</tr>
+<tr>
+<td>Slide deck or PDF</td>
+<td>No</td>
+<td>Yes, embedded or as a GIF</td>
+</tr>
+</tbody></table></div>
+<p>When you export the tour to clear those walls, what you get is a video, minus the narration you never recorded and, per Arcade&#39;s own docs, minus captions, which its exports do not include. The distribution surface of a file is the whole internet; the distribution surface of an iframe is a page with a script tag on it.</p>
+<h2 id="two-maintenance-clocks-both-ticking">Two maintenance clocks, both ticking<a class="hanchor" href="#two-maintenance-clocks-both-ticking" aria-label="Link to section: Two maintenance clocks, both ticking">#</a></h2>
+<p>Neither object is free to keep true. Both freeze the UI at the moment you made them, and <a href="/blog/why-product-demos-go-stale/">demos go out of date</a> the instant the interface they froze moves on. The honest difference is in how each one gets fixed.</p>
+<p>A video is re-recorded or re-rendered. If it was a hand-captured screen take, someone performs the flow again; if it was authored as a spec, a pipeline re-renders it. Either way the update produces a new file that replaces the old one wherever it was linked.</p>
+<p>An interactive demo is re-captured. Because the capture is a clone of specific screens, a UI change desyncs those exact screens: a renamed button, a restyled table, a new column, and the clone now shows a product that no longer exists. Storylane draws this line inside its own product, calling a screenshot demo a set of curated images of what the product looks like and an HTML demo an &quot;exact replica of your product&#39;s frontend&quot; that costs &quot;more technical setup and slightly longer load times&quot;<sup class="article-cite"><a href="#src-3" title="Storylane — Screenshot or HTML: picking the right demo format">3</a></sup>. The more faithful the clone, the more surface there is to drift. The fix is to re-run the extension capture on the changed screens and re-apply the hotspots and edits that sat on top, hand work that scales with the number of demos, not with a single spec.</p>
+<p>There is a real asymmetry here that cuts for the tour at low volume and against it at high. One embed updates in place across every page it lives on the moment you re-capture, so you fix it once and it propagates; a video linked in ten places is ten links to re-point unless you kept a stable URL. But a spec-driven video inverts that: <a href="/blog/demo-videos-in-ci/">rendered in CI</a> from a committed storyboard, it re-generates on the same commit that changed the UI, with no hand re-capture at all. That spec-driven pattern is what our own engine, aidemo, does for browser flows, disclosed as ours and honestly limited to a browser, an agent-authored storyboard, and no drag-and-drop timeline. Whichever object you pick, budget for the upkeep; the only tools that let you skip it are the ones where the demo is generated rather than performed.</p>
+<h2 id="the-buyer-and-the-channel-cross-referenced">The buyer and the channel, cross-referenced<a class="hanchor" href="#the-buyer-and-the-channel-cross-referenced" aria-label="Link to section: The buyer and the channel, cross-referenced">#</a></h2>
+<p>Put the axes in one place. Read down the column for the object you were leaning toward and check whether your real constraints agree.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>If your situation is...</th>
+<th>Points to interactive</th>
+<th>Points to video</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary surface</td>
+<td>a web page you control</td>
+<td>email, README, feed, deck, anywhere</td>
+</tr>
+<tr>
+<td>Funnel job</td>
+<td>self-serve evaluation, &quot;try it&quot;</td>
+<td>narrated argument, proof it runs</td>
+</tr>
+<tr>
+<td>Buyer behavior</td>
+<td>wants to click, sets own pace</td>
+<td>passive, asynchronous, often muted</td>
+</tr>
+<tr>
+<td>What must be proved</td>
+<td>the product is usable by hand</td>
+<td>the feature actually works</td>
+</tr>
+<tr>
+<td>Go-to-market motion</td>
+<td>product-led, in-app onboarding</td>
+<td>sales-assist, docs, social</td>
+</tr>
+<tr>
+<td>Upkeep you can staff</td>
+<td>hand re-capture per demo</td>
+<td>re-record, or re-render from a spec</td>
+</tr>
+<tr>
+<td>One asset, many spots</td>
+<td>one embed, propagates in place</td>
+<td>one file, plays everywhere</td>
+</tr>
+</tbody></table></div>
+<p>The rows do not all vote the same way for any real product, which is the point: the decision is a weighting, not a verdict. A developer-tools company selling to engineers who read a README and want to watch the CLI actually run leans video and GIF, because its distribution is asynchronous and its buyer distrusts anything they cannot see execute. A horizontal SaaS with a self-serve signup and a &quot;take a tour&quot; button on the pricing page leans interactive, because its buyer&#39;s next action is a click and its surface is a page it owns. Most teams that ship both are not hedging; they are covering two surfaces with the object each surface can carry.</p>
+<h2 id="when-the-answer-is-both">When the answer is both<a class="hanchor" href="#when-the-answer-is-both" aria-label="Link to section: When the answer is both">#</a></h2>
+<p>Reach for both when the funnel splits, and it usually does. Put the interactive demo on the self-serve product page where the evaluating buyer clicks, and put the video everywhere the embed is locked out: the launch email, the README, the muted social autoplay, the sales recap. The video&#39;s job there is not to replace the tour but to carry the argument onto the surfaces the tour can never reach, and to hand a skeptical viewer proof-of-life they can watch in fifteen seconds without touching anything.</p>
+<p>Two cautions keep the &quot;both&quot; honest. First, they are two artifacts with two maintenance clocks, so shipping both doubles the upkeep unless at least one of them is generated from a spec instead of performed. Second, an exported video is not a substitute for a made one: the file an interactive tool spits out is a screen recording of the clone with no narration and, for Arcade, no captions, which is why the <a href="/blog/how-to-make-a-product-demo-video/">craft of an actual demo video</a> — script first, one job shown end to end — is a separate build, not an export button. Name the object the moment needs, and make that one on purpose.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://docs.navattic.com/build/captures/web" rel="noopener">Navattic — Web captures (documentation)</a></li>
+<li id="src-2"><a href="https://www.navattic.com/report/state-of-the-interactive-product-demo-2025" rel="noopener">Navattic — State of the Interactive Product Demo 2025</a></li>
+<li id="src-3"><a href="https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format" rel="noopener">Storylane — Screenshot or HTML: picking the right demo format</a></li>
+<li id="src-4"><a href="https://docs.arcade.software/kb/build/interactive-demo/share/exports" rel="noopener">Arcade — Exports (knowledge base)</a></li>
+<li id="src-5"><a href="https://mailchimp.com/help/limitations-of-html-email/" rel="noopener">Mailchimp — Limitations of HTML email</a></li>
+<li id="src-6"><a href="https://wistia.com/learn/marketing/video-marketing-statistics" rel="noopener">Wistia — State of Video: video marketing statistics</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="do-interactive-demos-convert-better-than-video-demos" class="blog-faq-q">Do interactive demos convert better than video demos?<a class="hanchor" href="#do-interactive-demos-convert-better-than-video-demos" aria-label="Link to section: Do interactive demos convert better than video demos?">#</a></h3>
+<p>There is no clean apples-to-apples answer, and almost every headline lift number is published by a vendor selling one format. Navattic&#39;s own 2025 data shows its top one percent of demos reaching 84.4% engagement and 61.6% completion when buyers drive themselves<sup class="article-cite"><a href="#src-2" title="Navattic — State of the Interactive Product Demo 2025">2</a></sup>, which is a strong signal for hands-on evaluation, not a general verdict over video. The defensible read: interactive tends to win where the buyer wants to try the product, and video tends to win where reach and asynchronous viewing matter more than interaction.</p>
+<h3 id="can-you-embed-an-interactive-demo-in-an-email-or-a-github-readme" class="blog-faq-q">Can you embed an interactive demo in an email or a GitHub README?<a class="hanchor" href="#can-you-embed-an-interactive-demo-in-an-email-or-a-github-readme" aria-label="Link to section: Can you embed an interactive demo in an email or a GitHub README?">#</a></h3>
+<p>No. Interactive demos run on JavaScript inside an iframe, and email clients strip both — Mailchimp lists scripts, iframes, and embedded video under &quot;do not use&quot;<sup class="article-cite"><a href="#src-5" title="Mailchimp — Limitations of HTML email">5</a></sup> — while a GitHub README sanitizes the same tags. Your only option on those surfaces is to export the tour to a GIF or MP4, which drops the interactivity (and, in Arcade&#39;s case, the captions). If the demo has to live in an inbox, a repo, or a feed, build a video for it.</p>
+<h3 id="should-i-build-the-interactive-demo-or-the-video-first" class="blog-faq-q">Should I build the interactive demo or the video first?<a class="hanchor" href="#should-i-build-the-interactive-demo-or-the-video-first" aria-label="Link to section: Should I build the interactive demo or the video first?">#</a></h3>
+<p>Build for your highest-traffic surface and funnel stage first. If most of your qualified traffic hits a self-serve web page and wants to evaluate hands-on, the interactive demo earns its place first. If your demo has to travel through email, a README, social autoplay, or a slide deck to do its job, build the video first, because none of those surfaces can host the embed. Teams with both a product-led page and an outbound motion usually end up making one of each, for different surfaces.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">interactive demo vs video</span>
+        <span class="article-tag">product tour</span>
+        <span class="article-tag">interactive product demo</span>
+        <span class="article-tag">demo video</span>
+        <span class="article-tag">plg</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Tools &amp; Alternatives</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/open-source-demo-video-tools/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Tools &amp; Alternatives</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Open-source demo video tools, scored by license and install reality</h3>
+    <p class="article-card-excerpt">Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/screen-studio-alternatives/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Tools &amp; Alternatives</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Screen Studio alternatives for Windows, Linux, and CI</h3>
+    <p class="article-card-excerpt">Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-objects-not-two-finishes-of-one-thing">Two objects, not two finishes of one thing</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-format-the-funnel-stage-actually-wants">Which format the funnel stage actually wants</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-distribution-test-where-an-iframe-cant-go">The distribution test: where an iframe can't go</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-maintenance-clocks-both-ticking">Two maintenance clocks, both ticking</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-buyer-and-the-channel-cross-referenced">The buyer and the channel, cross-referenced</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-the-answer-is-both">When the answer is both</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

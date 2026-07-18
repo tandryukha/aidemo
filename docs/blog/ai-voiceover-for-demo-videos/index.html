@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI voiceover for demo videos: cost &amp; quality | aidemo</title>
+<meta name="description" content="What AI voiceover costs per finished minute across OpenAI, ElevenLabs, and Kokoro, where it beats recording yourself, and where a human voice still wins.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/ai-voiceover-for-demo-videos/">
+<link rel="alternate" type="text/markdown" href="/blog/ai-voiceover-for-demo-videos/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="AI voiceover for demo videos: cost &amp; quality | aidemo">
+<meta property="og:description" content="What AI voiceover costs per finished minute across OpenAI, ElevenLabs, and Kokoro, where it beats recording yourself, and where a human voice still wins.">
+<meta property="og:url" content="https://aidemo.top/blog/ai-voiceover-for-demo-videos/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI voiceover for demo videos: cost &amp; quality | aidemo">
+<meta name="twitter:description" content="What AI voiceover costs per finished minute across OpenAI, ElevenLabs, and Kokoro, where it beats recording yourself, and where a human voice still wins.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "AI voiceover for demo videos: quality, cost, and workflow",
+  "description": "What AI voiceover costs per finished minute across OpenAI, ElevenLabs, and Kokoro, where it beats recording yourself, and where a human voice still wins.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/ai-voiceover-for-demo-videos/"
+  },
+  "wordCount": 1829,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI — tts-1 model and pricing",
+      "url": "https://developers.openai.com/api/docs/models/tts-1"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI — gpt-4o-mini-tts model and pricing",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI — text-to-speech guide (instructions parameter)",
+      "url": "https://developers.openai.com/api/docs/guides/text-to-speech"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "ElevenLabs — pricing and plans",
+      "url": "https://elevenlabs.io/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "ElevenLabs — API pay-as-you-go pricing",
+      "url": "https://elevenlabs.io/pricing/api"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Kokoro-82M — model card and license (Hugging Face)",
+      "url": "https://huggingface.co/hexgrad/Kokoro-82M"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Kokoro — source repository and install",
+      "url": "https://github.com/hexgrad/kokoro"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Product Demo Videos",
+      "item": "https://aidemo.top/blog/topics/demo-videos/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "AI voiceover for demo videos: quality, cost, and workflow",
+      "item": "https://aidemo.top/blog/ai-voiceover-for-demo-videos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much does AI voiceover cost per minute of video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A finished minute of English narration is about 900 characters. As of July 2026 that costs roughly $0.014 on OpenAI's tts-1, about $0.09 on ElevenLabs' Multilingual API (or ~$0.045 on their faster Flash model), and effectively $0 if you self-host the Apache-2.0 Kokoro-82M model on your own hardware. For a single demo the absolute cost is negligible, so the ElevenLabs subscription floor and your own iteration time matter far more than the per-character rate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is AI voiceover good enough for a professional product demo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For a neutral feature walkthrough narrated at a steady pace, yes — current models clear that bar and stay perfectly consistent across scenes, which a human recording struggles to do across takes and days. Where it still falls short is genuine emotion and brand-specific delivery, so a launch film that hinges on one person's charisma is still better recorded. Match the tool to the register rather than deciding in the abstract."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use my own cloned voice for demo narration?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — ElevenLabs offers voice cloning from its Creator tier ($22/mo as of July 2026) and up, trained on a sample of your voice, which recovers the brand-voice consistency a stock model voice loses. Get explicit consent and rights for any voice you clone. Expect to add pronunciation hints for product names and acronyms regardless of which voice you pick, since every TTS model mishandles those by default."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-videos/">Product Demo Videos</a><span class="sep">/</span><span>AI voiceover for demo videos: quality, cost, and workflow</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-videos/">Product Demo Videos</a>
+        <h1 class="article-title">AI voiceover for demo videos: quality, cost, and workflow</h1>
+        <p class="article-dek">AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-three-things-tts-does-better-than-you-at-a-microphone">The three things TTS does better than you at a microphone</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-arithmetic-what-a-finished-minute-of-narration-costs">The arithmetic: what a finished minute of narration costs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#at-demo-scale-price-is-a-rounding-error">At demo scale, price is a rounding error</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#edit-one-line-re-voice-one-line">Edit one line, re-voice one line</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-a-human-voice-still-wins">Where a human voice still wins</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A finished minute of English narration is ~900 characters: about $0.014 on OpenAI tts-1, ~$0.09 on ElevenLabs Multilingual, and ~$0 self-hosting Apache-2.0 Kokoro-82M (July 2026).</li>
+    <li>At one to two minutes per demo, TTS narration costs cents on any vendor. Optimize for iteration speed and voice consistency, not price per million characters.</li>
+    <li>Hash-cached per-scene narration means editing one line re-voices only that scene: a 20-pass script edit re-synthesizes ~4,500 characters, not 27,000.</li>
+    <li>TTS wins on iteration, consistency, and availability; it still loses on genuine emotion, brand voice, and product-name pronunciation without phonetic hints.</li>
+    <li>gpt-4o-mini-tts adds an instructions parameter to steer tone, accent, and pace (July 2026) — the best lever for closing the emotion gap without re-recording.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-three-things-tts-does-better-than-you-at-a-microphone">The three things TTS does better than you at a microphone<a class="hanchor" href="#the-three-things-tts-does-better-than-you-at-a-microphone" aria-label="Link to section: The three things TTS does better than you at a microphone">#</a></h2>
+<p>The objection to synthetic narration used to be that it sounds synthetic. For a 60-to-90-second product walkthrough narrated in a neutral register, that objection is mostly retired: current models clear the bar. So the interesting question stops being &quot;does it sound human&quot; and becomes &quot;what does the machine do that a human recording can&#39;t.&quot; There are three answers, and none of them is about the voice.</p>
+<p><strong>Iteration.</strong> Change a word, re-render in seconds. No re-booking a quiet room, no matching yesterday&#39;s mic distance, no &quot;can you do that line once more with a little more energy.&quot; A demo script is never right on the first pass, and TTS makes the twelfth pass as cheap as the first. <strong>Consistency.</strong> The same voice, pace, and loudness across all six scenes, and across the re-record you will do in three months when the UI moves. Human narration drifts between takes and between days; a model reads scene six exactly the way it read scene one. <strong>Availability.</strong> No microphone, no room treatment, no stage fright, no accent you dislike hearing yourself use. The narration ships from a text file, which means it ships from CI.</p>
+<p>Those three are the steps a machine can stand in for in the <a href="/blog/how-to-make-a-product-demo-video/">end-to-end demo pipeline</a>. What they cost, and where they run out, is the rest of this piece.</p>
+<h2 id="the-arithmetic-what-a-finished-minute-of-narration-costs">The arithmetic: what a finished minute of narration costs<a class="hanchor" href="#the-arithmetic-what-a-finished-minute-of-narration-costs" aria-label="Link to section: The arithmetic: what a finished minute of narration costs">#</a></h2>
+<p>TTS vendors bill by input, almost always by the character. To compare them you have to convert to a common unit: a <em>finished minute</em> of narration. A demo is spoken at roughly 150 words per minute (the <a href="/blog/demo-video-script-template/">per-section word budgets</a> derive that pace in detail), and English averages about six characters per word including the trailing space, so a finished minute is roughly 900 characters. Divide each vendor&#39;s list rate by that and the picture is stark.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Model or plan</th>
+<th>List rate (Jul 2026)</th>
+<th>Per finished minute (~900 chars)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OpenAI</td>
+<td><code>tts-1</code></td>
+<td>$15 / 1M characters</td>
+<td>~$0.014</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td><code>tts-1-hd</code></td>
+<td>$30 / 1M characters</td>
+<td>~$0.027</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td><code>gpt-4o-mini-tts</code></td>
+<td>$0.60/1M input + $12/1M audio tokens</td>
+<td>~$0.015 (est.)</td>
+</tr>
+<tr>
+<td>ElevenLabs</td>
+<td>Multilingual v2 (API)</td>
+<td>$0.10 / 1,000 characters</td>
+<td>~$0.09</td>
+</tr>
+<tr>
+<td>ElevenLabs</td>
+<td>Flash / Turbo (API)</td>
+<td>$0.05 / 1,000 characters</td>
+<td>~$0.045</td>
+</tr>
+<tr>
+<td>Kokoro-82M</td>
+<td>self-hosted</td>
+<td>Apache-2.0, compute only</td>
+<td>~$0</td>
+</tr>
+</tbody></table></div>
+<p>The character-priced models are the ones you can reason about with long division. OpenAI&#39;s <code>tts-1</code> and <code>tts-1-hd</code> run $15 and $30 per million characters<sup class="article-cite"><a href="#src-1" title="OpenAI — tts-1 model and pricing">1</a></sup>, which lands a finished minute at about 1.4 and 2.7 cents. ElevenLabs&#39; pay-as-you-go API is $0.10 per 1,000 characters on its Multilingual v2 model and $0.05 on the faster Flash and Turbo models<sup class="article-cite"><a href="#src-5" title="ElevenLabs — API pay-as-you-go pricing">5</a></sup>, so a minute is about nine cents or four and a half. Kokoro-82M is an open-weight model released under Apache 2.0<sup class="article-cite"><a href="#src-6" title="Kokoro-82M — model card and license (Hugging Face)">6</a></sup>; a <code>pip install kokoro</code> runs it on your own CPU<sup class="article-cite"><a href="#src-7" title="Kokoro — source repository and install">7</a></sup>, so the marginal cost of a minute is whatever your electricity costs, which rounds to zero.</p>
+<p>The one entry that resists clean division is <code>gpt-4o-mini-tts</code>. It is priced by tokens, not characters — $0.60 per million text-input tokens plus $12 per million audio-output tokens<sup class="article-cite"><a href="#src-2" title="OpenAI — gpt-4o-mini-tts model and pricing">2</a></sup> — and because the charge falls on the <em>audio</em> it generates, cost tracks how long the speech runs rather than how many characters you sent. The same 100 words read slowly cost more than read quickly. In practice a minute lands in the same low-single-digit-cents range as <code>tts-1</code>, near a penny and a half, but that figure is an estimate, not a rate card.</p>
+<p>Make it concrete. A typical 90-second demo is about 1,350 characters of narration. On <code>tts-1</code> the whole thing costs about two cents; on ElevenLabs&#39; Multilingual API, about fourteen cents; on Kokoro, nothing.</p>
+<h2 id="at-demo-scale-price-is-a-rounding-error">At demo scale, price is a rounding error<a class="hanchor" href="#at-demo-scale-price-is-a-rounding-error" aria-label="Link to section: At demo scale, price is a rounding error">#</a></h2>
+<p>Read the table again and the headline is not the ratios, it is the magnitudes. Yes, ElevenLabs&#39; Multilingual voice costs roughly six times what OpenAI&#39;s <code>tts-1</code> does per minute. But six times a rounding error is still a rounding error. No demo budget turns on the difference between two cents and fourteen. The per-million-character figure that vendor comparison pages lead with is the wrong number to optimize, because at one-to-two-minute demos you never generate enough characters for it to matter.</p>
+<p>Two costs actually bite, and neither is on the rate card. The first is ElevenLabs&#39; shape: it is a subscription, not metered usage. The plans run from $6/mo Starter to $99/mo Pro, each with a monthly credit allotment where one character equals one credit on the Multilingual model, and commercial rights begin at the paid Starter tier<sup class="article-cite"><a href="#src-4" title="ElevenLabs — pricing and plans">4</a></sup>. You pay the monthly floor whether or not you narrate anything, and heavy re-rendering burns the credit cap. The second cost applies to everyone and is not denominated in dollars at all: the wall-clock and attention cost of iterating. That is where the choice is actually made. Want $0 marginal cost and fully offline rendering? Kokoro&#39;s permissive weights are the only option here that delivers it. Want the least setup? OpenAI&#39;s per-character billing behind a single API key is the lowest friction. Want voice cloning and the widest voice library? That is what the ElevenLabs subscription buys.</p>
+<h2 id="edit-one-line-re-voice-one-line">Edit one line, re-voice one line<a class="hanchor" href="#edit-one-line-re-voice-one-line" aria-label="Link to section: Edit one line, re-voice one line">#</a></h2>
+<p>Here is the workflow property that the pricing tables never mention, and it is worth more than any per-minute rate. Because narration is generated one scene at a time, you can key each audio clip on a hash of its own text and voice settings. Edit the script for scene four and only scene four&#39;s hash changes; the other five clips are reused, untouched, without an API call. In our engine, aidemo (disclosed as ours), each scene&#39;s audio is keyed on a SHA-256 of its narration plus its voice plan and provider, and a re-run whose hashes all still match needs no network round trip and no API key at all — a fully cached render is free and offline.</p>
+<p>Watch what that does to iteration cost. Take a six-scene, 90-second demo, about 1,350 characters. You refine the script through twenty single-line edits while tuning it. A naive pipeline re-voices the entire demo on every save: twenty times 1,350 is 27,000 characters, about 40 cents on <code>tts-1</code>. Per-scene caching re-voices only the scene you touched each time: twenty edits of one ~225-character scene is 4,500 characters total, about 7 cents. The dollars were never the point — both are trivial. The point is the wall-clock: twenty full re-renders versus twenty one-line ones is the difference between iterating freely and rationing your edits. The unit of change becomes the line, not the take. It is the same mechanism that lets <a href="/blog/demo-video-captions/">captions get regenerated</a> rather than re-typed, and that turns rendering the same take in several languages into swapping the narration text instead of booking N voice actors.</p>
+<h2 id="where-a-human-voice-still-wins">Where a human voice still wins<a class="hanchor" href="#where-a-human-voice-still-wins" aria-label="Link to section: Where a human voice still wins">#</a></h2>
+<p>Being honest about the tool means naming where it loses, because it does.</p>
+<p><strong>Emotion and emphasis.</strong> A neutral read is exactly right for a feature walkthrough and exactly wrong for a founder&#39;s launch film. Genuine enthusiasm, comedic timing, a pause placed for effect — current TTS approximates these, and a listener still clocks the difference on anything past a couple of minutes. OpenAI&#39;s <code>gpt-4o-mini-tts</code> narrows the gap with an <code>instructions</code> parameter that steers accent, emotional range, intonation, speed, and tone<sup class="article-cite"><a href="#src-3" title="OpenAI — text-to-speech guide (instructions parameter)">3</a></sup>, so you can ask for &quot;warm, unhurried, slightly amused&quot; instead of accepting the default. It is the best lever available, but it is direction, not a performance.</p>
+<p><strong>Brand voice.</strong> If a specific human voice <em>is</em> the brand — a recognizable founder, a narrator you use across every video — a stock model voice dilutes it. Voice cloning (ElevenLabs, from the Creator tier at $22/mo up) recovers some of that by training on a sample of the real voice, with the obvious consent and rights caveats attached.</p>
+<p><strong>Pronunciation.</strong> Product names, acronyms, and domain jargon are where TTS embarrasses itself; it will confidently mispronounce your own company name. The fix is phonetic hints or spelling overrides in the script, a slot every serious pipeline needs, tuned once and then forgotten.</p>
+<p>So the decision is not human-or-synthetic in the abstract. It is a match between the register of the narration and the strengths of each tool.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The narration is...</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A neutral feature walkthrough you will iterate and maybe localize</td>
+<td>TTS</td>
+</tr>
+<tr>
+<td>Carrying the personality that sells (founder launch, brand film)</td>
+<td>Record a person</td>
+</tr>
+<tr>
+<td>Your brand&#39;s recognizable voice, but you want iteration speed</td>
+<td>A cloned voice</td>
+</tr>
+</tbody></table></div>
+<p>Most product demos are the first row. That is why, for the demo itself — the one you will re-cut when the length is wrong and re-render when the UI changes — <a href="/blog/how-long-should-a-demo-video-be/">the finished length matters more than the voice actor</a>, and the voice should be the part of the pipeline you never have to schedule.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developers.openai.com/api/docs/models/tts-1" rel="noopener">OpenAI — tts-1 model and pricing</a></li>
+<li id="src-2"><a href="https://developers.openai.com/api/docs/models/gpt-4o-mini-tts" rel="noopener">OpenAI — gpt-4o-mini-tts model and pricing</a></li>
+<li id="src-3"><a href="https://developers.openai.com/api/docs/guides/text-to-speech" rel="noopener">OpenAI — text-to-speech guide (instructions parameter)</a></li>
+<li id="src-4"><a href="https://elevenlabs.io/pricing" rel="noopener">ElevenLabs — pricing and plans</a></li>
+<li id="src-5"><a href="https://elevenlabs.io/pricing/api" rel="noopener">ElevenLabs — API pay-as-you-go pricing</a></li>
+<li id="src-6"><a href="https://huggingface.co/hexgrad/Kokoro-82M" rel="noopener">Kokoro-82M — model card and license (Hugging Face)</a></li>
+<li id="src-7"><a href="https://github.com/hexgrad/kokoro" rel="noopener">Kokoro — source repository and install</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-much-does-ai-voiceover-cost-per-minute-of-video" class="blog-faq-q">How much does AI voiceover cost per minute of video?<a class="hanchor" href="#how-much-does-ai-voiceover-cost-per-minute-of-video" aria-label="Link to section: How much does AI voiceover cost per minute of video?">#</a></h3>
+<p>A finished minute of English narration is about 900 characters. As of July 2026 that costs roughly $0.014 on OpenAI&#39;s <code>tts-1</code>, about $0.09 on ElevenLabs&#39; Multilingual API (or ~$0.045 on their faster Flash model), and effectively $0 if you self-host the Apache-2.0 Kokoro-82M model on your own hardware. For a single demo the absolute cost is negligible, so the ElevenLabs subscription floor and your own iteration time matter far more than the per-character rate.</p>
+<h3 id="is-ai-voiceover-good-enough-for-a-professional-product-demo" class="blog-faq-q">Is AI voiceover good enough for a professional product demo?<a class="hanchor" href="#is-ai-voiceover-good-enough-for-a-professional-product-demo" aria-label="Link to section: Is AI voiceover good enough for a professional product demo?">#</a></h3>
+<p>For a neutral feature walkthrough narrated at a steady pace, yes — current models clear that bar and stay perfectly consistent across scenes, which a human recording struggles to do across takes and days. Where it still falls short is genuine emotion and brand-specific delivery, so a launch film that hinges on one person&#39;s charisma is still better recorded. Match the tool to the register rather than deciding in the abstract.</p>
+<h3 id="can-i-use-my-own-cloned-voice-for-demo-narration" class="blog-faq-q">Can I use my own cloned voice for demo narration?<a class="hanchor" href="#can-i-use-my-own-cloned-voice-for-demo-narration" aria-label="Link to section: Can I use my own cloned voice for demo narration?">#</a></h3>
+<p>Yes — ElevenLabs offers voice cloning from its Creator tier ($22/mo as of July 2026) and up, trained on a sample of your voice, which recovers the brand-voice consistency a stock model voice loses. Get explicit consent and rights for any voice you clone. Expect to add pronunciation hints for product names and acronyms regardless of which voice you pick, since every TTS model mishandles those by default.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">ai voiceover</span>
+        <span class="article-tag">text to speech</span>
+        <span class="article-tag">demo videos</span>
+        <span class="article-tag">tts</span>
+        <span class="article-tag">narration</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-make-a-product-demo-video/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">How to make a product demo video (that people finish)</h3>
+    <p class="article-card-excerpt">The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>11 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-captions/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Captions on demo videos: the accessibility case and the numbers</h3>
+    <p class="article-card-excerpt">Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-script-template/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Demo video script template: problem, walkthrough, proof</h3>
+    <p class="article-card-excerpt">Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-three-things-tts-does-better-than-you-at-a-microphone">The three things TTS does better than you at a microphone</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-arithmetic-what-a-finished-minute-of-narration-costs">The arithmetic: what a finished minute of narration costs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#at-demo-scale-price-is-a-rounding-error">At demo scale, price is a rounding error</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#edit-one-line-re-voice-one-line">Edit one line, re-voice one line</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-a-human-voice-still-wins">Where a human voice still wins</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

@@ -7,6 +7,8 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Demo Tools & Alternatives
 
 - [AI demo video generators: what the label actually covers](https://aidemo.top/blog/ai-demo-video-generators/index.md): Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.
+- [Interactive product demos vs video demos: when each wins](https://aidemo.top/blog/interactive-demo-vs-video-demo/index.md): One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.
+- [Open-source demo video tools, scored by license and install reality](https://aidemo.top/blog/open-source-demo-video-tools/index.md): Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.
 - [Screen Studio alternatives for Windows, Linux, and CI](https://aidemo.top/blog/screen-studio-alternatives/index.md): Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.
 
 ## Demo Automation
@@ -18,12 +20,15 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 
 ## Product Demo Videos
 
+- [AI voiceover for demo videos: quality, cost, and workflow](https://aidemo.top/blog/ai-voiceover-for-demo-videos/index.md): AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.
+- [Captions on demo videos: the accessibility case and the numbers](https://aidemo.top/blog/demo-video-captions/index.md): Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.
 - [Demo video script template: problem, walkthrough, proof](https://aidemo.top/blog/demo-video-script-template/index.md): Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.
 - [How long should a demo video be? The retention math](https://aidemo.top/blog/how-long-should-a-demo-video-be/index.md): Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.
 - [How to make a product demo video (that people finish)](https://aidemo.top/blog/how-to-make-a-product-demo-video/index.md): The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
 
 ## Demos as Code
 
+- [Letting a coding agent make your demo video](https://aidemo.top/blog/coding-agents-that-make-demo-videos/index.md): A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.
 - [Demos as code: commit the storyboard, render the video](https://aidemo.top/blog/demos-as-code/index.md): A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.
 
 ## Optional

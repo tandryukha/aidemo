@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coding agents that make demo videos | aidemo</title>
+<meta name="description" content="A coding agent explores your app and writes the demo storyboard, then a deterministic engine records it, keeping the LLM out of the capture loop.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/coding-agents-that-make-demo-videos/">
+<link rel="alternate" type="text/markdown" href="/blog/coding-agents-that-make-demo-videos/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Coding agents that make demo videos | aidemo">
+<meta property="og:description" content="A coding agent explores your app and writes the demo storyboard, then a deterministic engine records it, keeping the LLM out of the capture loop.">
+<meta property="og:url" content="https://aidemo.top/blog/coding-agents-that-make-demo-videos/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Coding agents that make demo videos | aidemo">
+<meta name="twitter:description" content="A coding agent explores your app and writes the demo storyboard, then a deterministic engine records it, keeping the LLM out of the capture loop.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Letting a coding agent make your demo video",
+  "description": "A coding agent explores your app and writes the demo storyboard, then a deterministic engine records it, keeping the LLM out of the capture loop.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/coding-agents-that-make-demo-videos/"
+  },
+  "wordCount": 2452,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Architecture (client-host-server, JSON-RPC, servers expose tools/resources/prompts)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/architecture"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Tools (model-controlled invocation, server-side execution)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/server/tools"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI Cookbook — Reproducible outputs with the seed parameter (determinism not guaranteed)",
+      "url": "https://developers.openai.com/cookbook/examples/reproducible_outputs_with_the_seed_parameter"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Anthropic — Equipping agents for the real world with Agent Skills (October 16, 2025)",
+      "url": "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Claude Code — Extend Claude with skills (SKILL.md, loaded only when used)",
+      "url": "https://code.claude.com/docs/en/skills"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Claude Code — Create plugins (bundle skills, agents, hooks, MCP servers)",
+      "url": "https://code.claude.com/docs/en/plugins"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion — Prompting videos with coding agents",
+      "url": "https://www.remotion.dev/docs/ai/coding-agents"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Revideo — Create videos with code (README, a scene is plain TypeScript an agent can produce)",
+      "url": "https://raw.githubusercontent.com/midrender/revideo/main/README.md"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Letting a coding agent make your demo video",
+      "item": "https://aidemo.top/blog/coding-agents-that-make-demo-videos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Which coding agents can turn a prompt into a demo video today?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Several can author the video, and authoring is the part that matters. Claude Code, Codex, and Cursor all read a repo and emit structured text, so any of them can write a storyboard, a Remotion composition, or a Revideo scene from a prompt. What none of them should do is drive the browser live for the final take. The reliable pattern pairs the agent with a deterministic renderer it calls over a protocol like MCP, so pick the agent you already use and give it the right skill plus engine."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the coding agent record my screen while it works?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In the shippable pattern, no. The agent explores your app in a throwaway session to find selectors and flows, then writes a fixed action-spec, and a separate deterministic engine does the actual recording with no model in the loop. That separation is the point: a screen recording driven live by a model would render differently on every run and could not be reviewed as a diff. The agent's decisions all happen before a single frame is captured."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is an MCP server, and how does it let an agent make videos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MCP, the Model Context Protocol, is an open JSON-RPC client-server standard where a server exposes tools a model can call. A video engine can publish tools such as validate and render; the agent decides to call them and supplies arguments, but the render runs as ordinary server code, not model inference. So the agent orchestrates the pipeline from the outside while staying out of the deterministic capture step that produces the actual frames."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Letting a coding agent make your demo video</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Letting a coding agent make your demo video</h1>
+        <p class="article-dek">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 8 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-the-agent-stops-and-the-engine-starts">Where the agent stops and the engine starts</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-a-live-driven-take-is-a-different-video-every-run">Why a live-driven take is a different video every run</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-the-agent-has-to-learn-about-your-app-first">What the agent has to learn about your app first</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-the-storyboard-pins-down-what-the-engine-guarantees">What the storyboard pins down, what the engine guarantees</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#mcp-skills-and-plugins-the-agents-reach-into-the-engine">MCP, skills, and plugins: the agent's reach into the engine</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#one-handoff-traced-from-prompt-to-mp4">One handoff, traced from prompt to MP4</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Split the work: an agent authors the storyboard (script plus real selectors), a deterministic engine records it. The model belongs at authoring time, never in the capture loop.</li>
+    <li>A live-driven take is a random walk: 12 model decisions at 3% divergence each means about 1 run in 3 renders differently (0.97^12 is roughly 69% identical). A fixed action-spec collapses that to one path.</li>
+    <li>Even with a fixed seed, OpenAI says output can differ from 'inherent non-determinism' of the models, so an agent driving the browser cannot guarantee the same video twice.</li>
+    <li>MCP already enforces the line: tools are model-controlled but run as server code, so the render is deterministic server work the agent only waits on.</li>
+    <li>Remotion and Revideo let agents author video too, but they render drawn frames (a rendition); capturing your real UI is the harder branch a product demo usually wants.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="where-the-agent-stops-and-the-engine-starts">Where the agent stops and the engine starts<a class="hanchor" href="#where-the-agent-stops-and-the-engine-starts" aria-label="Link to section: Where the agent stops and the engine starts">#</a></h2>
+<p>&quot;Let a coding agent make the demo video&quot; splits into two jobs that look like one, and the split is the whole story. The first job is authoring: read the app, decide what to show, write down the clicks and the words. The second is capture: drive a browser, move a cursor, record the frames. A language model is built for the first and structurally wrong for the second. A workflow that respects that line ships a video you can trust; one that blurs it produces a take you cannot trust to render twice.</p>
+<p>The <a href="/blog/demos-as-code/">demos-as-code pillar</a> argues the general case: a demo is either a performance you maintain by hand or a spec you commit and rebuild. This piece is about the seam inside the spec branch, the exact handoff where an agent&#39;s judgment ends and a deterministic engine&#39;s mechanics begin. Get the seam right and the agent does the part it is good at, writing structured text about your product, while never touching the part it is bad at, holding a mouse with a steady hand. The rest of this is what lives on each side of that line, and why the line has to exist.</p>
+<h2 id="why-a-live-driven-take-is-a-different-video-every-run">Why a live-driven take is a different video every run<a class="hanchor" href="#why-a-live-driven-take-is-a-different-video-every-run" aria-label="Link to section: Why a live-driven take is a different video every run">#</a></h2>
+<p>Picture the naive version: hand a browser tool to an agent and tell it to record a demo. It reads the page, picks an element, clicks, waits for something to load, decides that looked good, scrolls, narrates. Every one of those is a fresh decision the model makes at inference time, and inference is not deterministic. OpenAI&#39;s own guidance on reproducible outputs is blunt: even with a fixed seed and a matching backend fingerprint, &quot;there is a small chance that responses differ ... due to the inherent non-determinism of our models,&quot; and the seed only buys a &quot;best effort to sample deterministically&quot;<sup class="article-cite"><a href="#src-3" title="OpenAI Cookbook — Reproducible outputs with the seed parameter (determinism not guaranteed)">3</a></sup>.</p>
+<p>Now compound that across a take. Say a 45-second demo involves a dozen model-made decisions: which element, when to scroll, how long to wait, whether to retry. Give each decision a modest 3% chance of landing differently on a re-run. The odds that all twelve come out identical are 0.97 to the twelfth, about 69%, so roughly one run in three diverges somewhere. Divergence is not a crash. It is a video where the cursor takes a different path, a wait resolves a beat early, a scroll overshoots. The demo becomes a random walk with a low but real branch probability, and you cannot review a random walk. You can only watch each render and hope.</p>
+<p>The fix is to move the model&#39;s decisions out of the take entirely. The agent makes all of them once, up front, and writes them into a fixed action-spec. Then a deterministic player, not the model, executes that spec the same way every time. It is the difference between a stunt performed live and a motion-control camera rig: the move is programmed once, and the rig repeats it frame-for-frame on take after take. The judgment still happened, it just happened at authoring time, where a wrong call is a line you edit rather than a shot you re-shoot. How the player makes a browser itself replay identically is its own engineering problem; the point here is only that the model is not in that loop.</p>
+<h2 id="what-the-agent-has-to-learn-about-your-app-first">What the agent has to learn about your app first<a class="hanchor" href="#what-the-agent-has-to-learn-about-your-app-first" aria-label="Link to section: What the agent has to learn about your app first">#</a></h2>
+<p>Before an agent can write a spec, it has to explore, and this is the one phase where a live browser session is exactly right, because nothing it produces here ships. The exploration is disposable. Only its findings survive into text.</p>
+<p>Three things the agent has to pin down:</p>
+<ul>
+<li><strong>Selectors.</strong> A demo clicks real elements, so the agent needs stable handles: an id, a <code>data-testid</code>, an accessible role and name. Guessing them is the top cause of a broken take, which is why the agent should confirm each one against the running app instead of inferring it from a screenshot. A stable <code>data-testid</code> on the button you demo is worth more than any clever prompt.</li>
+<li><strong>Flows.</strong> What order of screens tells the story, what state each step assumes (logged in, a seeded record, an empty cart), and where a step depends on the previous one having finished. The agent has to walk the flow to know a loading spinner sits between step three and step four.</li>
+<li><strong>States off the happy path.</strong> An empty state, a first-run banner that greets the account by name, a cookie wall, a modal that appears once and then persists in the profile. Each is something the spec has to handle or hide.</li>
+</ul>
+<p>None of this requires the agent to be right on the first try. An exploratory pass is cheap and throwaway; the discipline is that its output is knowledge, not footage. The moment the agent stops clicking around and starts writing selectors and narration into a file, it has crossed from the capture side to the authoring side, which is where it belongs.</p>
+<h2 id="what-the-storyboard-pins-down-what-the-engine-guarantees">What the storyboard pins down, what the engine guarantees<a class="hanchor" href="#what-the-storyboard-pins-down-what-the-engine-guarantees" aria-label="Link to section: What the storyboard pins down, what the engine guarantees">#</a></h2>
+<p>The storyboard is the contract. It is a text file the agent writes and a human can read, and it carries three things: the script (what is narrated, scene by scene), the action-spec (the ordered browser operations and the waits between them), and the production plan (voice, music, captions, timing). Everything the agent decided is in there as data. Nothing is left to be decided at render time.</p>
+<p>The engine, on the other side of the line, owns the mechanics. It validates the storyboard against a schema before running anything, so a malformed spec fails as a structured error rather than a bad video. It drives a real browser through the action-spec with no model in the loop, records the frames, and writes a timeline. It generates the voiceover, times the captions, trims the idle waits, and muxes the result. Same spec, same build, same file, which is what lets you <a href="/blog/automated-product-demo-videos/">regenerate rather than re-record</a> when the product moves.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Who acts</th>
+<th>Output</th>
+<th>Repeatable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Explore</td>
+<td>agent, in a throwaway session</td>
+<td>selectors, flows, states</td>
+<td>No, and that is fine</td>
+</tr>
+<tr>
+<td>Author</td>
+<td>agent, writing text</td>
+<td>storyboard: script + action-spec + plan</td>
+<td>It is text; diff it</td>
+</tr>
+<tr>
+<td>Validate</td>
+<td>engine, schema check</td>
+<td>pass or structured errors</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Record</td>
+<td>engine, real browser, no LLM</td>
+<td>raw take + timeline</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Compose</td>
+<td>engine, ffmpeg</td>
+<td>final video</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<p>The single load-bearing row is Record. It is the only place a live-driven workflow would let the model back in, and the only place the shippable workflow keeps it out. aidemo, our engine, states the rule in its own authoring guide: no LLM runs during capture, the recording is a deterministic replay of the fixed action-spec. It is browser-only, its storyboards are agent-authored rather than dragged together on a timeline, and there is no GUI editor. Those are real limits, and they are the same limits that make the take reproducible.</p>
+<h2 id="mcp-skills-and-plugins-the-agents-reach-into-the-engine">MCP, skills, and plugins: the agent&#39;s reach into the engine<a class="hanchor" href="#mcp-skills-and-plugins-the-agents-reach-into-the-engine" aria-label="Link to section: MCP, skills, and plugins: the agent's reach into the engine">#</a></h2>
+<p>How does the agent call an engine it does not contain? The current answer is the Model Context Protocol. MCP is a client-host-server architecture built on JSON-RPC, where servers &quot;expose resources, tools and prompts&quot; to a model-bearing host<sup class="article-cite"><a href="#src-1" title="Model Context Protocol — Architecture (client-host-server, JSON-RPC, servers expose tools/resources/prompts)">1</a></sup>. Tools are &quot;model-controlled,&quot; meaning the model decides to invoke one based on the task<sup class="article-cite"><a href="#src-2" title="Model Context Protocol — Tools (model-controlled invocation, server-side execution)">2</a></sup>, but the tool&#39;s execution is ordinary server code. The model picks the tool and fills in the arguments; the server runs it and hands back a result. The one channel from server back to the model is sampling, and the server has to ask for it explicitly.</p>
+<p>Read the protocol that way and it already draws the line. The agent calls a render tool; the engine, as the server, runs the render; nothing in that render touches the model unless the server chooses to. Keeping the LLM out of the capture loop is the default shape of a well-behaved MCP tool, not a feature bolted on. The agent&#39;s job is to author the storyboard and call validate then render; the render is minutes of deterministic server work it only waits on.</p>
+<p>The teaching layer sits above that. An Agent Skill is a <code>SKILL.md</code> of instructions the agent loads &quot;only when it&#39;s used&quot;<sup class="article-cite"><a href="#src-5" title="Claude Code — Extend Claude with skills (SKILL.md, loaded only when used)">5</a></sup>; Anthropic frames skills as &quot;organized folders of instructions, scripts, and resources that agents can discover and load dynamically&quot;<sup class="article-cite"><a href="#src-4" title="Anthropic — Equipping agents for the real world with Agent Skills (October 16, 2025)">4</a></sup>. A Claude Code plugin bundles a skill together with an MCP server, agents, and hooks in one installable unit<sup class="article-cite"><a href="#src-6" title="Claude Code — Create plugins (bundle skills, agents, hooks, MCP servers)">6</a></sup>. So &quot;teach my agent to make demos&quot; decomposes cleanly: a skill that says how to author the storyboard, an MCP server that exposes the deterministic engine. That pairing is what a demo plugin ships.</p>
+<p>The rest of the field is converging on agent-authored video too, but on a different branch, and the branch is what matters:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Tool (accessed July 2026)</th>
+<th>Agent writes</th>
+<th>What renders</th>
+<th>On screen</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Remotion + Agent Skills</td>
+<td>React components</td>
+<td>Remotion draws frames</td>
+<td>a rendition of your UI</td>
+</tr>
+<tr>
+<td>Revideo</td>
+<td>TypeScript scenes</td>
+<td>headless Chromium render</td>
+<td>a rendition of your UI</td>
+</tr>
+<tr>
+<td>Browser agent driving live</td>
+<td>nothing durable</td>
+<td>the model, live</td>
+<td>your real UI, different each run</td>
+</tr>
+<tr>
+<td>aidemo (ours)</td>
+<td>a storyboard of real selectors</td>
+<td>deterministic replay in a real browser</td>
+<td>your real UI, reproducible</td>
+</tr>
+</tbody></table></div>
+<p>Remotion now tells agents &quot;you can create videos just from prompting&quot; and ships a skill to install<sup class="article-cite"><a href="#src-7" title="Remotion — Prompting videos with coding agents">7</a></sup>; Revideo bills itself as &quot;a rendering engine for creating videos in code&quot; and notes that &quot;a scene is plain TypeScript, so Claude or Codex can produce one from a prompt&quot;<sup class="article-cite"><a href="#src-8" title="Revideo — Create videos with code (README, a scene is plain TypeScript an agent can produce)">8</a></sup>. Both are legitimate, and both keep the model at authoring time. But they render drawn frames, so the agent authors a picture of your product. Capturing the real UI is the harder branch and the one a product demo usually wants, because the thing on screen should be the software, not an illustration of it.</p>
+<h2 id="one-handoff-traced-from-prompt-to-mp4">One handoff, traced from prompt to MP4<a class="hanchor" href="#one-handoff-traced-from-prompt-to-mp4" aria-label="Link to section: One handoff, traced from prompt to MP4">#</a></h2>
+<p>Concrete beats abstract. Here is the whole loop for a demo of a billing page, with the boundary marked at every step.</p>
+<p>A developer types one line to the agent: record a 40-second demo of the new billing page. The agent, holding a browser tool, opens the app and explores. It finds the billing route, confirms the export button carries <code>data-testid=&quot;export-invoice&quot;</code>, notices the page assumes a seeded invoice and a logged-in session, and clocks the two-second spinner after an export. That session is then discarded. What survives is a storyboard the agent writes: four scenes, each with a narration line near 2.5 words per second, an action-spec that navigates, types, and clicks the confirmed selectors, and a wait on the spinner marked as trimmable idle so the finished video never sits on a loading state.</p>
+<p>The agent calls validate, and the schema catches a mistyped selector before any render burns time. Then it calls render, which returns a job id and runs for a few minutes: a real browser replays the spec with no model watching, a voice is generated, captions are timed, the idle spinner is trimmed, and an MP4 falls out. The agent polls the job, extracts a few frames to check the cursor lands on the button and the caption is in sync, and reports back. When a frame is wrong, the fix is a line in the storyboard and a recompose, not a fresh take.</p>
+<p>Because the artifact is that storyboard, the same run has a second life. The action-spec is a deterministic replay, so it doubles as a check: run it against tomorrow&#39;s build, and if the export button&#39;s selector moved, the flow fails loudly instead of shipping a broken video. That is the golden-file pattern, <a href="/blog/demo-videos-in-ci/">wired into CI as a status check</a>. The demo that would otherwise <a href="/blog/why-product-demos-go-stale/">drift out of date</a> stays current because regenerating it is one command, not a new shoot. The agent&#39;s fingerprints are all over the authoring. They are nowhere near the capture.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://modelcontextprotocol.io/specification/2025-06-18/architecture" rel="noopener">Model Context Protocol — Architecture (client-host-server, JSON-RPC, servers expose tools/resources/prompts)</a></li>
+<li id="src-2"><a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools" rel="noopener">Model Context Protocol — Tools (model-controlled invocation, server-side execution)</a></li>
+<li id="src-3"><a href="https://developers.openai.com/cookbook/examples/reproducible_outputs_with_the_seed_parameter" rel="noopener">OpenAI Cookbook — Reproducible outputs with the seed parameter (determinism not guaranteed)</a></li>
+<li id="src-4"><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" rel="noopener">Anthropic — Equipping agents for the real world with Agent Skills (October 16, 2025)</a></li>
+<li id="src-5"><a href="https://code.claude.com/docs/en/skills" rel="noopener">Claude Code — Extend Claude with skills (SKILL.md, loaded only when used)</a></li>
+<li id="src-6"><a href="https://code.claude.com/docs/en/plugins" rel="noopener">Claude Code — Create plugins (bundle skills, agents, hooks, MCP servers)</a></li>
+<li id="src-7"><a href="https://www.remotion.dev/docs/ai/coding-agents" rel="noopener">Remotion — Prompting videos with coding agents</a></li>
+<li id="src-8"><a href="https://raw.githubusercontent.com/midrender/revideo/main/README.md" rel="noopener">Revideo — Create videos with code (README, a scene is plain TypeScript an agent can produce)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="which-coding-agents-can-turn-a-prompt-into-a-demo-video-today" class="blog-faq-q">Which coding agents can turn a prompt into a demo video today?<a class="hanchor" href="#which-coding-agents-can-turn-a-prompt-into-a-demo-video-today" aria-label="Link to section: Which coding agents can turn a prompt into a demo video today?">#</a></h3>
+<p>Several can author the video, and authoring is the part that matters. Claude Code, Codex, and Cursor all read a repo and emit structured text, so any of them can write a storyboard, a Remotion composition, or a Revideo scene from a prompt. What none of them should do is drive the browser live for the final take. The reliable pattern pairs the agent with a deterministic renderer it calls over a protocol like MCP, so pick the agent you already use and give it the right skill plus engine.</p>
+<h3 id="does-the-coding-agent-record-my-screen-while-it-works" class="blog-faq-q">Does the coding agent record my screen while it works?<a class="hanchor" href="#does-the-coding-agent-record-my-screen-while-it-works" aria-label="Link to section: Does the coding agent record my screen while it works?">#</a></h3>
+<p>In the shippable pattern, no. The agent explores your app in a throwaway session to find selectors and flows, then writes a fixed action-spec, and a separate deterministic engine does the actual recording with no model in the loop. That separation is the point: a screen recording driven live by a model would render differently on every run and could not be reviewed as a diff. The agent&#39;s decisions all happen before a single frame is captured.</p>
+<h3 id="what-is-an-mcp-server-and-how-does-it-let-an-agent-make-videos" class="blog-faq-q">What is an MCP server, and how does it let an agent make videos?<a class="hanchor" href="#what-is-an-mcp-server-and-how-does-it-let-an-agent-make-videos" aria-label="Link to section: What is an MCP server, and how does it let an agent make videos?">#</a></h3>
+<p>MCP, the Model Context Protocol, is an open JSON-RPC client-server standard where a server exposes tools a model can call. A video engine can publish tools such as validate and render; the agent decides to call them and supplies arguments, but the render runs as ordinary server code, not model inference. So the agent orchestrates the pipeline from the outside while staying out of the deterministic capture step that produces the actual frames.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">coding agents</span>
+        <span class="article-tag">claude code</span>
+        <span class="article-tag">mcp</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">browser automation</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-the-agent-stops-and-the-engine-starts">Where the agent stops and the engine starts</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-a-live-driven-take-is-a-different-video-every-run">Why a live-driven take is a different video every run</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-the-agent-has-to-learn-about-your-app-first">What the agent has to learn about your app first</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-the-storyboard-pins-down-what-the-engine-guarantees">What the storyboard pins down, what the engine guarantees</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#mcp-skills-and-plugins-the-agents-reach-into-the-engine">MCP, skills, and plugins: the agent's reach into the engine</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#one-handoff-traced-from-prompt-to-mp4">One handoff, traced from prompt to MP4</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

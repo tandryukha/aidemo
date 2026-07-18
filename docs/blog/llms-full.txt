@@ -96,6 +96,97 @@ No. An interactive demo, or tour, is a clickable HTML embed a viewer navigates t
 
 ---
 
+# AI voiceover for demo videos: quality, cost, and workflow
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/ai-voiceover-for-demo-videos/
+
+> AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.
+
+## The three things TTS does better than you at a microphone
+
+The objection to synthetic narration used to be that it sounds synthetic. For a 60-to-90-second product walkthrough narrated in a neutral register, that objection is mostly retired: current models clear the bar. So the interesting question stops being "does it sound human" and becomes "what does the machine do that a human recording can't." There are three answers, and none of them is about the voice.
+
+**Iteration.** Change a word, re-render in seconds. No re-booking a quiet room, no matching yesterday's mic distance, no "can you do that line once more with a little more energy." A demo script is never right on the first pass, and TTS makes the twelfth pass as cheap as the first. **Consistency.** The same voice, pace, and loudness across all six scenes, and across the re-record you will do in three months when the UI moves. Human narration drifts between takes and between days; a model reads scene six exactly the way it read scene one. **Availability.** No microphone, no room treatment, no stage fright, no accent you dislike hearing yourself use. The narration ships from a text file, which means it ships from CI.
+
+Those three are the steps a machine can stand in for in the [end-to-end demo pipeline](/blog/how-to-make-a-product-demo-video). What they cost, and where they run out, is the rest of this piece.
+
+## The arithmetic: what a finished minute of narration costs
+
+TTS vendors bill by input, almost always by the character. To compare them you have to convert to a common unit: a *finished minute* of narration. A demo is spoken at roughly 150 words per minute (the [per-section word budgets](/blog/demo-video-script-template) derive that pace in detail), and English averages about six characters per word including the trailing space, so a finished minute is roughly 900 characters. Divide each vendor's list rate by that and the picture is stark.
+
+| Option | Model or plan | List rate (Jul 2026) | Per finished minute (~900 chars) |
+|---|---|---|---|
+| OpenAI | `tts-1` | $15 / 1M characters | ~$0.014 |
+| OpenAI | `tts-1-hd` | $30 / 1M characters | ~$0.027 |
+| OpenAI | `gpt-4o-mini-tts` | $0.60/1M input + $12/1M audio tokens | ~$0.015 (est.) |
+| ElevenLabs | Multilingual v2 (API) | $0.10 / 1,000 characters | ~$0.09 |
+| ElevenLabs | Flash / Turbo (API) | $0.05 / 1,000 characters | ~$0.045 |
+| Kokoro-82M | self-hosted | Apache-2.0, compute only | ~$0 |
+
+The character-priced models are the ones you can reason about with long division. OpenAI's `tts-1` and `tts-1-hd` run $15 and $30 per million characters ([OpenAI, July 2026](https://developers.openai.com/api/docs/models/tts-1)), which lands a finished minute at about 1.4 and 2.7 cents. ElevenLabs' pay-as-you-go API is $0.10 per 1,000 characters on its Multilingual v2 model and $0.05 on the faster Flash and Turbo models ([ElevenLabs, July 2026](https://elevenlabs.io/pricing/api)), so a minute is about nine cents or four and a half. Kokoro-82M is an open-weight model released under Apache 2.0 ([hexgrad, Jan 2025](https://huggingface.co/hexgrad/Kokoro-82M)); a `pip install kokoro` runs it on your own CPU ([hexgrad, 2026](https://github.com/hexgrad/kokoro)), so the marginal cost of a minute is whatever your electricity costs, which rounds to zero.
+
+The one entry that resists clean division is `gpt-4o-mini-tts`. It is priced by tokens, not characters — $0.60 per million text-input tokens plus $12 per million audio-output tokens ([OpenAI, July 2026](https://developers.openai.com/api/docs/models/gpt-4o-mini-tts)) — and because the charge falls on the *audio* it generates, cost tracks how long the speech runs rather than how many characters you sent. The same 100 words read slowly cost more than read quickly. In practice a minute lands in the same low-single-digit-cents range as `tts-1`, near a penny and a half, but that figure is an estimate, not a rate card.
+
+Make it concrete. A typical 90-second demo is about 1,350 characters of narration. On `tts-1` the whole thing costs about two cents; on ElevenLabs' Multilingual API, about fourteen cents; on Kokoro, nothing.
+
+## At demo scale, price is a rounding error
+
+Read the table again and the headline is not the ratios, it is the magnitudes. Yes, ElevenLabs' Multilingual voice costs roughly six times what OpenAI's `tts-1` does per minute. But six times a rounding error is still a rounding error. No demo budget turns on the difference between two cents and fourteen. The per-million-character figure that vendor comparison pages lead with is the wrong number to optimize, because at one-to-two-minute demos you never generate enough characters for it to matter.
+
+Two costs actually bite, and neither is on the rate card. The first is ElevenLabs' shape: it is a subscription, not metered usage. The plans run from $6/mo Starter to $99/mo Pro, each with a monthly credit allotment where one character equals one credit on the Multilingual model, and commercial rights begin at the paid Starter tier ([ElevenLabs, July 2026](https://elevenlabs.io/pricing)). You pay the monthly floor whether or not you narrate anything, and heavy re-rendering burns the credit cap. The second cost applies to everyone and is not denominated in dollars at all: the wall-clock and attention cost of iterating. That is where the choice is actually made. Want $0 marginal cost and fully offline rendering? Kokoro's permissive weights are the only option here that delivers it. Want the least setup? OpenAI's per-character billing behind a single API key is the lowest friction. Want voice cloning and the widest voice library? That is what the ElevenLabs subscription buys.
+
+## Edit one line, re-voice one line
+
+Here is the workflow property that the pricing tables never mention, and it is worth more than any per-minute rate. Because narration is generated one scene at a time, you can key each audio clip on a hash of its own text and voice settings. Edit the script for scene four and only scene four's hash changes; the other five clips are reused, untouched, without an API call. In our engine, aidemo (disclosed as ours), each scene's audio is keyed on a SHA-256 of its narration plus its voice plan and provider, and a re-run whose hashes all still match needs no network round trip and no API key at all — a fully cached render is free and offline.
+
+Watch what that does to iteration cost. Take a six-scene, 90-second demo, about 1,350 characters. You refine the script through twenty single-line edits while tuning it. A naive pipeline re-voices the entire demo on every save: twenty times 1,350 is 27,000 characters, about 40 cents on `tts-1`. Per-scene caching re-voices only the scene you touched each time: twenty edits of one ~225-character scene is 4,500 characters total, about 7 cents. The dollars were never the point — both are trivial. The point is the wall-clock: twenty full re-renders versus twenty one-line ones is the difference between iterating freely and rationing your edits. The unit of change becomes the line, not the take. It is the same mechanism that lets [captions get regenerated](/blog/demo-video-captions) rather than re-typed, and that turns [rendering the same take in several languages](/blog/multi-language-product-demo-videos) into swapping the narration text instead of booking N voice actors.
+
+## Where a human voice still wins
+
+Being honest about the tool means naming where it loses, because it does.
+
+**Emotion and emphasis.** A neutral read is exactly right for a feature walkthrough and exactly wrong for a founder's launch film. Genuine enthusiasm, comedic timing, a pause placed for effect — current TTS approximates these, and a listener still clocks the difference on anything past a couple of minutes. OpenAI's `gpt-4o-mini-tts` narrows the gap with an `instructions` parameter that steers accent, emotional range, intonation, speed, and tone ([OpenAI, July 2026](https://developers.openai.com/api/docs/guides/text-to-speech)), so you can ask for "warm, unhurried, slightly amused" instead of accepting the default. It is the best lever available, but it is direction, not a performance.
+
+**Brand voice.** If a specific human voice *is* the brand — a recognizable founder, a narrator you use across every video — a stock model voice dilutes it. Voice cloning (ElevenLabs, from the Creator tier at $22/mo up) recovers some of that by training on a sample of the real voice, with the obvious consent and rights caveats attached.
+
+**Pronunciation.** Product names, acronyms, and domain jargon are where TTS embarrasses itself; it will confidently mispronounce your own company name. The fix is phonetic hints or spelling overrides in the script, a slot every serious pipeline needs, tuned once and then forgotten.
+
+So the decision is not human-or-synthetic in the abstract. It is a match between the register of the narration and the strengths of each tool.
+
+| The narration is... | Use |
+|---|---|
+| A neutral feature walkthrough you will iterate and maybe localize | TTS |
+| Carrying the personality that sells (founder launch, brand film) | Record a person |
+| Your brand's recognizable voice, but you want iteration speed | A cloned voice |
+
+Most product demos are the first row. That is why, for the demo itself — the one you will re-cut when the length is wrong and re-render when the UI changes — [the finished length matters more than the voice actor](/blog/how-long-should-a-demo-video-be), and the voice should be the part of the pipeline you never have to schedule.
+
+## Sources
+
+- [OpenAI — tts-1 model and pricing](https://developers.openai.com/api/docs/models/tts-1)
+- [OpenAI — gpt-4o-mini-tts model and pricing](https://developers.openai.com/api/docs/models/gpt-4o-mini-tts)
+- [OpenAI — text-to-speech guide (instructions parameter)](https://developers.openai.com/api/docs/guides/text-to-speech)
+- [ElevenLabs — pricing and plans](https://elevenlabs.io/pricing)
+- [ElevenLabs — API pay-as-you-go pricing](https://elevenlabs.io/pricing/api)
+- [Kokoro-82M — model card and license (Hugging Face)](https://huggingface.co/hexgrad/Kokoro-82M)
+- [Kokoro — source repository and install](https://github.com/hexgrad/kokoro)
+
+## FAQ
+
+### How much does AI voiceover cost per minute of video?
+
+A finished minute of English narration is about 900 characters. As of July 2026 that costs roughly $0.014 on OpenAI's `tts-1`, about $0.09 on ElevenLabs' Multilingual API (or ~$0.045 on their faster Flash model), and effectively $0 if you self-host the Apache-2.0 Kokoro-82M model on your own hardware. For a single demo the absolute cost is negligible, so the ElevenLabs subscription floor and your own iteration time matter far more than the per-character rate.
+
+### Is AI voiceover good enough for a professional product demo?
+
+For a neutral feature walkthrough narrated at a steady pace, yes — current models clear that bar and stay perfectly consistent across scenes, which a human recording struggles to do across takes and days. Where it still falls short is genuine emotion and brand-specific delivery, so a launch film that hinges on one person's charisma is still better recorded. Match the tool to the register rather than deciding in the abstract.
+
+### Can I use my own cloned voice for demo narration?
+
+Yes — ElevenLabs offers voice cloning from its Creator tier ($22/mo as of July 2026) and up, trained on a sample of your voice, which recovers the brand-voice consistency a stock model voice loses. Get explicit consent and rights for any voice you clone. Expect to add pronunciation hints for product names and acronyms regardless of which voice you pick, since every TTS model mishandles those by default.
+
+---
+
 # Automated product demo videos: regenerate, don't re-record
 
 July 18, 2026 · Demo Automation · https://aidemo.top/blog/automated-product-demo-videos/
@@ -185,6 +276,190 @@ No, and conflating them is the most expensive mistake in this category. Tools li
 ### What does it cost to regenerate a demo instead of re-recording it?
 
 Re-recording recurs on every UI change: for a change touching four of nine media assets, budget roughly two to four hours of human time each time, plus a lag of days before anyone notices and re-publishes. Regenerating from a committed spec front-loads one cost, writing the spec, then charges only CI minutes per change with near-zero human time. Over a year of weekly changes that is the gap between about a hundred maintenance hours and about none.
+
+---
+
+# Letting a coding agent make your demo video
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/coding-agents-that-make-demo-videos/
+
+> A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.
+
+## Where the agent stops and the engine starts
+
+"Let a coding agent make the demo video" splits into two jobs that look like one, and the split is the whole story. The first job is authoring: read the app, decide what to show, write down the clicks and the words. The second is capture: drive a browser, move a cursor, record the frames. A language model is built for the first and structurally wrong for the second. A workflow that respects that line ships a video you can trust; one that blurs it produces a take you cannot trust to render twice.
+
+The [demos-as-code pillar](/blog/demos-as-code) argues the general case: a demo is either a performance you maintain by hand or a spec you commit and rebuild. This piece is about the seam inside the spec branch, the exact handoff where an agent's judgment ends and a deterministic engine's mechanics begin. Get the seam right and the agent does the part it is good at, writing structured text about your product, while never touching the part it is bad at, holding a mouse with a steady hand. The rest of this is what lives on each side of that line, and why the line has to exist.
+
+## Why a live-driven take is a different video every run
+
+Picture the naive version: hand a browser tool to an agent and tell it to record a demo. It reads the page, picks an element, clicks, waits for something to load, decides that looked good, scrolls, narrates. Every one of those is a fresh decision the model makes at inference time, and inference is not deterministic. OpenAI's own guidance on reproducible outputs is blunt: even with a fixed seed and a matching backend fingerprint, "there is a small chance that responses differ ... due to the inherent non-determinism of our models," and the seed only buys a "best effort to sample deterministically" ([OpenAI, accessed July 2026](https://developers.openai.com/cookbook/examples/reproducible_outputs_with_the_seed_parameter)).
+
+Now compound that across a take. Say a 45-second demo involves a dozen model-made decisions: which element, when to scroll, how long to wait, whether to retry. Give each decision a modest 3% chance of landing differently on a re-run. The odds that all twelve come out identical are 0.97 to the twelfth, about 69%, so roughly one run in three diverges somewhere. Divergence is not a crash. It is a video where the cursor takes a different path, a wait resolves a beat early, a scroll overshoots. The demo becomes a random walk with a low but real branch probability, and you cannot review a random walk. You can only watch each render and hope.
+
+The fix is to move the model's decisions out of the take entirely. The agent makes all of them once, up front, and writes them into a fixed action-spec. Then a deterministic player, not the model, executes that spec the same way every time. It is the difference between a stunt performed live and a motion-control camera rig: the move is programmed once, and the rig repeats it frame-for-frame on take after take. The judgment still happened, it just happened at authoring time, where a wrong call is a line you edit rather than a shot you re-shoot. How the player makes a browser itself replay identically is [its own engineering problem](/blog/deterministic-browser-automation-for-video); the point here is only that the model is not in that loop.
+
+## What the agent has to learn about your app first
+
+Before an agent can write a spec, it has to explore, and this is the one phase where a live browser session is exactly right, because nothing it produces here ships. The exploration is disposable. Only its findings survive into text.
+
+Three things the agent has to pin down:
+
+- **Selectors.** A demo clicks real elements, so the agent needs stable handles: an id, a `data-testid`, an accessible role and name. Guessing them is the top cause of a broken take, which is why the agent should confirm each one against the running app instead of inferring it from a screenshot. A stable `data-testid` on the button you demo is worth more than any clever prompt.
+- **Flows.** What order of screens tells the story, what state each step assumes (logged in, a seeded record, an empty cart), and where a step depends on the previous one having finished. The agent has to walk the flow to know a loading spinner sits between step three and step four.
+- **States off the happy path.** An empty state, a first-run banner that greets the account by name, a cookie wall, a modal that appears once and then persists in the profile. Each is something the spec has to handle or hide.
+
+None of this requires the agent to be right on the first try. An exploratory pass is cheap and throwaway; the discipline is that its output is knowledge, not footage. The moment the agent stops clicking around and starts writing selectors and narration into a file, it has crossed from the capture side to the authoring side, which is where it belongs.
+
+## What the storyboard pins down, what the engine guarantees
+
+The storyboard is the contract. It is a text file the agent writes and a human can read, and it carries three things: the script (what is narrated, scene by scene), the action-spec (the ordered browser operations and the waits between them), and the production plan (voice, music, captions, timing). Everything the agent decided is in there as data. Nothing is left to be decided at render time.
+
+The engine, on the other side of the line, owns the mechanics. It validates the storyboard against a schema before running anything, so a malformed spec fails as a structured error rather than a bad video. It drives a real browser through the action-spec with no model in the loop, records the frames, and writes a timeline. It generates the voiceover, times the captions, trims the idle waits, and muxes the result. Same spec, same build, same file, which is what lets you [regenerate rather than re-record](/blog/automated-product-demo-videos) when the product moves.
+
+| Phase | Who acts | Output | Repeatable |
+|---|---|---|---|
+| Explore | agent, in a throwaway session | selectors, flows, states | No, and that is fine |
+| Author | agent, writing text | storyboard: script + action-spec + plan | It is text; diff it |
+| Validate | engine, schema check | pass or structured errors | Yes |
+| Record | engine, real browser, no LLM | raw take + timeline | Yes |
+| Compose | engine, ffmpeg | final video | Yes |
+
+The single load-bearing row is Record. It is the only place a live-driven workflow would let the model back in, and the only place the shippable workflow keeps it out. aidemo, our engine, states the rule in its own authoring guide: no LLM runs during capture, the recording is a deterministic replay of the fixed action-spec. It is browser-only, its storyboards are agent-authored rather than dragged together on a timeline, and there is no GUI editor. Those are real limits, and they are the same limits that make the take reproducible.
+
+## MCP, skills, and plugins: the agent's reach into the engine
+
+How does the agent call an engine it does not contain? The current answer is the Model Context Protocol. MCP is a client-host-server architecture built on JSON-RPC, where servers "expose resources, tools and prompts" to a model-bearing host ([MCP spec, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/architecture)). Tools are "model-controlled," meaning the model decides to invoke one based on the task ([MCP spec, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)), but the tool's execution is ordinary server code. The model picks the tool and fills in the arguments; the server runs it and hands back a result. The one channel from server back to the model is sampling, and the server has to ask for it explicitly.
+
+Read the protocol that way and it already draws the line. The agent calls a render tool; the engine, as the server, runs the render; nothing in that render touches the model unless the server chooses to. Keeping the LLM out of the capture loop is the default shape of a well-behaved MCP tool, not a feature bolted on. The agent's job is to author the storyboard and call validate then render; the render is minutes of deterministic server work it only waits on.
+
+The teaching layer sits above that. An Agent Skill is a `SKILL.md` of instructions the agent loads "only when it's used" ([Claude Code, accessed July 2026](https://code.claude.com/docs/en/skills)); Anthropic frames skills as "organized folders of instructions, scripts, and resources that agents can discover and load dynamically" ([Anthropic, October 2025](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)). A Claude Code plugin bundles a skill together with an MCP server, agents, and hooks in one installable unit ([Claude Code, accessed July 2026](https://code.claude.com/docs/en/plugins)). So "teach my agent to make demos" decomposes cleanly: a skill that says how to author the storyboard, an MCP server that exposes the deterministic engine. That pairing is what a demo plugin ships.
+
+The rest of the field is converging on agent-authored video too, but on a different branch, and the branch is what matters:
+
+| Tool (accessed July 2026) | Agent writes | What renders | On screen |
+|---|---|---|---|
+| Remotion + Agent Skills | React components | Remotion draws frames | a rendition of your UI |
+| Revideo | TypeScript scenes | headless Chromium render | a rendition of your UI |
+| Browser agent driving live | nothing durable | the model, live | your real UI, different each run |
+| aidemo (ours) | a storyboard of real selectors | deterministic replay in a real browser | your real UI, reproducible |
+
+Remotion now tells agents "you can create videos just from prompting" and ships a skill to install ([Remotion, accessed July 2026](https://www.remotion.dev/docs/ai/coding-agents)); Revideo bills itself as "a rendering engine for creating videos in code" and notes that "a scene is plain TypeScript, so Claude or Codex can produce one from a prompt" ([Revideo, accessed July 2026](https://raw.githubusercontent.com/midrender/revideo/main/README.md)). Both are legitimate, and both keep the model at authoring time. But they render drawn frames, so the agent authors a picture of your product. Capturing the real UI is the harder branch and the one a product demo usually wants, because the thing on screen should be the software, not an illustration of it.
+
+## One handoff, traced from prompt to MP4
+
+Concrete beats abstract. Here is the whole loop for a demo of a billing page, with the boundary marked at every step.
+
+A developer types one line to the agent: record a 40-second demo of the new billing page. The agent, holding a browser tool, opens the app and explores. It finds the billing route, confirms the export button carries `data-testid="export-invoice"`, notices the page assumes a seeded invoice and a logged-in session, and clocks the two-second spinner after an export. That session is then discarded. What survives is a storyboard the agent writes: four scenes, each with a narration line near 2.5 words per second, an action-spec that navigates, types, and clicks the confirmed selectors, and a wait on the spinner marked as trimmable idle so the finished video never sits on a loading state.
+
+The agent calls validate, and the schema catches a mistyped selector before any render burns time. Then it calls render, which returns a job id and runs for a few minutes: a real browser replays the spec with no model watching, a voice is generated, captions are timed, the idle spinner is trimmed, and an MP4 falls out. The agent polls the job, extracts a few frames to check the cursor lands on the button and the caption is in sync, and reports back. When a frame is wrong, the fix is a line in the storyboard and a recompose, not a fresh take.
+
+Because the artifact is that storyboard, the same run has a second life. The action-spec is a deterministic replay, so it doubles as a check: run it against tomorrow's build, and if the export button's selector moved, the flow fails loudly instead of shipping a broken video. That is the golden-file pattern, [wired into CI as a status check](/blog/demo-videos-in-ci). The demo that would otherwise [drift out of date](/blog/why-product-demos-go-stale) stays current because regenerating it is one command, not a new shoot. The agent's fingerprints are all over the authoring. They are nowhere near the capture.
+
+## Sources
+
+- [Model Context Protocol — Architecture (client-host-server, JSON-RPC, servers expose tools/resources/prompts)](https://modelcontextprotocol.io/specification/2025-06-18/architecture)
+- [Model Context Protocol — Tools (model-controlled invocation, server-side execution)](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+- [OpenAI Cookbook — Reproducible outputs with the seed parameter (determinism not guaranteed)](https://developers.openai.com/cookbook/examples/reproducible_outputs_with_the_seed_parameter)
+- [Anthropic — Equipping agents for the real world with Agent Skills (October 16, 2025)](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+- [Claude Code — Extend Claude with skills (SKILL.md, loaded only when used)](https://code.claude.com/docs/en/skills)
+- [Claude Code — Create plugins (bundle skills, agents, hooks, MCP servers)](https://code.claude.com/docs/en/plugins)
+- [Remotion — Prompting videos with coding agents](https://www.remotion.dev/docs/ai/coding-agents)
+- [Revideo — Create videos with code (README, a scene is plain TypeScript an agent can produce)](https://raw.githubusercontent.com/midrender/revideo/main/README.md)
+
+## FAQ
+
+### Which coding agents can turn a prompt into a demo video today?
+
+Several can author the video, and authoring is the part that matters. Claude Code, Codex, and Cursor all read a repo and emit structured text, so any of them can write a storyboard, a Remotion composition, or a Revideo scene from a prompt. What none of them should do is drive the browser live for the final take. The reliable pattern pairs the agent with a deterministic renderer it calls over a protocol like MCP, so pick the agent you already use and give it the right skill plus engine.
+
+### Does the coding agent record my screen while it works?
+
+In the shippable pattern, no. The agent explores your app in a throwaway session to find selectors and flows, then writes a fixed action-spec, and a separate deterministic engine does the actual recording with no model in the loop. That separation is the point: a screen recording driven live by a model would render differently on every run and could not be reviewed as a diff. The agent's decisions all happen before a single frame is captured.
+
+### What is an MCP server, and how does it let an agent make videos?
+
+MCP, the Model Context Protocol, is an open JSON-RPC client-server standard where a server exposes tools a model can call. A video engine can publish tools such as validate and render; the agent decides to call them and supplies arguments, but the render runs as ordinary server code, not model inference. So the agent orchestrates the pipeline from the outside while staying out of the deterministic capture step that produces the actual frames.
+
+---
+
+# Captions on demo videos: the accessibility case and the numbers
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-captions/
+
+> Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.
+
+## The first view is muted, so the caption is the demo
+
+A demo on a landing page, in a feed, or looping under a README plays before anyone chose to listen, and it plays with the sound off. Verizon Media and Publicis Media, in an online survey of 5,616 US consumers in 2019, found that 69% watch video with sound off in public places, that 80% are more likely to finish a video when captions are available, and that half say captions matter to them specifically because they watch muted ([Forbes, 2019](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)). For most first views the narration you wrote is decoration, and the words on screen are the pitch.
+
+That moves captions from an accessibility checkbox to the primary text track, and it changes when you make them. Captions are not something you bolt onto a finished file; they are the same script the voice reads, timed to the picture. [How long a demo should run is decided by where it lives](/blog/how-long-should-a-demo-video-be), and so is how much the captions carry: a muted hero loop leans on them entirely, a sound-on onboarding walkthrough less so. Because the caption text is the narration text, [the script you write is the caption you ship](/blog/demo-video-script-template), and the [end-to-end playbook](/blog/how-to-make-a-product-demo-video) treats both as outputs of one source instead of two transcription passes.
+
+## What WCAG asks for, stated precisely
+
+"Add captions" is vaguer than the standard. WCAG 2.2 Success Criterion 1.2.2, Captions (Prerecorded), sits at Level A, the base tier every conforming page must meet, and reads in full: "Captions are provided for all prerecorded audio content in synchronized media, except when the media is a media alternative for text and is clearly labeled as such" ([W3C, 2023](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html)). Two clauses decide whether a demo is covered. "Synchronized media" means audio tied to video, so a voiced screen recording qualifies and a silent GIF with no audio track does not. The exception is narrow: it releases only media that is itself an alternative to text already present on the page, which a marketing or product demo never is.
+
+The standard is also specific about what a caption contains. WCAG defines captions as a synchronized alternative for "both speech and non-speech" audio, covering sound effects, music, and speaker identification, and it names the beneficiaries as people who are deaf or hard of hearing ([W3C, WCAG 2.2](https://www.w3.org/TR/WCAG22/)). That is the working difference between captions and subtitles: subtitles assume you can hear and only render the words, while captions assume you cannot and carry everything the audio track conveys. In some regions the two terms are used interchangeably, which is why the distinction has to come from what the file contains, not what it is called. One more boundary is worth knowing so you do not over-scope: live captioning is a separate and stricter criterion, SC 1.2.4 at Level AA, that a prerecorded demo does not trigger.
+
+## Word-level timing versus a block on screen
+
+There are two ways to put narration on screen, and a muted viewer can tell them apart. Block timing drops a full sentence at its start and holds it until the next one. Word-level timing carries a timestamp on every word, so the line can reveal or highlight in step with the voice. The second keeps a scanning viewer locked to the word being spoken instead of re-reading a static paragraph, and because eyes move faster than a voice, a caption that advances word by word stays synced to attention rather than racing ahead of it.
+
+Word-level timing used to be the costly part of the pipeline. It is not now. OpenAI's Whisper, released under the MIT license, has produced per-word timestamps from its `transcribe()` function since version v20230306 ([openai/whisper](https://github.com/openai/whisper)), and the hosted transcription API exposes the same data through `timestamp_granularities: ["word"]` on the `whisper-1` model ([OpenAI](https://developers.openai.com/api/docs/guides/speech-to-text)). Knowing how those numbers are produced explains where they wobble: word times are not measured directly but recovered by dynamic time warping over the model's cross-attention weights, aligning each token to the audio frames it attended to ([whisper-timestamped](https://github.com/linto-ai/whisper-timestamped)), so they drift on long pauses and overlapping speakers and want a light sanity pass. Point the transcriber at your own narration audio, whether a person read it or it was [synthesized from the script](/blog/ai-voiceover-for-demo-videos), and you get back a per-word timeline you can render into whatever the target surface accepts.
+
+## Open captions or a caption track: decide by placement
+
+Captions ship two ways. Open captions are burned into the pixels: part of the frame, unstylable by the viewer, impossible to turn off or strip. Closed captions ride alongside the video as a sidecar file, usually WebVTT (`.vtt`) or SubRip (`.srt`), and a player renders them on demand. Closed is the more accessible default in the abstract, because the viewer controls size and can toggle it, but it reaches anyone only when the surface actually reads the sidecar. Most demo surfaces do not.
+
+The browser will, if you own the markup. A `<video>` with a `<track kind="captions" srclang="en" src="…vtt">` child renders WebVTT natively and gives the viewer a captions control ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track)). The catch for demos is autoplay: a muted hero loop shows the track only if you mark it `default`, and any embed or reshare that re-hosts the MP4 without your `<track>` drops it silently. A GitHub README is worse: you drag in an MP4 and GitHub inlines it with no `<track>` affordance at all and a 10 MB cap on free repositories ([GitHub Docs](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)), so a [README demo that loops muted with no caption button](/blog/readme-gifs-that-update-themselves) has to carry its text in the pixels.
+
+| Placement | Does a caption track reach the viewer? | Ship it as |
+| --- | --- | --- |
+| Landing hero `<video>` you host | Only if you add `default`, and any re-host drops the `<track>` | Burned in |
+| GitHub README or inline docs | No `<track>` affordance, 10 MB cap on free repos | Burned in |
+| Social feed, uploaded natively | The platform re-encodes, and a reshare can strip a sidecar | Burned in |
+| Player with a CC toggle you control | Yes, it reads an uploaded VTT or SRT | Sidecar (closed) |
+| Email or chat preview | No inline playback at all | Burned in on a still or GIF |
+
+The pattern under the table is the whole decision: closed captions win exactly where you control a player that exposes a CC button, and nowhere else. Everywhere a demo autoplays muted, gets embedded, or is re-hosted, the only text that survives is the text you rendered into the frame. So the safe move for a demo you cannot follow across surfaces is to burn captions in and also ship a sidecar wherever a player will honor it.
+
+## Why portable pipelines burn captions into pixels
+
+Burning captions in sounds like the easy path and is the fiddly one, because the obvious tool is not always present. FFmpeg's `subtitles` filter, the usual way to render an SRT or ASS file onto frames, is compiled in only when FFmpeg is built with libass: the documentation states that "to enable compilation of this filter you need to configure FFmpeg with `--enable-libass`" ([FFmpeg](https://ffmpeg.org/ffmpeg-filters.html)). Its `drawtext` sibling likewise needs a libfreetype build. Plenty of distribution and CI FFmpeg binaries ship without either, so a pipeline that shells out to `subtitles` works on your laptop and dies on a runner.
+
+The portable answer is to stop asking FFmpeg to typeset. Rasterize each caption cue to a transparent PNG with a real HTML renderer, where you control font, weight, outline, and safe-area padding, then composite the images with a time-gated `overlay`, a filter every build ships. That is why our own engine, aidemo, renders captions to timed PNGs rather than trusting `subtitles` to exist. The disclosure that owes you: aidemo is browser-only, an agent writes the storyboard instead of a person dragging clips on a timeline, and there is no visual caption editor, so you restyle by changing a value and re-rendering, not by nudging boxes on a canvas. The portability principle holds whatever renders the pixels, and it comes with the styling rules that keep burned-in text legible: set a heavy weight with an outline or a scrim so the words survive a bright UI, keep them inside a safe area so mobile chrome does not clip them, and never assume a font is installed on the render host.
+
+## Fitting caption generation into the render
+
+Because captions come from the narration, they slot into an automated render as one more derived step rather than a manual edit. The order is fixed: produce the narration audio, run word-level speech-to-text over that exact audio, and emit both a burned-in copy for muted and re-hosted surfaces and a `.vtt` sidecar for the players that will use it. Transcribing the real audio, not the script, is what keeps the timing honest, because it measures what was actually said, drift and all.
+
+Run this on the same event that changes the product and the captions never fall out of step with the demo. When a build re-records the voice, the same job re-transcribes and re-renders the text, so a UI change and a script edit both flow through to the frames without anyone re-timing a line by hand. That is the payoff of treating captions as generated rather than typed: they are cheap to regenerate, which is what lets you afford to keep them correct. The mechanics of wiring that into a build, browser and fonts and all, are the same ones behind [rendering a demo in CI](/blog/demo-videos-in-ci).
+
+## Sources
+
+- [W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html)
+- [W3C — Web Content Accessibility Guidelines (WCAG) 2.2 Recommendation](https://www.w3.org/TR/WCAG22/)
+- [Forbes — Verizon Media Says 69% Of Consumers Watch Video With Sound Off](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)
+- [openai/whisper — robust speech recognition, MIT-licensed, with word-level timestamps](https://github.com/openai/whisper)
+- [OpenAI — Speech to text guide (timestamp_granularities)](https://developers.openai.com/api/docs/guides/speech-to-text)
+- [linto-ai/whisper-timestamped — per-word timestamps via DTW on cross-attention](https://github.com/linto-ai/whisper-timestamped)
+- [MDN — The Embed Text Track element (track) and WebVTT](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track)
+- [FFmpeg — Filters documentation (subtitles filter, --enable-libass)](https://ffmpeg.org/ffmpeg-filters.html)
+- [GitHub Docs — Attaching files (video embeds, size limits)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+
+## FAQ
+
+### What is the difference between open and closed captions?
+
+Open captions are burned into the video frame: always visible, not stylable by the viewer, and impossible to turn off or strip when the file is re-hosted. Closed captions ride alongside the video as a WebVTT or SRT sidecar that a player renders on demand and the viewer can toggle. Closed is friendlier when you control a player with a captions button; open is the safe choice for muted autoplay, README embeds, and social reshares, where a sidecar often never reaches the screen.
+
+### Are subtitles and captions the same thing?
+
+Not under the accessibility standard, though the words are used interchangeably in some regions. WCAG defines captions as a synchronized alternative for both speech and non-speech audio, so captions carry sound effects, music, and speaker identification for viewers who cannot hear. Subtitles assume you can hear and render only the dialogue, often translated. For a product demo the non-speech load is usually light, but a click cue or a success chime belongs in a caption and not in a plain subtitle.
+
+### How do I add captions to a video in a GitHub README?
+
+GitHub inlines an uploaded MP4 with no `<track>` element and no captions control, so a closed-caption sidecar has nowhere to attach. Burn the captions into the video before you upload it, keep the file under the 10 MB limit on free repositories, and encode with H.264 for the widest compatibility. If the demo is a looping muted clip, which most README demos are, the burned-in text is the only caption a reader will ever see.
 
 ---
 
@@ -758,6 +1033,196 @@ Write the script first. It is the cheapest artifact to change, and it fixes the 
 ### Can I make a demo video without recording my own voice or screen?
 
 Yes. Text-to-speech renders the narration straight from your script, so no microphone is required, and a scripted browser replay can record the screen flow deterministically instead of you clicking through it live. That combination also makes updates cheap: when the product changes, you edit the script or the action list and re-render, rather than re-performing the whole take from scratch.
+
+---
+
+# Interactive product demos vs video demos: when each wins
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/interactive-demo-vs-video-demo/
+
+> One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.
+
+## Two objects, not two finishes of one thing
+
+An interactive demo and a demo video get filed side by side on every comparison page, as if they were two finishes of the same thing. They are not. One is a program and one is a file. An interactive demo is a small state machine: a captured copy of your interface, HTML and CSS cloned from the running app, that a viewer drives with their own clicks. Navattic's captures are "HTML-based copies of any application that is accessed on a browser," recorded through a Chrome extension and keeping "scrolling abilities, hover states, and more" ([Navattic docs, July 2026](https://docs.navattic.com/build/captures/web)). A video is the opposite: a finished file that plays start to finish, carries a narrated argument, and drops into any place an image or video tag renders. The pillar on [what the AI-demo label actually covers](/blog/ai-demo-video-generators) maps the tools; this piece is only the choice between those two objects.
+
+Everything below falls out of that one distinction. A program needs a runtime — a browser, JavaScript, an iframe — to exist at all. A file needs nothing but a player. So the useful question is never "which is better." It is which object this moment in your funnel, sold to this buyer, on this surface, actually needs. The answer changes three times as you walk the funnel, and twice more when you count the costs a feature table leaves off.
+
+## Which format the funnel stage actually wants
+
+| Funnel stage | The buyer's posture | Format that wins | Why |
+|---|---|---|---|
+| Awareness (feed, hero) | passive, attention not yet earned | Video | states the case for someone who only watches; autoplays muted |
+| Active evaluation | "let me try it myself" | Interactive demo | hands-on beats spectator; the viewer sets the pace |
+| PLG signup, activation | in-product, self-serve | Interactive demo | a facsimile of the product is the native surface |
+| Follow-up, docs, README | asynchronous reference | Video or GIF | plays with no runtime; one file to send anywhere |
+
+At the top of the funnel you are competing for attention you have not earned. A muted thirty-second video in a feed or a landing hero states the argument for the viewer: they watch, they do not work. An interactive demo asks for a click before it returns anything, which is friction exactly where friction is most expensive. Video wins the top, and it wins short: across the more than 13 million videos in Wistia's State of Video data, engagement rises as length falls ([Wistia, July 2026](https://wistia.com/learn/marketing/video-marketing-statistics)), so the awareness cut is a fifteen-to-thirty-second file, not a two-minute one.
+
+In the middle, the "let me poke at it" moment, the ranking flips. A prospect who has decided to care wants to touch the real interface, not watch someone else touch it, and the rep-free evaluation a product-led motion is built around wants that buyer inside a facsimile of the product rather than on a call. This is where the interactive mechanic pays off. Navattic's 2025 report, drawn from more than 28,000 demos and a 280-user survey, puts its top one percent of demos at 84.4% engagement past the first step and 61.6% completion, averaging 2.1 minutes of hands-on time, and finds ungated demos out-engaging gated ones by roughly ten percent ([Navattic, 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)). Read those as a vendor's top-decile numbers, a ceiling rather than an expectation. The direction is the honest part: when the buyer is evaluating, doing beats watching.
+
+At the bottom — the sales follow-up, the README a developer reads before adopting, the recap emailed after a call — you are back on surfaces where a file wins, for a reason that has nothing to do with quality.
+
+## The distribution test: where an iframe can't go
+
+This is the cost listicles skip. An interactive demo is delivered as an embed, an iframe or a script tag, because it needs a live browser to run. That is fine on a web page you control and a wall everywhere else. Email is the clearest case: Mailchimp files JavaScript, iframes, and embedded video under "do not use," because the "vast majority of email clients block scripts," "most email clients block" iframes, and only Apple Mail supports the HTML5 video tag ([Mailchimp, July 2026](https://mailchimp.com/help/limitations-of-html-email/)). A GitHub README renders images and autoplays a committed GIF but strips the script and iframe a tour needs; the [README-GIF piece](/blog/readme-gifs-that-update-themselves) works through exactly what GitHub will and will not animate. Slides, PDFs, app-store listings, most CMS bodies: same wall.
+
+A video has no such wall. It is one file behind an image tag as a GIF, a video tag, or a hosted player, and it plays in a feed, an email preview, a doc, a README, a deck. The interactive vendors concede this inside their own products. Arcade lets only Pro and Growth users export an Arcade to GIF or MP4, and tells them "interactive Arcades are always the most powerful format, so we recommend only exporting when needed for static channels" ([Arcade docs, July 2026](https://docs.arcade.software/kb/build/interactive-demo/share/exports)). Read that in reverse: everything that is not a web page you control is a "static channel," and for those the interactive tool falls back to a video.
+
+| Surface | Interactive embed (iframe/JS) | Video or GIF file |
+|---|---|---|
+| Landing page you own | Yes | Yes |
+| Self-serve product page | Yes (native) | Works, but passive |
+| Cold or follow-up email | No, scripts and iframes stripped | GIF yes; video as thumbnail plus link |
+| GitHub README | No | GIF autoplays; MP4 via link |
+| Muted social autoplay | No | Yes (native) |
+| Slide deck or PDF | No | Yes, embedded or as a GIF |
+
+When you export the tour to clear those walls, what you get is a video, minus the narration you never recorded and, per Arcade's own docs, minus captions, which its exports do not include. The distribution surface of a file is the whole internet; the distribution surface of an iframe is a page with a script tag on it.
+
+## Two maintenance clocks, both ticking
+
+Neither object is free to keep true. Both freeze the UI at the moment you made them, and [demos go out of date](/blog/why-product-demos-go-stale) the instant the interface they froze moves on. The honest difference is in how each one gets fixed.
+
+A video is re-recorded or re-rendered. If it was a hand-captured screen take, someone performs the flow again; if it was authored as a spec, a pipeline re-renders it. Either way the update produces a new file that replaces the old one wherever it was linked.
+
+An interactive demo is re-captured. Because the capture is a clone of specific screens, a UI change desyncs those exact screens: a renamed button, a restyled table, a new column, and the clone now shows a product that no longer exists. Storylane draws this line inside its own product, calling a screenshot demo a set of curated images of what the product looks like and an HTML demo an "exact replica of your product's frontend" that costs "more technical setup and slightly longer load times" ([Storylane, July 2026](https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format)). The more faithful the clone, the more surface there is to drift. The fix is to re-run the extension capture on the changed screens and re-apply the hotspots and edits that sat on top, hand work that scales with the number of demos, not with a single spec.
+
+There is a real asymmetry here that cuts for the tour at low volume and against it at high. One embed updates in place across every page it lives on the moment you re-capture, so you fix it once and it propagates; a video linked in ten places is ten links to re-point unless you kept a stable URL. But a spec-driven video inverts that: [rendered in CI](/blog/demo-videos-in-ci) from a committed storyboard, it re-generates on the same commit that changed the UI, with no hand re-capture at all. That spec-driven pattern is what our own engine, aidemo, does for browser flows, disclosed as ours and honestly limited to a browser, an agent-authored storyboard, and no drag-and-drop timeline. Whichever object you pick, budget for the upkeep; the only tools that let you skip it are the ones where the demo is generated rather than performed.
+
+## The buyer and the channel, cross-referenced
+
+Put the axes in one place. Read down the column for the object you were leaning toward and check whether your real constraints agree.
+
+| If your situation is... | Points to interactive | Points to video |
+|---|---|---|
+| Primary surface | a web page you control | email, README, feed, deck, anywhere |
+| Funnel job | self-serve evaluation, "try it" | narrated argument, proof it runs |
+| Buyer behavior | wants to click, sets own pace | passive, asynchronous, often muted |
+| What must be proved | the product is usable by hand | the feature actually works |
+| Go-to-market motion | product-led, in-app onboarding | sales-assist, docs, social |
+| Upkeep you can staff | hand re-capture per demo | re-record, or re-render from a spec |
+| One asset, many spots | one embed, propagates in place | one file, plays everywhere |
+
+The rows do not all vote the same way for any real product, which is the point: the decision is a weighting, not a verdict. A developer-tools company selling to engineers who read a README and want to watch the CLI actually run leans video and GIF, because its distribution is asynchronous and its buyer distrusts anything they cannot see execute. A horizontal SaaS with a self-serve signup and a "take a tour" button on the pricing page leans interactive, because its buyer's next action is a click and its surface is a page it owns. Most teams that ship both are not hedging; they are covering two surfaces with the object each surface can carry.
+
+## When the answer is both
+
+Reach for both when the funnel splits, and it usually does. Put the interactive demo on the self-serve product page where the evaluating buyer clicks, and put the video everywhere the embed is locked out: the launch email, the README, the muted social autoplay, the sales recap. The video's job there is not to replace the tour but to carry the argument onto the surfaces the tour can never reach, and to hand a skeptical viewer proof-of-life they can watch in fifteen seconds without touching anything.
+
+Two cautions keep the "both" honest. First, they are two artifacts with two maintenance clocks, so shipping both doubles the upkeep unless at least one of them is generated from a spec instead of performed. Second, an exported video is not a substitute for a made one: the file an interactive tool spits out is a screen recording of the clone with no narration and, for Arcade, no captions, which is why the [craft of an actual demo video](/blog/how-to-make-a-product-demo-video) — script first, one job shown end to end — is a separate build, not an export button. Name the object the moment needs, and make that one on purpose.
+
+## Sources
+
+- [Navattic — Web captures (documentation)](https://docs.navattic.com/build/captures/web)
+- [Navattic — State of the Interactive Product Demo 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)
+- [Storylane — Screenshot or HTML: picking the right demo format](https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format)
+- [Arcade — Exports (knowledge base)](https://docs.arcade.software/kb/build/interactive-demo/share/exports)
+- [Mailchimp — Limitations of HTML email](https://mailchimp.com/help/limitations-of-html-email/)
+- [Wistia — State of Video: video marketing statistics](https://wistia.com/learn/marketing/video-marketing-statistics)
+
+## FAQ
+
+### Do interactive demos convert better than video demos?
+
+There is no clean apples-to-apples answer, and almost every headline lift number is published by a vendor selling one format. Navattic's own 2025 data shows its top one percent of demos reaching 84.4% engagement and 61.6% completion when buyers drive themselves ([Navattic, 2025](https://www.navattic.com/report/state-of-the-interactive-product-demo-2025)), which is a strong signal for hands-on evaluation, not a general verdict over video. The defensible read: interactive tends to win where the buyer wants to try the product, and video tends to win where reach and asynchronous viewing matter more than interaction.
+
+### Can you embed an interactive demo in an email or a GitHub README?
+
+No. Interactive demos run on JavaScript inside an iframe, and email clients strip both — Mailchimp lists scripts, iframes, and embedded video under "do not use" ([Mailchimp, July 2026](https://mailchimp.com/help/limitations-of-html-email/)) — while a GitHub README sanitizes the same tags. Your only option on those surfaces is to export the tour to a GIF or MP4, which drops the interactivity (and, in Arcade's case, the captions). If the demo has to live in an inbox, a repo, or a feed, build a video for it.
+
+### Should I build the interactive demo or the video first?
+
+Build for your highest-traffic surface and funnel stage first. If most of your qualified traffic hits a self-serve web page and wants to evaluate hands-on, the interactive demo earns its place first. If your demo has to travel through email, a README, social autoplay, or a slide deck to do its job, build the video first, because none of those surfaces can host the embed. Teams with both a product-led page and an outbound motion usually end up making one of each, for different surfaces.
+
+---
+
+# Open-source demo video tools, scored by license and install reality
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/open-source-demo-video-tools/
+
+> Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.
+
+## Source-available is not open source, and the difference is billable
+
+"Open source" is the most abused word in demo tooling. Remotion, the most popular way to make videos from code, publishes every line on GitHub and lets you read it, fork it, and run it. It is also, by its own admission, not open source: "Remotion is source-available software, but it is not open-source software according to the Open Source Initiative's Open Source Definition" ([Remotion, July 2026](https://www.remotion.dev/docs/license/faq)). That is not pedantry. The Open Source Definition is a ten-clause test, and clause 6 says a license "may not restrict the program from being used in a business" ([Open Source Initiative, OSD 1.9](https://opensource.org/osd)). Remotion's license does exactly that: a for-profit organization with four or more people needs a paid Company License, while individuals and companies of up to three employees use it free ([Remotion License, July 2026](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md)).
+
+So the first thing to check before you build a pipeline on an "open" tool is whether open means OSI-open or just visible-on-GitHub. The bill is real. Remotion's company plans start at $25 per seat per month for creators, or usage pricing at $0.01 per render with a $100 monthly minimum for automated systems, with an enterprise tier from $500 per month ([Remotion Pro, July 2026](https://www.remotion.pro/license)). That is a fair deal for a tool this capable. It is a nasty surprise if you adopted it believing MIT-style freedom and then crossed the fourth hire.
+
+This piece scores the genuinely relevant tools on three axes you can verify against their own repos in five minutes: whether the license clears the OSI definition, how hard the install fights you, and what the pixels actually are. The [four-mechanism map of AI demo generators](/blog/ai-demo-video-generators) sorts the whole market by buyer job; this is the open-source slice of it, read at the license file and the command line.
+
+## The scoreboard: license, install, and what the pixels are
+
+Three columns, three independent questions. The license column is a yes/no against the OSD. The install column is where good intentions meet a C++ compiler. The pixels column is the sleeper: it decides whether a tool can show your product at all.
+
+| Tool | What the pixels are | License | OSI open source? | Install leans on |
+|---|---|---|---|---|
+| Cap | real screen capture | AGPLv3 (some crates MIT) | Yes | prebuilt app, or Rust + Node + Docker to build |
+| vhs | rendered terminal | MIT | Yes | ttyd + ffmpeg on PATH |
+| Remotion | synthetic composition (React) | Remotion License | No (source-available) | npm; license gate at 4+ staff |
+| Revideo | synthetic composition (TS) | MIT | Yes | npm + a headless browser |
+| editly | composed clips and titles | MIT | Yes | ffmpeg + a native headless-gl build |
+| aidemo (ours) | real-UI browser replay | MIT | Yes | Node + system Chrome + system ffmpeg |
+
+The pixels column separates tools that look interchangeable in a feature list. A recorder like Cap and a real-UI replay both capture the running software; whatever is on screen is the actual product. vhs captures a rendered terminal, which is the right and only choice for a CLI and useless for a web app. Remotion and Revideo draw frames from code you write, so they show your product only if you rebuild its interface in React or TypeScript first, which is a second implementation to maintain. editly composes media you already have, clips and stills and titles, and captures nothing itself. If the job is to prove a feature works on your live UI, only the first group is even in the running, whatever the license says.
+
+## Reading each license against the OSI clauses
+
+Only one tool here fails the definition, and it fails on purpose. Remotion discriminates by who you are, a for-profit of four or more, which trips clause 6's "used in a business" example and clause 5's bar on discriminating against a group of persons ([Open Source Initiative, OSD 1.9](https://opensource.org/osd)). Its license also forbids relicensing a derivative of Remotion ([Remotion License, July 2026](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md)). None of that makes Remotion a bad tool; it makes it commercial software with the source open for reading, and you budget for it as such. Revideo, an MIT-licensed engine that borrows Remotion's ideas, is the permissive counterpart if code-drawn video is what you actually want ([Revideo, July 2026](https://github.com/redotvideo/revideo)).
+
+The recorders split on copyleft. Cap is AGPLv3, with its capture crates (the `cap-camera*` and `scap-*` families) carved out under MIT ([Cap, July 2026](https://github.com/CapSoftware/Cap)). AGPLv3 is OSI-approved, so Cap is unambiguously open source, but copyleft has a reach worth understanding before you build on it. The videos you record with Cap are your own output, not a derivative of Cap's source, so the license never touches them. What AGPL governs is Cap's code: modify it, then run that modified version as a network service, and you owe your users the modified source. For the large majority of teams who just record with the shipped app, that clause never fires. If you were planning to fork Cap into a hosted product, read it closely. Cap's per-platform grid and pricing live in the [Screen Studio alternatives](/blog/screen-studio-alternatives) map; here the point is only the license.
+
+Everything else is MIT, the most permissive of the mainstream licenses: vhs ([Charm, July 2026](https://github.com/charmbracelet/vhs)), editly ([editly, July 2026](https://github.com/mifi/editly)), Revideo, and aidemo, which we build and disclose as ours. MIT lets you embed, modify, relicense, and ship commercially with nothing owed but a copyright notice. If license certainty is your top constraint, the MIT group removes the question entirely, and there is no headcount at which the terms change.
+
+## Where the install actually breaks
+
+A license you can read is worthless if `npm install` never finishes. Install friction on this list comes in two flavors, and they hit at opposite ends of the table.
+
+The technical flavor is native compilation. editly is the cautionary case: it composes clips through ffmpeg and OpenGL, and its GPU layer is headless-gl, a native module that has to build against your Node headers. On current Node it does not. An open issue reports the source install failing on Homebrew's Node 22 with the C++ error `no template named 'is_lvalue_reference_v' in namespace 'std'`, because the pinned `gl` dependency predates the compiler ([editly issue #332, July 2026](https://github.com/mifi/editly/issues/332)). On Linux the same module wants build-essential, libxi-dev, libglu1-mesa-dev and friends on the box before it will link. editly is MIT and genuinely useful, but it assumes a toolchain, and containers make that worse, not better. Cap sits at a milder version of the same spot: the shipped desktop app installs like any download, but building from source wants Rust 1.88 or newer, pnpm, Node 20+, and Docker for its local services ([Cap, July 2026](https://github.com/CapSoftware/Cap)) — native, because fast screen capture has to be.
+
+The gentler installs lean on tools you already have. vhs needs two binaries on your PATH, ttyd and ffmpeg, then runs as a single Go binary you fetch from Homebrew, Nix, Scoop, or a release download ([Charm, July 2026](https://github.com/charmbracelet/vhs)). Remotion and Revideo are npm and React toolchains that render each frame by driving a headless browser their tooling fetches for you; the friction for Remotion is legal, not technical, and for Revideo it is negligible ([Revideo, July 2026](https://github.com/redotvideo/revideo)). aidemo, ours, is deliberately at the low-friction end: Node 20+, your system Chrome, and system ffmpeg plus ffprobe on PATH, with no Playwright browser download and no native modules to compile, at around seven runtime dependencies total ([aidemo, July 2026](https://github.com/tandryukha/aidemo)). The trade you make for that is real, and stated below.
+
+## Pick by the constraint that binds you
+
+None of these wins in the abstract; each wins under a constraint. Name yours and the list collapses to one or two rows.
+
+| Your hard constraint | Reach for | Why |
+|---|---|---|
+| Must be OSI-open, no license math | any MIT tool, or Cap (AGPLv3) | Remotion is the only one that bills by headcount |
+| The demo is a terminal or CLI | vhs | purpose-built; terminal pixels as a tape file |
+| A web UI kept current in CI | aidemo (ours) | real-UI replay, re-renders from a committed spec |
+| A human-driven screen recording | Cap | real capture, produced polish, cross-platform |
+| Code-drawn motion graphics | Revideo (MIT) or Remotion (paid at scale) | synthetic frames; no product capture at all |
+| Install must not touch a compiler | vhs or aidemo | binaries and system tools, no node-gyp |
+
+Two honest notes on our own entry. aidemo captures a browser and only a browser, so native desktop and mobile windows are out of scope, and there is no drag-on-a-timeline editor: you, or a coding agent, author a storyboard file and re-render, which is the [demos-as-code](/blog/demos-as-code) bet and not everyone's taste. For the deeper, feature-by-feature comparison of the code-driven engines specifically, that is the job of [video-as-code tools](/blog/video-as-code-tools). And if the reason you went shopping for open source is that a rented tool's output goes stale the day the UI changes, the fix is not a cheaper recorder but a [pipeline that re-renders in CI](/blog/demo-videos-in-ci) from a spec you keep in the repo. Open source solves ownership and cost; it does not, by itself, solve staleness.
+
+## Sources
+
+- [Open Source Initiative — The Open Source Definition](https://opensource.org/osd)
+- [Remotion — License FAQ (source-available, not open source)](https://www.remotion.dev/docs/license/faq)
+- [Remotion — LICENSE.md (company license terms)](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md)
+- [Remotion Pro — company license pricing](https://www.remotion.pro/license)
+- [Cap — GitHub repository (AGPLv3 + MIT crates)](https://github.com/CapSoftware/Cap)
+- [Charm vhs — GitHub repository (MIT, terminal)](https://github.com/charmbracelet/vhs)
+- [editly — GitHub repository (MIT, native deps)](https://github.com/mifi/editly)
+- [editly — issue #332, source install fails on Node 22 gl build](https://github.com/mifi/editly/issues/332)
+- [Revideo — GitHub repository (MIT)](https://github.com/redotvideo/revideo)
+- [aidemo — GitHub repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### Is Remotion open source?
+
+No. Remotion's own FAQ states it is source-available software, not open source under the Open Source Initiative's definition. The code is on GitHub and free for individuals, non-profits, and for-profit companies of up to three employees, but a for-profit organization with four or more people must buy a Company License. That fails the OSD's rule against restricting business use, so it is commercial software with readable source, not open source.
+
+### Which of these tools installs without a native compile step?
+
+vhs and aidemo. vhs is a single Go binary that only needs ttyd and ffmpeg already on your PATH, and aidemo runs on Node with your system Chrome and system ffmpeg, downloading no browser and compiling no native modules. editly is the opposite case: its headless-gl dependency is a native module that currently fails to build on recent Node versions without a full C++ toolchain and OpenGL system libraries.
+
+### Does Cap's AGPLv3 license restrict videos I record with it?
+
+No. The videos you record are your own output and are not a derivative work of Cap's source code, so the AGPLv3 does not attach to them. The copyleft applies to Cap's own code: if you modify Cap and then run that modified version as a hosted network service, you must make the modified source available to its users. Recording with the shipped app and keeping your videos never triggers that obligation.
 
 ---
 

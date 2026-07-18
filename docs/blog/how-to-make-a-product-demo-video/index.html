@@ -392,8 +392,8 @@
 <p>The fourth family removes that. Instead of recording a person, you declare the flow, navigate here, click this selector, type that, and a deterministic player replays it into a real Chrome window, identically every time. That is the design behind aidemo, our open-source engine: it is browser-only, and the storyboard is authored by a coding agent rather than dragged around a GUI timeline. The honest tradeoff is that you swap a visual editor for a text file, which is a bad deal for a one-off and a good one for anything you will have to record twice.</p>
 <h2 id="narration-and-captions-for-a-feed-that-plays-muted">Narration and captions for a feed that plays muted<a class="hanchor" href="#narration-and-captions-for-a-feed-that-plays-muted" aria-label="Link to section: Narration and captions for a feed that plays muted">#</a></h2>
 <p>Two facts govern the audio track. First, landing pages and social feeds autoplay muted by default, so a large share of views never hear a word; the narration you sweated over is optional, and the captions are not. Second, WCAG 2.2 makes captions a Level A requirement: Success Criterion 1.2.2 asks for captions on all prerecorded audio in synchronized media, identifying who is speaking and any meaningful non-speech sound<sup class="article-cite"><a href="#src-3" title="W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2">3</a></sup>. Level A is the floor, not the aspiration.</p>
-<p>Captions can be read faster than narration is spoken. Silent reading of English non-fiction averages 238 words per minute against your roughly 150-wpm voice track<sup class="article-cite"><a href="#src-4" title="Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate">4</a></sup>, which is why word-level caption timing, highlighting each word as it is said, reads better than dropping a whole sentence on screen at once. Captions on demo videos covers open versus closed captions and the timing mechanics.</p>
-<p>For the voice itself, recording yourself is fine for a one-off and miserable for iteration: change one line and you re-record the whole take to match room tone. Text-to-speech removes that tax. OpenAI&#39;s speech API, for one, exposes steerable models such as gpt-4o-mini-tts that render a script to audio in seconds and re-render just as fast when the script changes<sup class="article-cite"><a href="#src-7" title="OpenAI — Text-to-speech guide">7</a></sup>. It still loses to a good human read on warmth and brand voice; AI voiceover for demo videos weighs that tradeoff with the per-minute arithmetic.</p>
+<p>Captions can be read faster than narration is spoken. Silent reading of English non-fiction averages 238 words per minute against your roughly 150-wpm voice track<sup class="article-cite"><a href="#src-4" title="Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate">4</a></sup>, which is why word-level caption timing, highlighting each word as it is said, reads better than dropping a whole sentence on screen at once. <a href="/blog/demo-video-captions/">Captions on demo videos</a> covers open versus closed captions and the timing mechanics.</p>
+<p>For the voice itself, recording yourself is fine for a one-off and miserable for iteration: change one line and you re-record the whole take to match room tone. Text-to-speech removes that tax. OpenAI&#39;s speech API, for one, exposes steerable models such as gpt-4o-mini-tts that render a script to audio in seconds and re-render just as fast when the script changes<sup class="article-cite"><a href="#src-7" title="OpenAI — Text-to-speech guide">7</a></sup>. It still loses to a good human read on warmth and brand voice; <a href="/blog/ai-voiceover-for-demo-videos/">AI voiceover for demo videos</a> weighs that tradeoff with the per-minute arithmetic.</p>
 <h2 id="polish-publish-and-keep-it-honest">Polish, publish, and keep it honest<a class="hanchor" href="#polish-publish-and-keep-it-honest" aria-label="Link to section: Polish, publish, and keep it honest">#</a></h2>
 <p>Polish is editing, not talent. The moves that make a screen recording look produced, zooming in when the cursor acts, smoothing the pointer, cutting dead air, sizing and letterboxing for the target frame, are each a deterministic transform on footage rather than a matter of taste, which is exactly why software can apply them and why professional-looking screen recordings are a solved mechanical problem. Do not confuse a polished raw take with a finished demo, though. Color and zoom are compose-time decisions you should be able to redo without re-recording.</p>
 <p>Then publish where the video will actually be watched. A landing hero wants a muted autoplay loop; a README wants a stable raw URL that renders inline; a sales email wants a thumbnail linking out. Encode once per placement, not once total, and let each channel dictate the aspect ratio and the length you already budgeted.</p>
@@ -444,6 +444,24 @@
 <section class="related-articles">
   <h2>Keep reading</h2>
   <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-voiceover-for-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">AI voiceover for demo videos: quality, cost, and workflow</h3>
+    <p class="article-card-excerpt">AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-captions/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Captions on demo videos: the accessibility case and the numbers</h3>
+    <p class="article-card-excerpt">Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/demo-video-script-template/">
   <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
   <div class="article-card-content">
@@ -451,24 +469,6 @@
     <h3 class="article-card-title">Demo video script template: problem, walkthrough, proof</h3>
     <p class="article-card-excerpt">Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/how-long-should-a-demo-video-be/">
-  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Product Demo Videos</div>
-    <h3 class="article-card-title">How long should a demo video be? The retention math</h3>
-    <p class="article-card-excerpt">Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/automated-product-demo-videos/">
-  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Demo Automation</div>
-    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
-    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
   </div>

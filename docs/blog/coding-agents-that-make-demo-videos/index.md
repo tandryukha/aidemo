@@ -1,0 +1,109 @@
+# Letting a coding agent make your demo video
+
+July 18, 2026 · Demos as Code · 8 min read · https://aidemo.top/blog/coding-agents-that-make-demo-videos/
+
+> A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.
+
+**Key takeaways**
+
+- Split the work: an agent authors the storyboard (script plus real selectors), a deterministic engine records it. The model belongs at authoring time, never in the capture loop.
+- A live-driven take is a random walk: 12 model decisions at 3% divergence each means about 1 run in 3 renders differently (0.97^12 is roughly 69% identical). A fixed action-spec collapses that to one path.
+- Even with a fixed seed, OpenAI says output can differ from 'inherent non-determinism' of the models, so an agent driving the browser cannot guarantee the same video twice.
+- MCP already enforces the line: tools are model-controlled but run as server code, so the render is deterministic server work the agent only waits on.
+- Remotion and Revideo let agents author video too, but they render drawn frames (a rendition); capturing your real UI is the harder branch a product demo usually wants.
+
+## Where the agent stops and the engine starts
+
+"Let a coding agent make the demo video" splits into two jobs that look like one, and the split is the whole story. The first job is authoring: read the app, decide what to show, write down the clicks and the words. The second is capture: drive a browser, move a cursor, record the frames. A language model is built for the first and structurally wrong for the second. A workflow that respects that line ships a video you can trust; one that blurs it produces a take you cannot trust to render twice.
+
+The [demos-as-code pillar](/blog/demos-as-code) argues the general case: a demo is either a performance you maintain by hand or a spec you commit and rebuild. This piece is about the seam inside the spec branch, the exact handoff where an agent's judgment ends and a deterministic engine's mechanics begin. Get the seam right and the agent does the part it is good at, writing structured text about your product, while never touching the part it is bad at, holding a mouse with a steady hand. The rest of this is what lives on each side of that line, and why the line has to exist.
+
+## Why a live-driven take is a different video every run
+
+Picture the naive version: hand a browser tool to an agent and tell it to record a demo. It reads the page, picks an element, clicks, waits for something to load, decides that looked good, scrolls, narrates. Every one of those is a fresh decision the model makes at inference time, and inference is not deterministic. OpenAI's own guidance on reproducible outputs is blunt: even with a fixed seed and a matching backend fingerprint, "there is a small chance that responses differ ... due to the inherent non-determinism of our models," and the seed only buys a "best effort to sample deterministically" ([OpenAI, accessed July 2026](https://developers.openai.com/cookbook/examples/reproducible_outputs_with_the_seed_parameter)).
+
+Now compound that across a take. Say a 45-second demo involves a dozen model-made decisions: which element, when to scroll, how long to wait, whether to retry. Give each decision a modest 3% chance of landing differently on a re-run. The odds that all twelve come out identical are 0.97 to the twelfth, about 69%, so roughly one run in three diverges somewhere. Divergence is not a crash. It is a video where the cursor takes a different path, a wait resolves a beat early, a scroll overshoots. The demo becomes a random walk with a low but real branch probability, and you cannot review a random walk. You can only watch each render and hope.
+
+The fix is to move the model's decisions out of the take entirely. The agent makes all of them once, up front, and writes them into a fixed action-spec. Then a deterministic player, not the model, executes that spec the same way every time. It is the difference between a stunt performed live and a motion-control camera rig: the move is programmed once, and the rig repeats it frame-for-frame on take after take. The judgment still happened, it just happened at authoring time, where a wrong call is a line you edit rather than a shot you re-shoot. How the player makes a browser itself replay identically is [its own engineering problem](/blog/deterministic-browser-automation-for-video); the point here is only that the model is not in that loop.
+
+## What the agent has to learn about your app first
+
+Before an agent can write a spec, it has to explore, and this is the one phase where a live browser session is exactly right, because nothing it produces here ships. The exploration is disposable. Only its findings survive into text.
+
+Three things the agent has to pin down:
+
+- **Selectors.** A demo clicks real elements, so the agent needs stable handles: an id, a `data-testid`, an accessible role and name. Guessing them is the top cause of a broken take, which is why the agent should confirm each one against the running app instead of inferring it from a screenshot. A stable `data-testid` on the button you demo is worth more than any clever prompt.
+- **Flows.** What order of screens tells the story, what state each step assumes (logged in, a seeded record, an empty cart), and where a step depends on the previous one having finished. The agent has to walk the flow to know a loading spinner sits between step three and step four.
+- **States off the happy path.** An empty state, a first-run banner that greets the account by name, a cookie wall, a modal that appears once and then persists in the profile. Each is something the spec has to handle or hide.
+
+None of this requires the agent to be right on the first try. An exploratory pass is cheap and throwaway; the discipline is that its output is knowledge, not footage. The moment the agent stops clicking around and starts writing selectors and narration into a file, it has crossed from the capture side to the authoring side, which is where it belongs.
+
+## What the storyboard pins down, what the engine guarantees
+
+The storyboard is the contract. It is a text file the agent writes and a human can read, and it carries three things: the script (what is narrated, scene by scene), the action-spec (the ordered browser operations and the waits between them), and the production plan (voice, music, captions, timing). Everything the agent decided is in there as data. Nothing is left to be decided at render time.
+
+The engine, on the other side of the line, owns the mechanics. It validates the storyboard against a schema before running anything, so a malformed spec fails as a structured error rather than a bad video. It drives a real browser through the action-spec with no model in the loop, records the frames, and writes a timeline. It generates the voiceover, times the captions, trims the idle waits, and muxes the result. Same spec, same build, same file, which is what lets you [regenerate rather than re-record](/blog/automated-product-demo-videos) when the product moves.
+
+| Phase | Who acts | Output | Repeatable |
+|---|---|---|---|
+| Explore | agent, in a throwaway session | selectors, flows, states | No, and that is fine |
+| Author | agent, writing text | storyboard: script + action-spec + plan | It is text; diff it |
+| Validate | engine, schema check | pass or structured errors | Yes |
+| Record | engine, real browser, no LLM | raw take + timeline | Yes |
+| Compose | engine, ffmpeg | final video | Yes |
+
+The single load-bearing row is Record. It is the only place a live-driven workflow would let the model back in, and the only place the shippable workflow keeps it out. aidemo, our engine, states the rule in its own authoring guide: no LLM runs during capture, the recording is a deterministic replay of the fixed action-spec. It is browser-only, its storyboards are agent-authored rather than dragged together on a timeline, and there is no GUI editor. Those are real limits, and they are the same limits that make the take reproducible.
+
+## MCP, skills, and plugins: the agent's reach into the engine
+
+How does the agent call an engine it does not contain? The current answer is the Model Context Protocol. MCP is a client-host-server architecture built on JSON-RPC, where servers "expose resources, tools and prompts" to a model-bearing host ([MCP spec, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/architecture)). Tools are "model-controlled," meaning the model decides to invoke one based on the task ([MCP spec, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)), but the tool's execution is ordinary server code. The model picks the tool and fills in the arguments; the server runs it and hands back a result. The one channel from server back to the model is sampling, and the server has to ask for it explicitly.
+
+Read the protocol that way and it already draws the line. The agent calls a render tool; the engine, as the server, runs the render; nothing in that render touches the model unless the server chooses to. Keeping the LLM out of the capture loop is the default shape of a well-behaved MCP tool, not a feature bolted on. The agent's job is to author the storyboard and call validate then render; the render is minutes of deterministic server work it only waits on.
+
+The teaching layer sits above that. An Agent Skill is a `SKILL.md` of instructions the agent loads "only when it's used" ([Claude Code, accessed July 2026](https://code.claude.com/docs/en/skills)); Anthropic frames skills as "organized folders of instructions, scripts, and resources that agents can discover and load dynamically" ([Anthropic, October 2025](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)). A Claude Code plugin bundles a skill together with an MCP server, agents, and hooks in one installable unit ([Claude Code, accessed July 2026](https://code.claude.com/docs/en/plugins)). So "teach my agent to make demos" decomposes cleanly: a skill that says how to author the storyboard, an MCP server that exposes the deterministic engine. That pairing is what a demo plugin ships.
+
+The rest of the field is converging on agent-authored video too, but on a different branch, and the branch is what matters:
+
+| Tool (accessed July 2026) | Agent writes | What renders | On screen |
+|---|---|---|---|
+| Remotion + Agent Skills | React components | Remotion draws frames | a rendition of your UI |
+| Revideo | TypeScript scenes | headless Chromium render | a rendition of your UI |
+| Browser agent driving live | nothing durable | the model, live | your real UI, different each run |
+| aidemo (ours) | a storyboard of real selectors | deterministic replay in a real browser | your real UI, reproducible |
+
+Remotion now tells agents "you can create videos just from prompting" and ships a skill to install ([Remotion, accessed July 2026](https://www.remotion.dev/docs/ai/coding-agents)); Revideo bills itself as "a rendering engine for creating videos in code" and notes that "a scene is plain TypeScript, so Claude or Codex can produce one from a prompt" ([Revideo, accessed July 2026](https://raw.githubusercontent.com/midrender/revideo/main/README.md)). Both are legitimate, and both keep the model at authoring time. But they render drawn frames, so the agent authors a picture of your product. Capturing the real UI is the harder branch and the one a product demo usually wants, because the thing on screen should be the software, not an illustration of it.
+
+## One handoff, traced from prompt to MP4
+
+Concrete beats abstract. Here is the whole loop for a demo of a billing page, with the boundary marked at every step.
+
+A developer types one line to the agent: record a 40-second demo of the new billing page. The agent, holding a browser tool, opens the app and explores. It finds the billing route, confirms the export button carries `data-testid="export-invoice"`, notices the page assumes a seeded invoice and a logged-in session, and clocks the two-second spinner after an export. That session is then discarded. What survives is a storyboard the agent writes: four scenes, each with a narration line near 2.5 words per second, an action-spec that navigates, types, and clicks the confirmed selectors, and a wait on the spinner marked as trimmable idle so the finished video never sits on a loading state.
+
+The agent calls validate, and the schema catches a mistyped selector before any render burns time. Then it calls render, which returns a job id and runs for a few minutes: a real browser replays the spec with no model watching, a voice is generated, captions are timed, the idle spinner is trimmed, and an MP4 falls out. The agent polls the job, extracts a few frames to check the cursor lands on the button and the caption is in sync, and reports back. When a frame is wrong, the fix is a line in the storyboard and a recompose, not a fresh take.
+
+Because the artifact is that storyboard, the same run has a second life. The action-spec is a deterministic replay, so it doubles as a check: run it against tomorrow's build, and if the export button's selector moved, the flow fails loudly instead of shipping a broken video. That is the golden-file pattern, [wired into CI as a status check](/blog/demo-videos-in-ci). The demo that would otherwise [drift out of date](/blog/why-product-demos-go-stale) stays current because regenerating it is one command, not a new shoot. The agent's fingerprints are all over the authoring. They are nowhere near the capture.
+
+## Sources
+
+- [Model Context Protocol — Architecture (client-host-server, JSON-RPC, servers expose tools/resources/prompts)](https://modelcontextprotocol.io/specification/2025-06-18/architecture)
+- [Model Context Protocol — Tools (model-controlled invocation, server-side execution)](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+- [OpenAI Cookbook — Reproducible outputs with the seed parameter (determinism not guaranteed)](https://developers.openai.com/cookbook/examples/reproducible_outputs_with_the_seed_parameter)
+- [Anthropic — Equipping agents for the real world with Agent Skills (October 16, 2025)](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+- [Claude Code — Extend Claude with skills (SKILL.md, loaded only when used)](https://code.claude.com/docs/en/skills)
+- [Claude Code — Create plugins (bundle skills, agents, hooks, MCP servers)](https://code.claude.com/docs/en/plugins)
+- [Remotion — Prompting videos with coding agents](https://www.remotion.dev/docs/ai/coding-agents)
+- [Revideo — Create videos with code (README, a scene is plain TypeScript an agent can produce)](https://raw.githubusercontent.com/midrender/revideo/main/README.md)
+
+## FAQ
+
+### Which coding agents can turn a prompt into a demo video today?
+
+Several can author the video, and authoring is the part that matters. Claude Code, Codex, and Cursor all read a repo and emit structured text, so any of them can write a storyboard, a Remotion composition, or a Revideo scene from a prompt. What none of them should do is drive the browser live for the final take. The reliable pattern pairs the agent with a deterministic renderer it calls over a protocol like MCP, so pick the agent you already use and give it the right skill plus engine.
+
+### Does the coding agent record my screen while it works?
+
+In the shippable pattern, no. The agent explores your app in a throwaway session to find selectors and flows, then writes a fixed action-spec, and a separate deterministic engine does the actual recording with no model in the loop. That separation is the point: a screen recording driven live by a model would render differently on every run and could not be reviewed as a diff. The agent's decisions all happen before a single frame is captured.
+
+### What is an MCP server, and how does it let an agent make videos?
+
+MCP, the Model Context Protocol, is an open JSON-RPC client-server standard where a server exposes tools a model can call. A video engine can publish tools such as validate and render; the agent decides to call them and supplies arguments, but the render runs as ordinary server code, not model inference. So the agent orchestrates the pipeline from the outside while staying out of the deterministic capture step that produces the actual frames.
