@@ -89,9 +89,15 @@ not the longest, the best. That means:
   decision in it — this renders as the answer-first card search engines and
   LLMs lift.
 - `pillar`: your assignment's `pillar` value verbatim (null for pillars).
-- `hero`: optional; if you can describe a strong editorial image, fill
-  subject/scene/alt/caption for the future image lane. The caption argues,
-  never describes.
+- `hero`: optional; fill subject/scene/alt/caption. `hero.subject` feeds the
+  image lane and must be ONE physical object metaphor — a single thing with a
+  distinct silhouette (a clapperboard, an hourglass, a megaphone), ≤12 words.
+  No screens, text, UI, labels, or two-object comparisons: the renderer (SDXL)
+  draws gibberish text and cannot bind "X beside Y" compositions. The
+  matte-clay house style is applied automatically — describe only the object.
+  Avoid metaphors already used by other articles: check
+  `blog/data/hero-subjects.json` before choosing. The caption argues, never
+  describes.
 - `readingTimeMinutes`: words / 220, rounded.
 - `publishedAt`/`updatedAt`: today's date.
 

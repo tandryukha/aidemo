@@ -1,0 +1,89 @@
+{
+  "//": "Per-slug hero-image subjects for blog/scripts/hero_images.mjs. Each subject is ONE physical object metaphor (<=12 words, no screens/text/UI/two-object comparisons) rendered in the locked matte-clay house style. seedOffset (optional, default 0) bumps the deterministic seed to re-roll a single image reproducibly. Writers: pick metaphors NOT already in this file.",
+  "ai-demo-video-generators": {
+    "subject": "a glowing crystal ball on a rounded pedestal"
+  },
+  "ai-voiceover-for-demo-videos": {
+    "subject": "a retro studio microphone on a round desk stand"
+  },
+  "automated-product-demo-videos": {
+    "subject": "a movie camera with a large wind-up key on top"
+  },
+  "automating-product-screenshots": {
+    "subject": "a rounded butterfly net with a long smooth handle"
+  },
+  "camtasia-alternatives": {
+    "subject": "a chunky multi-tool with every blade fanned open",
+    "seedOffset": 1
+  },
+  "coding-agents-that-make-demo-videos": {
+    "subject": "a friendly robotic arm holding a clapperboard"
+  },
+  "demo-video-captions": {
+    "subject": "three rounded speech bubbles stacked in a neat pile"
+  },
+  "demo-video-script-template": {
+    "subject": "a feather quill standing in a round ink pot"
+  },
+  "demo-videos-in-ci": {
+    "subject": "a rounded traffic light glowing green"
+  },
+  "demos-as-code": {
+    "subject": "a curving row of rounded dominoes mid-tumble",
+    "seedOffset": 2
+  },
+  "deterministic-browser-automation-for-video": {
+    "subject": "a Newton's cradle with polished round spheres",
+    "seedOffset": 1
+  },
+  "how-long-should-a-demo-video-be": {
+    "subject": "an hourglass with tiny film frames falling inside"
+  },
+  "how-to-make-a-product-demo-video": {
+    "subject": "a classic director's cone megaphone"
+  },
+  "how-to-record-your-screen-in-high-quality": {
+    "subject": "a precision camera lens with a knurled focus ring"
+  },
+  "interactive-demo-vs-video-demo": {
+    "subject": "a smooth clay road forking into two paths"
+  },
+  "loom-alternatives-for-product-demos": {
+    "subject": "a wooden hand plane peeling a single curled shaving"
+  },
+  "multi-language-product-demo-videos": {
+    "subject": "a globe wearing chunky headphones",
+    "seedOffset": 2
+  },
+  "open-source-demo-video-tools": {
+    "subject": "a rounded treasure chest with its lid wide open"
+  },
+  "personalized-demo-videos-at-scale": {
+    "subject": "a conveyor belt carrying a row of picture frames"
+  },
+  "professional-screen-recordings": {
+    "subject": "a studio softbox light on a tripod"
+  },
+  "readme-gifs-that-update-themselves": {
+    "subject": "a rounded watering can pouring a smooth stream"
+  },
+  "saas-demo-video-examples": {
+    "subject": "a chunky rounded stopwatch",
+    "seedOffset": 2
+  },
+  "screen-studio-alternatives": {
+    "subject": "a signpost with three blank arrow signs"
+  },
+  "video-as-code-tools": {
+    "subject": "a film reel unwinding into a flowing ribbon"
+  },
+  "video-documentation": {
+    "subject": "a wooden toolbox with its lift-out tray raised above it"
+  },
+  "video-marketing-for-software": {
+    "subject": "a lighthouse casting its beam out in every direction"
+  },
+  "why-product-demos-go-stale": {
+    "subject": "a wilting tulip in a small round pot"
+  }
+}

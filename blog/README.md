@@ -22,8 +22,10 @@ blog/
   scripts/
     validate.mjs           quality gate (schema, structure, writer contract, citations)
     bake.mjs               the generator
+    hero_images.mjs        hero-image lane (local SDXL — see below)
   ops/lane-prompt.md       the writer contract for article-writing agents
-  public/images/           optional WebP heroes: {slug}-400.webp, {slug}-800.webp
+  data/hero-subjects.json  per-slug hero subjects (one object metaphor each)
+  public/images/           committed WebP heroes: {slug}-400.webp, {slug}-800.webp
 ../docs/blog/              bake output (COMMITTED — GitHub Pages serves it)
 ```
 
@@ -71,7 +73,34 @@ node scripts/bake.mjs --drafts      # include drafts (local review only — neve
 node scripts/bake.mjs --out DIR     # custom output dir
 
 npm run preview                     # serves docs/ at http://localhost:8090/blog/
+
+node scripts/hero_images.mjs        # generate missing hero images (see below)
+node scripts/hero_images.mjs --force --only some-slug   # redo one image
 ```
+
+## Hero images (`scripts/hero_images.mjs`)
+
+Heroes are generated locally with SDXL-Lightning (the same $0 backend as the
+landing-page icons: `~/.venvs/sdxl/bin/python
+~/dropshipping-irondust/scripts/blog/sdxl_backend.py --fast`, ~24s/image) in
+the locked matte-clay house style, then encoded with `cwebp` (quality 85) to
+the two files bake.mjs consumes: `public/images/{slug}-800.webp` (article hero
++ og:image) and `{slug}-400.webp` (card srcset). Both are COMMITTED — the lane
+runs on this machine, never in CI.
+
+- Subjects live in `data/hero-subjects.json` — one physical object metaphor
+  per slug (≤12 words, no screens/text/UI, no two-object comparisons; SDXL
+  renders gibberish text and cannot bind comparisons). The style wrapper and
+  negative prompt are fixed in the script; only the subject varies.
+- Images render at 1216x832 — a native SDXL landscape bucket that exactly
+  matches the hero `<img width="1216" height="832">` aspect in bake.mjs.
+- Deterministic: seed = fnv1a(slug) + `seedOffset` from hero-subjects.json.
+  To re-roll one image, bump its `seedOffset` (committed → reproducible) and
+  run with `--force --only {slug}`.
+- Existing webp pairs are skipped unless `--force`. Always eyeball every new
+  image before committing (broken geometry and accidental text happen).
+- One GPU job at a time: the script feeds the backend a single `--jobs` batch
+  (model loads once, renders sequentially). Never run two instances at once.
 
 The bake emits: `index.html` (home), `{slug}/index.html` (articles),
 `topics/{cluster}/index.html` (hubs), `sitemap.xml`, `feed.xml` (RSS 2.0,
