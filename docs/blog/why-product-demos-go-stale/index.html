@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why product demos go stale: the rot math | aidemo</title>
+<meta name="description" content="Fast-shipping SaaS changes its UI about twice a week — counted from Linear, Figma and Notion changelogs. Here's a demo's real half-life and what rot costs.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/why-product-demos-go-stale/">
+<link rel="alternate" type="text/markdown" href="/blog/why-product-demos-go-stale/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Why product demos go stale: the rot math | aidemo">
+<meta property="og:description" content="Fast-shipping SaaS changes its UI about twice a week — counted from Linear, Figma and Notion changelogs. Here's a demo's real half-life and what rot costs.">
+<meta property="og:url" content="https://aidemo.top/blog/why-product-demos-go-stale/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Why product demos go stale: the rot math | aidemo">
+<meta name="twitter:description" content="Fast-shipping SaaS changes its UI about twice a week — counted from Linear, Figma and Notion changelogs. Here's a demo's real half-life and what rot costs.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Why every product demo is out of date (and what rot costs)",
+  "description": "Fast-shipping SaaS changes its UI about twice a week — counted from Linear, Figma and Notion changelogs. Here's a demo's real half-life and what rot costs.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/why-product-demos-go-stale/"
+  },
+  "wordCount": 1758,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Linear — Changelog",
+      "url": "https://linear.app/changelog"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Linear — UI refresh (March 12, 2026)",
+      "url": "https://linear.app/changelog/2026-03-12-ui-refresh"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Figma — Release notes",
+      "url": "https://www.figma.com/release-notes/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Notion — What's New / releases",
+      "url": "https://www.notion.com/releases"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Simon Willison — Automating screenshots for the Datasette documentation (2022)",
+      "url": "https://simonwillison.net/2022/Oct/14/automating-screenshots/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Trainn — Product Demo Video Maker",
+      "url": "https://trainn.co/product-demo-video-maker/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Why every product demo is out of date (and what rot costs)",
+      "item": "https://aidemo.top/blog/why-product-demos-go-stale/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How often do SaaS products change their user interface?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Faster than most demos assume. Reading recent public changelogs, Linear shipped about twenty user-visible changes in eleven weeks (roughly two a week), Figma listed five in a month plus its Config megadrop, and Notion ships a small feature most weeks with a major version about every two months. For a normally fast product, budget one to two visible UI changes a week."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does it take for a product demo video to go out of date?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Between redesigns, roughly two months to a half-life: at one to two visible changes a week, about half the screens in a typical eight-surface demo no longer match within eight to ten weeks. A full redesign resets that instantly. Linear's March 12, 2026 refresh redrew every header, icon, and navigation element, so any demo filmed before it was outdated in every frame overnight."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do outdated screenshots and demo videos hurt conversion or trust?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They cost more than the re-recording time. A demo sets an expectation the trial has to meet, and when a prospect signs up to find an interface that looks nothing like the video, the first thing the product communicates is that the marketing is stale. Tools like shot-scraper exist because drifted documentation screenshots erode credibility, and a demo video, with far more frames to drift, carries the same risk to a warmer, earlier-funnel audience."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Why every product demo is out of date (and what rot costs)</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Why every product demo is out of date (and what rot costs)</h1>
+        <p class="article-dek">Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#reading-the-rot-rate-off-a-public-changelog">Reading the rot rate off a public changelog</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#from-rot-rate-to-demo-half-life">From rot rate to demo half-life</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-parts-of-a-demo-rot-fastest">Which parts of a demo rot fastest</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-trust-cost-a-demo-the-trial-doesnt-match">The trust cost: a demo the trial doesn't match</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#drift-is-debt-and-it-compounds">Drift is debt, and it compounds</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Linear, Figma, and Notion each ship a user-visible UI change most weeks; from public changelogs, Linear alone logged ~20 in the 11 weeks to July 2, 2026.</li>
+    <li>A fast-shipping product's demo has a ~2-month half-life between redesigns — half its screens stop matching — and a redesign collapses that to zero on one day.</li>
+    <li>Linear's March 12, 2026 UI refresh redrew every header, nav, and icon; every demo filmed before it was wrong in every frame overnight, not just the changed features.</li>
+    <li>The real cost isn't re-recording hours, it's trust: a prospect who watches a demo the trial doesn't match reads neglect before the product says a word.</li>
+    <li>Video rots worse than the doc screenshots shot-scraper was built to fix in 2022 — more frames, plus cursor path, timing, and narration to keep in sync.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="reading-the-rot-rate-off-a-public-changelog">Reading the rot rate off a public changelog<a class="hanchor" href="#reading-the-rot-rate-off-a-public-changelog" aria-label="Link to section: Reading the rot rate off a public changelog">#</a></h2>
+<p>A product demo freezes one version of your software and plays it back forever. The software does not hold still, and you can measure exactly how fast it moves, because the best-run companies publish the receipts. A public changelog is a dated ledger of everything that shipped, and for a product with a UI a large share of every entry is something a user can see — which makes it something a demo might show, and therefore something a demo can now get wrong.</p>
+<p>Count them. In the eleven weeks from April 16 to July 2, 2026, Linear&#39;s changelog recorded about twenty user-visible changes: new initiative statuses, per-tab navigation history, private sub-teams, a native code-review view, drag-to-reorder groups in every list and board. That is roughly two a week, each a surface a walkthrough might feature<sup class="article-cite"><a href="#src-1" title="Linear — Changelog">1</a></sup>. Figma keeps a comparable tempo. Across the month from mid-June to mid-July 2026 its release notes list five user-visible releases, and the Config 2026 drop alone put a motion timeline, 3D transforms, and code layers on the canvas<sup class="article-cite"><a href="#src-3" title="Figma — Release notes">3</a></sup>. Notion ships a small feature most weeks and a numbered major version about every two months, 3.5 on May 13 and 3.6 on July 1, 2026, with a rebuilt mobile home in between<sup class="article-cite"><a href="#src-4" title="Notion — What's New / releases">4</a></sup>.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Changelog window</th>
+<th>User-visible changes</th>
+<th>Cadence</th>
+<th>Redesign inside the window</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Linear</td>
+<td>Apr 16 – Jul 2, 2026 (11 weeks)</td>
+<td>~20</td>
+<td>~2 / week</td>
+<td>Full UI refresh, Mar 12</td>
+</tr>
+<tr>
+<td>Figma</td>
+<td>Jun 17 – Jul 16, 2026 (4 weeks)</td>
+<td>~5, plus the Config megadrop</td>
+<td>~1+ / week</td>
+<td>Config 2026 canvas additions, Jun 24</td>
+</tr>
+<tr>
+<td>Notion</td>
+<td>May – Jul 2026</td>
+<td>weekly feature, 3.5 to 3.6</td>
+<td>~weekly, ~2-month major</td>
+<td>Rebuilt mobile home, May 4</td>
+</tr>
+</tbody></table></div>
+<p>None of these three is a chaotic shipper. They are the products other teams cite as disciplined, and they still change what the user sees about twice a week. A demo you recorded once is standing still in a room where the furniture is rearranged on that schedule.</p>
+<h2 id="from-rot-rate-to-demo-half-life">From rot rate to demo half-life<a class="hanchor" href="#from-rot-rate-to-demo-half-life" aria-label="Link to section: From rot rate to demo half-life">#</a></h2>
+<p>Define a demo&#39;s half-life as the time until half its frames no longer match the live product. Two clocks run at once, and they run at very different speeds.</p>
+<p>The slow clock is incremental drift. A typical sixty-second walkthrough shows a handful of surfaces — call it eight distinct screens. Not every changelog entry lands on one of them; a new admin toggle or an MCP connection may never appear in your cut. Say one user-visible change in four touches a surface your demo shows. At Linear&#39;s two-a-week, that is about one demoed surface drifting every two weeks, so four of eight — half — are wrong in roughly eight weeks. A two-month half-life, before anything dramatic happens. A demo recorded in January is contradicting the live product by three or four screens by March.</p>
+<p>The fast clock is the redesign, and it does not tick, it detonates. On March 12, 2026, Linear redrew the whole interface in one release: &quot;Headers, navigation, and view controls are now consistent across projects, issues, reviews, and documents,&quot; and &quot;icons across the app have been redrawn and resized&quot;<sup class="article-cite"><a href="#src-2" title="Linear — UI refresh (March 12, 2026)">2</a></sup>. A change like that does not invalidate the few screens your demo features. It invalidates the chrome around every screen, so a demo captured on March 11 was wrong in every frame on March 12 — not half its frames, all of them. Figma&#39;s Config drops and Notion&#39;s mobile rebuild are the same species of event: one release resets the visual baseline the demo was filmed against.</p>
+<p>So the honest half-life is bimodal. Between redesigns, a demo of a fast-shipping product decays with a half-life near two months. At a redesign, that half-life collapses to a single, unannounced date. Either way the demo you are proud of this quarter is a liability the next one, and you do not get to pick which quarter.</p>
+<h2 id="which-parts-of-a-demo-rot-fastest">Which parts of a demo rot fastest<a class="hanchor" href="#which-parts-of-a-demo-rot-fastest" aria-label="Link to section: Which parts of a demo rot fastest">#</a></h2>
+<p>Footage does not decay uniformly, and knowing the order lets you film defensively. Rank a demo&#39;s contents by how exposed each is to the changelog.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What the frame shows</th>
+<th>Rots when</th>
+<th>Rate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chrome: nav, headers, icons, color</td>
+<td>any global redesign</td>
+<td>rare but total — one release voids every frame</td>
+</tr>
+<tr>
+<td>Feature surfaces: panels, menus, buttons</td>
+<td>the feature ships an update</td>
+<td>about monthly for a fast product</td>
+</tr>
+<tr>
+<td>Seeded data: names, numbers, dates</td>
+<td>the data reads as dated or the schema moves</td>
+<td>slow, but glaring when it breaks</td>
+</tr>
+<tr>
+<td>The core value flow: the job the product does</td>
+<td>the fundamental workflow changes</td>
+<td>slowest — this is the stable spine</td>
+</tr>
+</tbody></table></div>
+<p>The lesson is not to show less. It is that the most durable demo leans on the core value flow and the least redesign-exposed chrome you can frame, so ordinary ships graze it rather than gut it. No framing survives a March-12-style refresh, which is why <a href="/blog/how-to-make-a-product-demo-video/">what you choose to put on screen</a> only delays the reckoning. It never cancels it, because the reckoning is maintenance.</p>
+<h2 id="the-trust-cost-a-demo-the-trial-doesnt-match">The trust cost: a demo the trial doesn&#39;t match<a class="hanchor" href="#the-trust-cost-a-demo-the-trial-doesnt-match" aria-label="Link to section: The trust cost: a demo the trial doesn't match">#</a></h2>
+<p>Re-recording hours are the visible cost, and <a href="/blog/automated-product-demo-videos/">the case for regenerating demos instead</a> does that arithmetic. The larger cost is quieter, and it lands on the prospect.</p>
+<p>A demo&#39;s job is to set an expectation the product then has to meet. When the two disagree, the disagreement itself is the message. Picture a buyer who watches a crisp Linear walkthrough recorded in February, likes it, and signs up in mid-March. The app they reach has a redrawn navigation, resized icons, and a different visual rhythm than the video promised, because the March 12 refresh changed all of it. Nothing is broken. But the first thing the product taught them is that the marketing is out of date, and the second thing they wonder is what else is.</p>
+<p>This is the documentation problem with a bigger blast radius. Simon Willison built the shot-scraper tool in 2022 for precisely this reason: &quot;It&#39;s very easy for feature screenshots in documentation for a web application to drift out-of-date with the latest design&quot;<sup class="article-cite"><a href="#src-5" title="Simon Willison — Automating screenshots for the Datasette documentation (2022)">5</a></sup>. One stale screenshot is a small lie a reader can route around. A demo video multiplies the surface: every frame can drift, and the cursor path, the timing, and the narration all have to keep matching the screen beneath them. When a demo goes wrong it goes wrong more visibly than a screenshot, and it is watched by people earlier in the funnel with less patience to forgive it.</p>
+<h2 id="drift-is-debt-and-it-compounds">Drift is debt, and it compounds<a class="hanchor" href="#drift-is-debt-and-it-compounds" aria-label="Link to section: Drift is debt, and it compounds">#</a></h2>
+<p>Left alone, a demo is not a fixed cost. Every ship that touches a demoed surface widens the gap between what the video shows and what the product does, and that gap is a debt: you either pay it down by re-recording or you carry it and let every viewer see the interest. Unlike code debt, nothing goes red when a demo drifts. No test fails. The video just keeps playing, confidently wrong, until a human happens to notice — and the human who notices is usually a prospect, the worst possible auditor.</p>
+<p>The market already concedes the pain. Trainn sells a demo tool whose headline promise is that when the UI changes you swap the outdated clips and it updates the video everywhere, &quot;no re-recording needed&quot;<sup class="article-cite"><a href="#src-6" title="Trainn — Product Demo Video Maker">6</a></sup>, a feature you build only if staleness is what customers fear most. It helps with a clip library a person still curates, but it does not touch the expensive step, which is diagnosis: knowing which of your videos the last release just falsified.</p>
+<p>The only way to make the debt stop compounding is to stop treating the demo as a recording you own and start treating it as output you regenerate. If the flow is a committed specification rather than a captured take, a machine can replay it against the current build and produce a current video, so the re-render can ride the same release that caused the drift — the mechanics of that live in <a href="/blog/demo-videos-in-ci/">rendering demo videos in CI</a>. Stills submit to the same treatment one level down, which is the subject of automating product screenshots: a named shot re-captured from a spec cannot drift in silence. Our own engine, aidemo, is one browser-only, agent-authored instance of that pattern, and it earns its keep only on demos you mean to keep. The half-life does not change. What changes is who pays for it: a CI runner on the day of the ship, instead of a prospect three months later.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://linear.app/changelog" rel="noopener">Linear — Changelog</a></li>
+<li id="src-2"><a href="https://linear.app/changelog/2026-03-12-ui-refresh" rel="noopener">Linear — UI refresh (March 12, 2026)</a></li>
+<li id="src-3"><a href="https://www.figma.com/release-notes/" rel="noopener">Figma — Release notes</a></li>
+<li id="src-4"><a href="https://www.notion.com/releases" rel="noopener">Notion — What's New / releases</a></li>
+<li id="src-5"><a href="https://simonwillison.net/2022/Oct/14/automating-screenshots/" rel="noopener">Simon Willison — Automating screenshots for the Datasette documentation (2022)</a></li>
+<li id="src-6"><a href="https://trainn.co/product-demo-video-maker/" rel="noopener">Trainn — Product Demo Video Maker</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-often-do-saas-products-change-their-user-interface" class="blog-faq-q">How often do SaaS products change their user interface?<a class="hanchor" href="#how-often-do-saas-products-change-their-user-interface" aria-label="Link to section: How often do SaaS products change their user interface?">#</a></h3>
+<p>Faster than most demos assume. Reading recent public changelogs, Linear shipped about twenty user-visible changes in eleven weeks (roughly two a week), Figma listed five in a month plus its Config megadrop, and Notion ships a small feature most weeks with a major version about every two months. For a normally fast product, budget one to two visible UI changes a week.</p>
+<h3 id="how-long-does-it-take-for-a-product-demo-video-to-go-out-of-date" class="blog-faq-q">How long does it take for a product demo video to go out of date?<a class="hanchor" href="#how-long-does-it-take-for-a-product-demo-video-to-go-out-of-date" aria-label="Link to section: How long does it take for a product demo video to go out of date?">#</a></h3>
+<p>Between redesigns, roughly two months to a half-life: at one to two visible changes a week, about half the screens in a typical eight-surface demo no longer match within eight to ten weeks. A full redesign resets that instantly. Linear&#39;s March 12, 2026 refresh redrew every header, icon, and navigation element, so any demo filmed before it was outdated in every frame overnight.</p>
+<h3 id="do-outdated-screenshots-and-demo-videos-hurt-conversion-or-trust" class="blog-faq-q">Do outdated screenshots and demo videos hurt conversion or trust?<a class="hanchor" href="#do-outdated-screenshots-and-demo-videos-hurt-conversion-or-trust" aria-label="Link to section: Do outdated screenshots and demo videos hurt conversion or trust?">#</a></h3>
+<p>They cost more than the re-recording time. A demo sets an expectation the trial has to meet, and when a prospect signs up to find an interface that looks nothing like the video, the first thing the product communicates is that the marketing is stale. Tools like shot-scraper exist because drifted documentation screenshots erode credibility, and a demo video, with far more frames to drift, carries the same risk to a warmer, earlier-funnel audience.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demo maintenance</span>
+        <span class="article-tag">stale screenshots</span>
+        <span class="article-tag">changelog</span>
+        <span class="article-tag">product demos</span>
+        <span class="article-tag">demo automation</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/readme-gifs-that-update-themselves/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">README GIFs that update themselves</h3>
+    <p class="article-card-excerpt">A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#reading-the-rot-rate-off-a-public-changelog">Reading the rot rate off a public changelog</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#from-rot-rate-to-demo-half-life">From rot rate to demo half-life</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-parts-of-a-demo-rot-fastest">Which parts of a demo rot fastest</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-trust-cost-a-demo-the-trial-doesnt-match">The trust cost: a demo the trial doesn't match</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#drift-is-debt-and-it-compounds">Drift is debt, and it compounds</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

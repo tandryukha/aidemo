@@ -8,6 +8,13 @@
     <language>en</language>
     <lastBuildDate>Sat, 18 Jul 2026 00:00:00 GMT</lastBuildDate>
     <item>
+      <title>AI demo video generators: what the label actually covers</title>
+      <link>https://aidemo.top/blog/ai-demo-video-generators/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/ai-demo-video-generators/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Four unrelated tools rank for &apos;AI demo video generator,&apos; and two never output a video of your product. A mechanism map so you buy the right object.</description>
+    </item>
+    <item>
       <title>Automated product demo videos: regenerate, don&apos;t re-record</title>
       <link>https://aidemo.top/blog/automated-product-demo-videos/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/automated-product-demo-videos/</guid>
@@ -29,6 +36,20 @@
       <description>GitHub&apos;s runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</description>
     </item>
     <item>
+      <title>Demos as code: commit the storyboard, render the video</title>
+      <link>https://aidemo.top/blog/demos-as-code/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demos-as-code/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</description>
+    </item>
+    <item>
+      <title>How long should a demo video be? The retention math</title>
+      <link>https://aidemo.top/blog/how-long-should-a-demo-video-be/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/how-long-should-a-demo-video-be/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.</description>
+    </item>
+    <item>
       <title>How to make a product demo video (that people finish)</title>
       <link>https://aidemo.top/blog/how-to-make-a-product-demo-video/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/how-to-make-a-product-demo-video/</guid>
@@ -36,11 +57,25 @@
       <description>The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</description>
     </item>
     <item>
+      <title>README GIFs that update themselves</title>
+      <link>https://aidemo.top/blog/readme-gifs-that-update-themselves/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/readme-gifs-that-update-themselves/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>A 20-second demo GIF can weigh 18 MB, past GitHub&apos;s 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</description>
+    </item>
+    <item>
       <title>Screen Studio alternatives for Windows, Linux, and CI</title>
       <link>https://aidemo.top/blog/screen-studio-alternatives/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/screen-studio-alternatives/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.</description>
+    </item>
+    <item>
+      <title>Why every product demo is out of date (and what rot costs)</title>
+      <link>https://aidemo.top/blog/why-product-demos-go-stale/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/why-product-demos-go-stale/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.</description>
     </item>
   </channel>
 </rss>

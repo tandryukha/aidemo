@@ -4,6 +4,98 @@
 
 ---
 
+# AI demo video generators: what the label actually covers
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/ai-demo-video-generators/
+
+> Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.
+
+## One search box, four incompatible answers
+
+Type "ai demo video generator" into a search box and the top of the results is four products that have the keyword in common and nearly nothing else. One takes the screen recording you already made and produces a polished version of it. One captures your app as a clickable walkthrough a prospect drives themselves. One builds a video around an AI presenter who never touches your product. One has a coding agent write a spec, then replays your real interface into a file that re-renders itself. They sit in one list, get graded against each other in comparison tables, and answer four different questions.
+
+The confusion costs real money because the outputs are not even the same kind of object. Two of the four never produce a video of your product at all: one hands you an interactive HTML embed, the other a synthetic clip that depicts your software rather than showing it. Buy the wrong mechanism and you don't get a worse demo, you get the wrong thing entirely: a slideshow where you needed a file, a talking avatar where you needed proof the feature works. You stop comparing apples to oranges and start comparing apples to screenshots.
+
+The way out is to sort these tools by two mechanical questions instead of by brand. What does the AI actually ingest, and what comes out the other end. Answer those and the four separate cleanly, each landing on a different job. The phrase itself is overloaded on every word: "AI" attaches to a different step in each tool, "generate" means edit, annotate, synthesize, or author depending on who is selling, and "video" is only literally true for three of the four.
+
+## The four mechanisms, by what goes in and what comes out
+
+**AI-polished recordings.** You record your screen; the AI does the edit. Screen Studio set this bar and Clueso pushed it further down the pipeline. Screen Studio punches the camera in on your clicks and eases the cursor's shaky path into a glide, automatically, on macOS Ventura 13.1 or newer, for $20 a month or $9 a month billed yearly ([Screen Studio, July 2026](https://screen.studio/)). Clueso takes a raw recording and adds automatic zooms, strips filler words, lays down a studio-grade AI voiceover, and spins the same take into step-by-step docs, from $120 a month on its Starter plan ([Clueso, July 2026](https://www.clueso.io/pricing)). The AI sits at edit time. The footage is your real product, captured by a human performing the flow once; what is automated is the polish, never the take.
+
+**Interactive tour builders.** You click through your app; the AI writes the copy; the output is not a video. Arcade records each click as a screenshot and captures typing and scrolling as short video snippets, then wraps them in callouts, hotspots, and an AI-generated script. An Arcade is "a live asset designed to be edited," pushed as an embed that updates across every page it lives on ([Arcade, July 2026](https://www.arcade.software/product/interactive-demo)), not a rendered clip. Storylane draws the sharpest internal line: its screenshot demos are "a series of curated images to showcase what the product looks like," while its HTML demos are "exact replicas of your product's frontend" a viewer can scroll and type into ([Storylane, July 2026](https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format)). Supademo generates AI voiceover "without recording audio manually" ([Supademo, July 2026](https://supademo.com/features/ai-voiceover)) and starts free, with its Scale tier at $50 a month ([Supademo pricing, July 2026](https://supademo.com/pricing)). The AI sits at annotation time, and the primary artifact is a clickable experience; the MP4 those tools export is a flattened fallback, not the point. [When an interactive tour beats a video and when it loses](/blog/interactive-demo-vs-video-demo) is its own decision.
+
+**Synthetic and generative video.** You write a script or a prompt; the AI generates the frames; your product is depicted, not filmed. Synthesia is the clearest case: 240-plus AI avatars and 1,000-plus voices render a script into video of a digital presenter, from $29 a month, used on its own count by more than 50,000 teams ([Synthesia, July 2026](https://www.synthesia.io/pricing)). Pure text-to-video models, the Sora and Veo class, go further and invent the pixels from a prompt. For an explainer, a training module, or a talking-head intro this is fast and cheap. For a product demo it has a structural flaw: what is on screen is a rendition of your app, or an avatar gesturing beside a mockup of it, never the running software. It cannot prove the feature works, because it was never pointed at the feature.
+
+**Agent-authored replay of the real UI.** You commit a spec; an agent writes it; a deterministic engine records your actual product. Here the AI is the author, not the camera and not the editor: a coding agent explores the app and writes a storyboard, a script plus the browser actions and selectors, and a deterministic player drives real Chrome through those exact steps the same way on every run, then voices, captions, and muxes an MP4. aidemo, which we build and disclose as ours, is one open-source (MIT) instance of the pattern, "a narrated, captioned MP4 from one storyboard.json" ([aidemo, July 2026](https://github.com/tandryukha/aidemo)). Because the demo is a committed artifact, [CI can re-render it](/blog/demo-videos-in-ci) on the same commit that changed the UI. The honest limits: it drives a browser and nothing else, so native desktop and mobile app windows are out of scope; the storyboard is authored by an agent rather than dragged around a GUI timeline; and there is no click-to-trim editor. You trade a visual canvas for a text file you can diff.
+
+Line the four up and they stop looking like rivals.
+
+| Mechanism | The AI's job | What it ingests | What comes out | Your real UI? | Ships as | Examples |
+|---|---|---|---|---|---|---|
+| AI-polished recording | edit the footage | a human screen take | a produced video | Yes | video file | Screen Studio, Clueso, Descript |
+| Interactive tour | write step copy, voice it | captured clicks and DOM | a clickable walkthrough | A captured snapshot | HTML embed, MP4 as fallback | Arcade, Storylane, Supademo |
+| Synthetic / generative | draw or narrate the frames | a script or prompt | a depiction of the product | No | video file | Synthesia, text-to-video models |
+| Agent-authored replay | write the spec | a committed storyboard | a real-UI video | Yes | video file, regenerable | aidemo (ours) |
+
+## Match the mechanism to what you need to prove
+
+The four don't compete because they answer different buyer questions at different points in the funnel. Sort them by what you are trying to prove, and to whom, and the "which is best" argument dissolves.
+
+| You want to... | Mechanism | What it actually proves | Ships to | Maintenance |
+|---|---|---|---|---|
+| make a rough recording look produced | AI-polished recording | the product looks polished | any video surface | re-record on UI change |
+| let a prospect drive it themselves | interactive tour | the product is usable, hands-on | a self-serve page or share link | edit the tour, re-capture drift |
+| ship a slick explainer without filming | synthetic / generative | a concept or a message, at scale | any video surface | re-generate from the script |
+| keep a true video of the real product | agent-authored replay | the feature actually works | any video surface | CI re-renders from the spec |
+
+The "what it actually proves" column is where mismatches happen. An early-funnel explainer that needs to land a concept is well served by a synthetic avatar; a late-funnel evaluator who wants to poke the actual interface is not, and that buyer wants the interactive tour or the real-UI video. The [craft of the demo itself](/blog/how-to-make-a-product-demo-video), script first, one job shown end to end, is the same whichever mechanism you pick; the mechanism only decides what the finished object is and how you keep it honest. The maintenance column is the one buyers notice last and pay longest: an AI-polished take and a synthetic clip both freeze at the moment you make them, a tour drifts until you re-capture it, and only the agent-authored replay updates itself when the code does.
+
+## The two conflations that cost the most
+
+Two mismatches recur, and both trace back to the label promising "video" when the mechanism delivers something else.
+
+The first is treating an interactive tour as a video. A tour is excellent for a self-serve product page where the prospect wants to click, and it updates in place when you edit it. But it runs on JavaScript in a browser, so it will not drop into a README, a slide, a muted autoplay hero, or anywhere an image or video tag is all you have. The MP4 those tools export flattens the interactivity you paid for. If your distribution is "embed a player anywhere," a tour is the wrong object; if it is "let them click," a rendered video is.
+
+The second is treating a synthetic clip as a demo. An avatar reading your feature list is a fine brand or training asset, but it works from a script, so it cannot answer the one question a demo exists to settle: does the thing actually do what you claim. When your UI changes, the synthetic video does not go wrong so much as it was never right, because it was never bound to the product. That is the same reason a code-drawn composition can't stand in for a walkthrough, which the [regenerate-don't-re-record taxonomy](/blog/automated-product-demo-videos) works through from the automation side and [treating the demo as committed code](/blog/demos-as-code) works through from the authoring side.
+
+## A decision path from your constraint to a mechanism
+
+None of the four is best in the abstract; each is best under a constraint. Walk them in order and take the first match.
+
+- **Does the demo need to show your real, running product?** If no, and you want a concept, a message, or a face, a synthetic or generative tool is the cheapest slick result, and staleness never applies because the video was never tied to the UI.
+- **Does the viewer need to click through it themselves?** If yes, and it lives on a self-serve page, an interactive tour is the object you want, as long as you accept that it will not embed as a plain video and that HTML capture struggles with heavy-JavaScript apps.
+- **Is this a one-off you will never rebuild?** If yes, an AI-polished recording is the fastest path from a raw take to a produced clip, and re-recording on the next UI change is a bill you only pay once. The [per-platform alternatives map](/blog/screen-studio-alternatives) sorts that lane by operating system and price.
+- **Will you have to keep it current as the product ships?** If yes, and it is a web product, agent-authored replay is the only mechanism where the footage is your real UI and the update is automatic. You author and keep that spec current, and on the browser side you take an agent-written storyboard and open-source tooling instead of a drag-and-drop timeline. The [genuinely open options](/blog/open-source-demo-video-tools) are worth checking against their licenses first.
+
+The taxonomy is the whole deliverable. "AI demo video generator" was never one category; it names four mechanisms behind one search phrase, and the AI in each does a different job, editor, annotator, generator, author. Name the job you actually have, and three of the four stop being options.
+
+## Sources
+
+- [Screen Studio](https://screen.studio/)
+- [Clueso — pricing](https://www.clueso.io/pricing)
+- [Arcade — interactive demo](https://www.arcade.software/product/interactive-demo)
+- [Storylane — screenshot or HTML: picking the right demo format](https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format)
+- [Supademo — AI voiceover](https://supademo.com/features/ai-voiceover)
+- [Supademo — pricing](https://supademo.com/pricing)
+- [Synthesia — pricing](https://www.synthesia.io/pricing)
+- [aidemo — repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### What is the best AI demo video generator for a software product?
+
+There is no single best one, because the label covers four mechanisms that do different jobs. If you need to prove a specific feature works on your live UI, agent-authored replay or an AI-polished recording captures the real product; if you want a prospect to click through it, an interactive tour like Arcade, Storylane, or Supademo fits; if you only need a slick explainer, a synthetic tool like Synthesia is fastest. Pick by what you are proving, not by star rating.
+
+### Can AI generate a demo video from just a text prompt?
+
+Yes, but read what it produces. Generative and avatar tools such as Synthesia turn a script into a finished video, and text-to-video models invent the footage from a prompt, but in both cases the software on screen is depicted, not your running product. That is fine for an explainer and useless as proof the feature works. To show the real UI from a written spec, you need a capture (a recording) or agent-authored replay, which drives the actual app.
+
+### Is an interactive demo the same as an AI demo video?
+
+No. An interactive demo, or tour, is a clickable HTML embed a viewer navigates themselves, not a video file, and it captures your app's screenshots or front-end and replays clicks. An AI demo video is a rendered clip that plays start to finish and drops into any image or video tag. Most tour builders can export an MP4, but that flattens the interactivity, so the two formats suit different jobs: tours for self-serve pages, videos for READMEs, emails, and feeds.
+
+---
+
 # Automated product demo videos: regenerate, don't re-record
 
 July 18, 2026 · Demo Automation · https://aidemo.top/blog/automated-product-demo-videos/
@@ -354,6 +446,197 @@ Match the target to the file. Commit sub-megabyte GIFs into the repo and embed t
 
 ---
 
+# Demos as code: commit the storyboard, render the video
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/demos-as-code/
+
+> A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.
+
+## Two answers to "what is this demo"
+
+A finished demo is a file: an MP4, a GIF, a blob of pixels and audio. But that file can descend from two entirely different kinds of thing, and which one you pick decides everything you can do with the demo afterward.
+
+The first kind is a captured performance. Someone drove the product, a recorder watched, and the footage is the artifact. You can trim it, caption it, upload it, but the recording is the source of truth, and the only way to change what it shows is to perform the flow again.
+
+The second kind is a committed spec. The artifact is not the video; it is a text file that says where to go, what to click, and what to narrate, and a deterministic player turns that text into footage on demand. The video is output, the way a compiled binary is output. The source is the spec, and it sits in the repo next to the code it depicts.
+
+This is a different cut than the one the [automated-demo taxonomy](/blog/automated-product-demo-videos) makes. That piece sorts tools by what they automate — the edit, the clip swap, the drawn frame, the replay — and asks which mechanism survives a UI change. This one is upstream of it: it asks what the demo *is*. Answered that way, only two ontologies exist, and everything else is a detail of how well a given tool executes one of them.
+
+Pick "captured performance" and the demo is a document you own and maintain by hand. Pick "committed spec" and four things become true that a recording can never offer.
+
+## Four things become true when the demo is text
+
+**Diffable.** A change to the demo is a line in a diff. Relabel a button in the flow and the storyboard shows a one-line change; `git blame` says who changed it and when. A recording has no diff. Two MP4s that differ by one relabeled button are two unrelated binaries, and the only comparison a human can run is watching both and squinting.
+
+**Reviewable.** Because the change is a diff, it can go through review. A pull request that alters what the demo shows gets the same treatment as one that alters code: someone reads it, comments, approves. Marketing reviews the words, engineering reviews the selectors. The asset that used to skip the entire quality gate — because it was a binary nobody could read — now rides inside it. Jest's guidance for its snapshot artifacts says the quiet part aloud: a snapshot "should be committed alongside code changes, and reviewed as part of your code review process" ([Jest, accessed July 2026](https://jestjs.io/docs/snapshot-testing)). A demo spec is the same kind of object.
+
+**Regenerable.** The footage is build output. Delete the MP4 and rebuild it from the spec, the way you delete `dist/` and rebuild it from source. That reframes three things at once: storage (commit the spec, treat the video as a cache), staleness ([regenerate against the current build](/blog/automated-product-demo-videos) instead of re-shooting), and reach (one spec fans out into [many localized renders](/blog/multi-language-product-demo-videos) without a second take). The output is separable from the source, so the source can be small and the output disposable.
+
+**Agent-authorable.** This property has the longest reach, so it gets its own section below. A coding agent can write a spec. It cannot perform a take.
+
+| Property | The mechanism | What a recording gives you instead |
+|---|---|---|
+| Diffable | the spec is text; `git diff` shows the exact change | two binaries; the only comparison is watching both |
+| Reviewable | the change is a pull request, read and approved | an asset that bypasses the quality gate |
+| Regenerable | footage is build output, rebuilt from the spec | a source file you must re-perform to change |
+| Agent-authorable | a model emits structured text on demand | a performance no model can hold a mouse to do |
+
+## The infrastructure-as-code analogy, and exactly where it snaps
+
+The comparison writes itself: a demo spec is to a video what a Terraform file is to a server. It is mostly right, and the useful work is finding the seam where it stops being right.
+
+Three things carry over cleanly. Terraform configs "are declarative, meaning that they describe the end state of your infrastructure," defined in "human-readable configuration files that you can version, reuse, and share" ([HashiCorp, accessed July 2026](https://developer.hashicorp.com/terraform/intro)); a storyboard is declarative about the demo's end state and lives in the same kind of versioned file. Terraform's workflow is write, then plan, then apply; a demo pipeline has the same shape, where a dry run walks the flow without rendering and the render is the apply. And both are reproducible: same spec, same build, same result, which is the property that makes rebuilding in CI possible at all.
+
+Then the analogy snaps, in two places.
+
+The first seam is that infrastructure-as-code closes a loop the demo does not. A Kubernetes object carries a `spec` for the desired state and a `status` for the actual one, and "the Kubernetes control plane continually and actively manages every object's actual state to match the desired state you supplied" ([Kubernetes, accessed July 2026](https://kubernetes.io/docs/concepts/overview/working-with-objects/)). Terraform keeps a state file as its source of truth and computes the drift between config and reality. A demo spec has neither. It encodes intent — go here, click this, say that — and "a record of intent" is exactly what Kubernetes calls its objects, but no daemon watches the product to report that the intent has gone wrong. Run the spec against a build whose button moved and you get a video of the flow breaking or, worse, a clean render of the wrong thing. The spec regenerates. It does not, on its own, know it should have complained.
+
+The second seam is that the target is not yours to declare. Terraform owns the infrastructure it describes; applying the config makes reality conform. A demo spec owns nothing. It observes a product it did not create and navigates state the app already holds. That makes the demo spec downstream of the real source of truth, which is the product's own code — so "demos as code" is less like infrastructure-as-code and closer to tests-as-code: an assertion that runs against a system it does not control.
+
+| Infrastructure-as-code property | Holds for a demo spec? | The seam |
+|---|---|---|
+| Declarative, version-controlled desired state | Yes | the storyboard describes the demo's end state in a committed file |
+| Plan, then apply | Yes | dry-run the flow, then render |
+| Reproducible from the spec alone | Yes | same spec plus same build gives the same footage |
+| A status field and reconciler that detect drift | No | nothing watches the product; the spec cannot tell it went stale |
+| The spec owns the target it describes | No | it observes the product, it does not declare it — downstream, not source |
+
+The fix for the first seam is hiding inside the second reframe. If the demo is a test, give it what tests have: a recorded expectation to fail against.
+
+## The demo that is also a test — vhs made the terminal case ordinary
+
+That fix has shipped in the terminal world since October 2022, when Charmbracelet released vhs. It reads a `.tape` file and renders a terminal recording, and the same tape has a second output built for this exact gap. The docs point past demos to tests: "VHS can also be used for integration testing," turning a tape's `.txt` or `.ascii` output into "golden files" you "store in a git repository to ensure there are no diffs between runs of the tape file" ([Charmbracelet, accessed July 2026](https://github.com/charmbracelet/vhs)).
+
+That golden file is the missing status field. It is the recorded actual output; a diff against it on the next run is the reconciler the demo spec otherwise lacked. When the CLI's output changes, the golden changes, and CI fails loudly instead of quietly shipping a wrong GIF. The demo and the regression test are one artifact. It is the snapshot pattern — a reference "stored alongside the test" that fails "if the two snapshots do not match" ([Jest, accessed July 2026](https://jestjs.io/docs/snapshot-testing)) — aimed at a demo rather than a component tree.
+
+The browser is the harder version of this idea and the more valuable one. Harder because a terminal is deterministic and a browser is not: animations, web fonts, network timing, and device-pixel ratio all conspire to make two runs of one flow produce two different frames, which is why [replaying a browser flow into identical footage](/blog/deterministic-browser-automation-for-video) is a real engineering problem and not a config flag. More valuable because the terminal is a niche and the browser is where the products people pay for actually live. A browser demo that golden-files a reference frame is, in the same run, a visual-regression test of the real UI and the marketing footage of it. aidemo, our engine, does exactly this: its probe step can write a golden of the action-spec and fail CI on drift, so the run that records the demo also asserts the product still matches. It is browser-only and its storyboard is agent-authored rather than dragged together in a timeline — real limits — but that double duty is the whole reason to treat the demo as code, and it slots straight into a job that already [re-renders on the commit that changed the UI](/blog/demo-videos-in-ci).
+
+## A coding agent can write the spec, not perform the take
+
+Of the four properties, agent-authorability is the one that moves the economics, because it changes *who* can make a demo at all. A language model is a text engine. Hand it the app and a schema and it can emit a storyboard: the selectors to click, the order to click them, the line to narrate over each step. That is structured text, the thing models do best.
+
+What a model cannot do is the other ontology's core act. It cannot hold a mouse, feel the pacing, pause a beat before the reveal, and perform a screen recording that looks composed. A take is a performance; a spec is a document, and only one of those is in a language model's job description. So the design that makes agent-made demos shippable keeps the model out of the capture loop entirely: the agent explores the product and writes the spec, and a deterministic player — not the model — executes it. The recording is a replay of a fixed action-spec, repeatable and reviewable, and the judgment lives in the authoring, where a mistake is a diff you fix rather than a flubbed take you re-shoot.
+
+The industry is converging on the same insight from the synthetic side. Remotion, which renders video from React, now leads with "Make videos programmatically" and "Use coding agents" ([Remotion, accessed July 2026](https://www.remotion.dev/)), because code is the interface an agent can drive. The difference for a product demo is what that code renders. Remotion draws frames, so an agent authors a rendition of your app; a real-UI replay captures frames, so the agent authors a walkthrough of the actual app. Both are legitimate; they answer different questions, and [the programmatic-video landscape](/blog/video-as-code-tools) splits exactly along that line. The [coding-agent demo workflow](/blog/coding-agents-that-make-demo-videos) is a spoke of its own. The point here is narrower: agent-authorability is not a feature bolted onto a video tool. It is a consequence of the demo being code.
+
+## When "as code" is the wrong frame
+
+Treating a demo as code earns its keep when the demo has a maintenance horizon — when it will outlive the UI it shows and someone would otherwise re-record it on every ship. It is the wrong frame for a demo with no future, and the honest pitch says so.
+
+- **A launch film with a person on camera, art-directed shot by shot.** Its value is charisma and editing taste, and a spec cannot author taste. That is a performance. Record it, cut it, ship it once.
+- **A sizzle reel you need this week and never again.** The up-front cost of writing a spec buys nothing if you will never regenerate. A screen recorder is faster and fine.
+- **A demo you want to assemble by hand in a visual timeline.** Code-first tools trade the drag-and-drop editor for the diff. If you want the timeline, that is a different tool: [the Screen Studio alternatives map](/blog/screen-studio-alternatives) covers the recorder lane, and [how to make a product demo video](/blog/how-to-make-a-product-demo-video) covers the craft that applies to either ontology.
+
+The rule reduces to one question about the demo's lifespan. If it is a thing you make once, a recording is often the faster answer. If it is a thing you keep — bound to a product that ships every week, rebuilt in CI, reviewed like code, and increasingly authored by an agent — then the demo wants to be a spec and the video wants to be what the spec builds. The terminal proved the pattern. The browser is where it pays.
+
+## Sources
+
+- [HashiCorp — What is Terraform (infrastructure as code, declarative, plan/apply)](https://developer.hashicorp.com/terraform/intro)
+- [Kubernetes — Objects, spec/status, and the desired-state control loop](https://kubernetes.io/docs/concepts/overview/working-with-objects/)
+- [Charmbracelet vhs — terminal GIFs as code, golden-file integration testing](https://github.com/charmbracelet/vhs)
+- [Jest — Snapshot testing (commit the snapshot, review it, fail on mismatch)](https://jestjs.io/docs/snapshot-testing)
+- [Remotion — make videos programmatically with React and coding agents](https://www.remotion.dev/)
+
+## FAQ
+
+### Is "demos as code" the same thing as infrastructure as code?
+
+It borrows the shape but not the whole model. Like Terraform, a demo spec is a declarative, version-controlled description of a desired end state that you plan and then apply. Unlike Terraform or Kubernetes, it has no status field and no reconciler watching the target, and it does not own what it describes — it observes a product it did not create. That makes it closer to tests-as-code than to infrastructure-as-code: an assertion that runs against a system it cannot control, which is why golden-file diffing matters so much.
+
+### Can a coding agent make a product demo video by itself?
+
+An agent can author the spec, not perform the take. Language models are strong at emitting structured text, so writing a storyboard of selectors, click order, and narration is squarely in scope. Driving a mouse with good pacing and composing a screen recording is not. The workable pattern keeps the model out of the capture loop: it writes the spec, a deterministic player renders it, and the output stays repeatable and reviewable rather than a one-off performance you cannot reproduce.
+
+### If the demo is a spec, do I still commit the video file?
+
+Usually not the video, always the spec. Once the footage is build output, the spec is the source of truth and the MP4 or GIF is a cache you can rebuild any time from the current product, so many teams commit only the spec and regenerate the video in CI. The exception is distribution: an embed needs a stable URL, so the rendered file lands somewhere durable — a committed asset, a release attachment, or a hosted path — even though its authority still comes from the spec that produced it.
+
+---
+
+# How long should a demo video be? The retention math
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/how-long-should-a-demo-video-be/
+
+> Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.
+
+## What one more minute costs you in viewers
+
+The honest answer to "how long should a demo video be" is a number you can compute, not a matter of taste, because the completion curve is public and it bends the same way for almost everyone. Vidyard's 2025 benchmark report, built from 943,305 business videos recorded across 2024, found that 65% of viewers stay to the end of a video under one minute, and only 20% reach the end of one over twenty minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)). Engagement, the same report notes, is highest in the first quarter of the runtime and slides at every milestone after it. Wistia's 2026 State of Video, looking at videos on homepages and product pages, puts the typical viewer at about halfway through ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)).
+
+Read those numbers together and the design constraint is plain. Whatever you put after the first quarter of the runtime, most people never reach, and whatever you put after the one-minute mark, a third of the audience has already gone. A demo does not become more thorough by running longer; it becomes more thorough for a shrinking share of viewers. Length is a budget you spend, and the exchange rate is measured in people who stay.
+
+That reframes the whole question. The useful version is not "how long is a demo video," it is "how long for this placement, for this audience, with this much attention to spend." Those answers differ by a factor of ten, and picking the wrong one is why a perfectly good recording underperforms.
+
+## A target length for where the demo lives
+
+The biggest single determinant of the right length is not the product, it is the surface the video sits on. A muted loop under a README and a warm sales follow-up are different jobs with different attention budgets, and the same ninety-second cut is wrong for both. Here is the matrix, with the evidence behind each target and the first thing to cut when your take runs over it.
+
+| Placement | Target | Why | Cut first when over |
+| --- | --- | --- | --- |
+| Landing-page hero | 30-60 s | Vidyard puts landing and homepage video at 30-60 s, and a third of visitors bounce inside the first 30 seconds ([Vidyard, 2023](https://www.vidyard.com/blog/video-length/)) | The intro. Open on the product mid-action, not on a logo |
+| README / inline docs | 10-30 s loop | Plays muted, on loop, with no controls; GitHub caps an inline video at 10 MB on a free repo ([GitHub Docs](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)) | The second feature. One flow, one loop |
+| Social feed | 15-30 s | LinkedIn's own guidance is 15-30 s for feed video, with 92% of mobile views playing without sound and the first six seconds deciding it ([LinkedIn, 2025](https://www.linkedin.com/business/marketing/blog/content-marketing/13-top-tips-for-compelling-b2b-video-content-on-linkedin)) | Everything before the payoff. Lead with the result |
+| Sales follow-up | 45-90 s | Cold outreach and video email want 45 seconds or under; a warm, named-account follow-up earns a little more, and 65% still finish under a minute ([Vidyard, prospecting](https://www.vidyard.com/blog/video-prospecting/)) | Generic value props. Keep only what is specific to this prospect |
+| Product docs / onboarding | 1-3 min | Tutorials hold engagement at length where marketing clips do not, because the viewer came to finish a task ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)) | Nothing structural. Split into chapters instead |
+
+Two things about this table earn their place. First, the top three placements all sit below a minute, which is where the completion data is kindest, and they are also the placements you least control: a hero autoplays straight into a reflex to skip, a feed scrolls past, a README loops in peripheral vision. Second, the bottom row is the exception that proves the rule. Documentation and onboarding video is watched by someone who chose to be there to finish a task, so completion behaves differently and the length is allowed to follow the work. If your demo is really a tutorial, the matrix says so, and you can stop trying to compress a ten-step task into a hero loop.
+
+The word count then follows the length automatically. At the usual narration pace, a 45-second social cut is about a 110-word script and a 90-second follow-up about 225 words; [the script template does that conversion section by section](/blog/demo-video-script-template), so you write to the budget instead of trimming after. Pick the row, read off the seconds, and the script has a ceiling before you record a frame.
+
+## Usually shorter than you recorded
+
+Here is the part nobody wants to hear: the first cut is almost always too long, and not by a little. A live take pads itself. Page loads add dead seconds, the cursor hunts for the next control, the narrator says "and you can also" three times, and the demo quietly shows two jobs when it promised one. The recording you are proud of at 2:10 is a 50-second video wearing a 90-second tax.
+
+The drop-off data says exactly where that tax hides. If engagement peaks in the first quarter and the median viewer leaves near the halfway mark, then the back half of a long take is content almost nobody sees, while the front does all the work buried under setup. The remedy is not a better performance, it is editing, and length is the most reversible decision in the entire pipeline. It costs nothing but a re-encode to trim idle time, cut the intro, and drop the scene you love that the buyer never asked about.
+
+This is where the recording approach quietly decides your options. A hand-recorded take is one indivisible performance: pull ten seconds out of the middle and the pointer, the voice track, and the on-screen timing all slide apart, so "make it shorter" turns into "record it again." A demo defined as a spec has no such problem. Trimming dead time between actions is a [compose-time transform, not a reshoot](/blog/professional-screen-recordings), and cutting a scene means deleting a few lines and re-rendering. In our own engine, aidemo, idle time is trimmed to the narration automatically and a shorter cut is a re-render of the same storyboard rather than a fresh take; it is browser-only and the storyboard is authored by an agent instead of dragged on a timeline, which is a poor trade for a one-off and a good one when you will retarget the same demo for five placements. Either way the point holds independent of tooling: if your only lever for length is re-recording, you will ship the long version, because the short one is too expensive to reach.
+
+## The cut order: what goes first when you are over
+
+When a take runs long, cut in this order. Each item is safe to remove before the one below it, because it costs the viewer the least and the recording the most.
+
+| Order | Cut | Why it is safe to lose first |
+| --- | --- | --- |
+| 1 | Idle time and page loads | Pure dead air; trimming to motion removes nothing a viewer wanted |
+| 2 | The logo or title intro | Nearly half a video's value lands in the first three seconds ([Vidyard, 2023](https://www.vidyard.com/blog/video-length/)); spend them on the product |
+| 3 | The second and third example | One instance is proof; three is a feature tour nobody asked for |
+| 4 | Cursor narration | "I click the blue button" is already on screen, so the words are free to cut |
+| 5 | Slow typing and mouse travel | Speed-ramp or hard-cut; no one needs to watch a form fill in real time |
+| 6 | The feature you love | If the buyer's job does not need it, it is your favorite, not theirs |
+
+Run the list until the runtime fits the target for the placement. The first two items are pure waste and the last two are discipline; most demos are salvageable on items 1 through 3 alone. If you are still over after cutting your favorite feature, the video is trying to do two jobs, and the answer is two videos, not a faster read. For sales prospecting the payoff of that discipline is measurable: staying under a minute lifts completion from 53% across all lengths to 65% ([Vidyard, prospecting](https://www.vidyard.com/blog/video-prospecting/)).
+
+## When a longer demo earns its length
+
+Shorter is the default, not a law. Wistia's data carries a genuinely counterintuitive finding: across its 2026 sample, the longer the video, the more likely a viewer was to act on it, with the highest click-through rates landing on videos in the 30-to-60-minute range ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)). The people who stay through a long video are self-selected and far warmer, so a deep technical walkthrough for a bottom-of-funnel buyer can beat a tight hero clip on the metric that actually pays. The mistake is putting a long video where a short one belongs: a webinar-length walkthrough in a landing hero, or a ten-minute tour where a 30-second loop was the job.
+
+Match the length to the intent of the person watching. Put the short cut where attention is scarce and the long one where it is earned, and let [the full production playbook](/blog/how-to-make-a-product-demo-video) and a [regenerate-don't-re-record workflow](/blog/automated-product-demo-videos) make it cheap to ship both from one recording. The right length was never a fixed number. It is a cut you make for a placement, and the reason so many demos are too long is that cutting felt more expensive than it needed to be.
+
+## Sources
+
+- [Vidyard — Video in Business Benchmark Report (2025 edition)](https://www.vidyard.com/business-video-benchmarks/)
+- [Vidyard — How Long Should a Video Be? Ideal Lengths for Every Channel](https://www.vidyard.com/blog/video-length/)
+- [Vidyard — Video Prospecting for Sales](https://www.vidyard.com/blog/video-prospecting/)
+- [Wistia — State of Video Report: Video Marketing Statistics for 2026](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [LinkedIn Marketing Blog — B2B Video on LinkedIn: 13 Best Practices](https://www.linkedin.com/business/marketing/blog/content-marketing/13-top-tips-for-compelling-b2b-video-content-on-linkedin)
+- [GitHub Docs — Attaching files (image and video size limits)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+
+## FAQ
+
+### What is the ideal length for a product demo video?
+
+There is no single ideal, only a target per placement. For the surfaces most demos live on, a landing hero, a social feed, a README loop, aim for 15 to 60 seconds, because completion stays high there: 65% of viewers finish a business video under a minute ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)). Reserve two to five minutes for documentation, onboarding, or a warm bottom-of-funnel walkthrough, where the viewer came to finish a task and length is allowed to follow it.
+
+### How long is too long for a demo video?
+
+Too long is the point where your placement's audience has already left. On a landing page a third of visitors bounce within 30 seconds, and across business video only 20% finish anything over 20 minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)). A practical ceiling: if the runtime exceeds the target for its placement, and cutting idle time, the intro, and repeated examples does not get you there, the video is doing two jobs and should be two videos.
+
+### Should you split a long demo into shorter videos?
+
+Usually yes, when the length comes from covering several jobs rather than one deep task. A single flow that runs long should be trimmed; a video that runs long because it shows three separate features should be three short videos, each placed where its buyer looks. The exception is a genuine tutorial or onboarding sequence, where chaptering one longer video beats fragmenting a task the viewer wants to complete in one sitting.
+
+---
+
 # How to make a product demo video (that people finish)
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/how-to-make-a-product-demo-video/
@@ -478,6 +761,124 @@ Yes. Text-to-speech renders the narration straight from your script, so no micro
 
 ---
 
+# README GIFs that update themselves
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/readme-gifs-that-update-themselves/
+
+> A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.
+
+## The only inline motion GitHub autoplays is a committed GIF
+
+A README is the one page every visitor to a repository loads, and an animated demo is the fastest way to answer "what does this actually do" before anyone reads a line of code. The trouble is that GitHub's rules for what plays inside that page are narrow, scattered across three docs pages, and mostly learned by breaking them. Get them wrong and the demo either doesn't render, doesn't move, or quietly blows a size limit and fails to upload.
+
+Start with the formats. A GIF committed into the repository and referenced with `![](path)` or an `<img>` tag renders inline, autoplays, and loops with no controls, no pause button, and no audio. The looping is baked into the file at encode time, not driven by markup ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)). That autoplay-and-loop behavior is exactly what a short feature loop wants, and exactly what you cannot get from a `<video>`. GitHub does not play a `<video>` element that points at a file committed to the repo. A `raw.githubusercontent.com/...mp4` link renders as a broken player, not a video ([GitHub Community, 2026](https://github.com/orgs/community/discussions/19403)).
+
+There is a video path, and it is a trap for automation. Drag an MP4 into an issue, a pull request, or the web README editor and GitHub uploads it to a `github.com/user-attachments/assets/<uuid>` address, then renders a real player with controls and sound. The catch is that the UUID is minted only by that manual drag-and-drop; no API generates it, so a README that rebuilds itself in CI can never produce one ([GitHub Community, 2026](https://github.com/orgs/community/discussions/19403)). WebP is the newest wrinkle: GitHub added inline WebP rendering on August 28, 2025, promising that uploaded WebP images "will now display inline, just like PNGs and JPEGs" ([GitHub Changelog, 2025](https://github.blog/changelog/2025-08-28-added-support-for-webp-images/)). Notice the comparison is to two static formats, and the note says nothing about animation. Until GitHub documents animated-WebP playback on a repo page, the only format it is on record as animating inline is the GIF.
+
+## GIF, MP4, and WebP for the same twenty seconds
+
+GitHub caps an attached image or GIF at 10 MB, and a video at 10 MB on a free plan or 100 MB on a paid one; the supported video types are `.mp4`, `.mov`, and `.webm` ([GitHub Docs, 2026](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)). That 10 MB GIF ceiling decides your whole encode, because GIF is spectacularly wasteful.
+
+Here is the same twenty-second demo, a dashboard scrolling a long list, encoded from one 800x450 H.264 master to each delivery format. The scroll is the worst case for GIF, because the entire frame changes on every frame.
+
+| Format | Settings | Size |
+|---|---|---|
+| MP4 (H.264) | 800px, 30 fps | 0.45 MB |
+| Animated WebP (lossy) | 800px, 15 fps | 2.7 MB |
+| GIF | 800px, 15 fps | 17.8 MB |
+| GIF | 600px, 15 fps | 14.3 MB |
+| GIF | 480px, 15 fps | 10.1 MB |
+| GIF | 800px, 10 fps | 12.2 MB |
+| GIF | 480px, 10 fps | 6.7 MB |
+
+The MP4 is roughly forty times smaller than the GIF, and the WebP about six times smaller, from identical pixels. The reason is structural, not tuning. A GIF frame is an 8-bit indexed image, at most 256 colors at one byte per pixel, and the format has no motion compensation between frames, only a crude same-pixel transparency trick. At 800x450 that is 360 KB per raw frame; a 15 fps, 20-second clip is 300 frames, about 108 MB uncompressed. GIF's LZW plus frame optimization squeezed that to 17.8 MB, a factor of roughly six. H.264 and WebP predict each frame from the previous one, so the same motion costs a fraction. The 800px, 15 fps GIF is 1.8x over GitHub's ceiling before you add a single extra second.
+
+That table is a scroll-heavy worst case; a click-through demo that holds still between actions compresses far better, because GIF's frame disposal can skip the unchanged pixels. But the ranking never inverts: for a given clip, MP4 beats WebP beats GIF, every time. WebP is the smart pick for a docs site or landing page you control, where you can serve it with the headers you want; for the GitHub README itself, the GIF is still the format with guaranteed inline motion.
+
+## Encoding a GIF that doesn't look like 2009
+
+The default GIF path in ffmpeg maps every frame onto one generic 256-color palette, which bands gradients and muddies text. The fix, from the ffmpeg filter's own author, is a two-pass build: analyze the clip and generate a palette tuned to its actual colors with `palettegen`, then apply that palette with `paletteuse` ([Boesch, 2024](https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html)). `palettegen` builds a histogram across all frames and picks colors with a variant of Heckbert's 1982 quantization; `paletteuse` maps each pixel to the nearest palette entry, with optional dithering ([FFmpeg, 2026](https://ffmpeg.org/ffmpeg-filters.html)).
+
+```sh
+  # 1) build a palette tuned to this specific clip
+ffmpeg -i master.mp4 \
+  -vf "fps=15,scale=800:-1:flags=lanczos,palettegen=stats_mode=diff" palette.png
+
+  # 2) apply it (bayer = smaller/compressible; floyd_steinberg = prettier gradients)
+ffmpeg -i master.mp4 -i palette.png \
+  -lavfi "fps=15,scale=800:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:diff_mode=rectangle" \
+  demo.gif
+```
+
+Two knobs earn their place. Scale with `flags=lanczos`, not the default bilinear, or the edges blur. And choose the dither on purpose: error-diffusion modes like `floyd_steinberg` and `sierra2` look best on gradients but, as the filter author puts it, "completely kill the compression of GIF," while ordered `bayer` dithering is uglier on smooth ramps yet far more compressible, because its pattern is static and LZW rewards repetition ([Boesch, 2024](https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html)). For UI footage that is mostly flat color, bayer is usually the right trade.
+
+When the GIF still won't fit, the levers are width, framerate, length, and colors, roughly in that order of impact against the 17.8 MB baseline above.
+
+| Lever | Change | Result |
+|---|---|---|
+| Width | 800 to 480px | 10.1 MB |
+| Framerate | 15 to 10 fps | 12.2 MB |
+| Length | 20s to 10s | 9.0 MB |
+| Width + framerate | 480px, 10 fps | 6.7 MB |
+
+Combining two levers, say 480px at 10 fps, or 15 fps for 10 seconds, clears 10 MB with room to spare. Dropping `max_colors` below 256 in `palettegen` is the last resort: it shrinks the file but posterizes anything with a gradient.
+
+## Camo, caching, and the GIF that shows yesterday's UI
+
+Every image in a README is served through GitHub's Camo proxy, which rewrites the source into an anonymized `*.githubusercontent.com` URL that "hides your browser details and related information from other users" ([GitHub Docs, 2026](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-anonymized-urls)). For a self-updating GIF this is mostly a gift. Commit `demo.gif` at a fixed path and the raw URL never changes, so a re-render overwrites the file in place and every embed picks it up with no README edit at all. The proxy also caches, which is the catch: push a new GIF and viewers can keep seeing the old one until the cache turns over. GitHub's own guidance is to have the origin return a `Cache-Control` of `no-cache` for images that change, and it exposes a manual cache reset for the stubborn cases ([GitHub Docs, 2026](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-anonymized-urls)). Files committed to the repo already send short-lived cache headers, so overwriting the tracked GIF is usually enough and the purge is a break-glass tool.
+
+## Keep the GIF honest: recapture on every change
+
+A GIF is a photograph of the product at one instant, and the product moves. The only way it stays true is to regenerate it from a script whenever the thing it depicts changes, the same discipline behind [regenerating a demo from a committed spec instead of re-recording it](/blog/automated-product-demo-videos), applied to the asset with the most eyes on it. Because [product media rots the moment the UI ships past it](/blog/why-product-demos-go-stale), the recapture has to be automatic, not a line on someone's to-do list.
+
+For terminal tools the pattern is settled. vhs turns a committed `.tape` script into a GIF by replaying it in a headless terminal, needing only `ttyd` and `ffmpeg` on the PATH ([Charmbracelet, 2026](https://github.com/charmbracelet/vhs)). The tape is the source of truth; edit the CLI, replay the same tape, and the GIF regenerates.
+
+```
+  # demo.tape, committed next to the CLI
+Output demo.gif
+Set Width 1200
+Set Height 600
+Set FontSize 22
+Type "mytool build ./app" Enter
+Sleep 3s
+```
+
+For web UIs the equivalent is a browser-replay engine that drives real Chrome through a scripted flow and emits a GIF. Our engine, aidemo, does this with a `gif` command that renders the README GIF from the same storyboard it uses for the full video. It is browser-only, the storyboard comes from a coding agent instead of a drag-and-drop timeline, and there is no click-to-edit UI, so it fits a demo you intend to keep current rather than a one-off sizzle reel.
+
+```sh
+  # browser replay: same storyboard, README-sized GIF
+aidemo gif ./demos/dashboard --width 800 --fps 12
+```
+
+Either way the loop is the same shape, and the plumbing, which trigger fires the render, what the runner needs installed, and the guard that stops a commit-back job from triggering itself, is a solved problem covered in [the walkthrough for rendering demos in a GitHub Actions job](/blog/demo-videos-in-ci). The craft of the underlying demo, what to show, how long, how to pace it, is [its own discipline](/blog/how-to-make-a-product-demo-video). What the README owns is the last mile: a committed GIF, encoded under 10 MB, at a stable path a machine overwrites on every change, so the loop on the front page never lies about the product behind it.
+
+## Sources
+
+- [MDN Web Docs — Image file type and format guide (WebP animation, GIF)](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types)
+- [GitHub Community — README.md videos not working (video vs GIF in READMEs)](https://github.com/orgs/community/discussions/19403)
+- [GitHub Changelog — Added support for WebP images (Aug 28, 2025)](https://github.blog/changelog/2025-08-28-added-support-for-webp-images/)
+- [GitHub Docs — Attaching files (10 MB image/GIF and video limits, formats)](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+- [GitHub Docs — About anonymized URLs (the Camo image proxy and caching)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-anonymized-urls)
+- [Clement Boesch — High quality GIF with FFmpeg (palettegen/paletteuse)](https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html)
+- [FFmpeg — filters documentation (palettegen, paletteuse, dither modes)](https://ffmpeg.org/ffmpeg-filters.html)
+- [charmbracelet/vhs — write terminal GIFs from a .tape file](https://github.com/charmbracelet/vhs)
+
+## FAQ
+
+### Why is my README GIF too big to upload to GitHub?
+
+GitHub caps an attached image or GIF at 10 MB, and GIF is a poor fit for motion: it stores 8-bit frames with no compression between them, so a 20-second scrolling demo at 800px and 15 fps encodes to roughly 18 MB, nearly twice the limit. Cut the width first, then the framerate, then the length: 480px at 10 fps takes that same clip to about 6.7 MB. Encode with ffmpeg's two-pass palettegen/paletteuse so shrinking it does not wreck the color.
+
+### Can I embed a real video in a GitHub README instead of a GIF?
+
+Not from a file you commit. A `<video>` tag pointing at a `raw.githubusercontent.com` MP4 renders as a broken player. GitHub only plays video that you upload by dragging it into an issue, pull request, or the web editor, which mints a one-off `user-attachments` URL that no API can generate, so it cannot be produced by a CI job. For a README that regenerates itself, an animated GIF is the only inline motion GitHub is documented to autoplay; keep the MP4 for pages you host yourself.
+
+### Why does my updated README GIF still show the old version?
+
+GitHub serves README images through its Camo proxy, which caches them, so a freshly pushed GIF can lag behind the file in the repo. If you commit the GIF at a fixed path the raw URL is stable and normally updates within minutes because committed files carry short cache lifetimes. When it sticks, the fix GitHub documents is to have the image origin send `Cache-Control: no-cache` and, as a last resort, to purge the Camo cache for that URL manually.
+
+---
+
 # Screen Studio alternatives for Windows, Linux, and CI
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/screen-studio-alternatives/
@@ -580,3 +981,87 @@ Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and L
 ### Does Screen Studio still sell a one-time license?
 
 Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.
+
+---
+
+# Why every product demo is out of date (and what rot costs)
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/why-product-demos-go-stale/
+
+> Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.
+
+## Reading the rot rate off a public changelog
+
+A product demo freezes one version of your software and plays it back forever. The software does not hold still, and you can measure exactly how fast it moves, because the best-run companies publish the receipts. A public changelog is a dated ledger of everything that shipped, and for a product with a UI a large share of every entry is something a user can see — which makes it something a demo might show, and therefore something a demo can now get wrong.
+
+Count them. In the eleven weeks from April 16 to July 2, 2026, Linear's changelog recorded about twenty user-visible changes: new initiative statuses, per-tab navigation history, private sub-teams, a native code-review view, drag-to-reorder groups in every list and board. That is roughly two a week, each a surface a walkthrough might feature ([Linear, accessed July 2026](https://linear.app/changelog)). Figma keeps a comparable tempo. Across the month from mid-June to mid-July 2026 its release notes list five user-visible releases, and the Config 2026 drop alone put a motion timeline, 3D transforms, and code layers on the canvas ([Figma, accessed July 2026](https://www.figma.com/release-notes/)). Notion ships a small feature most weeks and a numbered major version about every two months, 3.5 on May 13 and 3.6 on July 1, 2026, with a rebuilt mobile home in between ([Notion, accessed July 2026](https://www.notion.com/releases)).
+
+| Product | Changelog window | User-visible changes | Cadence | Redesign inside the window |
+|---|---|---|---|---|
+| Linear | Apr 16 – Jul 2, 2026 (11 weeks) | ~20 | ~2 / week | Full UI refresh, Mar 12 |
+| Figma | Jun 17 – Jul 16, 2026 (4 weeks) | ~5, plus the Config megadrop | ~1+ / week | Config 2026 canvas additions, Jun 24 |
+| Notion | May – Jul 2026 | weekly feature, 3.5 to 3.6 | ~weekly, ~2-month major | Rebuilt mobile home, May 4 |
+
+None of these three is a chaotic shipper. They are the products other teams cite as disciplined, and they still change what the user sees about twice a week. A demo you recorded once is standing still in a room where the furniture is rearranged on that schedule.
+
+## From rot rate to demo half-life
+
+Define a demo's half-life as the time until half its frames no longer match the live product. Two clocks run at once, and they run at very different speeds.
+
+The slow clock is incremental drift. A typical sixty-second walkthrough shows a handful of surfaces — call it eight distinct screens. Not every changelog entry lands on one of them; a new admin toggle or an MCP connection may never appear in your cut. Say one user-visible change in four touches a surface your demo shows. At Linear's two-a-week, that is about one demoed surface drifting every two weeks, so four of eight — half — are wrong in roughly eight weeks. A two-month half-life, before anything dramatic happens. A demo recorded in January is contradicting the live product by three or four screens by March.
+
+The fast clock is the redesign, and it does not tick, it detonates. On March 12, 2026, Linear redrew the whole interface in one release: "Headers, navigation, and view controls are now consistent across projects, issues, reviews, and documents," and "icons across the app have been redrawn and resized" ([Linear, March 2026](https://linear.app/changelog/2026-03-12-ui-refresh)). A change like that does not invalidate the few screens your demo features. It invalidates the chrome around every screen, so a demo captured on March 11 was wrong in every frame on March 12 — not half its frames, all of them. Figma's Config drops and Notion's mobile rebuild are the same species of event: one release resets the visual baseline the demo was filmed against.
+
+So the honest half-life is bimodal. Between redesigns, a demo of a fast-shipping product decays with a half-life near two months. At a redesign, that half-life collapses to a single, unannounced date. Either way the demo you are proud of this quarter is a liability the next one, and you do not get to pick which quarter.
+
+## Which parts of a demo rot fastest
+
+Footage does not decay uniformly, and knowing the order lets you film defensively. Rank a demo's contents by how exposed each is to the changelog.
+
+| What the frame shows | Rots when | Rate |
+|---|---|---|
+| Chrome: nav, headers, icons, color | any global redesign | rare but total — one release voids every frame |
+| Feature surfaces: panels, menus, buttons | the feature ships an update | about monthly for a fast product |
+| Seeded data: names, numbers, dates | the data reads as dated or the schema moves | slow, but glaring when it breaks |
+| The core value flow: the job the product does | the fundamental workflow changes | slowest — this is the stable spine |
+
+The lesson is not to show less. It is that the most durable demo leans on the core value flow and the least redesign-exposed chrome you can frame, so ordinary ships graze it rather than gut it. No framing survives a March-12-style refresh, which is why [what you choose to put on screen](/blog/how-to-make-a-product-demo-video) only delays the reckoning. It never cancels it, because the reckoning is maintenance.
+
+## The trust cost: a demo the trial doesn't match
+
+Re-recording hours are the visible cost, and [the case for regenerating demos instead](/blog/automated-product-demo-videos) does that arithmetic. The larger cost is quieter, and it lands on the prospect.
+
+A demo's job is to set an expectation the product then has to meet. When the two disagree, the disagreement itself is the message. Picture a buyer who watches a crisp Linear walkthrough recorded in February, likes it, and signs up in mid-March. The app they reach has a redrawn navigation, resized icons, and a different visual rhythm than the video promised, because the March 12 refresh changed all of it. Nothing is broken. But the first thing the product taught them is that the marketing is out of date, and the second thing they wonder is what else is.
+
+This is the documentation problem with a bigger blast radius. Simon Willison built the shot-scraper tool in 2022 for precisely this reason: "It's very easy for feature screenshots in documentation for a web application to drift out-of-date with the latest design" ([Willison, 2022](https://simonwillison.net/2022/Oct/14/automating-screenshots/)). One stale screenshot is a small lie a reader can route around. A demo video multiplies the surface: every frame can drift, and the cursor path, the timing, and the narration all have to keep matching the screen beneath them. When a demo goes wrong it goes wrong more visibly than a screenshot, and it is watched by people earlier in the funnel with less patience to forgive it.
+
+## Drift is debt, and it compounds
+
+Left alone, a demo is not a fixed cost. Every ship that touches a demoed surface widens the gap between what the video shows and what the product does, and that gap is a debt: you either pay it down by re-recording or you carry it and let every viewer see the interest. Unlike code debt, nothing goes red when a demo drifts. No test fails. The video just keeps playing, confidently wrong, until a human happens to notice — and the human who notices is usually a prospect, the worst possible auditor.
+
+The market already concedes the pain. Trainn sells a demo tool whose headline promise is that when the UI changes you swap the outdated clips and it updates the video everywhere, "no re-recording needed" ([Trainn, accessed July 2026](https://trainn.co/product-demo-video-maker/)), a feature you build only if staleness is what customers fear most. It helps with a clip library a person still curates, but it does not touch the expensive step, which is diagnosis: knowing which of your videos the last release just falsified.
+
+The only way to make the debt stop compounding is to stop treating the demo as a recording you own and start treating it as output you regenerate. If the flow is a committed specification rather than a captured take, a machine can replay it against the current build and produce a current video, so the re-render can ride the same release that caused the drift — the mechanics of that live in [rendering demo videos in CI](/blog/demo-videos-in-ci). Stills submit to the same treatment one level down, which is the subject of [automating product screenshots](/blog/automating-product-screenshots): a named shot re-captured from a spec cannot drift in silence. Our own engine, aidemo, is one browser-only, agent-authored instance of that pattern, and it earns its keep only on demos you mean to keep. The half-life does not change. What changes is who pays for it: a CI runner on the day of the ship, instead of a prospect three months later.
+
+## Sources
+
+- [Linear — Changelog](https://linear.app/changelog)
+- [Linear — UI refresh (March 12, 2026)](https://linear.app/changelog/2026-03-12-ui-refresh)
+- [Figma — Release notes](https://www.figma.com/release-notes/)
+- [Notion — What's New / releases](https://www.notion.com/releases)
+- [Simon Willison — Automating screenshots for the Datasette documentation (2022)](https://simonwillison.net/2022/Oct/14/automating-screenshots/)
+- [Trainn — Product Demo Video Maker](https://trainn.co/product-demo-video-maker/)
+
+## FAQ
+
+### How often do SaaS products change their user interface?
+
+Faster than most demos assume. Reading recent public changelogs, Linear shipped about twenty user-visible changes in eleven weeks (roughly two a week), Figma listed five in a month plus its Config megadrop, and Notion ships a small feature most weeks with a major version about every two months. For a normally fast product, budget one to two visible UI changes a week.
+
+### How long does it take for a product demo video to go out of date?
+
+Between redesigns, roughly two months to a half-life: at one to two visible changes a week, about half the screens in a typical eight-surface demo no longer match within eight to ten weeks. A full redesign resets that instantly. Linear's March 12, 2026 refresh redrew every header, icon, and navigation element, so any demo filmed before it was outdated in every frame overnight.
+
+### Do outdated screenshots and demo videos hurt conversion or trust?
+
+They cost more than the re-recording time. A demo sets an expectation the trial has to meet, and when a prospect signs up to find an interface that looks nothing like the video, the first thing the product communicates is that the marketing is stale. Tools like shot-scraper exist because drifted documentation screenshots erode credibility, and a demo video, with far more frames to drift, carries the same risk to a warmer, earlier-funnel audience.

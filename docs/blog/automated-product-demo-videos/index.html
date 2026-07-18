@@ -192,7 +192,7 @@
       <div class="article-content">
 <h2 id="four-machines-wear-the-word-automated">Four machines wear the word &quot;automated&quot;<a class="hanchor" href="#four-machines-wear-the-word-automated" aria-label="Link to section: Four machines wear the word &quot;automated&quot;">#</a></h2>
 <p>Search &quot;automated demo video&quot; and the first page returns four products that share a label and nothing else. One polishes a screen recording you still perform. One lets you swap outdated clips inside a finished video. One writes video from React code. One replays a committed spec against your live product and re-renders. Calling all four &quot;automated&quot; is like calling a dishwasher, a meal kit, a restaurant, and a nutrient drip &quot;automated dinner.&quot; The word describes the marketing, not the mechanism.</p>
-<p>The distinction matters because a product demo has one failure mode that outlives every other: it goes stale. You ship a UI change on Tuesday and the demo now shows a button that moved, a screen that was redesigned, a flow that gained a step. Every product demo is out of date the moment the product ships past it, and the real cost is not the embarrassment. It is the standing tax of someone re-recording, re-editing, and re-uploading media that the roadmap keeps invalidating. So the useful question about any &quot;automated&quot; demo tool is narrow: when the product changes, does the demo follow, and how much human time does following cost?</p>
+<p>The distinction matters because a product demo has one failure mode that outlives every other: it goes stale. You ship a UI change on Tuesday and the demo now shows a button that moved, a screen that was redesigned, a flow that gained a step. <a href="/blog/why-product-demos-go-stale/">Every product demo is out of date the moment the product ships past it</a>, and the real cost is not the embarrassment. It is the standing tax of someone re-recording, re-editing, and re-uploading media that the roadmap keeps invalidating. So the useful question about any &quot;automated&quot; demo tool is narrow: when the product changes, does the demo follow, and how much human time does following cost?</p>
 <p>Sort the market by that question and the four machines separate cleanly.</p>
 <h2 id="the-taxonomy-by-what-each-one-actually-automates">The taxonomy, by what each one actually automates<a class="hanchor" href="#the-taxonomy-by-what-each-one-actually-automates" aria-label="Link to section: The taxonomy, by what each one actually automates">#</a></h2>
 <p><strong>AI-polished takes.</strong> Screen Studio, Descript, and Loom&#39;s AI editing sit here. You record your screen and the tool applies the polish automatically: zoom-on-click, cursor smoothing, background framing. Screen Studio&#39;s own page is blunt about the value. &quot;Screen Studio automatically zooms in on actions you perform on your screen,&quot; and &quot;shaky and rapid movement of your cursor is transformed into a smooth and beautiful glide&quot;<sup class="article-cite"><a href="#src-1" title="Screen Studio — Professional screen recorder for macOS">1</a></sup>. This is real automation of the part of demo-making people hate, and it is macOS-only, which alone rules it out of a Linux CI runner. What it automates is the edit. What it never touches is the take. The recording is a one-time human performance frozen at record time, and the next UI ship makes it wrong. You are back at your desk, performing the flow again.</p>
@@ -246,11 +246,11 @@
 </tbody></table></div>
 <h2 id="only-one-mechanism-makes-the-product-changed-and-the-demo-is-current-the-same-event">Only one mechanism makes &quot;the product changed&quot; and &quot;the demo is current&quot; the same event<a class="hanchor" href="#only-one-mechanism-makes-the-product-changed-and-the-demo-is-current-the-same-event" aria-label="Link to section: Only one mechanism makes &quot;the product changed&quot; and &quot;the demo is current&quot; the same event">#</a></h2>
 <p>Notice what the last column is really testing. Three of the four mechanisms treat the demo as an output: a file you produce, then own, then maintain against a product that keeps moving underneath it. The fourth treats the demo as a function of the product. Give it the spec and the current build, get the current demo. When the build changes, re-running the function is the entire update. There is no &quot;track down the stale clips&quot; step, because the spec does not encode a moment in time. It encodes intent, go here, click this, narrate that, and binds to whatever the product currently looks like when you run it.</p>
-<p>This is the move infrastructure-as-code made two decades ago, applied to media instead of servers. The reason vhs works is not that terminals are special. It is that a <code>.tape</code> is a spec and a terminal is deterministic, so the same tape yields the same frames every run. The browser is messier, with animations, network timing, fonts, and viewport all in play, which is why replaying a browser flow into identical footage twice is a real engineering problem and not a checkbox. But when you solve it, the demo becomes a diffable, reviewable, regenerable artifact instead of a binary someone has to babysit. That is the whole thesis of treating demos as code.</p>
+<p>This is the move infrastructure-as-code made two decades ago, applied to media instead of servers. The reason vhs works is not that terminals are special. It is that a <code>.tape</code> is a spec and a terminal is deterministic, so the same tape yields the same frames every run. The browser is messier, with animations, network timing, fonts, and viewport all in play, which is why replaying a browser flow into identical footage twice is a real engineering problem and not a checkbox. But when you solve it, the demo becomes a diffable, reviewable, regenerable artifact instead of a binary someone has to babysit. That is the whole thesis of <a href="/blog/demos-as-code/">treating demos as code</a>.</p>
 <h2 id="the-regeneration-loop-trigger-it-on-change-not-on-a-whim">The regeneration loop: trigger it on change, not on a whim<a class="hanchor" href="#the-regeneration-loop-trigger-it-on-change-not-on-a-whim" aria-label="Link to section: The regeneration loop: trigger it on change, not on a whim">#</a></h2>
 <p>Spec-driven replay only pays off if the re-render is automatic, and that is a plumbing question, not a magic one. The spec lives in the repo next to the code. A CI job installs a browser and ffmpeg, runs the player, and publishes the result. You wire it to two triggers.</p>
 <p>The first is the commit that changed the UI. GitHub Actions fires a <code>push</code> event on every commit; scope it to the paths that render UI and the demo re-renders in the same run that shipped the change. The second is a clock, for products whose surface drifts through data or dependencies rather than a tidy diff. Actions supports a <code>schedule</code> event with cron syntax, <code>on: schedule: - cron: &quot;15 4,5 * * *&quot;</code>, with two caveats worth knowing before you lean on it: the shortest interval is once every five minutes, and &quot;the <code>schedule</code> event can be delayed during periods of high loads of GitHub Actions workflow runs&quot;<sup class="article-cite"><a href="#src-7" title="GitHub Actions — events that trigger workflows">7</a></sup>. A nightly re-render at 4am is fine; a to-the-second SLA is not what cron is for. Keep a <code>workflow_dispatch</code> trigger too, so a human can force a re-render without an empty commit. The <a href="/blog/demo-videos-in-ci/">end-to-end CI walkthrough</a> covers the runner specifics: what ubuntu-latest ships, the headless quirks, and where to publish the artifact.</p>
-<p>The economics are the argument. Take a team that ships a UI-visible change most weeks and keeps nine pieces of product media: a landing hero, a six-step product tour, and three self-updating README GIFs. Suppose a given change touches four of the nine.</p>
+<p>The economics are the argument. Take a team that ships a UI-visible change most weeks and keeps nine pieces of product media: a landing hero, a six-step product tour, and three <a href="/blog/readme-gifs-that-update-themselves/">self-updating README GIFs</a>. Suppose a given change touches four of the nine.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -348,6 +348,24 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>
+<a class="article-card" href="/blog/readme-gifs-that-update-themselves/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">README GIFs that update themselves</h3>
+    <p class="article-card-excerpt">A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/why-product-demos-go-stale/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Why every product demo is out of date (and what rot costs)</h3>
+    <p class="article-card-excerpt">Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
   </div>
 </section>
     </article>
@@ -375,6 +393,7 @@
       <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
       <a href="/blog/topics/demo-automation/">Demo Automation</a>
       <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
       </nav>
     </div>
     <nav class="site-footer-links" aria-label="Site">

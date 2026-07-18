@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demos as code: commit the spec, render it | aidemo</title>
+<meta name="description" content="What changes when a demo is a committed spec instead of a captured recording: it becomes diffable, reviewable, regenerable, and agent-authorable.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/demos-as-code/">
+<link rel="alternate" type="text/markdown" href="/blog/demos-as-code/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Demos as code: commit the spec, render it | aidemo">
+<meta property="og:description" content="What changes when a demo is a committed spec instead of a captured recording: it becomes diffable, reviewable, regenerable, and agent-authorable.">
+<meta property="og:url" content="https://aidemo.top/blog/demos-as-code/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Demos as code: commit the spec, render it | aidemo">
+<meta name="twitter:description" content="What changes when a demo is a committed spec instead of a captured recording: it becomes diffable, reviewable, regenerable, and agent-authorable.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Demos as code: commit the storyboard, render the video",
+  "description": "What changes when a demo is a committed spec instead of a captured recording: it becomes diffable, reviewable, regenerable, and agent-authorable.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/demos-as-code/"
+  },
+  "wordCount": 2553,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "HashiCorp — What is Terraform (infrastructure as code, declarative, plan/apply)",
+      "url": "https://developer.hashicorp.com/terraform/intro"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Kubernetes — Objects, spec/status, and the desired-state control loop",
+      "url": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Charmbracelet vhs — terminal GIFs as code, golden-file integration testing",
+      "url": "https://github.com/charmbracelet/vhs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Jest — Snapshot testing (commit the snapshot, review it, fail on mismatch)",
+      "url": "https://jestjs.io/docs/snapshot-testing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Remotion — make videos programmatically with React and coding agents",
+      "url": "https://www.remotion.dev/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Demos as code: commit the storyboard, render the video",
+      "item": "https://aidemo.top/blog/demos-as-code/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is \"demos as code\" the same thing as infrastructure as code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It borrows the shape but not the whole model. Like Terraform, a demo spec is a declarative, version-controlled description of a desired end state that you plan and then apply. Unlike Terraform or Kubernetes, it has no status field and no reconciler watching the target, and it does not own what it describes — it observes a product it did not create. That makes it closer to tests-as-code than to infrastructure-as-code: an assertion that runs against a system it cannot control, which is why golden-file diffing matters so much."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a coding agent make a product demo video by itself?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An agent can author the spec, not perform the take. Language models are strong at emitting structured text, so writing a storyboard of selectors, click order, and narration is squarely in scope. Driving a mouse with good pacing and composing a screen recording is not. The workable pattern keeps the model out of the capture loop: it writes the spec, a deterministic player renders it, and the output stays repeatable and reviewable rather than a one-off performance you cannot reproduce."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "If the demo is a spec, do I still commit the video file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually not the video, always the spec. Once the footage is build output, the spec is the source of truth and the MP4 or GIF is a cache you can rebuild any time from the current product, so many teams commit only the spec and regenerate the video in CI. The exception is distribution: an embed needs a stable URL, so the rendered file lands somewhere durable — a committed asset, a release attachment, or a hosted path — even though its authority still comes from the spec that produced it."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Demos as code: commit the storyboard, render the video</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Demos as code: commit the storyboard, render the video</h1>
+        <p class="article-dek">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>10 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-answers-to-what-is-this-demo">Two answers to &quot;what is this demo&quot;</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#four-things-become-true-when-the-demo-is-text">Four things become true when the demo is text</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-infrastructure-as-code-analogy-and-exactly-where-it-snaps">The infrastructure-as-code analogy, and exactly where it snaps</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-demo-that-is-also-a-test-vhs-made-the-terminal-case-ordinary">The demo that is also a test — vhs made the terminal case ordinary</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-coding-agent-can-write-the-spec-not-perform-the-take">A coding agent can write the spec, not perform the take</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-as-code-is-the-wrong-frame">When &quot;as code&quot; is the wrong frame</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A demo descends from one of two things: a captured performance (a binary you maintain) or a committed spec (text you diff, review, and regenerate). The form decides everything downstream.</li>
+    <li>Only a spec gives you four properties: diffable (one-line git diff), reviewable (a PR, not a black-box asset), regenerable (footage is build output), and agent-authorable.</li>
+    <li>The infrastructure-as-code analogy holds for declarative desired state and plan/apply but snaps twice: a demo spec has no status field and does not own its target — it is closer to tests-as-code.</li>
+    <li>vhs has shipped golden-file testing since October 2022: one .tape diffs its .txt output against a committed golden, so the demo and the regression test are the same artifact.</li>
+    <li>A coding agent can emit a storyboard's selectors and narration but cannot perform a screen take; keeping the model out of the capture loop is what makes agent-made demos shippable.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="two-answers-to-what-is-this-demo">Two answers to &quot;what is this demo&quot;<a class="hanchor" href="#two-answers-to-what-is-this-demo" aria-label="Link to section: Two answers to &quot;what is this demo&quot;">#</a></h2>
+<p>A finished demo is a file: an MP4, a GIF, a blob of pixels and audio. But that file can descend from two entirely different kinds of thing, and which one you pick decides everything you can do with the demo afterward.</p>
+<p>The first kind is a captured performance. Someone drove the product, a recorder watched, and the footage is the artifact. You can trim it, caption it, upload it, but the recording is the source of truth, and the only way to change what it shows is to perform the flow again.</p>
+<p>The second kind is a committed spec. The artifact is not the video; it is a text file that says where to go, what to click, and what to narrate, and a deterministic player turns that text into footage on demand. The video is output, the way a compiled binary is output. The source is the spec, and it sits in the repo next to the code it depicts.</p>
+<p>This is a different cut than the one the <a href="/blog/automated-product-demo-videos/">automated-demo taxonomy</a> makes. That piece sorts tools by what they automate — the edit, the clip swap, the drawn frame, the replay — and asks which mechanism survives a UI change. This one is upstream of it: it asks what the demo <em>is</em>. Answered that way, only two ontologies exist, and everything else is a detail of how well a given tool executes one of them.</p>
+<p>Pick &quot;captured performance&quot; and the demo is a document you own and maintain by hand. Pick &quot;committed spec&quot; and four things become true that a recording can never offer.</p>
+<h2 id="four-things-become-true-when-the-demo-is-text">Four things become true when the demo is text<a class="hanchor" href="#four-things-become-true-when-the-demo-is-text" aria-label="Link to section: Four things become true when the demo is text">#</a></h2>
+<p><strong>Diffable.</strong> A change to the demo is a line in a diff. Relabel a button in the flow and the storyboard shows a one-line change; <code>git blame</code> says who changed it and when. A recording has no diff. Two MP4s that differ by one relabeled button are two unrelated binaries, and the only comparison a human can run is watching both and squinting.</p>
+<p><strong>Reviewable.</strong> Because the change is a diff, it can go through review. A pull request that alters what the demo shows gets the same treatment as one that alters code: someone reads it, comments, approves. Marketing reviews the words, engineering reviews the selectors. The asset that used to skip the entire quality gate — because it was a binary nobody could read — now rides inside it. Jest&#39;s guidance for its snapshot artifacts says the quiet part aloud: a snapshot &quot;should be committed alongside code changes, and reviewed as part of your code review process&quot;<sup class="article-cite"><a href="#src-4" title="Jest — Snapshot testing (commit the snapshot, review it, fail on mismatch)">4</a></sup>. A demo spec is the same kind of object.</p>
+<p><strong>Regenerable.</strong> The footage is build output. Delete the MP4 and rebuild it from the spec, the way you delete <code>dist/</code> and rebuild it from source. That reframes three things at once: storage (commit the spec, treat the video as a cache), staleness (<a href="/blog/automated-product-demo-videos/">regenerate against the current build</a> instead of re-shooting), and reach (one spec fans out into many localized renders without a second take). The output is separable from the source, so the source can be small and the output disposable.</p>
+<p><strong>Agent-authorable.</strong> This property has the longest reach, so it gets its own section below. A coding agent can write a spec. It cannot perform a take.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>The mechanism</th>
+<th>What a recording gives you instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Diffable</td>
+<td>the spec is text; <code>git diff</code> shows the exact change</td>
+<td>two binaries; the only comparison is watching both</td>
+</tr>
+<tr>
+<td>Reviewable</td>
+<td>the change is a pull request, read and approved</td>
+<td>an asset that bypasses the quality gate</td>
+</tr>
+<tr>
+<td>Regenerable</td>
+<td>footage is build output, rebuilt from the spec</td>
+<td>a source file you must re-perform to change</td>
+</tr>
+<tr>
+<td>Agent-authorable</td>
+<td>a model emits structured text on demand</td>
+<td>a performance no model can hold a mouse to do</td>
+</tr>
+</tbody></table></div>
+<h2 id="the-infrastructure-as-code-analogy-and-exactly-where-it-snaps">The infrastructure-as-code analogy, and exactly where it snaps<a class="hanchor" href="#the-infrastructure-as-code-analogy-and-exactly-where-it-snaps" aria-label="Link to section: The infrastructure-as-code analogy, and exactly where it snaps">#</a></h2>
+<p>The comparison writes itself: a demo spec is to a video what a Terraform file is to a server. It is mostly right, and the useful work is finding the seam where it stops being right.</p>
+<p>Three things carry over cleanly. Terraform configs &quot;are declarative, meaning that they describe the end state of your infrastructure,&quot; defined in &quot;human-readable configuration files that you can version, reuse, and share&quot;<sup class="article-cite"><a href="#src-1" title="HashiCorp — What is Terraform (infrastructure as code, declarative, plan/apply)">1</a></sup>; a storyboard is declarative about the demo&#39;s end state and lives in the same kind of versioned file. Terraform&#39;s workflow is write, then plan, then apply; a demo pipeline has the same shape, where a dry run walks the flow without rendering and the render is the apply. And both are reproducible: same spec, same build, same result, which is the property that makes rebuilding in CI possible at all.</p>
+<p>Then the analogy snaps, in two places.</p>
+<p>The first seam is that infrastructure-as-code closes a loop the demo does not. A Kubernetes object carries a <code>spec</code> for the desired state and a <code>status</code> for the actual one, and &quot;the Kubernetes control plane continually and actively manages every object&#39;s actual state to match the desired state you supplied&quot;<sup class="article-cite"><a href="#src-2" title="Kubernetes — Objects, spec/status, and the desired-state control loop">2</a></sup>. Terraform keeps a state file as its source of truth and computes the drift between config and reality. A demo spec has neither. It encodes intent — go here, click this, say that — and &quot;a record of intent&quot; is exactly what Kubernetes calls its objects, but no daemon watches the product to report that the intent has gone wrong. Run the spec against a build whose button moved and you get a video of the flow breaking or, worse, a clean render of the wrong thing. The spec regenerates. It does not, on its own, know it should have complained.</p>
+<p>The second seam is that the target is not yours to declare. Terraform owns the infrastructure it describes; applying the config makes reality conform. A demo spec owns nothing. It observes a product it did not create and navigates state the app already holds. That makes the demo spec downstream of the real source of truth, which is the product&#39;s own code — so &quot;demos as code&quot; is less like infrastructure-as-code and closer to tests-as-code: an assertion that runs against a system it does not control.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Infrastructure-as-code property</th>
+<th>Holds for a demo spec?</th>
+<th>The seam</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Declarative, version-controlled desired state</td>
+<td>Yes</td>
+<td>the storyboard describes the demo&#39;s end state in a committed file</td>
+</tr>
+<tr>
+<td>Plan, then apply</td>
+<td>Yes</td>
+<td>dry-run the flow, then render</td>
+</tr>
+<tr>
+<td>Reproducible from the spec alone</td>
+<td>Yes</td>
+<td>same spec plus same build gives the same footage</td>
+</tr>
+<tr>
+<td>A status field and reconciler that detect drift</td>
+<td>No</td>
+<td>nothing watches the product; the spec cannot tell it went stale</td>
+</tr>
+<tr>
+<td>The spec owns the target it describes</td>
+<td>No</td>
+<td>it observes the product, it does not declare it — downstream, not source</td>
+</tr>
+</tbody></table></div>
+<p>The fix for the first seam is hiding inside the second reframe. If the demo is a test, give it what tests have: a recorded expectation to fail against.</p>
+<h2 id="the-demo-that-is-also-a-test-vhs-made-the-terminal-case-ordinary">The demo that is also a test — vhs made the terminal case ordinary<a class="hanchor" href="#the-demo-that-is-also-a-test-vhs-made-the-terminal-case-ordinary" aria-label="Link to section: The demo that is also a test — vhs made the terminal case ordinary">#</a></h2>
+<p>That fix has shipped in the terminal world since October 2022, when Charmbracelet released vhs. It reads a <code>.tape</code> file and renders a terminal recording, and the same tape has a second output built for this exact gap. The docs point past demos to tests: &quot;VHS can also be used for integration testing,&quot; turning a tape&#39;s <code>.txt</code> or <code>.ascii</code> output into &quot;golden files&quot; you &quot;store in a git repository to ensure there are no diffs between runs of the tape file&quot;<sup class="article-cite"><a href="#src-3" title="Charmbracelet vhs — terminal GIFs as code, golden-file integration testing">3</a></sup>.</p>
+<p>That golden file is the missing status field. It is the recorded actual output; a diff against it on the next run is the reconciler the demo spec otherwise lacked. When the CLI&#39;s output changes, the golden changes, and CI fails loudly instead of quietly shipping a wrong GIF. The demo and the regression test are one artifact. It is the snapshot pattern — a reference &quot;stored alongside the test&quot; that fails &quot;if the two snapshots do not match&quot;<sup class="article-cite"><a href="#src-4" title="Jest — Snapshot testing (commit the snapshot, review it, fail on mismatch)">4</a></sup> — aimed at a demo rather than a component tree.</p>
+<p>The browser is the harder version of this idea and the more valuable one. Harder because a terminal is deterministic and a browser is not: animations, web fonts, network timing, and device-pixel ratio all conspire to make two runs of one flow produce two different frames, which is why replaying a browser flow into identical footage is a real engineering problem and not a config flag. More valuable because the terminal is a niche and the browser is where the products people pay for actually live. A browser demo that golden-files a reference frame is, in the same run, a visual-regression test of the real UI and the marketing footage of it. aidemo, our engine, does exactly this: its probe step can write a golden of the action-spec and fail CI on drift, so the run that records the demo also asserts the product still matches. It is browser-only and its storyboard is agent-authored rather than dragged together in a timeline — real limits — but that double duty is the whole reason to treat the demo as code, and it slots straight into a job that already <a href="/blog/demo-videos-in-ci/">re-renders on the commit that changed the UI</a>.</p>
+<h2 id="a-coding-agent-can-write-the-spec-not-perform-the-take">A coding agent can write the spec, not perform the take<a class="hanchor" href="#a-coding-agent-can-write-the-spec-not-perform-the-take" aria-label="Link to section: A coding agent can write the spec, not perform the take">#</a></h2>
+<p>Of the four properties, agent-authorability is the one that moves the economics, because it changes <em>who</em> can make a demo at all. A language model is a text engine. Hand it the app and a schema and it can emit a storyboard: the selectors to click, the order to click them, the line to narrate over each step. That is structured text, the thing models do best.</p>
+<p>What a model cannot do is the other ontology&#39;s core act. It cannot hold a mouse, feel the pacing, pause a beat before the reveal, and perform a screen recording that looks composed. A take is a performance; a spec is a document, and only one of those is in a language model&#39;s job description. So the design that makes agent-made demos shippable keeps the model out of the capture loop entirely: the agent explores the product and writes the spec, and a deterministic player — not the model — executes it. The recording is a replay of a fixed action-spec, repeatable and reviewable, and the judgment lives in the authoring, where a mistake is a diff you fix rather than a flubbed take you re-shoot.</p>
+<p>The industry is converging on the same insight from the synthetic side. Remotion, which renders video from React, now leads with &quot;Make videos programmatically&quot; and &quot;Use coding agents&quot;<sup class="article-cite"><a href="#src-5" title="Remotion — make videos programmatically with React and coding agents">5</a></sup>, because code is the interface an agent can drive. The difference for a product demo is what that code renders. Remotion draws frames, so an agent authors a rendition of your app; a real-UI replay captures frames, so the agent authors a walkthrough of the actual app. Both are legitimate; they answer different questions, and the programmatic-video landscape splits exactly along that line. The coding-agent demo workflow is a spoke of its own. The point here is narrower: agent-authorability is not a feature bolted onto a video tool. It is a consequence of the demo being code.</p>
+<h2 id="when-as-code-is-the-wrong-frame">When &quot;as code&quot; is the wrong frame<a class="hanchor" href="#when-as-code-is-the-wrong-frame" aria-label="Link to section: When &quot;as code&quot; is the wrong frame">#</a></h2>
+<p>Treating a demo as code earns its keep when the demo has a maintenance horizon — when it will outlive the UI it shows and someone would otherwise re-record it on every ship. It is the wrong frame for a demo with no future, and the honest pitch says so.</p>
+<ul>
+<li><strong>A launch film with a person on camera, art-directed shot by shot.</strong> Its value is charisma and editing taste, and a spec cannot author taste. That is a performance. Record it, cut it, ship it once.</li>
+<li><strong>A sizzle reel you need this week and never again.</strong> The up-front cost of writing a spec buys nothing if you will never regenerate. A screen recorder is faster and fine.</li>
+<li><strong>A demo you want to assemble by hand in a visual timeline.</strong> Code-first tools trade the drag-and-drop editor for the diff. If you want the timeline, that is a different tool: <a href="/blog/screen-studio-alternatives/">the Screen Studio alternatives map</a> covers the recorder lane, and <a href="/blog/how-to-make-a-product-demo-video/">how to make a product demo video</a> covers the craft that applies to either ontology.</li>
+</ul>
+<p>The rule reduces to one question about the demo&#39;s lifespan. If it is a thing you make once, a recording is often the faster answer. If it is a thing you keep — bound to a product that ships every week, rebuilt in CI, reviewed like code, and increasingly authored by an agent — then the demo wants to be a spec and the video wants to be what the spec builds. The terminal proved the pattern. The browser is where it pays.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.hashicorp.com/terraform/intro" rel="noopener">HashiCorp — What is Terraform (infrastructure as code, declarative, plan/apply)</a></li>
+<li id="src-2"><a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/" rel="noopener">Kubernetes — Objects, spec/status, and the desired-state control loop</a></li>
+<li id="src-3"><a href="https://github.com/charmbracelet/vhs" rel="noopener">Charmbracelet vhs — terminal GIFs as code, golden-file integration testing</a></li>
+<li id="src-4"><a href="https://jestjs.io/docs/snapshot-testing" rel="noopener">Jest — Snapshot testing (commit the snapshot, review it, fail on mismatch)</a></li>
+<li id="src-5"><a href="https://www.remotion.dev/" rel="noopener">Remotion — make videos programmatically with React and coding agents</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-demos-as-code-the-same-thing-as-infrastructure-as-code" class="blog-faq-q">Is &quot;demos as code&quot; the same thing as infrastructure as code?<a class="hanchor" href="#is-demos-as-code-the-same-thing-as-infrastructure-as-code" aria-label="Link to section: Is &quot;demos as code&quot; the same thing as infrastructure as code?">#</a></h3>
+<p>It borrows the shape but not the whole model. Like Terraform, a demo spec is a declarative, version-controlled description of a desired end state that you plan and then apply. Unlike Terraform or Kubernetes, it has no status field and no reconciler watching the target, and it does not own what it describes — it observes a product it did not create. That makes it closer to tests-as-code than to infrastructure-as-code: an assertion that runs against a system it cannot control, which is why golden-file diffing matters so much.</p>
+<h3 id="can-a-coding-agent-make-a-product-demo-video-by-itself" class="blog-faq-q">Can a coding agent make a product demo video by itself?<a class="hanchor" href="#can-a-coding-agent-make-a-product-demo-video-by-itself" aria-label="Link to section: Can a coding agent make a product demo video by itself?">#</a></h3>
+<p>An agent can author the spec, not perform the take. Language models are strong at emitting structured text, so writing a storyboard of selectors, click order, and narration is squarely in scope. Driving a mouse with good pacing and composing a screen recording is not. The workable pattern keeps the model out of the capture loop: it writes the spec, a deterministic player renders it, and the output stays repeatable and reviewable rather than a one-off performance you cannot reproduce.</p>
+<h3 id="if-the-demo-is-a-spec-do-i-still-commit-the-video-file" class="blog-faq-q">If the demo is a spec, do I still commit the video file?<a class="hanchor" href="#if-the-demo-is-a-spec-do-i-still-commit-the-video-file" aria-label="Link to section: If the demo is a spec, do I still commit the video file?">#</a></h3>
+<p>Usually not the video, always the spec. Once the footage is build output, the spec is the source of truth and the MP4 or GIF is a cache you can rebuild any time from the current product, so many teams commit only the spec and regenerate the video in CI. The exception is distribution: an embed needs a stable URL, so the rendered file lands somewhere durable — a committed asset, a release attachment, or a hosted path — even though its authority still comes from the spec that produced it.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">video as code</span>
+        <span class="article-tag">declarative</span>
+        <span class="article-tag">golden files</span>
+        <span class="article-tag">coding agents</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-answers-to-what-is-this-demo">Two answers to &quot;what is this demo&quot;</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#four-things-become-true-when-the-demo-is-text">Four things become true when the demo is text</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-infrastructure-as-code-analogy-and-exactly-where-it-snaps">The infrastructure-as-code analogy, and exactly where it snaps</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-demo-that-is-also-a-test-vhs-made-the-terminal-case-ordinary">The demo that is also a test — vhs made the terminal case ordinary</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-coding-agent-can-write-the-spec-not-perform-the-take">A coding agent can write the spec, not perform the take</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-as-code-is-the-wrong-frame">When &quot;as code&quot; is the wrong frame</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
