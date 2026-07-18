@@ -7,7 +7,17 @@ column, drop cap, accent rules, hairline tables, sticky TOC) is ported from
 the BurnWeek blog and re-tokened to the aidemo landing palette (warm paper +
 terracotta) — tokens live at the top of `templates/blog.css`, so a brand swap
 is one block. English only. No web fonts, no client framework; the only
-runtime JS is a ~25-line inline TOC scroll-spy.
+runtime JS is a ~25-line inline TOC scroll-spy plus a small per-block
+copy-button handler on pages that contain code.
+
+Code blocks are syntax-highlighted at bake time with shiki (build-time dep,
+grammars/themes bundled — no CDN, no client JS for highlighting): tagged
+fences (`yaml`, `js`/`ts`/`tsx`, `json`/`jsonc`/`json5`, `sh`/`bash`/`shell`,
+`html`, `css`, `python`, `diff`) get inline one-light token colors re-based
+onto the warm panel; untagged or unknown languages stay neutral. Each block
+gets a hairline container, an uppercase language chip, and a Copy button.
+HTML only — the `.md` mirrors, `llms.txt`, and `llms-full.txt` keep raw
+fenced code exactly as authored.
 
 ## Layout
 
@@ -62,7 +72,7 @@ internal-link targets.
 
 ```bash
 cd blog
-npm install                         # one-time (marked is the only dep)
+npm install                         # one-time (deps: marked + shiki, both build-time)
 
 node scripts/validate.mjs           # quality gate — run before every bake
 node scripts/validate.mjs --resolve # + HTTP-check every Source link (citation
