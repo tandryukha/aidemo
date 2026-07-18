@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microvideos in docs: the one-action clip | aidemo</title>
+<meta name="description" content="Why the real unit of doc video is a 5-15s silent single-action clip, where it fits in Diataxis, and why a library of tiny clips is cheaper to keep current.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/microvideos-in-documentation/">
+<link rel="alternate" type="text/markdown" href="/blog/microvideos-in-documentation/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Microvideos in docs: the one-action clip | aidemo">
+<meta property="og:description" content="Why the real unit of doc video is a 5-15s silent single-action clip, where it fits in Diataxis, and why a library of tiny clips is cheaper to keep current.">
+<meta property="og:url" content="https://aidemo.top/blog/microvideos-in-documentation/">
+<meta property="og:image" content="https://aidemo.top/blog/images/microvideos-in-documentation-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Microvideos in docs: the one-action clip | aidemo">
+<meta name="twitter:description" content="Why the real unit of doc video is a 5-15s silent single-action clip, where it fits in Diataxis, and why a library of tiny clips is cheaper to keep current.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/microvideos-in-documentation-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Microvideos in documentation: the 10-second clip that replaces a paragraph",
+  "description": "Why the real unit of doc video is a 5-15s silent single-action clip, where it fits in Diataxis, and why a library of tiny clips is cheaper to keep current.",
+  "image": [
+    "https://aidemo.top/blog/images/microvideos-in-documentation-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/microvideos-in-documentation/"
+  },
+  "wordCount": 2197,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines",
+      "url": "https://www.nngroup.com/articles/instructional-video-guidelines/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Diataxis — How-to guides",
+      "url": "https://diataxis.fr/how-to-guides/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Diataxis — Reference",
+      "url": "https://diataxis.fr/reference/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Understanding WCAG 2.2 SC 1.2.1 Audio-only and Video-only (Prerecorded), Level A",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — How to Choose the Right Marketing Video Length for Any Goal",
+      "url": "https://wistia.com/learn/marketing/optimal-video-length"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Microvideos in documentation: the 10-second clip that replaces a paragraph",
+      "item": "https://aidemo.top/blog/microvideos-in-documentation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a microvideo in documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A microvideo is a short, silent clip, roughly five to fifteen seconds, that shows exactly one action such as dragging a card or flipping a setting, embedded beside the written step it illustrates. It is not a tutorial; it carries a single moment, not a whole workflow. The format matters because a clip scoped to one action is small enough to embed in several docs and cheap enough to re-render on its own when that one screen changes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do documentation microvideos need captions if they have no audio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They do not need captions, because there is no speech to caption, but they are not exempt from accessibility. A silent clip is \"video-only\" content under WCAG 2.2, and Success Criterion 1.2.1 (Level A) requires a text alternative that presents the same information. In practice the written step you place beside the clip is that alternative, so a silent microvideo paired with real text steps already meets the rule, and hands search engines the words the video hides."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are lots of short clips harder to maintain than one long video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The opposite, and it is the main reason to prefer them. A single long walkthrough is one indivisible take, so any UI change anywhere in it forces re-recording the whole thing. A library of single-action clips is atomic, so a screen change re-renders only the one clip that shows that screen and leaves the rest untouched. Cutting the demo into small pieces shrinks the blast radius of every future change from the whole video down to one tile of it."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Microvideos in documentation: the 10-second clip that replaces a paragraph</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Microvideos in documentation: the 10-second clip that replaces a paragraph</h1>
+        <p class="article-dek">The walkthrough is the wrong unit. The clip that survives a real docs site is a 5-15 second silent loop of one action, and it is the cheaper one to keep true.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-real-unit-of-doc-video-is-one-action-not-one-tutorial">The real unit of doc video is one action, not one tutorial</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-a-microvideo-belongs-in-the-diataxis-quadrants">Where a microvideo belongs in the Diataxis quadrants</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-spec-for-the-ten-second-clip">A spec for the ten-second clip</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-fifteen-small-clips-outlast-one-long-walkthrough">Why fifteen small clips outlast one long walkthrough</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#silence-is-a-maintenance-decision-not-an-aesthetic-one">Silence is a maintenance decision, not an aesthetic one</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#build-the-library-so-one-change-re-renders-one-clip">Build the library so one change re-renders one clip</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/microvideos-in-documentation-800.webp" srcset="/blog/images/microvideos-in-documentation-400.webp 400w, /blog/images/microvideos-in-documentation-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A single jigsaw puzzle piece standing on its edge."><figcaption>A doc is a picture made of pieces: when the UI moves you swap the one piece that changed, not the whole board.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The doc-video unit that survives is a 5-15s silent clip of one action, not a 3-5 minute walkthrough; NN/g advises &quot;multiple videos of low granularity (one for each step).&quot;</li>
+    <li>Microvideos live in Diataxis how-to guides (goal-oriented, selective), with a narrow wordless-behavior exception in reference; tutorials and explanation are not their home.</li>
+    <li>Atomicity shrinks the blast radius: cut a 4-min, 12-screen walkthrough into twelve ~12s clips and one screen change re-renders ~8% of the library, not 100%.</li>
+    <li>Silence is a maintenance lever, not a style: no re-voicing, no caption re-alignment, and the same clip ships to every locale with only the text translated.</li>
+    <li>A silent clip is WCAG 1.2.1 (Level A) &quot;video-only&quot; content: the text step beside it is the required alternative and doubles as search text.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-real-unit-of-doc-video-is-one-action-not-one-tutorial">The real unit of doc video is one action, not one tutorial<a class="hanchor" href="#the-real-unit-of-doc-video-is-one-action-not-one-tutorial" aria-label="Link to section: The real unit of doc video is one action, not one tutorial">#</a></h2>
+<p>When a team decides its docs need video, the default artifact is the walkthrough: a narrated three-to-five-minute tour that opens at the login screen and ends on a &quot;you did it&quot; confirmation. It is the wrong unit. The walkthrough is expensive to make, painful to keep current, and unscannable by the one reader who arrived needing a single thing. The unit that actually survives contact with a live docs site is smaller by two orders of magnitude: a five-to-fifteen-second silent clip that shows exactly one action, sitting beside the text step it illustrates.</p>
+<p>This is not the same claim as &quot;make your videos shorter.&quot; It is a claim about granularity, and granularity changes the artifact&#39;s behavior on every axis a docs team cares about: where each clip fits in the information architecture, how a reader consumes it, and above all what it costs to keep honest as the product ships. Nielsen Norman Group reached the same conclusion from the reader&#39;s side, advising that &quot;for multistep processes, include multiple videos of low granularity (one for each step) instead of a single long video for the whole process&quot;<sup class="article-cite"><a href="#src-1" title="Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines">1</a></sup>. This piece takes that instruction to its end and treats the single-action clip as the fundamental unit of doc video, then works out where it belongs and why the many-small-pieces version is the cheaper one to own. Whether a given passage wants motion at all is a separate, four-axis call made in <a href="/blog/video-vs-written-documentation/">video versus written documentation</a>; here that question is settled and the only one left is how small to cut it.</p>
+<h2 id="where-a-microvideo-belongs-in-the-diataxis-quadrants">Where a microvideo belongs in the Diataxis quadrants<a class="hanchor" href="#where-a-microvideo-belongs-in-the-diataxis-quadrants" aria-label="Link to section: Where a microvideo belongs in the Diataxis quadrants">#</a></h2>
+<p>Diataxis groups documentation into four kinds, tutorials, how-to guides, reference, and explanation, and places each between a reader &quot;at study&quot; and a reader &quot;at work.&quot; The microvideo does not spread evenly across them; it lives almost entirely on the &quot;at work&quot; side.</p>
+<p>The how-to guide is its home. Diataxis defines a how-to guide as &quot;directions that guide the reader through a problem or towards a result,&quot; goal-oriented and deliberately selective, focused only on the actions necessary to solve a particular task and omitting completeness on purpose<sup class="article-cite"><a href="#src-2" title="Diataxis — How-to guides">2</a></sup>. A ten-second clip of exactly the one action, beside the written step, is that selectivity rendered as motion: it shows the drag, the toggle, or the reveal, and nothing around it.</p>
+<p>Reference is the surprising quadrant. The <a href="/blog/video-documentation/">pillar&#39;s routing table</a> keeps reference in text, and it is right to for the API fields, flags, and config values a reader copies verbatim. But the Diataxis rule for reference is &quot;describe and only describe,&quot; with an explicit warning against smuggling instruction or a recipe into a reference entry<sup class="article-cite"><a href="#src-3" title="Diataxis — Reference">3</a></sup>. A silent behavior clip threads that needle. A three-second loop of what an &quot;auto-layout&quot; toggle does to a canvas is description, not instruction: it shows a fact about the machinery without teaching a workflow, which is exactly what a narrated how-to clip in the same slot would violate. Reference stays mostly text; the one clip it can carry is wordless and purely behavioral.</p>
+<p>The tutorial is where the microvideo is not the unit. A learner &quot;at study&quot; needs continuity, because the connective tissue between steps is the lesson, so a first-run tutorial wants a narrated walkthrough rather than a grid of disconnected loops. And explanation never wants motion: a concept is re-read and cross-referenced, and there is nothing on screen to move. Microvideos are a how-to instrument first, a narrow reference instrument second, and absent from the other two.</p>
+<h2 id="a-spec-for-the-ten-second-clip">A spec for the ten-second clip<a class="hanchor" href="#a-spec-for-the-ten-second-clip" aria-label="Link to section: A spec for the ten-second clip">#</a></h2>
+<p>Treat the microvideo as a format with fixed constraints, not a video that happens to be short. Six attributes define it.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>The microvideo</th>
+<th>Why it is set here</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Length</td>
+<td>5-15 seconds, one action</td>
+<td>Short enough to re-render fast and to sit far inside the length where viewers still finish</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>Silent</td>
+<td>No narration to re-record, re-time, or re-voice per language</td>
+</tr>
+<tr>
+<td>Paired text</td>
+<td>The written step beside the clip</td>
+<td>Meets the WCAG text-alternative rule and hands search and skimmers the words</td>
+</tr>
+<tr>
+<td>Delivery</td>
+<td>Muted, looping, inline video</td>
+<td>Smaller and pausable than the same motion as a GIF</td>
+</tr>
+<tr>
+<td>Framing</td>
+<td>Tight crop on the region that acts</td>
+<td>The eye lands on the change; an unrelated layout shift elsewhere cannot falsify it</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Exactly one action or decision</td>
+<td>So it re-renders alone and embeds in many places</td>
+</tr>
+</tbody></table></div>
+<p>The length ceiling is not arbitrary. Engagement holds up for short video and erodes with length: Wistia&#39;s data puts videos under a minute at roughly 52% average engagement, so a ten-second clip sits comfortably inside the range where viewers watch to the end<sup class="article-cite"><a href="#src-5" title="Wistia — How to Choose the Right Marketing Video Length for Any Goal">5</a></sup>. At that scale the reason to hold each clip to one action is not attention, which a ten-second clip never strains, but maintainability.</p>
+<p>Two of the spec rows do double duty, and the silent-plus-text pairing is the one that surprises people. A clip with no audio is &quot;prerecorded video-only&quot; content under WCAG, and Success Criterion 1.2.1, a Level A requirement, asks that &quot;either an alternative for time-based media or an audio track is provided that presents equivalent information for prerecorded video-only content&quot;<sup class="article-cite"><a href="#src-4" title="W3C — Understanding WCAG 2.2 SC 1.2.1 Audio-only and Video-only (Prerecorded), Level A">4</a></sup>. The written step you were already placing beside the clip is that alternative, so a silent microvideo paired with real text has its Level A obligation met by the same words that make it searchable. Silence does not cost you accessibility; it hands the accessibility job to text you already owed.</p>
+<h2 id="why-fifteen-small-clips-outlast-one-long-walkthrough">Why fifteen small clips outlast one long walkthrough<a class="hanchor" href="#why-fifteen-small-clips-outlast-one-long-walkthrough" aria-label="Link to section: Why fifteen small clips outlast one long walkthrough">#</a></h2>
+<p>Here is the arithmetic that justifies the granularity. Take one onboarding walkthrough, four minutes of narrated footage covering twelve screens, and set it beside the same content cut into twelve silent clips averaging twelve seconds each.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>One 4-minute walkthrough</th>
+<th>Twelve ~12s microvideos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Total footage</td>
+<td>240s, narrated</td>
+<td>~144s, silent</td>
+</tr>
+<tr>
+<td>Artifacts</td>
+<td>1 indivisible file</td>
+<td>12 independent files</td>
+</tr>
+<tr>
+<td>One screen changes</td>
+<td>the whole video is now wrong</td>
+<td>1 clip wrong, 11 still correct</td>
+</tr>
+<tr>
+<td>Blast radius per change</td>
+<td>100%</td>
+<td>~8% (1 of 12)</td>
+</tr>
+<tr>
+<td>Cost to fix that screen</td>
+<td>re-shoot and re-narrate all 240s</td>
+<td>re-render one ~12s clip</td>
+</tr>
+<tr>
+<td>Reuse in other docs</td>
+<td>none, it is one take</td>
+<td>each clip embeds anywhere</td>
+</tr>
+</tbody></table></div>
+<p>The mechanism behind the last three rows is the one that decides whether a video library is fundable. A monolithic walkthrough is a single indivisible take: you cannot cleanly splice a re-narrated segment into a continuous voiceover, so when any one of its twelve screens changes, you re-record the whole thing. One moved button falsifies four minutes. The atomic library has no such coupling. When the same screen changes, one clip is wrong and eleven are still correct, so the fix re-renders roughly twelve seconds and leaves the rest alone.</p>
+<p>Over a quarter that ships, say six of the twelve screens pick up a UI-visible change. The monolith gets re-recorded once, in full, to absorb them: you re-shoot four minutes of footage, half of which was already correct. The atomic library re-renders six clips and never touches the other six. The <a href="/blog/keeping-tutorial-libraries-current/">maintenance-hours math for a whole library is worked out separately</a>; the point here is narrower and structural. Cutting the demo into single-action clips shrinks the blast radius of every future UI change from the entire artifact down to one tile of it. A stale monolith is wrong from the moment its changed screen appears and stays wrong to the credits; a stale clip is one broken tile in a wall that is otherwise still true.</p>
+<p>Granularity pays a second dividend the monolith cannot: reuse. The single clip that shows &quot;connect a data source&quot; is the same asset the getting-started page, the how-to guide, the help-center article, and the changelog entry all need. Cut it once, embed it in four places, re-render one file when that screen moves. A four-minute take cannot be quoted a screen at a time, so every doc that needs that one moment has to link out to a timestamp or shoot its own copy.</p>
+<h2 id="silence-is-a-maintenance-decision-not-an-aesthetic-one">Silence is a maintenance decision, not an aesthetic one<a class="hanchor" href="#silence-is-a-maintenance-decision-not-an-aesthetic-one" aria-label="Link to section: Silence is a maintenance decision, not an aesthetic one">#</a></h2>
+<p>Dropping the voiceover is usually pitched as a matter of taste. It is really the single biggest lever on what a clip costs to keep current. A narrated clip couples its visuals to one language&#39;s word timing: change the UI and you re-record the audio, re-align the captions to the new pacing, and, if you localize, re-voice the whole thing once per market. A silent clip carries none of that machinery. There is no audio to fall out of sync when a button moves, and nothing language-specific in the file at all, so the same clip ships to every locale and only the on-page text gets translated. That turns <a href="/blog/multi-language-product-demo-videos/">multi-language documentation</a> from a re-recording project into a text-translation one.</p>
+<p>Silence also matches how docs are actually read. A reader scanning a help article has not opted into audio and often cannot play it, so a clip that leans on narration to make sense fails the muted, glance-and-move-on reading that dominates a docs page. The silent single-action clip degrades gracefully: muted is its native state, the paired text carries the words, and the motion carries the one thing text cannot.</p>
+<h2 id="build-the-library-so-one-change-re-renders-one-clip">Build the library so one change re-renders one clip<a class="hanchor" href="#build-the-library-so-one-change-re-renders-one-clip" aria-label="Link to section: Build the library so one change re-renders one clip">#</a></h2>
+<p>All of this holds only if the clips are genuinely atomic and genuinely cheap to rebuild. Three rules keep them that way. Scope each clip to exactly one action, so a screen change touches one file and not a montage. Crop tightly to the region that acts instead of filming the whole desktop, so the reader&#39;s eye lands on the change and an unrelated layout shift elsewhere does not quietly falsify the clip; the <a href="/blog/professional-screen-recordings/">cropping and zoom mechanics are the same ones that make any screen recording look deliberate</a>. And ship the loop as a muted, inline video rather than a GIF, for the file-size and accessibility reasons the <a href="/blog/gifs-in-documentation/">GIF-versus-video comparison lays out</a>.</p>
+<p>The rule that decouples a library&#39;s size from its maintenance bill is to make each clip regenerate from a committed spec instead of a hand-captured take. Then one UI change re-renders one clip in CI, on the same commit that changed the screen, and a two-hundred-clip library costs no more to keep current than a twenty-clip one. aidemo, which we build, works this way, and its limits are worth stating plainly: it captures a real browser and nothing beyond one, a coding agent drafts the storyboard that a person then corrects as text (there is no drag-and-drop timeline), and one script emits each clip as a muted video or a GIF. The tool is beside the point. The point is that the microvideo, one silent action, cropped tight and rebuilt from source, is the unit that makes a doc-video library both more useful to the reader and cheap enough to stay true.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.nngroup.com/articles/instructional-video-guidelines/" rel="noopener">Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines</a></li>
+<li id="src-2"><a href="https://diataxis.fr/how-to-guides/" rel="noopener">Diataxis — How-to guides</a></li>
+<li id="src-3"><a href="https://diataxis.fr/reference/" rel="noopener">Diataxis — Reference</a></li>
+<li id="src-4"><a href="https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html" rel="noopener">W3C — Understanding WCAG 2.2 SC 1.2.1 Audio-only and Video-only (Prerecorded), Level A</a></li>
+<li id="src-5"><a href="https://wistia.com/learn/marketing/optimal-video-length" rel="noopener">Wistia — How to Choose the Right Marketing Video Length for Any Goal</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-a-microvideo-in-documentation" class="blog-faq-q">What is a microvideo in documentation?<a class="hanchor" href="#what-is-a-microvideo-in-documentation" aria-label="Link to section: What is a microvideo in documentation?">#</a></h3>
+<p>A microvideo is a short, silent clip, roughly five to fifteen seconds, that shows exactly one action such as dragging a card or flipping a setting, embedded beside the written step it illustrates. It is not a tutorial; it carries a single moment, not a whole workflow. The format matters because a clip scoped to one action is small enough to embed in several docs and cheap enough to re-render on its own when that one screen changes.</p>
+<h3 id="do-documentation-microvideos-need-captions-if-they-have-no-audio" class="blog-faq-q">Do documentation microvideos need captions if they have no audio?<a class="hanchor" href="#do-documentation-microvideos-need-captions-if-they-have-no-audio" aria-label="Link to section: Do documentation microvideos need captions if they have no audio?">#</a></h3>
+<p>They do not need captions, because there is no speech to caption, but they are not exempt from accessibility. A silent clip is &quot;video-only&quot; content under WCAG 2.2, and Success Criterion 1.2.1 (Level A) requires a text alternative that presents the same information. In practice the written step you place beside the clip is that alternative, so a silent microvideo paired with real text steps already meets the rule, and hands search engines the words the video hides.</p>
+<h3 id="are-lots-of-short-clips-harder-to-maintain-than-one-long-video" class="blog-faq-q">Are lots of short clips harder to maintain than one long video?<a class="hanchor" href="#are-lots-of-short-clips-harder-to-maintain-than-one-long-video" aria-label="Link to section: Are lots of short clips harder to maintain than one long video?">#</a></h3>
+<p>The opposite, and it is the main reason to prefer them. A single long walkthrough is one indivisible take, so any UI change anywhere in it forces re-recording the whole thing. A library of single-action clips is atomic, so a screen change re-renders only the one clip that shows that screen and leaves the rest untouched. Cutting the demo into small pieces shrinks the blast radius of every future change from the whole video down to one tile of it.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">microvideos</span>
+        <span class="article-tag">documentation</span>
+        <span class="article-tag">technical documentation</span>
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">diataxis</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/gifs-in-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/gifs-in-documentation-400.webp" srcset="/blog/images/gifs-in-documentation-400.webp 400w, /blog/images/gifs-in-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A slotted zoetrope drum on a small wooden base, caught mid-spin."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">GIFs in documentation: when a loop beats a screenshot</h3>
+    <p class="article-card-excerpt">An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/keeping-tutorial-libraries-current/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/keeping-tutorial-libraries-current-400.webp" srcset="/blog/images/keeping-tutorial-libraries-current-400.webp 400w, /blog/images/keeping-tutorial-libraries-current-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A rounded purple toy truck with snow piled on top, plowing through fresh snow."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Keeping a tutorial video library current at scale</h3>
+    <p class="article-card-excerpt">Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-real-unit-of-doc-video-is-one-action-not-one-tutorial">The real unit of doc video is one action, not one tutorial</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-a-microvideo-belongs-in-the-diataxis-quadrants">Where a microvideo belongs in the Diataxis quadrants</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-spec-for-the-ten-second-clip">A spec for the ten-second clip</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-fifteen-small-clips-outlast-one-long-walkthrough">Why fifteen small clips outlast one long walkthrough</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#silence-is-a-maintenance-decision-not-an-aesthetic-one">Silence is a maintenance decision, not an aesthetic one</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#build-the-library-so-one-change-re-renders-one-clip">Build the library so one change re-renders one clip</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

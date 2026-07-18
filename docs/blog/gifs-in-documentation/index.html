@@ -282,7 +282,7 @@
 <span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">picture</span><span style="color:#383A42">></span></span></code></pre>
 </div>
 <p>A reader with reduced motion enabled gets a crisp still; everyone else gets the loop. If the surface genuinely allows nothing but an image, a GitHub README being the common case, that is the one place a committed GIF is still the right call, and its <a href="/blog/readme-gifs-that-update-themselves/">size budget and stable-embed rules have their own writeup</a>. Everywhere else, the GIF is a habit, not a requirement.</p>
-<p>Two rules travel with the loop wherever it lands. Write real alt text describing the action, not &quot;demo.gif,&quot; because a looping animation with no text description is invisible to a screen reader and to search. And keep the clip to one action; a docs loop is closer to a single-action microvideo than to a tutorial, and the captions and transcript work that makes any tutorial clip accessible applies the moment your loop carries meaning a still cannot.</p>
+<p>Two rules travel with the loop wherever it lands. Write real alt text describing the action, not &quot;demo.gif,&quot; because a looping animation with no text description is invisible to a screen reader and to search. And keep the clip to one action; a docs loop is closer to a <a href="/blog/microvideos-in-documentation/">single-action microvideo</a> than to a tutorial, and the captions and transcript work that makes any tutorial clip accessible applies the moment your loop carries meaning a still cannot.</p>
 <h2 id="keeping-the-loop-honest-after-the-ui-moves">Keeping the loop honest after the UI moves<a class="hanchor" href="#keeping-the-loop-honest-after-the-ui-moves" aria-label="Link to section: Keeping the loop honest after the UI moves">#</a></h2>
 <p>A stale loop is worse than a stale screenshot. A screenshot that has fallen behind is a quiet, correctable error; an animated loop that has fallen behind demonstrates the wrong thing, over and over, with the authority that motion carries. The highest-value docs loops sit on the interfaces that change most, so a library of them rots on the same schedule a video library does, and the <a href="/blog/keeping-tutorial-libraries-current/">only maintenance model that scales is regenerating each clip from a spec instead of re-recording it</a>. Our own engine, aidemo, is one instance of that approach and honest about its edges: it captures a browser and nothing outside one, its storyboard comes from a coding agent that a person then edits as text rather than on a drag-and-drop timeline, and a single script emits the loop as a video or a GIF. The mechanism is the point, not the tool. A docs loop earns its place by showing motion a still cannot, in a format a reader can stop, at a size a page can afford, depicting a UI that still exists.</p>
 <h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
@@ -349,12 +349,12 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>
-<a class="article-card" href="/blog/support-videos-knowledge-base/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/support-videos-knowledge-base-400.webp" srcset="/blog/images/support-videos-knowledge-base-400.webp 400w, /blog/images/support-videos-knowledge-base-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single bright dome umbrella, open and standing upright on its own."></div>
+<a class="article-card" href="/blog/microvideos-in-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/microvideos-in-documentation-400.webp" srcset="/blog/images/microvideos-in-documentation-400.webp 400w, /blog/images/microvideos-in-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single jigsaw puzzle piece standing on its edge."></div>
   <div class="article-card-content">
     <div class="article-card-category">Video Documentation &amp; Tutorials</div>
-    <h3 class="article-card-title">Support and knowledge-base videos that actually deflect tickets</h3>
-    <p class="article-card-excerpt">Most help-center videos deflect zero tickets because they are too long, unsearchable, or stale. Here is which ones pay off, and the deflection math.</p>
+    <h3 class="article-card-title">Microvideos in documentation: the 10-second clip that replaces a paragraph</h3>
+    <p class="article-card-excerpt">The walkthrough is the wrong unit. The clip that survives a real docs site is a 5-15 second silent loop of one action, and it is the cheaper one to keep true.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>

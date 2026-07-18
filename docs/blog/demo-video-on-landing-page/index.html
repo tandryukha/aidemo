@@ -317,7 +317,7 @@
 </div>
 <p>Mind one caveat here: <code>autoplay</code> takes precedence over <code>preload</code>, so the browser will fetch what it needs to play regardless of the hint<sup class="article-cite"><a href="#src-4" title="MDN — The Video Embed element (&lt;video&gt;)">4</a></sup>. The defense is a genuinely small file, seconds not minutes. For a loop that lives <em>below</em> the fold, add <code>loading=&quot;lazy&quot;</code> (or toggle <code>autoplay</code> with an IntersectionObserver) so it does not download until it is near the viewport at all.</p>
 <p>For a YouTube or Vimeo clip, do not paste the stock iframe. A cold embed executes hundreds of kilobytes of JavaScript before a visitor clicks anything. The facade pattern renders a thumbnail and swaps in the real iframe on click; paulirish&#39;s lite-youtube-embed reports rendering &quot;approximately 224x faster&quot; than the native iframe<sup class="article-cite"><a href="#src-7" title="paulirish — lite-youtube-embed">7</a></sup>. Whether to self-host or lean on a hosted player is <a href="/blog/embed-video-on-website/">its own decision</a>; the facade is what makes the hosted choice affordable on a landing page.</p>
-<p>One honest limit binds all three: <code>preload</code> is a hint, and &quot;the specification does not force the browser to follow the value of this attribute&quot;<sup class="article-cite"><a href="#src-4" title="MDN — The Video Embed element (&lt;video&gt;)">4</a></sup>. Test the finished page on a throttled connection instead of trusting the markup, and confirm the exact autoplay-muted-loop attribute set behaves the same across browsers.</p>
+<p>One honest limit binds all three: <code>preload</code> is a hint, and &quot;the specification does not force the browser to follow the value of this attribute&quot;<sup class="article-cite"><a href="#src-4" title="MDN — The Video Embed element (&lt;video&gt;)">4</a></sup>. Test the finished page on a throttled connection instead of trusting the markup, and confirm the exact autoplay-muted-loop attribute set behaves <a href="/blog/autoplay-video-on-website/">the same across browsers</a>.</p>
 <p>One production note that makes the recipe cheaper to follow: the hero loop and the click-to-play cut are the same flow at two weights, a trimmed silent version for the fold and a full captioned version behind the click. Producing the demo from a spec you can re-encode, rather than a single exported file, gives you both without a second recording. aidemo, the open-source engine we build, works this way: an agent writes a storyboard, the engine replays it, and one flow re-exports as both a lean loop and a full narrated cut. Its constraints are worth stating plainly: capture is browser-only, the storyboard is authored by an agent rather than a person at a timeline, and there is no GUI editor for hand-tweaking the result.</p>
 <h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
 <ol class="article-sources">
@@ -374,21 +374,21 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
+<a class="article-card" href="/blog/autoplay-video-on-website/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/autoplay-video-on-website-400.webp" srcset="/blog/images/autoplay-video-on-website-400.webp 400w, /blog/images/autoplay-video-on-website-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pinwheel on a slender stick, its vanes caught mid-turn"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Autoplay video on a website: the recipe that works everywhere</h3>
+    <p class="article-card-excerpt">Most autoplay bugs are a missing word from one line of markup. Here is the four-attribute set that plays in every browser, and the code for when it still won't.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/demo-video-metrics/">
   <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-metrics-400.webp" srcset="/blog/images/demo-video-metrics-400.webp 400w, /blog/images/demo-video-metrics-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A coiled stethoscope resting on a smooth tabletop, its chest-piece lying flat"></div>
   <div class="article-card-content">
     <div class="article-card-category">Video Marketing for Software</div>
     <h3 class="article-card-title">Demo video metrics: play rate, retention, and assisted conversions</h3>
     <p class="article-card-excerpt">Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/does-video-increase-conversion/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/does-video-increase-conversion-400.webp" srcset="/blog/images/does-video-increase-conversion-400.webp 400w, /blog/images/does-video-increase-conversion-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A brass-style balance scale tipped to one side, one shallow pan hanging lower than the other"></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Video Marketing for Software</div>
-    <h3 class="article-card-title">Does video actually increase conversion? Tracing the 80% claim</h3>
-    <p class="article-card-excerpt">The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>

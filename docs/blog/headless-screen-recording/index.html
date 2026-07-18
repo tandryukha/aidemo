@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Headless screen recording with no display | aidemo</title>
+<meta name="description" content="Two ways to record a screen with no display: Xvfb plus ffmpeg x11grab for any GUI app, or a headless browser's own frames for web pages, with recipes.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/headless-screen-recording/">
+<link rel="alternate" type="text/markdown" href="/blog/headless-screen-recording/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Headless screen recording with no display | aidemo">
+<meta property="og:description" content="Two ways to record a screen with no display: Xvfb plus ffmpeg x11grab for any GUI app, or a headless browser's own frames for web pages, with recipes.">
+<meta property="og:url" content="https://aidemo.top/blog/headless-screen-recording/">
+<meta property="og:image" content="https://aidemo.top/blog/images/headless-screen-recording-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Headless screen recording with no display | aidemo">
+<meta name="twitter:description" content="Two ways to record a screen with no display: Xvfb plus ffmpeg x11grab for any GUI app, or a headless browser's own frames for web pages, with recipes.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/headless-screen-recording-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Headless screen recording: capturing a screen with no display",
+  "description": "Two ways to record a screen with no display: Xvfb plus ffmpeg x11grab for any GUI app, or a headless browser's own frames for web pages, with recipes.",
+  "image": [
+    "https://aidemo.top/blog/images/headless-screen-recording-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/headless-screen-recording/"
+  },
+  "wordCount": 2114,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame, screencastFrameAck)",
+      "url": "https://chromedevtools.github.io/devtools-protocol/tot/Page/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Device documentation (x11grab input device)",
+      "url": "https://ffmpeg.org/ffmpeg-devices.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "X.Org — Xvfb manual page (virtual framebuffer X server, -screen WxHxD)",
+      "url": "https://xorg.freedesktop.org/archive/current/doc/man/man1/Xvfb.1.xhtml"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome for Developers — Chrome Headless mode (new vs old, Chrome 112)",
+      "url": "https://developer.chrome.com/docs/chromium/new-headless"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Puppeteer — Page.screencast() API (WebM/VP9, requires ffmpeg)",
+      "url": "https://pptr.dev/api/puppeteer.page.screencast"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Videos (recordVideo, saved on context close)",
+      "url": "https://playwright.dev/docs/videos"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Continuous Integration (xvfb-run for headed Linux)",
+      "url": "https://playwright.dev/docs/ci"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Headless screen recording: capturing a screen with no display",
+      "item": "https://aidemo.top/blog/headless-screen-recording/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can you record a screen with no monitor attached?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, two ways. Run a virtual display server — Xvfb, \"an X server that can run on machines with no display hardware\" — draw your app into it, and grab that virtual screen with ffmpeg's x11grab; this films any GUI app. Or, for a web page, run a headless browser that emits its own frames through the DevTools Protocol and never needs a display at all. The first is application-agnostic; the second is browser-only and simpler to stand up."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I record a headless browser to a video file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Drive it from code. Puppeteer's page.screencast({ path: 'out.webm' }) records to WebM and needs ffmpeg installed; Playwright's recordVideo on the browser context saves a video when the context closes; or pull frames yourself over the DevTools Protocol's Page.startScreencast and encode them into a constant-rate video. All three run with no display. The one thing that will not work headless is getDisplayMedia(), which needs a user gesture and a screen to raise its share dialog."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Xvfb record the screen on its own?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Xvfb is only a display server — a framebuffer living in virtual memory — so it draws the application but writes no video file. To capture it you point a separate grabber at its display, usually ffmpeg -f x11grab -i :99, which reads the virtual screen and encodes it. Treat Xvfb as the monitor you cannot see and ffmpeg as the recorder plugged into it."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Headless screen recording: capturing a screen with no display</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Headless screen recording: capturing a screen with no display</h1>
+        <p class="article-dek">Recording a screen with no monitor forks two ways: grab a virtual X display with ffmpeg, or pull frames from a browser that never paints. When each wins.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-ways-to-record-a-screen-that-isnt-there">Two ways to record a screen that isn't there</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#path-one-a-virtual-display-in-ram-grabbed-by-ffmpeg">Path one: a virtual display in RAM, grabbed by ffmpeg</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#path-two-frames-pulled-from-a-browser-that-never-paints">Path two: frames pulled from a browser that never paints</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-the-two-paths-disagree-about-what-a-frame-is">Why the two paths disagree about what a frame is</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-missing-display-quietly-takes-with-it">What a missing display quietly takes with it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#picking-a-path-virtual-display-or-frame-pull">Picking a path: virtual display or frame pull</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/headless-screen-recording-800.webp" srcset="/blog/images/headless-screen-recording-400.webp 400w, /blog/images/headless-screen-recording-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay pinhole camera box with a single small aperture on its front face"><figcaption>A pinhole makes a picture with no viewfinder to look through; a headless recorder makes a video with no monitor to record.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Headless recording forks two ways: Xvfb + ffmpeg x11grab grabs a virtual X11 display in RAM (any GUI app), or a headless browser emits its own frames (web pages only, no display server).</li>
+    <li>Xvfb is 'an X server that can run on machines with no display hardware'; set -screen 0 1280x720x24, then grab it: ffmpeg -f x11grab -framerate 30 -i :99.</li>
+    <li>Chrome's new headless (Chrome 112+) runs the full browser, not the old stripped-down shell, so what you record with no display matches what a user actually sees.</li>
+    <li>Frame timing differs: x11grab samples on a wall clock (dups or drops frames); CDP Page.startScreencast emits one frame per paint and acks each, so you re-time to a constant rate.</li>
+    <li>getDisplayMedia can't run headless (needs a gesture and a screen); a missing display also means no cursor and no audio, so inject a synthetic pointer and mux narration in post.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="two-ways-to-record-a-screen-that-isnt-there">Two ways to record a screen that isn&#39;t there<a class="hanchor" href="#two-ways-to-record-a-screen-that-isnt-there" aria-label="Link to section: Two ways to record a screen that isn't there">#</a></h2>
+<p>&quot;Headless&quot; hides a fork. Wanting to record a screen with no display attached — a container, a build server, a CI runner with no monitor, no GPU, and no window manager — turns out to mean one of two mechanically different things, and conflating them is why so many x11grab recipes on the internet quietly produce a black rectangle.</p>
+<p>The first way keeps a screen and moves it into memory. Xvfb, the X virtual framebuffer, is &quot;an X server that can run on machines with no display hardware and no physical input devices&quot; and &quot;emulates a dumb framebuffer using virtual memory&quot;<sup class="article-cite"><a href="#src-3" title="X.Org — Xvfb manual page (virtual framebuffer X server, -screen WxHxD)">3</a></sup>. You start it, point a GUI application at it through the <code>DISPLAY</code> variable, and the app paints into RAM exactly as it would paint onto a monitor. There is a screen; nobody can see it. ffmpeg then grabs that virtual screen the same way it grabs a physical one.</p>
+<p>The second way has no screen at all. A modern headless browser never opens a window: since Chrome 112 the redesigned headless mode &quot;creates, but doesn&#39;t display, any platform windows&quot;<sup class="article-cite"><a href="#src-4" title="Chrome for Developers — Chrome Headless mode (new vs old, Chrome 112)">4</a></sup>, and it runs the full browser code rather than the stripped-down alternate implementation the old mode used. Because nothing is ever composited to a display surface, there is no framebuffer to grab. You ask the browser for its frames directly and assemble the video from those.</p>
+<p>So the fork is: record a virtual display, or record an application that draws to no display. The first is application-agnostic and needs a display server; the second is browser-only and needs none. What follows maps each path, the frame-timing gap between them where footage tends to go wrong, what a missing display quietly takes with it, and a table for choosing. This is the capture layer underneath <a href="/blog/demo-videos-in-ci/">any demo video a CI job renders</a>: the pipeline is the runner and the triggers; this is how the pixels get made.</p>
+<h2 id="path-one-a-virtual-display-in-ram-grabbed-by-ffmpeg">Path one: a virtual display in RAM, grabbed by ffmpeg<a class="hanchor" href="#path-one-a-virtual-display-in-ram-grabbed-by-ffmpeg" aria-label="Link to section: Path one: a virtual display in RAM, grabbed by ffmpeg">#</a></h2>
+<p>Xvfb gives the app a screen to draw on; ffmpeg&#39;s x11grab turns that screen into video. x11grab is FFmpeg&#39;s &quot;X11 video input device&quot; and &quot;allows one to capture a region of an X11 display&quot;<sup class="article-cite"><a href="#src-2" title="FFmpeg — Device documentation (x11grab input device)">2</a></sup> — the same device you would use to grab a physical desktop, pointed at a virtual one instead.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#4078F2">Xvfb</span><span style="color:#50A14F"> :99</span><span style="color:#986801"> -screen</span><span style="color:#986801"> 0</span><span style="color:#50A14F"> 1280x720x24</span><span style="color:#383A42"> &#x26;   </span><span style="color:#6f747e;font-style:italic"># a virtual screen in RAM: 1280x720, 24-bit</span></span>
+<span class="line"><span style="color:#A626A4">export</span><span style="color:#E45649"> DISPLAY</span><span style="color:#383A42">=:</span><span style="color:#E45649">99</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#4078F2">google-chrome</span><span style="color:#986801"> --window-size=1280,720</span><span style="color:#50A14F"> https://app.example.com</span><span style="color:#383A42"> &#x26;   </span><span style="color:#6f747e;font-style:italic"># any X11 app paints into it</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -f</span><span style="color:#50A14F"> x11grab</span><span style="color:#986801"> -video_size</span><span style="color:#50A14F"> 1280x720</span><span style="color:#986801"> -framerate</span><span style="color:#986801"> 30</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> :99</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">       -c:v</span><span style="color:#50A14F"> libx264</span><span style="color:#986801"> -crf</span><span style="color:#986801"> 18</span><span style="color:#986801"> -pix_fmt</span><span style="color:#50A14F"> yuv420p</span><span style="color:#50A14F"> demo.mp4</span><span style="color:#6f747e;font-style:italic">   # grab the virtual framebuffer</span></span></code></pre>
+</div>
+<p>The <code>-screen 0 WxHxD</code> argument sets the virtual screen&#39;s width, height, and color depth; the built-in default is a modest 1280x1024x8, so always name your own. ffmpeg&#39;s <code>-i :99</code> reads the display the <code>DISPLAY</code> variable points at, and x11grab defaults to a 30000/1001 frame rate you should override to a clean 30. If wiring the display up and tearing it down by hand is more than you want, <code>xvfb-run</code> wraps a command in a throwaway display: Playwright&#39;s own CI guide notes that on Linux agents &quot;headed execution requires Xvfb to be installed&quot; and that you &quot;add xvfb-run before the actual command,&quot; as in <code>xvfb-run npx playwright test</code><sup class="article-cite"><a href="#src-7" title="Playwright — Continuous Integration (xvfb-run for headed Linux)">7</a></sup>.</p>
+<p>The reason to reach for this path is breadth: it records anything that can draw to X11, not just a web page — a native Linux GUI app, an Electron build, a desktop tool, a browser in headed mode. If the subject of the demo is not a website, this is the only one of the two paths that can film it. The one caveat is the display server itself: Xvfb is an X11 tool, so a pure-Wayland box needs a headless Wayland compositor instead, which is its own branch of the Linux capture story.</p>
+<h2 id="path-two-frames-pulled-from-a-browser-that-never-paints">Path two: frames pulled from a browser that never paints<a class="hanchor" href="#path-two-frames-pulled-from-a-browser-that-never-paints" aria-label="Link to section: Path two: frames pulled from a browser that never paints">#</a></h2>
+<p>When the subject is a web page, you can skip the display entirely and take frames from the browser itself. The DevTools Protocol exposes the raw mechanism: <code>Page.startScreencast</code> streams the page through the <code>screencastFrame</code> event, each frame a &quot;Base64-encoded compressed image&quot; in <code>jpeg</code> or <code>png</code> at a chosen <code>quality</code> and throttled by <code>everyNthFrame</code>, and every frame must be acknowledged with <code>Page.screencastFrameAck</code> before the next is sent<sup class="article-cite"><a href="#src-1" title="Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame, screencastFrameAck)">1</a></sup>. That is a stream of stills with metadata, not a video; you re-time and encode them yourself.</p>
+<p>Higher-level tools wrap that loop. Puppeteer&#39;s <code>page.screencast()</code> records straight to a file — &quot;you must have ffmpeg installed on your system,&quot; and it writes WebM with the VP9 codec at 30 fps by default (Puppeteer 25.3.0) — collapsing the whole thing to a few lines:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">js</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#A626A4">const</span><span style="color:#986801"> browser</span><span style="color:#0184BC"> =</span><span style="color:#A626A4"> await</span><span style="color:#383A42"> puppeteer.</span><span style="color:#4078F2">launch</span><span style="color:#383A42">({ </span><span style="color:#E45649">headless</span><span style="color:#0184BC">:</span><span style="color:#986801"> true</span><span style="color:#383A42"> });</span></span>
+<span class="line"><span style="color:#A626A4">const</span><span style="color:#986801"> page</span><span style="color:#0184BC"> =</span><span style="color:#A626A4"> await</span><span style="color:#383A42"> browser.</span><span style="color:#4078F2">newPage</span><span style="color:#383A42">();</span></span>
+<span class="line"><span style="color:#A626A4">await</span><span style="color:#383A42"> page.</span><span style="color:#4078F2">setViewport</span><span style="color:#383A42">({ </span><span style="color:#E45649">width</span><span style="color:#0184BC">:</span><span style="color:#986801"> 1280</span><span style="color:#383A42">, </span><span style="color:#E45649">height</span><span style="color:#0184BC">:</span><span style="color:#986801"> 720</span><span style="color:#383A42">, </span><span style="color:#E45649">deviceScaleFactor</span><span style="color:#0184BC">:</span><span style="color:#986801"> 2</span><span style="color:#383A42"> });</span></span>
+<span class="line"><span style="color:#A626A4">await</span><span style="color:#383A42"> page.</span><span style="color:#4078F2">goto</span><span style="color:#383A42">(</span><span style="color:#50A14F">'https://app.example.com'</span><span style="color:#383A42">);</span></span>
+<span class="line"><span style="color:#A626A4">const</span><span style="color:#986801"> recorder</span><span style="color:#0184BC"> =</span><span style="color:#A626A4"> await</span><span style="color:#383A42"> page.</span><span style="color:#4078F2">screencast</span><span style="color:#383A42">({ </span><span style="color:#E45649">path</span><span style="color:#0184BC">:</span><span style="color:#50A14F"> 'demo.webm'</span><span style="color:#383A42"> });</span></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">// drive the flow…</span></span>
+<span class="line"><span style="color:#A626A4">await</span><span style="color:#383A42"> recorder.</span><span style="color:#4078F2">stop</span><span style="color:#383A42">();</span></span>
+<span class="line"><span style="color:#A626A4">await</span><span style="color:#383A42"> browser.</span><span style="color:#4078F2">close</span><span style="color:#383A42">();</span></span></code></pre>
+</div>
+<p>Playwright records the whole context instead: pass <code>recordVideo</code> to <code>newContext</code>, and &quot;videos are saved upon browser context closure,&quot; sized from the viewport<sup class="article-cite"><a href="#src-6" title="Playwright — Videos (recordVideo, saved on context close)">6</a></sup>. Both run with no display, because they never needed one — the frames come out of the browser&#39;s compositor, which does not care whether a monitor exists.</p>
+<p>One route this path cannot borrow from the <a href="/blog/record-a-browser-tab/">three browser-tab capture surfaces</a>: the <code>getDisplayMedia()</code> share-picker is off the table headless. It requires a user gesture and a screen to raise the &quot;Choose what to share&quot; dialog, and a runner has neither. Headless browser capture is always frame-pull or screencast, never the WebRTC screen-share API.</p>
+<h2 id="why-the-two-paths-disagree-about-what-a-frame-is">Why the two paths disagree about what a frame is<a class="hanchor" href="#why-the-two-paths-disagree-about-what-a-frame-is" aria-label="Link to section: Why the two paths disagree about what a frame is">#</a></h2>
+<p>x11grab is a screen-grabber on a metronome. It samples the virtual framebuffer at the frame rate you asked for — thirty times a second, whatever the app is doing. If a paint takes longer than one frame interval, the grab captures the same pixels twice and you ship a duplicated frame; if the UI animates faster than the sample rate, the motion between two samples is simply gone. The timeline belongs to the clock, not the application.</p>
+<p>The screencast path inverts that. <code>Page.startScreencast</code> emits a frame when the page changes, and because each frame waits for its acknowledgment, the browser paces the stream to what the renderer actually produced. That is frame-accurate to the render, but it is not constant-rate: idle stretches emit nothing and busy stretches emit bursts, so before it becomes a video you have to re-time those frames onto a constant frame rate. A constant frame rate is what nearly every downstream tool assumes anyway.</p>
+<p>The upshot is that neither path hands you a repeatable video for free. A wall-clock grab of a flow that paints a little differently each run lands its samples on different instants; an event-driven stream whose timing rides on the network emits a different burst each run. Getting the same pixels twice is <a href="/blog/deterministic-browser-automation-for-video/">a separate discipline of pinned waits, a frozen clock, and a fixed viewport</a> layered over whichever path you pick. The capture mechanism decides what a frame is; it does not decide whether two runs agree.</p>
+<h2 id="what-a-missing-display-quietly-takes-with-it">What a missing display quietly takes with it<a class="hanchor" href="#what-a-missing-display-quietly-takes-with-it" aria-label="Link to section: What a missing display quietly takes with it">#</a></h2>
+<p>A headless environment removes more than the monitor, and two absences bite in the frame.</p>
+<p>The cursor goes first. On path one the pointer is a real X cursor, which x11grab draws by default and omits with <code>draw_mouse 0</code><sup class="article-cite"><a href="#src-2" title="FFmpeg — Device documentation (x11grab input device)">2</a></sup> — but with no human moving it, it sits frozen in a corner until your automation warps it somewhere, and even then it jumps rather than glides. On path two there is no OS cursor in the frame at all, because there is no OS window. Either way a credible pointer is something you <a href="/blog/professional-screen-recordings/">draw as a synthetic overlay</a> at compose time, not something the capture supplies. These are the same record-time-versus-edit-time lines the <a href="/blog/how-to-record-your-screen-in-high-quality/">high-quality capture checklist</a> draws, seen from the headless side.</p>
+<p>Audio goes next. A runner has no sound card, so both paths record silence: the screencast carries no audio channel whatsoever, and the Xvfb path can be handed a dummy sink (a null PulseAudio or ALSA device) only so an app that expects one does not crash — it still plays to nothing. For a narrated demo the honest model is to render the video silent and mux the voiceover in afterward. Fonts are the third quiet gap, since a runner missing a font family paints tofu boxes where the glyphs should be, but that is a matter of provisioning the image rather than the capture step.</p>
+<h2 id="picking-a-path-virtual-display-or-frame-pull">Picking a path: virtual display or frame pull<a class="hanchor" href="#picking-a-path-virtual-display-or-frame-pull" aria-label="Link to section: Picking a path: virtual display or frame pull">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Xvfb + ffmpeg x11grab</th>
+<th>Headless browser (CDP, Puppeteer, Playwright)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>What it records</td>
+<td>a virtual X11 display in memory</td>
+<td>the browser&#39;s own render output</td>
+</tr>
+<tr>
+<td>Can capture</td>
+<td>any X11 app: native, Electron, a headed browser</td>
+<td>a web page only</td>
+</tr>
+<tr>
+<td>Display server</td>
+<td>a virtual one (Xvfb), X11</td>
+<td>none needed</td>
+</tr>
+<tr>
+<td>Frame timing</td>
+<td>wall-clock sampled at N fps, may dup or drop</td>
+<td>event-driven per paint, re-timed to a constant rate</td>
+</tr>
+<tr>
+<td>Encoder</td>
+<td>ffmpeg, any codec and CRF</td>
+<td>WebM/VP9 in Puppeteer, or your own from CDP frames</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>real X pointer (draw_mouse 0 or 1)</td>
+<td>none in frame; inject a synthetic one</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>dummy sink possible, still silent</td>
+<td>none; mux narration in post</td>
+</tr>
+<tr>
+<td>Setup</td>
+<td>wire up a display, the app, and ffmpeg</td>
+<td>one library call, no display</td>
+</tr>
+</tbody></table></div>
+<p>Read the top two rows first, because they usually settle it. If the subject is not a browser, path one is the only option, and you take the wall-clock grab and the wiring with it. If the subject is a web app, path two is less to stand up, cleaner in the frame — no window chrome, no stray X cursor — and it is the path a demo engine takes on a CI box with no monitor.</p>
+<p>That is where aidemo, our own engine, sits: it takes the second path, driving a real Chrome and pulling frames with no display, so one storyboard renders the same on a laptop and on a display-less runner. The honest limits are the path&#39;s limits made specific. Because it is frame-pull from a browser, it records a browser only — a native desktop app is precisely the path-one case it cannot cover; its storyboards are authored by a coding agent in code, not dragged on a GUI timeline; and it has no click-to-trim editor. For a native app on a headless machine, Xvfb and x11grab are still the answer.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://chromedevtools.github.io/devtools-protocol/tot/Page/" rel="noopener">Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame, screencastFrameAck)</a></li>
+<li id="src-2"><a href="https://ffmpeg.org/ffmpeg-devices.html" rel="noopener">FFmpeg — Device documentation (x11grab input device)</a></li>
+<li id="src-3"><a href="https://xorg.freedesktop.org/archive/current/doc/man/man1/Xvfb.1.xhtml" rel="noopener">X.Org — Xvfb manual page (virtual framebuffer X server, -screen WxHxD)</a></li>
+<li id="src-4"><a href="https://developer.chrome.com/docs/chromium/new-headless" rel="noopener">Chrome for Developers — Chrome Headless mode (new vs old, Chrome 112)</a></li>
+<li id="src-5"><a href="https://pptr.dev/api/puppeteer.page.screencast" rel="noopener">Puppeteer — Page.screencast() API (WebM/VP9, requires ffmpeg)</a></li>
+<li id="src-6"><a href="https://playwright.dev/docs/videos" rel="noopener">Playwright — Videos (recordVideo, saved on context close)</a></li>
+<li id="src-7"><a href="https://playwright.dev/docs/ci" rel="noopener">Playwright — Continuous Integration (xvfb-run for headed Linux)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="can-you-record-a-screen-with-no-monitor-attached" class="blog-faq-q">Can you record a screen with no monitor attached?<a class="hanchor" href="#can-you-record-a-screen-with-no-monitor-attached" aria-label="Link to section: Can you record a screen with no monitor attached?">#</a></h3>
+<p>Yes, two ways. Run a virtual display server — Xvfb, &quot;an X server that can run on machines with no display hardware&quot; — draw your app into it, and grab that virtual screen with ffmpeg&#39;s x11grab; this films any GUI app. Or, for a web page, run a headless browser that emits its own frames through the DevTools Protocol and never needs a display at all. The first is application-agnostic; the second is browser-only and simpler to stand up.</p>
+<h3 id="how-do-i-record-a-headless-browser-to-a-video-file" class="blog-faq-q">How do I record a headless browser to a video file?<a class="hanchor" href="#how-do-i-record-a-headless-browser-to-a-video-file" aria-label="Link to section: How do I record a headless browser to a video file?">#</a></h3>
+<p>Drive it from code. Puppeteer&#39;s <code>page.screencast({ path: &#39;out.webm&#39; })</code> records to WebM and needs ffmpeg installed; Playwright&#39;s <code>recordVideo</code> on the browser context saves a video when the context closes; or pull frames yourself over the DevTools Protocol&#39;s <code>Page.startScreencast</code> and encode them into a constant-rate video. All three run with no display. The one thing that will not work headless is <code>getDisplayMedia()</code>, which needs a user gesture and a screen to raise its share dialog.</p>
+<h3 id="does-xvfb-record-the-screen-on-its-own" class="blog-faq-q">Does Xvfb record the screen on its own?<a class="hanchor" href="#does-xvfb-record-the-screen-on-its-own" aria-label="Link to section: Does Xvfb record the screen on its own?">#</a></h3>
+<p>No. Xvfb is only a display server — a framebuffer living in virtual memory — so it draws the application but writes no video file. To capture it you point a separate grabber at its display, usually <code>ffmpeg -f x11grab -i :99</code>, which reads the virtual screen and encodes it. Treat Xvfb as the monitor you cannot see and ffmpeg as the recorder plugged into it.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">headless</span>
+        <span class="article-tag">xvfb</span>
+        <span class="article-tag">ffmpeg</span>
+        <span class="article-tag">chrome devtools protocol</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-resolution-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-resolution-for-screen-recording-400.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best resolution for screen recording: match delivery, not your monitor</h3>
+    <p class="article-card-excerpt">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-ways-to-record-a-screen-that-isnt-there">Two ways to record a screen that isn't there</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#path-one-a-virtual-display-in-ram-grabbed-by-ffmpeg">Path one: a virtual display in RAM, grabbed by ffmpeg</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#path-two-frames-pulled-from-a-browser-that-never-paints">Path two: frames pulled from a browser that never paints</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-the-two-paths-disagree-about-what-a-frame-is">Why the two paths disagree about what a frame is</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-missing-display-quietly-takes-with-it">What a missing display quietly takes with it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#picking-a-path-virtual-display-or-frame-pull">Picking a path: virtual display or frame pull</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

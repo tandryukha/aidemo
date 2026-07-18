@@ -217,5 +217,22 @@
   "gifs-in-documentation": {
     "subject": "a spinning zoetrope drum on a small wooden base",
     "seedOffset": 1
+  },
+  "demo-video-mistakes": {
+    "subject": "a bright traffic cone standing on a smooth floor",
+    "seedOffset": 1
+  },
+  "headless-screen-recording": {
+    "subject": "a pinhole camera box with a single tiny aperture"
+  },
+  "autoplay-video-on-website": {
+    "subject": "a pinwheel on a slender stick, its vanes mid-turn"
+  },
+  "selectors-that-survive-redesigns": {
+    "subject": "a heavy cast-iron ship's anchor resting on its flukes",
+    "seedOffset": 1
+  },
+  "microvideos-in-documentation": {
+    "subject": "a single jigsaw puzzle piece standing on its edge"
   }
 }

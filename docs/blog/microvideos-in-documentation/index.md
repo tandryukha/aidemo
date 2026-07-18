@@ -1,0 +1,99 @@
+# Microvideos in documentation: the 10-second clip that replaces a paragraph
+
+July 18, 2026 · Video Documentation & Tutorials · 7 min read · https://aidemo.top/blog/microvideos-in-documentation/
+
+> The walkthrough is the wrong unit. The clip that survives a real docs site is a 5-15 second silent loop of one action, and it is the cheaper one to keep true.
+
+**Key takeaways**
+
+- The doc-video unit that survives is a 5-15s silent clip of one action, not a 3-5 minute walkthrough; NN/g advises "multiple videos of low granularity (one for each step)."
+- Microvideos live in Diataxis how-to guides (goal-oriented, selective), with a narrow wordless-behavior exception in reference; tutorials and explanation are not their home.
+- Atomicity shrinks the blast radius: cut a 4-min, 12-screen walkthrough into twelve ~12s clips and one screen change re-renders ~8% of the library, not 100%.
+- Silence is a maintenance lever, not a style: no re-voicing, no caption re-alignment, and the same clip ships to every locale with only the text translated.
+- A silent clip is WCAG 1.2.1 (Level A) "video-only" content: the text step beside it is the required alternative and doubles as search text.
+
+## The real unit of doc video is one action, not one tutorial
+
+When a team decides its docs need video, the default artifact is the walkthrough: a narrated three-to-five-minute tour that opens at the login screen and ends on a "you did it" confirmation. It is the wrong unit. The walkthrough is expensive to make, painful to keep current, and unscannable by the one reader who arrived needing a single thing. The unit that actually survives contact with a live docs site is smaller by two orders of magnitude: a five-to-fifteen-second silent clip that shows exactly one action, sitting beside the text step it illustrates.
+
+This is not the same claim as "make your videos shorter." It is a claim about granularity, and granularity changes the artifact's behavior on every axis a docs team cares about: where each clip fits in the information architecture, how a reader consumes it, and above all what it costs to keep honest as the product ships. Nielsen Norman Group reached the same conclusion from the reader's side, advising that "for multistep processes, include multiple videos of low granularity (one for each step) instead of a single long video for the whole process" ([Harley, NN/g, 2020](https://www.nngroup.com/articles/instructional-video-guidelines/)). This piece takes that instruction to its end and treats the single-action clip as the fundamental unit of doc video, then works out where it belongs and why the many-small-pieces version is the cheaper one to own. Whether a given passage wants motion at all is a separate, four-axis call made in [video versus written documentation](/blog/video-vs-written-documentation); here that question is settled and the only one left is how small to cut it.
+
+## Where a microvideo belongs in the Diataxis quadrants
+
+Diataxis groups documentation into four kinds, tutorials, how-to guides, reference, and explanation, and places each between a reader "at study" and a reader "at work." The microvideo does not spread evenly across them; it lives almost entirely on the "at work" side.
+
+The how-to guide is its home. Diataxis defines a how-to guide as "directions that guide the reader through a problem or towards a result," goal-oriented and deliberately selective, focused only on the actions necessary to solve a particular task and omitting completeness on purpose ([Diataxis, accessed July 2026](https://diataxis.fr/how-to-guides/)). A ten-second clip of exactly the one action, beside the written step, is that selectivity rendered as motion: it shows the drag, the toggle, or the reveal, and nothing around it.
+
+Reference is the surprising quadrant. The [pillar's routing table](/blog/video-documentation) keeps reference in text, and it is right to for the API fields, flags, and config values a reader copies verbatim. But the Diataxis rule for reference is "describe and only describe," with an explicit warning against smuggling instruction or a recipe into a reference entry ([Diataxis, accessed July 2026](https://diataxis.fr/reference/)). A silent behavior clip threads that needle. A three-second loop of what an "auto-layout" toggle does to a canvas is description, not instruction: it shows a fact about the machinery without teaching a workflow, which is exactly what a narrated how-to clip in the same slot would violate. Reference stays mostly text; the one clip it can carry is wordless and purely behavioral.
+
+The tutorial is where the microvideo is not the unit. A learner "at study" needs continuity, because the connective tissue between steps is the lesson, so a first-run tutorial wants a narrated walkthrough rather than a grid of disconnected loops. And explanation never wants motion: a concept is re-read and cross-referenced, and there is nothing on screen to move. Microvideos are a how-to instrument first, a narrow reference instrument second, and absent from the other two.
+
+## A spec for the ten-second clip
+
+Treat the microvideo as a format with fixed constraints, not a video that happens to be short. Six attributes define it.
+
+| Attribute | The microvideo | Why it is set here |
+|---|---|---|
+| Length | 5-15 seconds, one action | Short enough to re-render fast and to sit far inside the length where viewers still finish |
+| Audio | Silent | No narration to re-record, re-time, or re-voice per language |
+| Paired text | The written step beside the clip | Meets the WCAG text-alternative rule and hands search and skimmers the words |
+| Delivery | Muted, looping, inline video | Smaller and pausable than the same motion as a GIF |
+| Framing | Tight crop on the region that acts | The eye lands on the change; an unrelated layout shift elsewhere cannot falsify it |
+| Scope | Exactly one action or decision | So it re-renders alone and embeds in many places |
+
+The length ceiling is not arbitrary. Engagement holds up for short video and erodes with length: Wistia's data puts videos under a minute at roughly 52% average engagement, so a ten-second clip sits comfortably inside the range where viewers watch to the end ([Wistia, accessed July 2026](https://wistia.com/learn/marketing/optimal-video-length)). At that scale the reason to hold each clip to one action is not attention, which a ten-second clip never strains, but maintainability.
+
+Two of the spec rows do double duty, and the silent-plus-text pairing is the one that surprises people. A clip with no audio is "prerecorded video-only" content under WCAG, and Success Criterion 1.2.1, a Level A requirement, asks that "either an alternative for time-based media or an audio track is provided that presents equivalent information for prerecorded video-only content" ([W3C, accessed July 2026](https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html)). The written step you were already placing beside the clip is that alternative, so a silent microvideo paired with real text has its Level A obligation met by the same words that make it searchable. Silence does not cost you accessibility; it hands the accessibility job to text you already owed.
+
+## Why fifteen small clips outlast one long walkthrough
+
+Here is the arithmetic that justifies the granularity. Take one onboarding walkthrough, four minutes of narrated footage covering twelve screens, and set it beside the same content cut into twelve silent clips averaging twelve seconds each.
+
+| Metric | One 4-minute walkthrough | Twelve ~12s microvideos |
+|---|---|---|
+| Total footage | 240s, narrated | ~144s, silent |
+| Artifacts | 1 indivisible file | 12 independent files |
+| One screen changes | the whole video is now wrong | 1 clip wrong, 11 still correct |
+| Blast radius per change | 100% | ~8% (1 of 12) |
+| Cost to fix that screen | re-shoot and re-narrate all 240s | re-render one ~12s clip |
+| Reuse in other docs | none, it is one take | each clip embeds anywhere |
+
+The mechanism behind the last three rows is the one that decides whether a video library is fundable. A monolithic walkthrough is a single indivisible take: you cannot cleanly splice a re-narrated segment into a continuous voiceover, so when any one of its twelve screens changes, you re-record the whole thing. One moved button falsifies four minutes. The atomic library has no such coupling. When the same screen changes, one clip is wrong and eleven are still correct, so the fix re-renders roughly twelve seconds and leaves the rest alone.
+
+Over a quarter that ships, say six of the twelve screens pick up a UI-visible change. The monolith gets re-recorded once, in full, to absorb them: you re-shoot four minutes of footage, half of which was already correct. The atomic library re-renders six clips and never touches the other six. The [maintenance-hours math for a whole library is worked out separately](/blog/keeping-tutorial-libraries-current); the point here is narrower and structural. Cutting the demo into single-action clips shrinks the blast radius of every future UI change from the entire artifact down to one tile of it. A stale monolith is wrong from the moment its changed screen appears and stays wrong to the credits; a stale clip is one broken tile in a wall that is otherwise still true.
+
+Granularity pays a second dividend the monolith cannot: reuse. The single clip that shows "connect a data source" is the same asset the getting-started page, the how-to guide, the help-center article, and the changelog entry all need. Cut it once, embed it in four places, re-render one file when that screen moves. A four-minute take cannot be quoted a screen at a time, so every doc that needs that one moment has to link out to a timestamp or shoot its own copy.
+
+## Silence is a maintenance decision, not an aesthetic one
+
+Dropping the voiceover is usually pitched as a matter of taste. It is really the single biggest lever on what a clip costs to keep current. A narrated clip couples its visuals to one language's word timing: change the UI and you re-record the audio, re-align the captions to the new pacing, and, if you localize, re-voice the whole thing once per market. A silent clip carries none of that machinery. There is no audio to fall out of sync when a button moves, and nothing language-specific in the file at all, so the same clip ships to every locale and only the on-page text gets translated. That turns [multi-language documentation](/blog/multi-language-product-demo-videos) from a re-recording project into a text-translation one.
+
+Silence also matches how docs are actually read. A reader scanning a help article has not opted into audio and often cannot play it, so a clip that leans on narration to make sense fails the muted, glance-and-move-on reading that dominates a docs page. The silent single-action clip degrades gracefully: muted is its native state, the paired text carries the words, and the motion carries the one thing text cannot.
+
+## Build the library so one change re-renders one clip
+
+All of this holds only if the clips are genuinely atomic and genuinely cheap to rebuild. Three rules keep them that way. Scope each clip to exactly one action, so a screen change touches one file and not a montage. Crop tightly to the region that acts instead of filming the whole desktop, so the reader's eye lands on the change and an unrelated layout shift elsewhere does not quietly falsify the clip; the [cropping and zoom mechanics are the same ones that make any screen recording look deliberate](/blog/professional-screen-recordings). And ship the loop as a muted, inline video rather than a GIF, for the file-size and accessibility reasons the [GIF-versus-video comparison lays out](/blog/gifs-in-documentation).
+
+The rule that decouples a library's size from its maintenance bill is to make each clip regenerate from a committed spec instead of a hand-captured take. Then one UI change re-renders one clip in CI, on the same commit that changed the screen, and a two-hundred-clip library costs no more to keep current than a twenty-clip one. aidemo, which we build, works this way, and its limits are worth stating plainly: it captures a real browser and nothing beyond one, a coding agent drafts the storyboard that a person then corrects as text (there is no drag-and-drop timeline), and one script emits each clip as a muted video or a GIF. The tool is beside the point. The point is that the microvideo, one silent action, cropped tight and rebuilt from source, is the unit that makes a doc-video library both more useful to the reader and cheap enough to stay true.
+
+## Sources
+
+- [Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines](https://www.nngroup.com/articles/instructional-video-guidelines/)
+- [Diataxis — How-to guides](https://diataxis.fr/how-to-guides/)
+- [Diataxis — Reference](https://diataxis.fr/reference/)
+- [W3C — Understanding WCAG 2.2 SC 1.2.1 Audio-only and Video-only (Prerecorded), Level A](https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html)
+- [Wistia — How to Choose the Right Marketing Video Length for Any Goal](https://wistia.com/learn/marketing/optimal-video-length)
+
+## FAQ
+
+### What is a microvideo in documentation?
+
+A microvideo is a short, silent clip, roughly five to fifteen seconds, that shows exactly one action such as dragging a card or flipping a setting, embedded beside the written step it illustrates. It is not a tutorial; it carries a single moment, not a whole workflow. The format matters because a clip scoped to one action is small enough to embed in several docs and cheap enough to re-render on its own when that one screen changes.
+
+### Do documentation microvideos need captions if they have no audio?
+
+They do not need captions, because there is no speech to caption, but they are not exempt from accessibility. A silent clip is "video-only" content under WCAG 2.2, and Success Criterion 1.2.1 (Level A) requires a text alternative that presents the same information. In practice the written step you place beside the clip is that alternative, so a silent microvideo paired with real text steps already meets the rule, and hands search engines the words the video hides.
+
+### Are lots of short clips harder to maintain than one long video?
+
+The opposite, and it is the main reason to prefer them. A single long walkthrough is one indivisible take, so any UI change anywhere in it forces re-recording the whole thing. A library of single-action clips is atomic, so a screen change re-renders only the one clip that shows that screen and leaves the rest untouched. Cutting the demo into small pieces shrinks the blast radius of every future change from the whole video down to one tile of it.

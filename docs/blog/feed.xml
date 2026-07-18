@@ -57,6 +57,13 @@
       <description>The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</description>
     </item>
     <item>
+      <title>Autoplay video on a website: the recipe that works everywhere</title>
+      <link>https://aidemo.top/blog/autoplay-video-on-website/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/autoplay-video-on-website/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Most autoplay bugs are a missing word from one line of markup. Here is the four-attribute set that plays in every browser, and the code for when it still won&apos;t.</description>
+    </item>
+    <item>
       <title>B2B vs PLG demo videos: seven axes that change the cut</title>
       <link>https://aidemo.top/blog/b2b-demo-video/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/b2b-demo-video/</guid>
@@ -134,6 +141,13 @@
       <description>Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</description>
     </item>
     <item>
+      <title>Ten demo video mistakes, ranked by how many viewers they cost</title>
+      <link>https://aidemo.top/blog/demo-video-mistakes/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-mistakes/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Not all demo blunders are equal. The ones that bite in the first five seconds empty the whole room; the ones at the end cost only the stragglers. Ranked.</description>
+    </item>
+    <item>
       <title>Putting a demo video on your landing page without wrecking load time</title>
       <link>https://aidemo.top/blog/demo-video-on-landing-page/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-video-on-landing-page/</guid>
@@ -202,20 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/embed-video-on-website/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Paste the YouTube iframe and you ship 540 KB of someone else&apos;s JavaScript. Self-host and you own the egress bill. Here is how to choose, with the arithmetic.</description>
-    </item>
-    <item>
-      <title>Free demo video software: what the free tier actually gives you</title>
-      <link>https://aidemo.top/blog/free-demo-video-software/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/free-demo-video-software/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Some free demo tools are free forever, some stop you at 5 minutes, and some brand every export. A field guide to which paywall is waiting for you.</description>
-    </item>
-    <item>
-      <title>GIFs in documentation: when a loop beats a screenshot</title>
-      <link>https://aidemo.top/blog/gifs-in-documentation/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/gifs-in-documentation/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>An auto-looping GIF fails a Level A accessibility rule and offers no pause button. When a loop truly beats a still, and how to ship it without the tax.</description>
     </item>
   </channel>
 </rss>

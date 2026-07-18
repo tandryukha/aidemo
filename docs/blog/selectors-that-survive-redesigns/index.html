@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selectors that survive a redesign | aidemo</title>
+<meta name="description" content="Rank browser-automation selectors by what a redesign can break: role and accessible name survive a restyle and relayout; nth-child and hashed classes do not.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/selectors-that-survive-redesigns/">
+<link rel="alternate" type="text/markdown" href="/blog/selectors-that-survive-redesigns/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Selectors that survive a redesign | aidemo">
+<meta property="og:description" content="Rank browser-automation selectors by what a redesign can break: role and accessible name survive a restyle and relayout; nth-child and hashed classes do not.">
+<meta property="og:url" content="https://aidemo.top/blog/selectors-that-survive-redesigns/">
+<meta property="og:image" content="https://aidemo.top/blog/images/selectors-that-survive-redesigns-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Selectors that survive a redesign | aidemo">
+<meta name="twitter:description" content="Rank browser-automation selectors by what a redesign can break: role and accessible name survive a restyle and relayout; nth-child and hashed classes do not.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/selectors-that-survive-redesigns-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Selectors that survive a redesign",
+  "description": "Rank browser-automation selectors by what a redesign can break: role and accessible name survive a restyle and relayout; nth-child and hashed classes do not.",
+  "image": [
+    "https://aidemo.top/blog/images/selectors-that-survive-redesigns-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/selectors-that-survive-redesigns/"
+  },
+  "wordCount": 2185,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Using ARIA, the First Rule of ARIA Use (prefer native HTML semantics)",
+      "url": "https://www.w3.org/TR/using-aria/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Accessible name (what it is and where it comes from)",
+      "url": "https://developer.mozilla.org/en-US/docs/Glossary/Accessible_name"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Testing Library — About Queries and the query priority order (getByRole first, getByTestId last)",
+      "url": "https://testing-library.com/docs/queries/about/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Best Practices (prefer user-facing attributes over CSS or XPath)",
+      "url": "https://playwright.dev/docs/best-practices"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cypress — Best Practices, Selecting Elements (use data-* attributes isolated from all changes)",
+      "url": "https://docs.cypress.io/app/core-concepts/best-practices"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "styled-components — Basics (generates unique class names for your styles)",
+      "url": "https://styled-components.com/docs/basics"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Selectors that survive a redesign",
+      "item": "https://aidemo.top/blog/selectors-that-survive-redesigns/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the most durable way to select a UI element for automation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Match the element the way a user identifies it: by its role and its accessible name, for example a button named \"Upgrade.\" That handle lives in the accessibility tree, which a visual redesign is constrained not to break because breaking it breaks screen readers, so it survives the class-name and layout churn that kills CSS and XPath selectors. When an element has no name, add an aria-label first and a data-testid only where semantics genuinely run out."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why did my demo break after a redesign when the app still works?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the selector was pinned to the presentation layer the redesign exists to change, not to the behavior it preserves. A redesign rewrites class names, spacing, and DOM structure while keeping the same buttons and labels, so a selector built on nth-child position or a generated class like .css-1q2w3e stops matching even though the button is right there doing its job. Rewrite those selectors to target the role, the accessible name, or an explicit test id and the same redesign passes over them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I add data-testid attributes just for a demo video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add them sparingly, and prefer an accessible name where one fits. A data-testid is the most change-proof hook because it is isolated from CSS and layout, but it is invisible to users, asserts nothing about the visible label, and can be deleted by someone who never knew the demo depended on it. Reach for aria-label on an unnamed control first, since it fixes accessibility and gives you a user-facing handle in the same edit, and reserve test ids for targets with no semantics at all, like a chart or a canvas."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Selectors that survive a redesign</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Selectors that survive a redesign</h1>
+        <p class="article-dek">A demo pinned to nth-child and hashed CSS classes breaks the day a designer touches the layout. Here are the selectors that outlast a redesign.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-redesign-rewrites-the-look-and-leaves-the-job-alone">A redesign rewrites the look and leaves the job alone</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#rank-a-selector-by-what-a-redesign-can-touch">Rank a selector by what a redesign can touch</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#one-card-before-and-after-a-redesign">One card, before and after a redesign</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-the-element-has-no-name-to-grab">When the element has no name to grab</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-demo-asks-of-a-selector-that-a-test-does-not">What a demo asks of a selector that a test does not</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/selectors-that-survive-redesigns-800.webp" srcset="/blog/images/selectors-that-survive-redesigns-400.webp 400w, /blog/images/selectors-that-survive-redesigns-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A heavy cast-iron ship's anchor resting on its two curved flukes"><figcaption>It holds because it bites the deep bed, not the surf on top, which is exactly why a role-and-name selector outlives a redesign that churns everything on the surface.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A visual redesign rewrites presentation (classes, layout, DOM) and is constrained to preserve semantics (role + accessible name). Pin selectors to the half it cannot touch.</li>
+    <li>Rank selectors by change type: role/name and text survive a restyle and relayout but break on a copy edit; data-testid survives cosmetic change; nth-child and hashed classes die on relayout.</li>
+    <li>Worked case: a card moved to CSS-in-JS kept getByRole({name:&quot;Upgrade&quot;}) and getByText but broke .btn--primary and :nth-child(3) — half the selectors survived a full markup rewrite.</li>
+    <li>For an icon-only or canvas target with no name, add aria-label first (it fixes accessibility and yields a user-facing handle); fall back to data-testid only where semantics run out.</li>
+    <li>A demo needs more than a test: the selector must resolve AND land in a predictable spot for the cursor and zoom, so resilient selectors double as a near-free preflight drift check.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-redesign-rewrites-the-look-and-leaves-the-job-alone">A redesign rewrites the look and leaves the job alone<a class="hanchor" href="#a-redesign-rewrites-the-look-and-leaves-the-job-alone" aria-label="Link to section: A redesign rewrites the look and leaves the job alone">#</a></h2>
+<p>A visual redesign is a promise about what will not change. The team recolors, respaces, and re-lays out the interface, ships a new component library, swaps hand-written CSS for utility classes or a CSS-in-JS runtime. What it does not touch, on purpose, is the work the screen does. The Submit button still submits, the search field still searches, the account menu still opens the account menu. A redesign that changed those would not be a redesign, it would be a different product.</p>
+<p>So a demo that breaks the morning after a redesign broke on the half that was contracted to change. The click that used to land on a button now lands on empty space, the cursor travels to the wrong spot, the narration describes a step that did not happen, and none of that is because the button left. It is because the selector was pinned to the paint, not to the plumbing.</p>
+<p>That split has a name in the browser. What renders on screen is backed by two overlapping trees: the render tree of tags, classes, and geometry that a stylesheet owns, and the accessibility tree of roles and names that assistive technology reads. A redesign is free to rewrite the first and is strongly constrained not to break the second, because breaking it breaks screen readers. The W3C&#39;s first rule of ARIA is to reach for &quot;a native HTML element ... with the semantics and behavior you require already built in&quot; before repurposing markup<sup class="article-cite"><a href="#src-1" title="W3C — Using ARIA, the First Rule of ARIA Use (prefer native HTML semantics)">1</a></sup>, and an accessible name comes straight from the visible text, a label, or an <code>aria-label</code>, which is &quot;the text associated with an HTML element that provides users of assistive technology with a label for the element&quot;<sup class="article-cite"><a href="#src-2" title="MDN — Accessible name (what it is and where it comes from)">2</a></sup>. That is why a button stays a <code>button</code> named &quot;Submit&quot; across three restyles: the name is the element&#39;s contract with every user who cannot see it. Pin your selectors to the tree a redesign is not allowed to wreck, and most redesigns pass over the demo without touching it.</p>
+<h2 id="rank-a-selector-by-what-a-redesign-can-touch">Rank a selector by what a redesign can touch<a class="hanchor" href="#rank-a-selector-by-what-a-redesign-can-touch" aria-label="Link to section: Rank a selector by what a redesign can touch">#</a></h2>
+<p>&quot;Resilient selector&quot; is not one property, it is resilience against a specific kind of change. Sort the changes a redesign actually makes:</p>
+<ul>
+<li><strong>Restyle</strong> — class names, colors, and spacing swap out while the DOM and text stay put. Moving to Tailwind or a CSS-in-JS library does this to every class name at once.</li>
+<li><strong>Relayout</strong> — the DOM restructures: wrappers get added, elements reorder, a two-column grid becomes a stack. This is what breaks anything that counts position.</li>
+<li><strong>Recopy</strong> — the visible words change, so &quot;Submit&quot; becomes &quot;Save,&quot; or the app is localized and every label is now in German.</li>
+<li><strong>Refunction</strong> — the control is genuinely removed or replaced. No selector should survive this, and one that does is lying to you.</li>
+</ul>
+<p>Cross the common selector strategies against those four and the ranking stops being a matter of taste. A yes survives the change, a no breaks on it, and &quot;breaks as it should&quot; is the one case where a broken selector is the correct outcome.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Selector strategy</th>
+<th>Restyle</th>
+<th>Relayout</th>
+<th>Recopy</th>
+<th>Refunction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Role + accessible name (<code>getByRole</code> with a name)</td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+<td>breaks as it should</td>
+</tr>
+<tr>
+<td>Visible text or label (<code>getByText</code>, <code>getByLabel</code>)</td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+<td>breaks as it should</td>
+</tr>
+<tr>
+<td><code>data-testid</code> / <code>data-cy</code></td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>breaks as it should</td>
+</tr>
+<tr>
+<td>Semantic attribute (<code>#id</code>, <code>name=</code>, <code>type=</code>, <code>href</code>)</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>breaks as it should</td>
+</tr>
+<tr>
+<td>Structural CSS (<code>nth-child</code>, <code>&gt;</code>, descendant chains)</td>
+<td>yes</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Generated class (<code>.css-1q2w3e</code>, <code>.sc-bdVaJa</code>)</td>
+<td>no</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Absolute XPath (<code>/html/body/div[2]/…</code>)</td>
+<td>no</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+</tbody></table></div>
+<p>The three testing frameworks converge on the top rows for the same reason. Testing Library ranks <code>getByRole</code> first because it queries &quot;every element that is exposed in the accessibility tree,&quot; and puts <code>getByTestId</code> last, only &quot;for cases where you can&#39;t match by role or text,&quot; because &quot;the user cannot see (or hear)&quot; a test id<sup class="article-cite"><a href="#src-3" title="Testing Library — About Queries and the query priority order (getByRole first, getByTestId last)">3</a></sup>. Playwright&#39;s rule is blunter: &quot;Prefer user-facing attributes to XPath or CSS selectors,&quot; because &quot;your DOM can easily change so having your tests depend on your DOM structure can lead to failing tests&quot;<sup class="article-cite"><a href="#src-4" title="Playwright — Best Practices (prefer user-facing attributes over CSS or XPath)">4</a></sup>. Cypress tells you not to target <code>id</code>, <code>class</code>, or <code>tag</code>, and not to &quot;target elements that may change their textContent&quot;<sup class="article-cite"><a href="#src-5" title="Cypress — Best Practices, Selecting Elements (use data-* attributes isolated from all changes)">5</a></sup>.</p>
+<p>Read down the columns and two distinct failure modes separate out. The bottom three rows are the ones a routine restyle or relayout kills, and they are exactly the selectors an auto-generated recorder emits by default. The top two rows survive a redesign but die on a copy edit or a translation, which is fine for a single-locale demo and a live problem the day you localize the narration and the UI. Only the middle rows, an explicit attribute someone put there on purpose, survive everything short of the control being deleted.</p>
+<h2 id="one-card-before-and-after-a-redesign">One card, before and after a redesign<a class="hanchor" href="#one-card-before-and-after-a-redesign" aria-label="Link to section: One card, before and after a redesign">#</a></h2>
+<p>Take a pricing card with an upgrade button, written first in hand-authored CSS:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">div</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"card card--pro"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">h3</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"card__title"</span><span style="color:#383A42">>Pro&#x3C;/</span><span style="color:#E45649">h3</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">p</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"card__price"</span><span style="color:#383A42">>$29/mo&#x3C;/</span><span style="color:#E45649">p</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">button</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"btn btn--primary"</span><span style="color:#383A42">>Upgrade&#x3C;/</span><span style="color:#E45649">button</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">div</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p>Four ways to grab that button, all of which work today:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">js</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">page.</span><span style="color:#4078F2">getByRole</span><span style="color:#383A42">(</span><span style="color:#50A14F">'button'</span><span style="color:#383A42">, { </span><span style="color:#E45649">name</span><span style="color:#0184BC">:</span><span style="color:#50A14F"> 'Upgrade'</span><span style="color:#383A42"> })    </span><span style="color:#6f747e;font-style:italic">// role + name</span></span>
+<span class="line"><span style="color:#383A42">page.</span><span style="color:#4078F2">getByText</span><span style="color:#383A42">(</span><span style="color:#50A14F">'Upgrade'</span><span style="color:#383A42">)                         </span><span style="color:#6f747e;font-style:italic">// visible text</span></span>
+<span class="line"><span style="color:#383A42">page.</span><span style="color:#4078F2">locator</span><span style="color:#383A42">(</span><span style="color:#50A14F">'.btn--primary'</span><span style="color:#383A42">)                     </span><span style="color:#6f747e;font-style:italic">// class</span></span>
+<span class="line"><span style="color:#383A42">page.</span><span style="color:#4078F2">locator</span><span style="color:#383A42">(</span><span style="color:#50A14F">'.card--pro > button:nth-child(3)'</span><span style="color:#383A42">)  </span><span style="color:#6f747e;font-style:italic">// structure</span></span></code></pre>
+</div>
+<p>Now the team adopts a component library and a CSS-in-JS runtime. Same card, same button, same word on it, but the markup is unrecognizable:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">div</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"css-1a2b3c"</span><span style="color:#986801"> data-variant</span><span style="color:#383A42">=</span><span style="color:#50A14F">"pro"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">div</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"css-9z8y7x"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">    &#x3C;</span><span style="color:#E45649">span</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"css-4d5e6f"</span><span style="color:#383A42">>Pro&#x3C;/</span><span style="color:#E45649">span</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">    &#x3C;</span><span style="color:#E45649">span</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"css-7g8h9i"</span><span style="color:#383A42">>$29/mo&#x3C;/</span><span style="color:#E45649">span</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;/</span><span style="color:#E45649">div</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">button</span><span style="color:#986801"> class</span><span style="color:#383A42">=</span><span style="color:#50A14F">"css-0j1k2l"</span><span style="color:#383A42">>Upgrade&#x3C;/</span><span style="color:#E45649">button</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">div</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p>A wrapper <code>div</code> pushed the button out of position three, the class names are machine-generated hashes, and a library like styled-components, which &quot;generates unique class names for your styles&quot; by design<sup class="article-cite"><a href="#src-6" title="styled-components — Basics (generates unique class names for your styles)">6</a></sup>, hands you a fresh hash the moment anyone edits the styles. Re-run the same four selectors:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Selector</th>
+<th>After the redesign</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getByRole(&#39;button&#39;, { name: &#39;Upgrade&#39; })</code></td>
+<td>still one button named Upgrade</td>
+</tr>
+<tr>
+<td><code>getByText(&#39;Upgrade&#39;)</code></td>
+<td>the word did not change</td>
+</tr>
+<tr>
+<td><code>.btn--primary</code></td>
+<td>that class no longer exists</td>
+</tr>
+<tr>
+<td><code>.card--pro &gt; button:nth-child(3)</code></td>
+<td>wrong parent, wrong index</td>
+</tr>
+</tbody></table></div>
+<p>Half the selectors survived a change that touched every line of markup, and the half that survived is the half that describes the button the way a person does: the thing you click that says &quot;Upgrade.&quot; The two that broke described it the way the old stylesheet happened to arrange it. Nothing about the redesign was hostile to the demo. The fragile selectors simply bet on the layer whose entire job is to change.</p>
+<h2 id="when-the-element-has-no-name-to-grab">When the element has no name to grab<a class="hanchor" href="#when-the-element-has-no-name-to-grab" aria-label="Link to section: When the element has no name to grab">#</a></h2>
+<p>The ranking assumes the thing you click carries an accessible name or stable text. Plenty of demo targets do not: an icon-only button, a chart or a <code>canvas</code>, a drag handle, a bare marketing hero, a third-party embed. For those the honest answer is the one every framework reaches for last on purpose, which is to add a hook.</p>
+<p>The two ways to add one are not equal, and the better one fixes a real bug on the way. An icon button with no text is invisible to a screen reader too, so <code>aria-label=&quot;Delete row&quot;</code> both names it for assistive tech and hands your selector a durable, user-facing handle in one move, since the same string then resolves as <code>getByRole(&#39;button&#39;, { name: &#39;Delete row&#39; })</code>. Only when even that does not fit, a <code>canvas</code> or a purely decorative node, fall back to an explicit <code>data-testid</code>, which Cypress recommends precisely because it is &quot;isolated from all changes&quot; to CSS or behavior<sup class="article-cite"><a href="#src-5" title="Cypress — Best Practices, Selecting Elements (use data-* attributes isolated from all changes)">5</a></sup>. The tradeoff is real: a test id survives every cosmetic change but is invisible, so it can be dropped by someone who never knew a demo relied on it, and it asserts nothing about whether the visible label is still correct. Prefer the accessible name, and keep the test id for where semantics genuinely run out. Which elements deserve a permanent hook is an instrumentation question that pays off for tests, agents, and demo capture at once, not a demo-only tax.</p>
+<h2 id="what-a-demo-asks-of-a-selector-that-a-test-does-not">What a demo asks of a selector that a test does not<a class="hanchor" href="#what-a-demo-asks-of-a-selector-that-a-test-does-not" aria-label="Link to section: What a demo asks of a selector that a test does not">#</a></h2>
+<p>A passing test needs one thing from a selector: that it resolves to the right element. A demo needs two. It needs the selector to resolve, and it needs the element to sit in a predictable place, because a demo does not merely assert against the element, it moves a cursor to it, holds a beat, and often zooms the frame around it. A selector that resolves to a correct-but-relocated element turns a green check into a cursor gliding to the wrong corner on camera. That is the extra bar a redesign raises for footage specifically, and it is why &quot;the selector still resolves&quot; is necessary but not sufficient: resilience buys you the element, and <a href="/blog/deterministic-browser-automation-for-video/">pinning the viewport, the clock, and the fonts</a> buys you where it lands.</p>
+<p>The payoff is that resilient selectors do double duty. Because a demo built as <a href="/blog/demos-as-code/">a committed spec you rebuild rather than re-record</a> re-runs its selectors on every render, the selector list is also a change detector: run the storyboard&#39;s actions against tomorrow&#39;s build with no voice and no encode, and any selector that stopped matching turns into a failed step instead of a broken video shipped to a buyer, which is the cheapest way to <a href="/blog/detecting-ui-drift/">catch a UI change before the demo lies about the product</a>. This is also why the durable part of the work belongs at authoring time. When <a href="/blog/coding-agents-that-make-demo-videos/">a coding agent writes the storyboard</a>, the highest-value thing it can do is verify every selector resolves against the live app and choose the role-and-name handle over whatever a screen scrape suggested, because a selector chosen well once survives the redesigns the demo will outlive. aidemo, the engine we build, leans on exactly this: its storyboards address elements by role, text, and test id and dry-run those selectors against the live UI as a preflight, so a redesign that moved a button fails loudly rather than rendering a cursor clicking nothing. The honest limits are worth stating plainly: it captures the browser and nothing native, the storyboard is authored by an agent instead of assembled in a visual editor, and there is no timeline you drag clips around in. Those constraints are the price of the property that matters here: a selector pinned to the accessibility tree is what keeps one storyboard recording the same demo across a year of restyles.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.w3.org/TR/using-aria/" rel="noopener">W3C — Using ARIA, the First Rule of ARIA Use (prefer native HTML semantics)</a></li>
+<li id="src-2"><a href="https://developer.mozilla.org/en-US/docs/Glossary/Accessible_name" rel="noopener">MDN — Accessible name (what it is and where it comes from)</a></li>
+<li id="src-3"><a href="https://testing-library.com/docs/queries/about/" rel="noopener">Testing Library — About Queries and the query priority order (getByRole first, getByTestId last)</a></li>
+<li id="src-4"><a href="https://playwright.dev/docs/best-practices" rel="noopener">Playwright — Best Practices (prefer user-facing attributes over CSS or XPath)</a></li>
+<li id="src-5"><a href="https://docs.cypress.io/app/core-concepts/best-practices" rel="noopener">Cypress — Best Practices, Selecting Elements (use data-* attributes isolated from all changes)</a></li>
+<li id="src-6"><a href="https://styled-components.com/docs/basics" rel="noopener">styled-components — Basics (generates unique class names for your styles)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-the-most-durable-way-to-select-a-ui-element-for-automation" class="blog-faq-q">What is the most durable way to select a UI element for automation?<a class="hanchor" href="#what-is-the-most-durable-way-to-select-a-ui-element-for-automation" aria-label="Link to section: What is the most durable way to select a UI element for automation?">#</a></h3>
+<p>Match the element the way a user identifies it: by its role and its accessible name, for example a button named &quot;Upgrade.&quot; That handle lives in the accessibility tree, which a visual redesign is constrained not to break because breaking it breaks screen readers, so it survives the class-name and layout churn that kills CSS and XPath selectors. When an element has no name, add an <code>aria-label</code> first and a <code>data-testid</code> only where semantics genuinely run out.</p>
+<h3 id="why-did-my-demo-break-after-a-redesign-when-the-app-still-works" class="blog-faq-q">Why did my demo break after a redesign when the app still works?<a class="hanchor" href="#why-did-my-demo-break-after-a-redesign-when-the-app-still-works" aria-label="Link to section: Why did my demo break after a redesign when the app still works?">#</a></h3>
+<p>Because the selector was pinned to the presentation layer the redesign exists to change, not to the behavior it preserves. A redesign rewrites class names, spacing, and DOM structure while keeping the same buttons and labels, so a selector built on <code>nth-child</code> position or a generated class like <code>.css-1q2w3e</code> stops matching even though the button is right there doing its job. Rewrite those selectors to target the role, the accessible name, or an explicit test id and the same redesign passes over them.</p>
+<h3 id="should-i-add-data-testid-attributes-just-for-a-demo-video" class="blog-faq-q">Should I add data-testid attributes just for a demo video?<a class="hanchor" href="#should-i-add-data-testid-attributes-just-for-a-demo-video" aria-label="Link to section: Should I add data-testid attributes just for a demo video?">#</a></h3>
+<p>Add them sparingly, and prefer an accessible name where one fits. A <code>data-testid</code> is the most change-proof hook because it is isolated from CSS and layout, but it is invisible to users, asserts nothing about the visible label, and can be deleted by someone who never knew the demo depended on it. Reach for <code>aria-label</code> on an unnamed control first, since it fixes accessibility and gives you a user-facing handle in the same edit, and reserve test ids for targets with no semantics at all, like a chart or a canvas.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">resilient selectors</span>
+        <span class="article-tag">browser automation</span>
+        <span class="article-tag">data-testid</span>
+        <span class="article-tag">accessibility tree</span>
+        <span class="article-tag">demos as code</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/deterministic-browser-automation-for-video-400.webp" srcset="/blog/images/deterministic-browser-automation-for-video-400.webp 400w, /blog/images/deterministic-browser-automation-for-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Two stacked filmstrips of one demo flow, the pinned one identical frame for frame, the unpinned one drifting on a spinner, a font swap, and a layout column"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-redesign-rewrites-the-look-and-leaves-the-job-alone">A redesign rewrites the look and leaves the job alone</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#rank-a-selector-by-what-a-redesign-can-touch">Rank a selector by what a redesign can touch</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#one-card-before-and-after-a-redesign">One card, before and after a redesign</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-the-element-has-no-name-to-grab">When the element has no name to grab</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-demo-asks-of-a-selector-that-a-test-does-not">What a demo asks of a selector that a test does not</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

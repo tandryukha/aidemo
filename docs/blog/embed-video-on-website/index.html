@@ -317,7 +317,7 @@
 <p>The folklore gets one thing wrong in the other direction, too: a hyperscaler CDN can charge several times a commodity CDN&#39;s rate for the identical bytes, so &quot;self-hosting is cheap&quot; holds only if you don&#39;t serve it from a big cloud&#39;s default egress. And video earns its keep only when the page still loads fast to begin with, a claim <a href="/blog/does-video-increase-conversion/">traced through the actual conversion data</a> rather than assumed.</p>
 <h2 id="adaptive-bitrate-is-the-line-a-single-file-cant-cross-for-free">Adaptive bitrate is the line a single file can&#39;t cross for free<a class="hanchor" href="#adaptive-bitrate-is-the-line-a-single-file-cant-cross-for-free" aria-label="Link to section: Adaptive bitrate is the line a single file can't cross for free">#</a></h2>
 <p>The quiet reason a raw <code>&lt;video&gt;</code> loses at scale is that it hands every viewer the same file. A phone on a congested cell network downloads the identical 2 Mbps 1080p stream as a workstation on fiber, so the phone buffers and the desktop is under-served. Streaming hosts and YouTube solve this the same way: they encode your upload into a ladder of renditions and switch between them per segment as the connection changes. Cloudflare Stream, for one, &quot;automatically encodes and delivers videos using the H.264 codec with adaptive bitrate streaming, supporting resolutions from 360p to 1080p&quot; for &quot;smooth playback across different devices and network conditions&quot;<sup class="article-cite"><a href="#src-6" title="Cloudflare Stream — Overview (adaptive bitrate)">6</a></sup>.</p>
-<p>You can do this yourself: run ffmpeg to produce three or four renditions, generate an HLS playlist, and serve the segments. It works, and it is precisely the labor a streaming host charges you to skip. So the honest read is that self-hosting a single MP4 is fine for a short clip on a docs page or a README, where every viewer is on a decent connection and the file is small enough that one bitrate suits everyone. It stops being fine the moment the video is long, watched globally, or the difference between a smooth play and a spinner decides whether the demo lands. If the embed also has to autoplay muted the way a background loop does, the attribute set is the same whichever host serves the bytes.</p>
+<p>You can do this yourself: run ffmpeg to produce three or four renditions, generate an HLS playlist, and serve the segments. It works, and it is precisely the labor a streaming host charges you to skip. So the honest read is that self-hosting a single MP4 is fine for a short clip on a docs page or a README, where every viewer is on a decent connection and the file is small enough that one bitrate suits everyone. It stops being fine the moment the video is long, watched globally, or the difference between a smooth play and a spinner decides whether the demo lands. If the embed also has to <a href="/blog/autoplay-video-on-website/">autoplay muted the way a background loop does</a>, the attribute set is the same whichever host serves the bytes.</p>
 <h2 id="the-third-party-you-embedded-also-embedded-itself">The third party you embedded also embedded itself<a class="hanchor" href="#the-third-party-you-embedded-also-embedded-itself" aria-label="Link to section: The third party you embedded also embedded itself">#</a></h2>
 <p>A YouTube iframe is not just a video; it is a Google-owned script running on your origin with its own agenda. By default the standard embed can use the view to personalize the visitor&#39;s experience across the web. YouTube&#39;s own privacy-enhanced mode, which you enable by switching the domain to <code>youtube-nocookie.com</code>, narrows that: a view in that mode &quot;will not be used to personalize&quot; the viewer&#39;s browsing, and any ads served &quot;will likewise be non-personalized&quot;<sup class="article-cite"><a href="#src-9" title="YouTube Help — Embed videos and playlists (privacy-enhanced mode)">9</a></sup>. It is an improvement, not an exit. The embed still loads Google&#39;s player and connects to Google&#39;s servers, and you have to opt in by editing the URL.</p>
 <p>Self-hosting and streaming hosts sidestep the question, because the bytes and the player come from your own domain. Bunny Stream, Mux, and Cloudflare Stream serve a first-party player with no advertising cookies riding along on the play. For a privacy-sensitive product, a consent-conscious jurisdiction, or simply a page you would rather not hand to another company&#39;s analytics, that is the deciding column, and it is one self-hosting a <code>&lt;video&gt;</code> wins outright, since the only bytes are the ones you shipped. Owning the player also means you own the caption track instead of inheriting YouTube&#39;s auto-captions, and <a href="/blog/demo-video-captions/">captions are not optional on muted playback</a>.</p>
@@ -381,21 +381,21 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
+<a class="article-card" href="/blog/autoplay-video-on-website/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/autoplay-video-on-website-400.webp" srcset="/blog/images/autoplay-video-on-website-400.webp 400w, /blog/images/autoplay-video-on-website-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pinwheel on a slender stick, its vanes caught mid-turn"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Autoplay video on a website: the recipe that works everywhere</h3>
+    <p class="article-card-excerpt">Most autoplay bugs are a missing word from one line of markup. Here is the four-attribute set that plays in every browser, and the code for when it still won't.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/demo-video-metrics/">
   <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-metrics-400.webp" srcset="/blog/images/demo-video-metrics-400.webp 400w, /blog/images/demo-video-metrics-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A coiled stethoscope resting on a smooth tabletop, its chest-piece lying flat"></div>
   <div class="article-card-content">
     <div class="article-card-category">Video Marketing for Software</div>
     <h3 class="article-card-title">Demo video metrics: play rate, retention, and assisted conversions</h3>
     <p class="article-card-excerpt">Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/demo-video-on-landing-page/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-on-landing-page-400.webp" srcset="/blog/images/demo-video-on-landing-page-400.webp 400w, /blog/images/demo-video-on-landing-page-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A paper airplane caught in mid-glide, nose tilted slightly upward"></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Video Marketing for Software</div>
-    <h3 class="article-card-title">Putting a demo video on your landing page without wrecking load time</h3>
-    <p class="article-card-excerpt">A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>

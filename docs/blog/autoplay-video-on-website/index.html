@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autoplay Video on a Website: The Recipe | aidemo</title>
+<meta name="description" content="The exact attribute set that autoplays video across Chrome, Safari, and Firefox: muted, loop, playsinline, plus the iOS poster fix and a blocked-autoplay fix.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/autoplay-video-on-website/">
+<link rel="alternate" type="text/markdown" href="/blog/autoplay-video-on-website/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Autoplay Video on a Website: The Recipe | aidemo">
+<meta property="og:description" content="The exact attribute set that autoplays video across Chrome, Safari, and Firefox: muted, loop, playsinline, plus the iOS poster fix and a blocked-autoplay fix.">
+<meta property="og:url" content="https://aidemo.top/blog/autoplay-video-on-website/">
+<meta property="og:image" content="https://aidemo.top/blog/images/autoplay-video-on-website-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Autoplay Video on a Website: The Recipe | aidemo">
+<meta name="twitter:description" content="The exact attribute set that autoplays video across Chrome, Safari, and Firefox: muted, loop, playsinline, plus the iOS poster fix and a blocked-autoplay fix.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/autoplay-video-on-website-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Autoplay video on a website: the recipe that works everywhere",
+  "description": "The exact attribute set that autoplays video across Chrome, Safari, and Firefox: muted, loop, playsinline, plus the iOS poster fix and a blocked-autoplay fix.",
+  "image": [
+    "https://aidemo.top/blog/images/autoplay-video-on-website-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/autoplay-video-on-website/"
+  },
+  "wordCount": 1969,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The Video Embed element (\u003cvideo>)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome — Autoplay policy in Chrome",
+      "url": "https://developer.chrome.com/blog/autoplay"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "WebKit — New \u003cvideo> Policies for iOS",
+      "url": "https://webkit.org/blog/6784/new-video-policies-for-ios/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Autoplay guide for media and Web Audio APIs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — HTMLMediaElement.play()",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Navigator.getAutoplayPolicy()",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getAutoplayPolicy"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Media Fragments URI 1.0 (temporal dimension)",
+      "url": "https://www.w3.org/TR/media-frags/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Mux — Best Practices for Video Playback: A Complete Guide (2025)",
+      "url": "https://www.mux.com/articles/best-practices-for-video-playback-a-complete-guide-2025"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Autoplay video on a website: the recipe that works everywhere",
+      "item": "https://aidemo.top/blog/autoplay-video-on-website/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why won't my video autoplay on iPhone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost always one of two missing pieces. iOS requires the playsinline attribute or it forces the clip into fullscreen instead of playing it in place, and it requires muted (or a source with no audio track) to start without a tap (WebKit, 2017). A third, subtler cause: iOS only starts a video that is visible on-screen, so a loop hidden in a display:none tab or an off-screen carousel slide will not begin until it is actually painted."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I autoplay a video with sound?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On a first visit, you mostly cannot. Chrome allows unmuted autoplay only after the visitor has interacted with your site, has a high enough Media Engagement Index on desktop, or has installed the site (Chrome, 2026), and other engines are just as strict. The shippable pattern is to autoplay muted, then offer a visible unmute button, so the visitor opts into sound with the click the policy was waiting for."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is my HTML video not autoplaying in Chrome or Firefox?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Check for the muted attribute first: both browsers block audible autoplay by default and allow it only when the audio is muted or the volume is zero (MDN, 2026). If muted is present and it still fails, stop assuming success and read the play() promise, which rejects with a NotAllowedError when the browser refuses, so you can fall back to showing controls and a poster instead of a frozen frame."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>Autoplay video on a website: the recipe that works everywhere</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">Autoplay video on a website: the recipe that works everywhere</h1>
+        <p class="article-dek">Most autoplay bugs are a missing word from one line of markup. Here is the four-attribute set that plays in every browser, and the code for when it still won't.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 8 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-four-attributes-that-make-a-video-play-itself">The four attributes that make a video play itself</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-the-browser-mutes-you-and-when-it-lets-sound-through">Why the browser mutes you, and when it lets sound through</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-same-markup-five-different-browsers">The same markup, five different browsers</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-ios-poster-problem-and-the-t0001-fix">The iOS poster problem, and the #t=0.001 fix</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#preload-the-dial-that-autoplay-quietly-overrides">Preload: the dial that autoplay quietly overrides</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#detecting-a-blocked-autoplay-instead-of-hoping">Detecting a blocked autoplay instead of hoping</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/autoplay-video-on-website-800.webp" srcset="/blog/images/autoplay-video-on-website-400.webp 400w, /blog/images/autoplay-video-on-website-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A pinwheel on a slender stick, its vanes caught mid-turn"><figcaption>The video that plays everywhere is the one that never asks to be heard.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The cross-browser recipe is four attributes: autoplay muted loop playsinline. Muted is the price; Chrome states muted autoplay is always allowed, audible autoplay is blocked without user interaction.</li>
+    <li>Chrome's Media Engagement Index (desktop only) grants audible autoplay after qualifying views: consumption over 7 seconds, audio unmuted, tab active, frame larger than 200x140 pixels.</li>
+    <li>iOS needs playsinline or the video forces fullscreen, and a muted video that gains an audio track or is unmuted without a user gesture will pause (WebKit).</li>
+    <li>autoplay overrides preload, so preload=&quot;none&quot; is ignored on an autoplaying video; control page cost with file size and loading=&quot;lazy&quot; instead.</li>
+    <li>Never assume autoplay worked: play() rejects with NotAllowedError when blocked, and getAutoplayPolicy() returns allowed, allowed-muted, or disallowed so you can fall back to a play button.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-four-attributes-that-make-a-video-play-itself">The four attributes that make a video play itself<a class="hanchor" href="#the-four-attributes-that-make-a-video-play-itself" aria-label="Link to section: The four attributes that make a video play itself">#</a></h2>
+<p>The whole recipe is one line of markup, and most autoplay bugs are a missing word from it:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">video</span><span style="color:#986801"> autoplay</span><span style="color:#986801"> muted</span><span style="color:#986801"> loop</span><span style="color:#986801"> playsinline</span></span>
+<span class="line"><span style="color:#986801">       poster</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/demo-poster.webp"</span><span style="color:#986801"> width</span><span style="color:#383A42">=</span><span style="color:#50A14F">"1280"</span><span style="color:#986801"> height</span><span style="color:#383A42">=</span><span style="color:#50A14F">"720"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/demo.webm"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/webm"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">  &#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/demo.mp4"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/mp4"</span><span style="color:#383A42">></span></span>
+<span class="line"><span style="color:#383A42">&#x3C;/</span><span style="color:#E45649">video</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p>Four boolean attributes, each doing exactly one job. <code>autoplay</code> asks the browser to start without a click. <code>muted</code> is the price of that request: browsers &quot;block audio (or videos with an unmuted audio track) from autoplaying&quot;<sup class="article-cite"><a href="#src-1" title="MDN — The Video Embed element (&lt;video&gt;)">1</a></sup>, so a clip that carries sound just sits there until you silence it. <code>loop</code> seeks back to the start on reaching the end, which is what turns a clip into a background loop. <code>playsinline</code> is the one people forget, and on iPhone its absence is the entire bug: without it, elements &quot;will continue to require fullscreen mode for playback on iPhone&quot;<sup class="article-cite"><a href="#src-3" title="WebKit — New &lt;video&gt; Policies for iOS">3</a></sup>.</p>
+<p>Two traps hide in those booleans. Because they are booleans, <code>muted=&quot;false&quot;</code> does nothing (&quot;the audio will be muted if the attribute is present at all&quot;), and <code>autoplay=&quot;false&quot;</code> autoplays anyway<sup class="article-cite"><a href="#src-1" title="MDN — The Video Embed element (&lt;video&gt;)">1</a></sup>. To turn either off you delete the attribute. And <code>muted</code> has to be in the HTML the server sends, not set by a script after parse, because the browser decides whether to honor <code>autoplay</code> at the moment it reads the element.</p>
+<p>That markup autoplays a silent loop in every current browser. The rest of this is the four ways it still breaks: sound, iOS, page weight, and the quiet case where it does not play at all and your JavaScript never notices.</p>
+<h2 id="why-the-browser-mutes-you-and-when-it-lets-sound-through">Why the browser mutes you, and when it lets sound through<a class="hanchor" href="#why-the-browser-mutes-you-and-when-it-lets-sound-through" aria-label="Link to section: Why the browser mutes you, and when it lets sound through">#</a></h2>
+<p>Autoplay with sound is not broken, it is rationed. Chrome states the floor plainly, &quot;Muted autoplay is always allowed,&quot; then lists the three ways a page earns the right to start <em>with</em> audio<sup class="article-cite"><a href="#src-2" title="Chrome — Autoplay policy in Chrome">2</a></sup>:</p>
+<ul>
+<li><strong>The visitor has interacted with the domain</strong> already this session: a click, a tap, or a keypress anywhere on the site.</li>
+<li><strong>The Media Engagement Index</strong> clears a per-origin threshold, on desktop only. Chrome quietly scores whether you actually watch a site: a qualifying view needs consumption &quot;exceeding seven seconds,&quot; audio &quot;present and unmuted,&quot; the tab active, and the frame larger than 200x140 pixels. Sites you watch a lot accrue enough MEI to start with sound; a first-time visitor&#39;s does not.</li>
+<li><strong>The site is installed</strong> as a PWA or added to the home screen.</li>
+</ul>
+<p>A fourth path exists for embeds: a top frame can hand the permission down with <code>allow=&quot;autoplay&quot;</code> on the iframe, or an <code>Permissions-Policy: autoplay=(self)</code> header<sup class="article-cite"><a href="#src-4" title="MDN — Autoplay guide for media and Web Audio APIs">4</a></sup>. That is how a hosted player nested in your page inherits your page&#39;s autoplay right.</p>
+<p>The consequence is blunt: a first-time visitor to a landing page will never hear your video start on its own, and there is no attribute that changes that. If the audio carries the message, autoplay muted and add a visible unmute control instead of fighting the policy, which is also Mux&#39;s advice, to &quot;provide a clear unmute button when using muted autoplay&quot;<sup class="article-cite"><a href="#src-8" title="Mux — Best Practices for Video Playback: A Complete Guide (2025)">8</a></sup>. Because the first play is silent by construction, whatever the video needs to say has to read without sound, which is the whole case for <a href="/blog/demo-video-captions/">captions carrying a muted feed</a>.</p>
+<h2 id="the-same-markup-five-different-browsers">The same markup, five different browsers<a class="hanchor" href="#the-same-markup-five-different-browsers" aria-label="Link to section: The same markup, five different browsers">#</a></h2>
+<p>&quot;Works everywhere&quot; is a claim worth checking, because the conditions differ by engine. Muted autoplay is allowed in all of them; the fine print is where deploys go sideways.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Browser</th>
+<th>Muted autoplay</th>
+<th>Autoplay with sound</th>
+<th>The gotcha to remember</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chrome / Edge, desktop</td>
+<td>Always allowed</td>
+<td>Interaction, MEI, or PWA install</td>
+<td>Your dev machine&#39;s MEI has already earned autoplay your visitors have not</td>
+</tr>
+<tr>
+<td>Chrome, Android</td>
+<td>Always allowed</td>
+<td>Interaction or add-to-home-screen</td>
+<td>No MEI on mobile at all</td>
+</tr>
+<tr>
+<td>Safari, iOS</td>
+<td>Allowed when muted or no audio track</td>
+<td>User gesture only</td>
+<td>Needs <code>playsinline</code>, and must be on-screen to start</td>
+</tr>
+<tr>
+<td>Safari, macOS</td>
+<td>Allowed</td>
+<td>Per-site, user-adjustable</td>
+<td>A visitor can force &quot;Never Auto-Play&quot; for your site</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td>Allowed when muted or volume 0</td>
+<td>Interaction or allowlist</td>
+<td>Blocks audible autoplay by default</td>
+</tr>
+</tbody></table></div>
+<p>The cross-browser floor, then, is exactly the four-attribute recipe: muted, so every engine permits the start, and <code>playsinline</code>, so iOS keeps it in the box. Two WebKit rules deserve their own line, because the bugs they cause look random. First, an iOS video &quot;will only begin playing when visible on-screen,&quot; so a muted loop inside a collapsed accordion, a <code>display:none</code> tab, or an off-screen carousel slide does not start until it is actually painted. Second, the one that eats an afternoon: &quot;if a <code>&lt;video&gt;</code> element gains an audio track or becomes un-muted without a user gesture, playback will pause&quot;<sup class="article-cite"><a href="#src-3" title="WebKit — New &lt;video&gt; Policies for iOS">3</a></sup>. Unmuting a playing video from a script with no click behind it does not raise the volume, it stops the video.</p>
+<h2 id="the-ios-poster-problem-and-the-t0001-fix">The iOS poster problem, and the #t=0.001 fix<a class="hanchor" href="#the-ios-poster-problem-and-the-t0001-fix" aria-label="Link to section: The iOS poster problem, and the #t=0.001 fix">#</a></h2>
+<p>One more iOS trap is about the frame a visitor sees before playback. On desktop a muted loop starts fast enough that the gap never shows. On iOS, if the network is slow or you set <code>preload=&quot;none&quot;</code>, Safari can render a blank rectangle until the first frame decodes. The clean fix is a <code>poster</code> image, which the element shows in place of that blank while the video loads.</p>
+<p>When you cannot ship a separate poster and want the video&#39;s own opening frame to stand in, the trick is a media fragment on the source URL: append <code>#t=0.001</code> and the browser reads it as a request to seek to 0.001 seconds. The <code>#t=</code> syntax is standardized, not a hack of unknown provenance: the W3C Media Fragments URI Recommendation defines Normal Play Time &quot;as seconds, with an optional fractional part,&quot; so <code>#t=0.001</code> is a one-millisecond offset<sup class="article-cite"><a href="#src-7" title="W3C — Media Fragments URI 1.0 (temporal dimension)">7</a></sup>. Seeking there nudges iOS Safari into fetching and painting that first frame as a still instead of leaving the box empty.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">html</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">&#x3C;!-- Paint a still first frame on iOS when no separate poster is set --></span></span>
+<span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/demo.mp4#t=0.001"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/mp4"</span><span style="color:#383A42">></span></span></code></pre>
+</div>
+<p>It is a stopgap, not a substitute for a chosen poster. Which frame you freeze on, a populated UI rather than a spinner or a login screen, is a decision worth making on purpose rather than surrendering to whatever the first millisecond happens to hold.</p>
+<h2 id="preload-the-dial-that-autoplay-quietly-overrides">Preload: the dial that autoplay quietly overrides<a class="hanchor" href="#preload-the-dial-that-autoplay-quietly-overrides" aria-label="Link to section: Preload: the dial that autoplay quietly overrides">#</a></h2>
+<p>The instinct is to reach for <code>preload=&quot;none&quot;</code> to keep a background video off the critical path. On an autoplaying element it does nothing, and knowing why saves a wasted optimization.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th><code>preload</code> value</th>
+<th>What it fetches on load</th>
+<th>Reach for it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>none</code></td>
+<td>Nothing until playback is requested</td>
+<td>The video is click-to-play, below the fold</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>Duration and dimensions only (the spec default)</td>
+<td>The visitor is likely to press play</td>
+</tr>
+<tr>
+<td><code>auto</code> (or empty string)</td>
+<td>As much of the file as the browser likes</td>
+<td>The clip is tiny and almost certainly watched</td>
+</tr>
+</tbody></table></div>
+<p>Here is the catch the recipe posts skip: &quot;the <code>autoplay</code> attribute has precedence over <code>preload</code>&quot;<sup class="article-cite"><a href="#src-1" title="MDN — The Video Embed element (&lt;video&gt;)">1</a></sup>. If the video autoplays, the browser must download it to play it, so <code>preload=&quot;none&quot;</code> is silently ignored. The lever that actually governs an autoplay loop&#39;s page cost is therefore file size, plus <code>loading=&quot;lazy&quot;</code>, which delays both the download and the autoplay until the element nears the viewport, for any loop below the fold. The full performance argument, how a hero video becomes the element Google times and how a poster caps that number, is <a href="/blog/demo-video-on-landing-page/">worked out for the landing-page case</a> and holds the same whether you <a href="/blog/embed-video-on-website/">self-host the file or serve it from a streaming host</a>.</p>
+<h2 id="detecting-a-blocked-autoplay-instead-of-hoping">Detecting a blocked autoplay instead of hoping<a class="hanchor" href="#detecting-a-blocked-autoplay-instead-of-hoping" aria-label="Link to section: Detecting a blocked autoplay instead of hoping">#</a></h2>
+<p>The failure mode nobody codes for is the silent one: autoplay is refused, the page assumes it succeeded, and the visitor stares at a frozen frame with no obvious way to start it. <code>HTMLMediaElement.play()</code> returns a Promise for exactly this reason. When autoplay is denied, it rejects with a <code>NotAllowedError</code>, and the browser &quot;may require the user to explicitly start media playback by clicking a &#39;play&#39; button&quot;<sup class="article-cite"><a href="#src-5" title="MDN — HTMLMediaElement.play()">5</a></sup>. Chrome&#39;s guidance is the same idea in one sentence: &quot;Don&#39;t assume a video will play, and don&#39;t show a pause button when the video is not actually playing&quot;<sup class="article-cite"><a href="#src-2" title="Chrome — Autoplay policy in Chrome">2</a></sup>.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">js</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#A626A4">const</span><span style="color:#986801"> attempt</span><span style="color:#0184BC"> =</span><span style="color:#383A42"> video.</span><span style="color:#4078F2">play</span><span style="color:#383A42">();</span></span>
+<span class="line"><span style="color:#A626A4">if</span><span style="color:#383A42"> (attempt </span><span style="color:#0184BC">!==</span><span style="color:#986801"> undefined</span><span style="color:#383A42">) {</span></span>
+<span class="line"><span style="color:#383A42">  attempt.</span><span style="color:#4078F2">catch</span><span style="color:#383A42">((error) </span><span style="color:#A626A4">=></span><span style="color:#383A42"> {</span></span>
+<span class="line"><span style="color:#A626A4">    if</span><span style="color:#383A42"> (error.</span><span style="color:#E45649">name</span><span style="color:#0184BC"> ===</span><span style="color:#50A14F"> "NotAllowedError"</span><span style="color:#383A42">) {</span></span>
+<span class="line"><span style="color:#383A42">      video.</span><span style="color:#E45649">controls</span><span style="color:#0184BC"> =</span><span style="color:#986801"> true</span><span style="color:#383A42">;            </span><span style="color:#6f747e;font-style:italic">// give the visitor a real play button</span></span>
+<span class="line"><span style="color:#383A42">      video.</span><span style="color:#E45649">poster</span><span style="color:#0184BC"> =</span><span style="color:#50A14F"> "/demo-poster.webp"</span><span style="color:#383A42">;</span></span>
+<span class="line"><span style="color:#383A42">    }</span></span>
+<span class="line"><span style="color:#383A42">  });</span></span>
+<span class="line"><span style="color:#383A42">}</span></span></code></pre>
+</div>
+<p>Newer browsers let you skip the guesswork and ask up front. <code>navigator.getAutoplayPolicy(&quot;mediaelement&quot;)</code> returns <code>&quot;allowed&quot;</code>, <code>&quot;allowed-muted&quot;</code>, or <code>&quot;disallowed&quot;</code>, so you can mute for the middle case and drop in a poster for the last one before you ever call <code>play()</code><sup class="article-cite"><a href="#src-6" title="MDN — Navigator.getAutoplayPolicy()">6</a></sup>. It is still experimental, so feature-detect it and fall back to the promise above. Together they turn &quot;it works on my machine,&quot; where your own Media Engagement Index has quietly earned an autoplay your visitors have not, into a page that degrades on purpose.</p>
+<p>One production note, since the recipe assumes a file small enough to autoplay and one that loops without a jump where it repeats. A background loop wants to be short, muted, and cut so the last frame meets the first, which is a different export from the full narrated cut you put behind a click. Rendering the demo from a spec rather than a single hand-exported file lets one flow produce both; aidemo, the open-source engine we build, works this way, with the honest limits that it captures browser UIs only, expects an agent to author the storyboard, and ships no GUI timeline for hand-trimming the result. Which cut autoplays where is one square on the larger <a href="/blog/video-marketing-for-software/">map of one recording across every placement</a>.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video" rel="noopener">MDN — The Video Embed element (&lt;video&gt;)</a></li>
+<li id="src-2"><a href="https://developer.chrome.com/blog/autoplay" rel="noopener">Chrome — Autoplay policy in Chrome</a></li>
+<li id="src-3"><a href="https://webkit.org/blog/6784/new-video-policies-for-ios/" rel="noopener">WebKit — New &lt;video&gt; Policies for iOS</a></li>
+<li id="src-4"><a href="https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay" rel="noopener">MDN — Autoplay guide for media and Web Audio APIs</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play" rel="noopener">MDN — HTMLMediaElement.play()</a></li>
+<li id="src-6"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getAutoplayPolicy" rel="noopener">MDN — Navigator.getAutoplayPolicy()</a></li>
+<li id="src-7"><a href="https://www.w3.org/TR/media-frags/" rel="noopener">W3C — Media Fragments URI 1.0 (temporal dimension)</a></li>
+<li id="src-8"><a href="https://www.mux.com/articles/best-practices-for-video-playback-a-complete-guide-2025" rel="noopener">Mux — Best Practices for Video Playback: A Complete Guide (2025)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="why-wont-my-video-autoplay-on-iphone" class="blog-faq-q">Why won&#39;t my video autoplay on iPhone?<a class="hanchor" href="#why-wont-my-video-autoplay-on-iphone" aria-label="Link to section: Why won't my video autoplay on iPhone?">#</a></h3>
+<p>Almost always one of two missing pieces. iOS requires the <code>playsinline</code> attribute or it forces the clip into fullscreen instead of playing it in place, and it requires <code>muted</code> (or a source with no audio track) to start without a tap<sup class="article-cite"><a href="#src-3" title="WebKit — New &lt;video&gt; Policies for iOS">3</a></sup>. A third, subtler cause: iOS only starts a video that is visible on-screen, so a loop hidden in a <code>display:none</code> tab or an off-screen carousel slide will not begin until it is actually painted.</p>
+<h3 id="how-do-i-autoplay-a-video-with-sound" class="blog-faq-q">How do I autoplay a video with sound?<a class="hanchor" href="#how-do-i-autoplay-a-video-with-sound" aria-label="Link to section: How do I autoplay a video with sound?">#</a></h3>
+<p>On a first visit, you mostly cannot. Chrome allows unmuted autoplay only after the visitor has interacted with your site, has a high enough Media Engagement Index on desktop, or has installed the site<sup class="article-cite"><a href="#src-2" title="Chrome — Autoplay policy in Chrome">2</a></sup>, and other engines are just as strict. The shippable pattern is to autoplay muted, then offer a visible unmute button, so the visitor opts into sound with the click the policy was waiting for.</p>
+<h3 id="why-is-my-html-video-not-autoplaying-in-chrome-or-firefox" class="blog-faq-q">Why is my HTML video not autoplaying in Chrome or Firefox?<a class="hanchor" href="#why-is-my-html-video-not-autoplaying-in-chrome-or-firefox" aria-label="Link to section: Why is my HTML video not autoplaying in Chrome or Firefox?">#</a></h3>
+<p>Check for the <code>muted</code> attribute first: both browsers block audible autoplay by default and allow it only when the audio is muted or the volume is zero<sup class="article-cite"><a href="#src-4" title="MDN — Autoplay guide for media and Web Audio APIs">4</a></sup>. If <code>muted</code> is present and it still fails, stop assuming success and read the <code>play()</code> promise, which rejects with a <code>NotAllowedError</code> when the browser refuses, so you can fall back to showing controls and a poster instead of a frozen frame.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">autoplay video</span>
+        <span class="article-tag">muted autoplay</span>
+        <span class="article-tag">html5 video</span>
+        <span class="article-tag">background video</span>
+        <span class="article-tag">playsinline</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-metrics/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-metrics-400.webp" srcset="/blog/images/demo-video-metrics-400.webp 400w, /blog/images/demo-video-metrics-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A coiled stethoscope resting on a smooth tabletop, its chest-piece lying flat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Demo video metrics: play rate, retention, and assisted conversions</h3>
+    <p class="article-card-excerpt">Your dashboard hands you &quot;views&quot; for free, and it is the least useful number you own. Read play rate, the retention curve, and assisted conversions instead.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-on-landing-page/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-on-landing-page-400.webp" srcset="/blog/images/demo-video-on-landing-page-400.webp 400w, /blog/images/demo-video-on-landing-page-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A paper airplane caught in mid-glide, nose tilted slightly upward"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Putting a demo video on your landing page without wrecking load time</h3>
+    <p class="article-card-excerpt">A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-four-attributes-that-make-a-video-play-itself">The four attributes that make a video play itself</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-the-browser-mutes-you-and-when-it-lets-sound-through">Why the browser mutes you, and when it lets sound through</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-same-markup-five-different-browsers">The same markup, five different browsers</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-ios-poster-problem-and-the-t0001-fix">The iOS poster problem, and the #t=0.001 fix</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#preload-the-dial-that-autoplay-quietly-overrides">Preload: the dial that autoplay quietly overrides</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#detecting-a-blocked-autoplay-instead-of-hoping">Detecting a blocked autoplay instead of hoping</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

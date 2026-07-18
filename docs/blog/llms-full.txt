@@ -679,6 +679,128 @@ They are the same mechanism pointed at two goals. A deterministic screenshot pip
 
 ---
 
+# Autoplay video on a website: the recipe that works everywhere
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/autoplay-video-on-website/
+
+> Most autoplay bugs are a missing word from one line of markup. Here is the four-attribute set that plays in every browser, and the code for when it still won't.
+
+## The four attributes that make a video play itself
+
+The whole recipe is one line of markup, and most autoplay bugs are a missing word from it:
+
+```html
+<video autoplay muted loop playsinline
+       poster="/demo-poster.webp" width="1280" height="720">
+  <source src="/demo.webm" type="video/webm">
+  <source src="/demo.mp4" type="video/mp4">
+</video>
+```
+
+Four boolean attributes, each doing exactly one job. `autoplay` asks the browser to start without a click. `muted` is the price of that request: browsers "block audio (or videos with an unmuted audio track) from autoplaying" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)), so a clip that carries sound just sits there until you silence it. `loop` seeks back to the start on reaching the end, which is what turns a clip into a background loop. `playsinline` is the one people forget, and on iPhone its absence is the entire bug: without it, elements "will continue to require fullscreen mode for playback on iPhone" ([WebKit, 2017](https://webkit.org/blog/6784/new-video-policies-for-ios/)).
+
+Two traps hide in those booleans. Because they are booleans, `muted="false"` does nothing ("the audio will be muted if the attribute is present at all"), and `autoplay="false"` autoplays anyway ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). To turn either off you delete the attribute. And `muted` has to be in the HTML the server sends, not set by a script after parse, because the browser decides whether to honor `autoplay` at the moment it reads the element.
+
+That markup autoplays a silent loop in every current browser. The rest of this is the four ways it still breaks: sound, iOS, page weight, and the quiet case where it does not play at all and your JavaScript never notices.
+
+## Why the browser mutes you, and when it lets sound through
+
+Autoplay with sound is not broken, it is rationed. Chrome states the floor plainly, "Muted autoplay is always allowed," then lists the three ways a page earns the right to start *with* audio ([Chrome, 2026](https://developer.chrome.com/blog/autoplay)):
+
+- **The visitor has interacted with the domain** already this session: a click, a tap, or a keypress anywhere on the site.
+- **The Media Engagement Index** clears a per-origin threshold, on desktop only. Chrome quietly scores whether you actually watch a site: a qualifying view needs consumption "exceeding seven seconds," audio "present and unmuted," the tab active, and the frame larger than 200x140 pixels. Sites you watch a lot accrue enough MEI to start with sound; a first-time visitor's does not.
+- **The site is installed** as a PWA or added to the home screen.
+
+A fourth path exists for embeds: a top frame can hand the permission down with `allow="autoplay"` on the iframe, or an `Permissions-Policy: autoplay=(self)` header ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay)). That is how a hosted player nested in your page inherits your page's autoplay right.
+
+The consequence is blunt: a first-time visitor to a landing page will never hear your video start on its own, and there is no attribute that changes that. If the audio carries the message, autoplay muted and add a visible unmute control instead of fighting the policy, which is also Mux's advice, to "provide a clear unmute button when using muted autoplay" ([Mux, 2025](https://www.mux.com/articles/best-practices-for-video-playback-a-complete-guide-2025)). Because the first play is silent by construction, whatever the video needs to say has to read without sound, which is the whole case for [captions carrying a muted feed](/blog/demo-video-captions).
+
+## The same markup, five different browsers
+
+"Works everywhere" is a claim worth checking, because the conditions differ by engine. Muted autoplay is allowed in all of them; the fine print is where deploys go sideways.
+
+| Browser | Muted autoplay | Autoplay with sound | The gotcha to remember |
+| --- | --- | --- | --- |
+| Chrome / Edge, desktop | Always allowed | Interaction, MEI, or PWA install | Your dev machine's MEI has already earned autoplay your visitors have not |
+| Chrome, Android | Always allowed | Interaction or add-to-home-screen | No MEI on mobile at all |
+| Safari, iOS | Allowed when muted or no audio track | User gesture only | Needs `playsinline`, and must be on-screen to start |
+| Safari, macOS | Allowed | Per-site, user-adjustable | A visitor can force "Never Auto-Play" for your site |
+| Firefox | Allowed when muted or volume 0 | Interaction or allowlist | Blocks audible autoplay by default |
+
+The cross-browser floor, then, is exactly the four-attribute recipe: muted, so every engine permits the start, and `playsinline`, so iOS keeps it in the box. Two WebKit rules deserve their own line, because the bugs they cause look random. First, an iOS video "will only begin playing when visible on-screen," so a muted loop inside a collapsed accordion, a `display:none` tab, or an off-screen carousel slide does not start until it is actually painted. Second, the one that eats an afternoon: "if a `<video>` element gains an audio track or becomes un-muted without a user gesture, playback will pause" ([WebKit, 2017](https://webkit.org/blog/6784/new-video-policies-for-ios/)). Unmuting a playing video from a script with no click behind it does not raise the volume, it stops the video.
+
+## The iOS poster problem, and the #t=0.001 fix
+
+One more iOS trap is about the frame a visitor sees before playback. On desktop a muted loop starts fast enough that the gap never shows. On iOS, if the network is slow or you set `preload="none"`, Safari can render a blank rectangle until the first frame decodes. The clean fix is a `poster` image, which the element shows in place of that blank while the video loads.
+
+When you cannot ship a separate poster and want the video's own opening frame to stand in, the trick is a media fragment on the source URL: append `#t=0.001` and the browser reads it as a request to seek to 0.001 seconds. The `#t=` syntax is standardized, not a hack of unknown provenance: the W3C Media Fragments URI Recommendation defines Normal Play Time "as seconds, with an optional fractional part," so `#t=0.001` is a one-millisecond offset ([W3C, 2012](https://www.w3.org/TR/media-frags/)). Seeking there nudges iOS Safari into fetching and painting that first frame as a still instead of leaving the box empty.
+
+```html
+<!-- Paint a still first frame on iOS when no separate poster is set -->
+<source src="/demo.mp4#t=0.001" type="video/mp4">
+```
+
+It is a stopgap, not a substitute for a chosen poster. Which frame you freeze on, a populated UI rather than a spinner or a login screen, is [a decision worth making on purpose](/blog/demo-video-thumbnail) rather than surrendering to whatever the first millisecond happens to hold.
+
+## Preload: the dial that autoplay quietly overrides
+
+The instinct is to reach for `preload="none"` to keep a background video off the critical path. On an autoplaying element it does nothing, and knowing why saves a wasted optimization.
+
+| `preload` value | What it fetches on load | Reach for it when |
+| --- | --- | --- |
+| `none` | Nothing until playback is requested | The video is click-to-play, below the fold |
+| `metadata` | Duration and dimensions only (the spec default) | The visitor is likely to press play |
+| `auto` (or empty string) | As much of the file as the browser likes | The clip is tiny and almost certainly watched |
+
+Here is the catch the recipe posts skip: "the `autoplay` attribute has precedence over `preload`" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). If the video autoplays, the browser must download it to play it, so `preload="none"` is silently ignored. The lever that actually governs an autoplay loop's page cost is therefore file size, plus `loading="lazy"`, which delays both the download and the autoplay until the element nears the viewport, for any loop below the fold. The full performance argument, how a hero video becomes the element Google times and how a poster caps that number, is [worked out for the landing-page case](/blog/demo-video-on-landing-page) and holds the same whether you [self-host the file or serve it from a streaming host](/blog/embed-video-on-website).
+
+## Detecting a blocked autoplay instead of hoping
+
+The failure mode nobody codes for is the silent one: autoplay is refused, the page assumes it succeeded, and the visitor stares at a frozen frame with no obvious way to start it. `HTMLMediaElement.play()` returns a Promise for exactly this reason. When autoplay is denied, it rejects with a `NotAllowedError`, and the browser "may require the user to explicitly start media playback by clicking a 'play' button" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play)). Chrome's guidance is the same idea in one sentence: "Don't assume a video will play, and don't show a pause button when the video is not actually playing" ([Chrome, 2026](https://developer.chrome.com/blog/autoplay)).
+
+```js
+const attempt = video.play();
+if (attempt !== undefined) {
+  attempt.catch((error) => {
+    if (error.name === "NotAllowedError") {
+      video.controls = true;            // give the visitor a real play button
+      video.poster = "/demo-poster.webp";
+    }
+  });
+}
+```
+
+Newer browsers let you skip the guesswork and ask up front. `navigator.getAutoplayPolicy("mediaelement")` returns `"allowed"`, `"allowed-muted"`, or `"disallowed"`, so you can mute for the middle case and drop in a poster for the last one before you ever call `play()` ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getAutoplayPolicy)). It is still experimental, so feature-detect it and fall back to the promise above. Together they turn "it works on my machine," where your own Media Engagement Index has quietly earned an autoplay your visitors have not, into a page that degrades on purpose.
+
+One production note, since the recipe assumes a file small enough to autoplay and one that loops without a jump where it repeats. A background loop wants to be short, muted, and cut so the last frame meets the first, which is a different export from the full narrated cut you put behind a click. Rendering the demo from a spec rather than a single hand-exported file lets one flow produce both; aidemo, the open-source engine we build, works this way, with the honest limits that it captures browser UIs only, expects an agent to author the storyboard, and ships no GUI timeline for hand-trimming the result. Which cut autoplays where is one square on the larger [map of one recording across every placement](/blog/video-marketing-for-software).
+
+## Sources
+
+- [MDN — The Video Embed element (`<video>`)](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)
+- [Chrome — Autoplay policy in Chrome](https://developer.chrome.com/blog/autoplay)
+- [WebKit — New `<video>` Policies for iOS](https://webkit.org/blog/6784/new-video-policies-for-ios/)
+- [MDN — Autoplay guide for media and Web Audio APIs](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay)
+- [MDN — HTMLMediaElement.play()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play)
+- [MDN — Navigator.getAutoplayPolicy()](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getAutoplayPolicy)
+- [W3C — Media Fragments URI 1.0 (temporal dimension)](https://www.w3.org/TR/media-frags/)
+- [Mux — Best Practices for Video Playback: A Complete Guide (2025)](https://www.mux.com/articles/best-practices-for-video-playback-a-complete-guide-2025)
+
+## FAQ
+
+### Why won't my video autoplay on iPhone?
+
+Almost always one of two missing pieces. iOS requires the `playsinline` attribute or it forces the clip into fullscreen instead of playing it in place, and it requires `muted` (or a source with no audio track) to start without a tap ([WebKit, 2017](https://webkit.org/blog/6784/new-video-policies-for-ios/)). A third, subtler cause: iOS only starts a video that is visible on-screen, so a loop hidden in a `display:none` tab or an off-screen carousel slide will not begin until it is actually painted.
+
+### How do I autoplay a video with sound?
+
+On a first visit, you mostly cannot. Chrome allows unmuted autoplay only after the visitor has interacted with your site, has a high enough Media Engagement Index on desktop, or has installed the site ([Chrome, 2026](https://developer.chrome.com/blog/autoplay)), and other engines are just as strict. The shippable pattern is to autoplay muted, then offer a visible unmute button, so the visitor opts into sound with the click the policy was waiting for.
+
+### Why is my HTML video not autoplaying in Chrome or Firefox?
+
+Check for the `muted` attribute first: both browsers block audible autoplay by default and allow it only when the audio is muted or the volume is zero ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay)). If `muted` is present and it still fails, stop assuming success and read the `play()` promise, which rejects with a `NotAllowedError` when the browser refuses, so you can fall back to showing controls and a poster instead of a frozen frame.
+
+---
+
 # B2B vs PLG demo videos: seven axes that change the cut
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/b2b-demo-video/
@@ -1656,6 +1778,100 @@ Read it by shape, not by the average. A gentle even slope is normal tapering. An
 ### What are assisted conversions, and why do they matter for demo videos?
 
 An assisted conversion is credit given to a touchpoint that appears anywhere on a conversion path except as the final click. Demo video is almost always an assist rather than a close: people watch, leave, and convert later through another channel that takes the last-click credit. Because fewer than half of marketers wire their video platform into a CRM (Wistia, 2026), most demos are judged only on last-click conversion, where a persuasive top-of-funnel video looks worthless. Firing a watch event into your analytics and reading the attribution report is how you see the credit it actually earned.
+
+---
+
+# Ten demo video mistakes, ranked by how many viewers they cost
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-mistakes/
+
+> Not all demo blunders are equal. The ones that bite in the first five seconds empty the whole room; the ones at the end cost only the stragglers. Ranked.
+
+## Rank the mistakes by the audience each one bleeds
+
+Every list of demo-video mistakes treats them as a flat set of equally bad ideas. They are not equal. A defect that lands in the first three seconds is charged against everyone who pressed play; a defect in the last five seconds is charged against the handful still watching. So the honest way to order a demo's problems is not by how much they irritate you in review, it is by how many viewers each one actually costs, and that number is roughly the audience present when the mistake bites, multiplied by the chance it makes them leave.
+
+Two published curves fix the size of "audience present." Completion falls with runtime: under a minute, 65% of viewers reach the end of a business video, and past twenty minutes only 20% do, across 943,305 videos recorded in 2024 ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)). And the crowd is up front: Facebook's advertiser guidance, cited in Vidyard's length research, puts 47% of a video's value in the first three seconds ([Vidyard](https://www.vidyard.com/blog/video-length/)). Put the two together and the ranking writes itself. The earlier a mistake bites, the fuller the room it empties.
+
+That reframing pays off as a work order. You do not have ten equally urgent problems; you have one or two bleeding the entire audience and eight trimming the survivors. Fix in order of viewers lost, from the top down, and stop when the next fix costs more than the viewers it saves.
+
+## The ranking, most expensive first
+
+| # | Mistake | When it bites | Who is still watching | Measurable symptom | The fix |
+| --- | --- | --- | --- | --- | --- |
+| 1 | A throat-clearing opening | 0-5 s | everyone who pressed play | early cliff in the first 10-15 s; low 30-second retention | open on the outcome, cut the greeting |
+| 2 | No captions on a muted surface | frame one, silently | the muted majority | low completion on autoplay surfaces versus sound-on | burn the captions into the pixels |
+| 3 | Wrong length for the placement | continuously | a shrinking share after the first quarter | completion below the placement's benchmark | cut to the target length for where it lives |
+| 4 | An unreadable UI | as soon as the action starts | early viewers, mobile first | steep early drop on small screens | zoom on the interaction, capture at 2x |
+| 5 | Feature-tour ordering | around the first quarter | the middle of the curve | a mid-video valley where the payoff should sit | one job, problem to proof, not a tour |
+| 6 | Dead air | at every load and pause | whoever is left at each gap | narrow dips at specific seconds | trim idle gaps past ~400 ms |
+| 7 | A laggy cursor or unstable frame rate | throughout | whoever is left | stutter, dropped frames, viewers scrubbing back | a synthetic eased cursor, a constant frame rate |
+| 8 | Music louder than the voice | when the bed swells | only sound-on viewers | narration unintelligible under the music | duck the bed well below the narration |
+| 9 | No call to action | the final seconds | only the survivors | high completion, near-zero click-through | one end-card ask |
+| 10 | Stale UI | not during this view | every future viewer, for months | the demo predates the last UI ship | regenerate from a spec on the change |
+
+Read the "who is still watching" column as the whole argument. Rows one through four land while most of the audience is present, so they outweigh the bottom six combined. Row nine, a missing call to action, is a genuine mistake that costs almost no viewers, because by the final seconds only the survivors are there; it costs conversions, not views, which is why it sits low on a viewers-lost ranking and high on a revenue one. Row ten does not fit the model at all, and that is exactly why it goes last.
+
+## The front-loaded four: everyone is still watching when these bite
+
+**A throat-clearing opening.** The most expensive mistake is the one nearly every home-made demo makes: opening on a logo animation, a title card, or "Hi, I'm Sarah, and today I'll show you how our product helps your team." It spends the highest-value window in the runtime on content nobody came for, and on a muted autoplay the words are never heard anyway. The symptom is an early cliff, a sharp drop inside the first ten to fifteen seconds; YouTube names the survivors of that window your "intro," the percentage still watching after thirty seconds ([YouTube Help, 2026](https://support.google.com/youtube/answer/9314415)). The remedy is to delete the greeting and open on the finished result, and [choosing which of six openings replaces it](/blog/demo-video-hook) is a decision worth its own page.
+
+**No captions on a muted surface.** A landing hero, a feed clip, or a README loop starts on its own, before a viewer has opted into sound. In a survey of 5,616 US consumers, Verizon Media and Publicis Media found that 69% watch video with the sound off in public, that viewers are 80% more likely to finish a video when captions are present, and that half say captions matter specifically because they watch muted ([Forbes, 2019](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)). Ship a demo with no on-screen text and the pitch is mute to the majority, which is also why WCAG 2.2 makes captions a Level A requirement rather than a nicety. The fix is to render the words into the frame; [why portable pipelines burn captions in instead of shipping a sidecar](/blog/demo-video-captions) covers the timing and the formats.
+
+**Wrong length for the placement.** Length is not one number, it is a budget set by the surface, and overspending it bleeds viewers the whole way down the timeline: the median viewer of a marketing video leaves near the halfway mark, so the back half of a long take is watched by almost no one. The symptom is a completion rate under the benchmark for where the video lives, and the fix is a cut, not a re-shoot. [The target length for each placement, and what to cut first](/blog/how-long-should-a-demo-video-be) turns that into a checklist.
+
+**An unreadable UI.** If a muted viewer cannot tell what just happened on screen, the demo has failed silently. Tiny text captured at device-pixel-ratio 1, a full desktop crammed into a feed thumbnail, no punch-in on the control being clicked: each produces the same "what am I looking at" bounce, worst on mobile where the screen is a few inches wide. The symptom is a steep early drop concentrated on small screens; the fix is to zoom on each interaction and capture with pixel headroom, which [decomposes into five deterministic transforms](/blog/professional-screen-recordings) rather than a knack.
+
+## The middle band: mistakes that bleed the people who stayed
+
+The next five bite after the opening filter, so they cost fewer viewers, but they are where a competent demo quietly loses its warm audience.
+
+**Feature-tour ordering.** Engagement is highest in the first quarter of the runtime, so a demo with no single job, one that pans across five features because they all exist, spreads its payoff thin and buries the good part past the point most people reach. The symptom is a mid-video valley in the retention curve where the interesting moment should be. The fix is structural: pick one job and run it from problem to proof, the discipline [the end-to-end playbook](/blog/how-to-make-a-product-demo-video) puts at step one.
+
+**Dead air.** Unedited footage is mostly waiting: a page spends the better part of a second loading, the pointer drifts toward the next control, the narrator stalls to find a word. Rendered faithfully, those gaps read as narrow dips at specific seconds. The fix is mechanical, not editorial, closing any idle span past roughly 400 milliseconds, and it is the same dead-time trim that separates a raw capture from a produced one.
+
+**A laggy cursor or unstable frame rate.** Stutter is a trust signal. Jakob Nielsen's classic threshold is 0.1 second, "the limit for having the user feel that the system is reacting instantaneously" ([Nielsen Norman Group, 1993](https://www.nngroup.com/articles/response-times-3-important-limits/)); a pointer that jumps or footage that drops frames reads as the product being slow, even when the product is fine. The fix is to stop rendering captured jitter, drawing a synthetic pointer along an eased path and encoding at a constant frame rate.
+
+**Music louder than the voice.** Loudness is a measured quantity, not a matter of taste: broadcast standardized on a programme target of -23 LUFS with a half-decibel tolerance ([EBU, R128](https://tech.ebu.ch/publications/r128)). A music bed mixed at or above the narration makes the narration unintelligible, and unlike the mistakes above it only bites sound-on viewers, a minority of first views, which is why it ranks eighth despite being fatal when it happens. The fix is to duck the bed well below the voice; the loudness arithmetic is worth a section of its own.
+
+**No call to action.** A demo that ends on a fade to black wastes the one moment its most engaged viewers were ready to act. It costs almost no viewers, because only survivors reach the end, which is precisely why it is a conversion bug rather than a retention one. The fix is a single end-card ask, not a menu of five.
+
+## Stale UI: the mistake that costs nothing today and everything by Q3
+
+The tenth mistake breaks the ranking, and putting it last is the argument. Stale UI does not bite during a view at all. On the day you ship the demo, its retention curve is clean and its viewer cost is zero. Then the product ships, a button moves, a screen gets redesigned, and every viewer from that day forward watches a demo that quietly lies about the software it is selling. The cost is not a cliff in one curve; it is a slow credibility leak spread across every future view, invisible in the analytics until a prospect mentions that the product looks nothing like the video.
+
+That is why it cannot be fixed by watching harder. A hand-recorded take has one repair for a moved button, which is to perform the entire demo again so the cursor, the voice, and the captions stay aligned. Define the demo as a spec and the repair is cheaper: change the line that moved and re-render. Our own engine, aidemo, takes that path, rebuilding the video from an agent-authored storyboard instead of a fresh shoot; the honest limits are that it captures a browser only, ships no drag-on-a-timeline editor, and expects the storyboard to be written in code, so it earns its keep when a demo has to stay current across many product ships, not on a one-off screencast.
+
+## Find your own worst mistake in the retention curve
+
+The ranking above is a set of priors, the mistakes most likely to be costing you the most. Your own retention curve tells you which ones you actually have, because the shape at each timestamp is a diagnosis. An early cliff in the first fifteen seconds indicts the opening. A valley in the middle marks dead air or a buried payoff. A late cliff is not a failure, it means the payoff already landed and you should end the video there; a flat stretch is a moment worth doing more of. [Reading play rate, the drop-off curve, and assisted conversions](/blog/demo-video-metrics) turns those shapes into an instrument, so you fix the mistake the data points at rather than the one you happened to notice.
+
+What that diagnosis is worth depends on how expensive your fixes are. When each correction means re-syncing a voice track and a cursor path around a hole, you will ship the flawed version, because the fix costs a full re-record. When the demo is a script and an action list, the same fix is a diff and a re-render, and aidemo, browser-only and authored by an agent rather than assembled by hand, is built on that split. The principle outlives any tool: rank your mistakes by the viewers they cost, then make the top of the list cheap enough to actually correct.
+
+## Sources
+
+- [Vidyard — Video in Business Benchmark Report (2025 edition)](https://www.vidyard.com/business-video-benchmarks/)
+- [Vidyard — How Long Should a Video Be? (Facebook: 47% of value in the first 3 seconds)](https://www.vidyard.com/blog/video-length/)
+- [Wistia — State of Video Report: Video Marketing Statistics for 2026](https://wistia.com/learn/marketing/video-marketing-statistics)
+- [Forbes — Verizon Media Says 69% Of Consumers Watch Video With Sound Off](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)
+- [W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html)
+- [YouTube Help — Audience retention report (the intro metric and curve shapes)](https://support.google.com/youtube/answer/9314415)
+- [Nielsen Norman Group — Response Times: The 3 Important Limits](https://www.nngroup.com/articles/response-times-3-important-limits/)
+- [EBU — R 128: Loudness normalisation and permitted maximum level of audio signals](https://tech.ebu.ch/publications/r128)
+
+## FAQ
+
+### What is the single biggest mistake in a demo video?
+
+Opening with a greeting, a logo, or an "in this video we'll cover" preamble. It is the costliest because it bites at second zero, when the entire audience is still present, and it spends the window Facebook's data says carries 47% of a video's value on content nobody came for. On a muted autoplay the spoken part is not even heard. Cut it and open on the finished result, and you have fixed the mistake that empties the fullest room.
+
+### Why do people stop watching demo videos so quickly?
+
+Because a demo competes with a skip reflex, not an audience that already committed. Completion falls steeply with length, only 65% finish a sub-minute business video, and engagement peaks in the first quarter of the runtime, so most drop-off is a verdict on the opening and the pacing rather than the product. A weak hook, an unreadable screen, and dead air in the first fifteen seconds each hand the viewer a reason to leave before the demo has made its case.
+
+### Do demo video mistakes still matter if the video autoplays muted?
+
+They matter more. Most first views are muted, so anything that lives only in the narration, the spoken hook, the voiced explanation, the unducked music, is invisible or irrelevant, while the mistakes that show on screen get magnified. On a muted surface, missing captions and an unreadable UI move up the ranking, because the on-screen text and the legibility of the interface are the only channel the pitch has left.
 
 ---
 
@@ -2870,6 +3086,120 @@ A raw GIF cannot respond to `prefers-reduced-motion` on its own, so serve a stat
 
 ---
 
+# Headless screen recording: capturing a screen with no display
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/headless-screen-recording/
+
+> Recording a screen with no monitor forks two ways: grab a virtual X display with ffmpeg, or pull frames from a browser that never paints. When each wins.
+
+## Two ways to record a screen that isn't there
+
+"Headless" hides a fork. Wanting to record a screen with no display attached — a container, a build server, a CI runner with no monitor, no GPU, and no window manager — turns out to mean one of two mechanically different things, and conflating them is why so many x11grab recipes on the internet quietly produce a black rectangle.
+
+The first way keeps a screen and moves it into memory. Xvfb, the X virtual framebuffer, is "an X server that can run on machines with no display hardware and no physical input devices" and "emulates a dumb framebuffer using virtual memory" ([X.Org, 2026](https://xorg.freedesktop.org/archive/current/doc/man/man1/Xvfb.1.xhtml)). You start it, point a GUI application at it through the `DISPLAY` variable, and the app paints into RAM exactly as it would paint onto a monitor. There is a screen; nobody can see it. ffmpeg then grabs that virtual screen the same way it grabs a physical one.
+
+The second way has no screen at all. A modern headless browser never opens a window: since Chrome 112 the redesigned headless mode "creates, but doesn't display, any platform windows" ([Chrome for Developers, 2026](https://developer.chrome.com/docs/chromium/new-headless)), and it runs the full browser code rather than the stripped-down alternate implementation the old mode used. Because nothing is ever composited to a display surface, there is no framebuffer to grab. You ask the browser for its frames directly and assemble the video from those.
+
+So the fork is: record a virtual display, or record an application that draws to no display. The first is application-agnostic and needs a display server; the second is browser-only and needs none. What follows maps each path, the frame-timing gap between them where footage tends to go wrong, what a missing display quietly takes with it, and a table for choosing. This is the capture layer underneath [any demo video a CI job renders](/blog/demo-videos-in-ci): the pipeline is the runner and the triggers; this is how the pixels get made.
+
+## Path one: a virtual display in RAM, grabbed by ffmpeg
+
+Xvfb gives the app a screen to draw on; ffmpeg's x11grab turns that screen into video. x11grab is FFmpeg's "X11 video input device" and "allows one to capture a region of an X11 display" ([FFmpeg, 2026](https://ffmpeg.org/ffmpeg-devices.html)) — the same device you would use to grab a physical desktop, pointed at a virtual one instead.
+
+```sh
+Xvfb :99 -screen 0 1280x720x24 &   # a virtual screen in RAM: 1280x720, 24-bit
+export DISPLAY=:99
+
+google-chrome --window-size=1280,720 https://app.example.com &   # any X11 app paints into it
+
+ffmpeg -f x11grab -video_size 1280x720 -framerate 30 -i :99 \
+       -c:v libx264 -crf 18 -pix_fmt yuv420p demo.mp4   # grab the virtual framebuffer
+```
+
+The `-screen 0 WxHxD` argument sets the virtual screen's width, height, and color depth; the built-in default is a modest 1280x1024x8, so always name your own. ffmpeg's `-i :99` reads the display the `DISPLAY` variable points at, and x11grab defaults to a 30000/1001 frame rate you should override to a clean 30. If wiring the display up and tearing it down by hand is more than you want, `xvfb-run` wraps a command in a throwaway display: Playwright's own CI guide notes that on Linux agents "headed execution requires Xvfb to be installed" and that you "add xvfb-run before the actual command," as in `xvfb-run npx playwright test` ([Playwright, 2026](https://playwright.dev/docs/ci)).
+
+The reason to reach for this path is breadth: it records anything that can draw to X11, not just a web page — a native Linux GUI app, an Electron build, a desktop tool, a browser in headed mode. If the subject of the demo is not a website, this is the only one of the two paths that can film it. The one caveat is the display server itself: Xvfb is an X11 tool, so a pure-Wayland box needs a headless Wayland compositor instead, which is [its own branch of the Linux capture story](/blog/record-screen-on-linux).
+
+## Path two: frames pulled from a browser that never paints
+
+When the subject is a web page, you can skip the display entirely and take frames from the browser itself. The DevTools Protocol exposes the raw mechanism: `Page.startScreencast` streams the page through the `screencastFrame` event, each frame a "Base64-encoded compressed image" in `jpeg` or `png` at a chosen `quality` and throttled by `everyNthFrame`, and every frame must be acknowledged with `Page.screencastFrameAck` before the next is sent ([Chrome DevTools Protocol, 2026](https://chromedevtools.github.io/devtools-protocol/tot/Page/)). That is a stream of stills with metadata, not a video; you re-time and encode them yourself.
+
+Higher-level tools wrap that loop. Puppeteer's `page.screencast()` records straight to a file — "you must have ffmpeg installed on your system," and it writes WebM with the VP9 codec at 30 fps by default (Puppeteer 25.3.0) — collapsing the whole thing to a few lines:
+
+```js
+const browser = await puppeteer.launch({ headless: true });
+const page = await browser.newPage();
+await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
+await page.goto('https://app.example.com');
+const recorder = await page.screencast({ path: 'demo.webm' });
+// drive the flow…
+await recorder.stop();
+await browser.close();
+```
+
+Playwright records the whole context instead: pass `recordVideo` to `newContext`, and "videos are saved upon browser context closure," sized from the viewport ([Playwright, 2026](https://playwright.dev/docs/videos)). Both run with no display, because they never needed one — the frames come out of the browser's compositor, which does not care whether a monitor exists.
+
+One route this path cannot borrow from the [three browser-tab capture surfaces](/blog/record-a-browser-tab): the `getDisplayMedia()` share-picker is off the table headless. It requires a user gesture and a screen to raise the "Choose what to share" dialog, and a runner has neither. Headless browser capture is always frame-pull or screencast, never the WebRTC screen-share API.
+
+## Why the two paths disagree about what a frame is
+
+x11grab is a screen-grabber on a metronome. It samples the virtual framebuffer at the frame rate you asked for — thirty times a second, whatever the app is doing. If a paint takes longer than one frame interval, the grab captures the same pixels twice and you ship a duplicated frame; if the UI animates faster than the sample rate, the motion between two samples is simply gone. The timeline belongs to the clock, not the application.
+
+The screencast path inverts that. `Page.startScreencast` emits a frame when the page changes, and because each frame waits for its acknowledgment, the browser paces the stream to what the renderer actually produced. That is frame-accurate to the render, but it is not constant-rate: idle stretches emit nothing and busy stretches emit bursts, so before it becomes a video you have to re-time those frames onto a constant frame rate. A constant frame rate is what nearly every downstream tool assumes anyway.
+
+The upshot is that neither path hands you a repeatable video for free. A wall-clock grab of a flow that paints a little differently each run lands its samples on different instants; an event-driven stream whose timing rides on the network emits a different burst each run. Getting the same pixels twice is [a separate discipline of pinned waits, a frozen clock, and a fixed viewport](/blog/deterministic-browser-automation-for-video) layered over whichever path you pick. The capture mechanism decides what a frame is; it does not decide whether two runs agree.
+
+## What a missing display quietly takes with it
+
+A headless environment removes more than the monitor, and two absences bite in the frame.
+
+The cursor goes first. On path one the pointer is a real X cursor, which x11grab draws by default and omits with `draw_mouse 0` ([FFmpeg, 2026](https://ffmpeg.org/ffmpeg-devices.html)) — but with no human moving it, it sits frozen in a corner until your automation warps it somewhere, and even then it jumps rather than glides. On path two there is no OS cursor in the frame at all, because there is no OS window. Either way a credible pointer is something you [draw as a synthetic overlay](/blog/professional-screen-recordings) at compose time, not something the capture supplies. These are the same record-time-versus-edit-time lines the [high-quality capture checklist](/blog/how-to-record-your-screen-in-high-quality) draws, seen from the headless side.
+
+Audio goes next. A runner has no sound card, so both paths record silence: the screencast carries no audio channel whatsoever, and the Xvfb path can be handed a dummy sink (a null PulseAudio or ALSA device) only so an app that expects one does not crash — it still plays to nothing. For a narrated demo the honest model is to render the video silent and mux the voiceover in afterward. Fonts are the third quiet gap, since a runner missing a font family paints tofu boxes where the glyphs should be, but that is a matter of provisioning the image rather than the capture step.
+
+## Picking a path: virtual display or frame pull
+
+| | Xvfb + ffmpeg x11grab | Headless browser (CDP, Puppeteer, Playwright) |
+|---|---|---|
+| What it records | a virtual X11 display in memory | the browser's own render output |
+| Can capture | any X11 app: native, Electron, a headed browser | a web page only |
+| Display server | a virtual one (Xvfb), X11 | none needed |
+| Frame timing | wall-clock sampled at N fps, may dup or drop | event-driven per paint, re-timed to a constant rate |
+| Encoder | ffmpeg, any codec and CRF | WebM/VP9 in Puppeteer, or your own from CDP frames |
+| Cursor | real X pointer (draw_mouse 0 or 1) | none in frame; inject a synthetic one |
+| Audio | dummy sink possible, still silent | none; mux narration in post |
+| Setup | wire up a display, the app, and ffmpeg | one library call, no display |
+
+Read the top two rows first, because they usually settle it. If the subject is not a browser, path one is the only option, and you take the wall-clock grab and the wiring with it. If the subject is a web app, path two is less to stand up, cleaner in the frame — no window chrome, no stray X cursor — and it is the path a demo engine takes on a CI box with no monitor.
+
+That is where aidemo, our own engine, sits: it takes the second path, driving a real Chrome and pulling frames with no display, so one storyboard renders the same on a laptop and on a display-less runner. The honest limits are the path's limits made specific. Because it is frame-pull from a browser, it records a browser only — a native desktop app is precisely the path-one case it cannot cover; its storyboards are authored by a coding agent in code, not dragged on a GUI timeline; and it has no click-to-trim editor. For a native app on a headless machine, Xvfb and x11grab are still the answer.
+
+## Sources
+
+- [Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame, screencastFrameAck)](https://chromedevtools.github.io/devtools-protocol/tot/Page/)
+- [FFmpeg — Device documentation (x11grab input device)](https://ffmpeg.org/ffmpeg-devices.html)
+- [X.Org — Xvfb manual page (virtual framebuffer X server, -screen WxHxD)](https://xorg.freedesktop.org/archive/current/doc/man/man1/Xvfb.1.xhtml)
+- [Chrome for Developers — Chrome Headless mode (new vs old, Chrome 112)](https://developer.chrome.com/docs/chromium/new-headless)
+- [Puppeteer — Page.screencast() API (WebM/VP9, requires ffmpeg)](https://pptr.dev/api/puppeteer.page.screencast)
+- [Playwright — Videos (recordVideo, saved on context close)](https://playwright.dev/docs/videos)
+- [Playwright — Continuous Integration (xvfb-run for headed Linux)](https://playwright.dev/docs/ci)
+
+## FAQ
+
+### Can you record a screen with no monitor attached?
+
+Yes, two ways. Run a virtual display server — Xvfb, "an X server that can run on machines with no display hardware" — draw your app into it, and grab that virtual screen with ffmpeg's x11grab; this films any GUI app. Or, for a web page, run a headless browser that emits its own frames through the DevTools Protocol and never needs a display at all. The first is application-agnostic; the second is browser-only and simpler to stand up.
+
+### How do I record a headless browser to a video file?
+
+Drive it from code. Puppeteer's `page.screencast({ path: 'out.webm' })` records to WebM and needs ffmpeg installed; Playwright's `recordVideo` on the browser context saves a video when the context closes; or pull frames yourself over the DevTools Protocol's `Page.startScreencast` and encode them into a constant-rate video. All three run with no display. The one thing that will not work headless is `getDisplayMedia()`, which needs a user gesture and a screen to raise its share dialog.
+
+### Does Xvfb record the screen on its own?
+
+No. Xvfb is only a display server — a framebuffer living in virtual memory — so it draws the application but writes no video file. To capture it you point a separate grabber at its display, usually `ffmpeg -f x11grab -i :99`, which reads the virtual screen and encodes it. Treat Xvfb as the monitor you cannot see and ffmpeg as the recorder plugged into it.
+
+---
+
 # Hide notifications while screen recording, on every OS
 
 July 18, 2026 · Screen Recording · https://aidemo.top/blog/hide-notifications-while-recording/
@@ -3536,6 +3866,100 @@ It depends on what caps you hit. Vidyard's free plan does async video messaging 
 ### Can I use Loom for a polished product demo on my website?
 
 You can, but you will be fighting the tool the whole way. Loom is built for a casual one-take talking-head note shared by link, so a website demo made in it tends to carry the camera bubble, the unscripted filler, and no clean way to embed the file where you need it. A produced-polish recorder (Cap, Screen Studio) or a spec-driven render will get you a finished, embeddable video with far less friction. Match the tool to the job: Loom for messaging, a demo tool for demos.
+
+---
+
+# Microvideos in documentation: the 10-second clip that replaces a paragraph
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/microvideos-in-documentation/
+
+> The walkthrough is the wrong unit. The clip that survives a real docs site is a 5-15 second silent loop of one action, and it is the cheaper one to keep true.
+
+## The real unit of doc video is one action, not one tutorial
+
+When a team decides its docs need video, the default artifact is the walkthrough: a narrated three-to-five-minute tour that opens at the login screen and ends on a "you did it" confirmation. It is the wrong unit. The walkthrough is expensive to make, painful to keep current, and unscannable by the one reader who arrived needing a single thing. The unit that actually survives contact with a live docs site is smaller by two orders of magnitude: a five-to-fifteen-second silent clip that shows exactly one action, sitting beside the text step it illustrates.
+
+This is not the same claim as "make your videos shorter." It is a claim about granularity, and granularity changes the artifact's behavior on every axis a docs team cares about: where each clip fits in the information architecture, how a reader consumes it, and above all what it costs to keep honest as the product ships. Nielsen Norman Group reached the same conclusion from the reader's side, advising that "for multistep processes, include multiple videos of low granularity (one for each step) instead of a single long video for the whole process" ([Harley, NN/g, 2020](https://www.nngroup.com/articles/instructional-video-guidelines/)). This piece takes that instruction to its end and treats the single-action clip as the fundamental unit of doc video, then works out where it belongs and why the many-small-pieces version is the cheaper one to own. Whether a given passage wants motion at all is a separate, four-axis call made in [video versus written documentation](/blog/video-vs-written-documentation); here that question is settled and the only one left is how small to cut it.
+
+## Where a microvideo belongs in the Diataxis quadrants
+
+Diataxis groups documentation into four kinds, tutorials, how-to guides, reference, and explanation, and places each between a reader "at study" and a reader "at work." The microvideo does not spread evenly across them; it lives almost entirely on the "at work" side.
+
+The how-to guide is its home. Diataxis defines a how-to guide as "directions that guide the reader through a problem or towards a result," goal-oriented and deliberately selective, focused only on the actions necessary to solve a particular task and omitting completeness on purpose ([Diataxis, accessed July 2026](https://diataxis.fr/how-to-guides/)). A ten-second clip of exactly the one action, beside the written step, is that selectivity rendered as motion: it shows the drag, the toggle, or the reveal, and nothing around it.
+
+Reference is the surprising quadrant. The [pillar's routing table](/blog/video-documentation) keeps reference in text, and it is right to for the API fields, flags, and config values a reader copies verbatim. But the Diataxis rule for reference is "describe and only describe," with an explicit warning against smuggling instruction or a recipe into a reference entry ([Diataxis, accessed July 2026](https://diataxis.fr/reference/)). A silent behavior clip threads that needle. A three-second loop of what an "auto-layout" toggle does to a canvas is description, not instruction: it shows a fact about the machinery without teaching a workflow, which is exactly what a narrated how-to clip in the same slot would violate. Reference stays mostly text; the one clip it can carry is wordless and purely behavioral.
+
+The tutorial is where the microvideo is not the unit. A learner "at study" needs continuity, because the connective tissue between steps is the lesson, so a first-run tutorial wants a narrated walkthrough rather than a grid of disconnected loops. And explanation never wants motion: a concept is re-read and cross-referenced, and there is nothing on screen to move. Microvideos are a how-to instrument first, a narrow reference instrument second, and absent from the other two.
+
+## A spec for the ten-second clip
+
+Treat the microvideo as a format with fixed constraints, not a video that happens to be short. Six attributes define it.
+
+| Attribute | The microvideo | Why it is set here |
+|---|---|---|
+| Length | 5-15 seconds, one action | Short enough to re-render fast and to sit far inside the length where viewers still finish |
+| Audio | Silent | No narration to re-record, re-time, or re-voice per language |
+| Paired text | The written step beside the clip | Meets the WCAG text-alternative rule and hands search and skimmers the words |
+| Delivery | Muted, looping, inline video | Smaller and pausable than the same motion as a GIF |
+| Framing | Tight crop on the region that acts | The eye lands on the change; an unrelated layout shift elsewhere cannot falsify it |
+| Scope | Exactly one action or decision | So it re-renders alone and embeds in many places |
+
+The length ceiling is not arbitrary. Engagement holds up for short video and erodes with length: Wistia's data puts videos under a minute at roughly 52% average engagement, so a ten-second clip sits comfortably inside the range where viewers watch to the end ([Wistia, accessed July 2026](https://wistia.com/learn/marketing/optimal-video-length)). At that scale the reason to hold each clip to one action is not attention, which a ten-second clip never strains, but maintainability.
+
+Two of the spec rows do double duty, and the silent-plus-text pairing is the one that surprises people. A clip with no audio is "prerecorded video-only" content under WCAG, and Success Criterion 1.2.1, a Level A requirement, asks that "either an alternative for time-based media or an audio track is provided that presents equivalent information for prerecorded video-only content" ([W3C, accessed July 2026](https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html)). The written step you were already placing beside the clip is that alternative, so a silent microvideo paired with real text has its Level A obligation met by the same words that make it searchable. Silence does not cost you accessibility; it hands the accessibility job to text you already owed.
+
+## Why fifteen small clips outlast one long walkthrough
+
+Here is the arithmetic that justifies the granularity. Take one onboarding walkthrough, four minutes of narrated footage covering twelve screens, and set it beside the same content cut into twelve silent clips averaging twelve seconds each.
+
+| Metric | One 4-minute walkthrough | Twelve ~12s microvideos |
+|---|---|---|
+| Total footage | 240s, narrated | ~144s, silent |
+| Artifacts | 1 indivisible file | 12 independent files |
+| One screen changes | the whole video is now wrong | 1 clip wrong, 11 still correct |
+| Blast radius per change | 100% | ~8% (1 of 12) |
+| Cost to fix that screen | re-shoot and re-narrate all 240s | re-render one ~12s clip |
+| Reuse in other docs | none, it is one take | each clip embeds anywhere |
+
+The mechanism behind the last three rows is the one that decides whether a video library is fundable. A monolithic walkthrough is a single indivisible take: you cannot cleanly splice a re-narrated segment into a continuous voiceover, so when any one of its twelve screens changes, you re-record the whole thing. One moved button falsifies four minutes. The atomic library has no such coupling. When the same screen changes, one clip is wrong and eleven are still correct, so the fix re-renders roughly twelve seconds and leaves the rest alone.
+
+Over a quarter that ships, say six of the twelve screens pick up a UI-visible change. The monolith gets re-recorded once, in full, to absorb them: you re-shoot four minutes of footage, half of which was already correct. The atomic library re-renders six clips and never touches the other six. The [maintenance-hours math for a whole library is worked out separately](/blog/keeping-tutorial-libraries-current); the point here is narrower and structural. Cutting the demo into single-action clips shrinks the blast radius of every future UI change from the entire artifact down to one tile of it. A stale monolith is wrong from the moment its changed screen appears and stays wrong to the credits; a stale clip is one broken tile in a wall that is otherwise still true.
+
+Granularity pays a second dividend the monolith cannot: reuse. The single clip that shows "connect a data source" is the same asset the getting-started page, the how-to guide, the help-center article, and the changelog entry all need. Cut it once, embed it in four places, re-render one file when that screen moves. A four-minute take cannot be quoted a screen at a time, so every doc that needs that one moment has to link out to a timestamp or shoot its own copy.
+
+## Silence is a maintenance decision, not an aesthetic one
+
+Dropping the voiceover is usually pitched as a matter of taste. It is really the single biggest lever on what a clip costs to keep current. A narrated clip couples its visuals to one language's word timing: change the UI and you re-record the audio, re-align the captions to the new pacing, and, if you localize, re-voice the whole thing once per market. A silent clip carries none of that machinery. There is no audio to fall out of sync when a button moves, and nothing language-specific in the file at all, so the same clip ships to every locale and only the on-page text gets translated. That turns [multi-language documentation](/blog/multi-language-product-demo-videos) from a re-recording project into a text-translation one.
+
+Silence also matches how docs are actually read. A reader scanning a help article has not opted into audio and often cannot play it, so a clip that leans on narration to make sense fails the muted, glance-and-move-on reading that dominates a docs page. The silent single-action clip degrades gracefully: muted is its native state, the paired text carries the words, and the motion carries the one thing text cannot.
+
+## Build the library so one change re-renders one clip
+
+All of this holds only if the clips are genuinely atomic and genuinely cheap to rebuild. Three rules keep them that way. Scope each clip to exactly one action, so a screen change touches one file and not a montage. Crop tightly to the region that acts instead of filming the whole desktop, so the reader's eye lands on the change and an unrelated layout shift elsewhere does not quietly falsify the clip; the [cropping and zoom mechanics are the same ones that make any screen recording look deliberate](/blog/professional-screen-recordings). And ship the loop as a muted, inline video rather than a GIF, for the file-size and accessibility reasons the [GIF-versus-video comparison lays out](/blog/gifs-in-documentation).
+
+The rule that decouples a library's size from its maintenance bill is to make each clip regenerate from a committed spec instead of a hand-captured take. Then one UI change re-renders one clip in CI, on the same commit that changed the screen, and a two-hundred-clip library costs no more to keep current than a twenty-clip one. aidemo, which we build, works this way, and its limits are worth stating plainly: it captures a real browser and nothing beyond one, a coding agent drafts the storyboard that a person then corrects as text (there is no drag-and-drop timeline), and one script emits each clip as a muted video or a GIF. The tool is beside the point. The point is that the microvideo, one silent action, cropped tight and rebuilt from source, is the unit that makes a doc-video library both more useful to the reader and cheap enough to stay true.
+
+## Sources
+
+- [Harley, Nielsen Norman Group (2020) — Videos as Instructional Content: User Behaviors and UX Guidelines](https://www.nngroup.com/articles/instructional-video-guidelines/)
+- [Diataxis — How-to guides](https://diataxis.fr/how-to-guides/)
+- [Diataxis — Reference](https://diataxis.fr/reference/)
+- [W3C — Understanding WCAG 2.2 SC 1.2.1 Audio-only and Video-only (Prerecorded), Level A](https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html)
+- [Wistia — How to Choose the Right Marketing Video Length for Any Goal](https://wistia.com/learn/marketing/optimal-video-length)
+
+## FAQ
+
+### What is a microvideo in documentation?
+
+A microvideo is a short, silent clip, roughly five to fifteen seconds, that shows exactly one action such as dragging a card or flipping a setting, embedded beside the written step it illustrates. It is not a tutorial; it carries a single moment, not a whole workflow. The format matters because a clip scoped to one action is small enough to embed in several docs and cheap enough to re-render on its own when that one screen changes.
+
+### Do documentation microvideos need captions if they have no audio?
+
+They do not need captions, because there is no speech to caption, but they are not exempt from accessibility. A silent clip is "video-only" content under WCAG 2.2, and Success Criterion 1.2.1 (Level A) requires a text alternative that presents the same information. In practice the written step you place beside the clip is that alternative, so a silent microvideo paired with real text steps already meets the rule, and hands search engines the words the video hides.
+
+### Are lots of short clips harder to maintain than one long video?
+
+The opposite, and it is the main reason to prefer them. A single long walkthrough is one indivisible take, so any UI change anywhere in it forces re-recording the whole thing. A library of single-action clips is atomic, so a screen change re-renders only the one clip that shows that screen and leaves the rest untouched. Cutting the demo into small pieces shrinks the blast radius of every future change from the whole video down to one tile of it.
 
 ---
 
@@ -5200,6 +5624,126 @@ Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and L
 ### Does Screen Studio still sell a one-time license?
 
 Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.
+
+---
+
+# Selectors that survive a redesign
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/selectors-that-survive-redesigns/
+
+> A demo pinned to nth-child and hashed CSS classes breaks the day a designer touches the layout. Here are the selectors that outlast a redesign.
+
+## A redesign rewrites the look and leaves the job alone
+
+A visual redesign is a promise about what will not change. The team recolors, respaces, and re-lays out the interface, ships a new component library, swaps hand-written CSS for utility classes or a CSS-in-JS runtime. What it does not touch, on purpose, is the work the screen does. The Submit button still submits, the search field still searches, the account menu still opens the account menu. A redesign that changed those would not be a redesign, it would be a different product.
+
+So a demo that breaks the morning after a redesign broke on the half that was contracted to change. The click that used to land on a button now lands on empty space, the cursor travels to the wrong spot, the narration describes a step that did not happen, and none of that is because the button left. It is because the selector was pinned to the paint, not to the plumbing.
+
+That split has a name in the browser. What renders on screen is backed by two overlapping trees: the render tree of tags, classes, and geometry that a stylesheet owns, and the accessibility tree of roles and names that assistive technology reads. A redesign is free to rewrite the first and is strongly constrained not to break the second, because breaking it breaks screen readers. The W3C's first rule of ARIA is to reach for "a native HTML element ... with the semantics and behavior you require already built in" before repurposing markup ([W3C, accessed July 2026](https://www.w3.org/TR/using-aria/)), and an accessible name comes straight from the visible text, a label, or an `aria-label`, which is "the text associated with an HTML element that provides users of assistive technology with a label for the element" ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Glossary/Accessible_name)). That is why a button stays a `button` named "Submit" across three restyles: the name is the element's contract with every user who cannot see it. Pin your selectors to the tree a redesign is not allowed to wreck, and most redesigns pass over the demo without touching it.
+
+## Rank a selector by what a redesign can touch
+
+"Resilient selector" is not one property, it is resilience against a specific kind of change. Sort the changes a redesign actually makes:
+
+- **Restyle** — class names, colors, and spacing swap out while the DOM and text stay put. Moving to Tailwind or a CSS-in-JS library does this to every class name at once.
+- **Relayout** — the DOM restructures: wrappers get added, elements reorder, a two-column grid becomes a stack. This is what breaks anything that counts position.
+- **Recopy** — the visible words change, so "Submit" becomes "Save," or the app is localized and every label is now in German.
+- **Refunction** — the control is genuinely removed or replaced. No selector should survive this, and one that does is lying to you.
+
+Cross the common selector strategies against those four and the ranking stops being a matter of taste. A yes survives the change, a no breaks on it, and "breaks as it should" is the one case where a broken selector is the correct outcome.
+
+| Selector strategy | Restyle | Relayout | Recopy | Refunction |
+|---|---|---|---|---|
+| Role + accessible name (`getByRole` with a name) | yes | yes | no | breaks as it should |
+| Visible text or label (`getByText`, `getByLabel`) | yes | yes | no | breaks as it should |
+| `data-testid` / `data-cy` | yes | yes | yes | breaks as it should |
+| Semantic attribute (`#id`, `name=`, `type=`, `href`) | yes | yes | yes | breaks as it should |
+| Structural CSS (`nth-child`, `>`, descendant chains) | yes | no | yes | no |
+| Generated class (`.css-1q2w3e`, `.sc-bdVaJa`) | no | no | yes | no |
+| Absolute XPath (`/html/body/div[2]/…`) | no | no | yes | no |
+
+The three testing frameworks converge on the top rows for the same reason. Testing Library ranks `getByRole` first because it queries "every element that is exposed in the accessibility tree," and puts `getByTestId` last, only "for cases where you can't match by role or text," because "the user cannot see (or hear)" a test id ([Testing Library, accessed July 2026](https://testing-library.com/docs/queries/about/)). Playwright's rule is blunter: "Prefer user-facing attributes to XPath or CSS selectors," because "your DOM can easily change so having your tests depend on your DOM structure can lead to failing tests" ([Playwright, accessed July 2026](https://playwright.dev/docs/best-practices)). Cypress tells you not to target `id`, `class`, or `tag`, and not to "target elements that may change their textContent" ([Cypress, accessed July 2026](https://docs.cypress.io/app/core-concepts/best-practices)).
+
+Read down the columns and two distinct failure modes separate out. The bottom three rows are the ones a routine restyle or relayout kills, and they are exactly the selectors an auto-generated recorder emits by default. The top two rows survive a redesign but die on a copy edit or a translation, which is fine for a single-locale demo and a live problem the day you localize the narration and the UI. Only the middle rows, an explicit attribute someone put there on purpose, survive everything short of the control being deleted.
+
+## One card, before and after a redesign
+
+Take a pricing card with an upgrade button, written first in hand-authored CSS:
+
+```html
+<div class="card card--pro">
+  <h3 class="card__title">Pro</h3>
+  <p class="card__price">$29/mo</p>
+  <button class="btn btn--primary">Upgrade</button>
+</div>
+```
+
+Four ways to grab that button, all of which work today:
+
+```js
+page.getByRole('button', { name: 'Upgrade' })    // role + name
+page.getByText('Upgrade')                         // visible text
+page.locator('.btn--primary')                     // class
+page.locator('.card--pro > button:nth-child(3)')  // structure
+```
+
+Now the team adopts a component library and a CSS-in-JS runtime. Same card, same button, same word on it, but the markup is unrecognizable:
+
+```html
+<div class="css-1a2b3c" data-variant="pro">
+  <div class="css-9z8y7x">
+    <span class="css-4d5e6f">Pro</span>
+    <span class="css-7g8h9i">$29/mo</span>
+  </div>
+  <button class="css-0j1k2l">Upgrade</button>
+</div>
+```
+
+A wrapper `div` pushed the button out of position three, the class names are machine-generated hashes, and a library like styled-components, which "generates unique class names for your styles" by design ([styled-components, accessed July 2026](https://styled-components.com/docs/basics)), hands you a fresh hash the moment anyone edits the styles. Re-run the same four selectors:
+
+| Selector | After the redesign |
+|---|---|
+| `getByRole('button', { name: 'Upgrade' })` | still one button named Upgrade |
+| `getByText('Upgrade')` | the word did not change |
+| `.btn--primary` | that class no longer exists |
+| `.card--pro > button:nth-child(3)` | wrong parent, wrong index |
+
+Half the selectors survived a change that touched every line of markup, and the half that survived is the half that describes the button the way a person does: the thing you click that says "Upgrade." The two that broke described it the way the old stylesheet happened to arrange it. Nothing about the redesign was hostile to the demo. The fragile selectors simply bet on the layer whose entire job is to change.
+
+## When the element has no name to grab
+
+The ranking assumes the thing you click carries an accessible name or stable text. Plenty of demo targets do not: an icon-only button, a chart or a `canvas`, a drag handle, a bare marketing hero, a third-party embed. For those the honest answer is the one every framework reaches for last on purpose, which is to add a hook.
+
+The two ways to add one are not equal, and the better one fixes a real bug on the way. An icon button with no text is invisible to a screen reader too, so `aria-label="Delete row"` both names it for assistive tech and hands your selector a durable, user-facing handle in one move, since the same string then resolves as `getByRole('button', { name: 'Delete row' })`. Only when even that does not fit, a `canvas` or a purely decorative node, fall back to an explicit `data-testid`, which Cypress recommends precisely because it is "isolated from all changes" to CSS or behavior ([Cypress, accessed July 2026](https://docs.cypress.io/app/core-concepts/best-practices)). The tradeoff is real: a test id survives every cosmetic change but is invisible, so it can be dropped by someone who never knew a demo relied on it, and it asserts nothing about whether the visible label is still correct. Prefer the accessible name, and keep the test id for where semantics genuinely run out. Which elements deserve a permanent hook is an [instrumentation question that pays off for tests, agents, and demo capture at once](/blog/agent-friendly-app-instrumentation), not a demo-only tax.
+
+## What a demo asks of a selector that a test does not
+
+A passing test needs one thing from a selector: that it resolves to the right element. A demo needs two. It needs the selector to resolve, and it needs the element to sit in a predictable place, because a demo does not merely assert against the element, it moves a cursor to it, holds a beat, and often zooms the frame around it. A selector that resolves to a correct-but-relocated element turns a green check into a cursor gliding to the wrong corner on camera. That is the extra bar a redesign raises for footage specifically, and it is why "the selector still resolves" is necessary but not sufficient: resilience buys you the element, and [pinning the viewport, the clock, and the fonts](/blog/deterministic-browser-automation-for-video) buys you where it lands.
+
+The payoff is that resilient selectors do double duty. Because a demo built as [a committed spec you rebuild rather than re-record](/blog/demos-as-code) re-runs its selectors on every render, the selector list is also a change detector: run the storyboard's actions against tomorrow's build with no voice and no encode, and any selector that stopped matching turns into a failed step instead of a broken video shipped to a buyer, which is the cheapest way to [catch a UI change before the demo lies about the product](/blog/detecting-ui-drift). This is also why the durable part of the work belongs at authoring time. When [a coding agent writes the storyboard](/blog/coding-agents-that-make-demo-videos), the highest-value thing it can do is verify every selector resolves against the live app and choose the role-and-name handle over whatever a screen scrape suggested, because a selector chosen well once survives the redesigns the demo will outlive. aidemo, the engine we build, leans on exactly this: its storyboards address elements by role, text, and test id and dry-run those selectors against the live UI as a preflight, so a redesign that moved a button fails loudly rather than rendering a cursor clicking nothing. The honest limits are worth stating plainly: it captures the browser and nothing native, the storyboard is authored by an agent instead of assembled in a visual editor, and there is no timeline you drag clips around in. Those constraints are the price of the property that matters here: a selector pinned to the accessibility tree is what keeps one storyboard recording the same demo across a year of restyles.
+
+## Sources
+
+- [W3C — Using ARIA, the First Rule of ARIA Use (prefer native HTML semantics)](https://www.w3.org/TR/using-aria/)
+- [MDN — Accessible name (what it is and where it comes from)](https://developer.mozilla.org/en-US/docs/Glossary/Accessible_name)
+- [Testing Library — About Queries and the query priority order (getByRole first, getByTestId last)](https://testing-library.com/docs/queries/about/)
+- [Playwright — Best Practices (prefer user-facing attributes over CSS or XPath)](https://playwright.dev/docs/best-practices)
+- [Cypress — Best Practices, Selecting Elements (use data-* attributes isolated from all changes)](https://docs.cypress.io/app/core-concepts/best-practices)
+- [styled-components — Basics (generates unique class names for your styles)](https://styled-components.com/docs/basics)
+
+## FAQ
+
+### What is the most durable way to select a UI element for automation?
+
+Match the element the way a user identifies it: by its role and its accessible name, for example a button named "Upgrade." That handle lives in the accessibility tree, which a visual redesign is constrained not to break because breaking it breaks screen readers, so it survives the class-name and layout churn that kills CSS and XPath selectors. When an element has no name, add an `aria-label` first and a `data-testid` only where semantics genuinely run out.
+
+### Why did my demo break after a redesign when the app still works?
+
+Because the selector was pinned to the presentation layer the redesign exists to change, not to the behavior it preserves. A redesign rewrites class names, spacing, and DOM structure while keeping the same buttons and labels, so a selector built on `nth-child` position or a generated class like `.css-1q2w3e` stops matching even though the button is right there doing its job. Rewrite those selectors to target the role, the accessible name, or an explicit test id and the same redesign passes over them.
+
+### Should I add data-testid attributes just for a demo video?
+
+Add them sparingly, and prefer an accessible name where one fits. A `data-testid` is the most change-proof hook because it is isolated from CSS and layout, but it is invisible to users, asserts nothing about the visible label, and can be deleted by someone who never knew the demo depended on it. Reach for `aria-label` on an unnamed control first, since it fixes accessibility and gives you a user-facing handle in the same edit, and reserve test ids for targets with no semantics at all, like a chart or a canvas.
 
 ---
 
