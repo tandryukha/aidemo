@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo videos in CI: a GitHub Actions guide | aidemo</title>
+<meta name="description" content="Render a product demo video in GitHub Actions: the browser, ffmpeg and fonts ubuntu-latest ships (and doesn't), trigger strategies, and where to publish.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/demo-videos-in-ci/">
+<link rel="alternate" type="text/markdown" href="/blog/demo-videos-in-ci/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Demo videos in CI: a GitHub Actions guide | aidemo">
+<meta property="og:description" content="Render a product demo video in GitHub Actions: the browser, ffmpeg and fonts ubuntu-latest ships (and doesn't), trigger strategies, and where to publish.">
+<meta property="og:url" content="https://aidemo.top/blog/demo-videos-in-ci/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Demo videos in CI: a GitHub Actions guide | aidemo">
+<meta name="twitter:description" content="Render a product demo video in GitHub Actions: the browser, ffmpeg and fonts ubuntu-latest ships (and doesn't), trigger strategies, and where to publish.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Rendering demo videos in CI: a GitHub Actions walkthrough",
+  "description": "Render a product demo video in GitHub Actions: the browser, ffmpeg and fonts ubuntu-latest ships (and doesn't), trigger strategies, and where to publish.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/demo-videos-in-ci/"
+  },
+  "wordCount": 1979,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "actions/runner-images — Ubuntu 24.04 (ubuntu-latest) installed software",
+      "url": "https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Events that trigger workflows (schedule cron, paths filter)",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — About releases (2 GiB per file, 1000 assets)",
+      "url": "https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Linking to releases (latest/download URL)",
+      "url": "https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "charmbracelet/vhs — terminal GIFs as code",
+      "url": "https://github.com/charmbracelet/vhs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "charmbracelet/vhs-action — VHS in CI",
+      "url": "https://github.com/charmbracelet/vhs-action"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "aidemo CI recipe (our composite Action, disclosed as ours)",
+      "url": "https://github.com/tandryukha/aidemo/blob/main/docs/CI.md"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Rendering demo videos in CI: a GitHub Actions walkthrough",
+      "item": "https://aidemo.top/blog/demo-videos-in-ci/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does the ubuntu-latest GitHub Actions runner include ffmpeg and a browser?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It includes a browser but not the encoder. As of July 2026 the image ships Google Chrome 150.x, Chromium, and Node.js 22, but ffmpeg does not appear anywhere in its software manifest. Add sudo apt-get update && sudo apt-get install -y ffmpeg before any step that trims, syncs, or muxes video, or the compose stage fails with command not found."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often can a scheduled render actually run on GitHub Actions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GitHub caps cron at one run every five minutes, and even then scheduled workflows are documented as delayed during high load, with the top of every hour being the worst window. Treat cron as a backstop, schedule it for an odd minute like 17 6 * * 1 rather than 0 * * * *, and drive time-critical re-renders from a paths filter on the code that changed instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where should the rendered video live so an embed never breaks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Match the target to the file. Commit sub-megabyte GIFs into the repo and embed the stable raw.githubusercontent.com URL. Push multi-megabyte MP4s as release assets and link the /releases/latest/download/name URL, which survives up to 2 GiB per file. Keep CI artifacts for pull-request review only — they expire after 90 days and need authentication, so they cannot back a public page."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Rendering demo videos in CI: a GitHub Actions walkthrough</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h1>
+        <p class="article-dek">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-video-job-needs-that-a-test-job-doesnt">What a video job needs that a test job doesn't</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#triggering-on-change-on-a-schedule-or-on-release">Triggering on change, on a schedule, or on release</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#prior-art-vhs-proved-the-pattern-in-the-terminal">Prior art: vhs proved the pattern in the terminal</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-worked-browser-pipeline">A worked browser pipeline</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#publishing-commit-release-asset-or-artifact">Publishing: commit, release asset, or artifact</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>GitHub's ubuntu-latest ships Google Chrome (150.x as of July 2026) and Node 22 but NOT ffmpeg — add `apt-get install -y ffmpeg` or the compose step fails.</li>
+    <li>The runner installs one font package (Noto color emoji), so non-Latin captions render as tofu boxes until you apt-get the matching Noto family.</li>
+    <li>Cron on GitHub Actions runs at most every 5 minutes and gets delayed at the top of the hour — trigger on the paths that changed the UI, keep cron as a backstop.</li>
+    <li>Publish choices: auto-commit (raw-URL embed, bloats git), release asset (2 GiB/file cap, stable /releases/latest/download URL), or CI artifact (expires, review-only).</li>
+    <li>A commit-back render needs a loop guard: ignore the output path, check the actor, and put [skip ci] in the message, or the job triggers itself forever.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="what-a-video-job-needs-that-a-test-job-doesnt">What a video job needs that a test job doesn&#39;t<a class="hanchor" href="#what-a-video-job-needs-that-a-test-job-doesnt" aria-label="Link to section: What a video job needs that a test job doesn't">#</a></h2>
+<p>A test job needs a runtime and your code. A video-rendering job needs three more things: a real browser to drive, a video encoder to trim and mux, and fonts to draw text that isn&#39;t a box. The GitHub-hosted <code>ubuntu-latest</code> runner hands you one of those for free, so the first job of any pipeline is closing the gaps the manifest quietly leaves open.</p>
+<p>Read the runner image&#39;s own software list before you trust it. As of July 2026, <code>ubuntu-latest</code> resolves to Ubuntu 24.04 and ships Google Chrome 150.0.7871.114, Chromium 150.0.7871.0, ChromeDriver, and Node.js 22.23.1 by default<sup class="article-cite"><a href="#src-1" title="actions/runner-images — Ubuntu 24.04 (ubuntu-latest) installed software">1</a></sup>. That covers the browser and the runtime. What it does not ship is ffmpeg — search the manifest and the string never appears. Every stage that cuts idle time, syncs audio to narration, or muxes a caption track runs on ffmpeg, so a pipeline that assumes it is present dies at the compose step with <code>ffmpeg: command not found</code>. One line closes that gap:</p>
+<pre><code class="language-yaml">- run: sudo apt-get update &amp;&amp; sudo apt-get install -y ffmpeg
+</code></pre>
+<p>Fonts are the second trap, and a quieter one. The image installs exactly one font package, <code>fonts-noto-color-emoji</code><sup class="article-cite"><a href="#src-1" title="actions/runner-images — Ubuntu 24.04 (ubuntu-latest) installed software">1</a></sup>. Latin captions render from the base system fonts, but the moment your narration text, a title card, or a caption line carries CJK, Arabic, Cyrillic, or Devanagari, headless Chrome has no glyph and paints the tofu box (□). The fix is the same shape as the ffmpeg one: <code>apt-get install -y fonts-noto-cjk fonts-noto</code> for the families you need. This gap is common enough that the vhs GitHub Action ships an <code>install-fonts</code> input specifically to paper over it<sup class="article-cite"><a href="#src-6" title="charmbracelet/vhs-action — VHS in CI">6</a></sup>.</p>
+<p>The third category is headless quirks. There is no display, no GPU by default, and no window manager, so anything that waits on a real paint or a hardware compositor stalls. This is where a video job is genuinely harder than a screenshot job: a still tolerates a frame captured a few milliseconds early, but a video that records the same flow twice and produces two different timelines is unusable footage. Deterministic replay — pinned viewport and device-pixel-ratio, explicit waits instead of sleeps, controlled animation clocks — is the cost of a stable render, and it is a discipline of its own worth reading up on before you ship (deterministic browser replay). It is also why polished desktop recorders don&#39;t transfer to CI: a macOS-only GUI app cannot run on a Linux runner at all, which is the practical push toward <a href="/blog/screen-studio-alternatives/">headless, scriptable alternatives</a> once a demo has to rebuild itself.</p>
+<p>Here is the whole inventory in one table.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The job needs</th>
+<th>ubuntu-latest gives you</th>
+<th>You add</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A browser</td>
+<td>Chrome 150.x, Chromium, ChromeDriver</td>
+<td>nothing — drive <code>channel: chrome</code></td>
+</tr>
+<tr>
+<td>A JS runtime</td>
+<td>Node.js 22.23.1</td>
+<td>nothing (engines want Node 20+)</td>
+</tr>
+<tr>
+<td>A video encoder</td>
+<td>nothing</td>
+<td><code>apt-get install -y ffmpeg</code></td>
+</tr>
+<tr>
+<td>Fonts for captions</td>
+<td>Noto color emoji only</td>
+<td><code>fonts-noto-cjk</code> / <code>fonts-noto</code> for non-Latin</td>
+</tr>
+<tr>
+<td>Determinism</td>
+<td>nothing</td>
+<td>your own record layer</td>
+</tr>
+</tbody></table></div>
+<h2 id="triggering-on-change-on-a-schedule-or-on-release">Triggering on change, on a schedule, or on release<a class="hanchor" href="#triggering-on-change-on-a-schedule-or-on-release" aria-label="Link to section: Triggering on change, on a schedule, or on release">#</a></h2>
+<p>The reason to render in CI at all is that product media rots: the UI ships, the video lies, and nobody notices for a quarter. CI&#39;s job is to rebuild the video from a spec whenever the thing it depicts changes. There are three honest triggers, and they are not interchangeable.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Fires when</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Product change (<code>on: push</code>, <code>paths</code>)</td>
+<td>a file matching the pattern is pushed</td>
+<td>catching UI drift the moment it lands</td>
+</tr>
+<tr>
+<td>Schedule (<code>on: schedule</code>, cron)</td>
+<td>a wall-clock time arrives</td>
+<td>drift a path filter can&#39;t see (data, deps, embeds)</td>
+</tr>
+<tr>
+<td>Release (<code>on: release</code>)</td>
+<td>you cut a version</td>
+<td>pinning a demo to a shipped version</td>
+</tr>
+</tbody></table></div>
+<p>The path filter is the sharp instrument. A <code>paths</code> filter runs the workflow only when a push touches files that match the pattern<sup class="article-cite"><a href="#src-2" title="GitHub Docs — Events that trigger workflows (schedule cron, paths filter)">2</a></sup>, so scoping it to your <code>src/**</code> or <code>components/**</code> means the demo re-renders exactly when the code that could change it does, and not on every README typo. Cron is the backstop for drift a path filter cannot see: a third-party embed that restyled itself, a data fixture, a dependency bump that moved a button. Two facts keep cron a backstop rather than a primary trigger. GitHub caps the frequency at one run every five minutes, and scheduled workflows are documented as &quot;delayed during periods of high loads,&quot; with the start of every hour named as the worst offender<sup class="article-cite"><a href="#src-2" title="GitHub Docs — Events that trigger workflows (schedule cron, paths filter)">2</a></sup>. Schedule for something like <code>17 6 * * 1</code>, never <code>0 * * * *</code>, and do not expect punctuality.</p>
+<h2 id="prior-art-vhs-proved-the-pattern-in-the-terminal">Prior art: vhs proved the pattern in the terminal<a class="hanchor" href="#prior-art-vhs-proved-the-pattern-in-the-terminal" aria-label="Link to section: Prior art: vhs proved the pattern in the terminal">#</a></h2>
+<p>Before wiring your own, look at the tool that made demos-as-code ordinary. vhs bills itself as a way to &quot;write terminal GIFs as code&quot;<sup class="article-cite"><a href="#src-5" title="charmbracelet/vhs — terminal GIFs as code">5</a></sup>; a <code>.tape</code> file is the script, checked into the repo, and vhs replays it in a headless terminal to a GIF, MP4, WebM, or PNG frame sequence. It requires <code>ttyd</code> and <code>ffmpeg</code> on the PATH — the same encoder dependency you just installed by hand. The companion vhs-action collapses the CI loop to a few lines: point it at the tape, let it render, commit the result back.</p>
+<pre><code class="language-yaml">- uses: charmbracelet/vhs-action@v1
+  with:
+    path: demo.tape
+- uses: stefanzweifel/git-auto-commit-action@v4
+  with:
+    file_pattern: &quot;*.gif&quot;
+</code></pre>
+<p>That is the entire pattern: a committed spec, a headless renderer, an auto-commit of the output. The browser version is the same shape with a heavier renderer — a real Chrome instead of a pseudo-terminal — and the same two questions to answer afterward: what triggers it, and where the file goes. It is the mechanism behind <a href="/blog/automated-product-demo-videos/">regenerating a demo instead of re-recording it</a> rather than babysitting a file that quietly goes wrong.</p>
+<h2 id="a-worked-browser-pipeline">A worked browser pipeline<a class="hanchor" href="#a-worked-browser-pipeline" aria-label="Link to section: A worked browser pipeline">#</a></h2>
+<p>For a concrete browser example, here is the composite Action from aidemo, which is our engine, disclosed as ours and honest about the limits: it is browser-only, its storyboards come from a coding agent rather than clips nudged across a visual timeline, and there is no click-to-trim editor. What it does have is a one-line CI entry point. The workflow below renders every demo under <code>demos/</code> on the pushes that could change them, on a weekly backstop, and on demand, then commits the result back.</p>
+<pre><code class="language-yaml">name: demo
+on:
+  push:
+    branches: [main]
+    paths: [&quot;demos/**&quot;, &quot;!demos/**/output/**&quot;]
+  workflow_dispatch:
+  schedule:
+    - cron: &quot;17 6 * * 1&quot;        # Mondays, off the top of the hour
+permissions:
+  contents: write
+jobs:
+  render:
+    if: github.actor != &#39;github-actions[bot]&#39;
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # ubuntu-latest ships Chrome, not ffmpeg
+      - run: sudo apt-get update &amp;&amp; sudo apt-get install -y ffmpeg
+      - uses: tandryukha/aidemo@stable
+        with:
+          demos: demos/*
+          gif: &quot;true&quot;
+      - name: Commit the re-render
+        run: |
+          git config user.name  &#39;github-actions[bot]&#39;
+          git config user.email &#39;41898282+github-actions[bot]@users.noreply.github.com&#39;
+          git add -A demos
+          git diff --cached --quiet || \
+            (git commit -m &#39;chore(demo): re-render [skip ci]&#39; &amp;&amp; git push)
+</code></pre>
+<p>Three details earn their place. The <code>paths</code> list excludes <code>demos/**/output/**</code>, so the commit of a freshly rendered file cannot match the trigger that produced it. The <code>if: github.actor != &#39;github-actions[bot]&#39;</code> guard is a second layer, and <code>[skip ci]</code> in the commit message is a third: a commit-back job with none of these triggers itself, forever, on your dime. Driving the runner&#39;s pre-installed Chrome through <code>channel: chrome</code> means the Action skips downloading a browser on every run, using the one dependency the image already got right. Pin <code>actions/checkout</code> to a commit SHA rather than a floating <code>@v4</code> tag when you harden this for production.</p>
+<h2 id="publishing-commit-release-asset-or-artifact">Publishing: commit, release asset, or artifact<a class="hanchor" href="#publishing-commit-release-asset-or-artifact" aria-label="Link to section: Publishing: commit, release asset, or artifact">#</a></h2>
+<p>Rendering is half the job. The file then has to land somewhere an <code>&lt;img&gt;</code> or <code>&lt;video&gt;</code> tag can reach without breaking next quarter. Three targets, three tradeoffs.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Publish target</th>
+<th>Stable URL</th>
+<th>Size ceiling</th>
+<th>The catch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Commit into the repo</td>
+<td><code>raw.githubusercontent.com/owner/repo/main/path</code></td>
+<td>git&#39;s, effectively</td>
+<td>binaries bloat history; needs the loop guard</td>
+</tr>
+<tr>
+<td>Release asset</td>
+<td><code>github.com/owner/repo/releases/latest/download/NAME</code></td>
+<td>2 GiB per file</td>
+<td>you must cut a release; up to 1000 assets</td>
+</tr>
+<tr>
+<td>CI artifact</td>
+<td>none (auth + expiry)</td>
+<td>small</td>
+<td>expires (90 days default), not publicly embeddable</td>
+</tr>
+</tbody></table></div>
+<p>Committing the file back is the simplest path and what both vhs-action and the pipeline above do. The <code>raw.githubusercontent.com</code> URL is stable, and GitHub proxies and caches it when it is embedded in markdown, so a README GIF loads fast. The cost is that git was never built for megabyte binaries: every re-render appends a full copy to history. That is fine for a small GIF and painful for a 40 MB MP4 rebuilt every week.</p>
+<p>Release assets fix the bloat by living outside the git tree. GitHub documents a clean stable link: the <code>/releases/latest/download/asset-name</code> suffix always resolves to the newest release&#39;s copy of that file<sup class="article-cite"><a href="#src-4" title="GitHub Docs — Linking to releases (latest/download URL)">4</a></sup>. The limits are generous — each file must be under 2 GiB, up to 1000 assets per release, with no cap on total size or bandwidth<sup class="article-cite"><a href="#src-3" title="GitHub Docs — About releases (2 GiB per file, 1000 assets)">3</a></sup>. The price is a release step: your workflow has to <code>gh release upload</code> the MP4, which pins the public demo to a tagged version rather than always-latest-main.</p>
+<p>The CI artifact (<code>actions/upload-artifact</code>) is the third target and mostly a review tool. It expires — 90 days by default — and needs authentication to download, so it cannot back a public embed. Use it to eyeball a render on a pull request before it is published, not as the home of record.</p>
+<p>The decision reduces to size and audience. A sub-megabyte README GIF: commit it. A multi-megabyte narrated MP4 on a marketing page: release asset with the stable <code>latest/download</code> URL. A render only a reviewer needs to see: artifact. Whichever you choose, the property that matters is the one CI actually buys you: the demo is correct because a machine rebuilt it against the current UI, not because a human remembered to.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md" rel="noopener">actions/runner-images — Ubuntu 24.04 (ubuntu-latest) installed software</a></li>
+<li id="src-2"><a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows" rel="noopener">GitHub Docs — Events that trigger workflows (schedule cron, paths filter)</a></li>
+<li id="src-3"><a href="https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases" rel="noopener">GitHub Docs — About releases (2 GiB per file, 1000 assets)</a></li>
+<li id="src-4"><a href="https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases" rel="noopener">GitHub Docs — Linking to releases (latest/download URL)</a></li>
+<li id="src-5"><a href="https://github.com/charmbracelet/vhs" rel="noopener">charmbracelet/vhs — terminal GIFs as code</a></li>
+<li id="src-6"><a href="https://github.com/charmbracelet/vhs-action" rel="noopener">charmbracelet/vhs-action — VHS in CI</a></li>
+<li id="src-7"><a href="https://github.com/tandryukha/aidemo/blob/main/docs/CI.md" rel="noopener">aidemo CI recipe (our composite Action, disclosed as ours)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="does-the-ubuntu-latest-github-actions-runner-include-ffmpeg-and-a-browser" class="blog-faq-q">Does the ubuntu-latest GitHub Actions runner include ffmpeg and a browser?<a class="hanchor" href="#does-the-ubuntu-latest-github-actions-runner-include-ffmpeg-and-a-browser" aria-label="Link to section: Does the ubuntu-latest GitHub Actions runner include ffmpeg and a browser?">#</a></h3>
+<p>It includes a browser but not the encoder. As of July 2026 the image ships Google Chrome 150.x, Chromium, and Node.js 22, but ffmpeg does not appear anywhere in its software manifest. Add <code>sudo apt-get update &amp;&amp; sudo apt-get install -y ffmpeg</code> before any step that trims, syncs, or muxes video, or the compose stage fails with <code>command not found</code>.</p>
+<h3 id="how-often-can-a-scheduled-render-actually-run-on-github-actions" class="blog-faq-q">How often can a scheduled render actually run on GitHub Actions?<a class="hanchor" href="#how-often-can-a-scheduled-render-actually-run-on-github-actions" aria-label="Link to section: How often can a scheduled render actually run on GitHub Actions?">#</a></h3>
+<p>GitHub caps cron at one run every five minutes, and even then scheduled workflows are documented as delayed during high load, with the top of every hour being the worst window. Treat cron as a backstop, schedule it for an odd minute like <code>17 6 * * 1</code> rather than <code>0 * * * *</code>, and drive time-critical re-renders from a <code>paths</code> filter on the code that changed instead.</p>
+<h3 id="where-should-the-rendered-video-live-so-an-embed-never-breaks" class="blog-faq-q">Where should the rendered video live so an embed never breaks?<a class="hanchor" href="#where-should-the-rendered-video-live-so-an-embed-never-breaks" aria-label="Link to section: Where should the rendered video live so an embed never breaks?">#</a></h3>
+<p>Match the target to the file. Commit sub-megabyte GIFs into the repo and embed the stable <code>raw.githubusercontent.com</code> URL. Push multi-megabyte MP4s as release assets and link the <code>/releases/latest/download/name</code> URL, which survives up to 2 GiB per file. Keep CI artifacts for pull-request review only — they expire after 90 days and need authentication, so they cannot back a public page.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">ci-cd</span>
+        <span class="article-tag">github actions</span>
+        <span class="article-tag">demo automation</span>
+        <span class="article-tag">ffmpeg</span>
+        <span class="article-tag">video pipeline</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-video-job-needs-that-a-test-job-doesnt">What a video job needs that a test job doesn't</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#triggering-on-change-on-a-schedule-or-on-release">Triggering on change, on a schedule, or on release</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#prior-art-vhs-proved-the-pattern-in-the-terminal">Prior art: vhs proved the pattern in the terminal</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-worked-browser-pipeline">A worked browser pipeline</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#publishing-commit-release-asset-or-artifact">Publishing: commit, release asset, or artifact</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

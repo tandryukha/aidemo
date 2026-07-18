@@ -1,0 +1,110 @@
+# Screen Studio alternatives for Windows, Linux, and CI
+
+July 18, 2026 · Demo Tools & Alternatives · 7 min read · https://aidemo.top/blog/screen-studio-alternatives/
+
+> Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.
+
+**Key takeaways**
+
+- Screen Studio is macOS-only and subscription-only since Sept 30, 2025 ($108/year); its Windows build has sat 'In Review' for 3+ years.
+- Cap is the closest open-source match: AGPLv3, macOS + Windows (beta) + Linux .deb, built-in auto-zoom and captions, $29/year for commercial use.
+- FocuSee brings Screen Studio-style auto-zoom to Windows and still sells a $199.99 lifetime license; Tella adds it in-browser from $13/month.
+- Only aidemo (ours) runs headless in CI with no GUI — it trades native capture and a timeline editor for deterministic, agent-authored replays.
+- Decision rule: macOS GUI -> Screen Studio/Cap; Windows one-time -> FocuSee; open source -> Cap; web app in CI -> aidemo; free + hand-edit -> OBS.
+
+## Why Screen Studio users start shopping around
+
+Screen Studio earned its reputation the hard way. It took the fussy craft of a good product demo — the punched-in zooms, the eased cursor, the soft rounded-corner background — and made all of it automatic. The friction was never the output. It was who gets to run the app, and on what terms.
+
+As of July 2026, Screen Studio is macOS only, and asks for Ventura 13.1 or newer ([Screen Studio, 2026](https://screen.studio/)). Windows users have watched the official feature request sit at "In Review" for more than three years ([Screen Studio hub, 2026](https://hub.screen.studio/p/windows-version)). There is no Linux build and none on the roadmap. And on September 30, 2025 the app retired its $229 one-time license for a subscription — now $108 per year, with earlier lifetime buyers kept on updates through 2027 ([PriceTimeline, 2025](https://pricetimeline.com/news/173)).
+
+Those three facts — Mac-only, no Windows, subscription-only — are the whole reason "Screen Studio alternatives" is a query worth answering well. What follows is a per-platform map of what actually stands in for it, graded on the polish features people name when they go looking. Screen Studio stays on the table the whole time: for a solo Mac user who lives in a GUI, it is often still the right call.
+
+## The polish features people actually cite
+
+Strip the marketing and a "Screen Studio-class" recorder is really four automatic effects plus a portability question. When people compare tools, these are the axes that settle it:
+
+- **Auto-zoom** — the camera punches in on clicks and typing without you setting keyframes. This is the single feature most people mean by "polish."
+- **Cursor smoothing** — the real, jittery mouse path is swapped for an eased one, and the pointer is usually enlarged and given click animations.
+- **Captions** — burned-in or exportable subtitles, ideally from an automatic transcript.
+- **Export** — 4K/60 and GIF out, sized for wherever you are posting.
+- **Where it runs** — macOS, Windows, Linux, and the axis nobody else scores: can it run headless, in CI, with no human at the keyboard.
+
+That last axis is the fork in the road. Every GUI tool below assumes a person records a take and nudges it in an editor. One approach assumes a machine does, on every commit. Hold that thought.
+
+## The alternatives, scored
+
+Here is the platform-and-price picture first, then the feature grid. Everything is checked against each vendor's own pages as of July 2026.
+
+| Tool | macOS | Windows | Linux | Headless / CI | Price model |
+|---|---|---|---|---|---|
+| Screen Studio | Yes (13.1+) | No ("In Review" 3+ yrs) | No | No | Subscription, $108/yr |
+| Cap | Yes | Beta | Yes (.deb) | No (desktop app) | Open source; free / $29 yr / $12 mo |
+| FocuSee | Yes | Yes | No | No | From $49.99/yr; $199.99 lifetime |
+| Tella | Yes | Yes | Browser only | No | Subscription, from $13/mo |
+| OBS + editor | Yes | Yes | Yes | Scriptable; manual polish | Free, open source |
+| aidemo (ours) | Yes | Yes | Yes | Yes, native | Free, open source |
+
+| Tool | Auto-zoom | Cursor smoothing | Captions | Export |
+|---|---|---|---|---|
+| Screen Studio | Automatic | Yes | Transcript / subtitles | 4K60, GIF |
+| Cap | Yes (cursor auto-zoom) | Yes | AI captions | 4K60 |
+| FocuSee | Yes | Yes | AI subtitles, 50+ langs | 4K60, GIF |
+| Tella | Yes (on clicks) | Limited | Transcript-based | 4K60 |
+| OBS + editor | No (manual in post) | No (manual) | In your editor | Configurable |
+| aidemo (ours) | Yes (compose-time) | Yes (synthetic cursor) | Whisper word-timing | ffmpeg MP4 / GIF |
+
+**Cap** is the closest thing to an open-source Screen Studio. It is licensed AGPLv3 (with some capture crates under MIT), ships native builds for macOS, Windows (still labeled beta), and a Linux `.deb`, and its "cursor auto-zoom" watches the pointer and punches in on small click targets on its own ([CapSoftware, 2026](https://github.com/CapSoftware/Cap)). The free tier records locally with a five-minute cap for personal use; a $29/year desktop license adds commercial rights, and Cap Pro is $12/user/month for cloud sharing and AI features ([Cap, 2026](https://cap.so/download)). If your objection to Screen Studio is "Mac-only and rented," Cap answers both at once.
+
+**FocuSee** (by iMobie) is the Windows answer most people land on. It runs on Windows and Mac, does auto pan-and-zoom that follows clicks and typing, and generates AI subtitles in 50+ languages ([FocuSee, 2026](https://focusee.imobie.com/)). Crucially it still sells a one-time license: subscriptions start at $49.99/year, but a $199.99 Advanced Lifetime tier exists for people who refuse to rent their editor ([FocuSee pricing, 2026](https://focusee.imobie.com/pricing.htm)).
+
+**Tella** keeps the recorder in the browser, with native Mac and Windows apps alongside it. It auto-adds smooth zoom on clicks and lets you trim by editing the transcript like a document, with paid plans from $13/month ([Tella, 2026](https://www.tella.com/)). It is the low-friction pick if you would rather not install a heavyweight editor.
+
+**OBS Studio plus an editor** is the zero-dollar route. OBS is free and open source and runs on Windows, macOS, and Linux ([OBS Project, 2026](https://obsproject.com/)), but it records raw — no auto-zoom, no cursor smoothing. You add the polish in whatever editor you pair it with, by hand. It wins on price and control and loses on time.
+
+On macOS specifically, **CleanShot X** is a strong one-time-purchase capture tool — scrolling capture, click highlighting, quick annotation — but it does not do produced auto-zoom, so it is a recorder rather than a Screen Studio replacement in the polish sense ([CleanShot X, 2026](https://cleanshot.com/)).
+
+Then there is the headless lane. **aidemo**, which we build, takes the opposite bet from every tool above: no GUI, no timeline, no human recording a take. You (or a coding agent) author a `storyboard.json` — a script plus a browser action-spec — and the engine replays it deterministically in a real Chrome, injects a synthetic cursor with eased motion, times captions from a Whisper transcript, applies compose-time zoom, and muxes an MP4 with ffmpeg. It runs on macOS, Windows, and Linux, and it is built to run in CI on every commit. The honest limits: it captures a browser only, so no native or mobile app windows, and the "editor" is a JSON file and a re-render, not a drag-and-drop canvas. If your demo is a web product and you would rather regenerate it than re-record it, that trade is the point.
+
+## Pick by platform and workflow
+
+The tools do not rank in a single line; they sort by what you are on and how you work.
+
+| You are… | Best fit | Why |
+|---|---|---|
+| On macOS, solo, want a GUI | Screen Studio or Cap | Fastest record-to-polish; Cap if you want open source |
+| On Windows, want auto-zoom | FocuSee or Cap | Both native on Windows; FocuSee sells a lifetime license |
+| Set on open source / self-host | Cap | AGPLv3, cross-platform, own your data |
+| Recording a web app, no GUI, in CI | aidemo (ours) | Headless deterministic replay, re-renders on every commit |
+| Any budget of $0, willing to edit by hand | OBS + an editor | Free and cross-platform; you supply the polish |
+
+Two honest notes. First, a subscription is not automatically the worse deal. Over three years, Screen Studio runs $324, Cap's commercial license runs $87 (or $0 if the five-minute local cap and personal-use terms fit you), FocuSee's lifetime is $199.99 once, and OBS plus your patience is free. Do the arithmetic for your own usage before treating "subscription" as a dealbreaker. Second, if you are on a Mac, work solo, and want the shortest path from record to polished export, Screen Studio is still the tool it always was — the reasons to leave are platform and pricing model, not quality.
+
+For deeper cuts on adjacent choices, see our pillar on [AI demo video generators](/blog/ai-demo-video-generators), the rundown of [open source demo video tools](/blog/open-source-demo-video-tools), and — for the headless lane specifically — [demo videos in CI](/blog/demo-videos-in-ci) and [automated product demo videos](/blog/automated-product-demo-videos).
+
+## Sources
+
+- [Screen Studio](https://screen.studio/)
+- [Screen Studio — Windows version request status](https://hub.screen.studio/p/windows-version)
+- [PriceTimeline — Screen Studio removes one-time payment](https://pricetimeline.com/news/173)
+- [Cap — GitHub repository](https://github.com/CapSoftware/Cap)
+- [Cap — downloads](https://cap.so/download)
+- [FocuSee](https://focusee.imobie.com/)
+- [FocuSee — pricing](https://focusee.imobie.com/pricing.htm)
+- [Tella](https://www.tella.com/)
+- [OBS Studio](https://obsproject.com/)
+- [CleanShot X](https://cleanshot.com/)
+
+## FAQ
+
+### Is there a Screen Studio for Windows?
+
+No. Screen Studio ships on macOS only, and its official Windows feature request has been marked "In Review" for more than three years as of July 2026. For a Windows recorder with the same auto-zoom-and-polish feel, FocuSee and Cap are the closest matches; Cap also runs on Linux.
+
+### What is the best open-source alternative to Screen Studio?
+
+Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and Linux, and includes cursor auto-zoom and captions, so it covers the polish features most people want without a subscription (a $29/year license adds commercial rights). OBS Studio is the other free-and-open option, but it records raw and leaves the polish to a separate editor.
+
+### Does Screen Studio still sell a one-time license?
+
+Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.

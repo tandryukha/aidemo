@@ -4,6 +4,20 @@
 
 Every article is available as raw markdown at the .md URLs below (the .md suffix on any article URL).
 
+## Demo Tools & Alternatives
+
+- [Screen Studio alternatives for Windows, Linux, and CI](https://aidemo.top/blog/screen-studio-alternatives/index.md): Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.
+
+## Demo Automation
+
+- [Automated product demo videos: regenerate, don't re-record](https://aidemo.top/blog/automated-product-demo-videos/index.md): Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.
+- [Rendering demo videos in CI: a GitHub Actions walkthrough](https://aidemo.top/blog/demo-videos-in-ci/index.md): GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.
+
+## Product Demo Videos
+
+- [Demo video script template: problem, walkthrough, proof](https://aidemo.top/blog/demo-video-script-template/index.md): Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.
+- [How to make a product demo video (that people finish)](https://aidemo.top/blog/how-to-make-a-product-demo-video/index.md): The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
+
 ## Optional
 
 - [Full corpus, one file](https://aidemo.top/blog/llms-full.txt): every article concatenated as markdown

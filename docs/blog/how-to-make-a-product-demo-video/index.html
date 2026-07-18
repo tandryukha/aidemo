@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Make a Product Demo Video | aidemo</title>
+<meta name="description" content="How to make a product demo video people finish: the script-first playbook with word-per-second, scene, and length-by-channel budgets, plus what to automate.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/how-to-make-a-product-demo-video/">
+<link rel="alternate" type="text/markdown" href="/blog/how-to-make-a-product-demo-video/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="How to Make a Product Demo Video | aidemo">
+<meta property="og:description" content="How to make a product demo video people finish: the script-first playbook with word-per-second, scene, and length-by-channel budgets, plus what to automate.">
+<meta property="og:url" content="https://aidemo.top/blog/how-to-make-a-product-demo-video/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How to Make a Product Demo Video | aidemo">
+<meta name="twitter:description" content="How to make a product demo video people finish: the script-first playbook with word-per-second, scene, and length-by-channel budgets, plus what to automate.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to make a product demo video (that people finish)",
+  "description": "How to make a product demo video people finish: the script-first playbook with word-per-second, scene, and length-by-channel budgets, plus what to automate.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/how-to-make-a-product-demo-video/"
+  },
+  "wordCount": 2342,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — How to Choose the Right Marketing Video Length for Any Goal",
+      "url": "https://wistia.com/learn/marketing/optimal-video-length"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "HubSpot — 2024 Video Marketing Report",
+      "url": "https://blog.hubspot.com/marketing/video-marketing-report"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2",
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate",
+      "url": "https://biblio.ugent.be/publication/8647789"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — features and pricing",
+      "url": "https://screen.studio/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OBS Studio — free and open-source screen recording",
+      "url": "https://obsproject.com/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI — Text-to-speech guide",
+      "url": "https://developers.openai.com/api/docs/guides/text-to-speech"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Product Demo Videos",
+      "item": "https://aidemo.top/blog/topics/demo-videos/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to make a product demo video (that people finish)",
+      "item": "https://aidemo.top/blog/how-to-make-a-product-demo-video/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How long should a demo video be for a landing page versus a sales email?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Match the length to the placement. A landing-page hero or social clip should run 30 to 60 seconds, since clips under a minute average a 52% engagement rate in Wistia's data and most marketers in HubSpot's survey put the short-form sweet spot at 21 to 60 seconds. A sales follow-up or onboarding video can stretch to one to three minutes, because the audience is warmer and completing a real task beats raw brevity."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a script, or can I record the product walkthrough live?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Write the script first. It is the cheapest artifact to change, and it fixes the length, scene count, and caption text before you spend any time recording. Talking through the product live reliably produces a take that is twice as long as it should be and painful to trim. Draft the narration to a budget of about 2.5 words per second and read it against a stopwatch before you record anything."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I make a demo video without recording my own voice or screen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Text-to-speech renders the narration straight from your script, so no microphone is required, and a scripted browser replay can record the screen flow deterministically instead of you clicking through it live. That combination also makes updates cheap: when the product changes, you edit the script or the action list and re-render, rather than re-performing the whole take from scratch."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-videos/">Product Demo Videos</a><span class="sep">/</span><span>How to make a product demo video (that people finish)</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-videos/">Product Demo Videos</a>
+        <h1 class="article-title">How to make a product demo video (that people finish)</h1>
+        <p class="article-dek">The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>11 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#write-the-script-before-you-open-the-recorder">Write the script before you open the recorder</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-budget-how-long-how-many-words-how-many-scenes">The budget: how long, how many words, how many scenes</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#anatomy-of-a-60-second-demo">Anatomy of a 60-second demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-seven-step-pipeline-and-where-a-machine-can-stand-in">The seven-step pipeline, and where a machine can stand in</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#recording-the-raw-take">Recording the raw take</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#narration-and-captions-for-a-feed-that-plays-muted">Narration and captions for a feed that plays muted</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#polish-publish-and-keep-it-honest">Polish, publish, and keep it honest</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Write the script first: at ~2.5 words/second a 60-second demo is a 150-word budget across 5 to 6 scenes, all decided before you ever hit record.</li>
+    <li>Match length to placement: 30-60s for a landing hero or social clip (Wistia: sub-minute videos average 52% engagement), 1-3 min for sales and onboarding.</li>
+    <li>Captions are not optional: WCAG 2.2 SC 1.2.2 makes them a Level A requirement, and most landing-page and social views autoplay muted.</li>
+    <li>Six of the seven production steps can be generated from a spec; only writing the script is inescapably human.</li>
+    <li>The step you repeat most is maintenance: a hand-recorded take gets re-performed when the UI changes; a spec-defined demo gets re-rendered.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="write-the-script-before-you-open-the-recorder">Write the script before you open the recorder<a class="hanchor" href="#write-the-script-before-you-open-the-recorder" aria-label="Link to section: Write the script before you open the recorder">#</a></h2>
+<p>Most bad demo videos share one origin: someone hit record, clicked around the product, and narrated whatever came to mind. Ninety seconds of intent becomes four minutes of &quot;and you can also,&quot; and the rest of the project is spent trying to rescue it in an editor. Reverse the order. The script is the cheap artifact. It is text, you can rewrite it ten times before lunch, and it fixes every expensive decision downstream: how long the video runs, how many scenes you record, where the cursor goes, and what the captions read. A product demo is a script with a screen recording attached, not a recording with words sprinkled over it.</p>
+<p>Writing first also forces the only genuinely hard decision to the front, which is what to leave out. A feature tour wants to show everything; a demo that gets finished shows one job, done well, from start to result. Draft the narration as prose, read it aloud against a stopwatch, and cut until it fits the budget below. The <a href="/blog/demo-video-script-template/">problem, walkthrough, proof script template</a> turns that skeleton into fill-in-the-blanks sections with per-part word counts.</p>
+<h2 id="the-budget-how-long-how-many-words-how-many-scenes">The budget: how long, how many words, how many scenes<a class="hanchor" href="#the-budget-how-long-how-many-words-how-many-scenes" aria-label="Link to section: The budget: how long, how many words, how many scenes">#</a></h2>
+<p>Length is not a stylistic choice, it is set by where the video will be watched. Wistia, analyzing more than 13 million videos for its 2026 State of Video report, found that clips under a minute average a 52% engagement rate, meaning viewers watch about half, and that engagement falls off past the five-minute mark<sup class="article-cite"><a href="#src-1" title="Wistia — How to Choose the Right Marketing Video Length for Any Goal">1</a></sup>. HubSpot&#39;s 2024 Video Marketing Report, surveying more than 500 video marketers, put the short-form window even tighter: 42% named 21 to 30 seconds as optimal and another 32% chose 31 to 60 seconds<sup class="article-cite"><a href="#src-2" title="HubSpot — 2024 Video Marketing Report">2</a></sup>. The practical read is to pick a length for the channel and make the script fit it, never the reverse. How long a demo video should be works the retention curves placement by placement.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Placement</th>
+<th>Target length</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Landing-page hero</td>
+<td>30 to 60 s</td>
+<td>Autoplays muted, competes with a skip reflex</td>
+</tr>
+<tr>
+<td>README or docs</td>
+<td>20 to 45 s</td>
+<td>Read alongside the page, one flow only</td>
+</tr>
+<tr>
+<td>Social feed</td>
+<td>15 to 45 s</td>
+<td>Sound off, the first three seconds decide it</td>
+</tr>
+<tr>
+<td>Sales follow-up</td>
+<td>60 to 120 s</td>
+<td>Warm audience, one named use case</td>
+</tr>
+<tr>
+<td>Onboarding or support</td>
+<td>60 to 180 s</td>
+<td>Task completion beats brevity here</td>
+</tr>
+</tbody></table></div>
+<p>Once length is fixed, the word count writes itself. Narration for a demo runs about 2.5 words per second, roughly 150 words per minute, deliberately slower than the 183-wpm average for oral reading found in Brysbaert&#39;s 190-study meta-analysis, because the viewer is also reading the screen<sup class="article-cite"><a href="#src-4" title="Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate">4</a></sup>. Multiply length by rate and you get a hard script budget.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Video length</th>
+<th>Words of narration (~2.5/s)</th>
+<th>Scenes at ~10 s each</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>30 s</td>
+<td>~75</td>
+<td>3 to 4</td>
+</tr>
+<tr>
+<td>60 s</td>
+<td>~150</td>
+<td>5 to 6</td>
+</tr>
+<tr>
+<td>90 s</td>
+<td>~225</td>
+<td>7 to 9</td>
+</tr>
+<tr>
+<td>120 s</td>
+<td>~300</td>
+<td>10 to 12</td>
+</tr>
+</tbody></table></div>
+<p>A scene is one continuous idea on screen: open the dashboard, run the search, read the result. Budget 8 to 12 seconds and 20 to 30 words each. If a scene needs more words than that, it is really two scenes.</p>
+<h2 id="anatomy-of-a-60-second-demo">Anatomy of a 60-second demo<a class="hanchor" href="#anatomy-of-a-60-second-demo" aria-label="Link to section: Anatomy of a 60-second demo">#</a></h2>
+<p>Here is a 60-second budget spent on a fictional analytics product, scene by scene. Every line of narration names something visible on screen at that moment, which is the cardinal rule of demo scripting: never say a word the picture cannot back up.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Time</th>
+<th>On screen</th>
+<th>Narration</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0:00 to 0:08</td>
+<td>Cluttered spreadsheet, cursor hunting</td>
+<td>&quot;Your weekly report lives in a spreadsheet nobody trusts. Here is the same data in Northstar.&quot;</td>
+</tr>
+<tr>
+<td>0:08 to 0:20</td>
+<td>Dashboard loads, one metric zooms</td>
+<td>&quot;One workspace, every metric live. This is revenue, updating as orders land.&quot;</td>
+</tr>
+<tr>
+<td>0:20 to 0:34</td>
+<td>Typing a plain-English query</td>
+<td>&quot;Ask in plain English, like &#39;churn by plan, last quarter&#39;, and get a chart, not a data-team ticket.&quot;</td>
+</tr>
+<tr>
+<td>0:34 to 0:48</td>
+<td>Chart renders, a note is added</td>
+<td>&quot;Pin it to a board, add a note for context, and it is shareable in one click.&quot;</td>
+</tr>
+<tr>
+<td>0:48 to 0:60</td>
+<td>Board with teammates&#39; avatars</td>
+<td>&quot;Now the whole team reads from the same numbers. Start free at northstar.example.&quot;</td>
+</tr>
+</tbody></table></div>
+<p>That is about 80 words of spoken narration across 60 seconds, comfortably under the 150-word ceiling, because pauses count. The empty seconds between lines are where zoom and motion carry the story. Under-filling the word budget is almost always right; a wall of narration reads as nervous, and it leaves no air for the screen to do its job.</p>
+<h2 id="the-seven-step-pipeline-and-where-a-machine-can-stand-in">The seven-step pipeline, and where a machine can stand in<a class="hanchor" href="#the-seven-step-pipeline-and-where-a-machine-can-stand-in" aria-label="Link to section: The seven-step pipeline, and where a machine can stand in">#</a></h2>
+<p>Every demo, however it is made, runs through the same seven steps. What separates a one-hour job from a one-week one is how many of them you perform by hand versus generate from a spec.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Perform it by hand</th>
+<th>Generate it from a spec</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Script</td>
+<td>Write and time it</td>
+<td>Draft with an LLM, then edit down</td>
+</tr>
+<tr>
+<td>2. Record the flow</td>
+<td>Click through live, hope for a clean take</td>
+<td>Replay a declared action list into a real browser</td>
+</tr>
+<tr>
+<td>3. Narrate</td>
+<td>Record your voice, redo the flubs</td>
+<td>Text-to-speech from the script</td>
+</tr>
+<tr>
+<td>4. Caption</td>
+<td>Type and time-sync by hand</td>
+<td>Word-level speech-to-text on the narration</td>
+</tr>
+<tr>
+<td>5. Polish</td>
+<td>Keyframe zoom and trims in an editor</td>
+<td>Deterministic transforms on the footage</td>
+</tr>
+<tr>
+<td>6. Mux and export</td>
+<td>Editor render</td>
+<td>ffmpeg from a manifest</td>
+</tr>
+<tr>
+<td>7. Maintain</td>
+<td>Re-record when the UI changes</td>
+<td>Re-render the spec in CI</td>
+</tr>
+</tbody></table></div>
+<p>Only step 1 is inescapably human. Every other row has a generated column, and the further right you sit, the cheaper the seventh row becomes, which is the row that quietly dominates total cost of ownership. <a href="/blog/automated-product-demo-videos/">Automated product demo videos</a> is the long version of that argument.</p>
+<p>The arithmetic is worth doing once. A hand-made 60-to-90-second demo is rarely under two or three hours by the time you have scripted it, recorded enough takes to get a clean one, recorded and re-recorded the voice, and keyframed the zooms. That is fine as a one-time cost. The problem is that a live take is atomic: change a single screen and you cannot splice in a replacement without the cursor, timing, and narration drifting out of sync, so a small UI change buys you most of that production cost a second time. A spec-defined demo inverts the ratio. The first render costs about the same authoring effort, but the second one costs a diff and a few minutes of compute, which is the whole difference between a demo you keep current and a demo you quietly let rot.</p>
+<h2 id="recording-the-raw-take">Recording the raw take<a class="hanchor" href="#recording-the-raw-take" aria-label="Link to section: Recording the raw take">#</a></h2>
+<p>The raw recording is the easy part, and where most of the tool money goes. Three families, honestly labeled.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Platform</th>
+<th>Auto-polish</th>
+<th>Deterministic re-render</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Screen Studio</td>
+<td>macOS only</td>
+<td>Auto-zoom, cursor smoothing</td>
+<td>No, it is a live take</td>
+<td>$20/mo, ~$9/mo billed annually</td>
+</tr>
+<tr>
+<td>OBS Studio</td>
+<td>Windows, macOS, Linux</td>
+<td>None, raw capture</td>
+<td>No</td>
+<td>Free, open source</td>
+</tr>
+<tr>
+<td>Loom and browser recorders</td>
+<td>Cross-platform</td>
+<td>Light</td>
+<td>No</td>
+<td>Freemium</td>
+</tr>
+<tr>
+<td>Code-driven browser replay</td>
+<td>Anywhere with Chrome</td>
+<td>Applied at compose time</td>
+<td>Yes</td>
+<td>Varies</td>
+</tr>
+</tbody></table></div>
+<p>Screen Studio set the polish bar. It auto-zooms on cursor actions and smooths shaky movement with no manual keyframing, but it is a macOS-only app with no shipping Windows build and, since October 2025, subscription-only pricing at $20 a month or about $9 a month billed annually<sup class="article-cite"><a href="#src-5" title="Screen Studio — features and pricing">5</a></sup>; if the platform lock rules it out, <a href="/blog/screen-studio-alternatives/">the alternatives, mapped by platform and workflow</a>, include several that do run headless. OBS is the free, cross-platform floor: it captures cleanly on Windows, macOS, and Linux and does nothing to the footage afterward<sup class="article-cite"><a href="#src-6" title="OBS Studio — free and open-source screen recording">6</a></sup>. Both share one limit that matters more than any feature. The take is a live performance, so when the UI changes you perform it again.</p>
+<p>The fourth family removes that. Instead of recording a person, you declare the flow, navigate here, click this selector, type that, and a deterministic player replays it into a real Chrome window, identically every time. That is the design behind aidemo, our open-source engine: it is browser-only, and the storyboard is authored by a coding agent rather than dragged around a GUI timeline. The honest tradeoff is that you swap a visual editor for a text file, which is a bad deal for a one-off and a good one for anything you will have to record twice.</p>
+<h2 id="narration-and-captions-for-a-feed-that-plays-muted">Narration and captions for a feed that plays muted<a class="hanchor" href="#narration-and-captions-for-a-feed-that-plays-muted" aria-label="Link to section: Narration and captions for a feed that plays muted">#</a></h2>
+<p>Two facts govern the audio track. First, landing pages and social feeds autoplay muted by default, so a large share of views never hear a word; the narration you sweated over is optional, and the captions are not. Second, WCAG 2.2 makes captions a Level A requirement: Success Criterion 1.2.2 asks for captions on all prerecorded audio in synchronized media, identifying who is speaking and any meaningful non-speech sound<sup class="article-cite"><a href="#src-3" title="W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2">3</a></sup>. Level A is the floor, not the aspiration.</p>
+<p>Captions can be read faster than narration is spoken. Silent reading of English non-fiction averages 238 words per minute against your roughly 150-wpm voice track<sup class="article-cite"><a href="#src-4" title="Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate">4</a></sup>, which is why word-level caption timing, highlighting each word as it is said, reads better than dropping a whole sentence on screen at once. Captions on demo videos covers open versus closed captions and the timing mechanics.</p>
+<p>For the voice itself, recording yourself is fine for a one-off and miserable for iteration: change one line and you re-record the whole take to match room tone. Text-to-speech removes that tax. OpenAI&#39;s speech API, for one, exposes steerable models such as gpt-4o-mini-tts that render a script to audio in seconds and re-render just as fast when the script changes<sup class="article-cite"><a href="#src-7" title="OpenAI — Text-to-speech guide">7</a></sup>. It still loses to a good human read on warmth and brand voice; AI voiceover for demo videos weighs that tradeoff with the per-minute arithmetic.</p>
+<h2 id="polish-publish-and-keep-it-honest">Polish, publish, and keep it honest<a class="hanchor" href="#polish-publish-and-keep-it-honest" aria-label="Link to section: Polish, publish, and keep it honest">#</a></h2>
+<p>Polish is editing, not talent. The moves that make a screen recording look produced, zooming in when the cursor acts, smoothing the pointer, cutting dead air, sizing and letterboxing for the target frame, are each a deterministic transform on footage rather than a matter of taste, which is exactly why software can apply them and why professional-looking screen recordings are a solved mechanical problem. Do not confuse a polished raw take with a finished demo, though. Color and zoom are compose-time decisions you should be able to redo without re-recording.</p>
+<p>Then publish where the video will actually be watched. A landing hero wants a muted autoplay loop; a README wants a stable raw URL that renders inline; a sales email wants a thumbnail linking out. Encode once per placement, not once total, and let each channel dictate the aspect ratio and the length you already budgeted.</p>
+<p>The last step is the one nobody plans for and everybody pays. The product ships, the UI moves, and the demo now lies about the software it is selling. A hand-recorded take has no cheap fix: you re-perform the whole thing to keep cursor, zoom, and narration timing in sync. A demo defined as a spec has a cheap fix: change the line that moved and re-render, ideally <a href="/blog/demo-videos-in-ci/">in CI on the same event that changed the UI</a>. Budget for step seven when you choose your approach at step two, because it is the step you will repeat the most.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://wistia.com/learn/marketing/optimal-video-length" rel="noopener">Wistia — How to Choose the Right Marketing Video Length for Any Goal</a></li>
+<li id="src-2"><a href="https://blog.hubspot.com/marketing/video-marketing-report" rel="noopener">HubSpot — 2024 Video Marketing Report</a></li>
+<li id="src-3"><a href="https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html" rel="noopener">W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2</a></li>
+<li id="src-4"><a href="https://biblio.ugent.be/publication/8647789" rel="noopener">Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate</a></li>
+<li id="src-5"><a href="https://screen.studio/" rel="noopener">Screen Studio — features and pricing</a></li>
+<li id="src-6"><a href="https://obsproject.com/" rel="noopener">OBS Studio — free and open-source screen recording</a></li>
+<li id="src-7"><a href="https://developers.openai.com/api/docs/guides/text-to-speech" rel="noopener">OpenAI — Text-to-speech guide</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-long-should-a-demo-video-be-for-a-landing-page-versus-a-sales-email" class="blog-faq-q">How long should a demo video be for a landing page versus a sales email?<a class="hanchor" href="#how-long-should-a-demo-video-be-for-a-landing-page-versus-a-sales-email" aria-label="Link to section: How long should a demo video be for a landing page versus a sales email?">#</a></h3>
+<p>Match the length to the placement. A landing-page hero or social clip should run 30 to 60 seconds, since clips under a minute average a 52% engagement rate in Wistia&#39;s data and most marketers in HubSpot&#39;s survey put the short-form sweet spot at 21 to 60 seconds. A sales follow-up or onboarding video can stretch to one to three minutes, because the audience is warmer and completing a real task beats raw brevity.</p>
+<h3 id="do-i-need-a-script-or-can-i-record-the-product-walkthrough-live" class="blog-faq-q">Do I need a script, or can I record the product walkthrough live?<a class="hanchor" href="#do-i-need-a-script-or-can-i-record-the-product-walkthrough-live" aria-label="Link to section: Do I need a script, or can I record the product walkthrough live?">#</a></h3>
+<p>Write the script first. It is the cheapest artifact to change, and it fixes the length, scene count, and caption text before you spend any time recording. Talking through the product live reliably produces a take that is twice as long as it should be and painful to trim. Draft the narration to a budget of about 2.5 words per second and read it against a stopwatch before you record anything.</p>
+<h3 id="can-i-make-a-demo-video-without-recording-my-own-voice-or-screen" class="blog-faq-q">Can I make a demo video without recording my own voice or screen?<a class="hanchor" href="#can-i-make-a-demo-video-without-recording-my-own-voice-or-screen" aria-label="Link to section: Can I make a demo video without recording my own voice or screen?">#</a></h3>
+<p>Yes. Text-to-speech renders the narration straight from your script, so no microphone is required, and a scripted browser replay can record the screen flow deterministically instead of you clicking through it live. That combination also makes updates cheap: when the product changes, you edit the script or the action list and re-render, rather than re-performing the whole take from scratch.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">product demo</span>
+        <span class="article-tag">demo video</span>
+        <span class="article-tag">video production</span>
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">narration</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demo-video-script-template/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Demo video script template: problem, walkthrough, proof</h3>
+    <p class="article-card-excerpt">Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#write-the-script-before-you-open-the-recorder">Write the script before you open the recorder</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-budget-how-long-how-many-words-how-many-scenes">The budget: how long, how many words, how many scenes</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#anatomy-of-a-60-second-demo">Anatomy of a 60-second demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-seven-step-pipeline-and-where-a-machine-can-stand-in">The seven-step pipeline, and where a machine can stand in</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#recording-the-raw-take">Recording the raw take</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#narration-and-captions-for-a-feed-that-plays-muted">Narration and captions for a feed that plays muted</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#polish-publish-and-keep-it-honest">Polish, publish, and keep it honest</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

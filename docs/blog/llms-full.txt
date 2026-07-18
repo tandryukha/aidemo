@@ -1,3 +1,582 @@
 # aidemo blog — full corpus
 
 > Every published article, concatenated as markdown. Per-article mirrors live at the .md URL next to each canonical URL below.
+
+---
+
+# Automated product demo videos: regenerate, don't re-record
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/automated-product-demo-videos/
+
+> Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.
+
+## Four machines wear the word "automated"
+
+Search "automated demo video" and the first page returns four products that share a label and nothing else. One polishes a screen recording you still perform. One lets you swap outdated clips inside a finished video. One writes video from React code. One replays a committed spec against your live product and re-renders. Calling all four "automated" is like calling a dishwasher, a meal kit, a restaurant, and a nutrient drip "automated dinner." The word describes the marketing, not the mechanism.
+
+The distinction matters because a product demo has one failure mode that outlives every other: it goes stale. You ship a UI change on Tuesday and the demo now shows a button that moved, a screen that was redesigned, a flow that gained a step. [Every product demo is out of date the moment the product ships past it](/blog/why-product-demos-go-stale), and the real cost is not the embarrassment. It is the standing tax of someone re-recording, re-editing, and re-uploading media that the roadmap keeps invalidating. So the useful question about any "automated" demo tool is narrow: when the product changes, does the demo follow, and how much human time does following cost?
+
+Sort the market by that question and the four machines separate cleanly.
+
+## The taxonomy, by what each one actually automates
+
+**AI-polished takes.** Screen Studio, Descript, and Loom's AI editing sit here. You record your screen and the tool applies the polish automatically: zoom-on-click, cursor smoothing, background framing. Screen Studio's own page is blunt about the value. "Screen Studio automatically zooms in on actions you perform on your screen," and "shaky and rapid movement of your cursor is transformed into a smooth and beautiful glide" ([Screen Studio, accessed July 2026](https://screen.studio/)). This is real automation of the part of demo-making people hate, and it is macOS-only, which alone rules it out of a Linux CI runner. What it automates is the edit. What it never touches is the take. The recording is a one-time human performance frozen at record time, and the next UI ship makes it wrong. You are back at your desk, performing the flow again.
+
+**Clip re-capture with propagation.** Trainn is the clearest example. You record product clips, AI adds voiceover and enhancements, and here is the pitch that defines the category: "when your product UI changes, just replace the outdated clips in your video. Trainn automatically updates your demo video everywhere it's used. No re-recording needed" ([Trainn, accessed July 2026](https://trainn.co/product-demo-video-maker/)). This is a genuine answer to staleness, and it is honest about being a partial one. Read the mechanism. You still record each replacement clip by hand, and you still have to know which clips went stale. The propagation is automated; the capture and the diagnosis are not. For a help-center library of tightly-scoped how-to videos where a human owns maintenance, that trade is often right. It does not reach "every UI change re-renders every asset with nobody in the loop," because a human is the loop.
+
+**Synthetic compositions.** Remotion and Revideo generate video from code. Remotion now positions itself as "video tools for the agent era" and makes videos with React components ([Remotion, accessed July 2026](https://www.remotion.dev/)). Revideo is "a rendering engine for creating videos in code," where "you describe a scene in TypeScript, shapes, text, media, and animation, and Revideo renders it to a video file" ([Revideo, accessed July 2026](https://github.com/midrender/revideo/blob/main/README.md)). These are excellent at data-driven motion graphics, captioned shorts, and year-in-review reels. The pixels are drawn, so they render deterministically and scale to millions of variants. But drawn pixels are exactly the problem for a product demo. A Remotion composition does not show your app; it shows a designer's rendition of your app. It cannot go stale against the product because it was never bound to the product. Ask it "does this still match what ships?" and there is no answer, because it never matched by construction. Remotion is also not fully open source above a usage threshold. It "requires obtaining a company license in some cases" ([Remotion repo, accessed July 2026](https://github.com/remotion-dev/remotion)), a point the [open-source demo tooling comparison](/blog/open-source-demo-video-tools) treats at length.
+
+**Spec-driven replay of a real UI.** Here the demo is not a recording and not a drawing. It is a committed specification that a deterministic player executes against the real, running product to produce footage. The proven version of this is terminal-only and predates the current hype. Charmbracelet's vhs, which has shipped since 2022, records terminal sessions from a `.tape` file: "write terminal GIFs as code for integration testing and demoing your CLI tools" ([Charmbracelet, accessed July 2026](https://github.com/charmbracelet/vhs)). The tape is text, checked into the repo. Change the CLI, run the tape, get a fresh GIF. vhs even doubles as a test: "use the `.txt` or `.ascii` output to generate golden files" and diff them across runs. Browser products are the harder, more valuable version of the same idea, a spec that drives real Chrome through the actual app. aidemo, which is our open-source engine, is one instance: a coding agent writes a `storyboard.json`, a deterministic player records real Chrome, and the whole thing re-renders from the spec. It is browser-only, the storyboard is agent-authored rather than assembled in a GUI timeline, and there is no visual editor, so it is not the tool for a one-off marketing sizzle reel. It is the tool for a demo you intend to keep.
+
+The four map onto the staleness failure like this.
+
+| Mechanism | You still do by hand | Source of truth | Shows real UI? | Current after you ship? | Examples |
+|---|---|---|---|---|---|
+| AI-polished take | perform and re-record the take | the raw recording file | Yes | No, frozen at record time | Screen Studio, Descript, Loom |
+| Clip re-capture + propagation | re-shoot stale clips, spot which rotted | a timeline of clips | Yes | Partly, only clips you notice | Trainn |
+| Synthetic composition | design and animate every frame | React / TypeScript code | No, drawn pixels | N/A, never bound to the product | Remotion, Revideo |
+| Spec-driven replay | write and maintain the spec | a committed spec (tape / storyboard) | Yes | Yes, re-render in CI on the same commit | vhs (terminal), aidemo (browser, ours) |
+
+## Only one mechanism makes "the product changed" and "the demo is current" the same event
+
+Notice what the last column is really testing. Three of the four mechanisms treat the demo as an output: a file you produce, then own, then maintain against a product that keeps moving underneath it. The fourth treats the demo as a function of the product. Give it the spec and the current build, get the current demo. When the build changes, re-running the function is the entire update. There is no "track down the stale clips" step, because the spec does not encode a moment in time. It encodes intent, go here, click this, narrate that, and binds to whatever the product currently looks like when you run it.
+
+This is the move infrastructure-as-code made two decades ago, applied to media instead of servers. The reason vhs works is not that terminals are special. It is that a `.tape` is a spec and a terminal is deterministic, so the same tape yields the same frames every run. The browser is messier, with animations, network timing, fonts, and viewport all in play, which is why replaying a browser flow into identical footage twice is a real engineering problem and not a checkbox. But when you solve it, the demo becomes a diffable, reviewable, regenerable artifact instead of a binary someone has to babysit. That is the whole thesis of [treating demos as code](/blog/demos-as-code).
+
+## The regeneration loop: trigger it on change, not on a whim
+
+Spec-driven replay only pays off if the re-render is automatic, and that is a plumbing question, not a magic one. The spec lives in the repo next to the code. A CI job installs a browser and ffmpeg, runs the player, and publishes the result. You wire it to two triggers.
+
+The first is the commit that changed the UI. GitHub Actions fires a `push` event on every commit; scope it to the paths that render UI and the demo re-renders in the same run that shipped the change. The second is a clock, for products whose surface drifts through data or dependencies rather than a tidy diff. Actions supports a `schedule` event with cron syntax, `on: schedule: - cron: "15 4,5 * * *"`, with two caveats worth knowing before you lean on it: the shortest interval is once every five minutes, and "the `schedule` event can be delayed during periods of high loads of GitHub Actions workflow runs" ([GitHub, accessed July 2026](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)). A nightly re-render at 4am is fine; a to-the-second SLA is not what cron is for. Keep a `workflow_dispatch` trigger too, so a human can force a re-render without an empty commit. The [end-to-end CI walkthrough](/blog/demo-videos-in-ci) covers the runner specifics: what ubuntu-latest ships, the headless quirks, and where to publish the artifact.
+
+The economics are the argument. Take a team that ships a UI-visible change most weeks and keeps nine pieces of product media: a landing hero, a six-step product tour, and three [self-updating README GIFs](/blog/readme-gifs-that-update-themselves). Suppose a given change touches four of the nine.
+
+| Path | Up-front cost | Per-change human time (4 of 9 assets touched) | Lag from ship to updated demo | Yearly cost at ~weekly changes |
+|---|---|---|---|---|
+| Re-record | none | 2 to 4 hours (re-shoot, re-edit, re-voice, re-upload each) | days (notice, schedule, publish) | ~100 to 200 hours |
+| Clip re-capture + propagation | build the video once | ~1 to 2 hours (re-shoot stale clips; propagation is automatic) | hours to days | ~50 to 100 hours |
+| Spec-driven replay | write the spec once | ~0 (CI re-renders all nine from the spec) | one CI run (minutes) | ~0 human hours, plus CI minutes |
+
+The re-record column is not a one-time cost. It recurs on every ship, and it lags the ship by the days it takes someone to notice, re-shoot, and re-publish. The regenerate column front-loads one cost, writing the spec, and then charges CI minutes per change, with human cost near zero and lag measured in the length of the CI run. Over a year of weekly changes, that is the difference between roughly a hundred hours of recurring maintenance and roughly none.
+
+## Picking the mechanism for your actual constraint
+
+None of these four is best in general. Each is best for a specific constraint, and the mistake buyers make is comparing them as if they competed for the same job.
+
+- **You need one polished video this quarter and never again.** An AI-polished take is the fastest path to a good-looking result, and staleness is not your problem because you are not maintaining a library. Screen Studio, or a screen recorder plus an editor.
+- **You maintain a help-center library and a person owns it.** Clip re-capture with propagation removes the worst of the re-editing tax. You accept that a human still spots and re-shoots the stale clips.
+- **You want data-driven or motion-graphics video at scale, not a product walkthrough.** Synthetic composition (Remotion, Revideo) renders as many variants as you have data rows, and the fact that it never shows your live UI is a non-issue when the content was never a UI in the first place.
+- **You want a demo that stays true to a product that ships constantly, with nobody in the maintenance loop.** Spec-driven replay is the only mechanism where the update is automatic and the footage is your real UI. The cost is up front: you write and maintain a spec, and for the browser you accept an agent-authored one rather than a timeline you drag. If the demo is an asset you will keep for years, that cost amortizes to nothing. Choosing a recorder for the manual lanes is its own decision — [the Screen Studio alternatives comparison](/blog/screen-studio-alternatives) maps that market by platform — and the craft itself is covered in [how to make a product demo video](/blog/how-to-make-a-product-demo-video), with [a script template](/blog/demo-video-script-template) that gives every second of narration a word budget.
+
+The taxonomy is the point. "Automated" was never one thing, and the four things it names solve four different problems. Only one of them solves staleness, and it solves it by refusing to treat the demo as a recording at all. Automating product screenshots follows the same logic one step down: a named still re-captured from a spec beats a folder of PNGs nobody remembers to update.
+
+## Sources
+
+- [Screen Studio — Professional screen recorder for macOS](https://screen.studio/)
+- [Trainn — Product Demo Video Maker](https://trainn.co/product-demo-video-maker/)
+- [Remotion — Video tools for the agent era](https://www.remotion.dev/)
+- [Remotion — repository and license](https://github.com/remotion-dev/remotion)
+- [Revideo — README](https://github.com/midrender/revideo/blob/main/README.md)
+- [Charmbracelet vhs — write terminal GIFs as code](https://github.com/charmbracelet/vhs)
+- [GitHub Actions — events that trigger workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
+
+## FAQ
+
+### Does making a demo video "automated" keep it from going stale?
+
+It depends entirely on which mechanism the tool uses. AI-polished editors automate the edit, not the source recording, so the take still freezes at record time. Synthetic frameworks never showed your real UI to begin with. Clip re-capture reduces the maintenance cost but still needs a human to spot and re-shoot stale clips. Only spec-driven replay makes re-rendering against the live product the same event as shipping the change.
+
+### Is a synthetic AI video the same as an automated product demo?
+
+No, and conflating them is the most expensive mistake in this category. Tools like Remotion and Revideo draw frames from code, which is ideal for data visualizations and motion graphics but shows a rendition of your app rather than the app itself. A product demo whose job is to prove "this is what the software actually does" needs footage captured from the running UI, not a synthetic composition that was never bound to it.
+
+### What does it cost to regenerate a demo instead of re-recording it?
+
+Re-recording recurs on every UI change: for a change touching four of nine media assets, budget roughly two to four hours of human time each time, plus a lag of days before anyone notices and re-publishes. Regenerating from a committed spec front-loads one cost, writing the spec, then charges only CI minutes per change with near-zero human time. Over a year of weekly changes that is the gap between about a hundred maintenance hours and about none.
+
+---
+
+# Demo video script template: problem, walkthrough, proof
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-script-template/
+
+> Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.
+
+## Every demo script is a timing budget in disguise
+
+A demo script is not an essay you happen to read aloud. It is a fixed number of seconds, and narration spends those seconds at a known rate. Miss the rate and you either sprint past the interface or pad the video with words nobody asked for. Hit it and the script falls out of the runtime backward: length first, words second.
+
+The rate is well measured. Tools for Clear Speech at Baruch College puts the average English speaker at about 150 words per minute, with an intelligible band of roughly 120 to 165 and a slightly slower pace recommended when the speech is prepared rather than conversational ([Tools for Clear Speech, Baruch College](https://tfcs.baruch.cuny.edu/speaking-rate/)). One hundred fifty words a minute is 2.5 words a second, which, not by accident, is the English text-to-speech default our own open-source engine, aidemo, plans around. That one conversion is the most useful number in demo scripting: it turns any target length into a hard word budget.
+
+| Runtime | Word budget (150 wpm / 2.5 wps) | What it fits |
+| --- | --- | --- |
+| 15 sec | ~38 | a single hook or one feature |
+| 30 sec | ~75 | a social loop or README clip |
+| 45 sec | ~113 | one tight end-to-end flow |
+| 60 sec | ~150 | a landing-page hero |
+| 75 sec | ~188 | a full problem-to-proof arc |
+| 90 sec | ~225 | two flows with a breath between |
+| 120 sec | ~300 | a detailed sales walkthrough |
+
+Product narration belongs at the calm end of the band. You are asking someone to read an interface and listen at the same time, so 140 to 150 words per minute leaves air around each idea. Faster than about 170 and the words outrun the screen; slower than 120 and it drags. Pick the runtime your channel wants first — [how long the finished video should run](/blog/how-long-should-a-demo-video-be) depends on where it plays — then spend the budget the table hands you.
+
+## The three-act skeleton: problem, walkthrough, proof
+
+Every demo that holds attention answers three questions in order: why should I care, what does this do, and did it actually work. Problem, walkthrough, proof. The structure is old because it works; the discipline is spending each act's word budget and not a word more. Here is the skeleton sized for a 75-to-80-second cut, a comfortable length for a hero or a sales follow-up.
+
+```
+[0:00-0:12]  HOOK / PROBLEM        ~30 words
+  One concrete scene of the pain. Name no product yet.
+
+[0:12-0:20]  PROMISE               ~20 words
+  One sentence: what this is and the outcome it produces.
+
+[0:20-1:05]  WALKTHROUGH           ~110 words  (3 steps, ~35 each)
+  One idea per step, each pinned to a single on-screen action.
+  Narrate the intent, not the cursor.
+
+[1:05-1:15]  PROOF                 ~25 words
+  The result as a number or a before/after. Earned, not asserted.
+
+[1:15-1:22]  CTA                   ~15 words
+  Exactly one action, one destination.
+```
+
+Two hundred words, eighty seconds. The walkthrough gets more than half the budget because it is the only part that has to be true: the hook can be rewritten, but the three steps have to match what the screen does. If your flow needs four steps, take words from the hook, not from the runtime. A 60-second version is the same shape with a two-step walkthrough and about 150 words total; a 45-second version folds the promise into the hook.
+
+Cross-check the plan against [the end-to-end demo playbook](/blog/how-to-make-a-product-demo-video) before you record: the script decides the pacing, but recording, captions, and trimming decide whether the pacing survives.
+
+## Worked example 1: a SaaS dashboard in 75 seconds
+
+A revenue-analytics dashboard. The pain is a Monday spreadsheet; the payoff is a live link. Every narration line below is counted, and the totals track the timecodes at 2.5 words per second.
+
+| Time | On screen | Narration | Words |
+| --- | --- | --- | --- |
+| 0:00-0:11 | A cluttered spreadsheet, three export tabs open | "Every Monday, your revenue team rebuilds the same report by hand: export from billing, paste into a sheet, reconcile, repeat. By Wednesday the numbers are already stale." | 27 |
+| 0:11-0:20 | The product loads to a clean dashboard home | "This dashboard reads the same billing data and keeps one live view the whole team works from. Here's the Monday report in three clicks." | 25 |
+| 0:20-0:36 | Connections tab; Stripe linked; tables picked | "Start on Connections. Stripe is already linked, so I pick it and choose the revenue and churn tables. No SQL, no export. It pulls the last twelve months and caches it, so the view opens instantly next time." | 38 |
+| 0:36-0:51 | Fields dragged in; the chart redraws | "Next, the view itself. I drop in monthly recurring revenue, then split it by plan. The chart redraws as I go. One more field, net revenue retention, and the board that used to take an afternoon is done." | 38 |
+| 0:51-1:05 | Publish dialog; a shareable link appears | "Last step: sharing. I publish it to a link, and anyone on the team sees the same live numbers, refreshed hourly. No more Wednesday spreadsheet, no more version to argue about." | 31 |
+| 1:05-1:17 | Zoom on the live board; CTA card | "That went from a two-hour weekly rebuild to a link that's always current. Connect your billing data and build your first view on the free tier." | 26 |
+
+That is 185 words across 77 seconds, inside the budget, with the walkthrough (three steps, 107 words) carrying the middle exactly as the skeleton allots. Notice what the narration never says: no "click," no "button," no color, no cursor. The screen shows those. The words carry intent.
+
+## Worked example 2: a dev tool in 65 seconds
+
+A flaky-test detector for CI. Denser subject, so the pace stays slow and the hook does the emotional work. Terminal and dashboard alternate on screen.
+
+| Time | On screen | Narration | Words |
+| --- | --- | --- | --- |
+| 0:00-0:08 | Terminal: a red CI run, then a green re-run | "A test just failed in CI. You re-run it, it passes, and you've learned nothing except that you lost twenty minutes." | 21 |
+| 0:08-0:17 | Product page; a one-line install command | "This tool watches your test runs and flags the flaky ones automatically. One command to install, and it starts on your next push." | 23 |
+| 0:17-0:31 | Install line, one line added to CI config, git push | "Here's the install: one line in the terminal, one line in the CI config. That's the whole setup. I push, and the run shows up in the dashboard already being analyzed." | 31 |
+| 0:31-0:45 | Dashboard: the test marked flaky, assertion and timing shown | "Now the payoff. This test failed twice this week on unrelated changes, so it's marked flaky, with the failing assertion and the timing right here. No re-running to guess." | 29 |
+| 0:45-0:56 | One click quarantines the test; the suite turns green | "One click quarantines it, so the flake stops blocking merges while you fix it. The suite goes green, and the fix is a ticket now, not a mystery." | 28 |
+| 0:56-1:06 | Green pipeline; repository link on a card | "That's a red build turned into a tracked task in under a minute. Add it to your pipeline free, link in the description." | 23 |
+
+One hundred fifty-five words, sixty-two seconds. Same three acts, tighter, because a developer audience forgives less filler than a marketing one. The proof line is a duration, not an adjective, and the CTA is a single verb.
+
+## Rules that keep the words honest
+
+Word budgets tell you how much to write. These tell you what to cut.
+
+- **One idea per action.** If a sentence describes two clicks, split it or drop a click. A viewer tracks one change at a time.
+- **Narrate intent, not the cursor.** "Publish it to a link" beats "I click the blue button in the top right." The screen already shows the button.
+- **Cut every adjective that doesn't change the next click.** "Powerful," "intuitive," and "robust" cost words and buy nothing. The demo is the adjective.
+- **Front-load the pain.** Wistia's read on 13 million videos puts clips under a minute at about a 52% engagement rate, and the drop-off is steepest at the start ([Wistia, 2025](https://wistia.com/learn/marketing/optimal-video-length)). Spend the first ten seconds on the problem, not on a logo animation.
+- **Write proof as a number.** "Two hours to a live link" lands; "saves you time" evaporates.
+- **Read it against a stopwatch.** Not with your eye, with your mouth. If a section runs long out loud, the fix is fewer words, not a faster read.
+
+## From script to a recorded take
+
+A finished script is timecodes plus verbatim lines plus, ideally, the on-screen action beside each one — exactly the two worked tables above. Vidyard, which coaches sellers through thousands of these, lands on the same shape: a hook in the first few seconds, a problem the product visibly solves, and one clear call to action, with two minutes as the target and five as the ceiling ([Vidyard](https://www.vidyard.com/blog/demo-videos/)).
+
+Because that artifact is plain text with timecodes, a machine can read it. That is the premise behind tools like aidemo (ours, MIT-licensed, browser-only, and it expects an agent to author the storyboard rather than a person dragging clips on a timeline): the words you budgeted become the voiceover and the captions, timed to the clicks. When the product changes, you edit the script and [regenerate the video instead of re-recording it](/blog/automated-product-demo-videos). If you would rather not read the lines yourself, the same script drives [an AI voiceover](/blog/ai-voiceover-for-demo-videos), and that timed transcript is what your captions are built from. The script is the source of truth; everything downstream is a transform on it.
+
+## Sources
+
+- [Tools for Clear Speech, Baruch College — Speaking Rate](https://tfcs.baruch.cuny.edu/speaking-rate/)
+- [Wistia — How to Choose the Right Marketing Video Length (2025)](https://wistia.com/learn/marketing/optimal-video-length)
+- [Vidyard — How to Make Demo Videos That Win New Business](https://www.vidyard.com/blog/demo-videos/)
+
+## FAQ
+
+### How many words should a 60-second demo video script be?
+
+About 150 words. English narration averages roughly 150 words per minute, or 2.5 words per second ([Tools for Clear Speech, Baruch College](https://tfcs.baruch.cuny.edu/speaking-rate/)), so a 60-second script is around 150 words and a 90-second script around 225. Product narration reads best at the slower end, near 140 to 150 words per minute, so the interface has room to be seen while it is described.
+
+### Should you write a demo script word for word or use bullet points?
+
+Write it word for word. Bullet points let the pace drift, and drift is what blows both the runtime budget and the sync with the screen. A verbatim script also lets you count words per section against the clock, and it is the only form a text-to-speech engine or a caption tool can use directly. Improvise the delivery if you like, but write the words first.
+
+### Where does the call to action go in a demo script?
+
+At the end, as exactly one action — start a trial, book a demo, open the repo — pointed at one destination. Vidyard's guidance is a single clear CTA rather than a menu of options ([Vidyard](https://www.vidyard.com/blog/demo-videos/)). Keep it to about 15 words: a viewer who reached the end is already convinced, so they need a next step, not another pitch.
+
+---
+
+# Rendering demo videos in CI: a GitHub Actions walkthrough
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/demo-videos-in-ci/
+
+> GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.
+
+## What a video job needs that a test job doesn't
+
+A test job needs a runtime and your code. A video-rendering job needs three more things: a real browser to drive, a video encoder to trim and mux, and fonts to draw text that isn't a box. The GitHub-hosted `ubuntu-latest` runner hands you one of those for free, so the first job of any pipeline is closing the gaps the manifest quietly leaves open.
+
+Read the runner image's own software list before you trust it. As of July 2026, `ubuntu-latest` resolves to Ubuntu 24.04 and ships Google Chrome 150.0.7871.114, Chromium 150.0.7871.0, ChromeDriver, and Node.js 22.23.1 by default ([actions/runner-images, 2026](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)). That covers the browser and the runtime. What it does not ship is ffmpeg — search the manifest and the string never appears. Every stage that cuts idle time, syncs audio to narration, or muxes a caption track runs on ffmpeg, so a pipeline that assumes it is present dies at the compose step with `ffmpeg: command not found`. One line closes that gap:
+
+```yaml
+- run: sudo apt-get update && sudo apt-get install -y ffmpeg
+```
+
+Fonts are the second trap, and a quieter one. The image installs exactly one font package, `fonts-noto-color-emoji` ([actions/runner-images, 2026](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)). Latin captions render from the base system fonts, but the moment your narration text, a title card, or a caption line carries CJK, Arabic, Cyrillic, or Devanagari, headless Chrome has no glyph and paints the tofu box (□). The fix is the same shape as the ffmpeg one: `apt-get install -y fonts-noto-cjk fonts-noto` for the families you need. This gap is common enough that the vhs GitHub Action ships an `install-fonts` input specifically to paper over it ([charmbracelet/vhs-action, 2026](https://github.com/charmbracelet/vhs-action)).
+
+The third category is headless quirks. There is no display, no GPU by default, and no window manager, so anything that waits on a real paint or a hardware compositor stalls. This is where a video job is genuinely harder than a screenshot job: a still tolerates a frame captured a few milliseconds early, but a video that records the same flow twice and produces two different timelines is unusable footage. Deterministic replay — pinned viewport and device-pixel-ratio, explicit waits instead of sleeps, controlled animation clocks — is the cost of a stable render, and it is a discipline of its own worth reading up on before you ship ([deterministic browser replay](/blog/deterministic-browser-automation-for-video)). It is also why polished desktop recorders don't transfer to CI: a macOS-only GUI app cannot run on a Linux runner at all, which is the practical push toward [headless, scriptable alternatives](/blog/screen-studio-alternatives) once a demo has to rebuild itself.
+
+Here is the whole inventory in one table.
+
+| The job needs | ubuntu-latest gives you | You add |
+|---|---|---|
+| A browser | Chrome 150.x, Chromium, ChromeDriver | nothing — drive `channel: chrome` |
+| A JS runtime | Node.js 22.23.1 | nothing (engines want Node 20+) |
+| A video encoder | nothing | `apt-get install -y ffmpeg` |
+| Fonts for captions | Noto color emoji only | `fonts-noto-cjk` / `fonts-noto` for non-Latin |
+| Determinism | nothing | your own record layer |
+
+## Triggering on change, on a schedule, or on release
+
+The reason to render in CI at all is that [product media rots](/blog/why-product-demos-go-stale): the UI ships, the video lies, and nobody notices for a quarter. CI's job is to rebuild the video from a spec whenever the thing it depicts changes. There are three honest triggers, and they are not interchangeable.
+
+| Trigger | Fires when | Best for |
+|---|---|---|
+| Product change (`on: push`, `paths`) | a file matching the pattern is pushed | catching UI drift the moment it lands |
+| Schedule (`on: schedule`, cron) | a wall-clock time arrives | drift a path filter can't see (data, deps, embeds) |
+| Release (`on: release`) | you cut a version | pinning a demo to a shipped version |
+
+The path filter is the sharp instrument. A `paths` filter runs the workflow only when a push touches files that match the pattern ([GitHub Docs, 2026](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)), so scoping it to your `src/**` or `components/**` means the demo re-renders exactly when the code that could change it does, and not on every README typo. Cron is the backstop for drift a path filter cannot see: a third-party embed that restyled itself, a data fixture, a dependency bump that moved a button. Two facts keep cron a backstop rather than a primary trigger. GitHub caps the frequency at one run every five minutes, and scheduled workflows are documented as "delayed during periods of high loads," with the start of every hour named as the worst offender ([GitHub Docs, 2026](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)). Schedule for something like `17 6 * * 1`, never `0 * * * *`, and do not expect punctuality.
+
+## Prior art: vhs proved the pattern in the terminal
+
+Before wiring your own, look at the tool that made demos-as-code ordinary. vhs bills itself as a way to "write terminal GIFs as code" ([charmbracelet/vhs, 2026](https://github.com/charmbracelet/vhs)); a `.tape` file is the script, checked into the repo, and vhs replays it in a headless terminal to a GIF, MP4, WebM, or PNG frame sequence. It requires `ttyd` and `ffmpeg` on the PATH — the same encoder dependency you just installed by hand. The companion vhs-action collapses the CI loop to a few lines: point it at the tape, let it render, commit the result back.
+
+```yaml
+- uses: charmbracelet/vhs-action@v1
+  with:
+    path: demo.tape
+- uses: stefanzweifel/git-auto-commit-action@v4
+  with:
+    file_pattern: "*.gif"
+```
+
+That is the entire pattern: a committed spec, a headless renderer, an auto-commit of the output. The browser version is the same shape with a heavier renderer — a real Chrome instead of a pseudo-terminal — and the same two questions to answer afterward: what triggers it, and where the file goes. It is the mechanism behind [regenerating a demo instead of re-recording it](/blog/automated-product-demo-videos) rather than babysitting a file that quietly goes wrong.
+
+## A worked browser pipeline
+
+For a concrete browser example, here is the composite Action from aidemo, which is our engine, disclosed as ours and honest about the limits: it is browser-only, its storyboards come from a coding agent rather than clips nudged across a visual timeline, and there is no click-to-trim editor. What it does have is a one-line CI entry point. The workflow below renders every demo under `demos/` on the pushes that could change them, on a weekly backstop, and on demand, then commits the result back.
+
+```yaml
+name: demo
+on:
+  push:
+    branches: [main]
+    paths: ["demos/**", "!demos/**/output/**"]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"        # Mondays, off the top of the hour
+permissions:
+  contents: write
+jobs:
+  render:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # ubuntu-latest ships Chrome, not ffmpeg
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - uses: tandryukha/aidemo@stable
+        with:
+          demos: demos/*
+          gif: "true"
+      - name: Commit the re-render
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A demos
+          git diff --cached --quiet || \
+            (git commit -m 'chore(demo): re-render [skip ci]' && git push)
+```
+
+Three details earn their place. The `paths` list excludes `demos/**/output/**`, so the commit of a freshly rendered file cannot match the trigger that produced it. The `if: github.actor != 'github-actions[bot]'` guard is a second layer, and `[skip ci]` in the commit message is a third: a commit-back job with none of these triggers itself, forever, on your dime. Driving the runner's pre-installed Chrome through `channel: chrome` means the Action skips downloading a browser on every run, using the one dependency the image already got right. Pin `actions/checkout` to a commit SHA rather than a floating `@v4` tag when you harden this for production.
+
+## Publishing: commit, release asset, or artifact
+
+Rendering is half the job. The file then has to land somewhere an `<img>` or `<video>` tag can reach without breaking next quarter. Three targets, three tradeoffs.
+
+| Publish target | Stable URL | Size ceiling | The catch |
+|---|---|---|---|
+| Commit into the repo | `raw.githubusercontent.com/owner/repo/main/path` | git's, effectively | binaries bloat history; needs the loop guard |
+| Release asset | `github.com/owner/repo/releases/latest/download/NAME` | 2 GiB per file | you must cut a release; up to 1000 assets |
+| CI artifact | none (auth + expiry) | small | expires (90 days default), not publicly embeddable |
+
+Committing the file back is the simplest path and what both vhs-action and the pipeline above do. The `raw.githubusercontent.com` URL is stable, and GitHub proxies and caches it when it is embedded in markdown, so a README GIF loads fast. The cost is that git was never built for megabyte binaries: every re-render appends a full copy to history. That is fine for a small GIF and painful for a 40 MB MP4 rebuilt every week.
+
+Release assets fix the bloat by living outside the git tree. GitHub documents a clean stable link: the `/releases/latest/download/asset-name` suffix always resolves to the newest release's copy of that file ([GitHub Docs, 2026](https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases)). The limits are generous — each file must be under 2 GiB, up to 1000 assets per release, with no cap on total size or bandwidth ([GitHub Docs, 2026](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)). The price is a release step: your workflow has to `gh release upload` the MP4, which pins the public demo to a tagged version rather than always-latest-main.
+
+The CI artifact (`actions/upload-artifact`) is the third target and mostly a review tool. It expires — 90 days by default — and needs authentication to download, so it cannot back a public embed. Use it to eyeball a render on a pull request before it is published, not as the home of record.
+
+The decision reduces to size and audience. A sub-megabyte README GIF: commit it. A multi-megabyte narrated MP4 on a marketing page: release asset with the stable `latest/download` URL. A render only a reviewer needs to see: artifact. Whichever you choose, the property that matters is the one CI actually buys you: the demo is correct because a machine rebuilt it against the current UI, not because a human remembered to.
+
+## Sources
+
+- [actions/runner-images — Ubuntu 24.04 (ubuntu-latest) installed software](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)
+- [GitHub Docs — Events that trigger workflows (schedule cron, paths filter)](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+- [GitHub Docs — About releases (2 GiB per file, 1000 assets)](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
+- [GitHub Docs — Linking to releases (latest/download URL)](https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases)
+- [charmbracelet/vhs — terminal GIFs as code](https://github.com/charmbracelet/vhs)
+- [charmbracelet/vhs-action — VHS in CI](https://github.com/charmbracelet/vhs-action)
+- [aidemo CI recipe (our composite Action, disclosed as ours)](https://github.com/tandryukha/aidemo/blob/main/docs/CI.md)
+
+## FAQ
+
+### Does the ubuntu-latest GitHub Actions runner include ffmpeg and a browser?
+
+It includes a browser but not the encoder. As of July 2026 the image ships Google Chrome 150.x, Chromium, and Node.js 22, but ffmpeg does not appear anywhere in its software manifest. Add `sudo apt-get update && sudo apt-get install -y ffmpeg` before any step that trims, syncs, or muxes video, or the compose stage fails with `command not found`.
+
+### How often can a scheduled render actually run on GitHub Actions?
+
+GitHub caps cron at one run every five minutes, and even then scheduled workflows are documented as delayed during high load, with the top of every hour being the worst window. Treat cron as a backstop, schedule it for an odd minute like `17 6 * * 1` rather than `0 * * * *`, and drive time-critical re-renders from a `paths` filter on the code that changed instead.
+
+### Where should the rendered video live so an embed never breaks?
+
+Match the target to the file. Commit sub-megabyte GIFs into the repo and embed the stable `raw.githubusercontent.com` URL. Push multi-megabyte MP4s as release assets and link the `/releases/latest/download/name` URL, which survives up to 2 GiB per file. Keep CI artifacts for pull-request review only — they expire after 90 days and need authentication, so they cannot back a public page.
+
+---
+
+# How to make a product demo video (that people finish)
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/how-to-make-a-product-demo-video/
+
+> The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
+
+## Write the script before you open the recorder
+
+Most bad demo videos share one origin: someone hit record, clicked around the product, and narrated whatever came to mind. Ninety seconds of intent becomes four minutes of "and you can also," and the rest of the project is spent trying to rescue it in an editor. Reverse the order. The script is the cheap artifact. It is text, you can rewrite it ten times before lunch, and it fixes every expensive decision downstream: how long the video runs, how many scenes you record, where the cursor goes, and what the captions read. A product demo is a script with a screen recording attached, not a recording with words sprinkled over it.
+
+Writing first also forces the only genuinely hard decision to the front, which is what to leave out. A feature tour wants to show everything; a demo that gets finished shows one job, done well, from start to result. Draft the narration as prose, read it aloud against a stopwatch, and cut until it fits the budget below. The [problem, walkthrough, proof script template](/blog/demo-video-script-template) turns that skeleton into fill-in-the-blanks sections with per-part word counts.
+
+## The budget: how long, how many words, how many scenes
+
+Length is not a stylistic choice, it is set by where the video will be watched. Wistia, analyzing more than 13 million videos for its 2026 State of Video report, found that clips under a minute average a 52% engagement rate, meaning viewers watch about half, and that engagement falls off past the five-minute mark ([Wistia, 2025](https://wistia.com/learn/marketing/optimal-video-length)). HubSpot's 2024 Video Marketing Report, surveying more than 500 video marketers, put the short-form window even tighter: 42% named 21 to 30 seconds as optimal and another 32% chose 31 to 60 seconds ([HubSpot, 2024](https://blog.hubspot.com/marketing/video-marketing-report)). The practical read is to pick a length for the channel and make the script fit it, never the reverse. [How long a demo video should be](/blog/how-long-should-a-demo-video-be) works the retention curves placement by placement.
+
+| Placement | Target length | Why |
+|---|---|---|
+| Landing-page hero | 30 to 60 s | Autoplays muted, competes with a skip reflex |
+| README or docs | 20 to 45 s | Read alongside the page, one flow only |
+| Social feed | 15 to 45 s | Sound off, the first three seconds decide it |
+| Sales follow-up | 60 to 120 s | Warm audience, one named use case |
+| Onboarding or support | 60 to 180 s | Task completion beats brevity here |
+
+Once length is fixed, the word count writes itself. Narration for a demo runs about 2.5 words per second, roughly 150 words per minute, deliberately slower than the 183-wpm average for oral reading found in Brysbaert's 190-study meta-analysis, because the viewer is also reading the screen ([Brysbaert, 2019](https://biblio.ugent.be/publication/8647789)). Multiply length by rate and you get a hard script budget.
+
+| Video length | Words of narration (~2.5/s) | Scenes at ~10 s each |
+|---|---|---|
+| 30 s | ~75 | 3 to 4 |
+| 60 s | ~150 | 5 to 6 |
+| 90 s | ~225 | 7 to 9 |
+| 120 s | ~300 | 10 to 12 |
+
+A scene is one continuous idea on screen: open the dashboard, run the search, read the result. Budget 8 to 12 seconds and 20 to 30 words each. If a scene needs more words than that, it is really two scenes.
+
+## Anatomy of a 60-second demo
+
+Here is a 60-second budget spent on a fictional analytics product, scene by scene. Every line of narration names something visible on screen at that moment, which is the cardinal rule of demo scripting: never say a word the picture cannot back up.
+
+| Time | On screen | Narration |
+|---|---|---|
+| 0:00 to 0:08 | Cluttered spreadsheet, cursor hunting | "Your weekly report lives in a spreadsheet nobody trusts. Here is the same data in Northstar." |
+| 0:08 to 0:20 | Dashboard loads, one metric zooms | "One workspace, every metric live. This is revenue, updating as orders land." |
+| 0:20 to 0:34 | Typing a plain-English query | "Ask in plain English, like 'churn by plan, last quarter', and get a chart, not a data-team ticket." |
+| 0:34 to 0:48 | Chart renders, a note is added | "Pin it to a board, add a note for context, and it is shareable in one click." |
+| 0:48 to 0:60 | Board with teammates' avatars | "Now the whole team reads from the same numbers. Start free at northstar.example." |
+
+That is about 80 words of spoken narration across 60 seconds, comfortably under the 150-word ceiling, because pauses count. The empty seconds between lines are where zoom and motion carry the story. Under-filling the word budget is almost always right; a wall of narration reads as nervous, and it leaves no air for the screen to do its job.
+
+## The seven-step pipeline, and where a machine can stand in
+
+Every demo, however it is made, runs through the same seven steps. What separates a one-hour job from a one-week one is how many of them you perform by hand versus generate from a spec.
+
+| Step | Perform it by hand | Generate it from a spec |
+|---|---|---|
+| 1. Script | Write and time it | Draft with an LLM, then edit down |
+| 2. Record the flow | Click through live, hope for a clean take | Replay a declared action list into a real browser |
+| 3. Narrate | Record your voice, redo the flubs | Text-to-speech from the script |
+| 4. Caption | Type and time-sync by hand | Word-level speech-to-text on the narration |
+| 5. Polish | Keyframe zoom and trims in an editor | Deterministic transforms on the footage |
+| 6. Mux and export | Editor render | ffmpeg from a manifest |
+| 7. Maintain | Re-record when the UI changes | Re-render the spec in CI |
+
+Only step 1 is inescapably human. Every other row has a generated column, and the further right you sit, the cheaper the seventh row becomes, which is the row that quietly dominates total cost of ownership. [Automated product demo videos](/blog/automated-product-demo-videos) is the long version of that argument.
+
+The arithmetic is worth doing once. A hand-made 60-to-90-second demo is rarely under two or three hours by the time you have scripted it, recorded enough takes to get a clean one, recorded and re-recorded the voice, and keyframed the zooms. That is fine as a one-time cost. The problem is that a live take is atomic: change a single screen and you cannot splice in a replacement without the cursor, timing, and narration drifting out of sync, so a small UI change buys you most of that production cost a second time. A spec-defined demo inverts the ratio. The first render costs about the same authoring effort, but the second one costs a diff and a few minutes of compute, which is the whole difference between a demo you keep current and a demo you quietly let rot.
+
+## Recording the raw take
+
+The raw recording is the easy part, and where most of the tool money goes. Three families, honestly labeled.
+
+| Approach | Platform | Auto-polish | Deterministic re-render | Cost |
+|---|---|---|---|---|
+| Screen Studio | macOS only | Auto-zoom, cursor smoothing | No, it is a live take | $20/mo, ~$9/mo billed annually |
+| OBS Studio | Windows, macOS, Linux | None, raw capture | No | Free, open source |
+| Loom and browser recorders | Cross-platform | Light | No | Freemium |
+| Code-driven browser replay | Anywhere with Chrome | Applied at compose time | Yes | Varies |
+
+Screen Studio set the polish bar. It auto-zooms on cursor actions and smooths shaky movement with no manual keyframing, but it is a macOS-only app with no shipping Windows build and, since October 2025, subscription-only pricing at $20 a month or about $9 a month billed annually ([Screen Studio, 2026](https://screen.studio/)); if the platform lock rules it out, [the alternatives, mapped by platform and workflow](/blog/screen-studio-alternatives), include several that do run headless. OBS is the free, cross-platform floor: it captures cleanly on Windows, macOS, and Linux and does nothing to the footage afterward ([OBS Project, 2026](https://obsproject.com/)). Both share one limit that matters more than any feature. The take is a live performance, so when the UI changes you perform it again.
+
+The fourth family removes that. Instead of recording a person, you declare the flow, navigate here, click this selector, type that, and a deterministic player replays it into a real Chrome window, identically every time. That is the design behind aidemo, our open-source engine: it is browser-only, and the storyboard is authored by a coding agent rather than dragged around a GUI timeline. The honest tradeoff is that you swap a visual editor for a text file, which is a bad deal for a one-off and a good one for anything you will have to record twice.
+
+## Narration and captions for a feed that plays muted
+
+Two facts govern the audio track. First, landing pages and social feeds autoplay muted by default, so a large share of views never hear a word; the narration you sweated over is optional, and the captions are not. Second, WCAG 2.2 makes captions a Level A requirement: Success Criterion 1.2.2 asks for captions on all prerecorded audio in synchronized media, identifying who is speaking and any meaningful non-speech sound ([W3C, 2023](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html)). Level A is the floor, not the aspiration.
+
+Captions can be read faster than narration is spoken. Silent reading of English non-fiction averages 238 words per minute against your roughly 150-wpm voice track ([Brysbaert, 2019](https://biblio.ugent.be/publication/8647789)), which is why word-level caption timing, highlighting each word as it is said, reads better than dropping a whole sentence on screen at once. [Captions on demo videos](/blog/demo-video-captions) covers open versus closed captions and the timing mechanics.
+
+For the voice itself, recording yourself is fine for a one-off and miserable for iteration: change one line and you re-record the whole take to match room tone. Text-to-speech removes that tax. OpenAI's speech API, for one, exposes steerable models such as gpt-4o-mini-tts that render a script to audio in seconds and re-render just as fast when the script changes ([OpenAI, 2026](https://developers.openai.com/api/docs/guides/text-to-speech)). It still loses to a good human read on warmth and brand voice; [AI voiceover for demo videos](/blog/ai-voiceover-for-demo-videos) weighs that tradeoff with the per-minute arithmetic.
+
+## Polish, publish, and keep it honest
+
+Polish is editing, not talent. The moves that make a screen recording look produced, zooming in when the cursor acts, smoothing the pointer, cutting dead air, sizing and letterboxing for the target frame, are each a deterministic transform on footage rather than a matter of taste, which is exactly why software can apply them and why [professional-looking screen recordings](/blog/professional-screen-recordings) are a solved mechanical problem. Do not confuse a polished raw take with a finished demo, though. Color and zoom are compose-time decisions you should be able to redo without re-recording.
+
+Then publish where the video will actually be watched. A landing hero wants a muted autoplay loop; a README wants a stable raw URL that renders inline; a sales email wants a thumbnail linking out. Encode once per placement, not once total, and let each channel dictate the aspect ratio and the length you already budgeted.
+
+The last step is the one nobody plans for and everybody pays. The product ships, the UI moves, and the demo now lies about the software it is selling. A hand-recorded take has no cheap fix: you re-perform the whole thing to keep cursor, zoom, and narration timing in sync. A demo defined as a spec has a cheap fix: change the line that moved and re-render, ideally [in CI on the same event that changed the UI](/blog/demo-videos-in-ci). Budget for step seven when you choose your approach at step two, because it is the step you will repeat the most.
+
+## Sources
+
+- [Wistia — How to Choose the Right Marketing Video Length for Any Goal](https://wistia.com/learn/marketing/optimal-video-length)
+- [HubSpot — 2024 Video Marketing Report](https://blog.hubspot.com/marketing/video-marketing-report)
+- [W3C — Understanding SC 1.2.2: Captions (Prerecorded), WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html)
+- [Brysbaert (2019) — How many words do we read per minute? A meta-analysis of reading rate](https://biblio.ugent.be/publication/8647789)
+- [Screen Studio — features and pricing](https://screen.studio/)
+- [OBS Studio — free and open-source screen recording](https://obsproject.com/)
+- [OpenAI — Text-to-speech guide](https://developers.openai.com/api/docs/guides/text-to-speech)
+
+## FAQ
+
+### How long should a demo video be for a landing page versus a sales email?
+
+Match the length to the placement. A landing-page hero or social clip should run 30 to 60 seconds, since clips under a minute average a 52% engagement rate in Wistia's data and most marketers in HubSpot's survey put the short-form sweet spot at 21 to 60 seconds. A sales follow-up or onboarding video can stretch to one to three minutes, because the audience is warmer and completing a real task beats raw brevity.
+
+### Do I need a script, or can I record the product walkthrough live?
+
+Write the script first. It is the cheapest artifact to change, and it fixes the length, scene count, and caption text before you spend any time recording. Talking through the product live reliably produces a take that is twice as long as it should be and painful to trim. Draft the narration to a budget of about 2.5 words per second and read it against a stopwatch before you record anything.
+
+### Can I make a demo video without recording my own voice or screen?
+
+Yes. Text-to-speech renders the narration straight from your script, so no microphone is required, and a scripted browser replay can record the screen flow deterministically instead of you clicking through it live. That combination also makes updates cheap: when the product changes, you edit the script or the action list and re-render, rather than re-performing the whole take from scratch.
+
+---
+
+# Screen Studio alternatives for Windows, Linux, and CI
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/screen-studio-alternatives/
+
+> Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.
+
+## Why Screen Studio users start shopping around
+
+Screen Studio earned its reputation the hard way. It took the fussy craft of a good product demo — the punched-in zooms, the eased cursor, the soft rounded-corner background — and made all of it automatic. The friction was never the output. It was who gets to run the app, and on what terms.
+
+As of July 2026, Screen Studio is macOS only, and asks for Ventura 13.1 or newer ([Screen Studio, 2026](https://screen.studio/)). Windows users have watched the official feature request sit at "In Review" for more than three years ([Screen Studio hub, 2026](https://hub.screen.studio/p/windows-version)). There is no Linux build and none on the roadmap. And on September 30, 2025 the app retired its $229 one-time license for a subscription — now $108 per year, with earlier lifetime buyers kept on updates through 2027 ([PriceTimeline, 2025](https://pricetimeline.com/news/173)).
+
+Those three facts — Mac-only, no Windows, subscription-only — are the whole reason "Screen Studio alternatives" is a query worth answering well. What follows is a per-platform map of what actually stands in for it, graded on the polish features people name when they go looking. Screen Studio stays on the table the whole time: for a solo Mac user who lives in a GUI, it is often still the right call.
+
+## The polish features people actually cite
+
+Strip the marketing and a "Screen Studio-class" recorder is really four automatic effects plus a portability question. When people compare tools, these are the axes that settle it:
+
+- **Auto-zoom** — the camera punches in on clicks and typing without you setting keyframes. This is the single feature most people mean by "polish."
+- **Cursor smoothing** — the real, jittery mouse path is swapped for an eased one, and the pointer is usually enlarged and given click animations.
+- **Captions** — burned-in or exportable subtitles, ideally from an automatic transcript.
+- **Export** — 4K/60 and GIF out, sized for wherever you are posting.
+- **Where it runs** — macOS, Windows, Linux, and the axis nobody else scores: can it run headless, in CI, with no human at the keyboard.
+
+That last axis is the fork in the road. Every GUI tool below assumes a person records a take and nudges it in an editor. One approach assumes a machine does, on every commit. Hold that thought.
+
+## The alternatives, scored
+
+Here is the platform-and-price picture first, then the feature grid. Everything is checked against each vendor's own pages as of July 2026.
+
+| Tool | macOS | Windows | Linux | Headless / CI | Price model |
+|---|---|---|---|---|---|
+| Screen Studio | Yes (13.1+) | No ("In Review" 3+ yrs) | No | No | Subscription, $108/yr |
+| Cap | Yes | Beta | Yes (.deb) | No (desktop app) | Open source; free / $29 yr / $12 mo |
+| FocuSee | Yes | Yes | No | No | From $49.99/yr; $199.99 lifetime |
+| Tella | Yes | Yes | Browser only | No | Subscription, from $13/mo |
+| OBS + editor | Yes | Yes | Yes | Scriptable; manual polish | Free, open source |
+| aidemo (ours) | Yes | Yes | Yes | Yes, native | Free, open source |
+
+| Tool | Auto-zoom | Cursor smoothing | Captions | Export |
+|---|---|---|---|---|
+| Screen Studio | Automatic | Yes | Transcript / subtitles | 4K60, GIF |
+| Cap | Yes (cursor auto-zoom) | Yes | AI captions | 4K60 |
+| FocuSee | Yes | Yes | AI subtitles, 50+ langs | 4K60, GIF |
+| Tella | Yes (on clicks) | Limited | Transcript-based | 4K60 |
+| OBS + editor | No (manual in post) | No (manual) | In your editor | Configurable |
+| aidemo (ours) | Yes (compose-time) | Yes (synthetic cursor) | Whisper word-timing | ffmpeg MP4 / GIF |
+
+**Cap** is the closest thing to an open-source Screen Studio. It is licensed AGPLv3 (with some capture crates under MIT), ships native builds for macOS, Windows (still labeled beta), and a Linux `.deb`, and its "cursor auto-zoom" watches the pointer and punches in on small click targets on its own ([CapSoftware, 2026](https://github.com/CapSoftware/Cap)). The free tier records locally with a five-minute cap for personal use; a $29/year desktop license adds commercial rights, and Cap Pro is $12/user/month for cloud sharing and AI features ([Cap, 2026](https://cap.so/download)). If your objection to Screen Studio is "Mac-only and rented," Cap answers both at once.
+
+**FocuSee** (by iMobie) is the Windows answer most people land on. It runs on Windows and Mac, does auto pan-and-zoom that follows clicks and typing, and generates AI subtitles in 50+ languages ([FocuSee, 2026](https://focusee.imobie.com/)). Crucially it still sells a one-time license: subscriptions start at $49.99/year, but a $199.99 Advanced Lifetime tier exists for people who refuse to rent their editor ([FocuSee pricing, 2026](https://focusee.imobie.com/pricing.htm)).
+
+**Tella** keeps the recorder in the browser, with native Mac and Windows apps alongside it. It auto-adds smooth zoom on clicks and lets you trim by editing the transcript like a document, with paid plans from $13/month ([Tella, 2026](https://www.tella.com/)). It is the low-friction pick if you would rather not install a heavyweight editor.
+
+**OBS Studio plus an editor** is the zero-dollar route. OBS is free and open source and runs on Windows, macOS, and Linux ([OBS Project, 2026](https://obsproject.com/)), but it records raw — no auto-zoom, no cursor smoothing. You add the polish in whatever editor you pair it with, by hand. It wins on price and control and loses on time.
+
+On macOS specifically, **CleanShot X** is a strong one-time-purchase capture tool — scrolling capture, click highlighting, quick annotation — but it does not do produced auto-zoom, so it is a recorder rather than a Screen Studio replacement in the polish sense ([CleanShot X, 2026](https://cleanshot.com/)).
+
+Then there is the headless lane. **aidemo**, which we build, takes the opposite bet from every tool above: no GUI, no timeline, no human recording a take. You (or a coding agent) author a `storyboard.json` — a script plus a browser action-spec — and the engine replays it deterministically in a real Chrome, injects a synthetic cursor with eased motion, times captions from a Whisper transcript, applies compose-time zoom, and muxes an MP4 with ffmpeg. It runs on macOS, Windows, and Linux, and it is built to run in CI on every commit. The honest limits: it captures a browser only, so no native or mobile app windows, and the "editor" is a JSON file and a re-render, not a drag-and-drop canvas. If your demo is a web product and you would rather regenerate it than re-record it, that trade is the point.
+
+## Pick by platform and workflow
+
+The tools do not rank in a single line; they sort by what you are on and how you work.
+
+| You are… | Best fit | Why |
+|---|---|---|
+| On macOS, solo, want a GUI | Screen Studio or Cap | Fastest record-to-polish; Cap if you want open source |
+| On Windows, want auto-zoom | FocuSee or Cap | Both native on Windows; FocuSee sells a lifetime license |
+| Set on open source / self-host | Cap | AGPLv3, cross-platform, own your data |
+| Recording a web app, no GUI, in CI | aidemo (ours) | Headless deterministic replay, re-renders on every commit |
+| Any budget of $0, willing to edit by hand | OBS + an editor | Free and cross-platform; you supply the polish |
+
+Two honest notes. First, a subscription is not automatically the worse deal. Over three years, Screen Studio runs $324, Cap's commercial license runs $87 (or $0 if the five-minute local cap and personal-use terms fit you), FocuSee's lifetime is $199.99 once, and OBS plus your patience is free. Do the arithmetic for your own usage before treating "subscription" as a dealbreaker. Second, if you are on a Mac, work solo, and want the shortest path from record to polished export, Screen Studio is still the tool it always was — the reasons to leave are platform and pricing model, not quality.
+
+For deeper cuts on adjacent choices, see our pillar on [AI demo video generators](/blog/ai-demo-video-generators), the rundown of [open source demo video tools](/blog/open-source-demo-video-tools), and — for the headless lane specifically — [demo videos in CI](/blog/demo-videos-in-ci) and [automated product demo videos](/blog/automated-product-demo-videos).
+
+## Sources
+
+- [Screen Studio](https://screen.studio/)
+- [Screen Studio — Windows version request status](https://hub.screen.studio/p/windows-version)
+- [PriceTimeline — Screen Studio removes one-time payment](https://pricetimeline.com/news/173)
+- [Cap — GitHub repository](https://github.com/CapSoftware/Cap)
+- [Cap — downloads](https://cap.so/download)
+- [FocuSee](https://focusee.imobie.com/)
+- [FocuSee — pricing](https://focusee.imobie.com/pricing.htm)
+- [Tella](https://www.tella.com/)
+- [OBS Studio](https://obsproject.com/)
+- [CleanShot X](https://cleanshot.com/)
+
+## FAQ
+
+### Is there a Screen Studio for Windows?
+
+No. Screen Studio ships on macOS only, and its official Windows feature request has been marked "In Review" for more than three years as of July 2026. For a Windows recorder with the same auto-zoom-and-polish feel, FocuSee and Cap are the closest matches; Cap also runs on Linux.
+
+### What is the best open-source alternative to Screen Studio?
+
+Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and Linux, and includes cursor auto-zoom and captions, so it covers the polish features most people want without a subscription (a $29/year license adds commercial rights). OBS Studio is the other free-and-open option, but it records raw and leaves the polish to a separate editor.
+
+### Does Screen Studio still sell a one-time license?
+
+Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.

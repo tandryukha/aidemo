@@ -6,7 +6,41 @@
     <atom:link href="https://aidemo.top/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Practical, evidence-backed writing on product demo videos and demo automation.</description>
     <language>en</language>
-
-
+    <lastBuildDate>Sat, 18 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Automated product demo videos: regenerate, don&apos;t re-record</title>
+      <link>https://aidemo.top/blog/automated-product-demo-videos/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/automated-product-demo-videos/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Four unrelated machines ship under one label. Only one makes &apos;the product changed&apos; and &apos;the demo is current&apos; the same event.</description>
+    </item>
+    <item>
+      <title>Demo video script template: problem, walkthrough, proof</title>
+      <link>https://aidemo.top/blog/demo-video-script-template/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-script-template/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Narration runs about 2.5 words a second, so a demo&apos;s runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.</description>
+    </item>
+    <item>
+      <title>Rendering demo videos in CI: a GitHub Actions walkthrough</title>
+      <link>https://aidemo.top/blog/demo-videos-in-ci/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-videos-in-ci/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>GitHub&apos;s runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</description>
+    </item>
+    <item>
+      <title>How to make a product demo video (that people finish)</title>
+      <link>https://aidemo.top/blog/how-to-make-a-product-demo-video/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/how-to-make-a-product-demo-video/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</description>
+    </item>
+    <item>
+      <title>Screen Studio alternatives for Windows, Linux, and CI</title>
+      <link>https://aidemo.top/blog/screen-studio-alternatives/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/screen-studio-alternatives/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.</description>
+    </item>
   </channel>
 </rss>
