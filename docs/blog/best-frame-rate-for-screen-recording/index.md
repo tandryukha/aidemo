@@ -1,0 +1,82 @@
+# Best frame rate for screen recording: 30 vs 60 fps by content
+
+July 18, 2026 · Screen Recording · 8 min read · https://aidemo.top/blog/best-frame-rate-for-screen-recording/
+
+> Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.
+
+**Key takeaways**
+
+- Use 30 fps for UI, forms, cursor, and typing; reserve 60 fps for continuous motion only: fast scrolling, animation, video-in-video, or gameplay. A static screen never earns the extra frames.
+- Doubling the frame rate does not double the file: a codec stores each frame as the difference from its neighbor, so near-identical added frames add little data (MDN).
+- Recorders that skip unchanged frames store almost nothing extra for a static UI at 60 fps; the added bitrate lands only on the pixels that actually move.
+- Flicker fusion sits at 35-60 Hz (mean ~48 Hz) and motion is perceived from ~12 fps; a click is one discrete event, legible at any rate, so 60 fps adds nothing to a form.
+- You can drop 60 to 30 later but never invent 30 into a real 60; if unsure, capture at 60, deliver at 30, and force a constant frame rate so audio never drifts.
+
+## Frame rate is a budget you spend on motion
+
+Frame rate is the setting people copy from a gaming tutorial and paste onto a form-filling walkthrough, where it buys nothing and quietly inflates the encode. The mistake is treating frames per second as a quality dial, like resolution, where a bigger number is always sharper. It is not. Frame rate is a sampling rate for motion, and a product demo is mostly not motion. It is discrete events: a click, a typed character, a panel sliding open for 200 milliseconds, then a long still stretch while the narrator explains what just happened. You pay for every frame you capture, and you should pay only where something on screen is actually moving. This page is the 30-versus-60 decision by content type, one layer down from [the full capture-settings checklist](/blog/how-to-record-your-screen-in-high-quality); the short version is that 60 fps earns its bitrate about as often as a walkthrough contains a car chase.
+
+## Match the rate to the fastest thing on screen
+
+The deciding question is not what your recorder can do or how fast your monitor refreshes. It is: what is the fastest continuous motion in the shot? Not the average motion, the fastest, because that is the thing that strobes when the frame rate is too low.
+
+| What is on screen | Motion character | Frame rate worth its cost | Why |
+|---|---|---|---|
+| Forms, dashboards, static UI | Discrete state changes | 30 fps | Nothing moves between clicks; extra frames are stored duplicates |
+| Cursor movement, typing | Low, intermittent | 30 fps | A pointer reads fine at 30, and smoothing is [a compose-time transform](/blog/professional-screen-recordings) anyway |
+| Scrolling a long page | Continuous, fast | 60 fps | Text sliding at 30 fps strobes and smears; 60 halves the blur |
+| UI transitions, micro-animations | Continuous, brief | 30-60 fps | 30 survives most; a fast 200 ms ease is visibly smoother at 60 |
+| Video playing inside the UI | Continuous, source-locked | Match the source | A 30 fps grab of 24 fps video judders (see below) |
+| Gameplay, canvas, WebGL | Continuous, high | 60 fps | The one case where 60 clearly earns its keep |
+
+Read down the table and the pattern is that continuous motion is rare in the software people actually demo. A CRUD app, a settings page, an onboarding flow: these are click, wait, read, click. The frames between interactions are identical, and 60 of them a second is 60 copies of the same pixels. Reach for 60 fps on the specific clips that scroll fast or animate, and let everything else sit at 30.
+
+## The file grows only where the pixels move
+
+The intuition that 60 fps is "twice the file" of 30 is wrong, and the correction is the whole reason to stop fearing it. A codec does not store each frame whole. As MDN's video codec guide puts it, "compression of video typically works by comparing frames, finding where they differ, and constructing records containing enough information to update the previous frame to approximate the appearance of the following frame" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)). Full frames, the keyframes, are written only periodically; everything between them is stored as the change from its neighbor. So when you add frames that closely resemble the ones on either side, each carries very little new information, and the file grows by far less than the frame count does. MDN states the direction without overclaiming it: "assuming the frame rate is not reduced during encoding, higher frame rates cause larger compressed video sizes" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)) — larger, but not linearly so.
+
+For screen content the bill shrinks to almost nothing on the still parts, and this is the point most guides skip. Many recorders capture a variable frame rate and simply skip frames that do not change: Camtasia, for one, notes that "if there is no change on the screen from one frame to the next, then that duplicate frame is not recorded at all" ([TechSmith Support](https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate)). A motionless form recorded at 60 fps therefore stores barely more than the same form at 30, because the identical frames are never written in the first place. The extra data of a higher frame rate lands only on the pixels that actually move, which is precisely the argument for raising the rate only where pixels move. TechSmith keeps the trend honest for those moving parts: "the higher the frame rate, the more still images are packed into each second of video ... and more information means bigger files and longer export times" ([TechSmith](https://www.techsmith.com/blog/frame-rate-beginners-guide/)). The codec and container that carry those bits are [a separate decision](/blog/best-video-format-for-screen-recording).
+
+## Why a form at 60 fps looks the same as a form at 30
+
+The reason discrete UI gains nothing from more frames is a fact about vision, not about screens. Frame rate buys smoothness for continuous motion by sampling a moving signal more finely, the way a higher audio sample rate captures a higher pitch. A discrete event is not a signal to sample. A button that turns from grey to blue between one frame and the next is a single change, legible whether the footage around it runs at 24 fps or 240.
+
+Two different numbers get confused in this argument, and neither rescues 60 fps for a form. The first is the floor of motion itself: MDN puts "the absolute minimum frame rate that a video can be before its contents are no longer perceived as motion by the human eye" at about 12 frames per second ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)). The second is the flicker fusion threshold, measured for continuous flickering light, where achromatic "thresholds are reported to be in the range of 35 to 60 Hz," averaging about 48 Hz across 72 observers in one psychophysics study ([Brown et al., 2018](https://pmc.ncbi.nlm.nih.gov/articles/PMC5960665/)). That upper figure is the rate at which a blinking light stops looking like it blinks, a property of sustained stimulation, and it says nothing about whether you can read a click, which is one event and not a flicker. Somewhere above the 12 fps motion floor, and given that UI events are discrete rather than continuous, a walkthrough of forms and menus at 30 fps is not something the viewer squints through; it is indistinguishable from 60 for everything except the moments something actually slides.
+
+## Frame-rate mismatch: the judder you did not set out to create
+
+There is a failure worse than a frame rate that is too low, which is one that does not divide evenly into the motion you are capturing. Film runs at 24 fps. Grab a 24 fps video playing inside your UI at 30 fps and the recorder has to invent 6 extra frames a second by repeating some and not others, an uneven 3:2 cadence the eye reads as a faint stutter. The same trap waits at the delivery end: hand a 30 fps clip to a 24 fps timeline and frames get dropped on the same lumpy schedule.
+
+Two rules keep it clean. First, match the capture rate to the dominant motion source. Second, capture at a rate the destination actually accepts, or it will resample you. Vimeo, for instance, ingests only "23.98, 24, 25, 29.97, 30, 50, 59.94, 60" and warns that "if your footage exceeds 60 FPS, we will automatically reduce the frame rate" ([Vimeo](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)), so an odd 45-or-so fps capture from a loosely configured recorder does not survive the trip intact. There is also a ceiling no setting buys past: you cannot capture more distinct frames than your display paints, which is why true 60 fps recording needs a 60 Hz or faster monitor to begin with ([TechSmith Support](https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate)). Sizing the whole recording to where it will play is [a resolution decision too](/blog/best-resolution-for-screen-recording).
+
+## Variable frame rate is a trap for a narrated demo
+
+The duplicate-frame skipping that makes 60 fps cheap on screen content has a sharp edge: it produces a variable frame rate, and a variable rate drifts against a voiceover. When the recorder writes frames only as the screen changes, the timestamps stretch and compress with the action, and by the end of a two-minute narrated take the picture can sit a visible beat off the words. The fix is to convert to a constant frame rate on export, so every second holds the same frame count and the audio stays pinned to the picture.
+
+The most reliable way to hold a constant rate is to stop treating it as a recorder preference and pin it as a value, which is what [a deterministic capture pipeline does](/blog/deterministic-browser-automation-for-video): the frame rate, viewport, and device pixel ratio are fixed inputs, so the same run yields the same footage at the same rate every time. Our own engine, aidemo, records with the frame rate pinned so the compose step always receives a constant rate. The honest caveats: it captures a browser and only a browser, the take is authored as a storyboard by an agent rather than dragged on a timeline by hand, and for one quick throwaway clip a normal recorder is less setup.
+
+## You can throw frames away, but you cannot invent them
+
+Frame rate is nearly as irreversible as resolution, with one asymmetry worth using. Going down is clean: 60 fps delivered at 30 keeps every other frame, and the result is a genuine 30 fps clip. Going up is a lie: 30 fps "converted" to 60 just duplicates each frame, so the file doubles and not one bit of it is smoother. That asymmetry gives you the safe default when you are unsure. Capture at 30 for anything that is mostly clicks and forms. If a demo has one fast-scrolling or animated stretch and you cannot easily record that clip on its own, capture the whole thing at 60 and deliver at 30, which keeps the option to cut a 60 fps version of the moving part later without a reshoot. What you must not do is record the form-filling at 30, decide afterward the scroll needed 60, and have no frames left to promote. Like the rest of [the properties baked in at capture time](/blog/professional-screen-recordings), the frames you did not record are the ones no editor can hand back.
+
+## Sources
+
+- [MDN — Web video codec guide (inter-frame compression, frame rate and size)](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)
+- [TechSmith — Frame Rate: A Beginner's Guide](https://www.techsmith.com/blog/frame-rate-beginners-guide/)
+- [TechSmith Support — Camtasia Maximum Capture Frame Rate (VFR and duplicate-frame skipping)](https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate)
+- [Vimeo — Video and audio compression guidelines (supported frame rates)](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)
+- [Brown, Corner, Crewther & Crewther — flicker fusion and magnocellular efficiency, Frontiers in Human Neuroscience (2018)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5960665/)
+
+## FAQ
+
+### Is 30fps or 60fps better for screen recording?
+
+For most screen recordings, 30 fps is the better choice, not a compromise. Software demos are mostly discrete events (clicks, typing, a panel opening) with little continuous motion, and 30 fps carries those cleanly while costing less bitrate. Move up to 60 fps only for the specific content that has fast continuous motion: quick scrolling, UI animation, video playing inside the app, or gameplay. If a single demo mixes both, the safe move is to capture at 60 and deliver at 30 so you keep the higher-rate frames for the moving clip.
+
+### Does recording at 60fps make the file twice as big?
+
+No. A codec stores most frames as the difference from the one before, not as whole images, so doubling the frame rate adds far less than double the data because each added frame is nearly identical to its neighbor. On screen content the effect is stronger still: recorders that skip unchanged frames store almost nothing extra for a static UI at 60 fps, so the added size shows up only on the parts that actually move, like scrolling or animation.
+
+### What frame rate should I record gameplay or animation at?
+
+Record continuous high-motion content like gameplay, canvas animation, or fast-scrolling pages at 60 fps: this is the case where the extra frames visibly reduce strobing and motion blur and clearly earn their bitrate. Match the capture rate to the motion source when you can, and keep it constant rather than variable so it does not drift against audio. One hard limit: you cannot capture more distinct frames than your display refreshes, so true 60 fps recording needs a 60 Hz or faster monitor.

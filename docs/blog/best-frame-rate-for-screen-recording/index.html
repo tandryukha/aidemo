@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>30 vs 60 fps screen recording, decided | aidemo</title>
+<meta name="description" content="30 vs 60 fps for screen recording, decided by content: why a static UI at 60 fps costs almost nothing, and when 60 fps is actually worth its bitrate.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/best-frame-rate-for-screen-recording/">
+<link rel="alternate" type="text/markdown" href="/blog/best-frame-rate-for-screen-recording/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="30 vs 60 fps screen recording, decided | aidemo">
+<meta property="og:description" content="30 vs 60 fps for screen recording, decided by content: why a static UI at 60 fps costs almost nothing, and when 60 fps is actually worth its bitrate.">
+<meta property="og:url" content="https://aidemo.top/blog/best-frame-rate-for-screen-recording/">
+<meta property="og:image" content="https://aidemo.top/blog/images/best-frame-rate-for-screen-recording-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="30 vs 60 fps screen recording, decided | aidemo">
+<meta name="twitter:description" content="30 vs 60 fps for screen recording, decided by content: why a static UI at 60 fps costs almost nothing, and when 60 fps is actually worth its bitrate.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/best-frame-rate-for-screen-recording-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Best frame rate for screen recording: 30 vs 60 fps by content",
+  "description": "30 vs 60 fps for screen recording, decided by content: why a static UI at 60 fps costs almost nothing, and when 60 fps is actually worth its bitrate.",
+  "image": [
+    "https://aidemo.top/blog/images/best-frame-rate-for-screen-recording-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/best-frame-rate-for-screen-recording/"
+  },
+  "wordCount": 2068,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Web video codec guide (inter-frame compression, frame rate and size)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "TechSmith — Frame Rate: A Beginner's Guide",
+      "url": "https://www.techsmith.com/blog/frame-rate-beginners-guide/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "TechSmith Support — Camtasia Maximum Capture Frame Rate (VFR and duplicate-frame skipping)",
+      "url": "https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Vimeo — Video and audio compression guidelines (supported frame rates)",
+      "url": "https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Brown, Corner, Crewther & Crewther — flicker fusion and magnocellular efficiency, Frontiers in Human Neuroscience (2018)",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5960665/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Best frame rate for screen recording: 30 vs 60 fps by content",
+      "item": "https://aidemo.top/blog/best-frame-rate-for-screen-recording/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is 30fps or 60fps better for screen recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For most screen recordings, 30 fps is the better choice, not a compromise. Software demos are mostly discrete events (clicks, typing, a panel opening) with little continuous motion, and 30 fps carries those cleanly while costing less bitrate. Move up to 60 fps only for the specific content that has fast continuous motion: quick scrolling, UI animation, video playing inside the app, or gameplay. If a single demo mixes both, the safe move is to capture at 60 and deliver at 30 so you keep the higher-rate frames for the moving clip."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does recording at 60fps make the file twice as big?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A codec stores most frames as the difference from the one before, not as whole images, so doubling the frame rate adds far less than double the data because each added frame is nearly identical to its neighbor. On screen content the effect is stronger still: recorders that skip unchanged frames store almost nothing extra for a static UI at 60 fps, so the added size shows up only on the parts that actually move, like scrolling or animation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What frame rate should I record gameplay or animation at?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Record continuous high-motion content like gameplay, canvas animation, or fast-scrolling pages at 60 fps: this is the case where the extra frames visibly reduce strobing and motion blur and clearly earn their bitrate. Match the capture rate to the motion source when you can, and keep it constant rather than variable so it does not drift against audio. One hard limit: you cannot capture more distinct frames than your display refreshes, so true 60 fps recording needs a 60 Hz or faster monitor."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Best frame rate for screen recording: 30 vs 60 fps by content</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Best frame rate for screen recording: 30 vs 60 fps by content</h1>
+        <p class="article-dek">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#frame-rate-is-a-budget-you-spend-on-motion">Frame rate is a budget you spend on motion</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#match-the-rate-to-the-fastest-thing-on-screen">Match the rate to the fastest thing on screen</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-file-grows-only-where-the-pixels-move">The file grows only where the pixels move</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-a-form-at-60-fps-looks-the-same-as-a-form-at-30">Why a form at 60 fps looks the same as a form at 30</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#frame-rate-mismatch-the-judder-you-did-not-set-out-to-create">Frame-rate mismatch: the judder you did not set out to create</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#variable-frame-rate-is-a-trap-for-a-narrated-demo">Variable frame rate is a trap for a narrated demo</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#you-can-throw-frames-away-but-you-cannot-invent-them">You can throw frames away, but you cannot invent them</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/best-frame-rate-for-screen-recording-800.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"><figcaption>Sixty beats a second is worth paying for on wings; a form that never moves should never be charged the same rate.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Use 30 fps for UI, forms, cursor, and typing; reserve 60 fps for continuous motion only: fast scrolling, animation, video-in-video, or gameplay. A static screen never earns the extra frames.</li>
+    <li>Doubling the frame rate does not double the file: a codec stores each frame as the difference from its neighbor, so near-identical added frames add little data (MDN).</li>
+    <li>Recorders that skip unchanged frames store almost nothing extra for a static UI at 60 fps; the added bitrate lands only on the pixels that actually move.</li>
+    <li>Flicker fusion sits at 35-60 Hz (mean ~48 Hz) and motion is perceived from ~12 fps; a click is one discrete event, legible at any rate, so 60 fps adds nothing to a form.</li>
+    <li>You can drop 60 to 30 later but never invent 30 into a real 60; if unsure, capture at 60, deliver at 30, and force a constant frame rate so audio never drifts.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="frame-rate-is-a-budget-you-spend-on-motion">Frame rate is a budget you spend on motion<a class="hanchor" href="#frame-rate-is-a-budget-you-spend-on-motion" aria-label="Link to section: Frame rate is a budget you spend on motion">#</a></h2>
+<p>Frame rate is the setting people copy from a gaming tutorial and paste onto a form-filling walkthrough, where it buys nothing and quietly inflates the encode. The mistake is treating frames per second as a quality dial, like resolution, where a bigger number is always sharper. It is not. Frame rate is a sampling rate for motion, and a product demo is mostly not motion. It is discrete events: a click, a typed character, a panel sliding open for 200 milliseconds, then a long still stretch while the narrator explains what just happened. You pay for every frame you capture, and you should pay only where something on screen is actually moving. This page is the 30-versus-60 decision by content type, one layer down from <a href="/blog/how-to-record-your-screen-in-high-quality/">the full capture-settings checklist</a>; the short version is that 60 fps earns its bitrate about as often as a walkthrough contains a car chase.</p>
+<h2 id="match-the-rate-to-the-fastest-thing-on-screen">Match the rate to the fastest thing on screen<a class="hanchor" href="#match-the-rate-to-the-fastest-thing-on-screen" aria-label="Link to section: Match the rate to the fastest thing on screen">#</a></h2>
+<p>The deciding question is not what your recorder can do or how fast your monitor refreshes. It is: what is the fastest continuous motion in the shot? Not the average motion, the fastest, because that is the thing that strobes when the frame rate is too low.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What is on screen</th>
+<th>Motion character</th>
+<th>Frame rate worth its cost</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Forms, dashboards, static UI</td>
+<td>Discrete state changes</td>
+<td>30 fps</td>
+<td>Nothing moves between clicks; extra frames are stored duplicates</td>
+</tr>
+<tr>
+<td>Cursor movement, typing</td>
+<td>Low, intermittent</td>
+<td>30 fps</td>
+<td>A pointer reads fine at 30, and smoothing is <a href="/blog/professional-screen-recordings/">a compose-time transform</a> anyway</td>
+</tr>
+<tr>
+<td>Scrolling a long page</td>
+<td>Continuous, fast</td>
+<td>60 fps</td>
+<td>Text sliding at 30 fps strobes and smears; 60 halves the blur</td>
+</tr>
+<tr>
+<td>UI transitions, micro-animations</td>
+<td>Continuous, brief</td>
+<td>30-60 fps</td>
+<td>30 survives most; a fast 200 ms ease is visibly smoother at 60</td>
+</tr>
+<tr>
+<td>Video playing inside the UI</td>
+<td>Continuous, source-locked</td>
+<td>Match the source</td>
+<td>A 30 fps grab of 24 fps video judders (see below)</td>
+</tr>
+<tr>
+<td>Gameplay, canvas, WebGL</td>
+<td>Continuous, high</td>
+<td>60 fps</td>
+<td>The one case where 60 clearly earns its keep</td>
+</tr>
+</tbody></table></div>
+<p>Read down the table and the pattern is that continuous motion is rare in the software people actually demo. A CRUD app, a settings page, an onboarding flow: these are click, wait, read, click. The frames between interactions are identical, and 60 of them a second is 60 copies of the same pixels. Reach for 60 fps on the specific clips that scroll fast or animate, and let everything else sit at 30.</p>
+<h2 id="the-file-grows-only-where-the-pixels-move">The file grows only where the pixels move<a class="hanchor" href="#the-file-grows-only-where-the-pixels-move" aria-label="Link to section: The file grows only where the pixels move">#</a></h2>
+<p>The intuition that 60 fps is &quot;twice the file&quot; of 30 is wrong, and the correction is the whole reason to stop fearing it. A codec does not store each frame whole. As MDN&#39;s video codec guide puts it, &quot;compression of video typically works by comparing frames, finding where they differ, and constructing records containing enough information to update the previous frame to approximate the appearance of the following frame&quot;<sup class="article-cite"><a href="#src-1" title="MDN — Web video codec guide (inter-frame compression, frame rate and size)">1</a></sup>. Full frames, the keyframes, are written only periodically; everything between them is stored as the change from its neighbor. So when you add frames that closely resemble the ones on either side, each carries very little new information, and the file grows by far less than the frame count does. MDN states the direction without overclaiming it: &quot;assuming the frame rate is not reduced during encoding, higher frame rates cause larger compressed video sizes&quot;<sup class="article-cite"><a href="#src-1" title="MDN — Web video codec guide (inter-frame compression, frame rate and size)">1</a></sup> — larger, but not linearly so.</p>
+<p>For screen content the bill shrinks to almost nothing on the still parts, and this is the point most guides skip. Many recorders capture a variable frame rate and simply skip frames that do not change: Camtasia, for one, notes that &quot;if there is no change on the screen from one frame to the next, then that duplicate frame is not recorded at all&quot;<sup class="article-cite"><a href="#src-3" title="TechSmith Support — Camtasia Maximum Capture Frame Rate (VFR and duplicate-frame skipping)">3</a></sup>. A motionless form recorded at 60 fps therefore stores barely more than the same form at 30, because the identical frames are never written in the first place. The extra data of a higher frame rate lands only on the pixels that actually move, which is precisely the argument for raising the rate only where pixels move. TechSmith keeps the trend honest for those moving parts: &quot;the higher the frame rate, the more still images are packed into each second of video ... and more information means bigger files and longer export times&quot;<sup class="article-cite"><a href="#src-2" title="TechSmith — Frame Rate: A Beginner's Guide">2</a></sup>. The codec and container that carry those bits are a separate decision.</p>
+<h2 id="why-a-form-at-60-fps-looks-the-same-as-a-form-at-30">Why a form at 60 fps looks the same as a form at 30<a class="hanchor" href="#why-a-form-at-60-fps-looks-the-same-as-a-form-at-30" aria-label="Link to section: Why a form at 60 fps looks the same as a form at 30">#</a></h2>
+<p>The reason discrete UI gains nothing from more frames is a fact about vision, not about screens. Frame rate buys smoothness for continuous motion by sampling a moving signal more finely, the way a higher audio sample rate captures a higher pitch. A discrete event is not a signal to sample. A button that turns from grey to blue between one frame and the next is a single change, legible whether the footage around it runs at 24 fps or 240.</p>
+<p>Two different numbers get confused in this argument, and neither rescues 60 fps for a form. The first is the floor of motion itself: MDN puts &quot;the absolute minimum frame rate that a video can be before its contents are no longer perceived as motion by the human eye&quot; at about 12 frames per second<sup class="article-cite"><a href="#src-1" title="MDN — Web video codec guide (inter-frame compression, frame rate and size)">1</a></sup>. The second is the flicker fusion threshold, measured for continuous flickering light, where achromatic &quot;thresholds are reported to be in the range of 35 to 60 Hz,&quot; averaging about 48 Hz across 72 observers in one psychophysics study<sup class="article-cite"><a href="#src-5" title="Brown, Corner, Crewther &amp; Crewther — flicker fusion and magnocellular efficiency, Frontiers in Human Neuroscience (2018)">5</a></sup>. That upper figure is the rate at which a blinking light stops looking like it blinks, a property of sustained stimulation, and it says nothing about whether you can read a click, which is one event and not a flicker. Somewhere above the 12 fps motion floor, and given that UI events are discrete rather than continuous, a walkthrough of forms and menus at 30 fps is not something the viewer squints through; it is indistinguishable from 60 for everything except the moments something actually slides.</p>
+<h2 id="frame-rate-mismatch-the-judder-you-did-not-set-out-to-create">Frame-rate mismatch: the judder you did not set out to create<a class="hanchor" href="#frame-rate-mismatch-the-judder-you-did-not-set-out-to-create" aria-label="Link to section: Frame-rate mismatch: the judder you did not set out to create">#</a></h2>
+<p>There is a failure worse than a frame rate that is too low, which is one that does not divide evenly into the motion you are capturing. Film runs at 24 fps. Grab a 24 fps video playing inside your UI at 30 fps and the recorder has to invent 6 extra frames a second by repeating some and not others, an uneven 3:2 cadence the eye reads as a faint stutter. The same trap waits at the delivery end: hand a 30 fps clip to a 24 fps timeline and frames get dropped on the same lumpy schedule.</p>
+<p>Two rules keep it clean. First, match the capture rate to the dominant motion source. Second, capture at a rate the destination actually accepts, or it will resample you. Vimeo, for instance, ingests only &quot;23.98, 24, 25, 29.97, 30, 50, 59.94, 60&quot; and warns that &quot;if your footage exceeds 60 FPS, we will automatically reduce the frame rate&quot;<sup class="article-cite"><a href="#src-4" title="Vimeo — Video and audio compression guidelines (supported frame rates)">4</a></sup>, so an odd 45-or-so fps capture from a loosely configured recorder does not survive the trip intact. There is also a ceiling no setting buys past: you cannot capture more distinct frames than your display paints, which is why true 60 fps recording needs a 60 Hz or faster monitor to begin with<sup class="article-cite"><a href="#src-3" title="TechSmith Support — Camtasia Maximum Capture Frame Rate (VFR and duplicate-frame skipping)">3</a></sup>. Sizing the whole recording to where it will play is a resolution decision too.</p>
+<h2 id="variable-frame-rate-is-a-trap-for-a-narrated-demo">Variable frame rate is a trap for a narrated demo<a class="hanchor" href="#variable-frame-rate-is-a-trap-for-a-narrated-demo" aria-label="Link to section: Variable frame rate is a trap for a narrated demo">#</a></h2>
+<p>The duplicate-frame skipping that makes 60 fps cheap on screen content has a sharp edge: it produces a variable frame rate, and a variable rate drifts against a voiceover. When the recorder writes frames only as the screen changes, the timestamps stretch and compress with the action, and by the end of a two-minute narrated take the picture can sit a visible beat off the words. The fix is to convert to a constant frame rate on export, so every second holds the same frame count and the audio stays pinned to the picture.</p>
+<p>The most reliable way to hold a constant rate is to stop treating it as a recorder preference and pin it as a value, which is what <a href="/blog/deterministic-browser-automation-for-video/">a deterministic capture pipeline does</a>: the frame rate, viewport, and device pixel ratio are fixed inputs, so the same run yields the same footage at the same rate every time. Our own engine, aidemo, records with the frame rate pinned so the compose step always receives a constant rate. The honest caveats: it captures a browser and only a browser, the take is authored as a storyboard by an agent rather than dragged on a timeline by hand, and for one quick throwaway clip a normal recorder is less setup.</p>
+<h2 id="you-can-throw-frames-away-but-you-cannot-invent-them">You can throw frames away, but you cannot invent them<a class="hanchor" href="#you-can-throw-frames-away-but-you-cannot-invent-them" aria-label="Link to section: You can throw frames away, but you cannot invent them">#</a></h2>
+<p>Frame rate is nearly as irreversible as resolution, with one asymmetry worth using. Going down is clean: 60 fps delivered at 30 keeps every other frame, and the result is a genuine 30 fps clip. Going up is a lie: 30 fps &quot;converted&quot; to 60 just duplicates each frame, so the file doubles and not one bit of it is smoother. That asymmetry gives you the safe default when you are unsure. Capture at 30 for anything that is mostly clicks and forms. If a demo has one fast-scrolling or animated stretch and you cannot easily record that clip on its own, capture the whole thing at 60 and deliver at 30, which keeps the option to cut a 60 fps version of the moving part later without a reshoot. What you must not do is record the form-filling at 30, decide afterward the scroll needed 60, and have no frames left to promote. Like the rest of <a href="/blog/professional-screen-recordings/">the properties baked in at capture time</a>, the frames you did not record are the ones no editor can hand back.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs" rel="noopener">MDN — Web video codec guide (inter-frame compression, frame rate and size)</a></li>
+<li id="src-2"><a href="https://www.techsmith.com/blog/frame-rate-beginners-guide/" rel="noopener">TechSmith — Frame Rate: A Beginner's Guide</a></li>
+<li id="src-3"><a href="https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate" rel="noopener">TechSmith Support — Camtasia Maximum Capture Frame Rate (VFR and duplicate-frame skipping)</a></li>
+<li id="src-4"><a href="https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines" rel="noopener">Vimeo — Video and audio compression guidelines (supported frame rates)</a></li>
+<li id="src-5"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5960665/" rel="noopener">Brown, Corner, Crewther &amp; Crewther — flicker fusion and magnocellular efficiency, Frontiers in Human Neuroscience (2018)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-30fps-or-60fps-better-for-screen-recording" class="blog-faq-q">Is 30fps or 60fps better for screen recording?<a class="hanchor" href="#is-30fps-or-60fps-better-for-screen-recording" aria-label="Link to section: Is 30fps or 60fps better for screen recording?">#</a></h3>
+<p>For most screen recordings, 30 fps is the better choice, not a compromise. Software demos are mostly discrete events (clicks, typing, a panel opening) with little continuous motion, and 30 fps carries those cleanly while costing less bitrate. Move up to 60 fps only for the specific content that has fast continuous motion: quick scrolling, UI animation, video playing inside the app, or gameplay. If a single demo mixes both, the safe move is to capture at 60 and deliver at 30 so you keep the higher-rate frames for the moving clip.</p>
+<h3 id="does-recording-at-60fps-make-the-file-twice-as-big" class="blog-faq-q">Does recording at 60fps make the file twice as big?<a class="hanchor" href="#does-recording-at-60fps-make-the-file-twice-as-big" aria-label="Link to section: Does recording at 60fps make the file twice as big?">#</a></h3>
+<p>No. A codec stores most frames as the difference from the one before, not as whole images, so doubling the frame rate adds far less than double the data because each added frame is nearly identical to its neighbor. On screen content the effect is stronger still: recorders that skip unchanged frames store almost nothing extra for a static UI at 60 fps, so the added size shows up only on the parts that actually move, like scrolling or animation.</p>
+<h3 id="what-frame-rate-should-i-record-gameplay-or-animation-at" class="blog-faq-q">What frame rate should I record gameplay or animation at?<a class="hanchor" href="#what-frame-rate-should-i-record-gameplay-or-animation-at" aria-label="Link to section: What frame rate should I record gameplay or animation at?">#</a></h3>
+<p>Record continuous high-motion content like gameplay, canvas animation, or fast-scrolling pages at 60 fps: this is the case where the extra frames visibly reduce strobing and motion blur and clearly earn their bitrate. Match the capture rate to the motion source when you can, and keep it constant rather than variable so it does not drift against audio. One hard limit: you cannot capture more distinct frames than your display refreshes, so true 60 fps recording needs a 60 Hz or faster monitor.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">frame rate</span>
+        <span class="article-tag">fps</span>
+        <span class="article-tag">bitrate</span>
+        <span class="article-tag">encoding</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/record-a-browser-tab/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/record-a-browser-tab-400.webp" srcset="/blog/images/record-a-browser-tab-400.webp 400w, /blog/images/record-a-browser-tab-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay star-shaped cookie cutter standing upright in a flat sheet of dough"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record just one browser tab (three ways, one clean result)</h3>
+    <p class="article-card-excerpt">Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/professional-screen-recordings/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/professional-screen-recordings-400.webp" srcset="/blog/images/professional-screen-recordings-400.webp 400w, /blog/images/professional-screen-recordings-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Before-and-after of a screen recording: raw capture on the left, a zoomed and cursor-smoothed compose on the right"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">What makes a screen recording look professional</h3>
+    <p class="article-card-excerpt">The polish people call professional is five named transforms with parameters, not a knack. Here is what each one does and why a bad zoom is a recompose.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#frame-rate-is-a-budget-you-spend-on-motion">Frame rate is a budget you spend on motion</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#match-the-rate-to-the-fastest-thing-on-screen">Match the rate to the fastest thing on screen</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-file-grows-only-where-the-pixels-move">The file grows only where the pixels move</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-a-form-at-60-fps-looks-the-same-as-a-form-at-30">Why a form at 60 fps looks the same as a form at 30</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#frame-rate-mismatch-the-judder-you-did-not-set-out-to-create">Frame-rate mismatch: the judder you did not set out to create</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#variable-frame-rate-is-a-trap-for-a-narrated-demo">Variable frame rate is a trap for a narrated demo</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#you-can-throw-frames-away-but-you-cannot-invent-them">You can throw frames away, but you cannot invent them</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

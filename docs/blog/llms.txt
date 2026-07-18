@@ -13,12 +13,14 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [Loom alternatives for product demos after the Atlassian era](https://aidemo.top/blog/loom-alternatives-for-product-demos/index.md): Loom is async video messaging that Atlassian now owns, not a product-demo tool. Sort the alternatives by which of Loom's jobs you are actually replacing.
 - [Open-source demo video tools, scored by license and install reality](https://aidemo.top/blog/open-source-demo-video-tools/index.md): Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.
 - [Screen Studio alternatives for Windows, Linux, and CI](https://aidemo.top/blog/screen-studio-alternatives/index.md): Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.
+- [Synthesia alternatives when the job is a software demo, not an avatar](https://aidemo.top/blog/synthesia-alternatives-for-software-demos/index.md): Synthesia films a presenter reading a script, which is the wrong star when the job is showing your product actually work. Sort the alternatives by output type.
 
 ## Demo Automation
 
 - [Automated product demo videos: regenerate, don't re-record](https://aidemo.top/blog/automated-product-demo-videos/index.md): Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.
 - [Automating product screenshots for docs and marketing](https://aidemo.top/blog/automating-product-screenshots/index.md): The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.
 - [Rendering demo videos in CI: a GitHub Actions walkthrough](https://aidemo.top/blog/demo-videos-in-ci/index.md): GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.
+- [Detecting UI drift before your demo lies about the product](https://aidemo.top/blog/detecting-ui-drift/index.md): A raw pixel diff fires on every font tweak; a bare selector check misses a button that moved. Here is the ladder in between, rung by rung.
 - [README GIFs that update themselves](https://aidemo.top/blog/readme-gifs-that-update-themselves/index.md): A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.
 - [Why every product demo is out of date (and what rot costs)](https://aidemo.top/blog/why-product-demos-go-stale/index.md): Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.
 
@@ -27,6 +29,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [AI voiceover for demo videos: quality, cost, and workflow](https://aidemo.top/blog/ai-voiceover-for-demo-videos/index.md): AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.
 - [App preview videos: hitting App Store and Play specs without a reshoot](https://aidemo.top/blog/app-preview-video/index.md): Apple wants an uploaded H.264 file at 886 x 1920; Google Play wants a YouTube link. The exact cross-store specs, and how to hit them without a reshoot.
 - [Captions on demo videos: the accessibility case and the numbers](https://aidemo.top/blog/demo-video-captions/index.md): Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.
+- [How much does a demo video cost? Four tiers and the hidden recurring bill](https://aidemo.top/blog/demo-video-cost/index.md): Four production tiers, priced per finished minute, plus the line item every quote leaves off: what it costs to make the same demo again when the UI moves.
 - [Demo video script template: problem, walkthrough, proof](https://aidemo.top/blog/demo-video-script-template/index.md): Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.
 - [How long should a demo video be? The retention math](https://aidemo.top/blog/how-long-should-a-demo-video-be/index.md): Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.
 - [How to make a product demo video (that people finish)](https://aidemo.top/blog/how-to-make-a-product-demo-video/index.md): The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
@@ -44,6 +47,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 
 ## Screen Recording
 
+- [Best frame rate for screen recording: 30 vs 60 fps by content](https://aidemo.top/blog/best-frame-rate-for-screen-recording/index.md): Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.
 - [How to record your screen in high quality: the settings that matter](https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/index.md): Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.
 - [How to record just one browser tab (three ways, one clean result)](https://aidemo.top/blog/record-a-browser-tab/index.md): Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.
 
@@ -54,6 +58,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 
 ## Video Marketing for Software
 
+- [Putting a demo video on your landing page without wrecking load time](https://aidemo.top/blog/demo-video-on-landing-page/index.md): A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.
 - [Does video actually increase conversion? Tracing the 80% claim](https://aidemo.top/blog/does-video-increase-conversion/index.md): The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.
 - [Video marketing for software: one recording, every channel](https://aidemo.top/blog/video-marketing-for-software/index.md): Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.
 

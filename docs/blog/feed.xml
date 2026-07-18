@@ -50,6 +50,13 @@
       <description>The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</description>
     </item>
     <item>
+      <title>Best frame rate for screen recording: 30 vs 60 fps by content</title>
+      <link>https://aidemo.top/blog/best-frame-rate-for-screen-recording/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/best-frame-rate-for-screen-recording/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</description>
+    </item>
+    <item>
       <title>Camtasia alternatives for software demos and tutorials</title>
       <link>https://aidemo.top/blog/camtasia-alternatives/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/camtasia-alternatives/</guid>
@@ -71,6 +78,20 @@
       <description>Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.</description>
     </item>
     <item>
+      <title>How much does a demo video cost? Four tiers and the hidden recurring bill</title>
+      <link>https://aidemo.top/blog/demo-video-cost/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-cost/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Four production tiers, priced per finished minute, plus the line item every quote leaves off: what it costs to make the same demo again when the UI moves.</description>
+    </item>
+    <item>
+      <title>Putting a demo video on your landing page without wrecking load time</title>
+      <link>https://aidemo.top/blog/demo-video-on-landing-page/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-on-landing-page/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</description>
+    </item>
+    <item>
       <title>Demo video script template: problem, walkthrough, proof</title>
       <link>https://aidemo.top/blog/demo-video-script-template/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-video-script-template/</guid>
@@ -90,6 +111,13 @@
       <guid isPermaLink="true">https://aidemo.top/blog/demos-as-code/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</description>
+    </item>
+    <item>
+      <title>Detecting UI drift before your demo lies about the product</title>
+      <link>https://aidemo.top/blog/detecting-ui-drift/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/detecting-ui-drift/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>A raw pixel diff fires on every font tweak; a bare selector check misses a button that moved. Here is the ladder in between, rung by rung.</description>
     </item>
     <item>
       <title>Deterministic browser automation for video capture</title>
@@ -188,34 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/saas-demo-video-examples/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Six real SaaS demo videos from Vercel, Notion, Loom, Linear, Warp, and Retool, read with a stopwatch and a transcript instead of a mood board.</description>
-    </item>
-    <item>
-      <title>Screen Studio alternatives for Windows, Linux, and CI</title>
-      <link>https://aidemo.top/blog/screen-studio-alternatives/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/screen-studio-alternatives/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Screen Studio is macOS-only and subscription-only now. Here is the honest, per-platform map of what replaces it on Windows, Linux, and in CI.</description>
-    </item>
-    <item>
-      <title>Video-as-code tools: Remotion, Revideo, editly, vhs — and real-UI capture</title>
-      <link>https://aidemo.top/blog/video-as-code-tools/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/video-as-code-tools/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Remotion and Revideo draw every frame, editly stitches clips, vhs replays a terminal, real-UI capture films your product. Five models, one map.</description>
-    </item>
-    <item>
-      <title>Video documentation for software: when the medium earns its keep</title>
-      <link>https://aidemo.top/blog/video-documentation/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/video-documentation/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</description>
-    </item>
-    <item>
-      <title>Video marketing for software: one recording, every channel</title>
-      <link>https://aidemo.top/blog/video-marketing-for-software/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/video-marketing-for-software/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</description>
     </item>
   </channel>
 </rss>

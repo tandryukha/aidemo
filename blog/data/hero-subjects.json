@@ -101,5 +101,21 @@
   },
   "why-product-demos-go-stale": {
     "subject": "a wilting tulip in a small round pot"
+  },
+  "demo-video-cost": {
+    "subject": "a rounded piggy bank with a coin half-inserted in its slot"
+  },
+  "best-frame-rate-for-screen-recording": {
+    "subject": "a hummingbird hovering with blurred wings"
+  },
+  "demo-video-on-landing-page": {
+    "subject": "a paper airplane caught in mid-glide"
+  },
+  "detecting-ui-drift": {
+    "subject": "a long wooden spirit level with a single bubble window",
+    "seedOffset": 2
+  },
+  "synthesia-alternatives-for-software-demos": {
+    "subject": "a ventriloquist dummy seated on a wooden stool"
   }
 }

@@ -588,6 +588,83 @@ They are the same mechanism pointed at two goals. A deterministic screenshot pip
 
 ---
 
+# Best frame rate for screen recording: 30 vs 60 fps by content
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/best-frame-rate-for-screen-recording/
+
+> Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.
+
+## Frame rate is a budget you spend on motion
+
+Frame rate is the setting people copy from a gaming tutorial and paste onto a form-filling walkthrough, where it buys nothing and quietly inflates the encode. The mistake is treating frames per second as a quality dial, like resolution, where a bigger number is always sharper. It is not. Frame rate is a sampling rate for motion, and a product demo is mostly not motion. It is discrete events: a click, a typed character, a panel sliding open for 200 milliseconds, then a long still stretch while the narrator explains what just happened. You pay for every frame you capture, and you should pay only where something on screen is actually moving. This page is the 30-versus-60 decision by content type, one layer down from [the full capture-settings checklist](/blog/how-to-record-your-screen-in-high-quality); the short version is that 60 fps earns its bitrate about as often as a walkthrough contains a car chase.
+
+## Match the rate to the fastest thing on screen
+
+The deciding question is not what your recorder can do or how fast your monitor refreshes. It is: what is the fastest continuous motion in the shot? Not the average motion, the fastest, because that is the thing that strobes when the frame rate is too low.
+
+| What is on screen | Motion character | Frame rate worth its cost | Why |
+|---|---|---|---|
+| Forms, dashboards, static UI | Discrete state changes | 30 fps | Nothing moves between clicks; extra frames are stored duplicates |
+| Cursor movement, typing | Low, intermittent | 30 fps | A pointer reads fine at 30, and smoothing is [a compose-time transform](/blog/professional-screen-recordings) anyway |
+| Scrolling a long page | Continuous, fast | 60 fps | Text sliding at 30 fps strobes and smears; 60 halves the blur |
+| UI transitions, micro-animations | Continuous, brief | 30-60 fps | 30 survives most; a fast 200 ms ease is visibly smoother at 60 |
+| Video playing inside the UI | Continuous, source-locked | Match the source | A 30 fps grab of 24 fps video judders (see below) |
+| Gameplay, canvas, WebGL | Continuous, high | 60 fps | The one case where 60 clearly earns its keep |
+
+Read down the table and the pattern is that continuous motion is rare in the software people actually demo. A CRUD app, a settings page, an onboarding flow: these are click, wait, read, click. The frames between interactions are identical, and 60 of them a second is 60 copies of the same pixels. Reach for 60 fps on the specific clips that scroll fast or animate, and let everything else sit at 30.
+
+## The file grows only where the pixels move
+
+The intuition that 60 fps is "twice the file" of 30 is wrong, and the correction is the whole reason to stop fearing it. A codec does not store each frame whole. As MDN's video codec guide puts it, "compression of video typically works by comparing frames, finding where they differ, and constructing records containing enough information to update the previous frame to approximate the appearance of the following frame" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)). Full frames, the keyframes, are written only periodically; everything between them is stored as the change from its neighbor. So when you add frames that closely resemble the ones on either side, each carries very little new information, and the file grows by far less than the frame count does. MDN states the direction without overclaiming it: "assuming the frame rate is not reduced during encoding, higher frame rates cause larger compressed video sizes" ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)) — larger, but not linearly so.
+
+For screen content the bill shrinks to almost nothing on the still parts, and this is the point most guides skip. Many recorders capture a variable frame rate and simply skip frames that do not change: Camtasia, for one, notes that "if there is no change on the screen from one frame to the next, then that duplicate frame is not recorded at all" ([TechSmith Support](https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate)). A motionless form recorded at 60 fps therefore stores barely more than the same form at 30, because the identical frames are never written in the first place. The extra data of a higher frame rate lands only on the pixels that actually move, which is precisely the argument for raising the rate only where pixels move. TechSmith keeps the trend honest for those moving parts: "the higher the frame rate, the more still images are packed into each second of video ... and more information means bigger files and longer export times" ([TechSmith](https://www.techsmith.com/blog/frame-rate-beginners-guide/)). The codec and container that carry those bits are [a separate decision](/blog/best-video-format-for-screen-recording).
+
+## Why a form at 60 fps looks the same as a form at 30
+
+The reason discrete UI gains nothing from more frames is a fact about vision, not about screens. Frame rate buys smoothness for continuous motion by sampling a moving signal more finely, the way a higher audio sample rate captures a higher pitch. A discrete event is not a signal to sample. A button that turns from grey to blue between one frame and the next is a single change, legible whether the footage around it runs at 24 fps or 240.
+
+Two different numbers get confused in this argument, and neither rescues 60 fps for a form. The first is the floor of motion itself: MDN puts "the absolute minimum frame rate that a video can be before its contents are no longer perceived as motion by the human eye" at about 12 frames per second ([MDN](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)). The second is the flicker fusion threshold, measured for continuous flickering light, where achromatic "thresholds are reported to be in the range of 35 to 60 Hz," averaging about 48 Hz across 72 observers in one psychophysics study ([Brown et al., 2018](https://pmc.ncbi.nlm.nih.gov/articles/PMC5960665/)). That upper figure is the rate at which a blinking light stops looking like it blinks, a property of sustained stimulation, and it says nothing about whether you can read a click, which is one event and not a flicker. Somewhere above the 12 fps motion floor, and given that UI events are discrete rather than continuous, a walkthrough of forms and menus at 30 fps is not something the viewer squints through; it is indistinguishable from 60 for everything except the moments something actually slides.
+
+## Frame-rate mismatch: the judder you did not set out to create
+
+There is a failure worse than a frame rate that is too low, which is one that does not divide evenly into the motion you are capturing. Film runs at 24 fps. Grab a 24 fps video playing inside your UI at 30 fps and the recorder has to invent 6 extra frames a second by repeating some and not others, an uneven 3:2 cadence the eye reads as a faint stutter. The same trap waits at the delivery end: hand a 30 fps clip to a 24 fps timeline and frames get dropped on the same lumpy schedule.
+
+Two rules keep it clean. First, match the capture rate to the dominant motion source. Second, capture at a rate the destination actually accepts, or it will resample you. Vimeo, for instance, ingests only "23.98, 24, 25, 29.97, 30, 50, 59.94, 60" and warns that "if your footage exceeds 60 FPS, we will automatically reduce the frame rate" ([Vimeo](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)), so an odd 45-or-so fps capture from a loosely configured recorder does not survive the trip intact. There is also a ceiling no setting buys past: you cannot capture more distinct frames than your display paints, which is why true 60 fps recording needs a 60 Hz or faster monitor to begin with ([TechSmith Support](https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate)). Sizing the whole recording to where it will play is [a resolution decision too](/blog/best-resolution-for-screen-recording).
+
+## Variable frame rate is a trap for a narrated demo
+
+The duplicate-frame skipping that makes 60 fps cheap on screen content has a sharp edge: it produces a variable frame rate, and a variable rate drifts against a voiceover. When the recorder writes frames only as the screen changes, the timestamps stretch and compress with the action, and by the end of a two-minute narrated take the picture can sit a visible beat off the words. The fix is to convert to a constant frame rate on export, so every second holds the same frame count and the audio stays pinned to the picture.
+
+The most reliable way to hold a constant rate is to stop treating it as a recorder preference and pin it as a value, which is what [a deterministic capture pipeline does](/blog/deterministic-browser-automation-for-video): the frame rate, viewport, and device pixel ratio are fixed inputs, so the same run yields the same footage at the same rate every time. Our own engine, aidemo, records with the frame rate pinned so the compose step always receives a constant rate. The honest caveats: it captures a browser and only a browser, the take is authored as a storyboard by an agent rather than dragged on a timeline by hand, and for one quick throwaway clip a normal recorder is less setup.
+
+## You can throw frames away, but you cannot invent them
+
+Frame rate is nearly as irreversible as resolution, with one asymmetry worth using. Going down is clean: 60 fps delivered at 30 keeps every other frame, and the result is a genuine 30 fps clip. Going up is a lie: 30 fps "converted" to 60 just duplicates each frame, so the file doubles and not one bit of it is smoother. That asymmetry gives you the safe default when you are unsure. Capture at 30 for anything that is mostly clicks and forms. If a demo has one fast-scrolling or animated stretch and you cannot easily record that clip on its own, capture the whole thing at 60 and deliver at 30, which keeps the option to cut a 60 fps version of the moving part later without a reshoot. What you must not do is record the form-filling at 30, decide afterward the scroll needed 60, and have no frames left to promote. Like the rest of [the properties baked in at capture time](/blog/professional-screen-recordings), the frames you did not record are the ones no editor can hand back.
+
+## Sources
+
+- [MDN — Web video codec guide (inter-frame compression, frame rate and size)](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs)
+- [TechSmith — Frame Rate: A Beginner's Guide](https://www.techsmith.com/blog/frame-rate-beginners-guide/)
+- [TechSmith Support — Camtasia Maximum Capture Frame Rate (VFR and duplicate-frame skipping)](https://support.techsmith.com/hc/en-us/articles/360040788091-Camtasia-Maximum-Capture-Frame-Rate)
+- [Vimeo — Video and audio compression guidelines (supported frame rates)](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)
+- [Brown, Corner, Crewther & Crewther — flicker fusion and magnocellular efficiency, Frontiers in Human Neuroscience (2018)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5960665/)
+
+## FAQ
+
+### Is 30fps or 60fps better for screen recording?
+
+For most screen recordings, 30 fps is the better choice, not a compromise. Software demos are mostly discrete events (clicks, typing, a panel opening) with little continuous motion, and 30 fps carries those cleanly while costing less bitrate. Move up to 60 fps only for the specific content that has fast continuous motion: quick scrolling, UI animation, video playing inside the app, or gameplay. If a single demo mixes both, the safe move is to capture at 60 and deliver at 30 so you keep the higher-rate frames for the moving clip.
+
+### Does recording at 60fps make the file twice as big?
+
+No. A codec stores most frames as the difference from the one before, not as whole images, so doubling the frame rate adds far less than double the data because each added frame is nearly identical to its neighbor. On screen content the effect is stronger still: recorders that skip unchanged frames store almost nothing extra for a static UI at 60 fps, so the added size shows up only on the parts that actually move, like scrolling or animation.
+
+### What frame rate should I record gameplay or animation at?
+
+Record continuous high-motion content like gameplay, canvas animation, or fast-scrolling pages at 60 fps: this is the case where the extra frames visibly reduce strobing and motion blur and clearly earn their bitrate. Match the capture rate to the motion source when you can, and keep it constant rather than variable so it does not drift against audio. One hard limit: you cannot capture more distinct frames than your display refreshes, so true 60 fps recording needs a 60 Hz or faster monitor.
+
+---
+
 # Camtasia alternatives for software demos and tutorials
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/camtasia-alternatives/
@@ -877,6 +954,201 @@ Not under the accessibility standard, though the words are used interchangeably 
 ### How do I add captions to a video in a GitHub README?
 
 GitHub inlines an uploaded MP4 with no `<track>` element and no captions control, so a closed-caption sidecar has nowhere to attach. Burn the captions into the video before you upload it, keep the file under the 10 MB limit on free repositories, and encode with H.264 for the widest compatibility. If the demo is a looping muted clip, which most README demos are, the burned-in text is the only caption a reader will ever see.
+
+---
+
+# How much does a demo video cost? Four tiers and the hidden recurring bill
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-cost/
+
+> Four production tiers, priced per finished minute, plus the line item every quote leaves off: what it costs to make the same demo again when the UI moves.
+
+## Four ways to get a demo video, four very different bills
+
+Ask what a demo video costs and every quote you get back answers a different question, because "demo video" covers four production methods whose prices differ by two orders of magnitude. An agency animating your interface and a script you record at your own desk are both "a demo video," and one runs $15,000 while the other runs a Tuesday afternoon. Before the number means anything you have to say which of the four you are buying: an agency project, a freelancer, an in-house recording, or a demo you regenerate from a spec. This piece prices all four per finished minute, then adds the line item every quote leaves off, which is what it costs to make the same video again when the product changes.
+
+## The sticker prices, tier by tier
+
+Production shops quote a wide band because the work inside "a product demo" ranges from a fully animated UI walkthrough with custom motion graphics down to a screen recording with a voiceover. Vidico, a SaaS video studio, puts a SaaS product demo at $1,500-$2,500 at the budget end, $2,500-$5,000 mid-range, and $5,000-$15,000 premium, and lists product demos at $1,500-$5,000 per finished minute ([Vidico, 2026](https://vidico.com/news/product-video-cost/)). Beverly Boy Productions, a production company, quotes video generally at $1,000-$10,000 per finished minute and suggests budgeting around $3,000 for a straightforward one-minute piece ([Beverly Boy, 2026](https://beverlyboy.com/how-much-does-it-cost/how-much-does-a-1-minute-video-cost/)). Those are the agency numbers, and they buy you a full [end-to-end production](/blog/how-to-make-a-product-demo-video). Below them sit three cheaper tiers whose costs are structured completely differently.
+
+| Tier | What you're paying for | One 60-90s demo | Per finished minute |
+|---|---|---|---|
+| Agency | Full-service: script, motion graphics, edit, revisions | $3,000-$15,000 | $1,500-$5,000 |
+| Freelancer | One contractor's hours, one deliverable | $500-$2,000 | toward the low end |
+| In-house recorded | Your own team's hours plus a tool subscription | 6-10 skilled hours + $20-$200/mo | your loaded hourly rate |
+| Spec-driven regeneration | Authoring the storyboard once, then compute | a few hours once, then pennies | ~$0.014 TTS + CI compute |
+
+The freelancer band is Vidico's $500-$2,000-per-video figure, with editing billed at $60-$150 an hour and a filming day rate of $600-$1,200 ([Vidico, 2026](https://vidico.com/news/video-production-cost/)). Because the demo is usually [shorter than you first recorded](/blog/how-long-should-a-demo-video-be), the per-finished-minute rate matters more than the headline quote, and trimming a two-minute cut to sixty seconds pulls every number in the table down with it.
+
+## The two cheapest tiers aren't on any rate card
+
+An in-house recording has no external invoice, which is exactly why it reads as free and isn't. Someone on your team scripts, records, edits, and captions the clip. Budget six to ten hours of skilled work for a first 60-to-90-second screen demo (an estimate, not a rate card), plus a $20-$200-a-month tool subscription ([Vidico, 2026](https://vidico.com/news/product-video-cost/)). At the $60-$150 hourly rate the market pays freelance editors, those hours are worth $400-$1,500 of loaded time. You pay it in salary instead of an invoice, so it never shows up in a budget line, but it is spent all the same.
+
+Spec-driven regeneration is the one tier whose marginal cost you can compute to the cent. Instead of capturing a performance, you author the flow as a storyboard, script plus browser actions, and a pipeline renders it. The narration is text-to-speech: a finished minute of English is about 900 characters, which on OpenAI's tts-1 model at $15 per million characters is roughly $0.014 ([OpenAI, 2026](https://developers.openai.com/api/docs/models/tts-1)); the full [per-minute voiceover math](/blog/ai-voiceover-for-demo-videos) is worked out separately. Add a CI runner minute and a render costs pennies. The expensive part is authoring the storyboard the first time; every render after that is compute.
+
+One "AI" price point sits between these: synthetic text-to-video. Synthesia's avatar videos run $29 a month for 10 minutes and $89 for 30, about $2.90 per finished minute, but the minutes expire monthly and do not roll over ([Synthesia, 2026](https://www.synthesia.io/pricing)). That is cheap per minute and a different product, a presenter avatar reading a script rather than your real interface in motion.
+
+## The line item nobody puts in the quote
+
+Every price so far is for making the demo once. No product holds still, so you will make it again. A fast-shipping SaaS changes something a user can see about twice a week, which gives a typical demo roughly a two-month useful life before enough screens stop matching to embarrass you, and a redesign voids it in a single day. That rot arithmetic is worked out in full in [why every product demo goes out of date](/blog/why-product-demos-go-stale). Keeping a demo honest is therefore not a one-time purchase. It is a subscription you did not knowingly sign up for.
+
+Here is where the four tiers stop being comparable. For the three human tiers, a re-record costs approximately what the first record cost, because you are redoing the same work: re-capturing the same flow, re-narrating, re-editing. The agency re-quotes. The freelancer re-invoices. The employee spends the afternoon again. For spec-driven regeneration, a re-render is the compute number above, pennies, because the storyboard is already written and a machine replays it against the current build. The first bill looks similar across tiers. The second, third, and fourth bills do not.
+
+## Total cost of ownership over a year
+
+Put the two numbers together, sticker price and re-record frequency, and the ranking changes. Assume a fast-shipping product and a demo you actually keep honest: call it three re-records over twelve months, with a redesign pushing it higher. The one-time quote becomes an annual run rate.
+
+| Tier | Make it once | 3 re-records / year | Year-one total |
+|---|---|---|---|
+| Agency | $3,000-$15,000 | +$9,000-$45,000 | $12,000-$60,000 |
+| Freelancer | $500-$2,000 | +$1,500-$6,000 | $2,000-$8,000 |
+| In-house recorded | $400-$1,500 in labor | +$1,200-$4,500 in labor | $1,600-$6,000 plus opportunity cost |
+| Spec-driven regeneration | $400-$1,500 authoring, once | +about $0.06 total | ~$400-$1,500 |
+
+The human tiers scale linearly with honesty: the more current you keep the demo, the more it costs, so most teams quietly stop keeping it current and let a stale video run. Spec-driven regeneration is the only column where the year-one total is dominated by the one-time authoring cost, because re-renders round to nothing. That is the economic case for treating the demo as code rather than footage. You pay the production cost once and the maintenance cost approximately never. Whether the spend returns anything at all is a separate question, because a demo only pays off if it actually [moves conversion](/blog/does-video-increase-conversion), and a stale one moves it the wrong way.
+
+## Picking a tier without overpaying
+
+The sticker price ranks the tiers one way; the twelve-month total ranks them another. Reconcile the two against how long the demo has to stay true.
+
+For a one-shot video with a long shelf life, a funding-announcement film or a category-defining brand piece, the agency premium buys production value you cannot fake, and there is no recurring bill because the footage is not tied to a shipping UI. For a quick internal walkthrough or a throwaway sales follow-up, in-house recording is right: the labor is real but small and the video does not need to outlive the week. The freelancer tier is the sensible middle for a polished one-off you will not re-cut often.
+
+Spec-driven regeneration earns its place on exactly one profile, a demo of a live product you intend to keep accurate for months: a landing-page hero, a docs walkthrough, a README clip. That is also its limit. Authoring a storyboard is upfront work an agency spares you, and the tooling is young: our own engine, aidemo (disclosed as ours), captures the browser only, leans on an agent to write the storyboard, and offers no drag-on-a-timeline editor, so it fits a browser product you re-render on a schedule, not a hand-tuned hero film. Match the tier to the demo's lifespan rather than to the lowest number on the first quote, because the first quote is the coin you feed the meter, not the total it will ring up.
+
+## Sources
+
+- [Vidico — Product Video Cost in 2026: What to Budget by Type](https://vidico.com/news/product-video-cost/)
+- [Vidico — Video Production Cost: What You'll Actually Pay in 2026](https://vidico.com/news/video-production-cost/)
+- [Beverly Boy Productions — How Much Does a 1 Minute Video Cost?](https://beverlyboy.com/how-much-does-it-cost/how-much-does-a-1-minute-video-cost/)
+- [Synthesia — Pricing plans](https://www.synthesia.io/pricing)
+- [OpenAI — tts-1 model and pricing](https://developers.openai.com/api/docs/models/tts-1)
+
+## FAQ
+
+### How much does a 60-second product demo video cost?
+
+It depends entirely on who makes it. An agency SaaS demo runs $1,500-$15,000, or about $1,500-$5,000 per finished minute; a freelancer typically charges $500-$2,000; an in-house screen recording costs six to ten hours of a skilled employee's time (roughly $400-$1,500 of loaded labor) plus a $20-$200-a-month tool. Regenerating the demo from a storyboard drops the marginal cost to pennies of text-to-speech and compute, once the storyboard is written.
+
+### Is it cheaper to make a demo video in-house or hire an agency?
+
+For the first video, in-house is far cheaper on cash: you spend salaried hours instead of a $3,000-$15,000 invoice. Over a year the gap widens further, because both are human-produced tiers that re-bill in full every time you re-record, and a fast-shipping product's demo needs re-recording roughly every two months to stay accurate. The cheapest option long term is neither: it is a tier where the re-render is compute rather than labor.
+
+### Why are demo video prices so different from one quote to the next?
+
+Because "demo video" names four unrelated production methods. A fully animated UI walkthrough with custom motion graphics, a freelancer's screen recording, an in-house capture, and a spec-driven render are all sold under the same phrase, and their costs span from thousands of dollars to a few cents per finished minute. A quote is only meaningful once you pin down which method it prices and whether it includes the re-records the product will force on you.
+
+---
+
+# Putting a demo video on your landing page without wrecking load time
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/demo-video-on-landing-page/
+
+> A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.
+
+## The tax a hero video charges before it persuades anyone
+
+A demo video is the heaviest thing most teams put on a landing page, and a landing page is graded on how fast its heaviest thing appears. Those two facts collide at Largest Contentful Paint, the moment the biggest element in the viewport finishes rendering. Google rates an LCP of 2.5 seconds or less as good and anything past 4.0 seconds as poor, measured at the 75th percentile of loads across mobile and desktop ([web.dev, 2026](https://web.dev/articles/lcp)). A `<video>` element is eligible to be that biggest element. So the same clip meant to sell the product can, shipped carelessly, become the exact pixels the page is timed against.
+
+The reason this bites harder than it reads is the connection you are actually optimizing for. Lighthouse's default mobile profile, "Slow 4G," throttles to 1.6 Mbps down with 150 ms of latency, roughly the 85th-percentile mobile connection rather than a pathological one ([Lighthouse, 2026](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md)). That works out to about 200 KB per second. At that rate a 30-second 1080p loop encoded at a lean 2 Mbps, 7.5 MB in total, takes some 37 seconds to arrive in full, and every one of those seconds competes with the CSS and fonts that decide when anything paints at all.
+
+Whether a video *lifts* conversion is a separate and genuinely contested question, [traced to its origin elsewhere in this cluster](/blog/does-video-increase-conversion). This piece is narrower: the mechanics that decide whether the video costs you the page before it earns a single view. The tax turns out to be a function of three decisions, all made before you write a line of markup: where the video sits, how it plays, and which element the browser is allowed to time.
+
+## Where the video goes: above the fold, below it, or behind a click
+
+Placement is the first lever because it decides whether the video is on the critical path at all. An asset the browser must render to fill the first screen competes for those first 200 KB per second; an asset below the fold, or hidden behind a click, does not.
+
+| Placement | LCP risk | When it is the right call |
+| --- | --- | --- |
+| Above the fold, autoplaying | Highest: the video shares the critical path with the headline, CSS, and fonts | A short, light, silent loop when motion itself is the pitch |
+| Above the fold, poster + click-to-play | Low: the poster is an ordinary image | The default hero for most products |
+| Below the fold, lazy-loaded | None until scrolled near | Long walkthroughs and secondary proof |
+| Behind a click or modal | None until opened | Full-length or heavy demos |
+
+The common mistake is treating "above the fold" and "autoplaying full-weight video" as one decision. They are two. You can put the demo in the hero and still keep it off the critical path, which is what the next two sections are about. And because a landing hero is only one of the places this recording will live, right-sizing it is a [per-placement length decision](/blog/how-long-should-a-demo-video-be), not a fixed export: the hero wants the tightest cut, the docs page a different one, and [the whole distribution map](/blog/video-marketing-for-software) treats each as a re-fit of one master.
+
+## Three playback modes, priced by what they cost the page
+
+Once placement is settled, playback mode decides the byte cost. There are three that ship reliably, and they are not interchangeable.
+
+| Mode | Bytes on load | Sound | Best for |
+| --- | --- | --- | --- |
+| Autoplay muted loop | The clip starts streaming immediately | Muted, always | Silent UI motion under ~15 s, kept small |
+| Click-to-play + poster | Poster only, roughly 100 KB | On, after a click | The considered demo a visitor chooses to watch |
+| Facade to a hosted embed | A thumbnail and a tiny script | On, after a click | YouTube or Vimeo without the iframe's payload |
+
+The sound column is not a preference, it is a rule the browser enforces. "Muted autoplay is always allowed," while autoplay with sound is blocked unless the visitor has interacted with the site, has a high Media Engagement Index, or has installed the page as an app ([Chrome, 2026](https://developer.chrome.com/blog/autoplay)). So an autoplay hero is necessarily silent, which means any message it carries has to be legible without audio, the same argument that makes [burned-in captions non-optional on muted playback](/blog/demo-video-captions). If you do autoplay, add `playsinline` (it is what stops iOS Safari from hijacking the clip into fullscreen) and, when the clip has real audio behind the mute, a visible unmute control rather than a forced-sound workaround ([Mux, 2025](https://www.mux.com/articles/best-practices-for-video-playback-a-complete-guide-2025)).
+
+## The poster is the governor on LCP
+
+The single most useful line in Google's LCP definition is the one about video. For a `<video>` element, LCP uses "the poster image load time or first frame presentation time for videos ... whichever is earlier" ([web.dev, 2026](https://web.dev/articles/lcp)). Read it as an instruction, not a footnote. Attach a small poster and its load time, not the video's, becomes the number the score is graded on, because a well-compressed poster almost always arrives before a single frame of the clip has decoded.
+
+Here is that arithmetic on the Slow 4G pipe, at its ~200 KB per second.
+
+| Asset | Typical weight | Time to arrive on Slow 4G | Safe as the LCP element? |
+| --- | --- | --- | --- |
+| Poster (WebP/JPEG, ~1600 px) | 60-120 KB | ~0.3-0.6 s | Yes |
+| 10 s muted UI loop @ 2 Mbps | ~2.5 MB | ~12 s | No |
+| 30 s hero loop @ 2 Mbps | ~7.5 MB | ~37 s | No |
+
+The poster clears the 2.5-second budget with room left for the HTML and CSS on the same connection. The loops do not, and it is worse than the table shows: an autoplaying loop with no poster hands the browser nothing to time against but its own first frame, decoded from bytes that are still trickling in behind everything else. Set a poster and you cap LCP at the poster's load; skip it and you have volunteered the slowest asset on the page as the thing Google measures. The poster is a governor: it does not make the video lighter, it stops the video's weight from reaching the meter.
+
+## The lazy-load recipe, attribute by attribute
+
+With placement and mode chosen, the markup is short. Three recipes cover almost every landing page.
+
+The default hero, click-to-play behind a poster:
+
+```html
+<!-- Poster wins the LCP race; the video's bytes wait for a click -->
+<link rel="preload" as="image" href="/demo-poster.webp" fetchpriority="high">
+<video controls preload="none" poster="/demo-poster.webp"
+       playsinline width="1280" height="720">
+  <source src="/demo.mp4" type="video/mp4">
+</video>
+```
+
+`preload="none"` keeps the browser from fetching any video data until the visitor presses play; `metadata`, the spec's default, still pulls a range of the file you did not ask for ([web.dev, 2026](https://web.dev/articles/lazy-loading-video)). Preloading the poster with `fetchpriority="high"` makes it the resource that wins first paint.
+
+An above-the-fold silent loop, when motion is the whole point, kept deliberately tiny:
+
+```html
+<video autoplay muted loop playsinline preload="none"
+       poster="/loop-poster.webp" width="1280" height="720">
+  <source src="/loop.mp4" type="video/mp4">
+</video>
+```
+
+Mind one caveat here: `autoplay` takes precedence over `preload`, so the browser will fetch what it needs to play regardless of the hint ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). The defense is a genuinely small file, seconds not minutes. For a loop that lives *below* the fold, add `loading="lazy"` (or toggle `autoplay` with an IntersectionObserver) so it does not download until it is near the viewport at all.
+
+For a YouTube or Vimeo clip, do not paste the stock iframe. A cold embed executes hundreds of kilobytes of JavaScript before a visitor clicks anything. The facade pattern renders a thumbnail and swaps in the real iframe on click; paulirish's lite-youtube-embed reports rendering "approximately 224x faster" than the native iframe ([lite-youtube-embed, 2026](https://github.com/paulirish/lite-youtube-embed)). Whether to self-host or lean on a hosted player is [its own decision](/blog/embed-video-on-website); the facade is what makes the hosted choice affordable on a landing page.
+
+One honest limit binds all three: `preload` is a hint, and "the specification does not force the browser to follow the value of this attribute" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). Test the finished page on a throttled connection instead of trusting the markup, and confirm the exact autoplay-muted-loop attribute set behaves [the same across browsers](/blog/autoplay-video-on-website).
+
+One production note that makes the recipe cheaper to follow: the hero loop and the click-to-play cut are the same flow at two weights, a trimmed silent version for the fold and a full captioned version behind the click. Producing the demo from a spec you can re-encode, rather than a single exported file, gives you both without a second recording. aidemo, the open-source engine we build, works this way: an agent writes a storyboard, the engine replays it, and one flow re-exports as both a lean loop and a full narrated cut. Its constraints are worth stating plainly: capture is browser-only, the storyboard is authored by an agent rather than a person at a timeline, and there is no GUI editor for hand-tweaking the result.
+
+## Sources
+
+- [web.dev — Largest Contentful Paint (LCP)](https://web.dev/articles/lcp)
+- [web.dev — Lazy-loading video](https://web.dev/articles/lazy-loading-video)
+- [Lighthouse — Throttling (Slow 4G defaults)](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md)
+- [MDN — The Video Embed element (`<video>`)](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)
+- [Chrome — Autoplay policy in Chrome](https://developer.chrome.com/blog/autoplay)
+- [Mux — Best Practices for Video Playback: A Complete Guide (2025)](https://www.mux.com/articles/best-practices-for-video-playback-a-complete-guide-2025)
+- [paulirish — lite-youtube-embed](https://github.com/paulirish/lite-youtube-embed)
+
+## FAQ
+
+### Should the demo video on my landing page autoplay?
+
+Only if it is short, silent, and small. Chrome allows muted autoplay unconditionally but blocks autoplay with sound unless the visitor has interacted with the site ([Chrome, 2026](https://developer.chrome.com/blog/autoplay)), so an autoplay hero is a muted loop by definition. Keep it under roughly 15 seconds and a couple of megabytes, give it a poster, and add `playsinline`. For a considered demo the visitor should actually hear, prefer click-to-play behind a poster, which also keeps the video's bytes off the page's first paint entirely.
+
+### Should the video go above or below the fold on a landing page?
+
+Either works if you keep it off the critical path. Above the fold, use a poster and click-to-play so the ordinary poster image, not the video, is what the browser times for LCP. Below the fold, add `loading="lazy"` (or an IntersectionObserver) so the file does not download until the visitor scrolls near it ([web.dev, 2026](https://web.dev/articles/lazy-loading-video)). The placement that reliably hurts is a full-weight autoplaying hero, because it forces the heaviest asset on the page onto the first screen.
+
+### How big can a landing-page hero video be before it slows the page?
+
+If the video is the LCP element, the ceiling is brutal: on Lighthouse's Slow 4G profile (1.6 Mbps, about 200 KB per second) you have roughly 500 KB of total budget to paint the first screen inside 2.5 seconds, and the video is sharing it with your HTML, CSS, and fonts ([Lighthouse, 2026](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md)). The fix is to stop making the video the LCP element. Give it a ~100 KB poster, which loads in about half a second and becomes the timed element, and the video file's weight stops counting against first paint.
 
 ---
 
@@ -1242,6 +1514,76 @@ An agent can author the spec, not perform the take. Language models are strong a
 ### If the demo is a spec, do I still commit the video file?
 
 Usually not the video, always the spec. Once the footage is build output, the spec is the source of truth and the MP4 or GIF is a cache you can rebuild any time from the current product, so many teams commit only the spec and regenerate the video in CI. The exception is distribution: an embed needs a stable URL, so the rendered file lands somewhere durable — a committed asset, a release attachment, or a hosted path — even though its authority still comes from the spec that produced it.
+
+---
+
+# Detecting UI drift before your demo lies about the product
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/detecting-ui-drift/
+
+> A raw pixel diff fires on every font tweak; a bare selector check misses a button that moved. Here is the ladder in between, rung by rung.
+
+## The alarm you never wired between shipping and re-recording
+
+Two responses to a UI that keeps moving are both wrong. The first is to never look: you record a demo, embed it, and learn it lies about the product only when a prospect emails to ask why the app looks nothing like the video. The second is to re-record everything on every ship, which nobody sustains past the second sprint. Drift detection is the missing middle — a cheap, automated signal that answers one question, did this release change something my demo shows, so that re-rendering becomes a decision you make on evidence instead of a chore you skip until it embarrasses you.
+
+The reason [every product demo drifts out of date](/blog/why-product-demos-go-stale) is arithmetic, not neglect: a fast-shipping product alters a visible surface roughly twice a week, and a demo freezes one moment of it. Detection does not fix that. It moves the discovery from the worst possible auditor, a prospect mid-trial, to a build log that runs the day the change lands. The hard part is not noticing that pixels changed; anything can notice that. The hard part is noticing only the changes that matter, because a detector that pages you on every font-hinting shift gets muted inside a week, and a muted detector is the same as no detector.
+
+## The drift-detection ladder, cheapest rung first
+
+Change detection is not one technique but a ladder of them, and the rungs trade precision against blindness in opposite directions. The low rungs are cheap and quiet but see little; the high rungs see everything and cost you either money or a flood of false alarms. The move is to pick the lowest rung that still catches the failure you actually care about.
+
+| Rung | What it watches | Catches | Blind to | False alarms | Cost |
+|---|---|---|---|---|---|
+| 1. Selector presence | does each selector in the flow still resolve | a control renamed, removed, or restructured | anything that resolves but looks wrong | near zero | free, no image needed |
+| 2. DOM / a11y-tree diff | text, roles, attributes, tree shape | copy edits, reordered nav, dropped labels | pure CSS moves that leave the DOM intact | low to medium | cheap |
+| 3. Element geometry / layout shift | bounding box of key elements, CLS | a primary button that jumped, a reflow | recolor or restyle inside the same box | low, if scoped | cheap |
+| 4. Raw pixel diff | per-pixel color delta over a threshold | everything visible | nothing, and that is the problem | high (fonts, anti-aliasing, clocks) | moderate |
+| 5. Perceptual pixel diff | anti-aliasing-aware, thresholded diff | real visible change, damped noise | sub-threshold moves you chose to ignore | medium, tunable | moderate |
+| 6. DOM-aware visual AI | change classed as layout vs content vs color | meaningful change, sorted by kind | vendor-specific gaps | low, at a subscription | high |
+
+Rung 3 has a standard you can borrow wholesale. Cumulative Layout Shift, the Core Web Vital, scores a shift as impact fraction times distance fraction and calls anything at or under 0.1 good ([web.dev, accessed July 2026](https://web.dev/articles/cls)). A demo cares about the same quantity a user does, whether the thing you were about to click moved, so a jump in element geometry or a CLS spike is a structural signal that ignores color entirely. Rung 6 is where the research points: a 2024 paper builds a graph of UI controls detected with YOLOv5 and compares versions by structural, visual, and textual similarity, reporting a method that "significantly outperforms pixel-wise and region-based baselines, especially in scenarios requiring contextual understanding" ([Moradi et al., 2024](https://arxiv.org/abs/2405.00874)). That is the formal statement of why the low rungs exist at all: raw pixels do not understand that a button is a button.
+
+## Why a raw pixel diff pages you at three in the morning
+
+Rung 4 is the one most teams reach for first and abandon fastest, because a per-pixel comparison cannot tell a real change from rendering noise. A Chromium bump re-hints every glyph; a live timestamp advances a minute; sub-pixel anti-aliasing repaints the soft edge of every letter. None of that is a product change, and all of it lights up red. The fix is not a sharper eye. It is one default and two knobs.
+
+The default is anti-aliasing awareness. pixelmatch, the diff engine under most open-source setups, ignores anti-aliased pixels unless you opt back in: its `includeAA` flag defaults to false, so edge-pixel detection is on, and it judges color distance in the perceptual OKLab space rather than raw RGB ([pixelmatch, accessed July 2026](https://github.com/mapbox/pixelmatch)). The first knob is the color threshold: pixelmatch's `threshold` defaults to 0.1 where smaller is stricter, and Playwright's screenshot assertion exposes the same idea, defaulting to 0.2, described as "an acceptable perceived color difference in the YIQ color space" ([Playwright, accessed July 2026](https://playwright.dev/docs/api/class-locatorassertions)). The second knob is how many pixels may differ at all: Playwright's `maxDiffPixels` and `maxDiffPixelRatio` set an absolute or proportional budget before the assertion fails.
+
+Put numbers on it. A 1280x720 frame holds 921,600 pixels. Set `maxDiffPixelRatio` to 0.002 and you tolerate about 1,843 changed pixels. A one-line copy edit repaints a few hundred pixels of glyph interior, whose soft edges pixelmatch already discards, so it passes. A primary button 200 by 48 that moves repaints roughly its old footprint plus its new one, near 19,200 pixels, an order of magnitude over budget, so it fails. That is the whole game: a threshold set with intent pages you on the moved button and stays silent on the copy tweak. The determinism that makes a frame reproducible in the first place, pinned viewport, disabled animations, masked clocks, is the prerequisite, and it is covered in [deterministic browser automation](/blog/deterministic-browser-automation-for-video) and the capture options in [automating product screenshots](/blog/automating-product-screenshots).
+
+Rung 6 buys back the judgment the pixels lack. Percy exposes diff modes, Content, Layout, and Detail, plus a sensitivity dial of Strict, Recommended, or Relaxed, where Layout mode "ignores page content like text and images and focuses solely on capturing differences in the arrangement and positioning of UI elements" ([Percy/BrowserStack, accessed July 2026](https://www.browserstack.com/percy/features/visual-diff-modes)). Applitools sorts the same space into match levels: Layout checks relative positions while ignoring text, graphics, color, and style; Strict ignores platform-dependent pixel noise; Dynamic confirms a region still reads as a date or an email without demanding the same value ([Applitools, accessed July 2026](https://applitools.com/tutorials/concepts/best-practices/match-levels)). These are the pixel rungs with a category attached, so a diff arrives labeled "the layout moved" instead of "40,000 pixels are red."
+
+## A demo drifts on surfaces a component test never opens
+
+A visual regression suite snapshots one component in one state. A demo is a path: it visits eight surfaces in order, drags a cursor along a route pinned to specific elements, and runs narration whose timing assumes each click lands where it did at record time. That structure changes what you watch. A moved button is not just an ugly frame; it is a cursor that now clicks empty space and a voiceover describing an action that did not happen. So the cheapest and most reliable drift signal for a demo is rung 1 aimed at the spec itself: does every selector the flow depends on still resolve against the live build?
+
+This is the detection dividend of treating the [demo as a committed spec you regenerate rather than a recording you re-shoot](/blog/automated-product-demo-videos). A storyboard already names its selectors and navigations, so you can replay just the action-spec against the current app — no audio, no encode, no video — and get a pass or fail in seconds. Our own engine, aidemo, does this with a golden-probe check: it dry-runs the storyboard's actions against the live UI and exits non-zero when a step no longer resolves, so a broken flow surfaces as a red CI step, not a broken video. Its limits are worth stating plainly: aidemo is browser-only, its storyboards are written by an agent rather than dragged together on a GUI timeline, and it ships no visual editor, so the probe checks a spec and not a hand-cut sequence. The principle outlives any one tool: assert first, diff pixels second. Assertions are precise and nearly free and catch the failures that break the demo outright; pixel diffs are broad and noisy and catch the visual moves the selectors sail past.
+
+## Wire the check to the ship, then decide what red means
+
+Detection only helps if it runs without anyone remembering to, and the two classes of signal want different triggers and different consequences. Fast, unambiguous checks, selector presence and DOM diffs, belong on every commit that touches a UI path, and a failure should be hard: a selector that no longer resolves is not a matter of taste. Slow, judgment-laden checks, pixel and perceptual diffs, belong on a nightly or on-demand run, and a difference should open a review rather than fail the build, because a human has to rule on whether the change was intended. That split is the [nightly demo build](/blog/nightly-demo-builds) habit in practice: assertions guard the merge, pixel diffs get eyeballed the next morning.
+
+One rung lives outside CI entirely. Some drift is not something you shipped — a third-party embed restyles itself, a feature flag flips, a CDN serves a new font — and the only place to catch it is the deployed page. A live-URL monitor such as Visualping screenshots chosen pages on an interval from daily down to every five minutes, pixel-compares them, and alerts with a before-and-after ([Visualping, accessed July 2026](https://visualping.io/blog/visual-regression-testing)), which is rung 4 pointed at production instead of a runner. Whichever rungs you wire, the response to a confirmed drift is the same, and it is not to hand-patch the frame: regenerate the asset from its spec so the correction ships with the very change that caused it. Choosing the diff engine behind rungs 4 through 6 is its own decision, mapped in [visual regression testing tools compared by diff engine](/blog/visual-regression-testing-tools). The detector has one job, to make sure the demo tells the truth today, so the first thing to notice it stopped is a build log and not a buyer.
+
+## Sources
+- [pixelmatch — pixel-level image comparison library](https://github.com/mapbox/pixelmatch)
+- [Playwright — screenshot assertion options (toHaveScreenshot)](https://playwright.dev/docs/api/class-locatorassertions)
+- [Applitools — Match Levels and Regions](https://applitools.com/tutorials/concepts/best-practices/match-levels)
+- [Percy (BrowserStack) — Visual Diff Modes](https://www.browserstack.com/percy/features/visual-diff-modes)
+- [web.dev — Cumulative Layout Shift (CLS)](https://web.dev/articles/cls)
+- [Moradi et al. — AI for context-aware visual change detection in software test automation (arXiv 2405.00874)](https://arxiv.org/abs/2405.00874)
+- [Visualping — visual regression monitoring](https://visualping.io/blog/visual-regression-testing)
+
+## FAQ
+### How do you detect when a website's UI has changed?
+Pick the lowest rung on the detection ladder that catches the failure you care about. The cheapest is asserting that the elements you depend on still resolve in the DOM; above it sit accessibility-tree diffs for copy and structure, element-geometry or layout-shift checks for position, and full-page pixel diffing for anything visible. A deployed page can also be watched from outside by a URL monitor that screenshots on an interval and alerts on a change. Assert first, because it is precise and nearly free, and reach for pixels only for the visual moves assertions miss.
+
+### What is the difference between UI drift and visual regression testing?
+Visual regression testing is a mechanism: capture a screenshot, diff it against an approved baseline, fail on an unexpected delta. UI drift is the condition that mechanism can surface — the gap that opens between a fixed artifact, a demo, a docs screenshot, a marketing frame, and a product that keeps shipping. Visual regression is one rung for finding drift; a selector assertion or a live-URL monitor finds it too. Drift is the problem, visual regression is one of several detectors for it.
+
+### How do you stop visual tests from failing on every small change?
+Turn two knobs and trust one default. Leave anti-aliasing detection on so edge-smoothing artifacts are ignored, which pixelmatch does by default with includeAA set to false, then raise the color threshold, Playwright defaults to 0.2 in YIQ, and set a pixel budget with maxDiffPixels or maxDiffPixelRatio so a handful of changed pixels does not fail the run. Mask dynamic regions like clocks and avatars, and switch to a DOM-aware Layout mode when you care about position but not content. The target is a threshold that fires on a moved button and stays quiet on a copy edit.
 
 ---
 
@@ -2697,6 +3039,99 @@ Cap. It is licensed under AGPLv3, offers native builds for macOS, Windows, and L
 ### Does Screen Studio still sell a one-time license?
 
 Not for new customers. It discontinued the $229 lifetime license on September 30, 2025 and moved to a $108/year subscription. People who bought the old license keep it and receive updates into 2027. If a one-time purchase is a hard requirement, FocuSee's $199.99 lifetime tier is the closest like-for-like.
+
+---
+
+# Synthesia alternatives when the job is a software demo, not an avatar
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/synthesia-alternatives-for-software-demos/
+
+> Synthesia films a presenter reading a script, which is the wrong star when the job is showing your product actually work. Sort the alternatives by output type.
+
+## What avatar video is genuinely good at
+
+Start where the tool is right, because that is where the mismatch begins. Synthesia, HeyGen, and Colossyan sell one core move: type a script, pick a digital presenter, and out comes a video of that presenter reading your words, no camera and no studio. Synthesia bills itself as "the #1 AI video generator for L&D Teams" and means it ([Synthesia, July 2026](https://www.synthesia.io/learning-and-development)). For a training module, a compliance refresher, an internal announcement, or a localized talking-head explainer, this is the fastest route to a finished, on-brand video, and the specs are built for exactly that job.
+
+The numbers describe a talking-head factory. Synthesia's paid tiers run from a $29-a-month Starter (125+ avatars, 10 minutes of video monthly) to an $89 Creator (180+ avatars, 30 minutes) to custom Enterprise (240+ avatars), all with 1,000+ voices across 160+ languages, and on its own count used by more than 50,000 teams ([Synthesia pricing, July 2026](https://www.synthesia.io/pricing)). HeyGen matches the shape from a $29 Creator plan up through a $149 Business tier, adds real-time conversational "interactive avatars," and translates into 175 languages ([HeyGen, July 2026](https://www.heygen.com/pricing)).
+
+Where avatars earn their keep in software is training, and Synthesia's compliance page shows why. It sells "edit the script, regenerate the video, and maintain a full version history so every update is traceable, current, and audit-ready," plus one-click translation into 80+ languages and SCORM export into your LMS ([Synthesia, July 2026](https://www.synthesia.io/use-case/compliance-training)). When a policy's wording changes once a quarter and has to ship in twelve languages to a workforce that opens it inside a learning system, a presenter reading a script is not a compromise. It is the correct object. Hold onto the phrase "regenerate the video," because it is doing more work than it looks.
+
+## Why an avatar is the wrong star for a demo
+
+A product demo exists to answer one question: does the thing actually do what you claim. Answering it means pointing the frame at the running software and letting the viewer watch the state change, the row appear, the error clear. An avatar cannot do that, because it is rendered from a script and separately from your product. It can narrate a feature in flawless Portuguese; it cannot click the control and show the result. Synthesia's product-video page promises "polished product videos without cameras, crews, or editing software" and lists "feature walkthroughs" among the outputs ([Synthesia, July 2026](https://www.synthesia.io/use-case/product-video)), but what renders is a presenter beside a rendition of your app, never the app doing the thing.
+
+That is why the honest decision line for a software video is output type, not avatar realism. HeyGen's Avatar IV engine and Synthesia's latest presenters are convincing, and it does not matter: realism is not the axis that decides this. The axis is what fills the frame.
+
+| Output type | What fills the frame | Proves the feature works | Regenerates when the UI changes |
+|---|---|---|---|
+| Avatar reading a script | a synthetic presenter | No | Yes, from the script |
+| Avatar over a manual screen clip | presenter plus hand-recorded footage | Partly | Only the presenter |
+| Interactive tour | captured screenshots and DOM | Hands-on, of a snapshot | Re-capture by hand |
+| Product-native capture | your real, running UI | Yes | Yes, if driven from a spec |
+
+Read down the "proves the feature works" column and the choice stops being about which vendor has the better face.
+
+## The screen-recorder bolt-on, and what it doesn't fix
+
+The avatar vendors know this gap, which is why most now bolt a screen recorder onto the studio. Synthesia's records a browser tab ("pick a tab, hit record and start talking"), transcribes your voice, and drops an AI avatar and voice clone over the footage ([Synthesia, July 2026](https://www.synthesia.io/features/ai-screen-recorder)). Colossyan does the same inside its editor, aimed squarely at "tutorials, training, and product walkthroughs" ([Colossyan, July 2026](https://www.colossyan.com/screen-recording)). For a tutorial this is a real answer: you get the true UI on screen and a narrator who never has bed hair.
+
+It also quietly hands back the problem the avatar solved, and this is the part every "synthesia alternative product demo" listicle misses. Watch what regenerates and what does not. An avatar tool regenerates the said: change the script and the presenter re-reads it, in a new language, with a version history. That is the whole compliance pitch. A software demo, though, is bottlenecked on the shown: the part that dates is the product UI, and the screen clip is a manual "hit record" capture, not a spec the tool can replay. When your app ships a redesign, the avatar's narration regenerates for free and the footage of your product does not. You are back to re-recording the take by hand, which is [the exact rot that dates every captured demo](/blog/why-product-demos-go-stale). The regeneration that makes avatars great for a policy update never reaches the pixels a demo is actually made of.
+
+## The alternatives, by what ends up on the screen
+
+Sort the field by what fills the frame and the real "avatar video software demo" alternatives separate into four lanes, each answering a different job.
+
+| The video's job | Reach for | What ends up on screen |
+|---|---|---|
+| A presenter delivering a script at scale | Synthesia, HeyGen, Colossyan | a synthetic talking head |
+| A tutorial: real UI with a narrator | Synthesia or Colossyan screen recorder, Guidde, Clueso | hand-recorded UI plus avatar or voiceover |
+| A self-serve clickthrough | Storylane, Arcade, Navattic | a captured HTML replica the viewer drives |
+| A true product demo that stays current | product-native capture (incl. aidemo, ours) | your live UI, re-rendered on change |
+
+The first lane is where the other avatar tools live, and if your job really is a presenter, an [AI avatar video alternative](/blog/ai-demo-video-generators) to Synthesia is another avatar tool: HeyGen for cheaper credits and interactive avatars, Colossyan for a training-first editor. Swapping Synthesia for HeyGen changes the price and the face, not the fact that the star is a presenter.
+
+The lane most demo shoppers actually want is the fourth. If the point is to show the product and keep the video honest as the product ships, you want capture, not narration over a mockup. aidemo, which we build and disclose as ours, sits here: a coding agent writes a storyboard, and a deterministic engine replays your real interface in Chrome, then voices and captions it into an MP4 that CI can re-render on the commit that changed the UI. The honest constraints, since it is ours: it drives a Chrome tab and nothing beyond one, so a native desktop or phone app is off the table; the storyboard is authored by an agent rather than steered live; and the only editor is that text file plus a re-render, with no visual timeline to scrub. For a web product that trade is the entire point; for a talking-head training series it is the wrong tool, and Synthesia is not.
+
+## Draw the line on output type, not avatar quality
+
+None of these is best in the abstract. Each is best for one job, and the job decides who belongs in the frame. Take the first row that matches what you are making.
+
+| You are making... | Star of the frame | Reach for |
+|---|---|---|
+| Compliance or policy training in many languages | a presenter | Synthesia, HeyGen, or Colossyan |
+| Onboarding or internal upskilling | a presenter, optionally over a screen clip | an avatar tool with screen recording |
+| A brand explainer with no live UI to show | a presenter | any avatar tool |
+| Proof a specific feature works, for an evaluator | the product | product-native capture |
+| A docs or README walkthrough that must stay current | the product | a spec-driven render |
+| A prospect clicking through it themselves | the product, interactive | an interactive tour |
+
+Two of those rows are worth their own reading. Localizing a talking-head course is where avatars are unbeatable, but a product demo can be localized too, by re-voicing one recording rather than re-shooting it; the economics of [multi-language demo videos from a single take](/blog/multi-language-product-demo-videos) are their own piece, as is the [AI voiceover workflow](/blog/ai-voiceover-for-demo-videos) that narrates a captured UI with no avatar at all. And when a buyer wants to poke the interface rather than watch it, the choice is not avatar versus capture but [an interactive tour versus a video entirely](/blog/interactive-demo-vs-video-demo).
+
+The mistake behind most "synthesia alternatives" searches is treating avatar quality as the variable. It rarely is. Name what has to be on the screen, a face explaining or the product working, and the shortlist writes itself: for the first, Synthesia is already excellent; for the second, you were never shopping for an avatar.
+
+## Sources
+
+- [Synthesia — pricing](https://www.synthesia.io/pricing)
+- [Synthesia — learning and development](https://www.synthesia.io/learning-and-development)
+- [Synthesia — compliance training](https://www.synthesia.io/use-case/compliance-training)
+- [Synthesia — product videos](https://www.synthesia.io/use-case/product-video)
+- [Synthesia — AI screen recorder](https://www.synthesia.io/features/ai-screen-recorder)
+- [HeyGen — pricing](https://www.heygen.com/pricing)
+- [Colossyan — screen recording](https://www.colossyan.com/screen-recording)
+
+## FAQ
+
+### Is Synthesia good for product demos?
+
+It depends on what you mean by a demo. Synthesia is excellent for a training video, an explainer, or a localized presenter reading a script, and its product-video templates cover onboarding and feature overviews narrated by an avatar. What it does not do is show your real, running product proving a feature works, because the frame is filled by a synthetic presenter, not your live UI. For a demo whose job is proof, reach for screen capture; for one whose job is explanation at scale, Synthesia fits.
+
+### What is the best Synthesia alternative for showing your real product UI?
+
+If the goal is the actual running software on screen, the alternative is not another avatar tool but capture: a screen recorder for a one-off (Synthesia and Colossyan now bolt one on), or product-native, spec-driven capture for a demo that has to stay current as the product ships. The honest test is whether the tool points a frame at your live UI or renders a presenter beside a depiction of it. Only the capture lane passes it.
+
+### Can Synthesia record my screen and show my actual product?
+
+Yes. Synthesia added an AI screen recorder that captures a browser tab, transcribes your narration, and lays an AI avatar and voice clone over the footage ([Synthesia, July 2026](https://www.synthesia.io/features/ai-screen-recorder)). The catch is that the screen clip is a manual recording you perform yourself, so while the script and avatar regenerate when you edit them, the footage of your product does not, and when the UI changes you re-record the take by hand.
 
 ---
 
