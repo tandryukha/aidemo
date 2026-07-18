@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to record a single browser tab | aidemo</title>
+<meta name="description" content="Three ways to record one browser tab: Chrome's Tab share picker, a chrome.tabCapture extension, or a scripted headless browser, scored on fidelity and leaks.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/record-a-browser-tab/">
+<link rel="alternate" type="text/markdown" href="/blog/record-a-browser-tab/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="How to record a single browser tab | aidemo">
+<meta property="og:description" content="Three ways to record one browser tab: Chrome's Tab share picker, a chrome.tabCapture extension, or a scripted headless browser, scored on fidelity and leaks.">
+<meta property="og:url" content="https://aidemo.top/blog/record-a-browser-tab/">
+<meta property="og:image" content="https://aidemo.top/blog/images/record-a-browser-tab-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to record a single browser tab | aidemo">
+<meta name="twitter:description" content="Three ways to record one browser tab: Chrome's Tab share picker, a chrome.tabCapture extension, or a scripted headless browser, scored on fidelity and leaks.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/record-a-browser-tab-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to record just one browser tab (three ways, one clean result)",
+  "description": "Three ways to record one browser tab: Chrome's Tab share picker, a chrome.tabCapture extension, or a scripted headless browser, scored on fidelity and leaks.",
+  "image": [
+    "https://aidemo.top/blog/images/record-a-browser-tab-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/record-a-browser-tab/"
+  },
+  "wordCount": 1865,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — MediaTrackSettings: displaySurface (browser, window, monitor)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/displaySurface"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — MediaDevices: getDisplayMedia()",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Screen Capture API",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome for Developers — Privacy-preserving screen sharing controls (displaySurface, monitorTypeSurfaces, systemAudio, versions)",
+      "url": "https://developer.chrome.com/docs/web-platform/screen-sharing-controls"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome for Developers — chrome.tabCapture API",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/tabCapture"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome for Developers — Better tab sharing with Region Capture",
+      "url": "https://developer.chrome.com/docs/web-platform/region-capture"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome for Developers — Better screen sharing with Conditional Focus",
+      "url": "https://developer.chrome.com/docs/web-platform/conditional-focus"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame)",
+      "url": "https://chromedevtools.github.io/devtools-protocol/tot/Page/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Videos (recordVideo, saved on context close, sized to viewport)",
+      "url": "https://playwright.dev/docs/videos"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to record just one browser tab (three ways, one clean result)",
+      "item": "https://aidemo.top/blog/record-a-browser-tab/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I record just one tab in Chrome?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open your recorder's share dialog, or a browser-based recorder, and choose the \"Chrome Tab\" pane in Chrome's \"Choose what to share\" prompt, then pick the tab; the stream is that tab's rendered content and nothing around it. Under the hood this is getDisplayMedia() granting a browser display surface. For a hands-off, repeatable version, drive the tab from a script with Playwright or the DevTools Protocol instead of clicking record by hand."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does recording a browser tab capture my notifications?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not the operating-system ones. A tab capture is \"the entire contents of a single browser tab,\" and OS toasts from Slack, Mail, or your calendar are drawn by the OS on top of every window, outside any tab, so they cannot land in the frame. What can still show up is in-page content: a modal, a cookie banner, or a logged-in username inside the app itself. Only a full-screen monitor capture can film a desktop notification, which is the main reason to scope a demo to a tab."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I record a browser tab together with its audio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Chrome can capture tab audio through getDisplayMedia() or chrome.tabCapture, though capturing a tab means \"audio in that tab will no longer be played to the user,\" so recorder extensions route the stream back to your speakers so you still hear it while recording. Chrome's systemAudio control (Chrome 105) governs whether whole-screen shares are offered audio at all; tab and window shares are offered audio, and screens can be excluded."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>How to record just one browser tab (three ways, one clean result)</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">How to record just one browser tab (three ways, one clean result)</h1>
+        <p class="article-dek">Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 9 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-browser-tab-is-a-capture-surface-not-a-crop-of-your-desktop">A browser tab is a capture surface, not a crop of your desktop</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#mechanism-one-the-browsers-own-tab-surface">Mechanism one: the browser's own tab surface</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#mechanism-two-an-extension-that-locks-onto-the-tab">Mechanism two: an extension that locks onto the tab</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#mechanism-three-a-headless-browser-you-drive-from-code">Mechanism three: a headless browser you drive from code</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-three-mechanisms-scored">The three mechanisms, scored</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-each-mechanism-is-the-right-one">When each mechanism is the right one</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/record-a-browser-tab-800.webp" srcset="/blog/images/record-a-browser-tab-400.webp 400w, /blog/images/record-a-browser-tab-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay star-shaped cookie cutter standing upright in a flat sheet of dough"><figcaption>Scoping the capture to one tab is the cutter: it takes one clean shape from the whole sheet and leaves the mess outside the edge.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A browser tab is one of three capture surfaces (monitor, window, tab); the tab surface is 'the entire contents of a single browser tab' and physically cannot film an OS notification.</li>
+    <li>Three ways to record one tab: the browser's built-in Chrome Tab share picker (zero install), a chrome.tabCapture extension (tab audio plus tab-lock), or a scripted headless browser.</li>
+    <li>Chrome's dated share constraints: displaySurface and selfBrowserSurface (Chrome 107), monitorTypeSurfaces exclude (Chrome 119), systemAudio (Chrome 105), preferCurrentTab (Chrome/Edge 94+).</li>
+    <li>Only the scripted path is repeatable: pin a viewport at DPR 2 and it renders the same frames every run, headless in CI; the picker and the extension are one-off performances.</li>
+    <li>Region Capture (Chrome 104) crops a tab capture to one DOM element; Conditional Focus (Chrome 109) stops the capture from stealing focus to the recorded tab.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-browser-tab-is-a-capture-surface-not-a-crop-of-your-desktop">A browser tab is a capture surface, not a crop of your desktop<a class="hanchor" href="#a-browser-tab-is-a-capture-surface-not-a-crop-of-your-desktop" aria-label="Link to section: A browser tab is a capture surface, not a crop of your desktop">#</a></h2>
+<p>When you &quot;record your screen,&quot; the default surface is a whole monitor: every window, the dock or taskbar, and whatever notification chooses that moment to slide in. Recording one browser tab is not that picture cropped down after the fact. It is a different capture surface, and the browser hands it over as a first-class thing. The Screen Capture API grants exactly three display surfaces, reported through the <code>displaySurface</code> value: a <code>monitor</code> (a full screen), a <code>window</code> (one application window), and a <code>browser</code> surface, which MDN defines as &quot;the entire contents of a single browser tab which the user selected&quot;<sup class="article-cite"><a href="#src-1" title="MDN — MediaTrackSettings: displaySurface (browser, window, monitor)">1</a></sup>. That third surface is what &quot;record just this tab&quot; delivers, and understanding why it is the cleanest of the three is the entire reason to bother scoping.</p>
+<p>&quot;Entire contents&quot; is the load-bearing phrase. A <code>browser</code> surface is the tab&#39;s rendered content and nothing around it: no URL bar, no tab strip, no bookmarks, no window behind it, and no desktop under the window. Everything a full-screen recording has to hide, a tab recording never sees. The most useful thing it never sees is a notification. An operating-system toast is drawn by the OS on top of every window, outside any tab, so it can appear in a monitor capture and physically cannot appear in a browser one. Picking the tab surface is the step past turning notifications off before you record: instead of trusting that Do Not Disturb held, you record a surface where a stray toast has nowhere to render.</p>
+<p>Scoping to a tab also stops the resolution waste. A monitor capture spends pixels on a taskbar and two-thirds of a desktop you will crop away, and cropping into a landscape capture after the fact throws away the detail that made the text sharp. A tab surface frames only the product to begin with. There are three ways to get that surface into a file. They capture nearly the same pixels; they differ in who points at the tab, and that is what sets fidelity, what can still leak, and whether you can ever reproduce the take.</p>
+<h2 id="mechanism-one-the-browsers-own-tab-surface">Mechanism one: the browser&#39;s own tab surface<a class="hanchor" href="#mechanism-one-the-browsers-own-tab-surface" aria-label="Link to section: Mechanism one: the browser's own tab surface">#</a></h2>
+<p>The zero-install path is the share picker every browser recorder already calls. <code>getDisplayMedia()</code> &quot;prompts the user to select and grant permission to capture the contents of a display or portion thereof (such as a window)&quot;<sup class="article-cite"><a href="#src-2" title="MDN — MediaDevices: getDisplayMedia()">2</a></sup>, and the &quot;Choose what to share&quot; dialog it raises has a tab pane, labeled &quot;Chrome Tab&quot; in Chrome. Any recorder that captures through the browser surfaces it; pick a tab and the stream is that tab.</p>
+<p>Chrome adds constraints that make the pick deliberate instead of hopeful. A page can pass <code>preferCurrentTab: true</code> to offer its own tab &quot;as a separate &#39;This Tab&#39; option&quot; (Chrome and Edge 94+), prefer the tab pane through <code>displaySurface</code> (Chrome 107), or set <code>monitorTypeSurfaces: &quot;exclude&quot;</code> to strip whole-screen options out of the dialog so nobody fat-fingers a full desktop share (Chrome 119)<sup class="article-cite"><a href="#src-4" title="Chrome for Developers — Privacy-preserving screen sharing controls (displaySurface, monitorTypeSurfaces, systemAudio, versions)">4</a></sup>. Two refinements sharpen a solo recording further. Region Capture (Chrome 104) crops a self-capture to a single DOM element with <code>track.cropTo(cropTarget)</code>, &quot;cropping all pixels outside that area&quot;<sup class="article-cite"><a href="#src-6" title="Chrome for Developers — Better tab sharing with Region Capture">6</a></sup>, so you can film one panel rather than the whole page. And Conditional Focus (Chrome 109) lets the app call <code>setFocusBehavior(&quot;focus-capturing-application&quot;)</code> so starting capture does not yank focus onto the recorded tab<sup class="article-cite"><a href="#src-7" title="Chrome for Developers — Better screen sharing with Conditional Focus">7</a></sup>.</p>
+<p>The catch is that this is a live performance. You start it, you drive the cursor, and the fidelity is whatever your display renders: a crisp 2x on a HiDPI panel, a flat 1x with no headroom on a plain 1080p monitor, which is the same math the <a href="/blog/how-to-record-your-screen-in-high-quality/">capture-quality checklist</a> spells out. Record the same flow twice and you get two different videos.</p>
+<h2 id="mechanism-two-an-extension-that-locks-onto-the-tab">Mechanism two: an extension that locks onto the tab<a class="hanchor" href="#mechanism-two-an-extension-that-locks-onto-the-tab" aria-label="Link to section: Mechanism two: an extension that locks onto the tab">#</a></h2>
+<p>A recorder extension trades the install for a firmer grip on the tab. Under the hood it uses <code>chrome.tabCapture</code>, which gives &quot;access to a MediaStream containing video and audio from the current tab&quot; and &quot;can only be called after the user invokes an extension, such as by clicking the extension&#39;s action button&quot;<sup class="article-cite"><a href="#src-5" title="Chrome for Developers — chrome.tabCapture API">5</a></sup>. That binding is the feature: the stream is tied to the tab that was active when you clicked, so switching tabs mid-recording keeps the camera on the original one instead of following you away. A recorder like Screencastify exposes exactly this as a &quot;Browser Tab&quot; mode with a tab-audio toggle.</p>
+<p>Audio comes with a footnote. Capturing a tab means &quot;audio in that tab will no longer be played to the user,&quot; so extensions re-route the stream through an <code>AudioContext</code> back to the speakers to keep playback audible<sup class="article-cite"><a href="#src-5" title="Chrome for Developers — chrome.tabCapture API">5</a></sup>. Fidelity is the same display-dependent capture as mechanism one, and it is still a hand-timed, one-off take. What you buy for the install is the tab lock, reliable tab audio, and usually on-canvas annotation while you record.</p>
+<h2 id="mechanism-three-a-headless-browser-you-drive-from-code">Mechanism three: a headless browser you drive from code<a class="hanchor" href="#mechanism-three-a-headless-browser-you-drive-from-code" aria-label="Link to section: Mechanism three: a headless browser you drive from code">#</a></h2>
+<p>The third path removes the human and, optionally, the display. A program opens the tab, drives it, and captures frames directly. The Chrome DevTools Protocol does it with <code>Page.startScreencast</code>, which streams frames through the <code>screencastFrame</code> event at a chosen <code>format</code> (jpeg or png), <code>quality</code>, and <code>everyNthFrame</code> throttle<sup class="article-cite"><a href="#src-8" title="Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame)">8</a></sup>. Higher up, Playwright records a whole context with <code>recordVideo</code>: &quot;Videos are saved upon browser context closure,&quot; and &quot;the video size defaults to the viewport size scaled down to fit 800x800,&quot; with the viewport placed in the top-left corner<sup class="article-cite"><a href="#src-9" title="Playwright — Videos (recordVideo, saved on context close, sized to viewport)">9</a></sup>. There is no browser chrome in the frame at all, because there is no window being filmed, only the page.</p>
+<p>Because a script sets the viewport and device-pixel-ratio, fidelity stops depending on the monitor: pin a 1280x720 viewport at DPR 2 and every run rasterizes to the same 2560x1440 grid, on a laptop or a display-less CI runner alike. And because the flow is a fixed script rather than a performance, the same input renders the same frames every time, the property that turns a demo into something a pipeline can rebuild on the commit that changed the UI. That determinism is not free: it takes <a href="/blog/deterministic-browser-automation-for-video/">pinned waits, a frozen clock, and a controlled network</a> to make one browser flow produce identical footage twice.</p>
+<h2 id="the-three-mechanisms-scored">The three mechanisms, scored<a class="hanchor" href="#the-three-mechanisms-scored" aria-label="Link to section: The three mechanisms, scored">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Browser tab surface</th>
+<th>Recorder extension</th>
+<th>Headless / scripted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Who points at the tab</td>
+<td>you, in the share picker</td>
+<td>you, via the extension button</td>
+<td>a script</td>
+</tr>
+<tr>
+<td>Fidelity</td>
+<td>display DPR (2x on HiDPI, else flat 1x)</td>
+<td>display DPR, plus tab audio</td>
+<td>pinned viewport and DPR, monitor-independent</td>
+</tr>
+<tr>
+<td>What can still leak</td>
+<td>in-page modals, cookie banners, a logged-in name; a wrong-tab pick</td>
+<td>in-page content only</td>
+<td>only what the script navigates to</td>
+</tr>
+<tr>
+<td>Repeatability</td>
+<td>one-off, different every run</td>
+<td>one-off, hand-timed</td>
+<td>deterministic, re-renders identically</td>
+</tr>
+<tr>
+<td>Setup</td>
+<td>none</td>
+<td>install an extension</td>
+<td>an automation pipeline</td>
+</tr>
+<tr>
+<td>Runs headless / in CI</td>
+<td>no</td>
+<td>no</td>
+<td>yes</td>
+</tr>
+</tbody></table></div>
+<p>Every row rests on the fact the first section set up: none of the three can film an OS notification or another window, because a tab surface is only the tab. The columns diverge on everything a human still controls, and they sort cleanly by how many times you expect to make this exact video. The only leak a tab surface cannot save you from is one inside the page itself, a half-dismissed cookie banner or a real customer name in the account you logged into, so a clean recording profile still earns its keep.</p>
+<h2 id="when-each-mechanism-is-the-right-one">When each mechanism is the right one<a class="hanchor" href="#when-each-mechanism-is-the-right-one" aria-label="Link to section: When each mechanism is the right one">#</a></h2>
+<p>For a one-off clip of something happening in a tab, mechanism one is the honest answer: it is already in your browser and needs no account. If you need the tab&#39;s audio, want to move between tabs without losing the shot, or want to annotate as you go, the extension earns its install. Reach for the scripted path when the video is not a one-off: a demo that has to re-render when the UI ships, run in CI with no display, or fan out into several languages from one recording is a rendering job, not a take you perform again each time.</p>
+<p>That last case is where our own engine, aidemo, sits: it drives a real Chrome tab through an agent-authored storyboard and records deterministically, so the same spec re-renders the same tab on every run. The honest limits are the shape of the tool. aidemo records inside a browser tab and nothing else, so a native desktop app is out of its reach; the storyboard is written in code rather than dragged on a GUI timeline; and for a single throwaway clip, the browser&#39;s own picker is far less setup. The point is not that one mechanism wins. It is that &quot;record one tab&quot; is three different jobs, and picking the surface on purpose is what buys you <a href="/blog/professional-screen-recordings/">a clean frame worth keeping</a>.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/displaySurface" rel="noopener">MDN — MediaTrackSettings: displaySurface (browser, window, monitor)</a></li>
+<li id="src-2"><a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia" rel="noopener">MDN — MediaDevices: getDisplayMedia()</a></li>
+<li id="src-3"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API" rel="noopener">MDN — Screen Capture API</a></li>
+<li id="src-4"><a href="https://developer.chrome.com/docs/web-platform/screen-sharing-controls" rel="noopener">Chrome for Developers — Privacy-preserving screen sharing controls (displaySurface, monitorTypeSurfaces, systemAudio, versions)</a></li>
+<li id="src-5"><a href="https://developer.chrome.com/docs/extensions/reference/api/tabCapture" rel="noopener">Chrome for Developers — chrome.tabCapture API</a></li>
+<li id="src-6"><a href="https://developer.chrome.com/docs/web-platform/region-capture" rel="noopener">Chrome for Developers — Better tab sharing with Region Capture</a></li>
+<li id="src-7"><a href="https://developer.chrome.com/docs/web-platform/conditional-focus" rel="noopener">Chrome for Developers — Better screen sharing with Conditional Focus</a></li>
+<li id="src-8"><a href="https://chromedevtools.github.io/devtools-protocol/tot/Page/" rel="noopener">Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame)</a></li>
+<li id="src-9"><a href="https://playwright.dev/docs/videos" rel="noopener">Playwright — Videos (recordVideo, saved on context close, sized to viewport)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-record-just-one-tab-in-chrome" class="blog-faq-q">How do I record just one tab in Chrome?<a class="hanchor" href="#how-do-i-record-just-one-tab-in-chrome" aria-label="Link to section: How do I record just one tab in Chrome?">#</a></h3>
+<p>Open your recorder&#39;s share dialog, or a browser-based recorder, and choose the &quot;Chrome Tab&quot; pane in Chrome&#39;s &quot;Choose what to share&quot; prompt, then pick the tab; the stream is that tab&#39;s rendered content and nothing around it. Under the hood this is <code>getDisplayMedia()</code> granting a <code>browser</code> display surface. For a hands-off, repeatable version, drive the tab from a script with Playwright or the DevTools Protocol instead of clicking record by hand.</p>
+<h3 id="does-recording-a-browser-tab-capture-my-notifications" class="blog-faq-q">Does recording a browser tab capture my notifications?<a class="hanchor" href="#does-recording-a-browser-tab-capture-my-notifications" aria-label="Link to section: Does recording a browser tab capture my notifications?">#</a></h3>
+<p>Not the operating-system ones. A tab capture is &quot;the entire contents of a single browser tab,&quot; and OS toasts from Slack, Mail, or your calendar are drawn by the OS on top of every window, outside any tab, so they cannot land in the frame. What can still show up is in-page content: a modal, a cookie banner, or a logged-in username inside the app itself. Only a full-screen monitor capture can film a desktop notification, which is the main reason to scope a demo to a tab.</p>
+<h3 id="can-i-record-a-browser-tab-together-with-its-audio" class="blog-faq-q">Can I record a browser tab together with its audio?<a class="hanchor" href="#can-i-record-a-browser-tab-together-with-its-audio" aria-label="Link to section: Can I record a browser tab together with its audio?">#</a></h3>
+<p>Yes. Chrome can capture tab audio through <code>getDisplayMedia()</code> or <code>chrome.tabCapture</code>, though capturing a tab means &quot;audio in that tab will no longer be played to the user,&quot; so recorder extensions route the stream back to your speakers so you still hear it while recording. Chrome&#39;s <code>systemAudio</code> control (Chrome 105) governs whether whole-screen shares are offered audio at all; tab and window shares are offered audio, and screens can be excluded.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">browser tab</span>
+        <span class="article-tag">getDisplayMedia</span>
+        <span class="article-tag">chrome</span>
+        <span class="article-tag">tab capture</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-browser-tab-is-a-capture-surface-not-a-crop-of-your-desktop">A browser tab is a capture surface, not a crop of your desktop</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#mechanism-one-the-browsers-own-tab-surface">Mechanism one: the browser's own tab surface</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#mechanism-two-an-extension-that-locks-onto-the-tab">Mechanism two: an extension that locks onto the tab</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#mechanism-three-a-headless-browser-you-drive-from-code">Mechanism three: a headless browser you drive from code</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-three-mechanisms-scored">The three mechanisms, scored</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-each-mechanism-is-the-right-one">When each mechanism is the right one</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

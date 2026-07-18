@@ -187,6 +187,209 @@ Yes — ElevenLabs offers voice cloning from its Creator tier ($22/mo as of July
 
 ---
 
+# App preview videos: hitting App Store and Play specs without a reshoot
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/app-preview-video/
+
+> Apple wants an uploaded H.264 file at 886 x 1920; Google Play wants a YouTube link. The exact cross-store specs, and how to hit them without a reshoot.
+
+## Apple wants a file, Google wants a link
+
+The phrase "app preview video" hides a split that decides your whole workflow before you record a single frame. The App Store takes an uploaded video file with strict, device-specific specifications. Google Play takes no file at all: its promotional video is a YouTube URL you paste into the listing, and Google streams it from there. Same intent, two different deliverables. One is a rendering job with a hard target resolution; the other is a publishing job that lives on YouTube. Get the difference wrong and you will spend an afternoon exporting a flawless H.264 file for a store that only ever wanted a link.
+
+The rest of this page is the exact numbers for each, collapsed into one table you can author against, plus the rule that makes both of them a recording problem rather than a filming one: the footage has to come off the real app.
+
+## Apple's app preview spec, number by number
+
+An App Store app preview is an uploaded video with narrow tolerances. Per Apple's App Store Connect reference, each preview runs 15 to 30 seconds, tops out at 500 MB, and ships as `.mov`, `.m4v`, or `.mp4` ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/)). The video track is H.264 High Profile up to Level 4.0 at a 10 to 12 Mbps target, or ProRes 422 HQ, and either way the frame rate is capped at 30 fps. You get up to three previews per localization, and the store lifts a poster frame from the 5-second mark by default.
+
+The resolution is the part that trips people up, because it is fixed per device family and it is not your phone's native resolution. For the modern iPhone class — the 6.9-inch, 6.5-inch, 6.3-inch, and 6.1-inch displays — the accepted portrait resolution is 886 x 1920, or 1920 x 886 in landscape ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/)). That is smaller than the grid the phone actually paints: a 6.9-inch iPhone 16 Pro Max renders at 1320 x 2868 physical pixels ([Use Your Loaf, 2026](https://useyourloaf.com/blog/iphone-16-screen-sizes/)). So a raw screen capture off the device is the wrong size, and hitting the spec means exporting to an exact 886 x 1920 frame, not uploading whatever the recorder handed you.
+
+| Device class | Display | Portrait | Landscape |
+|---|---|---|---|
+| iPhone 6.9" / 6.5" / 6.3" / 6.1" | modern | 886 x 1920 | 1920 x 886 |
+| iPhone 5.5" and 4" | older | 1080 x 1920 | 1920 x 1080 |
+| iPhone 4.7" | older | 750 x 1334 | 1334 x 750 |
+| iPad 13" / 11" / 10.5" | current | 1200 x 1600 | 1600 x 1200 |
+| iPad 9.7" | older | 900 x 1200 | 1200 x 900 |
+| Mac, Apple TV | — | 1920 x 1080 (landscape only) | 1920 x 1080 |
+
+## Google Play's promo video: a YouTube URL, not an upload
+
+Google Play inverts nearly every one of those constraints. There is no file to encode and no resolution to hit, because you do not upload a video at all. In the Play Developer API, a store listing's promotional video is a single field described simply as the "URL of a promotional YouTube video for the app" ([Google, 2026](https://developers.google.com/android-publisher/api-ref/rest/v3/edits.listings)). You paste a YouTube link, Google embeds it, and the encoding, hosting, and playback are YouTube's problem rather than yours. There is no container to pick, no H.264 profile to match, and no 886 x 1920 to export to, because none of those numbers are yours to set.
+
+That same API models a listing as a per-language object: the title, the descriptions, and that one video field all hang off a `language` BCP-47 tag ([Google, 2026](https://developers.google.com/android-publisher/api-ref/rest/v3/edits.listings)). So you get one promo video per localized listing, not a stack of device-specific cuts. A Play promo video is really a short YouTube video with a job. Everything that decides a click still has to land early, because it plays inline on the listing, but it inherits whatever quality YouTube serves rather than a codec you controlled.
+
+## One cross-store table to author against
+
+Here is the whole thing side by side. If you ship one product to both stores, this is the sheet that keeps you from encoding for the wrong target.
+
+| Spec | App Store (Apple) | Google Play |
+|---|---|---|
+| Deliverable | Uploaded video file | YouTube URL |
+| Container | `.mov`, `.m4v`, `.mp4` | hosted on YouTube |
+| Codec | H.264 High Profile <= L4.0, or ProRes 422 HQ | whatever YouTube serves |
+| Duration | 15 to 30 s per preview | YouTube's limits |
+| Frame rate | 30 fps max | YouTube's |
+| Resolution | fixed per device (886 x 1920 for modern iPhone) | none you set |
+| How many | up to 3 per localization | one video per localized listing |
+| Poster / thumbnail | poster frame lifted at 5 s | the linked video's YouTube thumbnail |
+| Content rule | screen captures of the app only | your linked YouTube video |
+
+The single largest difference is the first row, and it cascades. On Apple you own the render and every pixel of the frame; on Google you own a YouTube upload and a link. [Which container and codec to target](/blog/best-video-format-for-screen-recording) is a live decision for the App Store file and a non-question for Play. Same with [aspect ratio and orientation](/blog/screen-recording-aspect-ratio): Apple hard-codes it per device, Google inherits it from the YouTube video you point at.
+
+## "Captured on device" means you cannot fake the footage
+
+Apple narrows what the pixels may show harder than any resolution number does. App Store Review Guideline 2.3.4 says previews "may only use video screen captures of the app itself" ([Apple, 2026](https://developer.apple.com/app-store/review/guidelines/)). Apple's App Previews page is blunter still: previews "demonstrate the features, functionality, and user interface of your app using footage captured on device," and you must "stay within the app," with no filming of "people interacting with a device, such as an over-the-shoulder angle or fingers tapping the screen" ([Apple, 2026](https://developer.apple.com/app-store/app-previews/)). Google's control is lighter because the asset is a link to a YouTube video, but the intent is the same: the preview should be the app, doing what the app does.
+
+That one rule kills the shortcut a lot of marketing video takes. You cannot composite an App Store preview from stock clips, and a synthetic text-to-video render of an imagined interface is precisely what "screen captures of the app itself" forbids. The preview has to be the real UI doing real things, recorded off the running app. That constraint is what turns an app preview from a filming task into a capture task, and it is also why guideline 2.3 tells you to keep metadata "up-to-date with new versions": the store expects the footage to match the app people will actually download ([Apple, 2026](https://developer.apple.com/app-store/review/guidelines/)).
+
+## The reshoot tax: previews times locales times every release
+
+Now multiply. Apple gives you up to three previews per localization ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/)). Localize the listing into five languages and you have authored, at the ceiling, fifteen App Store preview slots — fifteen separate 15-to-30-second cuts, each captured off the app, each landed on 886 x 1920. Add the Play promo video for each localized listing on top. That is the true surface area of "an app preview video," and none of it is a one-time cost, because guideline 2.3 asks you to keep it current and the footage rule means a single redesigned screen invalidates every clip that showed it.
+
+A live-filmed preview has no cheap fix here. Because the footage came off a person driving the app in real time, one changed screen desyncs the cursor path, the timing, and the narration, so the honest response to a UI change is to shoot the whole cut again, times fifteen. This is the same [staleness that quietly dates every product demo](/blog/why-product-demos-go-stale), except the App Store enforces it as a metadata-accuracy rule rather than leaving it to your conscience.
+
+## Hitting 886 by 1920 without shooting it twice
+
+The way out is the one that makes any [product demo cheap to keep current](/blog/how-to-make-a-product-demo-video): stop performing the capture and start replaying it. If the path through the app is a written script — open this screen, tap this control, wait for that result — then the capture is deterministic, and [replaying the same flow yields the same footage every run](/blog/deterministic-browser-automation-for-video). A UI change becomes a diff to the script and a re-render, not a fifteen-cut reshoot, and the multi-cut math above stops compounding: the localized set becomes a [render matrix off one recording](/blog/multi-language-product-demo-videos) instead of fifteen separate shoots.
+
+The exact tool depends on what the app is. For a native iOS build, the iOS Simulator records its own screen to a video file and the Android emulator has an equivalent, so you can drive a scripted run and export at the store's target size. For an app with a web surface — a PWA, a responsive web build, an embedded web view — a deterministic browser engine can pin the viewport and re-render on change; that is what our own tool, aidemo, does, with the honest limits that it captures a browser only (it will not record a native iOS binary), its storyboards are authored in code by a coding agent rather than dragged on a timeline, and there is no GUI editor. Whichever you reach for, the point is structural. Because the accepted resolution is a fixed number and the footage must come off the real app, the reliable way to land 886 x 1920 in H.264 is to make the capture reproducible, so the second time you need it costs a render instead of a shoot.
+
+## Sources
+
+- [Apple — App preview specifications (App Store Connect Help)](https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/)
+- [Apple — App Previews (Apple Developer)](https://developer.apple.com/app-store/app-previews/)
+- [Apple — App Store Review Guidelines (2.3 Accurate Metadata)](https://developer.apple.com/app-store/review/guidelines/)
+- [Google — Play Developer API, Listing resource (edits.listings)](https://developers.google.com/android-publisher/api-ref/rest/v3/edits.listings)
+- [Use Your Loaf — iPhone 16 screen sizes](https://useyourloaf.com/blog/iphone-16-screen-sizes/)
+
+## FAQ
+
+### What size and format does an App Store preview video need to be?
+
+Each app preview runs 15 to 30 seconds, stays under 500 MB, and uploads as `.mov`, `.m4v`, or `.mp4` encoded in H.264 High Profile up to Level 4.0 (or ProRes 422 HQ), at a maximum of 30 fps. You may submit up to three previews per language. Resolution is fixed per device family: the modern iPhone class (6.9, 6.5, 6.3, and 6.1 inch) takes 886 x 1920 portrait, which is smaller than the phone's native pixel grid, so you export down to that exact frame rather than uploading a raw capture.
+
+### Can I use the same recording for the App Store and Google Play?
+
+The content can be the same, but the delivery cannot. Apple needs an uploaded H.264 file at a fixed device resolution (886 x 1920 for the modern iPhone class); Google Play needs only a YouTube URL, so it inherits YouTube's encoding and there is nothing for you to export. Plan one recording, export the file for Apple, and publish the same cut to YouTube for the Google link. Because Apple caps a preview at 30 seconds, a single tight cut can comfortably feed both stores.
+
+### Does an app preview have to be recorded on a real device?
+
+It has to be genuine app footage. Apple's Review Guideline 2.3.4 allows only screen captures of the app itself, and its App Previews page requires footage "captured on device" with no fingers or device frames in shot. In practice that means a screen recording from a device, from the iOS Simulator or Android emulator, or from the app's real web surface — not stock clips and not synthetic text-to-video of a UI that does not exist.
+
+---
+
+# Arcade vs Navattic vs Storylane: picking an interactive demo platform
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/
+
+> They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.
+
+## Three tools, three different capture engines
+
+Arcade, Navattic, and Storylane land on the same comparison grids, in the same interactive-demo category, priced against each other feature by feature. The grids almost always miss the difference that decides everything downstream: the three do not capture your product the same way. Navattic clones your DOM. Arcade stitches screenshots together with short video snippets. Storylane will do either. That one mechanical choice, more than the length of any feature list, sets each tool's fidelity, its maintenance surface, and what quietly breaks the next time your UI moves.
+
+All three ship the same kind of artifact: a clickable walkthrough a prospect drives in their own browser, delivered as an embed. That is the object the pillar on [what the AI-demo label actually covers](/blog/ai-demo-video-generators) maps, and the one the [interactive tour versus a plain video file](/blog/interactive-demo-vs-video-demo) piece weighs against video. This article stays inside the category and answers the narrower question: given that you want an interactive tour, which of the three, and why. Each optimizes a different center of gravity. Navattic leans on HTML-clone fidelity and the deepest analytics. Storylane leans on speed to publish and demo hubs, with prices you can read without a sales call. Arcade leans on design polish, native-app capture, and a video export the other two treat as an afterthought.
+
+## Clone, screenshot, or stitch: what each one records
+
+Navattic sits at the high-fidelity end. Its web captures are "HTML-based copies of any application" you reach in a browser, an interactive replica that preserves "scrolling abilities, hover states, and more" and is editable in a no-code HTML editor ([Navattic docs, July 2026](https://docs.navattic.com/build/captures/web)). What a viewer clicks feels like the running app because, structurally, it is a copy of the app's front-end.
+
+Storylane covers the whole range, because it offers two capture types. Its screenshot demos are "image-based demos that capture and compile screenshots," quick enough that a full walkthrough can be "captured, edited, and published in under 10 minutes" and, in Storylane's words, "marginally quicker to load." Its HTML demos are the other end: "exact replicas of your product's frontend," "pixel-perfect copies of the captured UI," bought with more technical setup and slightly longer load times ([Storylane, July 2026](https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format)). One tool, a fidelity dial that runs from cheap-and-fast to Navattic-grade.
+
+Arcade records neither a DOM clone nor a plain screenshot deck. It captures each click as a "screenshot + hotspot" and records "Scroll, type, drag, drop" as short video, then stitches the frames, snippets, and tooltips into one produced-looking flow ([Arcade docs, July 2026](https://docs.arcade.software/kb/build/interactive-demo/record)). It is the most design-forward of the three, and the only one whose desktop app reaches past the browser tab to capture native and terminal apps. What it does not do is reconstruct your live front-end. It assembles an attractive sequence of stills and clips.
+
+| Dimension | Navattic | Storylane | Arcade |
+|---|---|---|---|
+| Primary capture | HTML/CSS clone of the app | screenshot demos or HTML replicas | click screenshots plus scroll/type video snippets |
+| Fidelity | live-feeling interactive replica | pixel-perfect HTML, or curated images | polished stitched frames, not a replica |
+| Speed to first demo | extension capture, then edit | screenshots in under 10 minutes | extension record, auto-stitched |
+| Captures native/desktop apps | browser only | browser only | yes, via the desktop app |
+| Built-in GIF/MP4 export | video steps with playback analytics | screenshots and video | GIF and MP4 on paid tiers |
+
+## The pricing floor the comparison pages leave out
+
+Two of the three publish their prices. The one that does not is the one teams most often shortlist for a serious buy.
+
+Navattic offers a free Starter plan (one seat, one demo) and then goes dark: Base, Growth, and Enterprise are all "billed annually" with no number on the page, so you book a call to learn what Base or Growth costs ([Navattic pricing, July 2026](https://www.navattic.com/pricing)). The analytics and the unlimited HTML demos that are the reason to choose Navattic all sit behind that wall.
+
+Storylane is fully transparent, and its price list carries a catch the grids hide. Free is $0 (one seat, one demo, screenshots and videos). Starter is about $50 per month on the annual plan, and it does not include the HTML demo editor. The HTML editor, the format that makes Storylane comparable to Navattic on fidelity, unlocks on Growth at roughly $625 per month billed annually, and Premium runs about $1,500 per month with demo hubs ([Storylane pricing, July 2026](https://www.storylane.io/pricing)). So Storylane's Navattic-grade fidelity is a four-figure monthly line item, even though the sticker on the door reads fifty dollars.
+
+Arcade is transparent and the cheapest paid entry. Free is $0 with one published demo, one video, no export, and the watermark left on. Growth is $50 per seat per month, or $42.50 billed annually, and that is where GIF and MP4 export, watermark removal, custom branding, and analytics all switch on ([Arcade pricing, July 2026](https://www.arcade.software/pricing)).
+
+| | Free tier | Entry paid tier | Where the headline capability lives | Public paid pricing? |
+|---|---|---|---|---|
+| Navattic | 1 seat, 1 demo | Base / Growth (annual, quoted on request) | analytics + unlimited HTML demos | No, book a demo for any price |
+| Storylane | 1 seat, 1 demo | Starter ~$50/mo (screenshots only) | HTML editor on Growth ~$625/mo | Yes |
+| Arcade | 1 demo, export off | Growth $50/seat/mo ($42.50 annual) | export + branding + analytics on Growth | Yes |
+
+Read the floors honestly. Arcade is cheapest to start and hands you shareable exports for fifty dollars a seat. Storylane is the transparent middle, but its highest-fidelity format costs what a small headcount does. Navattic asks you to talk to sales before it will quote the tier where its analytics actually live. If price is the whole story, [screen recorders in the Loom mold](/blog/loom-alternatives-for-product-demos) undercut all three, but none of them give you the hands-on clickthrough these tools are built around.
+
+## Which capture type breaks when the UI moves
+
+Every one of these freezes your interface at capture time, and [demos go out of date](/blog/why-product-demos-go-stale) the moment the product ships past them. What differs is how much surface each capture type exposes to that drift, and how you repair it.
+
+Navattic's HTML clone is the highest-fidelity and therefore the highest-maintenance: the more of your front-end it replicates, the more of it desyncs when a button is renamed or a table restyled. Repair means recapturing the changed screens through the extension, then rebuilding the hotspots layered over them. Storylane's screenshot demos rot one screenshot at a time, while its HTML demos drift exactly like Navattic's; the speed that makes a screenshot demo cheap to build is the one mercy, because it is also cheap to rebuild. Arcade's stitched screenshots and clips drift the same way, and a re-record re-stitches the flow.
+
+There is a real asymmetry that helps all three at low volume. Because each demo is one hosted embed, a re-capture updates it in place across every page it lives on, so you fix once and it propagates. But each recapture is manual labor that grows with how many demos you keep, never with one shared spec: ten demos across five products is ten hand recaptures every redesign. That ceiling is shared, which is why the maintenance question has no winner among the three, only a common bill.
+
+## Matching the tool to your center of gravity
+
+None of the three wins in a vacuum. Each is the right call under a specific constraint, so find the row that names your situation and start there.
+
+| If your priority is... | Reach for | Because |
+|---|---|---|
+| Account-level analytics for a sales or ABM motion | Navattic | deepest engagement data: step-level drop-off, identified vs anonymous visitors, per-5-second video playback |
+| Shipping many demos fast, plus a self-serve marketing hub | Storylane | screenshot demos in under 10 minutes; demo hubs gather many demos under one navigable page |
+| Design polish and a demo you can also export as video | Arcade | most produced-looking output, with GIF/MP4 export and native-app capture built in |
+| Knowing the price before you talk to sales | Storylane or Arcade | both publish tiers; Navattic quotes paid plans only on request |
+| Capturing a native desktop or terminal app | Arcade | its desktop app captures beyond the browser tab |
+| The highest-fidelity live replica of a web app | Navattic, or Storylane HTML | both rebuild the front-end; Storylane's HTML editor is a Growth-tier feature |
+
+Navattic's analytics are the genuine differentiator when a demo is being treated as a buying signal: it separates unique from engaged visitors, tracks flow completion and step-level drop-off, and marks identified visitors by name and email against anonymous ones tied to a browser profile ([Navattic docs, July 2026](https://docs.navattic.com/analyze)). Storylane's differentiator is the demo hub, "a centralized repository of interactive demos to showcase multiple features and use-cases under a single, navigable roof," in a gallery layout for top-of-funnel marketing or a playlist for a curated sales narrative ([Storylane, July 2026](https://www.storylane.io/plot/guide-to-demo-hub)). Arcade's differentiator is the finish and the fact that it alone hands you a video file without a second tool.
+
+## When a rendered video beats all three
+
+Reach for a tour when the buyer's next move is a click on a page you own. Three situations send you back out of the category entirely.
+
+The first is distribution. An embed needs a live browser, so it cannot ride inside an email, a GitHub README, or a muted social feed. All three concede this by adding export, and Arcade is blunt about the tradeoff: it calls interactive "always the most powerful format," tells you to export only "when needed for static channels," and warns that "video exports don't include closed captions" ([Arcade docs, July 2026](https://docs.arcade.software/kb/build/interactive-demo/share/exports)). The full argument lives in the [interactive tour versus video file](/blog/interactive-demo-vs-video-demo) comparison.
+
+The second is narration and captions that ship with the file. An exported tour is a silent screen recording of the clone. A real demo video carries a scripted voiceover and word-timed captions, and the [craft of making one](/blog/how-to-make-a-product-demo-video) is a different build from clicking through a capture.
+
+The third is staleness you refuse to fix by hand. All three tours are re-captured manually. If you want the demo to re-render itself when the UI changes, the demo has to be a committed spec rather than a captured performance, so [CI can rebuild it](/blog/demo-videos-in-ci) on the same commit that moved the interface. That is the pattern our own engine, aidemo, follows: an agent authors a storyboard, a deterministic player drives real Chrome through it identically each run, and the output is a narrated, captioned MP4 (MIT-licensed). Because we build aidemo, the honest limits: it sees inside a browser tab only, so Arcade's native-desktop capture is beyond it; the storyboard is agent-written and edited as a text file rather than nudged on a visual timeline; and polish is a recompose, never a manual trim.
+
+None of that makes the three tours wrong. If self-serve, hands-on evaluation on your own product page is the job, an interactive tour is the right object, and the only real question is which center of gravity matches yours. If the demo has to travel, narrate, or stay current on its own, you were shopping in the wrong aisle, and a rendered video is the object you actually needed.
+
+## Sources
+
+- [Navattic — Pricing](https://www.navattic.com/pricing)
+- [Navattic — Web captures (documentation)](https://docs.navattic.com/build/captures/web)
+- [Navattic — Analyze / analytics (documentation)](https://docs.navattic.com/analyze)
+- [Storylane — Pricing](https://www.storylane.io/pricing)
+- [Storylane — Screenshot or HTML: picking the right demo format](https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format)
+- [Storylane — Guide to Demo Hub](https://www.storylane.io/plot/guide-to-demo-hub)
+- [Arcade — Pricing](https://www.arcade.software/pricing)
+- [Arcade — Record (knowledge base)](https://docs.arcade.software/kb/build/interactive-demo/record)
+- [Arcade — Exports (knowledge base)](https://docs.arcade.software/kb/build/interactive-demo/share/exports)
+- [aidemo — repository (our engine, disclosed as ours)](https://github.com/tandryukha/aidemo)
+
+## FAQ
+
+### Is Navattic or Storylane cheaper?
+
+You can only answer that for Storylane, because Navattic does not publish paid prices. Storylane lists a free plan, a Starter tier around $50 per month for screenshot demos, and its HTML demo editor on Growth at roughly $625 per month billed annually ([Storylane, July 2026](https://www.storylane.io/pricing)). Navattic offers a free Starter plan but quotes Base, Growth, and Enterprise only after a sales call ([Navattic, July 2026](https://www.navattic.com/pricing)). If you need Navattic-grade HTML fidelity with a price you can read today, Storylane's Growth tier is the transparent comparison point; Arcade is cheaper still at $50 per seat but does not clone HTML.
+
+### Which is better for a sales team versus a marketing team?
+
+Navattic leans toward sales and account-based motions, because its analytics identify who engaged and how far they got, which feeds prospecting and prioritization ([Navattic, July 2026](https://docs.navattic.com/analyze)). Storylane's demo hubs, a gallery of demos under one page, are built for top-of-funnel marketing and self-serve buyer education ([Storylane, July 2026](https://www.storylane.io/plot/guide-to-demo-hub)). Arcade suits design-forward marketing and any team that also needs the demo as an exportable video. Most teams that buy one and outgrow it were using it for the job it was worst at.
+
+### Does Arcade capture the real HTML of my app like Navattic?
+
+No. Arcade records each click as a screenshot with a hotspot and records scrolling, typing, and dragging as short video, then stitches them into a flow ([Arcade, July 2026](https://docs.arcade.software/kb/build/interactive-demo/record)). Navattic, by contrast, makes an "HTML-based" copy of your front-end that behaves like the live app ([Navattic, July 2026](https://docs.navattic.com/build/captures/web)). Storylane offers both a screenshot format and true HTML replicas. If a viewer needs to interact with a faithful copy of your interface, Navattic or a Storylane HTML demo fits; if you want a polished, produced walkthrough you can also export as a clip, Arcade fits.
+
+---
+
 # Automated product demo videos: regenerate, don't re-record
 
 July 18, 2026 · Demo Automation · https://aidemo.top/blog/automated-product-demo-videos/
@@ -1136,6 +1339,81 @@ Playwright can record the session: the `recordVideo` option on `newContext` capt
 ### How do I keep a loading spinner from ruining a screen recording?
 
 A spinner is a timer-and-animation effect, so it lands at a different phase every capture. Emulate `prefers-reduced-motion` so the app serves its calmer state, or install a fake clock so the spinner and the request behind it advance by the same ticks each run. Then wait on the loaded condition rather than a fixed sleep, and trim the idle so the finished video never sits on the spinner at all.
+
+---
+
+# Does video actually increase conversion? Tracing the 80% claim
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/does-video-increase-conversion/
+
+> The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.
+
+## Where the 80% number actually comes from
+
+Search "does video increase conversion" and the first answer is almost always a number: video on a landing page lifts conversions by 80%, sometimes 86%. It rides on vendor pages, in pitch decks, and in the opening paragraph of nearly every article on the subject. A figure that specific and that durable is worth tracing, because where it came from decides how much weight it can bear.
+
+Follow it back and the trail narrows to a single source: a 2011 batch of A/B tests by a video-advertising company called EyeView Digital, run on a handful of ecommerce landing pages. The method was the ordinary split test, half the traffic to a page with an embedded video and half to the same page without. The 86% figure was the best single result in that batch, an online tutoring service's page; "80%" is the rounded, averaged descendant that broke free of its context. The original EyeView report is no longer published anywhere you can read it. A claim that has anchored a decade of "just add a video" advice now survives only as a number that pages quote from each other.
+
+That does not make it false. It makes it one A/B test, on one page type, from one vendor, fifteen years ago, promoted into a law. A result like that is a hypothesis to test, not proof that a video will lift your conversion rate. To know whether it will, you have to separate what video correlates with from what it causes, and then look at the one mechanism that reliably moves the number in either direction.
+
+## Correlation is not the lift: what a 35,000-page analysis found
+
+The honest test of the claim is not one split test but a large corpus where you can compare pages with and without video at scale. Unbounce, a landing-page platform that spent years publishing the "add video" advice, ran that analysis across roughly 35,000 of its customers' pages and reported the result in 2021: videos "do not boost your landing page conversion rates, and in some cases might even harm them" ([Unbounce, 2021](https://unbounce.com/landing-pages/video-on-landing-pages-means-more-conversions-right-wrong-heres-why/)). On form-fill pages the difference between video and non-video pages was negligible; on click-through pages the gap ran negative; across ten industries video "generally correlate[d] with neutral or even negative page performance," and the pattern held on mobile and desktop and across every traffic channel.
+
+A corpus disagrees with the famous split test for a plain reason: selection bias. Pages that add video are not a random sample. They tend to belong to teams with bigger budgets, longer copy, and more moving parts, which is exactly the kind of page with other reasons to convert differently. When EyeView held the page constant and changed only the video, they isolated video's effect on one page. When you look across thousands of pages, video is tangled up with everything else the team did, and the clean 80% lift dissolves into noise or worse. "Has video" correlating with "converts well" is not video causing the conversion, and at corpus scale the correlation is not even reliably positive.
+
+## Your LCP budget is the real variable
+
+If video's persuasive effect is inconsistent, its performance cost is not. A page is graded by Google on Largest Contentful Paint, the time until the biggest element in the viewport renders. A good LCP is 2.5 seconds or less at the 75th percentile of loads; anything over 4.0 seconds is rated poor ([web.dev, 2026](https://web.dev/articles/lcp)). And a `<video>` element and a large hero image are both eligible to be the LCP element. Drop a heavy autoplaying video into the hero and you have not set a persuasion asset beside your page, you have often made the slowest thing on the page the thing the score is measured against.
+
+Speed is where the conversion evidence stops being ambiguous. Google, 55, and Deloitte's "Milliseconds Make Millions" study instrumented over 30 million sessions across 37 retail, travel, luxury, and lead-gen brands and found that a 0.1-second improvement in mobile load time raised retail conversions by 8.4%, travel conversions by 10.1%, and luxury product-to-cart progression by 40.1% ([Google/Deloitte, 2020](https://web.dev/case-studies/milliseconds-make-millions)). Read the sign, not the magnitude: those elasticities were measured on already-fast sites near their operating point, so you cannot multiply 8.4% across a two-second regression and claim a video costs you 168% of your conversions. What you can say is that the direction is settled. Faster converts better, a video is one of the heaviest things you can put on a page, and if it becomes the LCP element it pushes you the wrong way on the one axis where the causal link to conversion is well established.
+
+That reframes the question. "Does video increase conversion" is the wrong unit. The real question is whether a given video's persuasion lift outweighs the conversion it costs by slowing the page, and the answer turns entirely on how you ship it.
+
+## A decision table: when video lifts conversion and when it sinks it
+
+Video is not one thing you either add or skip. It is a set of choices, each of which pushes the net effect toward lift or toward loss. Here is the same asset scored on the factors that actually decide it.
+
+| Factor | Video lifts conversion when… | Video costs conversion when… |
+| --- | --- | --- |
+| Product complexity | The value is spatial, motion-based, or hard to explain in scannable text | The value is a simple list a visitor reads in five seconds |
+| Load impact | It loads lazily behind a poster and the LCP element stays a static image or headline | It autoplays as a heavy hero and becomes the LCP element |
+| Relevance | It shows the exact workflow the visitor came to evaluate | It is a generic brand reel with a logo intro |
+| User control | Click-to-play, muted by default, captioned, skippable | Autoplay with sound and no visible controls |
+| Placement | Beside or below the primary CTA, not displacing it | It shoves the value prop and CTA below the fold |
+| Visitor intent | High-intent visitors researching a considered purchase | Cold feed traffic that bounces in the first three seconds |
+
+Read down the "costs conversion" column and you have a fair description of the default landing-page hero video: an autoplaying, heavy brand reel that becomes the LCP element and pushes the CTA down. Read the "lifts conversion" column and you have a click-to-play, captioned, relevant product walkthrough that loads after the page is interactive. Same medium, opposite outcomes. It is also why the honest comparison is sometimes not video at all: a [clickable interactive demo](/blog/interactive-demo-vs-video-demo) can carry a complex product without the byte weight of a video hero, and [the numbers you instrument](/blog/demo-video-metrics) are what tell you which one actually won.
+
+## Adding video without paying the speed tax
+
+The engineering fix is to decouple the video from the page's first paint, so it can persuade the visitors who want it without taxing the ones who do not. Keep the LCP element a static poster image or a text headline, and load the video on interaction rather than on load. Nielsen Norman Group's usability research arrives at the same place from the user's side: people dislike video that plays without their consent, video forces slow sequential access where the web rewards scanning, and critical information should exist as text regardless ([Nielsen Norman Group, 2014](https://www.nngroup.com/articles/video-usability/)). A click-to-play, captioned, transcript-backed video respects the visitor and the performance budget at once.
+
+A few rules follow directly. Give every embed a poster frame so the hero paints instantly. Do not autoplay a full-weight file; use a lightweight preview or a facade that swaps in the real player on click. Right-size the file to the placement, because a landing hero does not need a four-minute cut, and [the right length is a per-placement decision](/blog/how-long-should-a-demo-video-be). Then measure it: Wistia's 2026 data shows fewer than half of marketers even connect their video platform to a CRM or email tool, so most "video increased conversion" claims are never checked against pipeline at all ([Wistia, 2026](https://wistia.com/learn/marketing/video-marketing-statistics)).
+
+Because delivery is where the win lives, treating the demo as something you can re-cut and re-encode per placement matters more than the recording itself. Our own engine, aidemo, renders a demo from an agent-authored storyboard so the same flow exports at different lengths and sizes for a hero, a poster, or a lazy-loaded embed; its honest limits are that it captures the browser only and offers no drag-on-a-timeline editor, so it earns its keep on a demo that must ship to several placements rather than on a single quick screencast. The tool is beside the point. The finding is not "video does not work." It is that video's effect on conversion is dominated by relevance and load time, which is why a relevant clip that respects your LCP budget can help, a heavy autoplay hero reliably will not, and how one recording reaches [every channel](/blog/video-marketing-for-software) is the decision that actually pays.
+
+## Sources
+
+- [Unbounce — Video on Landing Pages: Does It Really Mean More Conversions?](https://unbounce.com/landing-pages/video-on-landing-pages-means-more-conversions-right-wrong-heres-why/)
+- [web.dev — Largest Contentful Paint (LCP)](https://web.dev/articles/lcp)
+- [web.dev — Milliseconds Make Millions (Google, 55, and Deloitte)](https://web.dev/case-studies/milliseconds-make-millions)
+- [Nielsen Norman Group — Video Usability](https://www.nngroup.com/articles/video-usability/)
+- [Wistia — State of Video Report: Video Marketing Statistics for 2026](https://wistia.com/learn/marketing/video-marketing-statistics)
+
+## FAQ
+
+### Does video on a landing page increase conversion rate?
+
+Sometimes, and not by the 80% the marketing pages promise. That figure traces to a single 2011 EyeView A/B test, while Unbounce's later analysis of roughly 35,000 pages found video correlating with neutral-to-negative conversion ([Unbounce, 2021](https://unbounce.com/landing-pages/video-on-landing-pages-means-more-conversions-right-wrong-heres-why/)). Video helps when it explains a genuinely complex product, matches what the visitor came to evaluate, and loads without slowing the page. It hurts when it is a generic reel that becomes the slowest element on the page.
+
+### Why did adding a video lower my conversion rate?
+
+The most common cause is speed. If the video autoplays in the hero it can become your Largest Contentful Paint element, and a good LCP is 2.5 seconds or less ([web.dev, 2026](https://web.dev/articles/lcp)). A 0.1-second slowdown alone was enough to move retail conversions 8.4% in Google and Deloitte's data ([Google/Deloitte, 2020](https://web.dev/case-studies/milliseconds-make-millions)). A heavy hero video also pushes your value prop and CTA below the fold. Move the video to click-to-play behind a poster and keep a static image or headline as the LCP element.
+
+### Does an autoplay hero video hurt Core Web Vitals?
+
+It can, in two ways. A `<video>` element is eligible to be the LCP element, so a heavy autoplaying hero can set the number the score is graded on, and a good LCP is 2.5 seconds or less at the 75th percentile ([web.dev, 2026](https://web.dev/articles/lcp)). The fix is to give the hero a lightweight poster image or a text headline as the LCP element and defer the actual video file until the visitor interacts, which keeps first paint fast while still offering the video to anyone who wants it.
 
 ---
 
@@ -2153,6 +2431,87 @@ GitHub serves README images through its Camo proxy, which caches them, so a fres
 
 ---
 
+# How to record just one browser tab (three ways, one clean result)
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/record-a-browser-tab/
+
+> Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.
+
+## A browser tab is a capture surface, not a crop of your desktop
+
+When you "record your screen," the default surface is a whole monitor: every window, the dock or taskbar, and whatever notification chooses that moment to slide in. Recording one browser tab is not that picture cropped down after the fact. It is a different capture surface, and the browser hands it over as a first-class thing. The Screen Capture API grants exactly three display surfaces, reported through the `displaySurface` value: a `monitor` (a full screen), a `window` (one application window), and a `browser` surface, which MDN defines as "the entire contents of a single browser tab which the user selected" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/displaySurface)). That third surface is what "record just this tab" delivers, and understanding why it is the cleanest of the three is the entire reason to bother scoping.
+
+"Entire contents" is the load-bearing phrase. A `browser` surface is the tab's rendered content and nothing around it: no URL bar, no tab strip, no bookmarks, no window behind it, and no desktop under the window. Everything a full-screen recording has to hide, a tab recording never sees. The most useful thing it never sees is a notification. An operating-system toast is drawn by the OS on top of every window, outside any tab, so it can appear in a monitor capture and physically cannot appear in a browser one. Picking the tab surface is the step past [turning notifications off before you record](/blog/hide-notifications-while-recording): instead of trusting that Do Not Disturb held, you record a surface where a stray toast has nowhere to render.
+
+Scoping to a tab also stops the resolution waste. A monitor capture spends pixels on a taskbar and two-thirds of a desktop you will crop away, and cropping into a landscape capture after the fact throws away the detail that made the text sharp. A tab surface frames only the product to begin with. There are three ways to get that surface into a file. They capture nearly the same pixels; they differ in who points at the tab, and that is what sets fidelity, what can still leak, and whether you can ever reproduce the take.
+
+## Mechanism one: the browser's own tab surface
+
+The zero-install path is the share picker every browser recorder already calls. `getDisplayMedia()` "prompts the user to select and grant permission to capture the contents of a display or portion thereof (such as a window)" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia)), and the "Choose what to share" dialog it raises has a tab pane, labeled "Chrome Tab" in Chrome. Any recorder that captures through the browser surfaces it; pick a tab and the stream is that tab.
+
+Chrome adds constraints that make the pick deliberate instead of hopeful. A page can pass `preferCurrentTab: true` to offer its own tab "as a separate 'This Tab' option" (Chrome and Edge 94+), prefer the tab pane through `displaySurface` (Chrome 107), or set `monitorTypeSurfaces: "exclude"` to strip whole-screen options out of the dialog so nobody fat-fingers a full desktop share (Chrome 119) ([Chrome for Developers, 2026](https://developer.chrome.com/docs/web-platform/screen-sharing-controls)). Two refinements sharpen a solo recording further. Region Capture (Chrome 104) crops a self-capture to a single DOM element with `track.cropTo(cropTarget)`, "cropping all pixels outside that area" ([Chrome for Developers, 2025](https://developer.chrome.com/docs/web-platform/region-capture)), so you can film one panel rather than the whole page. And Conditional Focus (Chrome 109) lets the app call `setFocusBehavior("focus-capturing-application")` so starting capture does not yank focus onto the recorded tab ([Chrome for Developers, 2026](https://developer.chrome.com/docs/web-platform/conditional-focus)).
+
+The catch is that this is a live performance. You start it, you drive the cursor, and the fidelity is whatever your display renders: a crisp 2x on a HiDPI panel, a flat 1x with no headroom on a plain 1080p monitor, which is the same math the [capture-quality checklist](/blog/how-to-record-your-screen-in-high-quality) spells out. Record the same flow twice and you get two different videos.
+
+## Mechanism two: an extension that locks onto the tab
+
+A recorder extension trades the install for a firmer grip on the tab. Under the hood it uses `chrome.tabCapture`, which gives "access to a MediaStream containing video and audio from the current tab" and "can only be called after the user invokes an extension, such as by clicking the extension's action button" ([Chrome for Developers, 2026](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)). That binding is the feature: the stream is tied to the tab that was active when you clicked, so switching tabs mid-recording keeps the camera on the original one instead of following you away. A recorder like Screencastify exposes exactly this as a "Browser Tab" mode with a tab-audio toggle.
+
+Audio comes with a footnote. Capturing a tab means "audio in that tab will no longer be played to the user," so extensions re-route the stream through an `AudioContext` back to the speakers to keep playback audible ([Chrome for Developers, 2026](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)). Fidelity is the same display-dependent capture as mechanism one, and it is still a hand-timed, one-off take. What you buy for the install is the tab lock, reliable tab audio, and usually on-canvas annotation while you record.
+
+## Mechanism three: a headless browser you drive from code
+
+The third path removes the human and, optionally, the display. A program opens the tab, drives it, and captures frames directly. The Chrome DevTools Protocol does it with `Page.startScreencast`, which streams frames through the `screencastFrame` event at a chosen `format` (jpeg or png), `quality`, and `everyNthFrame` throttle ([Chrome DevTools Protocol, 2026](https://chromedevtools.github.io/devtools-protocol/tot/Page/)). Higher up, Playwright records a whole context with `recordVideo`: "Videos are saved upon browser context closure," and "the video size defaults to the viewport size scaled down to fit 800x800," with the viewport placed in the top-left corner ([Playwright, 2026](https://playwright.dev/docs/videos)). There is no browser chrome in the frame at all, because there is no window being filmed, only the page.
+
+Because a script sets the viewport and device-pixel-ratio, fidelity stops depending on the monitor: pin a 1280x720 viewport at DPR 2 and every run rasterizes to the same 2560x1440 grid, on a laptop or a [display-less CI runner](/blog/headless-screen-recording) alike. And because the flow is a fixed script rather than a performance, the same input renders the same frames every time, the property that turns a demo into something a pipeline can rebuild on the commit that changed the UI. That determinism is not free: it takes [pinned waits, a frozen clock, and a controlled network](/blog/deterministic-browser-automation-for-video) to make one browser flow produce identical footage twice.
+
+## The three mechanisms, scored
+
+| | Browser tab surface | Recorder extension | Headless / scripted |
+|---|---|---|---|
+| Who points at the tab | you, in the share picker | you, via the extension button | a script |
+| Fidelity | display DPR (2x on HiDPI, else flat 1x) | display DPR, plus tab audio | pinned viewport and DPR, monitor-independent |
+| What can still leak | in-page modals, cookie banners, a logged-in name; a wrong-tab pick | in-page content only | only what the script navigates to |
+| Repeatability | one-off, different every run | one-off, hand-timed | deterministic, re-renders identically |
+| Setup | none | install an extension | an automation pipeline |
+| Runs headless / in CI | no | no | yes |
+
+Every row rests on the fact the first section set up: none of the three can film an OS notification or another window, because a tab surface is only the tab. The columns diverge on everything a human still controls, and they sort cleanly by how many times you expect to make this exact video. The only leak a tab surface cannot save you from is one inside the page itself, a half-dismissed cookie banner or a real customer name in the account you logged into, so a clean recording profile still earns its keep.
+
+## When each mechanism is the right one
+
+For a one-off clip of something happening in a tab, mechanism one is the honest answer: it is already in your browser and needs no account. If you need the tab's audio, want to move between tabs without losing the shot, or want to annotate as you go, the extension earns its install. Reach for the scripted path when the video is not a one-off: a demo that has to re-render when the UI ships, run in CI with no display, or fan out into several languages from one recording is a rendering job, not a take you perform again each time.
+
+That last case is where our own engine, aidemo, sits: it drives a real Chrome tab through an agent-authored storyboard and records deterministically, so the same spec re-renders the same tab on every run. The honest limits are the shape of the tool. aidemo records inside a browser tab and nothing else, so a native desktop app is out of its reach; the storyboard is written in code rather than dragged on a GUI timeline; and for a single throwaway clip, the browser's own picker is far less setup. The point is not that one mechanism wins. It is that "record one tab" is three different jobs, and picking the surface on purpose is what buys you [a clean frame worth keeping](/blog/professional-screen-recordings).
+
+## Sources
+
+- [MDN — MediaTrackSettings: displaySurface (browser, window, monitor)](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/displaySurface)
+- [MDN — MediaDevices: getDisplayMedia()](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia)
+- [MDN — Screen Capture API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API)
+- [Chrome for Developers — Privacy-preserving screen sharing controls (displaySurface, monitorTypeSurfaces, systemAudio, versions)](https://developer.chrome.com/docs/web-platform/screen-sharing-controls)
+- [Chrome for Developers — chrome.tabCapture API](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)
+- [Chrome for Developers — Better tab sharing with Region Capture](https://developer.chrome.com/docs/web-platform/region-capture)
+- [Chrome for Developers — Better screen sharing with Conditional Focus](https://developer.chrome.com/docs/web-platform/conditional-focus)
+- [Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame)](https://chromedevtools.github.io/devtools-protocol/tot/Page/)
+- [Playwright — Videos (recordVideo, saved on context close, sized to viewport)](https://playwright.dev/docs/videos)
+
+## FAQ
+
+### How do I record just one tab in Chrome?
+
+Open your recorder's share dialog, or a browser-based recorder, and choose the "Chrome Tab" pane in Chrome's "Choose what to share" prompt, then pick the tab; the stream is that tab's rendered content and nothing around it. Under the hood this is `getDisplayMedia()` granting a `browser` display surface. For a hands-off, repeatable version, drive the tab from a script with Playwright or the DevTools Protocol instead of clicking record by hand.
+
+### Does recording a browser tab capture my notifications?
+
+Not the operating-system ones. A tab capture is "the entire contents of a single browser tab," and OS toasts from Slack, Mail, or your calendar are drawn by the OS on top of every window, outside any tab, so they cannot land in the frame. What can still show up is in-page content: a modal, a cookie banner, or a logged-in username inside the app itself. Only a full-screen monitor capture can film a desktop notification, which is the main reason to scope a demo to a tab.
+
+### Can I record a browser tab together with its audio?
+
+Yes. Chrome can capture tab audio through `getDisplayMedia()` or `chrome.tabCapture`, though capturing a tab means "audio in that tab will no longer be played to the user," so recorder extensions route the stream back to your speakers so you still hear it while recording. Chrome's `systemAudio` control (Chrome 105) governs whether whole-screen shares are offered audio at all; tab and window shares are offered audio, and screens can be excluded.
+
+---
+
 # SaaS demo video examples: what the best ones do differently
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/saas-demo-video-examples/
@@ -2674,6 +3033,72 @@ Think in placements, not genres. The working set is a landing-page hero, a produ
 ### Is video marketing worth it for a small software startup?
 
 It is worth it when one recording serves many channels, and a money pit when every channel gets its own shoot. HubSpot found 83% of marketers name social media their highest-ROI video channel, and short-form the highest-ROI format, so the return is real. The cost that sinks small teams is per-channel re-recording, especially when the product keeps shipping. Solve distribution as a render matrix off one master, and a two-person team can cover nine surfaces.
+
+---
+
+# Video vs written documentation: the decision, with evidence
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/video-vs-written-documentation/
+
+> Stop asking whether your docs should be video or text. Score each doc job on four axes and read the right format off the total, evidence not vibes.
+
+## Four axes decide the format, not a preference poll
+
+Asking whether your docs should be video or text is the wrong question, because it gets asked once for a whole documentation set when the real decision happens page by page. The usual tiebreaker, a survey where most people say they would rather watch than read, settles nothing: it measures which format people enjoy, not which one teaches a task faster or leaves a reader stranded. A better instrument is a rubric you run against each doc job, scoring four independent axes and reading the format off the total. The four are the nature of the knowledge (spatial or symbolic), how the reader consumes it (once or repeatedly), how fast the thing on screen changes, and how the reader arrives at the page. The [pillar maps the whole doc surface at once](/blog/video-documentation); this spoke is the scorecard for a single passage, so the medium stops being a matter of taste.
+
+## Axis one: spatial knowledge versus symbolic knowledge
+
+The first question is what kind of knowledge the passage carries. Spatial and temporal knowledge, where a thing sits, how it moves, what changes between two states, is what prose is worst at and motion is best at. A paragraph can assert that a panel slides in when you drop a card on a lane; three seconds of video prove it, and the reader never has to guess which panel or which edge. Symbolic knowledge is the opposite: the exact name of a field, the value a flag takes, the precise wording of an error. That is what text renders exactly and video only gestures at. Software professionals feel the pull themselves. When Oliver Karras asked them directly, 59 of the 64 who answered saw video as able to sharpen how requirements get communicated, yet the same respondents did not want it everywhere, and 34 flagged real obstacles to using it at all ([Karras, 2018](https://arxiv.org/abs/1809.00804)). Video earns points here only when the difficulty is spatial, not conceptual.
+
+## Axis two: read once, or return a hundred times
+
+The second axis is consumption pattern, and it is the one teams get most wrong. Some docs are read once, while the reader builds a mental model of a thing they have never seen: a first-run tour, an unfamiliar workflow, an onboarding path. Others get hit repeatedly, mid-task, by someone who already knows what they want and needs to grab one detail and leave. Video suits the first and actively punishes the second, because it can only be taken in linearly. Amy Schade's usability work found that video defeats the skim-and-jump reading people default to on informational pages, and that it costs a reader more time than the same content set in text ([Schade, NN/g, 2014](https://www.nngroup.com/articles/video-usability/)). Someone who returns to a page forty times a month to copy the same command will not watch ninety seconds to reach second sixty-one, ever.
+
+## Axis three: how fast the thing on screen changes
+
+The third axis turns a good video into a liability, and it has nothing to do with the reader. Everything you film has a decay rate: the exact UI, the button labels, the API response on screen. A text step that goes stale is a small correction; a stale clip is a narrator pointing with confidence at a control that has since moved. The cruelty is that the highest-value doc videos, first-run and onboarding, sit on the fastest-changing surface, so [the rot arithmetic](/blog/why-product-demos-go-stale) is worst exactly where video helps most. This axis carries a veto: if the thing on screen churns and you have no way to regenerate the clip, video scores negative no matter how spatial the task is. The only escape is a video that rebuilds from a spec instead of a hand-recorded take. Our own engine, aidemo, is one take on that pattern, disclosed and honestly limited: it drives a real browser and only a browser, its storyboard is authored by an agent and corrected in text by a human, and nothing in it resembles a timeline you drag clips around in. The mechanism matters more than the tool. A high-churn surface can carry video only if the video is regenerable.
+
+## Axis four: whether the reader arrives by searching
+
+The last axis is the entry path. Readers who reach a page through an onboarding sequence or an in-app link arrive ready to watch. Readers who reach it by typing an exact string into a search box or a find-in-page bar hit a wall. You cannot search the pixels of a video, a reader cannot lift a command or a config value out of a playing frame, and a crawler does not read footage at all. Google is explicit that it leans on the text around a video to place it: it "recommends providing metadata," requires that the "watch page must be indexed," and asks that each page carry a "page title and description that are unique to that video" ([Google Search Central, accessed July 2026](https://developers.google.com/search/docs/appearance/video)). Pixels are not self-describing, to a crawler or to a reader in a hurry. A transcript recovers some of this by handing search and the impatient reader a text layer, which is why [captions and a transcript belong on every doc clip](/blog/demo-video-captions), but a transcript is just text doing the findable work the footage cannot.
+
+## The scorecard, run against three real doc jobs
+
+Score each axis from minus two (text) to plus two (video), add the four, and read the route. Plus four or more means make it a video or a short silent clip; minus four or lower means keep it text; anything between means both, with text as the page and a clip beside the one step that needs motion. Axis three keeps its veto: a negative change-rate score with no regeneration path caps the whole total at zero.
+
+| Doc job | Task | Consume | Change rate | Entry | Total | Route |
+|---|---|---|---|---|---|---|
+| "How do I drag a card between columns?" | +2 spatial | 0 mixed | 0 stable | -2 search | 0 | Both: text steps, 10s clip |
+| "What fields are in the webhook payload?" | -2 symbolic | -2 reference | -2 breaks silently | -2 search | -8 | Text only |
+| "First run: connect a data source" | +2 spatial | +2 learn-once | -2 first-run churns | +2 in-app link | +4* | Video, only if regenerable |
+
+The drag question lands at zero, which is the honest answer: a ten-second wordless loop next to written steps, the [microvideo unit most docs sites actually keep](/blog/microvideos-in-documentation). The webhook reference bottoms out at minus eight and never becomes a video; every axis pushes it to text. The onboarding job scores plus four, the textbook case for motion, but the asterisk is the whole point, because it also scores worst on change rate, so it is only a video if you can rebuild it. And for onboarding the live contest is often [video against an interactive product tour](/blog/interactive-demo-vs-video-demo) rather than video against text, which turns on where the doc lives, not on this rubric.
+
+## Where text quietly, permanently wins
+
+Two facts keep text the default substrate no matter how the axes fall. First, people do not read documentation, they scan it: Nielsen's testing found "79 percent of our test users always scanned any new page they came across; only 16 percent read word-by-word" ([Nielsen, NN/g, 1997](https://www.nngroup.com/articles/how-users-read-on-the-web/)). Scanning is a text affordance; footage has no shape to skim. Second, text is what everything else is built on: search indexes it, screen readers speak it, a pull request diffs it, and a reader copies from it. Video is also the harder medium to make well. Karras and Schneider are blunt that most people who would shoot these clips "are not directors" and "do not necessarily have the required skills," which is why they argue for a quality model so teams can produce "good videos at moderate costs, yet sufficient quality" ([Karras and Schneider, 2018](https://arxiv.org/abs/1808.04986)). None of that says never shoot a video. It says text is the floor, and video is the addition you make when a passage scores its way onto the screen, never the reverse.
+
+## Sources
+
+- [Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering](https://arxiv.org/abs/1809.00804)
+- [Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?](https://arxiv.org/abs/1808.04986)
+- [Nielsen, Nielsen Norman Group (1997) — How Users Read on the Web](https://www.nngroup.com/articles/how-users-read-on-the-web/)
+- [Schade, Nielsen Norman Group (2014) — Video Usability](https://www.nngroup.com/articles/video-usability/)
+- [Google Search Central — Video best practices (accessed July 2026)](https://developers.google.com/search/docs/appearance/video)
+
+## FAQ
+
+### Should documentation be video or text?
+
+Decide it per passage, not per project. Score the job on four axes: is the knowledge spatial or symbolic, is it read once or looked up repeatedly, how fast does the thing on screen change, and does the reader arrive by searching. Spatial, learn-once, stable, link-arrival jobs want video; symbolic, repeated, fast-changing, search-arrival jobs want text. Most pages land in between and want text with a short clip beside the step that needs motion.
+
+### Do developers prefer video or written documentation?
+
+For learning something unfamiliar, many welcome it: in Karras's 2018 survey, 59 of 64 software professionals said video could improve requirements communication. For reference work they reach for text every time, because they scan, search, and copy, and video allows none of the three. The preference splits by task, not by person, so a blanket "developers prefer X" claim is useless for a format decision.
+
+### Is it worth making both a video and a written version?
+
+Often yes, and it is less work than it sounds, because the text is not optional. A transcript next to a clip is indexable by search, skimmable by a reader in a rush, and required for accessibility, so the words earn their place three ways at once. The mistake is treating the pair as two full docs; treat the text as the page and the video as the one step that genuinely needs motion.
 
 ---
 

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video vs written documentation: decide it | aidemo</title>
+<meta name="description" content="A four-axis rubric for choosing video or text for each doc job, grounded in software-engineering research and honest that text still wins at lookup.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/video-vs-written-documentation/">
+<link rel="alternate" type="text/markdown" href="/blog/video-vs-written-documentation/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Video vs written documentation: decide it | aidemo">
+<meta property="og:description" content="A four-axis rubric for choosing video or text for each doc job, grounded in software-engineering research and honest that text still wins at lookup.">
+<meta property="og:url" content="https://aidemo.top/blog/video-vs-written-documentation/">
+<meta property="og:image" content="https://aidemo.top/blog/images/video-vs-written-documentation-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Video vs written documentation: decide it | aidemo">
+<meta name="twitter:description" content="A four-axis rubric for choosing video or text for each doc job, grounded in software-engineering research and honest that text still wins at lookup.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/video-vs-written-documentation-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Video vs written documentation: the decision, with evidence",
+  "description": "A four-axis rubric for choosing video or text for each doc job, grounded in software-engineering research and honest that text still wins at lookup.",
+  "image": [
+    "https://aidemo.top/blog/images/video-vs-written-documentation-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/video-vs-written-documentation/"
+  },
+  "wordCount": 1684,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering",
+      "url": "https://arxiv.org/abs/1809.00804"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?",
+      "url": "https://arxiv.org/abs/1808.04986"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Nielsen, Nielsen Norman Group (1997) — How Users Read on the Web",
+      "url": "https://www.nngroup.com/articles/how-users-read-on-the-web/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Schade, Nielsen Norman Group (2014) — Video Usability",
+      "url": "https://www.nngroup.com/articles/video-usability/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Search Central — Video best practices (accessed July 2026)",
+      "url": "https://developers.google.com/search/docs/appearance/video"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Video vs written documentation: the decision, with evidence",
+      "item": "https://aidemo.top/blog/video-vs-written-documentation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should documentation be video or text?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Decide it per passage, not per project. Score the job on four axes: is the knowledge spatial or symbolic, is it read once or looked up repeatedly, how fast does the thing on screen change, and does the reader arrive by searching. Spatial, learn-once, stable, link-arrival jobs want video; symbolic, repeated, fast-changing, search-arrival jobs want text. Most pages land in between and want text with a short clip beside the step that needs motion."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do developers prefer video or written documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For learning something unfamiliar, many welcome it: in Karras's 2018 survey, 59 of 64 software professionals said video could improve requirements communication. For reference work they reach for text every time, because they scan, search, and copy, and video allows none of the three. The preference splits by task, not by person, so a blanket \"developers prefer X\" claim is useless for a format decision."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it worth making both a video and a written version?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Often yes, and it is less work than it sounds, because the text is not optional. A transcript next to a clip is indexable by search, skimmable by a reader in a rush, and required for accessibility, so the words earn their place three ways at once. The mistake is treating the pair as two full docs; treat the text as the page and the video as the one step that genuinely needs motion."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Video vs written documentation: the decision, with evidence</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Video vs written documentation: the decision, with evidence</h1>
+        <p class="article-dek">Stop asking whether your docs should be video or text. Score each doc job on four axes and read the right format off the total, evidence not vibes.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#four-axes-decide-the-format-not-a-preference-poll">Four axes decide the format, not a preference poll</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#axis-one-spatial-knowledge-versus-symbolic-knowledge">Axis one: spatial knowledge versus symbolic knowledge</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#axis-two-read-once-or-return-a-hundred-times">Axis two: read once, or return a hundred times</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#axis-three-how-fast-the-thing-on-screen-changes">Axis three: how fast the thing on screen changes</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#axis-four-whether-the-reader-arrives-by-searching">Axis four: whether the reader arrives by searching</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-scorecard-run-against-three-real-doc-jobs">The scorecard, run against three real doc jobs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-text-quietly-permanently-wins">Where text quietly, permanently wins</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/video-vs-written-documentation-800.webp" srcset="/blog/images/video-vs-written-documentation-400.webp 400w, /blog/images/video-vs-written-documentation-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A cast-iron railroad switch stand with a round throw lever."><figcaption>Every doc page is a switch: the job decides the track, and only one setting keeps readers moving instead of stranded.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Decide per passage, not per project: score four axes (spatial vs symbolic, learn vs look-up, change rate, entry path) from -2 to +2 and read the format off the total.</li>
+    <li>Karras's 2018 survey: 59 of 64 software pros said video could improve requirements communication, but 34 named obstacles. Video is welcome, not the default.</li>
+    <li>Text wins at lookup: Nielsen (NN/g) found 79% of users scan pages and only 16% read word-by-word, and you cannot search, copy, or diff a video frame.</li>
+    <li>The maintenance veto: first-run video sits on the fastest-changing UI, so only ship it if the clip regenerates from a spec.</li>
+    <li>Most doc pages score in the middle and want both: text as the page, a 10-second clip beside the one step that needs motion.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="four-axes-decide-the-format-not-a-preference-poll">Four axes decide the format, not a preference poll<a class="hanchor" href="#four-axes-decide-the-format-not-a-preference-poll" aria-label="Link to section: Four axes decide the format, not a preference poll">#</a></h2>
+<p>Asking whether your docs should be video or text is the wrong question, because it gets asked once for a whole documentation set when the real decision happens page by page. The usual tiebreaker, a survey where most people say they would rather watch than read, settles nothing: it measures which format people enjoy, not which one teaches a task faster or leaves a reader stranded. A better instrument is a rubric you run against each doc job, scoring four independent axes and reading the format off the total. The four are the nature of the knowledge (spatial or symbolic), how the reader consumes it (once or repeatedly), how fast the thing on screen changes, and how the reader arrives at the page. The <a href="/blog/video-documentation/">pillar maps the whole doc surface at once</a>; this spoke is the scorecard for a single passage, so the medium stops being a matter of taste.</p>
+<h2 id="axis-one-spatial-knowledge-versus-symbolic-knowledge">Axis one: spatial knowledge versus symbolic knowledge<a class="hanchor" href="#axis-one-spatial-knowledge-versus-symbolic-knowledge" aria-label="Link to section: Axis one: spatial knowledge versus symbolic knowledge">#</a></h2>
+<p>The first question is what kind of knowledge the passage carries. Spatial and temporal knowledge, where a thing sits, how it moves, what changes between two states, is what prose is worst at and motion is best at. A paragraph can assert that a panel slides in when you drop a card on a lane; three seconds of video prove it, and the reader never has to guess which panel or which edge. Symbolic knowledge is the opposite: the exact name of a field, the value a flag takes, the precise wording of an error. That is what text renders exactly and video only gestures at. Software professionals feel the pull themselves. When Oliver Karras asked them directly, 59 of the 64 who answered saw video as able to sharpen how requirements get communicated, yet the same respondents did not want it everywhere, and 34 flagged real obstacles to using it at all<sup class="article-cite"><a href="#src-1" title="Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering">1</a></sup>. Video earns points here only when the difficulty is spatial, not conceptual.</p>
+<h2 id="axis-two-read-once-or-return-a-hundred-times">Axis two: read once, or return a hundred times<a class="hanchor" href="#axis-two-read-once-or-return-a-hundred-times" aria-label="Link to section: Axis two: read once, or return a hundred times">#</a></h2>
+<p>The second axis is consumption pattern, and it is the one teams get most wrong. Some docs are read once, while the reader builds a mental model of a thing they have never seen: a first-run tour, an unfamiliar workflow, an onboarding path. Others get hit repeatedly, mid-task, by someone who already knows what they want and needs to grab one detail and leave. Video suits the first and actively punishes the second, because it can only be taken in linearly. Amy Schade&#39;s usability work found that video defeats the skim-and-jump reading people default to on informational pages, and that it costs a reader more time than the same content set in text<sup class="article-cite"><a href="#src-4" title="Schade, Nielsen Norman Group (2014) — Video Usability">4</a></sup>. Someone who returns to a page forty times a month to copy the same command will not watch ninety seconds to reach second sixty-one, ever.</p>
+<h2 id="axis-three-how-fast-the-thing-on-screen-changes">Axis three: how fast the thing on screen changes<a class="hanchor" href="#axis-three-how-fast-the-thing-on-screen-changes" aria-label="Link to section: Axis three: how fast the thing on screen changes">#</a></h2>
+<p>The third axis turns a good video into a liability, and it has nothing to do with the reader. Everything you film has a decay rate: the exact UI, the button labels, the API response on screen. A text step that goes stale is a small correction; a stale clip is a narrator pointing with confidence at a control that has since moved. The cruelty is that the highest-value doc videos, first-run and onboarding, sit on the fastest-changing surface, so <a href="/blog/why-product-demos-go-stale/">the rot arithmetic</a> is worst exactly where video helps most. This axis carries a veto: if the thing on screen churns and you have no way to regenerate the clip, video scores negative no matter how spatial the task is. The only escape is a video that rebuilds from a spec instead of a hand-recorded take. Our own engine, aidemo, is one take on that pattern, disclosed and honestly limited: it drives a real browser and only a browser, its storyboard is authored by an agent and corrected in text by a human, and nothing in it resembles a timeline you drag clips around in. The mechanism matters more than the tool. A high-churn surface can carry video only if the video is regenerable.</p>
+<h2 id="axis-four-whether-the-reader-arrives-by-searching">Axis four: whether the reader arrives by searching<a class="hanchor" href="#axis-four-whether-the-reader-arrives-by-searching" aria-label="Link to section: Axis four: whether the reader arrives by searching">#</a></h2>
+<p>The last axis is the entry path. Readers who reach a page through an onboarding sequence or an in-app link arrive ready to watch. Readers who reach it by typing an exact string into a search box or a find-in-page bar hit a wall. You cannot search the pixels of a video, a reader cannot lift a command or a config value out of a playing frame, and a crawler does not read footage at all. Google is explicit that it leans on the text around a video to place it: it &quot;recommends providing metadata,&quot; requires that the &quot;watch page must be indexed,&quot; and asks that each page carry a &quot;page title and description that are unique to that video&quot;<sup class="article-cite"><a href="#src-5" title="Google Search Central — Video best practices (accessed July 2026)">5</a></sup>. Pixels are not self-describing, to a crawler or to a reader in a hurry. A transcript recovers some of this by handing search and the impatient reader a text layer, which is why <a href="/blog/demo-video-captions/">captions and a transcript belong on every doc clip</a>, but a transcript is just text doing the findable work the footage cannot.</p>
+<h2 id="the-scorecard-run-against-three-real-doc-jobs">The scorecard, run against three real doc jobs<a class="hanchor" href="#the-scorecard-run-against-three-real-doc-jobs" aria-label="Link to section: The scorecard, run against three real doc jobs">#</a></h2>
+<p>Score each axis from minus two (text) to plus two (video), add the four, and read the route. Plus four or more means make it a video or a short silent clip; minus four or lower means keep it text; anything between means both, with text as the page and a clip beside the one step that needs motion. Axis three keeps its veto: a negative change-rate score with no regeneration path caps the whole total at zero.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Doc job</th>
+<th>Task</th>
+<th>Consume</th>
+<th>Change rate</th>
+<th>Entry</th>
+<th>Total</th>
+<th>Route</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;How do I drag a card between columns?&quot;</td>
+<td>+2 spatial</td>
+<td>0 mixed</td>
+<td>0 stable</td>
+<td>-2 search</td>
+<td>0</td>
+<td>Both: text steps, 10s clip</td>
+</tr>
+<tr>
+<td>&quot;What fields are in the webhook payload?&quot;</td>
+<td>-2 symbolic</td>
+<td>-2 reference</td>
+<td>-2 breaks silently</td>
+<td>-2 search</td>
+<td>-8</td>
+<td>Text only</td>
+</tr>
+<tr>
+<td>&quot;First run: connect a data source&quot;</td>
+<td>+2 spatial</td>
+<td>+2 learn-once</td>
+<td>-2 first-run churns</td>
+<td>+2 in-app link</td>
+<td>+4*</td>
+<td>Video, only if regenerable</td>
+</tr>
+</tbody></table></div>
+<p>The drag question lands at zero, which is the honest answer: a ten-second wordless loop next to written steps, the microvideo unit most docs sites actually keep. The webhook reference bottoms out at minus eight and never becomes a video; every axis pushes it to text. The onboarding job scores plus four, the textbook case for motion, but the asterisk is the whole point, because it also scores worst on change rate, so it is only a video if you can rebuild it. And for onboarding the live contest is often <a href="/blog/interactive-demo-vs-video-demo/">video against an interactive product tour</a> rather than video against text, which turns on where the doc lives, not on this rubric.</p>
+<h2 id="where-text-quietly-permanently-wins">Where text quietly, permanently wins<a class="hanchor" href="#where-text-quietly-permanently-wins" aria-label="Link to section: Where text quietly, permanently wins">#</a></h2>
+<p>Two facts keep text the default substrate no matter how the axes fall. First, people do not read documentation, they scan it: Nielsen&#39;s testing found &quot;79 percent of our test users always scanned any new page they came across; only 16 percent read word-by-word&quot;<sup class="article-cite"><a href="#src-3" title="Nielsen, Nielsen Norman Group (1997) — How Users Read on the Web">3</a></sup>. Scanning is a text affordance; footage has no shape to skim. Second, text is what everything else is built on: search indexes it, screen readers speak it, a pull request diffs it, and a reader copies from it. Video is also the harder medium to make well. Karras and Schneider are blunt that most people who would shoot these clips &quot;are not directors&quot; and &quot;do not necessarily have the required skills,&quot; which is why they argue for a quality model so teams can produce &quot;good videos at moderate costs, yet sufficient quality&quot;<sup class="article-cite"><a href="#src-2" title="Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?">2</a></sup>. None of that says never shoot a video. It says text is the floor, and video is the addition you make when a passage scores its way onto the screen, never the reverse.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://arxiv.org/abs/1809.00804" rel="noopener">Karras (2018) — Software Professionals' Attitudes towards Video as a Medium in Requirements Engineering</a></li>
+<li id="src-2"><a href="https://arxiv.org/abs/1808.04986" rel="noopener">Karras and Schneider (2018) — Software Professionals are Not Directors: What Constitutes a Good Video?</a></li>
+<li id="src-3"><a href="https://www.nngroup.com/articles/how-users-read-on-the-web/" rel="noopener">Nielsen, Nielsen Norman Group (1997) — How Users Read on the Web</a></li>
+<li id="src-4"><a href="https://www.nngroup.com/articles/video-usability/" rel="noopener">Schade, Nielsen Norman Group (2014) — Video Usability</a></li>
+<li id="src-5"><a href="https://developers.google.com/search/docs/appearance/video" rel="noopener">Google Search Central — Video best practices (accessed July 2026)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="should-documentation-be-video-or-text" class="blog-faq-q">Should documentation be video or text?<a class="hanchor" href="#should-documentation-be-video-or-text" aria-label="Link to section: Should documentation be video or text?">#</a></h3>
+<p>Decide it per passage, not per project. Score the job on four axes: is the knowledge spatial or symbolic, is it read once or looked up repeatedly, how fast does the thing on screen change, and does the reader arrive by searching. Spatial, learn-once, stable, link-arrival jobs want video; symbolic, repeated, fast-changing, search-arrival jobs want text. Most pages land in between and want text with a short clip beside the step that needs motion.</p>
+<h3 id="do-developers-prefer-video-or-written-documentation" class="blog-faq-q">Do developers prefer video or written documentation?<a class="hanchor" href="#do-developers-prefer-video-or-written-documentation" aria-label="Link to section: Do developers prefer video or written documentation?">#</a></h3>
+<p>For learning something unfamiliar, many welcome it: in Karras&#39;s 2018 survey, 59 of 64 software professionals said video could improve requirements communication. For reference work they reach for text every time, because they scan, search, and copy, and video allows none of the three. The preference splits by task, not by person, so a blanket &quot;developers prefer X&quot; claim is useless for a format decision.</p>
+<h3 id="is-it-worth-making-both-a-video-and-a-written-version" class="blog-faq-q">Is it worth making both a video and a written version?<a class="hanchor" href="#is-it-worth-making-both-a-video-and-a-written-version" aria-label="Link to section: Is it worth making both a video and a written version?">#</a></h3>
+<p>Often yes, and it is less work than it sounds, because the text is not optional. A transcript next to a clip is indexable by search, skimmable by a reader in a rush, and required for accessibility, so the words earn their place three ways at once. The mistake is treating the pair as two full docs; treat the text as the page and the video as the one step that genuinely needs motion.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">technical documentation</span>
+        <span class="article-tag">documentation strategy</span>
+        <span class="article-tag">video vs text</span>
+        <span class="article-tag">developer docs</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#four-axes-decide-the-format-not-a-preference-poll">Four axes decide the format, not a preference poll</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#axis-one-spatial-knowledge-versus-symbolic-knowledge">Axis one: spatial knowledge versus symbolic knowledge</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#axis-two-read-once-or-return-a-hundred-times">Axis two: read once, or return a hundred times</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#axis-three-how-fast-the-thing-on-screen-changes">Axis three: how fast the thing on screen changes</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#axis-four-whether-the-reader-arrives-by-searching">Axis four: whether the reader arrives by searching</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-scorecard-run-against-three-real-doc-jobs">The scorecard, run against three real doc jobs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-text-quietly-permanently-wins">Where text quietly, permanently wins</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

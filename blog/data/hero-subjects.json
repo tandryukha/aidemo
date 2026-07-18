@@ -6,6 +6,14 @@
   "ai-voiceover-for-demo-videos": {
     "subject": "a retro studio microphone on a round desk stand"
   },
+  "app-preview-video": {
+    "subject": "a tailor's dress form on a slim wooden tripod stand",
+    "seedOffset": 1
+  },
+  "arcade-vs-navattic-vs-storylane": {
+    "subject": "an ice cream cone stacked with three round scoops",
+    "seedOffset": 1
+  },
   "automated-product-demo-videos": {
     "subject": "a movie camera with a large wind-up key on top"
   },
@@ -34,6 +42,9 @@
   "deterministic-browser-automation-for-video": {
     "subject": "a Newton's cradle with polished round spheres",
     "seedOffset": 1
+  },
+  "does-video-increase-conversion": {
+    "subject": "a brass balance scale tipped to one side"
   },
   "how-long-should-a-demo-video-be": {
     "subject": "an hourglass with tiny film frames falling inside"
@@ -66,6 +77,9 @@
   "readme-gifs-that-update-themselves": {
     "subject": "a rounded watering can pouring a smooth stream"
   },
+  "record-a-browser-tab": {
+    "subject": "a single star-shaped cookie cutter standing upright"
+  },
   "saas-demo-video-examples": {
     "subject": "a chunky rounded stopwatch",
     "seedOffset": 2
@@ -81,6 +95,9 @@
   },
   "video-marketing-for-software": {
     "subject": "a lighthouse casting its beam out in every direction"
+  },
+  "video-vs-written-documentation": {
+    "subject": "a cast-iron railroad switch stand with a round throw lever"
   },
   "why-product-demos-go-stale": {
     "subject": "a wilting tulip in a small round pot"

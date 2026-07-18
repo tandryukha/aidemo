@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App preview video specs: App Store &amp; Play | aidemo</title>
+<meta name="description" content="App Store and Google Play preview video specs in one table: duration, codec, the 886 x 1920 resolution, YouTube URL vs upload, and why capture beats a reshoot.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/app-preview-video/">
+<link rel="alternate" type="text/markdown" href="/blog/app-preview-video/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="App preview video specs: App Store &amp; Play | aidemo">
+<meta property="og:description" content="App Store and Google Play preview video specs in one table: duration, codec, the 886 x 1920 resolution, YouTube URL vs upload, and why capture beats a reshoot.">
+<meta property="og:url" content="https://aidemo.top/blog/app-preview-video/">
+<meta property="og:image" content="https://aidemo.top/blog/images/app-preview-video-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="App preview video specs: App Store &amp; Play | aidemo">
+<meta name="twitter:description" content="App Store and Google Play preview video specs in one table: duration, codec, the 886 x 1920 resolution, YouTube URL vs upload, and why capture beats a reshoot.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/app-preview-video-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "App preview videos: hitting App Store and Play specs without a reshoot",
+  "description": "App Store and Google Play preview video specs in one table: duration, codec, the 886 x 1920 resolution, YouTube URL vs upload, and why capture beats a reshoot.",
+  "image": [
+    "https://aidemo.top/blog/images/app-preview-video-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/app-preview-video/"
+  },
+  "wordCount": 1981,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — App preview specifications (App Store Connect Help)",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — App Previews (Apple Developer)",
+      "url": "https://developer.apple.com/app-store/app-previews/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — App Store Review Guidelines (2.3 Accurate Metadata)",
+      "url": "https://developer.apple.com/app-store/review/guidelines/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google — Play Developer API, Listing resource (edits.listings)",
+      "url": "https://developers.google.com/android-publisher/api-ref/rest/v3/edits.listings"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Use Your Loaf — iPhone 16 screen sizes",
+      "url": "https://useyourloaf.com/blog/iphone-16-screen-sizes/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Product Demo Videos",
+      "item": "https://aidemo.top/blog/topics/demo-videos/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "App preview videos: hitting App Store and Play specs without a reshoot",
+      "item": "https://aidemo.top/blog/app-preview-video/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What size and format does an App Store preview video need to be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each app preview runs 15 to 30 seconds, stays under 500 MB, and uploads as .mov, .m4v, or .mp4 encoded in H.264 High Profile up to Level 4.0 (or ProRes 422 HQ), at a maximum of 30 fps. You may submit up to three previews per language. Resolution is fixed per device family: the modern iPhone class (6.9, 6.5, 6.3, and 6.1 inch) takes 886 x 1920 portrait, which is smaller than the phone's native pixel grid, so you export down to that exact frame rather than uploading a raw capture."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use the same recording for the App Store and Google Play?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The content can be the same, but the delivery cannot. Apple needs an uploaded H.264 file at a fixed device resolution (886 x 1920 for the modern iPhone class); Google Play needs only a YouTube URL, so it inherits YouTube's encoding and there is nothing for you to export. Plan one recording, export the file for Apple, and publish the same cut to YouTube for the Google link. Because Apple caps a preview at 30 seconds, a single tight cut can comfortably feed both stores."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does an app preview have to be recorded on a real device?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It has to be genuine app footage. Apple's Review Guideline 2.3.4 allows only screen captures of the app itself, and its App Previews page requires footage \"captured on device\" with no fingers or device frames in shot. In practice that means a screen recording from a device, from the iOS Simulator or Android emulator, or from the app's real web surface — not stock clips and not synthetic text-to-video of a UI that does not exist."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-videos/">Product Demo Videos</a><span class="sep">/</span><span>App preview videos: hitting App Store and Play specs without a reshoot</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-videos/">Product Demo Videos</a>
+        <h1 class="article-title">App preview videos: hitting App Store and Play specs without a reshoot</h1>
+        <p class="article-dek">Apple wants an uploaded H.264 file at 886 x 1920; Google Play wants a YouTube link. The exact cross-store specs, and how to hit them without a reshoot.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#apple-wants-a-file-google-wants-a-link">Apple wants a file, Google wants a link</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#apples-app-preview-spec-number-by-number">Apple's app preview spec, number by number</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#google-plays-promo-video-a-youtube-url-not-an-upload">Google Play's promo video: a YouTube URL, not an upload</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#one-cross-store-table-to-author-against">One cross-store table to author against</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#captured-on-device-means-you-cannot-fake-the-footage">&quot;Captured on device&quot; means you cannot fake the footage</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-reshoot-tax-previews-times-locales-times-every-release">The reshoot tax: previews times locales times every release</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#hitting-886-by-1920-without-shooting-it-twice">Hitting 886 by 1920 without shooting it twice</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/app-preview-video-800.webp" srcset="/blog/images/app-preview-video-400.webp 400w, /blog/images/app-preview-video-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay tailor's dress form standing on a slim wooden tripod stand"><figcaption>The store's measurements never move, so the win is a preview you can re-fit to them, not shoot again.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Apple app previews run 15 to 30 seconds as an uploaded H.264 file (High Profile up to L4.0, 30 fps, under 500 MB); the modern iPhone class exports at 886 x 1920.</li>
+    <li>Google Play takes no file: a listing's promo video is just a YouTube URL (one per localized listing), so Google inherits YouTube's encoding with no resolution or codec to hit.</li>
+    <li>Apple guideline 2.3.4 allows only screen captures of the app itself, captured on device with no fingers or device frames, so stock and synthetic footage are out.</li>
+    <li>Preview slots multiply: up to 3 per localization, so five languages is up to 15 App Store cuts, each 15 to 30 s and each invalidated when the UI it shows changes.</li>
+    <li>The accepted 886 x 1920 is smaller than the 1320 x 2868 the phone paints, so hitting spec is an exact export, and a scripted capture re-renders instead of reshoots.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="apple-wants-a-file-google-wants-a-link">Apple wants a file, Google wants a link<a class="hanchor" href="#apple-wants-a-file-google-wants-a-link" aria-label="Link to section: Apple wants a file, Google wants a link">#</a></h2>
+<p>The phrase &quot;app preview video&quot; hides a split that decides your whole workflow before you record a single frame. The App Store takes an uploaded video file with strict, device-specific specifications. Google Play takes no file at all: its promotional video is a YouTube URL you paste into the listing, and Google streams it from there. Same intent, two different deliverables. One is a rendering job with a hard target resolution; the other is a publishing job that lives on YouTube. Get the difference wrong and you will spend an afternoon exporting a flawless H.264 file for a store that only ever wanted a link.</p>
+<p>The rest of this page is the exact numbers for each, collapsed into one table you can author against, plus the rule that makes both of them a recording problem rather than a filming one: the footage has to come off the real app.</p>
+<h2 id="apples-app-preview-spec-number-by-number">Apple&#39;s app preview spec, number by number<a class="hanchor" href="#apples-app-preview-spec-number-by-number" aria-label="Link to section: Apple's app preview spec, number by number">#</a></h2>
+<p>An App Store app preview is an uploaded video with narrow tolerances. Per Apple&#39;s App Store Connect reference, each preview runs 15 to 30 seconds, tops out at 500 MB, and ships as <code>.mov</code>, <code>.m4v</code>, or <code>.mp4</code><sup class="article-cite"><a href="#src-1" title="Apple — App preview specifications (App Store Connect Help)">1</a></sup>. The video track is H.264 High Profile up to Level 4.0 at a 10 to 12 Mbps target, or ProRes 422 HQ, and either way the frame rate is capped at 30 fps. You get up to three previews per localization, and the store lifts a poster frame from the 5-second mark by default.</p>
+<p>The resolution is the part that trips people up, because it is fixed per device family and it is not your phone&#39;s native resolution. For the modern iPhone class — the 6.9-inch, 6.5-inch, 6.3-inch, and 6.1-inch displays — the accepted portrait resolution is 886 x 1920, or 1920 x 886 in landscape<sup class="article-cite"><a href="#src-1" title="Apple — App preview specifications (App Store Connect Help)">1</a></sup>. That is smaller than the grid the phone actually paints: a 6.9-inch iPhone 16 Pro Max renders at 1320 x 2868 physical pixels<sup class="article-cite"><a href="#src-5" title="Use Your Loaf — iPhone 16 screen sizes">5</a></sup>. So a raw screen capture off the device is the wrong size, and hitting the spec means exporting to an exact 886 x 1920 frame, not uploading whatever the recorder handed you.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Device class</th>
+<th>Display</th>
+<th>Portrait</th>
+<th>Landscape</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iPhone 6.9&quot; / 6.5&quot; / 6.3&quot; / 6.1&quot;</td>
+<td>modern</td>
+<td>886 x 1920</td>
+<td>1920 x 886</td>
+</tr>
+<tr>
+<td>iPhone 5.5&quot; and 4&quot;</td>
+<td>older</td>
+<td>1080 x 1920</td>
+<td>1920 x 1080</td>
+</tr>
+<tr>
+<td>iPhone 4.7&quot;</td>
+<td>older</td>
+<td>750 x 1334</td>
+<td>1334 x 750</td>
+</tr>
+<tr>
+<td>iPad 13&quot; / 11&quot; / 10.5&quot;</td>
+<td>current</td>
+<td>1200 x 1600</td>
+<td>1600 x 1200</td>
+</tr>
+<tr>
+<td>iPad 9.7&quot;</td>
+<td>older</td>
+<td>900 x 1200</td>
+<td>1200 x 900</td>
+</tr>
+<tr>
+<td>Mac, Apple TV</td>
+<td>—</td>
+<td>1920 x 1080 (landscape only)</td>
+<td>1920 x 1080</td>
+</tr>
+</tbody></table></div>
+<h2 id="google-plays-promo-video-a-youtube-url-not-an-upload">Google Play&#39;s promo video: a YouTube URL, not an upload<a class="hanchor" href="#google-plays-promo-video-a-youtube-url-not-an-upload" aria-label="Link to section: Google Play's promo video: a YouTube URL, not an upload">#</a></h2>
+<p>Google Play inverts nearly every one of those constraints. There is no file to encode and no resolution to hit, because you do not upload a video at all. In the Play Developer API, a store listing&#39;s promotional video is a single field described simply as the &quot;URL of a promotional YouTube video for the app&quot;<sup class="article-cite"><a href="#src-4" title="Google — Play Developer API, Listing resource (edits.listings)">4</a></sup>. You paste a YouTube link, Google embeds it, and the encoding, hosting, and playback are YouTube&#39;s problem rather than yours. There is no container to pick, no H.264 profile to match, and no 886 x 1920 to export to, because none of those numbers are yours to set.</p>
+<p>That same API models a listing as a per-language object: the title, the descriptions, and that one video field all hang off a <code>language</code> BCP-47 tag<sup class="article-cite"><a href="#src-4" title="Google — Play Developer API, Listing resource (edits.listings)">4</a></sup>. So you get one promo video per localized listing, not a stack of device-specific cuts. A Play promo video is really a short YouTube video with a job. Everything that decides a click still has to land early, because it plays inline on the listing, but it inherits whatever quality YouTube serves rather than a codec you controlled.</p>
+<h2 id="one-cross-store-table-to-author-against">One cross-store table to author against<a class="hanchor" href="#one-cross-store-table-to-author-against" aria-label="Link to section: One cross-store table to author against">#</a></h2>
+<p>Here is the whole thing side by side. If you ship one product to both stores, this is the sheet that keeps you from encoding for the wrong target.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Spec</th>
+<th>App Store (Apple)</th>
+<th>Google Play</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Deliverable</td>
+<td>Uploaded video file</td>
+<td>YouTube URL</td>
+</tr>
+<tr>
+<td>Container</td>
+<td><code>.mov</code>, <code>.m4v</code>, <code>.mp4</code></td>
+<td>hosted on YouTube</td>
+</tr>
+<tr>
+<td>Codec</td>
+<td>H.264 High Profile &lt;= L4.0, or ProRes 422 HQ</td>
+<td>whatever YouTube serves</td>
+</tr>
+<tr>
+<td>Duration</td>
+<td>15 to 30 s per preview</td>
+<td>YouTube&#39;s limits</td>
+</tr>
+<tr>
+<td>Frame rate</td>
+<td>30 fps max</td>
+<td>YouTube&#39;s</td>
+</tr>
+<tr>
+<td>Resolution</td>
+<td>fixed per device (886 x 1920 for modern iPhone)</td>
+<td>none you set</td>
+</tr>
+<tr>
+<td>How many</td>
+<td>up to 3 per localization</td>
+<td>one video per localized listing</td>
+</tr>
+<tr>
+<td>Poster / thumbnail</td>
+<td>poster frame lifted at 5 s</td>
+<td>the linked video&#39;s YouTube thumbnail</td>
+</tr>
+<tr>
+<td>Content rule</td>
+<td>screen captures of the app only</td>
+<td>your linked YouTube video</td>
+</tr>
+</tbody></table></div>
+<p>The single largest difference is the first row, and it cascades. On Apple you own the render and every pixel of the frame; on Google you own a YouTube upload and a link. Which container and codec to target is a live decision for the App Store file and a non-question for Play. Same with aspect ratio and orientation: Apple hard-codes it per device, Google inherits it from the YouTube video you point at.</p>
+<h2 id="captured-on-device-means-you-cannot-fake-the-footage">&quot;Captured on device&quot; means you cannot fake the footage<a class="hanchor" href="#captured-on-device-means-you-cannot-fake-the-footage" aria-label="Link to section: &quot;Captured on device&quot; means you cannot fake the footage">#</a></h2>
+<p>Apple narrows what the pixels may show harder than any resolution number does. App Store Review Guideline 2.3.4 says previews &quot;may only use video screen captures of the app itself&quot;<sup class="article-cite"><a href="#src-3" title="Apple — App Store Review Guidelines (2.3 Accurate Metadata)">3</a></sup>. Apple&#39;s App Previews page is blunter still: previews &quot;demonstrate the features, functionality, and user interface of your app using footage captured on device,&quot; and you must &quot;stay within the app,&quot; with no filming of &quot;people interacting with a device, such as an over-the-shoulder angle or fingers tapping the screen&quot;<sup class="article-cite"><a href="#src-2" title="Apple — App Previews (Apple Developer)">2</a></sup>. Google&#39;s control is lighter because the asset is a link to a YouTube video, but the intent is the same: the preview should be the app, doing what the app does.</p>
+<p>That one rule kills the shortcut a lot of marketing video takes. You cannot composite an App Store preview from stock clips, and a synthetic text-to-video render of an imagined interface is precisely what &quot;screen captures of the app itself&quot; forbids. The preview has to be the real UI doing real things, recorded off the running app. That constraint is what turns an app preview from a filming task into a capture task, and it is also why guideline 2.3 tells you to keep metadata &quot;up-to-date with new versions&quot;: the store expects the footage to match the app people will actually download<sup class="article-cite"><a href="#src-3" title="Apple — App Store Review Guidelines (2.3 Accurate Metadata)">3</a></sup>.</p>
+<h2 id="the-reshoot-tax-previews-times-locales-times-every-release">The reshoot tax: previews times locales times every release<a class="hanchor" href="#the-reshoot-tax-previews-times-locales-times-every-release" aria-label="Link to section: The reshoot tax: previews times locales times every release">#</a></h2>
+<p>Now multiply. Apple gives you up to three previews per localization<sup class="article-cite"><a href="#src-1" title="Apple — App preview specifications (App Store Connect Help)">1</a></sup>. Localize the listing into five languages and you have authored, at the ceiling, fifteen App Store preview slots — fifteen separate 15-to-30-second cuts, each captured off the app, each landed on 886 x 1920. Add the Play promo video for each localized listing on top. That is the true surface area of &quot;an app preview video,&quot; and none of it is a one-time cost, because guideline 2.3 asks you to keep it current and the footage rule means a single redesigned screen invalidates every clip that showed it.</p>
+<p>A live-filmed preview has no cheap fix here. Because the footage came off a person driving the app in real time, one changed screen desyncs the cursor path, the timing, and the narration, so the honest response to a UI change is to shoot the whole cut again, times fifteen. This is the same <a href="/blog/why-product-demos-go-stale/">staleness that quietly dates every product demo</a>, except the App Store enforces it as a metadata-accuracy rule rather than leaving it to your conscience.</p>
+<h2 id="hitting-886-by-1920-without-shooting-it-twice">Hitting 886 by 1920 without shooting it twice<a class="hanchor" href="#hitting-886-by-1920-without-shooting-it-twice" aria-label="Link to section: Hitting 886 by 1920 without shooting it twice">#</a></h2>
+<p>The way out is the one that makes any <a href="/blog/how-to-make-a-product-demo-video/">product demo cheap to keep current</a>: stop performing the capture and start replaying it. If the path through the app is a written script — open this screen, tap this control, wait for that result — then the capture is deterministic, and <a href="/blog/deterministic-browser-automation-for-video/">replaying the same flow yields the same footage every run</a>. A UI change becomes a diff to the script and a re-render, not a fifteen-cut reshoot, and the multi-cut math above stops compounding: the localized set becomes a <a href="/blog/multi-language-product-demo-videos/">render matrix off one recording</a> instead of fifteen separate shoots.</p>
+<p>The exact tool depends on what the app is. For a native iOS build, the iOS Simulator records its own screen to a video file and the Android emulator has an equivalent, so you can drive a scripted run and export at the store&#39;s target size. For an app with a web surface — a PWA, a responsive web build, an embedded web view — a deterministic browser engine can pin the viewport and re-render on change; that is what our own tool, aidemo, does, with the honest limits that it captures a browser only (it will not record a native iOS binary), its storyboards are authored in code by a coding agent rather than dragged on a timeline, and there is no GUI editor. Whichever you reach for, the point is structural. Because the accepted resolution is a fixed number and the footage must come off the real app, the reliable way to land 886 x 1920 in H.264 is to make the capture reproducible, so the second time you need it costs a render instead of a shoot.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/" rel="noopener">Apple — App preview specifications (App Store Connect Help)</a></li>
+<li id="src-2"><a href="https://developer.apple.com/app-store/app-previews/" rel="noopener">Apple — App Previews (Apple Developer)</a></li>
+<li id="src-3"><a href="https://developer.apple.com/app-store/review/guidelines/" rel="noopener">Apple — App Store Review Guidelines (2.3 Accurate Metadata)</a></li>
+<li id="src-4"><a href="https://developers.google.com/android-publisher/api-ref/rest/v3/edits.listings" rel="noopener">Google — Play Developer API, Listing resource (edits.listings)</a></li>
+<li id="src-5"><a href="https://useyourloaf.com/blog/iphone-16-screen-sizes/" rel="noopener">Use Your Loaf — iPhone 16 screen sizes</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-size-and-format-does-an-app-store-preview-video-need-to-be" class="blog-faq-q">What size and format does an App Store preview video need to be?<a class="hanchor" href="#what-size-and-format-does-an-app-store-preview-video-need-to-be" aria-label="Link to section: What size and format does an App Store preview video need to be?">#</a></h3>
+<p>Each app preview runs 15 to 30 seconds, stays under 500 MB, and uploads as <code>.mov</code>, <code>.m4v</code>, or <code>.mp4</code> encoded in H.264 High Profile up to Level 4.0 (or ProRes 422 HQ), at a maximum of 30 fps. You may submit up to three previews per language. Resolution is fixed per device family: the modern iPhone class (6.9, 6.5, 6.3, and 6.1 inch) takes 886 x 1920 portrait, which is smaller than the phone&#39;s native pixel grid, so you export down to that exact frame rather than uploading a raw capture.</p>
+<h3 id="can-i-use-the-same-recording-for-the-app-store-and-google-play" class="blog-faq-q">Can I use the same recording for the App Store and Google Play?<a class="hanchor" href="#can-i-use-the-same-recording-for-the-app-store-and-google-play" aria-label="Link to section: Can I use the same recording for the App Store and Google Play?">#</a></h3>
+<p>The content can be the same, but the delivery cannot. Apple needs an uploaded H.264 file at a fixed device resolution (886 x 1920 for the modern iPhone class); Google Play needs only a YouTube URL, so it inherits YouTube&#39;s encoding and there is nothing for you to export. Plan one recording, export the file for Apple, and publish the same cut to YouTube for the Google link. Because Apple caps a preview at 30 seconds, a single tight cut can comfortably feed both stores.</p>
+<h3 id="does-an-app-preview-have-to-be-recorded-on-a-real-device" class="blog-faq-q">Does an app preview have to be recorded on a real device?<a class="hanchor" href="#does-an-app-preview-have-to-be-recorded-on-a-real-device" aria-label="Link to section: Does an app preview have to be recorded on a real device?">#</a></h3>
+<p>It has to be genuine app footage. Apple&#39;s Review Guideline 2.3.4 allows only screen captures of the app itself, and its App Previews page requires footage &quot;captured on device&quot; with no fingers or device frames in shot. In practice that means a screen recording from a device, from the iOS Simulator or Android emulator, or from the app&#39;s real web surface — not stock clips and not synthetic text-to-video of a UI that does not exist.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">app preview video</span>
+        <span class="article-tag">app store</span>
+        <span class="article-tag">google play</span>
+        <span class="article-tag">mobile app</span>
+        <span class="article-tag">video specs</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-make-a-product-demo-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-make-a-product-demo-video-400.webp" srcset="/blog/images/how-to-make-a-product-demo-video-400.webp 400w, /blog/images/how-to-make-a-product-demo-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A scripted storyboard on the left and the finished, captioned demo frame it produces on the right"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">How to make a product demo video (that people finish)</h3>
+    <p class="article-card-excerpt">The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>11 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/ai-voiceover-for-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-voiceover-for-demo-videos-400.webp" srcset="/blog/images/ai-voiceover-for-demo-videos-400.webp 400w, /blog/images/ai-voiceover-for-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Storyboard scene list where editing one narration line re-renders only that scene's audio clip"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">AI voiceover for demo videos: quality, cost, and workflow</h3>
+    <p class="article-card-excerpt">AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-captions/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-captions-400.webp" srcset="/blog/images/demo-video-captions-400.webp 400w, /blog/images/demo-video-captions-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A muted demo frame captioned as a static sentence block on the left and as word-by-word highlighting on the right"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Captions on demo videos: the accessibility case and the numbers</h3>
+    <p class="article-card-excerpt">Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#apple-wants-a-file-google-wants-a-link">Apple wants a file, Google wants a link</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#apples-app-preview-spec-number-by-number">Apple's app preview spec, number by number</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#google-plays-promo-video-a-youtube-url-not-an-upload">Google Play's promo video: a YouTube URL, not an upload</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#one-cross-store-table-to-author-against">One cross-store table to author against</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#captured-on-device-means-you-cannot-fake-the-footage">&quot;Captured on device&quot; means you cannot fake the footage</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-reshoot-tax-previews-times-locales-times-every-release">The reshoot tax: previews times locales times every release</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#hitting-886-by-1920-without-shooting-it-twice">Hitting 886 by 1920 without shooting it twice</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

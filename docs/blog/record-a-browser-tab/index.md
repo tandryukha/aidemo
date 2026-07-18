@@ -1,0 +1,86 @@
+# How to record just one browser tab (three ways, one clean result)
+
+July 18, 2026 · Screen Recording · 7 min read · https://aidemo.top/blog/record-a-browser-tab/
+
+> Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.
+
+**Key takeaways**
+
+- A browser tab is one of three capture surfaces (monitor, window, tab); the tab surface is 'the entire contents of a single browser tab' and physically cannot film an OS notification.
+- Three ways to record one tab: the browser's built-in Chrome Tab share picker (zero install), a chrome.tabCapture extension (tab audio plus tab-lock), or a scripted headless browser.
+- Chrome's dated share constraints: displaySurface and selfBrowserSurface (Chrome 107), monitorTypeSurfaces exclude (Chrome 119), systemAudio (Chrome 105), preferCurrentTab (Chrome/Edge 94+).
+- Only the scripted path is repeatable: pin a viewport at DPR 2 and it renders the same frames every run, headless in CI; the picker and the extension are one-off performances.
+- Region Capture (Chrome 104) crops a tab capture to one DOM element; Conditional Focus (Chrome 109) stops the capture from stealing focus to the recorded tab.
+
+## A browser tab is a capture surface, not a crop of your desktop
+
+When you "record your screen," the default surface is a whole monitor: every window, the dock or taskbar, and whatever notification chooses that moment to slide in. Recording one browser tab is not that picture cropped down after the fact. It is a different capture surface, and the browser hands it over as a first-class thing. The Screen Capture API grants exactly three display surfaces, reported through the `displaySurface` value: a `monitor` (a full screen), a `window` (one application window), and a `browser` surface, which MDN defines as "the entire contents of a single browser tab which the user selected" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/displaySurface)). That third surface is what "record just this tab" delivers, and understanding why it is the cleanest of the three is the entire reason to bother scoping.
+
+"Entire contents" is the load-bearing phrase. A `browser` surface is the tab's rendered content and nothing around it: no URL bar, no tab strip, no bookmarks, no window behind it, and no desktop under the window. Everything a full-screen recording has to hide, a tab recording never sees. The most useful thing it never sees is a notification. An operating-system toast is drawn by the OS on top of every window, outside any tab, so it can appear in a monitor capture and physically cannot appear in a browser one. Picking the tab surface is the step past [turning notifications off before you record](/blog/hide-notifications-while-recording): instead of trusting that Do Not Disturb held, you record a surface where a stray toast has nowhere to render.
+
+Scoping to a tab also stops the resolution waste. A monitor capture spends pixels on a taskbar and two-thirds of a desktop you will crop away, and cropping into a landscape capture after the fact throws away the detail that made the text sharp. A tab surface frames only the product to begin with. There are three ways to get that surface into a file. They capture nearly the same pixels; they differ in who points at the tab, and that is what sets fidelity, what can still leak, and whether you can ever reproduce the take.
+
+## Mechanism one: the browser's own tab surface
+
+The zero-install path is the share picker every browser recorder already calls. `getDisplayMedia()` "prompts the user to select and grant permission to capture the contents of a display or portion thereof (such as a window)" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia)), and the "Choose what to share" dialog it raises has a tab pane, labeled "Chrome Tab" in Chrome. Any recorder that captures through the browser surfaces it; pick a tab and the stream is that tab.
+
+Chrome adds constraints that make the pick deliberate instead of hopeful. A page can pass `preferCurrentTab: true` to offer its own tab "as a separate 'This Tab' option" (Chrome and Edge 94+), prefer the tab pane through `displaySurface` (Chrome 107), or set `monitorTypeSurfaces: "exclude"` to strip whole-screen options out of the dialog so nobody fat-fingers a full desktop share (Chrome 119) ([Chrome for Developers, 2026](https://developer.chrome.com/docs/web-platform/screen-sharing-controls)). Two refinements sharpen a solo recording further. Region Capture (Chrome 104) crops a self-capture to a single DOM element with `track.cropTo(cropTarget)`, "cropping all pixels outside that area" ([Chrome for Developers, 2025](https://developer.chrome.com/docs/web-platform/region-capture)), so you can film one panel rather than the whole page. And Conditional Focus (Chrome 109) lets the app call `setFocusBehavior("focus-capturing-application")` so starting capture does not yank focus onto the recorded tab ([Chrome for Developers, 2026](https://developer.chrome.com/docs/web-platform/conditional-focus)).
+
+The catch is that this is a live performance. You start it, you drive the cursor, and the fidelity is whatever your display renders: a crisp 2x on a HiDPI panel, a flat 1x with no headroom on a plain 1080p monitor, which is the same math the [capture-quality checklist](/blog/how-to-record-your-screen-in-high-quality) spells out. Record the same flow twice and you get two different videos.
+
+## Mechanism two: an extension that locks onto the tab
+
+A recorder extension trades the install for a firmer grip on the tab. Under the hood it uses `chrome.tabCapture`, which gives "access to a MediaStream containing video and audio from the current tab" and "can only be called after the user invokes an extension, such as by clicking the extension's action button" ([Chrome for Developers, 2026](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)). That binding is the feature: the stream is tied to the tab that was active when you clicked, so switching tabs mid-recording keeps the camera on the original one instead of following you away. A recorder like Screencastify exposes exactly this as a "Browser Tab" mode with a tab-audio toggle.
+
+Audio comes with a footnote. Capturing a tab means "audio in that tab will no longer be played to the user," so extensions re-route the stream through an `AudioContext` back to the speakers to keep playback audible ([Chrome for Developers, 2026](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)). Fidelity is the same display-dependent capture as mechanism one, and it is still a hand-timed, one-off take. What you buy for the install is the tab lock, reliable tab audio, and usually on-canvas annotation while you record.
+
+## Mechanism three: a headless browser you drive from code
+
+The third path removes the human and, optionally, the display. A program opens the tab, drives it, and captures frames directly. The Chrome DevTools Protocol does it with `Page.startScreencast`, which streams frames through the `screencastFrame` event at a chosen `format` (jpeg or png), `quality`, and `everyNthFrame` throttle ([Chrome DevTools Protocol, 2026](https://chromedevtools.github.io/devtools-protocol/tot/Page/)). Higher up, Playwright records a whole context with `recordVideo`: "Videos are saved upon browser context closure," and "the video size defaults to the viewport size scaled down to fit 800x800," with the viewport placed in the top-left corner ([Playwright, 2026](https://playwright.dev/docs/videos)). There is no browser chrome in the frame at all, because there is no window being filmed, only the page.
+
+Because a script sets the viewport and device-pixel-ratio, fidelity stops depending on the monitor: pin a 1280x720 viewport at DPR 2 and every run rasterizes to the same 2560x1440 grid, on a laptop or a [display-less CI runner](/blog/headless-screen-recording) alike. And because the flow is a fixed script rather than a performance, the same input renders the same frames every time, the property that turns a demo into something a pipeline can rebuild on the commit that changed the UI. That determinism is not free: it takes [pinned waits, a frozen clock, and a controlled network](/blog/deterministic-browser-automation-for-video) to make one browser flow produce identical footage twice.
+
+## The three mechanisms, scored
+
+| | Browser tab surface | Recorder extension | Headless / scripted |
+|---|---|---|---|
+| Who points at the tab | you, in the share picker | you, via the extension button | a script |
+| Fidelity | display DPR (2x on HiDPI, else flat 1x) | display DPR, plus tab audio | pinned viewport and DPR, monitor-independent |
+| What can still leak | in-page modals, cookie banners, a logged-in name; a wrong-tab pick | in-page content only | only what the script navigates to |
+| Repeatability | one-off, different every run | one-off, hand-timed | deterministic, re-renders identically |
+| Setup | none | install an extension | an automation pipeline |
+| Runs headless / in CI | no | no | yes |
+
+Every row rests on the fact the first section set up: none of the three can film an OS notification or another window, because a tab surface is only the tab. The columns diverge on everything a human still controls, and they sort cleanly by how many times you expect to make this exact video. The only leak a tab surface cannot save you from is one inside the page itself, a half-dismissed cookie banner or a real customer name in the account you logged into, so a clean recording profile still earns its keep.
+
+## When each mechanism is the right one
+
+For a one-off clip of something happening in a tab, mechanism one is the honest answer: it is already in your browser and needs no account. If you need the tab's audio, want to move between tabs without losing the shot, or want to annotate as you go, the extension earns its install. Reach for the scripted path when the video is not a one-off: a demo that has to re-render when the UI ships, run in CI with no display, or fan out into several languages from one recording is a rendering job, not a take you perform again each time.
+
+That last case is where our own engine, aidemo, sits: it drives a real Chrome tab through an agent-authored storyboard and records deterministically, so the same spec re-renders the same tab on every run. The honest limits are the shape of the tool. aidemo records inside a browser tab and nothing else, so a native desktop app is out of its reach; the storyboard is written in code rather than dragged on a GUI timeline; and for a single throwaway clip, the browser's own picker is far less setup. The point is not that one mechanism wins. It is that "record one tab" is three different jobs, and picking the surface on purpose is what buys you [a clean frame worth keeping](/blog/professional-screen-recordings).
+
+## Sources
+
+- [MDN — MediaTrackSettings: displaySurface (browser, window, monitor)](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackSettings/displaySurface)
+- [MDN — MediaDevices: getDisplayMedia()](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia)
+- [MDN — Screen Capture API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API)
+- [Chrome for Developers — Privacy-preserving screen sharing controls (displaySurface, monitorTypeSurfaces, systemAudio, versions)](https://developer.chrome.com/docs/web-platform/screen-sharing-controls)
+- [Chrome for Developers — chrome.tabCapture API](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)
+- [Chrome for Developers — Better tab sharing with Region Capture](https://developer.chrome.com/docs/web-platform/region-capture)
+- [Chrome for Developers — Better screen sharing with Conditional Focus](https://developer.chrome.com/docs/web-platform/conditional-focus)
+- [Chrome DevTools Protocol — Page domain (startScreencast, screencastFrame)](https://chromedevtools.github.io/devtools-protocol/tot/Page/)
+- [Playwright — Videos (recordVideo, saved on context close, sized to viewport)](https://playwright.dev/docs/videos)
+
+## FAQ
+
+### How do I record just one tab in Chrome?
+
+Open your recorder's share dialog, or a browser-based recorder, and choose the "Chrome Tab" pane in Chrome's "Choose what to share" prompt, then pick the tab; the stream is that tab's rendered content and nothing around it. Under the hood this is `getDisplayMedia()` granting a `browser` display surface. For a hands-off, repeatable version, drive the tab from a script with Playwright or the DevTools Protocol instead of clicking record by hand.
+
+### Does recording a browser tab capture my notifications?
+
+Not the operating-system ones. A tab capture is "the entire contents of a single browser tab," and OS toasts from Slack, Mail, or your calendar are drawn by the OS on top of every window, outside any tab, so they cannot land in the frame. What can still show up is in-page content: a modal, a cookie banner, or a logged-in username inside the app itself. Only a full-screen monitor capture can film a desktop notification, which is the main reason to scope a demo to a tab.
+
+### Can I record a browser tab together with its audio?
+
+Yes. Chrome can capture tab audio through `getDisplayMedia()` or `chrome.tabCapture`, though capturing a tab means "audio in that tab will no longer be played to the user," so recorder extensions route the stream back to your speakers so you still hear it while recording. Chrome's `systemAudio` control (Chrome 105) governs whether whole-screen shares are offered audio at all; tab and window shares are offered audio, and screens can be excluded.

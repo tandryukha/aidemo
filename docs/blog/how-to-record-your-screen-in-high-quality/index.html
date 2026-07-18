@@ -256,7 +256,7 @@
 <p>These three change no bitrate. They change whether the clip reads as a product or as a desktop someone forgot to tidy, and each is set at record time.</p>
 <p>The cursor is the first tell. The system pointer is small, and its real path between clicks is high-frequency jitter that, rendered faithfully, screams that a human recorded this live. Two fixes exist: enlarge or hide the pointer in the recorder, or hide the operating-system cursor and draw a smooth synthetic one over the footage. <a href="/blog/professional-screen-recordings/">Cursor smoothing itself is a compose-time transform</a>, but whether the OS cursor is captured at all is a switch you flip before recording.</p>
 <p>Notifications are the tell you cannot fix later. One Slack or Mail toast slides in with a real name attached, and no filter removes it from the pixels afterward. Turn on Do Not Disturb or Focus on whatever OS you are on, and, better still, record in a clean profile or a fresh window where nothing personal can fire at all. The cross-OS Do-Not-Disturb setup is the belt; a clean profile is the suspenders.</p>
-<p>Clutter is the slow tell: personal bookmarks, a half-dismissed cookie banner, a stray scrollbar, forty browser tabs. A recording profile with no extensions and hidden chrome keeps the frame about the product. It is also the reason capturing a single browser tab rather than the whole screen yields a cleaner result with far less to police.</p>
+<p>Clutter is the slow tell: personal bookmarks, a half-dismissed cookie banner, a stray scrollbar, forty browser tabs. A recording profile with no extensions and hidden chrome keeps the frame about the product. It is also the reason capturing <a href="/blog/record-a-browser-tab/">a single browser tab rather than the whole screen</a> yields a cleaner result with far less to police.</p>
 <h2 id="audio-capture-two-tracks-keep-the-voice-on-top">Audio: capture two tracks, keep the voice on top<a class="hanchor" href="#audio-capture-two-tracks-keep-the-voice-on-top" aria-label="Link to section: Audio: capture two tracks, keep the voice on top">#</a></h2>
 <p>If the recording carries sound, the quality bar is intelligibility, not loudness, and two failures dominate. The first is clipping: push the mic or system level past 0 dBFS and you bake in permanent distortion that no amount of later gain repairs. The second is burial: music or interface sound sitting on top of the narration so the words stop landing.</p>
 <p>Both have the same structural fix, which is to capture system audio and the microphone as two separate tracks rather than one pre-mixed one. Two tracks let you balance them after the fact; a single mixed track cannot be unmixed. Set the mic with headroom so its peaks stay well below clipping, and keep any background bed low enough under narration that a listener never strains for a word. The exact loudness targets belong to the mixing stage, but the capture rule is short: two tracks, a mic with headroom, and never a single already-clipped mix.</p>
@@ -308,7 +308,20 @@
   </div>
   <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
 </aside>
-
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/record-a-browser-tab/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/record-a-browser-tab-400.webp" srcset="/blog/images/record-a-browser-tab-400.webp 400w, /blog/images/record-a-browser-tab-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay star-shaped cookie cutter standing upright in a flat sheet of dough"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record just one browser tab (three ways, one clean result)</h3>
+    <p class="article-card-excerpt">Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
     </article>
     <aside class="article-sidebar">
   <nav class="article-toc" aria-label="Table of contents">

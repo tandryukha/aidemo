@@ -7,6 +7,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Demo Tools & Alternatives
 
 - [AI demo video generators: what the label actually covers](https://aidemo.top/blog/ai-demo-video-generators/index.md): Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.
+- [Arcade vs Navattic vs Storylane: picking an interactive demo platform](https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/index.md): They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.
 - [Camtasia alternatives for software demos and tutorials](https://aidemo.top/blog/camtasia-alternatives/index.md): TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.
 - [Interactive product demos vs video demos: when each wins](https://aidemo.top/blog/interactive-demo-vs-video-demo/index.md): One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.
 - [Loom alternatives for product demos after the Atlassian era](https://aidemo.top/blog/loom-alternatives-for-product-demos/index.md): Loom is async video messaging that Atlassian now owns, not a product-demo tool. Sort the alternatives by which of Loom's jobs you are actually replacing.
@@ -24,6 +25,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Product Demo Videos
 
 - [AI voiceover for demo videos: quality, cost, and workflow](https://aidemo.top/blog/ai-voiceover-for-demo-videos/index.md): AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.
+- [App preview videos: hitting App Store and Play specs without a reshoot](https://aidemo.top/blog/app-preview-video/index.md): Apple wants an uploaded H.264 file at 886 x 1920; Google Play wants a YouTube link. The exact cross-store specs, and how to hit them without a reshoot.
 - [Captions on demo videos: the accessibility case and the numbers](https://aidemo.top/blog/demo-video-captions/index.md): Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.
 - [Demo video script template: problem, walkthrough, proof](https://aidemo.top/blog/demo-video-script-template/index.md): Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.
 - [How long should a demo video be? The retention math](https://aidemo.top/blog/how-long-should-a-demo-video-be/index.md): Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.
@@ -43,13 +45,16 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Screen Recording
 
 - [How to record your screen in high quality: the settings that matter](https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/index.md): Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.
+- [How to record just one browser tab (three ways, one clean result)](https://aidemo.top/blog/record-a-browser-tab/index.md): Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.
 
 ## Video Documentation & Tutorials
 
 - [Video documentation for software: when the medium earns its keep](https://aidemo.top/blog/video-documentation/index.md): The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.
+- [Video vs written documentation: the decision, with evidence](https://aidemo.top/blog/video-vs-written-documentation/index.md): Stop asking whether your docs should be video or text. Score each doc job on four axes and read the right format off the total, evidence not vibes.
 
 ## Video Marketing for Software
 
+- [Does video actually increase conversion? Tracing the 80% claim](https://aidemo.top/blog/does-video-increase-conversion/index.md): The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.
 - [Video marketing for software: one recording, every channel](https://aidemo.top/blog/video-marketing-for-software/index.md): Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.
 
 ## Optional

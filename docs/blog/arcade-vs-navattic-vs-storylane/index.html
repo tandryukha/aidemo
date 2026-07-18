@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arcade vs Navattic vs Storylane compared | aidemo</title>
+<meta name="description" content="Navattic clones the DOM, Arcade stitches screenshots and video, Storylane does both. A capture-type and pricing-floor matrix for picking one, dated July 2026.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/">
+<link rel="alternate" type="text/markdown" href="/blog/arcade-vs-navattic-vs-storylane/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Arcade vs Navattic vs Storylane compared | aidemo">
+<meta property="og:description" content="Navattic clones the DOM, Arcade stitches screenshots and video, Storylane does both. A capture-type and pricing-floor matrix for picking one, dated July 2026.">
+<meta property="og:url" content="https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/">
+<meta property="og:image" content="https://aidemo.top/blog/images/arcade-vs-navattic-vs-storylane-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Arcade vs Navattic vs Storylane compared | aidemo">
+<meta name="twitter:description" content="Navattic clones the DOM, Arcade stitches screenshots and video, Storylane does both. A capture-type and pricing-floor matrix for picking one, dated July 2026.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/arcade-vs-navattic-vs-storylane-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Arcade vs Navattic vs Storylane: picking an interactive demo platform",
+  "description": "Navattic clones the DOM, Arcade stitches screenshots and video, Storylane does both. A capture-type and pricing-floor matrix for picking one, dated July 2026.",
+  "image": [
+    "https://aidemo.top/blog/images/arcade-vs-navattic-vs-storylane-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/"
+  },
+  "wordCount": 2302,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Navattic — Pricing",
+      "url": "https://www.navattic.com/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Navattic — Web captures (documentation)",
+      "url": "https://docs.navattic.com/build/captures/web"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Navattic — Analyze / analytics (documentation)",
+      "url": "https://docs.navattic.com/analyze"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Storylane — Pricing",
+      "url": "https://www.storylane.io/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Storylane — Screenshot or HTML: picking the right demo format",
+      "url": "https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Storylane — Guide to Demo Hub",
+      "url": "https://www.storylane.io/plot/guide-to-demo-hub"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Arcade — Pricing",
+      "url": "https://www.arcade.software/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Arcade — Record (knowledge base)",
+      "url": "https://docs.arcade.software/kb/build/interactive-demo/record"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Arcade — Exports (knowledge base)",
+      "url": "https://docs.arcade.software/kb/build/interactive-demo/share/exports"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "aidemo — repository (our engine, disclosed as ours)",
+      "url": "https://github.com/tandryukha/aidemo"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Arcade vs Navattic vs Storylane: picking an interactive demo platform",
+      "item": "https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Navattic or Storylane cheaper?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can only answer that for Storylane, because Navattic does not publish paid prices. Storylane lists a free plan, a Starter tier around $50 per month for screenshot demos, and its HTML demo editor on Growth at roughly $625 per month billed annually (Storylane, July 2026). Navattic offers a free Starter plan but quotes Base, Growth, and Enterprise only after a sales call (Navattic, July 2026). If you need Navattic-grade HTML fidelity with a price you can read today, Storylane's Growth tier is the transparent comparison point; Arcade is cheaper still at $50 per seat but does not clone HTML."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which is better for a sales team versus a marketing team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Navattic leans toward sales and account-based motions, because its analytics identify who engaged and how far they got, which feeds prospecting and prioritization (Navattic, July 2026). Storylane's demo hubs, a gallery of demos under one page, are built for top-of-funnel marketing and self-serve buyer education (Storylane, July 2026). Arcade suits design-forward marketing and any team that also needs the demo as an exportable video. Most teams that buy one and outgrow it were using it for the job it was worst at."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Arcade capture the real HTML of my app like Navattic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Arcade records each click as a screenshot with a hotspot and records scrolling, typing, and dragging as short video, then stitches them into a flow (Arcade, July 2026). Navattic, by contrast, makes an \"HTML-based\" copy of your front-end that behaves like the live app (Navattic, July 2026). Storylane offers both a screenshot format and true HTML replicas. If a viewer needs to interact with a faithful copy of your interface, Navattic or a Storylane HTML demo fits; if you want a polished, produced walkthrough you can also export as a clip, Arcade fits."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>Arcade vs Navattic vs Storylane: picking an interactive demo platform</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">Arcade vs Navattic vs Storylane: picking an interactive demo platform</h1>
+        <p class="article-dek">They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 10 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-tools-three-different-capture-engines">Three tools, three different capture engines</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#clone-screenshot-or-stitch-what-each-one-records">Clone, screenshot, or stitch: what each one records</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-pricing-floor-the-comparison-pages-leave-out">The pricing floor the comparison pages leave out</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-capture-type-breaks-when-the-ui-moves">Which capture type breaks when the UI moves</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#matching-the-tool-to-your-center-of-gravity">Matching the tool to your center of gravity</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-a-rendered-video-beats-all-three">When a rendered video beats all three</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/arcade-vs-navattic-vs-storylane-800.webp" srcset="/blog/images/arcade-vs-navattic-vs-storylane-400.webp 400w, /blog/images/arcade-vs-navattic-vs-storylane-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A single ice cream cone piled with scoops of ice cream in different colors"><figcaption>From across the counter the scoops look interchangeable. Up close they are different flavors, and only one is the one you actually ordered.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>They differ by capture engine: Navattic clones your app's HTML/CSS, Arcade stitches click screenshots plus scroll/type video snippets, and Storylane offers both formats.</li>
+    <li>Only two publish prices: Storylane (free, ~$50/mo Starter, HTML editor at ~$625/mo Growth) and Arcade ($0 free, $50/seat Growth). Navattic quotes paid tiers only by a sales call.</li>
+    <li>Center of gravity: Navattic optimizes HTML fidelity and analytics, Storylane speed and demo hubs, Arcade design polish and built-in GIF/MP4 export plus native-app capture.</li>
+    <li>All three freeze the UI and are re-captured by hand, one demo at a time; a spec-driven video re-renders in CI on the commit that changed the interface.</li>
+    <li>A rendered video beats all three when the demo must ship in an email or README, carry narration and captions, or stay current without manual re-capture.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="three-tools-three-different-capture-engines">Three tools, three different capture engines<a class="hanchor" href="#three-tools-three-different-capture-engines" aria-label="Link to section: Three tools, three different capture engines">#</a></h2>
+<p>Arcade, Navattic, and Storylane land on the same comparison grids, in the same interactive-demo category, priced against each other feature by feature. The grids almost always miss the difference that decides everything downstream: the three do not capture your product the same way. Navattic clones your DOM. Arcade stitches screenshots together with short video snippets. Storylane will do either. That one mechanical choice, more than the length of any feature list, sets each tool&#39;s fidelity, its maintenance surface, and what quietly breaks the next time your UI moves.</p>
+<p>All three ship the same kind of artifact: a clickable walkthrough a prospect drives in their own browser, delivered as an embed. That is the object the pillar on <a href="/blog/ai-demo-video-generators/">what the AI-demo label actually covers</a> maps, and the one the <a href="/blog/interactive-demo-vs-video-demo/">interactive tour versus a plain video file</a> piece weighs against video. This article stays inside the category and answers the narrower question: given that you want an interactive tour, which of the three, and why. Each optimizes a different center of gravity. Navattic leans on HTML-clone fidelity and the deepest analytics. Storylane leans on speed to publish and demo hubs, with prices you can read without a sales call. Arcade leans on design polish, native-app capture, and a video export the other two treat as an afterthought.</p>
+<h2 id="clone-screenshot-or-stitch-what-each-one-records">Clone, screenshot, or stitch: what each one records<a class="hanchor" href="#clone-screenshot-or-stitch-what-each-one-records" aria-label="Link to section: Clone, screenshot, or stitch: what each one records">#</a></h2>
+<p>Navattic sits at the high-fidelity end. Its web captures are &quot;HTML-based copies of any application&quot; you reach in a browser, an interactive replica that preserves &quot;scrolling abilities, hover states, and more&quot; and is editable in a no-code HTML editor<sup class="article-cite"><a href="#src-2" title="Navattic — Web captures (documentation)">2</a></sup>. What a viewer clicks feels like the running app because, structurally, it is a copy of the app&#39;s front-end.</p>
+<p>Storylane covers the whole range, because it offers two capture types. Its screenshot demos are &quot;image-based demos that capture and compile screenshots,&quot; quick enough that a full walkthrough can be &quot;captured, edited, and published in under 10 minutes&quot; and, in Storylane&#39;s words, &quot;marginally quicker to load.&quot; Its HTML demos are the other end: &quot;exact replicas of your product&#39;s frontend,&quot; &quot;pixel-perfect copies of the captured UI,&quot; bought with more technical setup and slightly longer load times<sup class="article-cite"><a href="#src-5" title="Storylane — Screenshot or HTML: picking the right demo format">5</a></sup>. One tool, a fidelity dial that runs from cheap-and-fast to Navattic-grade.</p>
+<p>Arcade records neither a DOM clone nor a plain screenshot deck. It captures each click as a &quot;screenshot + hotspot&quot; and records &quot;Scroll, type, drag, drop&quot; as short video, then stitches the frames, snippets, and tooltips into one produced-looking flow<sup class="article-cite"><a href="#src-8" title="Arcade — Record (knowledge base)">8</a></sup>. It is the most design-forward of the three, and the only one whose desktop app reaches past the browser tab to capture native and terminal apps. What it does not do is reconstruct your live front-end. It assembles an attractive sequence of stills and clips.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Navattic</th>
+<th>Storylane</th>
+<th>Arcade</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary capture</td>
+<td>HTML/CSS clone of the app</td>
+<td>screenshot demos or HTML replicas</td>
+<td>click screenshots plus scroll/type video snippets</td>
+</tr>
+<tr>
+<td>Fidelity</td>
+<td>live-feeling interactive replica</td>
+<td>pixel-perfect HTML, or curated images</td>
+<td>polished stitched frames, not a replica</td>
+</tr>
+<tr>
+<td>Speed to first demo</td>
+<td>extension capture, then edit</td>
+<td>screenshots in under 10 minutes</td>
+<td>extension record, auto-stitched</td>
+</tr>
+<tr>
+<td>Captures native/desktop apps</td>
+<td>browser only</td>
+<td>browser only</td>
+<td>yes, via the desktop app</td>
+</tr>
+<tr>
+<td>Built-in GIF/MP4 export</td>
+<td>video steps with playback analytics</td>
+<td>screenshots and video</td>
+<td>GIF and MP4 on paid tiers</td>
+</tr>
+</tbody></table></div>
+<h2 id="the-pricing-floor-the-comparison-pages-leave-out">The pricing floor the comparison pages leave out<a class="hanchor" href="#the-pricing-floor-the-comparison-pages-leave-out" aria-label="Link to section: The pricing floor the comparison pages leave out">#</a></h2>
+<p>Two of the three publish their prices. The one that does not is the one teams most often shortlist for a serious buy.</p>
+<p>Navattic offers a free Starter plan (one seat, one demo) and then goes dark: Base, Growth, and Enterprise are all &quot;billed annually&quot; with no number on the page, so you book a call to learn what Base or Growth costs<sup class="article-cite"><a href="#src-1" title="Navattic — Pricing">1</a></sup>. The analytics and the unlimited HTML demos that are the reason to choose Navattic all sit behind that wall.</p>
+<p>Storylane is fully transparent, and its price list carries a catch the grids hide. Free is $0 (one seat, one demo, screenshots and videos). Starter is about $50 per month on the annual plan, and it does not include the HTML demo editor. The HTML editor, the format that makes Storylane comparable to Navattic on fidelity, unlocks on Growth at roughly $625 per month billed annually, and Premium runs about $1,500 per month with demo hubs<sup class="article-cite"><a href="#src-4" title="Storylane — Pricing">4</a></sup>. So Storylane&#39;s Navattic-grade fidelity is a four-figure monthly line item, even though the sticker on the door reads fifty dollars.</p>
+<p>Arcade is transparent and the cheapest paid entry. Free is $0 with one published demo, one video, no export, and the watermark left on. Growth is $50 per seat per month, or $42.50 billed annually, and that is where GIF and MP4 export, watermark removal, custom branding, and analytics all switch on<sup class="article-cite"><a href="#src-7" title="Arcade — Pricing">7</a></sup>.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Free tier</th>
+<th>Entry paid tier</th>
+<th>Where the headline capability lives</th>
+<th>Public paid pricing?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Navattic</td>
+<td>1 seat, 1 demo</td>
+<td>Base / Growth (annual, quoted on request)</td>
+<td>analytics + unlimited HTML demos</td>
+<td>No, book a demo for any price</td>
+</tr>
+<tr>
+<td>Storylane</td>
+<td>1 seat, 1 demo</td>
+<td>Starter ~$50/mo (screenshots only)</td>
+<td>HTML editor on Growth ~$625/mo</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Arcade</td>
+<td>1 demo, export off</td>
+<td>Growth $50/seat/mo ($42.50 annual)</td>
+<td>export + branding + analytics on Growth</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<p>Read the floors honestly. Arcade is cheapest to start and hands you shareable exports for fifty dollars a seat. Storylane is the transparent middle, but its highest-fidelity format costs what a small headcount does. Navattic asks you to talk to sales before it will quote the tier where its analytics actually live. If price is the whole story, <a href="/blog/loom-alternatives-for-product-demos/">screen recorders in the Loom mold</a> undercut all three, but none of them give you the hands-on clickthrough these tools are built around.</p>
+<h2 id="which-capture-type-breaks-when-the-ui-moves">Which capture type breaks when the UI moves<a class="hanchor" href="#which-capture-type-breaks-when-the-ui-moves" aria-label="Link to section: Which capture type breaks when the UI moves">#</a></h2>
+<p>Every one of these freezes your interface at capture time, and <a href="/blog/why-product-demos-go-stale/">demos go out of date</a> the moment the product ships past them. What differs is how much surface each capture type exposes to that drift, and how you repair it.</p>
+<p>Navattic&#39;s HTML clone is the highest-fidelity and therefore the highest-maintenance: the more of your front-end it replicates, the more of it desyncs when a button is renamed or a table restyled. Repair means recapturing the changed screens through the extension, then rebuilding the hotspots layered over them. Storylane&#39;s screenshot demos rot one screenshot at a time, while its HTML demos drift exactly like Navattic&#39;s; the speed that makes a screenshot demo cheap to build is the one mercy, because it is also cheap to rebuild. Arcade&#39;s stitched screenshots and clips drift the same way, and a re-record re-stitches the flow.</p>
+<p>There is a real asymmetry that helps all three at low volume. Because each demo is one hosted embed, a re-capture updates it in place across every page it lives on, so you fix once and it propagates. But each recapture is manual labor that grows with how many demos you keep, never with one shared spec: ten demos across five products is ten hand recaptures every redesign. That ceiling is shared, which is why the maintenance question has no winner among the three, only a common bill.</p>
+<h2 id="matching-the-tool-to-your-center-of-gravity">Matching the tool to your center of gravity<a class="hanchor" href="#matching-the-tool-to-your-center-of-gravity" aria-label="Link to section: Matching the tool to your center of gravity">#</a></h2>
+<p>None of the three wins in a vacuum. Each is the right call under a specific constraint, so find the row that names your situation and start there.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>If your priority is...</th>
+<th>Reach for</th>
+<th>Because</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Account-level analytics for a sales or ABM motion</td>
+<td>Navattic</td>
+<td>deepest engagement data: step-level drop-off, identified vs anonymous visitors, per-5-second video playback</td>
+</tr>
+<tr>
+<td>Shipping many demos fast, plus a self-serve marketing hub</td>
+<td>Storylane</td>
+<td>screenshot demos in under 10 minutes; demo hubs gather many demos under one navigable page</td>
+</tr>
+<tr>
+<td>Design polish and a demo you can also export as video</td>
+<td>Arcade</td>
+<td>most produced-looking output, with GIF/MP4 export and native-app capture built in</td>
+</tr>
+<tr>
+<td>Knowing the price before you talk to sales</td>
+<td>Storylane or Arcade</td>
+<td>both publish tiers; Navattic quotes paid plans only on request</td>
+</tr>
+<tr>
+<td>Capturing a native desktop or terminal app</td>
+<td>Arcade</td>
+<td>its desktop app captures beyond the browser tab</td>
+</tr>
+<tr>
+<td>The highest-fidelity live replica of a web app</td>
+<td>Navattic, or Storylane HTML</td>
+<td>both rebuild the front-end; Storylane&#39;s HTML editor is a Growth-tier feature</td>
+</tr>
+</tbody></table></div>
+<p>Navattic&#39;s analytics are the genuine differentiator when a demo is being treated as a buying signal: it separates unique from engaged visitors, tracks flow completion and step-level drop-off, and marks identified visitors by name and email against anonymous ones tied to a browser profile<sup class="article-cite"><a href="#src-3" title="Navattic — Analyze / analytics (documentation)">3</a></sup>. Storylane&#39;s differentiator is the demo hub, &quot;a centralized repository of interactive demos to showcase multiple features and use-cases under a single, navigable roof,&quot; in a gallery layout for top-of-funnel marketing or a playlist for a curated sales narrative<sup class="article-cite"><a href="#src-6" title="Storylane — Guide to Demo Hub">6</a></sup>. Arcade&#39;s differentiator is the finish and the fact that it alone hands you a video file without a second tool.</p>
+<h2 id="when-a-rendered-video-beats-all-three">When a rendered video beats all three<a class="hanchor" href="#when-a-rendered-video-beats-all-three" aria-label="Link to section: When a rendered video beats all three">#</a></h2>
+<p>Reach for a tour when the buyer&#39;s next move is a click on a page you own. Three situations send you back out of the category entirely.</p>
+<p>The first is distribution. An embed needs a live browser, so it cannot ride inside an email, a GitHub README, or a muted social feed. All three concede this by adding export, and Arcade is blunt about the tradeoff: it calls interactive &quot;always the most powerful format,&quot; tells you to export only &quot;when needed for static channels,&quot; and warns that &quot;video exports don&#39;t include closed captions&quot;<sup class="article-cite"><a href="#src-9" title="Arcade — Exports (knowledge base)">9</a></sup>. The full argument lives in the <a href="/blog/interactive-demo-vs-video-demo/">interactive tour versus video file</a> comparison.</p>
+<p>The second is narration and captions that ship with the file. An exported tour is a silent screen recording of the clone. A real demo video carries a scripted voiceover and word-timed captions, and the <a href="/blog/how-to-make-a-product-demo-video/">craft of making one</a> is a different build from clicking through a capture.</p>
+<p>The third is staleness you refuse to fix by hand. All three tours are re-captured manually. If you want the demo to re-render itself when the UI changes, the demo has to be a committed spec rather than a captured performance, so <a href="/blog/demo-videos-in-ci/">CI can rebuild it</a> on the same commit that moved the interface. That is the pattern our own engine, aidemo, follows: an agent authors a storyboard, a deterministic player drives real Chrome through it identically each run, and the output is a narrated, captioned MP4 (MIT-licensed). Because we build aidemo, the honest limits: it sees inside a browser tab only, so Arcade&#39;s native-desktop capture is beyond it; the storyboard is agent-written and edited as a text file rather than nudged on a visual timeline; and polish is a recompose, never a manual trim.</p>
+<p>None of that makes the three tours wrong. If self-serve, hands-on evaluation on your own product page is the job, an interactive tour is the right object, and the only real question is which center of gravity matches yours. If the demo has to travel, narrate, or stay current on its own, you were shopping in the wrong aisle, and a rendered video is the object you actually needed.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.navattic.com/pricing" rel="noopener">Navattic — Pricing</a></li>
+<li id="src-2"><a href="https://docs.navattic.com/build/captures/web" rel="noopener">Navattic — Web captures (documentation)</a></li>
+<li id="src-3"><a href="https://docs.navattic.com/analyze" rel="noopener">Navattic — Analyze / analytics (documentation)</a></li>
+<li id="src-4"><a href="https://www.storylane.io/pricing" rel="noopener">Storylane — Pricing</a></li>
+<li id="src-5"><a href="https://www.storylane.io/plot/screenshot-or-html-picking-the-right-demo-format" rel="noopener">Storylane — Screenshot or HTML: picking the right demo format</a></li>
+<li id="src-6"><a href="https://www.storylane.io/plot/guide-to-demo-hub" rel="noopener">Storylane — Guide to Demo Hub</a></li>
+<li id="src-7"><a href="https://www.arcade.software/pricing" rel="noopener">Arcade — Pricing</a></li>
+<li id="src-8"><a href="https://docs.arcade.software/kb/build/interactive-demo/record" rel="noopener">Arcade — Record (knowledge base)</a></li>
+<li id="src-9"><a href="https://docs.arcade.software/kb/build/interactive-demo/share/exports" rel="noopener">Arcade — Exports (knowledge base)</a></li>
+<li id="src-10"><a href="https://github.com/tandryukha/aidemo" rel="noopener">aidemo — repository (our engine, disclosed as ours)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-navattic-or-storylane-cheaper" class="blog-faq-q">Is Navattic or Storylane cheaper?<a class="hanchor" href="#is-navattic-or-storylane-cheaper" aria-label="Link to section: Is Navattic or Storylane cheaper?">#</a></h3>
+<p>You can only answer that for Storylane, because Navattic does not publish paid prices. Storylane lists a free plan, a Starter tier around $50 per month for screenshot demos, and its HTML demo editor on Growth at roughly $625 per month billed annually<sup class="article-cite"><a href="#src-4" title="Storylane — Pricing">4</a></sup>. Navattic offers a free Starter plan but quotes Base, Growth, and Enterprise only after a sales call<sup class="article-cite"><a href="#src-1" title="Navattic — Pricing">1</a></sup>. If you need Navattic-grade HTML fidelity with a price you can read today, Storylane&#39;s Growth tier is the transparent comparison point; Arcade is cheaper still at $50 per seat but does not clone HTML.</p>
+<h3 id="which-is-better-for-a-sales-team-versus-a-marketing-team" class="blog-faq-q">Which is better for a sales team versus a marketing team?<a class="hanchor" href="#which-is-better-for-a-sales-team-versus-a-marketing-team" aria-label="Link to section: Which is better for a sales team versus a marketing team?">#</a></h3>
+<p>Navattic leans toward sales and account-based motions, because its analytics identify who engaged and how far they got, which feeds prospecting and prioritization<sup class="article-cite"><a href="#src-3" title="Navattic — Analyze / analytics (documentation)">3</a></sup>. Storylane&#39;s demo hubs, a gallery of demos under one page, are built for top-of-funnel marketing and self-serve buyer education<sup class="article-cite"><a href="#src-6" title="Storylane — Guide to Demo Hub">6</a></sup>. Arcade suits design-forward marketing and any team that also needs the demo as an exportable video. Most teams that buy one and outgrow it were using it for the job it was worst at.</p>
+<h3 id="does-arcade-capture-the-real-html-of-my-app-like-navattic" class="blog-faq-q">Does Arcade capture the real HTML of my app like Navattic?<a class="hanchor" href="#does-arcade-capture-the-real-html-of-my-app-like-navattic" aria-label="Link to section: Does Arcade capture the real HTML of my app like Navattic?">#</a></h3>
+<p>No. Arcade records each click as a screenshot with a hotspot and records scrolling, typing, and dragging as short video, then stitches them into a flow<sup class="article-cite"><a href="#src-8" title="Arcade — Record (knowledge base)">8</a></sup>. Navattic, by contrast, makes an &quot;HTML-based&quot; copy of your front-end that behaves like the live app<sup class="article-cite"><a href="#src-2" title="Navattic — Web captures (documentation)">2</a></sup>. Storylane offers both a screenshot format and true HTML replicas. If a viewer needs to interact with a faithful copy of your interface, Navattic or a Storylane HTML demo fits; if you want a polished, produced walkthrough you can also export as a clip, Arcade fits.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">arcade vs navattic vs storylane</span>
+        <span class="article-tag">interactive demo platform</span>
+        <span class="article-tag">navattic</span>
+        <span class="article-tag">storylane</span>
+        <span class="article-tag">arcade</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-demo-video-generators-400.webp" srcset="/blog/images/ai-demo-video-generators-400.webp 400w, /blog/images/ai-demo-video-generators-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="One search bar branching into four outputs: a video, an interactive embed, an avatar clip, and a real-UI render"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/camtasia-alternatives/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/camtasia-alternatives-400.webp" srcset="/blog/images/camtasia-alternatives-400.webp 400w, /blog/images/camtasia-alternatives-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An overloaded key ring crowded with chunky keys"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Camtasia alternatives for software demos and tutorials</h3>
+    <p class="article-card-excerpt">TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/interactive-demo-vs-video-demo/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/interactive-demo-vs-video-demo-400.webp" srcset="/blog/images/interactive-demo-vs-video-demo-400.webp 400w, /blog/images/interactive-demo-vs-video-demo-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="One product screen splitting into an interactive embed blocked from email, README, and feed, and a video file that plays in all of them"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Interactive product demos vs video demos: when each wins</h3>
+    <p class="article-card-excerpt">One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-tools-three-different-capture-engines">Three tools, three different capture engines</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#clone-screenshot-or-stitch-what-each-one-records">Clone, screenshot, or stitch: what each one records</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-pricing-floor-the-comparison-pages-leave-out">The pricing floor the comparison pages leave out</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-capture-type-breaks-when-the-ui-moves">Which capture type breaks when the UI moves</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#matching-the-tool-to-your-center-of-gravity">Matching the tool to your center of gravity</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-a-rendered-video-beats-all-three">When a rendered video beats all three</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

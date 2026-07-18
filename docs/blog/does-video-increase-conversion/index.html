@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does Video Increase Conversion? | aidemo</title>
+<meta name="description" content="Does video increase conversion? The 80% claim traces to one 2011 test; a 35,000-page study and Core Web Vitals show when video helps and when it backfires.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/does-video-increase-conversion/">
+<link rel="alternate" type="text/markdown" href="/blog/does-video-increase-conversion/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Does Video Increase Conversion? | aidemo">
+<meta property="og:description" content="Does video increase conversion? The 80% claim traces to one 2011 test; a 35,000-page study and Core Web Vitals show when video helps and when it backfires.">
+<meta property="og:url" content="https://aidemo.top/blog/does-video-increase-conversion/">
+<meta property="og:image" content="https://aidemo.top/blog/images/does-video-increase-conversion-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Does Video Increase Conversion? | aidemo">
+<meta name="twitter:description" content="Does video increase conversion? The 80% claim traces to one 2011 test; a 35,000-page study and Core Web Vitals show when video helps and when it backfires.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/does-video-increase-conversion-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Does video actually increase conversion? Tracing the 80% claim",
+  "description": "Does video increase conversion? The 80% claim traces to one 2011 test; a 35,000-page study and Core Web Vitals show when video helps and when it backfires.",
+  "image": [
+    "https://aidemo.top/blog/images/does-video-increase-conversion-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/does-video-increase-conversion/"
+  },
+  "wordCount": 1848,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Unbounce — Video on Landing Pages: Does It Really Mean More Conversions?",
+      "url": "https://unbounce.com/landing-pages/video-on-landing-pages-means-more-conversions-right-wrong-heres-why/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "web.dev — Largest Contentful Paint (LCP)",
+      "url": "https://web.dev/articles/lcp"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "web.dev — Milliseconds Make Millions (Google, 55, and Deloitte)",
+      "url": "https://web.dev/case-studies/milliseconds-make-millions"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Nielsen Norman Group — Video Usability",
+      "url": "https://www.nngroup.com/articles/video-usability/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Wistia — State of Video Report: Video Marketing Statistics for 2026",
+      "url": "https://wistia.com/learn/marketing/video-marketing-statistics"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Does video actually increase conversion? Tracing the 80% claim",
+      "item": "https://aidemo.top/blog/does-video-increase-conversion/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does video on a landing page increase conversion rate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sometimes, and not by the 80% the marketing pages promise. That figure traces to a single 2011 EyeView A/B test, while Unbounce's later analysis of roughly 35,000 pages found video correlating with neutral-to-negative conversion (Unbounce, 2021). Video helps when it explains a genuinely complex product, matches what the visitor came to evaluate, and loads without slowing the page. It hurts when it is a generic reel that becomes the slowest element on the page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why did adding a video lower my conversion rate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most common cause is speed. If the video autoplays in the hero it can become your Largest Contentful Paint element, and a good LCP is 2.5 seconds or less (web.dev, 2026). A 0.1-second slowdown alone was enough to move retail conversions 8.4% in Google and Deloitte's data (Google/Deloitte, 2020). A heavy hero video also pushes your value prop and CTA below the fold. Move the video to click-to-play behind a poster and keep a static image or headline as the LCP element."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does an autoplay hero video hurt Core Web Vitals?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It can, in two ways. A \u003cvideo> element is eligible to be the LCP element, so a heavy autoplaying hero can set the number the score is graded on, and a good LCP is 2.5 seconds or less at the 75th percentile (web.dev, 2026). The fix is to give the hero a lightweight poster image or a text headline as the LCP element and defer the actual video file until the visitor interacts, which keeps first paint fast while still offering the video to anyone who wants it."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>Does video actually increase conversion? Tracing the 80% claim</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">Does video actually increase conversion? Tracing the 80% claim</h1>
+        <p class="article-dek">The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-the-80-number-actually-comes-from">Where the 80% number actually comes from</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#correlation-is-not-the-lift-what-a-35000-page-analysis-found">Correlation is not the lift: what a 35,000-page analysis found</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#your-lcp-budget-is-the-real-variable">Your LCP budget is the real variable</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-decision-table-when-video-lifts-conversion-and-when-it-sinks-it">A decision table: when video lifts conversion and when it sinks it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#adding-video-without-paying-the-speed-tax">Adding video without paying the speed tax</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/does-video-increase-conversion-800.webp" srcset="/blog/images/does-video-increase-conversion-400.webp 400w, /blog/images/does-video-increase-conversion-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A brass-style balance scale tipped to one side, one shallow pan hanging lower than the other"><figcaption>A video's persuasion and the load time it adds land on opposite pans; conversion is only ever whichever one wins.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The &quot;video lifts conversion 80%&quot; stat traces to a single 2011 EyeView A/B test (best single result 86%, one tutoring page); the original report is no longer published.</li>
+    <li>Unbounce's analysis of ~35,000 landing pages (2021) found video correlated with neutral-to-negative conversion, not an 80% lift, once you control for the page.</li>
+    <li>Speed is the reliable lever: a good LCP is 2.5s or less, and a 0.1s mobile speedup raised retail conversions 8.4% (Google/Deloitte, 30M sessions, 37 brands).</li>
+    <li>A video and a large hero image are both eligible to be the LCP element, so a heavy autoplay hero can make the slowest thing on the page the thing Google grades.</li>
+    <li>Rule: keep the LCP element a static poster or headline and load the video on interaction; relevance plus fast load decides the lift, not the medium.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="where-the-80-number-actually-comes-from">Where the 80% number actually comes from<a class="hanchor" href="#where-the-80-number-actually-comes-from" aria-label="Link to section: Where the 80% number actually comes from">#</a></h2>
+<p>Search &quot;does video increase conversion&quot; and the first answer is almost always a number: video on a landing page lifts conversions by 80%, sometimes 86%. It rides on vendor pages, in pitch decks, and in the opening paragraph of nearly every article on the subject. A figure that specific and that durable is worth tracing, because where it came from decides how much weight it can bear.</p>
+<p>Follow it back and the trail narrows to a single source: a 2011 batch of A/B tests by a video-advertising company called EyeView Digital, run on a handful of ecommerce landing pages. The method was the ordinary split test, half the traffic to a page with an embedded video and half to the same page without. The 86% figure was the best single result in that batch, an online tutoring service&#39;s page; &quot;80%&quot; is the rounded, averaged descendant that broke free of its context. The original EyeView report is no longer published anywhere you can read it. A claim that has anchored a decade of &quot;just add a video&quot; advice now survives only as a number that pages quote from each other.</p>
+<p>That does not make it false. It makes it one A/B test, on one page type, from one vendor, fifteen years ago, promoted into a law. A result like that is a hypothesis to test, not proof that a video will lift your conversion rate. To know whether it will, you have to separate what video correlates with from what it causes, and then look at the one mechanism that reliably moves the number in either direction.</p>
+<h2 id="correlation-is-not-the-lift-what-a-35000-page-analysis-found">Correlation is not the lift: what a 35,000-page analysis found<a class="hanchor" href="#correlation-is-not-the-lift-what-a-35000-page-analysis-found" aria-label="Link to section: Correlation is not the lift: what a 35,000-page analysis found">#</a></h2>
+<p>The honest test of the claim is not one split test but a large corpus where you can compare pages with and without video at scale. Unbounce, a landing-page platform that spent years publishing the &quot;add video&quot; advice, ran that analysis across roughly 35,000 of its customers&#39; pages and reported the result in 2021: videos &quot;do not boost your landing page conversion rates, and in some cases might even harm them&quot;<sup class="article-cite"><a href="#src-1" title="Unbounce — Video on Landing Pages: Does It Really Mean More Conversions?">1</a></sup>. On form-fill pages the difference between video and non-video pages was negligible; on click-through pages the gap ran negative; across ten industries video &quot;generally correlate[d] with neutral or even negative page performance,&quot; and the pattern held on mobile and desktop and across every traffic channel.</p>
+<p>A corpus disagrees with the famous split test for a plain reason: selection bias. Pages that add video are not a random sample. They tend to belong to teams with bigger budgets, longer copy, and more moving parts, which is exactly the kind of page with other reasons to convert differently. When EyeView held the page constant and changed only the video, they isolated video&#39;s effect on one page. When you look across thousands of pages, video is tangled up with everything else the team did, and the clean 80% lift dissolves into noise or worse. &quot;Has video&quot; correlating with &quot;converts well&quot; is not video causing the conversion, and at corpus scale the correlation is not even reliably positive.</p>
+<h2 id="your-lcp-budget-is-the-real-variable">Your LCP budget is the real variable<a class="hanchor" href="#your-lcp-budget-is-the-real-variable" aria-label="Link to section: Your LCP budget is the real variable">#</a></h2>
+<p>If video&#39;s persuasive effect is inconsistent, its performance cost is not. A page is graded by Google on Largest Contentful Paint, the time until the biggest element in the viewport renders. A good LCP is 2.5 seconds or less at the 75th percentile of loads; anything over 4.0 seconds is rated poor<sup class="article-cite"><a href="#src-2" title="web.dev — Largest Contentful Paint (LCP)">2</a></sup>. And a <code>&lt;video&gt;</code> element and a large hero image are both eligible to be the LCP element. Drop a heavy autoplaying video into the hero and you have not set a persuasion asset beside your page, you have often made the slowest thing on the page the thing the score is measured against.</p>
+<p>Speed is where the conversion evidence stops being ambiguous. Google, 55, and Deloitte&#39;s &quot;Milliseconds Make Millions&quot; study instrumented over 30 million sessions across 37 retail, travel, luxury, and lead-gen brands and found that a 0.1-second improvement in mobile load time raised retail conversions by 8.4%, travel conversions by 10.1%, and luxury product-to-cart progression by 40.1%<sup class="article-cite"><a href="#src-3" title="web.dev — Milliseconds Make Millions (Google, 55, and Deloitte)">3</a></sup>. Read the sign, not the magnitude: those elasticities were measured on already-fast sites near their operating point, so you cannot multiply 8.4% across a two-second regression and claim a video costs you 168% of your conversions. What you can say is that the direction is settled. Faster converts better, a video is one of the heaviest things you can put on a page, and if it becomes the LCP element it pushes you the wrong way on the one axis where the causal link to conversion is well established.</p>
+<p>That reframes the question. &quot;Does video increase conversion&quot; is the wrong unit. The real question is whether a given video&#39;s persuasion lift outweighs the conversion it costs by slowing the page, and the answer turns entirely on how you ship it.</p>
+<h2 id="a-decision-table-when-video-lifts-conversion-and-when-it-sinks-it">A decision table: when video lifts conversion and when it sinks it<a class="hanchor" href="#a-decision-table-when-video-lifts-conversion-and-when-it-sinks-it" aria-label="Link to section: A decision table: when video lifts conversion and when it sinks it">#</a></h2>
+<p>Video is not one thing you either add or skip. It is a set of choices, each of which pushes the net effect toward lift or toward loss. Here is the same asset scored on the factors that actually decide it.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>Video lifts conversion when…</th>
+<th>Video costs conversion when…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Product complexity</td>
+<td>The value is spatial, motion-based, or hard to explain in scannable text</td>
+<td>The value is a simple list a visitor reads in five seconds</td>
+</tr>
+<tr>
+<td>Load impact</td>
+<td>It loads lazily behind a poster and the LCP element stays a static image or headline</td>
+<td>It autoplays as a heavy hero and becomes the LCP element</td>
+</tr>
+<tr>
+<td>Relevance</td>
+<td>It shows the exact workflow the visitor came to evaluate</td>
+<td>It is a generic brand reel with a logo intro</td>
+</tr>
+<tr>
+<td>User control</td>
+<td>Click-to-play, muted by default, captioned, skippable</td>
+<td>Autoplay with sound and no visible controls</td>
+</tr>
+<tr>
+<td>Placement</td>
+<td>Beside or below the primary CTA, not displacing it</td>
+<td>It shoves the value prop and CTA below the fold</td>
+</tr>
+<tr>
+<td>Visitor intent</td>
+<td>High-intent visitors researching a considered purchase</td>
+<td>Cold feed traffic that bounces in the first three seconds</td>
+</tr>
+</tbody></table></div>
+<p>Read down the &quot;costs conversion&quot; column and you have a fair description of the default landing-page hero video: an autoplaying, heavy brand reel that becomes the LCP element and pushes the CTA down. Read the &quot;lifts conversion&quot; column and you have a click-to-play, captioned, relevant product walkthrough that loads after the page is interactive. Same medium, opposite outcomes. It is also why the honest comparison is sometimes not video at all: a <a href="/blog/interactive-demo-vs-video-demo/">clickable interactive demo</a> can carry a complex product without the byte weight of a video hero, and the numbers you instrument are what tell you which one actually won.</p>
+<h2 id="adding-video-without-paying-the-speed-tax">Adding video without paying the speed tax<a class="hanchor" href="#adding-video-without-paying-the-speed-tax" aria-label="Link to section: Adding video without paying the speed tax">#</a></h2>
+<p>The engineering fix is to decouple the video from the page&#39;s first paint, so it can persuade the visitors who want it without taxing the ones who do not. Keep the LCP element a static poster image or a text headline, and load the video on interaction rather than on load. Nielsen Norman Group&#39;s usability research arrives at the same place from the user&#39;s side: people dislike video that plays without their consent, video forces slow sequential access where the web rewards scanning, and critical information should exist as text regardless<sup class="article-cite"><a href="#src-4" title="Nielsen Norman Group — Video Usability">4</a></sup>. A click-to-play, captioned, transcript-backed video respects the visitor and the performance budget at once.</p>
+<p>A few rules follow directly. Give every embed a poster frame so the hero paints instantly. Do not autoplay a full-weight file; use a lightweight preview or a facade that swaps in the real player on click. Right-size the file to the placement, because a landing hero does not need a four-minute cut, and <a href="/blog/how-long-should-a-demo-video-be/">the right length is a per-placement decision</a>. Then measure it: Wistia&#39;s 2026 data shows fewer than half of marketers even connect their video platform to a CRM or email tool, so most &quot;video increased conversion&quot; claims are never checked against pipeline at all<sup class="article-cite"><a href="#src-5" title="Wistia — State of Video Report: Video Marketing Statistics for 2026">5</a></sup>.</p>
+<p>Because delivery is where the win lives, treating the demo as something you can re-cut and re-encode per placement matters more than the recording itself. Our own engine, aidemo, renders a demo from an agent-authored storyboard so the same flow exports at different lengths and sizes for a hero, a poster, or a lazy-loaded embed; its honest limits are that it captures the browser only and offers no drag-on-a-timeline editor, so it earns its keep on a demo that must ship to several placements rather than on a single quick screencast. The tool is beside the point. The finding is not &quot;video does not work.&quot; It is that video&#39;s effect on conversion is dominated by relevance and load time, which is why a relevant clip that respects your LCP budget can help, a heavy autoplay hero reliably will not, and how one recording reaches <a href="/blog/video-marketing-for-software/">every channel</a> is the decision that actually pays.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://unbounce.com/landing-pages/video-on-landing-pages-means-more-conversions-right-wrong-heres-why/" rel="noopener">Unbounce — Video on Landing Pages: Does It Really Mean More Conversions?</a></li>
+<li id="src-2"><a href="https://web.dev/articles/lcp" rel="noopener">web.dev — Largest Contentful Paint (LCP)</a></li>
+<li id="src-3"><a href="https://web.dev/case-studies/milliseconds-make-millions" rel="noopener">web.dev — Milliseconds Make Millions (Google, 55, and Deloitte)</a></li>
+<li id="src-4"><a href="https://www.nngroup.com/articles/video-usability/" rel="noopener">Nielsen Norman Group — Video Usability</a></li>
+<li id="src-5"><a href="https://wistia.com/learn/marketing/video-marketing-statistics" rel="noopener">Wistia — State of Video Report: Video Marketing Statistics for 2026</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="does-video-on-a-landing-page-increase-conversion-rate" class="blog-faq-q">Does video on a landing page increase conversion rate?<a class="hanchor" href="#does-video-on-a-landing-page-increase-conversion-rate" aria-label="Link to section: Does video on a landing page increase conversion rate?">#</a></h3>
+<p>Sometimes, and not by the 80% the marketing pages promise. That figure traces to a single 2011 EyeView A/B test, while Unbounce&#39;s later analysis of roughly 35,000 pages found video correlating with neutral-to-negative conversion<sup class="article-cite"><a href="#src-1" title="Unbounce — Video on Landing Pages: Does It Really Mean More Conversions?">1</a></sup>. Video helps when it explains a genuinely complex product, matches what the visitor came to evaluate, and loads without slowing the page. It hurts when it is a generic reel that becomes the slowest element on the page.</p>
+<h3 id="why-did-adding-a-video-lower-my-conversion-rate" class="blog-faq-q">Why did adding a video lower my conversion rate?<a class="hanchor" href="#why-did-adding-a-video-lower-my-conversion-rate" aria-label="Link to section: Why did adding a video lower my conversion rate?">#</a></h3>
+<p>The most common cause is speed. If the video autoplays in the hero it can become your Largest Contentful Paint element, and a good LCP is 2.5 seconds or less<sup class="article-cite"><a href="#src-2" title="web.dev — Largest Contentful Paint (LCP)">2</a></sup>. A 0.1-second slowdown alone was enough to move retail conversions 8.4% in Google and Deloitte&#39;s data<sup class="article-cite"><a href="#src-3" title="web.dev — Milliseconds Make Millions (Google, 55, and Deloitte)">3</a></sup>. A heavy hero video also pushes your value prop and CTA below the fold. Move the video to click-to-play behind a poster and keep a static image or headline as the LCP element.</p>
+<h3 id="does-an-autoplay-hero-video-hurt-core-web-vitals" class="blog-faq-q">Does an autoplay hero video hurt Core Web Vitals?<a class="hanchor" href="#does-an-autoplay-hero-video-hurt-core-web-vitals" aria-label="Link to section: Does an autoplay hero video hurt Core Web Vitals?">#</a></h3>
+<p>It can, in two ways. A <code>&lt;video&gt;</code> element is eligible to be the LCP element, so a heavy autoplaying hero can set the number the score is graded on, and a good LCP is 2.5 seconds or less at the 75th percentile<sup class="article-cite"><a href="#src-2" title="web.dev — Largest Contentful Paint (LCP)">2</a></sup>. The fix is to give the hero a lightweight poster image or a text headline as the LCP element and defer the actual video file until the visitor interacts, which keeps first paint fast while still offering the video to anyone who wants it.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">video conversion</span>
+        <span class="article-tag">conversion rate optimization</span>
+        <span class="article-tag">landing page video</span>
+        <span class="article-tag">core web vitals</span>
+        <span class="article-tag">video marketing</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/how-long-should-a-demo-video-be/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-long-should-a-demo-video-be-400.webp" srcset="/blog/images/how-long-should-a-demo-video-be-400.webp 400w, /blog/images/how-long-should-a-demo-video-be-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A long recorded demo timeline trimmed down to a short highlighted keep region, with per-placement length targets marked along the track"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">How long should a demo video be? The retention math</h3>
+    <p class="article-card-excerpt">Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-the-80-number-actually-comes-from">Where the 80% number actually comes from</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#correlation-is-not-the-lift-what-a-35000-page-analysis-found">Correlation is not the lift: what a 35,000-page analysis found</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#your-lcp-budget-is-the-real-variable">Your LCP budget is the real variable</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-decision-table-when-video-lifts-conversion-and-when-it-sinks-it">A decision table: when video lifts conversion and when it sinks it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#adding-video-without-paying-the-speed-tax">Adding video without paying the speed tax</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
