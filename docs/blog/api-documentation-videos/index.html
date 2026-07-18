@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API documentation videos that stay in sync | aidemo</title>
+<meta name="description" content="An API quickstart video rots the instant a field is renamed, and hides it. Build one from the same OpenAPI examples your contract tests already check.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/api-documentation-videos/">
+<link rel="alternate" type="text/markdown" href="/blog/api-documentation-videos/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="API documentation videos that stay in sync | aidemo">
+<meta property="og:description" content="An API quickstart video rots the instant a field is renamed, and hides it. Build one from the same OpenAPI examples your contract tests already check.">
+<meta property="og:url" content="https://aidemo.top/blog/api-documentation-videos/">
+<meta property="og:image" content="https://aidemo.top/blog/images/api-documentation-videos-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="API documentation videos that stay in sync | aidemo">
+<meta name="twitter:description" content="An API quickstart video rots the instant a field is renamed, and hides it. Build one from the same OpenAPI examples your contract tests already check.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/api-documentation-videos-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "API and SDK documentation videos that stay in sync with the API",
+  "description": "An API quickstart video rots the instant a field is renamed, and hides it. Build one from the same OpenAPI examples your contract tests already check.",
+  "image": [
+    "https://aidemo.top/blog/images/api-documentation-videos-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/api-documentation-videos/"
+  },
+  "wordCount": 1981,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAPI Initiative — OpenAPI Specification (latest): a language-agnostic interface description for HTTP APIs, with Example, Schema and Response Objects",
+      "url": "https://spec.openapis.org/oas/latest.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "stripe/openapi — Stripe's machine-readable OpenAPI specification, 2,300+ versioned releases covering v1 and v2 endpoints and events",
+      "url": "https://github.com/stripe/openapi"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Twilio — Video Quickstart for JavaScript (Room, Participants, Tracks as the getting-started model)",
+      "url": "https://www.twilio.com/docs/video/javascript-getting-started"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Stoplight Prism — turn any OpenAPI or Postman file into a mock and validation server",
+      "url": "https://github.com/stoplightio/prism"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Dredd — How It Works: validate that an API's responses still match the responses documented in its description",
+      "url": "https://dredd.org/en/latest/how-it-works.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "API and SDK documentation videos that stay in sync with the API",
+      "item": "https://aidemo.top/blog/api-documentation-videos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should an API quickstart be a video or code samples?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both, doing different jobs. Use a short video for the one thing text struggles with: the shape of a first successful call and how its objects relate, the getting-started aha. Keep the reference itself, every endpoint, field, and type, in copyable code samples, because that is the part a developer scans, searches, and pastes exactly. The most admired API docs, Stripe's among them, lead their reference with runnable code, not clips, and reserve video for the conceptual on-ramp."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you keep an API documentation video in sync with the API?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Build it from the same fixtures your tests use, not from a live hand-recorded session. Record against a mock server generated from your OpenAPI examples (Prism does this), and run a contract test such as Dredd that checks those same examples against the real API in CI. When a field is renamed, the contract test fails in the pull request, someone updates the shared example, and the clip re-records from it, so the video is fixed by the same commit that broke the API."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What should an API documentation video actually show?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One call, from request to response, and the relationships a schema table cannot animate. Show the request line, a real value flowing into the response, and the one or two fields the narration names, formatted and zoomed so they survive compression. Leave the exhaustive field reference, error catalogs, and every parameter in the text beside it. Never put a real secret or live key on screen, and never let the clip grow into a twenty-minute tour of the whole API."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>API and SDK documentation videos that stay in sync with the API</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">API and SDK documentation videos that stay in sync with the API</h1>
+        <p class="article-dek">A stale UI demo looks wrong on sight. A stale API quickstart shows valid JSON while the field it names no longer exists. How to keep one honest.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-renamed-field-that-breaks-a-quickstart-in-silence">The renamed field that breaks a quickstart in silence</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-an-api-video-should-show-and-what-it-must-not">What an API video should show, and what it must not</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#making-a-call-and-its-json-readable-on-screen">Making a call and its JSON readable on screen</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-fixture-a-video-and-a-contract-test-can-share">The fixture a video and a contract test can share</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#rebuilding-the-clip-on-the-commit-that-renamed-the-field">Rebuilding the clip on the commit that renamed the field</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/api-documentation-videos-800.webp" srcset="/blog/images/api-documentation-videos-400.webp 400w, /blog/images/api-documentation-videos-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A wooden pyramid metronome with its pendulum caught mid-swing."><figcaption>Recorded by hand, a quickstart keeps its own beat long after the API changes tempo; only one rebuilt from the same fixtures stays with the metronome.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>An API quickstart video ages worse than a UI demo: six of seven things that break a call (renamed field, changed shape, status code, auth) leave no mark on screen.</li>
+    <li>Stripe ships a fresh machine-readable API description almost every release (2,300+ versioned releases, v2344 on 15 Jul 2026), a cadence no hand-recorded clip can track.</li>
+    <li>Put one call and its response shape in the video; keep the full field reference in text, where it stays searchable, copyable, and testable.</li>
+    <li>Feed the video and your contract test from one OpenAPI example: record against a Prism mock, verify with Dredd, so a renamed field fails CI loudly, not the reader silently.</li>
+    <li>Regenerate the clip on the commit that changed the API, not on a re-shoot: the diff that renames the field is the diff that rebuilds the video.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-renamed-field-that-breaks-a-quickstart-in-silence">The renamed field that breaks a quickstart in silence<a class="hanchor" href="#the-renamed-field-that-breaks-a-quickstart-in-silence" aria-label="Link to section: The renamed field that breaks a quickstart in silence">#</a></h2>
+<p>Every documentation video ages, but an API quickstart ages worse and hides it better. When a product&#39;s interface moves, the stale walkthrough looks wrong on sight: the cursor lands on a button that is not there, and a reviewer scrubbing the clip catches it. An API quickstart offers no such tell. The terminal still shows a plausible `curl`, the response pane still shows well-formed JSON, the narration still sounds sure of itself. Nothing in the frame looks broken. The clip is simply describing a call that now returns a different shape, or a field the API renamed two releases ago, and the only person who learns this is the developer who pastes the command and gets back a 400.</p>
+<p>That is the trap: a video captures the result of a call, never the call&#39;s contract. <a href="/blog/video-documentation/">The pillar on where video earns its place in docs</a> argues that reference material stays text; the API quickstart is where that rule grows teeth, because here the gap between &quot;looks fine&quot; and &quot;is fine&quot; is at its widest.</p>
+<p>An API call also ages on more axes than any other clip. A UI walkthrough really breaks on one visible surface, its layout. An HTTP call breaks on several, and most leave no mark on screen.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What can change under an API video</th>
+<th>Visible in the frame?</th>
+<th>Who finds out</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>endpoint path or method</td>
+<td>sometimes, in the request line</td>
+<td>a careful reviewer</td>
+</tr>
+<tr>
+<td>a renamed request or response field</td>
+<td>no</td>
+<td>the developer who runs it</td>
+</tr>
+<tr>
+<td>response body shape or a field&#39;s type</td>
+<td>rarely</td>
+<td>the developer who parses it</td>
+</tr>
+<tr>
+<td>status code or error envelope</td>
+<td>no</td>
+<td>only on the unhappy path</td>
+</tr>
+<tr>
+<td>auth scheme or a required header</td>
+<td>no</td>
+<td>at the 401</td>
+</tr>
+<tr>
+<td>a newly required parameter</td>
+<td>no</td>
+<td>at the 400</td>
+</tr>
+<tr>
+<td>a deprecation with a sunset date</td>
+<td>no</td>
+<td>months later, all at once</td>
+</tr>
+</tbody></table></div>
+<p>Six of those seven are silent. They also move fast: Stripe alone has published more than 2,300 versioned releases of its machine-readable API description, the latest tagged v2344 on 15 July 2026<sup class="article-cite"><a href="#src-2" title="stripe/openapi — Stripe's machine-readable OpenAPI specification, 2,300+ versioned releases covering v1 and v2 endpoints and events">2</a></sup>. No hand-recorded quickstart tracks a source changing at that cadence. The reprieve hides in the same fact. Because the description is machine-readable, a diff of it names exactly which fields moved, and that is the hook the rest of this piece hangs on.</p>
+<h2 id="what-an-api-video-should-show-and-what-it-must-not">What an API video should show, and what it must not<a class="hanchor" href="#what-an-api-video-should-show-and-what-it-must-not" aria-label="Link to section: What an API video should show, and what it must not">#</a></h2>
+<p>The instinct that sinks these videos is the twenty-minute tour of the entire reference. It is the wrong unit twice: too long to finish, and built almost entirely from the lookup content that text serves better. A video earns a place in API docs for one job, the thing prose is worst at, which is conveying the shape of an interaction and how its parts relate. Twilio&#39;s Video SDK quickstart turns on three nouns that only mean anything together: a Room that is &quot;the basic building block for a Programmable Video application,&quot; Participants &quot;connected to a Room,&quot; and Tracks, &quot;the media streams that are shared within a Room&quot;<sup class="article-cite"><a href="#src-3" title="Twilio — Video Quickstart for JavaScript (Room, Participants, Tracks as the getting-started model)">3</a></sup>. A newcomer absorbs that nesting faster from thirty seconds of one call running than from three paragraphs of nouns.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Put in the video</th>
+<th>Keep in the text beside it</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>the single call that produces the aha, start to finish</td>
+<td>the full endpoint and field reference</td>
+<td>reference is lookup, and must stay searchable and copyable</td>
+</tr>
+<tr>
+<td>the shape of the response and the one field that matters</td>
+<td>every field&#39;s type and constraint</td>
+<td>a schema table beats a paused frame</td>
+</tr>
+<tr>
+<td>how two objects relate: get a token, then connect; create, then poll</td>
+<td>exhaustive parameter lists</td>
+<td>relationships are what motion shows best</td>
+</tr>
+<tr>
+<td>one real value flowing from request into response</td>
+<td>secrets, live keys, account identifiers</td>
+<td>never film a credential</td>
+</tr>
+</tbody></table></div>
+<p>The honest benchmark is that the most admired API docs barely use video at all. Stripe&#39;s reference leads with copyable, runnable code samples rather than clips, precisely because reference is the part a reader scans, copies, and has to trust to the character. Video sits upstream of that, at the getting-started moment when a developer needs to watch one request succeed before any of the reference means much. Hold it to that call. <a href="/blog/microvideos-in-documentation/">How small to cut a doc clip</a> is its own decision, but for an API the ceiling is low: one call, its response, done.</p>
+<h2 id="making-a-call-and-its-json-readable-on-screen">Making a call and its JSON readable on screen<a class="hanchor" href="#making-a-call-and-its-json-readable-on-screen" aria-label="Link to section: Making a call and its JSON readable on screen">#</a></h2>
+<p>An API video crowds two of the least codec-friendly surfaces into one frame: a terminal and a wall of JSON. The legibility mechanics, editor font size, zoom, and the reason H.264 smears syntax highlighting first, are worked through for <a href="/blog/developer-education-screencasts/">developer-education screencasts</a> and carry over here without change. The API-specific problem is the response body. Pretty-printed JSON at a terminal&#39;s default size is unreadable in a 1080p embed and hopeless in a 640px docs column, so pipe it through a formatter, collapse the body to the few fields the narration actually names, and zoom to those. Show the `id` and the `status`, not forty lines of nested metadata no one will read at three pixels tall.</p>
+<p>The second constraint is copyability. A viewer cannot select a `curl` command out of a video, because the codec turned it into pixels. So the copyable version has to live in the text next to the clip, which is also the version you can test. That is the reason the terminal half of an API video is better driven from a script than typed live, and the <a href="/blog/record-a-terminal-session/">tradeoffs between asciinema, a raw screen recording, and tape-driven replay</a> decide which route fits. Type nothing by hand that a reader will have to retype by eye.</p>
+<h2 id="the-fixture-a-video-and-a-contract-test-can-share">The fixture a video and a contract test can share<a class="hanchor" href="#the-fixture-a-video-and-a-contract-test-can-share" aria-label="Link to section: The fixture a video and a contract test can share">#</a></h2>
+<p>Here is the move that makes an API video maintainable rather than merely correct on the day you shot it: feed the video and your test suite from the same fixtures.</p>
+<p>Begin at the source of truth. An OpenAPI description is &quot;a standard, programming language-agnostic interface description for HTTP APIs,&quot; and its Example, Schema, and Response Objects pin down both the shape of a call and concrete sample values<sup class="article-cite"><a href="#src-1" title="OpenAPI Initiative — OpenAPI Specification (latest): a language-agnostic interface description for HTTP APIs, with Example, Schema and Response Objects">1</a></sup>. Those examples are not decoration. Two kinds of tooling already read them:</p>
+<ul>
+<li>A mock server. Prism turns &quot;any OpenAPI2/3 and Postman Collection file into an API server with mocking,&quot; and can serve the spec&#39;s own `examples` as its responses<sup class="article-cite"><a href="#src-4" title="Stoplight Prism — turn any OpenAPI or Postman file into a mock and validation server">4</a></sup>. Record the video against that mock and the JSON on screen is, by construction, the JSON in the docs, identical take after take, with no live account and no secret in the frame.</li>
+<li>A contract test. Dredd &quot;takes your API description document, creates expectations based on requests and responses documented in the document, makes requests to tested API, checks whether API responses match the documented responses&quot;<sup class="article-cite"><a href="#src-5" title="Dredd — How It Works: validate that an API's responses still match the responses documented in its description">5</a></sup>. Run it in CI and the day the implementation renames a field, the very example the video was built from turns the build red.</li>
+</ul>
+<p>Bolt those together and the video inherits the test&#39;s coverage. The example fixture becomes one artifact feeding three consumers: the written docs render it, the contract test checks it against the live API, and the video is recorded against a mock that serves it. A renamed field can no longer break the video quietly, because it breaks the contract test loudly first, in the same pull request. <a href="/blog/docs-that-test-themselves/">Docs that test themselves</a> is the general form of this discipline, and the video is one more output wired to the same tested example.</p>
+<h2 id="rebuilding-the-clip-on-the-commit-that-renamed-the-field">Rebuilding the clip on the commit that renamed the field<a class="hanchor" href="#rebuilding-the-clip-on-the-commit-that-renamed-the-field" aria-label="Link to section: Rebuilding the clip on the commit that renamed the field">#</a></h2>
+<p>Being accurate on shoot day is not the target. Staying accurate across the next hundred releases is, and that means the clip has to regenerate rather than get re-shot, on the same commit that changed the API, so the fix ships alongside the break.</p>
+<p>The loop is short. A change lands that renames a field. The contract test fails, because the documented example no longer matches the response. Someone updates the example, the single edit that repairs the docs, the test, and the video&#39;s input at once. CI restarts the mock, re-records the clip against it, and republishes. Nobody opens a timeline; the diff that renamed the field is the diff that rebuilt the video. This is the regeneration model that keeps a whole <a href="/blog/keeping-tutorial-libraries-current/">tutorial library current</a>, aimed at the fastest-rotting clip in the set.</p>
+<p>Our own engine, aidemo, disclosed as ours, automates only the browser half of that loop, and its limits bite harder here than in most doc videos. Because it replays a version-controlled spec instead of a live capture, an embedded clip can rebuild itself on the release that moved the product. What it cannot do is see past a browser tab: the terminal and the `curl` that carry an API call sit entirely outside its frame, so you render those with a tape-based terminal tool and splice the two. The spec is authored by an agent and then revised as plain text, and nothing in the workflow resembles a drag-and-drop editor. That plumbing is not the argument. The argument is that an API video stays true only when its inputs are the same tested fixtures the rest of your docs already rebuild from, so a broken quickstart fails your CI instead of your reader.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://spec.openapis.org/oas/latest.html" rel="noopener">OpenAPI Initiative — OpenAPI Specification (latest): a language-agnostic interface description for HTTP APIs, with Example, Schema and Response Objects</a></li>
+<li id="src-2"><a href="https://github.com/stripe/openapi" rel="noopener">stripe/openapi — Stripe's machine-readable OpenAPI specification, 2,300+ versioned releases covering v1 and v2 endpoints and events</a></li>
+<li id="src-3"><a href="https://www.twilio.com/docs/video/javascript-getting-started" rel="noopener">Twilio — Video Quickstart for JavaScript (Room, Participants, Tracks as the getting-started model)</a></li>
+<li id="src-4"><a href="https://github.com/stoplightio/prism" rel="noopener">Stoplight Prism — turn any OpenAPI or Postman file into a mock and validation server</a></li>
+<li id="src-5"><a href="https://dredd.org/en/latest/how-it-works.html" rel="noopener">Dredd — How It Works: validate that an API's responses still match the responses documented in its description</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="should-an-api-quickstart-be-a-video-or-code-samples" class="blog-faq-q">Should an API quickstart be a video or code samples?<a class="hanchor" href="#should-an-api-quickstart-be-a-video-or-code-samples" aria-label="Link to section: Should an API quickstart be a video or code samples?">#</a></h3>
+<p>Both, doing different jobs. Use a short video for the one thing text struggles with: the shape of a first successful call and how its objects relate, the getting-started aha. Keep the reference itself, every endpoint, field, and type, in copyable code samples, because that is the part a developer scans, searches, and pastes exactly. The most admired API docs, Stripe&#39;s among them, lead their reference with runnable code, not clips, and reserve video for the conceptual on-ramp.</p>
+<h3 id="how-do-you-keep-an-api-documentation-video-in-sync-with-the-api" class="blog-faq-q">How do you keep an API documentation video in sync with the API?<a class="hanchor" href="#how-do-you-keep-an-api-documentation-video-in-sync-with-the-api" aria-label="Link to section: How do you keep an API documentation video in sync with the API?">#</a></h3>
+<p>Build it from the same fixtures your tests use, not from a live hand-recorded session. Record against a mock server generated from your OpenAPI examples (Prism does this), and run a contract test such as Dredd that checks those same examples against the real API in CI. When a field is renamed, the contract test fails in the pull request, someone updates the shared example, and the clip re-records from it, so the video is fixed by the same commit that broke the API.</p>
+<h3 id="what-should-an-api-documentation-video-actually-show" class="blog-faq-q">What should an API documentation video actually show?<a class="hanchor" href="#what-should-an-api-documentation-video-actually-show" aria-label="Link to section: What should an API documentation video actually show?">#</a></h3>
+<p>One call, from request to response, and the relationships a schema table cannot animate. Show the request line, a real value flowing into the response, and the one or two fields the narration names, formatted and zoomed so they survive compression. Leave the exhaustive field reference, error catalogs, and every parameter in the text beside it. Never put a real secret or live key on screen, and never let the clip grow into a twenty-minute tour of the whole API.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">api documentation</span>
+        <span class="article-tag">sdk tutorial</span>
+        <span class="article-tag">developer docs</span>
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">contract testing</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/accessible-tutorial-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/accessible-tutorial-videos-400.webp" srcset="/blog/images/accessible-tutorial-videos-400.webp 400w, /blog/images/accessible-tutorial-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A gently curving ramp with smooth edges rising from the ground to a low raised platform."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Accessible tutorial videos: captions, transcripts, audio description</h3>
+    <p class="article-card-excerpt">Captions clear one of seven WCAG media checks. The descriptive transcript that serves a Deaf-blind reader is the same text your search box needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/developer-education-screencasts/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/developer-education-screencasts-400.webp" srcset="/blog/images/developer-education-screencasts-400.webp 400w, /blog/images/developer-education-screencasts-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A tall triple-decker sandwich with three distinct layers held together by a pick, on a wooden board."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Developer-education screencasts: terminal, code, and browser together</h3>
+    <p class="article-card-excerpt">Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-renamed-field-that-breaks-a-quickstart-in-silence">The renamed field that breaks a quickstart in silence</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-an-api-video-should-show-and-what-it-must-not">What an API video should show, and what it must not</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#making-a-call-and-its-json-readable-on-screen">Making a call and its JSON readable on screen</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-fixture-a-video-and-a-contract-test-can-share">The fixture a video and a contract test can share</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#rebuilding-the-clip-on-the-commit-that-renamed-the-field">Rebuilding the clip on the commit that renamed the field</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

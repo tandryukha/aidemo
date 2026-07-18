@@ -367,6 +367,94 @@ Yes — ElevenLabs offers voice cloning from its Creator tier ($22/mo as of July
 
 ---
 
+# API and SDK documentation videos that stay in sync with the API
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/api-documentation-videos/
+
+> A stale UI demo looks wrong on sight. A stale API quickstart shows valid JSON while the field it names no longer exists. How to keep one honest.
+
+## The renamed field that breaks a quickstart in silence
+
+Every documentation video ages, but an API quickstart ages worse and hides it better. When a product's interface moves, the stale walkthrough looks wrong on sight: the cursor lands on a button that is not there, and a reviewer scrubbing the clip catches it. An API quickstart offers no such tell. The terminal still shows a plausible \`curl\`, the response pane still shows well-formed JSON, the narration still sounds sure of itself. Nothing in the frame looks broken. The clip is simply describing a call that now returns a different shape, or a field the API renamed two releases ago, and the only person who learns this is the developer who pastes the command and gets back a 400.
+
+That is the trap: a video captures the result of a call, never the call's contract. [The pillar on where video earns its place in docs](/blog/video-documentation) argues that reference material stays text; the API quickstart is where that rule grows teeth, because here the gap between "looks fine" and "is fine" is at its widest.
+
+An API call also ages on more axes than any other clip. A UI walkthrough really breaks on one visible surface, its layout. An HTTP call breaks on several, and most leave no mark on screen.
+
+| What can change under an API video | Visible in the frame? | Who finds out |
+|---|---|---|
+| endpoint path or method | sometimes, in the request line | a careful reviewer |
+| a renamed request or response field | no | the developer who runs it |
+| response body shape or a field's type | rarely | the developer who parses it |
+| status code or error envelope | no | only on the unhappy path |
+| auth scheme or a required header | no | at the 401 |
+| a newly required parameter | no | at the 400 |
+| a deprecation with a sunset date | no | months later, all at once |
+
+Six of those seven are silent. They also move fast: Stripe alone has published more than 2,300 versioned releases of its machine-readable API description, the latest tagged v2344 on 15 July 2026 ([stripe/openapi, accessed July 2026](https://github.com/stripe/openapi)). No hand-recorded quickstart tracks a source changing at that cadence. The reprieve hides in the same fact. Because the description is machine-readable, a diff of it names exactly which fields moved, and that is the hook the rest of this piece hangs on.
+
+## What an API video should show, and what it must not
+
+The instinct that sinks these videos is the twenty-minute tour of the entire reference. It is the wrong unit twice: too long to finish, and built almost entirely from the lookup content that text serves better. A video earns a place in API docs for one job, the thing prose is worst at, which is conveying the shape of an interaction and how its parts relate. Twilio's Video SDK quickstart turns on three nouns that only mean anything together: a Room that is "the basic building block for a Programmable Video application," Participants "connected to a Room," and Tracks, "the media streams that are shared within a Room" ([Twilio, accessed July 2026](https://www.twilio.com/docs/video/javascript-getting-started)). A newcomer absorbs that nesting faster from thirty seconds of one call running than from three paragraphs of nouns.
+
+| Put in the video | Keep in the text beside it | Why |
+|---|---|---|
+| the single call that produces the aha, start to finish | the full endpoint and field reference | reference is lookup, and must stay searchable and copyable |
+| the shape of the response and the one field that matters | every field's type and constraint | a schema table beats a paused frame |
+| how two objects relate: get a token, then connect; create, then poll | exhaustive parameter lists | relationships are what motion shows best |
+| one real value flowing from request into response | secrets, live keys, account identifiers | never film a credential |
+
+The honest benchmark is that the most admired API docs barely use video at all. Stripe's reference leads with copyable, runnable code samples rather than clips, precisely because reference is the part a reader scans, copies, and has to trust to the character. Video sits upstream of that, at the getting-started moment when a developer needs to watch one request succeed before any of the reference means much. Hold it to that call. [How small to cut a doc clip](/blog/microvideos-in-documentation) is its own decision, but for an API the ceiling is low: one call, its response, done.
+
+## Making a call and its JSON readable on screen
+
+An API video crowds two of the least codec-friendly surfaces into one frame: a terminal and a wall of JSON. The legibility mechanics, editor font size, zoom, and the reason H.264 smears syntax highlighting first, are worked through for [developer-education screencasts](/blog/developer-education-screencasts) and carry over here without change. The API-specific problem is the response body. Pretty-printed JSON at a terminal's default size is unreadable in a 1080p embed and hopeless in a 640px docs column, so pipe it through a formatter, collapse the body to the few fields the narration actually names, and zoom to those. Show the \`id\` and the \`status\`, not forty lines of nested metadata no one will read at three pixels tall.
+
+The second constraint is copyability. A viewer cannot select a \`curl\` command out of a video, because the codec turned it into pixels. So the copyable version has to live in the text next to the clip, which is also the version you can test. That is the reason the terminal half of an API video is better driven from a script than typed live, and the [tradeoffs between asciinema, a raw screen recording, and tape-driven replay](/blog/record-a-terminal-session) decide which route fits. Type nothing by hand that a reader will have to retype by eye.
+
+## The fixture a video and a contract test can share
+
+Here is the move that makes an API video maintainable rather than merely correct on the day you shot it: feed the video and your test suite from the same fixtures.
+
+Begin at the source of truth. An OpenAPI description is "a standard, programming language-agnostic interface description for HTTP APIs," and its Example, Schema, and Response Objects pin down both the shape of a call and concrete sample values ([OpenAPI Initiative, accessed July 2026](https://spec.openapis.org/oas/latest.html)). Those examples are not decoration. Two kinds of tooling already read them:
+
+- A mock server. Prism turns "any OpenAPI2/3 and Postman Collection file into an API server with mocking," and can serve the spec's own \`examples\` as its responses ([Stoplight, accessed July 2026](https://github.com/stoplightio/prism)). Record the video against that mock and the JSON on screen is, by construction, the JSON in the docs, identical take after take, with no live account and no secret in the frame.
+- A contract test. Dredd "takes your API description document, creates expectations based on requests and responses documented in the document, makes requests to tested API, checks whether API responses match the documented responses" ([Dredd, accessed July 2026](https://dredd.org/en/latest/how-it-works.html)). Run it in CI and the day the implementation renames a field, the very example the video was built from turns the build red.
+
+Bolt those together and the video inherits the test's coverage. The example fixture becomes one artifact feeding three consumers: the written docs render it, the contract test checks it against the live API, and the video is recorded against a mock that serves it. A renamed field can no longer break the video quietly, because it breaks the contract test loudly first, in the same pull request. [Docs that test themselves](/blog/docs-that-test-themselves) is the general form of this discipline, and the video is one more output wired to the same tested example.
+
+## Rebuilding the clip on the commit that renamed the field
+
+Being accurate on shoot day is not the target. Staying accurate across the next hundred releases is, and that means the clip has to regenerate rather than get re-shot, on the same commit that changed the API, so the fix ships alongside the break.
+
+The loop is short. A change lands that renames a field. The contract test fails, because the documented example no longer matches the response. Someone updates the example, the single edit that repairs the docs, the test, and the video's input at once. CI restarts the mock, re-records the clip against it, and republishes. Nobody opens a timeline; the diff that renamed the field is the diff that rebuilt the video. This is the regeneration model that keeps a whole [tutorial library current](/blog/keeping-tutorial-libraries-current), aimed at the fastest-rotting clip in the set.
+
+Our own engine, aidemo, disclosed as ours, automates only the browser half of that loop, and its limits bite harder here than in most doc videos. Because it replays a version-controlled spec instead of a live capture, an embedded clip can rebuild itself on the release that moved the product. What it cannot do is see past a browser tab: the terminal and the \`curl\` that carry an API call sit entirely outside its frame, so you render those with a tape-based terminal tool and splice the two. The spec is authored by an agent and then revised as plain text, and nothing in the workflow resembles a drag-and-drop editor. That plumbing is not the argument. The argument is that an API video stays true only when its inputs are the same tested fixtures the rest of your docs already rebuild from, so a broken quickstart fails your CI instead of your reader.
+
+## Sources
+
+- [OpenAPI Initiative — OpenAPI Specification (latest): a language-agnostic interface description for HTTP APIs, with Example, Schema and Response Objects](https://spec.openapis.org/oas/latest.html)
+- [stripe/openapi — Stripe's machine-readable OpenAPI specification, 2,300+ versioned releases covering v1 and v2 endpoints and events](https://github.com/stripe/openapi)
+- [Twilio — Video Quickstart for JavaScript (Room, Participants, Tracks as the getting-started model)](https://www.twilio.com/docs/video/javascript-getting-started)
+- [Stoplight Prism — turn any OpenAPI or Postman file into a mock and validation server](https://github.com/stoplightio/prism)
+- [Dredd — How It Works: validate that an API's responses still match the responses documented in its description](https://dredd.org/en/latest/how-it-works.html)
+
+## FAQ
+
+### Should an API quickstart be a video or code samples?
+
+Both, doing different jobs. Use a short video for the one thing text struggles with: the shape of a first successful call and how its objects relate, the getting-started aha. Keep the reference itself, every endpoint, field, and type, in copyable code samples, because that is the part a developer scans, searches, and pastes exactly. The most admired API docs, Stripe's among them, lead their reference with runnable code, not clips, and reserve video for the conceptual on-ramp.
+
+### How do you keep an API documentation video in sync with the API?
+
+Build it from the same fixtures your tests use, not from a live hand-recorded session. Record against a mock server generated from your OpenAPI examples (Prism does this), and run a contract test such as Dredd that checks those same examples against the real API in CI. When a field is renamed, the contract test fails in the pull request, someone updates the shared example, and the clip re-records from it, so the video is fixed by the same commit that broke the API.
+
+### What should an API documentation video actually show?
+
+One call, from request to response, and the relationships a schema table cannot animate. Show the request line, a real value flowing into the response, and the one or two fields the narration names, formatted and zoomed so they survive compression. Leave the exhaustive field reference, error catalogs, and every parameter in the text beside it. Never put a real secret or live key on screen, and never let the clip grow into a twenty-minute tour of the whole API.
+
+---
+
 # App preview videos: hitting App Store and Play specs without a reshoot
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/app-preview-video/
@@ -1620,6 +1708,91 @@ In the shippable pattern, no. The agent explores your app in a throwaway session
 ### What is an MCP server, and how does it let an agent make videos?
 
 MCP, the Model Context Protocol, is an open JSON-RPC client-server standard where a server exposes tools a model can call. A video engine can publish tools such as validate and render; the agent decides to call them and supplies arguments, but the render runs as ordinary server code, not model inference. So the agent orchestrates the pipeline from the outside while staying out of the deterministic capture step that produces the actual frames.
+
+---
+
+# Background music for demo videos: licensing and the loudness math
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-background-music/
+
+> Royalty-free is a billing term, not a free pass: the licenses that clear a paid demo, the clauses that bite, and the 20 dB gap that keeps the voice on top.
+
+## "Royalty-free" is a billing term, not a permission slip
+
+The phrase that trips up every first demo is "royalty-free." It sounds like "free," and it is neither. Royalty-free means you pay once, or subscribe, and then owe no per-play royalty each time the video is watched. It says nothing about whether you owe a fee, a credit, or a license at all. A track can be royalty-free and still cost forty dollars, still demand attribution, still be forbidden in a product you sell. So the first job of scoring a music bed is not taste, it is reading the grant: who may use this, for what, where, and for how long.
+
+For a product demo the answer to "for what" is almost always commercially. A demo sells something, which puts it outside the reach of a large, tempting slice of free music and inside a small set of licenses that actually permit it. Get that wrong and the cost is not a bad review. It is a Content ID claim that diverts your ad revenue to a stranger, or a takedown on the one video your launch depended on. Below is the map of what clears a commercial demo, and then the single number that decides whether the music helps or ruins it.
+
+## Six ways to license a bed, and what each really grants
+
+There are only a handful of legal routes to a music bed, and they differ less in sound than in the clause that bites you later. Where music sits in [the end-to-end demo pipeline](/blog/how-to-make-a-product-demo-video) is a production question; this is the rights question underneath it.
+
+| License route | Cost shape | Credit? | Clears a paid demo? | The clause that bites |
+|---|---|---|---|---|
+| YouTube Audio Library, standard | free | no | on YouTube, yes | Content-ID-safe on YouTube, not licensed for other platforms |
+| YouTube Audio Library, CC BY tracks | free | yes | yes, anywhere | must credit in a fixed form, everywhere the video goes |
+| CC0 / public domain | free | no | yes | you have to verify the release is genuine, not mislabeled |
+| CC BY | free | yes | yes | attribution (title, author, source, license) can never be dropped |
+| CC BY-NC or BY-ND | free | yes | no | "may not use for commercial purposes" rules out a product demo |
+| Subscription library (Epidemic, Storyblocks, Artlist) | $10-50/mo | no | yes, while subscribed | the license is tied to the subscription, not to the download |
+
+Two rows carry most of the surprises. The Creative Commons NonCommercial and NoDerivatives variants read as free and are not usable for this: CC BY-NC 4.0 states plainly that "you may not use the material for commercial purposes," defined as anything "primarily intended for commercial advantage or monetary compensation" ([Creative Commons, 2026](https://creativecommons.org/licenses/by-nc/4.0/)). A paid product's marketing video is exactly that. The plain CC BY license is the friendly one: it permits use "for any purpose, even commercially," provided you give "appropriate credit, provide a link to the license, and indicate if changes were made" ([Creative Commons, 2026](https://creativecommons.org/licenses/by/4.0/)). The YouTube Audio Library ships both flavors side by side; its filter tags each track "Attribution required" or not, and only the standard-license tracks are the ones YouTube vouches for as copyright-safe against Content ID ([YouTube Help, 2026](https://support.google.com/youtube/answer/3376882?hl=en)).
+
+## The subscription trap: the license is a lease, not a purchase
+
+The most expensive misreading is the subscription one, because it feels like buying and behaves like renting. Download a track from Epidemic Sound while subscribed, publish the demo, and that video stays cleared, even if you cancel next week. Publish a new video with the same downloaded file after your subscription lapses, and it "will result in copyright claims and monetization by Epidemic Sound" ([Epidemic Sound, 2026](https://www.epidemicsound.com/how-it-works/license-music-legally/)). The audio file on your disk is not the thing you licensed; the right to publish with it is. Storyblocks draws the same line by tier: downloaded assets carry perpetual use only on its Business license, not on the Individual or Small Business plans ([Storyblocks, 2026](https://www.storyblocks.com/license)). The working rule is to keep a record of which track cleared which video under which active subscription, because "I downloaded it, so I own it" is the belief that ends in a claim.
+
+If your demo carries live sound instead of an added bed, an app's own chime or a call tool ringing, that is a capture problem rather than a licensing one, and it lives in [recording system audio and your voice together](/blog/record-screen-with-audio). This page is about the bed you lay under a finished narration.
+
+## The one number that separates amateur from pro: 20 dB
+
+Licensing decides whether the music is legal. One number decides whether it is any good: how far below the voice the bed sits. Amateur demos miss it in the same direction every time, mixing the music at or near the narration so the two fight and the words lose. The fix is not a feeling, it is a measured gap, and accessibility law has already fixed the figure.
+
+WCAG's Success Criterion 1.4.7 requires background sound under foreground speech to be "at least 20 decibels lower than the foreground speech content," which it notes is "approximately four times quieter," with an exception only for occasional sounds lasting a second or two ([W3C, 2026](https://www.w3.org/WAI/WCAG22/Understanding/low-or-no-background-audio.html)). It is a Level AAA criterion written for hard-of-hearing listeners, and the 20 dB value traces to hearing-aid and assistive-listening research, but it doubles as the mixing target for everyone: 20 dB is the separation at which a listener stops straining and the music turns into atmosphere instead of interference.
+
+Loudness itself is measured in LUFS, Loudness Units relative to Full Scale, the scale standardized for broadcast and adopted worldwide. One LU equals one dB, and 0 LUFS is the top of the digital range, so real audio lives well below it in negative numbers. Broadcasters settled the absolute level long ago: EBU R128 pins a whole programme to an average of -23 LUFS, within half a decibel ([EBU, 2023](https://tech.ebu.ch/publications/r128)). Web and demo audio is usually mastered louder than that, commonly around -16 LUFS, because there is no shared transmission chain to protect. Anchor the voice near that master and the WCAG rule tells you exactly where the bed goes.
+
+| Element | While the voice is talking | In a gap between phrases |
+|---|---|---|
+| Narration (the anchor) | about -16 LUFS | silent |
+| Music bed | about 20 LU lower, near -36 LUFS | free to swell toward about -20 LUFS |
+| The rule | at least 20 dB under the speech | no speech to mask, so let it breathe |
+
+That table is the whole craft in three rows. The bed rides roughly 20 dB under the voice while a word is landing, and rises in the silence between phrases, because there is nothing to bury there.
+
+## Static ducking sets one level; dynamic ducking follows the voice
+
+There are two ways to enforce that gap, and the difference is audible. The static method picks one music level for the entire video and leaves it, say a flat 22 dB down. It never buries a word, but it also never breathes: parked that low, the bed is nearly inaudible in the pauses where it could add energy. The dynamic method, the one broadcast has used for decades, keys a compressor on the narration so the music dips the moment the voice enters and releases back up when it stops. The knobs are an attack fast enough to catch the first syllable, roughly 150 ms, and a release slow enough not to pump between words, roughly 500 to 700 ms.
+
+Dynamic ducking is why a good demo's bed feels alive and a bad one feels like a light switch. Our own engine, aidemo (disclosed as ours), does this by default: the narration track sidechains a compressor on the music, so the bed swells over the intro card and ducks under every narrated line without anyone drawing a volume envelope, and a final normalization pass then masters the whole mix to -16 LUFS. The honest limits are the usual ones. It captures a browser only, its storyboard is written in code by an agent instead of assembled in a GUI, and it has no waveform editor for nudging a single duck by hand: you change a number in the spec and re-render. For a bed under a scripted voiceover that is enough, because ducking is arithmetic, not taste, and arithmetic belongs in a config file.
+
+## When a bed earns its keep, and when silence wins
+
+Music is not free even when the license is. It adds a track to balance, a claim to track, and one more way for a render to fail. So the last call is whether the demo needs a bed at all. A launch film, a social cut, a Product Hunt hero: yes, energy carries them and silence reads as cheap. A thirty-second feature clip in a docs page, a muted autoplay loop, an onboarding walkthrough someone plays at their desk: often no, because the value is the narration and the UI, and every decibel of music is a decibel competing with the point. Ship most demos with the voice clean and the option to add a bed later, and save the music for the cuts where mood is the job. When you do add it, the failure to dodge is the eighth-costliest error in [the ranked catalog of what loses viewers](/blog/demo-video-mistakes): a bed mixed over the voice. Twenty decibels down and keyed to the narration, the music does its one job, which is to be felt and never heard over [the synthetic voice it rides under](/blog/ai-voiceover-for-demo-videos).
+
+## Sources
+
+- [W3C — Understanding SC 1.4.7: Low or No Background Audio, WCAG 2.2 (20 dB rule)](https://www.w3.org/WAI/WCAG22/Understanding/low-or-no-background-audio.html)
+- [EBU — R 128: Loudness normalisation and permitted maximum level of audio signals (-23 LUFS)](https://tech.ebu.ch/publications/r128)
+- [Creative Commons — CC BY 4.0 deed (commercial use permitted with attribution)](https://creativecommons.org/licenses/by/4.0/)
+- [Creative Commons — CC BY-NC 4.0 deed (no commercial use)](https://creativecommons.org/licenses/by-nc/4.0/)
+- [YouTube Help — Use music and sound effects from the Audio Library](https://support.google.com/youtube/answer/3376882?hl=en)
+- [Epidemic Sound — How the music license works (rights after cancellation)](https://www.epidemicsound.com/how-it-works/license-music-legally/)
+- [Storyblocks — License comparison (perpetual use by tier)](https://www.storyblocks.com/license)
+
+## FAQ
+
+### Do I need a license for background music in a product demo?
+
+Yes. A product demo is commercial use, so you need a license that clears commercial use, not just any free track. That rules out Creative Commons NonCommercial and NoDerivatives music outright, and it means "royalty-free" is not enough on its own, since royalty-free only waives per-play royalties, not the license itself. Safe routes are CC0 or public-domain tracks, CC BY with proper credit, the YouTube Audio Library, or a paid subscription or per-track library whose terms name commercial use.
+
+### How loud should background music be under a voiceover?
+
+At least 20 decibels below the voice while someone is speaking, which WCAG 1.4.7 describes as roughly four times quieter. In loudness terms, if the narration is mastered near -16 LUFS, the ducked bed sits near -36 LUFS under the words and is free to swell back up in the gaps between phrases. Enforce it with dynamic sidechain ducking rather than a single fixed level, so the music dips only when the voice enters and breathes in the silences.
+
+### Can I use Epidemic Sound or Artlist music after I cancel?
+
+Only in what you already published. Subscription libraries license the act of publishing, not the downloaded file: Epidemic Sound keeps videos you published during an active subscription cleared forever, but any new video you release after you cancel gets copyright claims. Storyblocks grants perpetual use of downloaded assets only on its Business tier, not the cheaper plans. Keep a log of which track cleared which video under which live subscription so you can prove it later.
 
 ---
 
@@ -3135,6 +3308,90 @@ Treat it as something that rebuilds, not something you re-shoot. A code screenca
 
 ---
 
+# Docs that test themselves: executable documentation
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/docs-that-test-themselves/
+
+> Python's docs literally call it 'executable documentation': an example that fails when the code drifts. The same trick works one layer up, on your screenshots.
+
+## The doctest bargain: an example that fails when the prose lies
+
+Documentation lies by omission of maintenance. Someone writes an accurate example, the code moves underneath it, and the example keeps sitting there, wrong and confident, until a reader trips on it. The doctest is the oldest fix for this, and it is almost aggressively simple: put the example where a test runner can find it, run it, and fail the build when its output stops matching reality. Python's `doctest` module states the mechanism plainly. It "searches for pieces of text that look like interactive Python sessions, and then executes those sessions to verify that they work exactly as shown" ([Python docs, accessed July 2026](https://docs.python.org/3/library/doctest.html)).
+
+The trade you are making has a name on the same page. Among doctest's stated uses is writing tutorial documentation "liberally illustrated with input-output examples," which "has the flavor of 'literate testing' or 'executable documentation'" ([Python docs, accessed July 2026](https://docs.python.org/3/library/doctest.html)). The example is not a copy of the behavior that a human promises to keep in sync. The example is the behavior, exercised on every run, so drift has nowhere to hide. The module's own soapbox captures why that earns its keep: "I'm still amazed at how often one of my `doctest` examples stops working after a 'harmless' change" ([Python docs, accessed July 2026](https://docs.python.org/3/library/doctest.html)). That surprise is the entire product. The doc caught a lie the author did not know they had told.
+
+## Five languages already ship this, and they disagree about what to freeze
+
+The idea is not Python's alone, and the disagreements between implementations are where it gets interesting. Rust builds doc tests into the compiler's front door: rustdoc "supports executing your documentation examples as tests," which "makes sure that examples within your documentation are up to date and working," and a plain doc test "pass[es] if they compile and run without panicking" ([Rust docs, accessed July 2026](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)). Go ties examples to `go test`: an `Example` function is "compiled and executed as part of the package's test suite," and a trailing `// Output:` comment "is compared with the standard output of the function when the tests are run" ([Go docs, accessed July 2026](https://pkg.go.dev/testing)). Sphinx offers a `doctest` builder for prose docs precisely because "it is important to ensure that the documentation stays up-to-date with the code" ([Sphinx docs, accessed July 2026](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html)). Elixir's ExUnit will "generate tests from code examples found in `@moduledoc` and `@doc` attributes," turning every `iex>` line in a docstring into an assertion ([ExUnit.DocTest, accessed July 2026](https://ex-unit.hexdocs.pm/ExUnit.DocTest.html)).
+
+Read them side by side and one fault line runs through the set: some check that the example still runs, and some check that its output still matches. That distinction decides everything downstream.
+
+| Mechanism | The "example" | It passes when | You run it with |
+|---|---|---|---|
+| Rust doc test | a fenced block in a `///` comment | it compiles and runs without panicking | `cargo test` |
+| Go testable example | an `Example` func plus `// Output:` | stdout equals the annotated output | `go test` |
+| Python doctest | a `>>>` session in a docstring | the printed output matches exactly | `python -m doctest` |
+| Sphinx doctest | a directive-marked block in the prose | the builder runs it green | `make doctest` |
+| Elixir ExUnit.DocTest | an `iex>` example in `@doc` | it runs as an ExUnit case | `mix test` |
+
+## One layer up: a re-captured screenshot is a doctest for the interface
+
+Now make the leap the executable-docs world never had to. Their examples are text that produces text, so the expected output can sit inline, human-readable, in the same file. Product media is text that produces pixels: a storyboard or a screenshot spec that yields a frame of a running UI, where the expected output cannot live in the source as a literal. But the bargain survives the change of medium. A screenshot re-captured from a spec against the live product is a doctest for the interface. It asserts that the picture in your docs still matches the software, and it fails when the software moves out from under it. That is exactly the failure a hand-shot PNG hides for months, the reason [product demos and screenshots rot on a schedule](/blog/why-product-demos-go-stale).
+
+The mapping is close enough to be mechanical.
+
+| Executable-docs mechanism | Its product-media analog | The analog passes when |
+|---|---|---|
+| Rust "compiles and runs" doc test | a demo re-rendered from a storyboard | every selector resolves and each navigation lands |
+| Go `Example` with `// Output:` | a named still frame with a committed baseline | the re-captured PNG matches its golden |
+| Python `>>>` output match | a screenshot re-shot from a spec and diffed | the pixels match within a threshold |
+| Sphinx `make doctest` in CI | a scheduled re-render on the build server | the render passes against today's build |
+| Elixir `iex>` doctest | the resolved action-spec, run as a check | the flow still resolves against the live UI |
+
+The finished asset, the screenshot in the README or the sixty-second walkthrough on the docs page, doubles on that very render as proof the asset is not lying. That is the whole thesis of [treating a demo as code you regenerate rather than a recording you own](/blog/automated-product-demo-videos).
+
+## Two gates hide in one word: does it run, and does it match
+
+The Rust-versus-Go split is not a style preference. It is two different tests with two different price tags, and porting it to media saves you from the most common mistake in visual testing. A Rust doc test that only has to compile and run is cheap and almost never flaky, because it asserts behavior, not appearance. Its media twin is the behavior gate: re-render the demo and pass if every selector resolved to a real element and every navigation reached the page it was meant to. That check is deterministic text, it reads as a small clean diff in review, and it trips on the one thing that actually breaks a demo, a click that misses the button that moved, while staying quiet when only the paint changed.
+
+A Go example that must match `// Output:` byte for byte is the other gate, and it is where flakiness lives. Its media twin is the pixel or still-frame golden: capture the frame, diff it against a blessed baseline, fail on any difference. It catches visual regressions the behavior gate cannot see, and it pays for that reach with brittleness. Which layer to freeze, the resolved action-spec, a handful of key frames, or every pixel, is a decision with real consequences, [worked through in the golden-file piece](/blog/testing-demos-like-code). The short version matches the doctest world: reach for the run gate first, and add the match gate only where appearance is the thing under test.
+
+## doctest already solved the flakiness you are about to meet
+
+Anyone who has written a doctest for a function that prints a dictionary or a memory address has met the output-match gate's dark side: the example is correct, the behavior is correct, and the test fails anyway because something irrelevant changed. Python's answer is a set of directives. `NORMALIZE_WHITESPACE` makes "all sequences of whitespace (blanks and newlines) ... treated as equal," `ELLIPSIS` lets a `...` marker "match any substring in the actual output," and `SKIP` drops an example from the run while keeping it in the docs ([Python docs, accessed July 2026](https://docs.python.org/3/library/doctest.html)). Go ships the same admission in miniature: an `Unordered output:` comment "matches any line order," for output whose sequence is not meaningful ([Go docs, accessed July 2026](https://pkg.go.dev/testing)).
+
+Every one of those directives has a pixel-side twin, and if you skip them your visual gate will flap until someone quietly disables it. A live clock in the corner, a rotating avatar, an animation mid-frame, a randomized dashboard: each is the media version of a memory address in a doctest, real output with a meaningless difference. The fixes rhyme with the directives. Mask the dynamic region so the diff ignores it, the way `ELLIPSIS` ignores a substring. Set a perceptual threshold instead of demanding an exact match, the way `NORMALIZE_WHITESPACE` loosens the comparison. Freeze the clock and disable animations before the shot, so there is nothing left to normalize. Tuning that noise floor is [its own detection-versus-false-positive problem](/blog/detecting-ui-drift), and it is the reason the cheaper run gate belongs first.
+
+## Where it runs is the point: from make doctest to the nightly render
+
+A doctest that never runs is a comment. The reason the pattern works is that it rides a command the team already types: `cargo test`, `mix test`, `make doctest` in the docs build. The example is checked because checking it costs nothing extra, stapled to the test run that gates every merge. Media inherits the same requirement and the same solution. A screenshot or demo that regenerates from a spec has to regenerate somewhere automatic, which is a CI job and not a good intention: on the commit that touched the UI, or on a nightly cron for the drift that seeps in through data and dependencies rather than a tidy diff.
+
+Our own engine, aidemo, freezes the run gate for browser demos this way. `aidemo probe --golden` replays a storyboard's action-spec and exits non-zero when a selector or navigation drifts, and it is honest about its edges: browser flows only, a storyboard an agent authors rather than a timeline you drag, and no GUI editor anywhere in the loop. The tool is beside the point. The point is the discipline the doctest normalized decades ago. An example nobody runs is documentation you are only hoping is true, and hope is not a test. Wire the check to the build, and [a video documentation library stays as honest as the prose around it](/blog/video-documentation).
+
+## Sources
+
+- [Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)](https://docs.python.org/3/library/doctest.html)
+- [Rust — Documentation tests (rustdoc runs doc examples as tests; passes if they compile and run without panicking)](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
+- [Go — testing package (Example functions compiled and executed; // Output: comparison; Unordered output:)](https://pkg.go.dev/testing)
+- [Sphinx — sphinx.ext.doctest (test snippets so the documentation stays up-to-date with the code)](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html)
+- [Elixir — ExUnit.DocTest (generate tests from code examples in @moduledoc and @doc)](https://ex-unit.hexdocs.pm/ExUnit.DocTest.html)
+
+## FAQ
+
+### What is executable documentation?
+
+Executable documentation is documentation whose examples run as tests. Instead of a code sample a human promises to keep accurate, the sample is executed on every build and the build fails if its output no longer matches the code. Python's doctest docs name this outright as "literate testing" or "executable documentation." The effect is that the docs cannot silently drift from behavior, because a drift turns into a red build, and the same principle extends to product media: a screenshot or demo that re-captures the live UI is executable documentation for the interface.
+
+### What is a doctest, and what does it check?
+
+A doctest is an example embedded in documentation that a test runner executes to confirm it still works. Python's doctest reads `>>>` interactive sessions in docstrings, Rust's rustdoc runs fenced code blocks in `///` comments, Go compiles `Example` functions and compares their output to an `// Output:` comment, and Elixir turns `iex>` lines in `@doc` into ExUnit cases. Depending on the language it checks one of two things: that the example still compiles and runs, or that its output still matches exactly. Either way the example is the assertion, so nobody has to remember to keep the docs in sync by hand.
+
+### Can a screenshot or demo video work like a doctest?
+
+Yes, with one adjustment for the medium. A code doctest can store its expected output inline as text; a screenshot or demo produces pixels, so the expectation lives as a committed baseline (a golden image) or as a resolved action-spec instead. Re-capture the media from its spec against the live product, diff it against that baseline, and the asset fails when the UI moves, the same guarantee a doctest gives code. The cheap version checks only that the demo's flow still resolves; the expensive version checks that the frame still looks right.
+
+---
+
 # Does video actually increase conversion? Tracing the 80% claim
 
 July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/does-video-increase-conversion/
@@ -4565,6 +4822,118 @@ It depends on what caps you hit. Vidyard's free plan does async video messaging 
 ### Can I use Loom for a polished product demo on my website?
 
 You can, but you will be fighting the tool the whole way. Loom is built for a casual one-take talking-head note shared by link, so a website demo made in it tends to carry the camera bubble, the unscripted filler, and no clean way to embed the file where you need it. A produced-polish recorder (Cap, Screen Studio) or a spec-driven render will get you a finished, embeddable video with far less friction. Match the tool to the job: Loom for messaging, a demo tool for demos.
+
+---
+
+# MCP servers for media generation: the agent-to-render interface
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/mcp-servers-for-media-generation/
+
+> A media render runs for minutes; an MCP tool call times out in sixty seconds. How to design the agent-to-render interface so the video survives the gap.
+
+## The sixty-second wall a render tool hits
+
+An agent that wants a demo video calls a tool and waits for the answer. That is the whole ergonomics of the Model Context Protocol from the model's side: tools are "model-controlled," discovered and invoked "automatically based on its contextual understanding and the user's prompts" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)). The client sends a `tools/call`, the server runs it, a result comes back. For a weather lookup that round trip is a few hundred milliseconds and nobody budgets for it.
+
+A media render is not a weather lookup. Producing a narrated, captioned demo means driving a browser through a flow, synthesizing speech, transcribing it back for caption timing, and running ffmpeg to trim and mux — seconds to minutes of real work. The default request timeout in the official MCP TypeScript SDK is `DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000`, sixty seconds, with `resetTimeoutOnProgress` defaulting to `false` ([MCP TypeScript SDK, accessed July 2026](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/core-internal/src/shared/protocol.ts)). A four-minute render that blocks inside one `tools/call` sails past that wall, and the client cancels the request while the job is still running.
+
+The specification is deliberate here. Implementations "SHOULD establish timeouts for all sent requests," SHOULD issue "a cancellation notification" when one lapses, MAY reset the clock on a progress notification, but "SHOULD always enforce a maximum timeout, regardless of progress notifications" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle)). You cannot promise your way past the wall by streaming updates forever. A long render wants a different shape than a long function call, and choosing that shape is the design problem of a media MCP server.
+
+## Submit, poll, fetch: the media job as three round trips
+
+MCP ships no built-in job or queue primitive. A render server has two ways to survive a minutes-long operation, and only one of them holds up.
+
+The first is to keep the `tools/call` open and lean on progress notifications plus `resetTimeoutOnProgress`. It fights the defaults the whole way: the reset is off unless the client opted in, the spec still wants a hard maximum, and a dropped connection loses the only handle to the work. The second is to make the call return in milliseconds with a job handle, then expose separate tools to poll status and collect the result. The expensive work moves off the request/response path entirely, so no single call is ever in danger of expiring.
+
+The second shape is the one that scales, and it is three round trips instead of one:
+
+- **Submit.** The render tool validates its arguments, starts the job, and returns a `jobId` and a log path right away. The `tools/call` is over in the time it takes to spawn the work.
+- **Poll.** A separate status tool takes the `jobId` and returns the current stage, per-scene counters, a log tail, and — once the job settles — the result or a structured error. The agent calls it on a loop.
+- **Fetch.** When status reads succeeded, the result carries the path or link to the finished artifact.
+
+| Dimension | Synchronous render tool | Job handle (submit / poll / fetch) |
+|---|---|---|
+| What `tools/call` returns | the finished MP4, eventually | a `jobId`, in milliseconds |
+| A four-minute render | past the 60s default; cancelled | never blocks a call; safe |
+| Progress visibility | only if the client honors notifications | any status poll shows it |
+| Cancel | drop the connection and hope | a cancel tool, keyed to `jobId` |
+| Agent can do other work | no, it is blocked in the call | yes, between polls |
+
+This is the model the engine we build, aidemo, uses for its MCP server: every pipeline operation — probe, record, render, voice, captions, compose — returns a `jobId` immediately, and the agent polls a `job_status` tool for progress, per-scene counters, results, and failure artifacts. One long job runs at a time, a reject-when-busy slot rather than a queue, because a browser take already needs an exclusive Chrome profile and serializing the rest keeps same-demo stages from colliding. That is a worked example, disclosed as ours, and it comes with real limits: it records a browser and nothing native, its storyboards are [agent-authored text](/blog/coding-agents-that-make-demo-videos), and it offers no drag-and-drop editor.
+
+## What a render server should put on the wire
+
+The sync-versus-async decision is only the spine. The rest of the surface is a set of tools sorted by cost and by whether they change anything, and the sort maps cleanly onto MCP primitives. The verbs a media surface needs are validate, probe, render, and fetch — and they do not all deserve the same treatment.
+
+| Surface | MCP primitive | Cost | Changes state | Example tool |
+|---|---|---|---|---|
+| Read the contract | resource + tool, `readOnlyHint` | cheap | no | authoring guide, storyboard schema |
+| Validate the spec | tool, `readOnlyHint` | cheap | no | `validate_storyboard` |
+| Dry-run the flow | job | expensive | records only | `probe` with a golden compare |
+| Render | job | expensive | writes the video | `render` |
+| Poll and control | tool, `readOnlyHint` | cheap | no / cancels | `job_status`, `job_cancel` |
+
+Two moves in that table earn their keep. Publishing the schema and the authoring guide as a resource — MCP resources are "application-driven" data that "provides context to language models" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)) — lets the agent read the exact contract before it writes a line of the [storyboard it will submit](/blog/storyboard-design-patterns), instead of guessing the format. And a cheap validate tool, marked `readOnlyHint`, is the gate that catches a malformed spec or a mistyped selector for the price of a schema check, before any render burns minutes. Annotations like `readOnlyHint` are advisory — clients "MUST consider tool annotations to be untrusted unless they come from trusted servers" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)) — but they tell an agent which calls are safe to make freely and which spend real time.
+
+The submit half looks like this on the wire, arguments trimmed:
+
+```json
+// 1. cheap gate — returns in milliseconds
+{ "name": "validate_storyboard", "arguments": { "dir": "/abs/demo" } }
+// 2. start the render — returns a jobId, not a video
+{ "name": "render", "arguments": { "dir": "/abs/demo" } }
+// -> { "jobId": "b3f...", "status": "running", "logFile": "/abs/demo/logs/render.log" }
+// 3. poll until it settles, then read result.output
+{ "name": "job_status", "arguments": { "jobId": "b3f..." } }
+```
+
+The dry-run row is the one people skip and regret. A probe that replays the flow without voice or encode is both faster than a full render and the seed of a regression test: pair it with a committed golden and the same call that checks selectors [fails CI when the UI drifts](/blog/testing-demos-like-code). It works only because the underlying replay is deterministic in the first place, which is [its own engineering problem](/blog/deterministic-browser-automation-for-video), not a protocol feature.
+
+## Progress and cancellation, done by the book
+
+MCP does have first-class progress. A caller that wants updates puts a `progressToken` in the request metadata, and the server "MAY then send progress notifications" carrying a `progress` value, an optional `total`, and a human-readable `message` ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)). For a per-scene render that maps perfectly: emit one notification per scene composed, with the scene count as the total.
+
+The catch is that the same spec makes the feature optional on both ends. A receiver "MAY" choose "not to send any progress notifications," and a client is free to drop the ones it gets; in practice many hosts surface none of them. So a render server should send progress as a courtesy and still treat the status-poll loop as the source of truth, because that loop works no matter what the client does with notifications. Belt, then suspenders.
+
+Cancellation has a clean primitive too. Either side sends a `notifications/cancelled` with the `requestId` and an optional `reason`, and the receiver "SHOULD" both "stop processing the cancelled request" and "free associated resources" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation)). For a job-handle server the useful cancel is coarser and more durable than killing one in-flight message: a cancel tool keyed to the `jobId`, checked between scenes and stages, that can abort a wrong take a minute in without waiting for it to finish. A mid-record cancel that salvages the partial timeline beats one that leaves a half-written file and a locked browser profile behind.
+
+## Getting the artifact home
+
+The last round trip is the one most write-ups wave at: the render finished, so how does the agent actually get the MP4? The answer depends on where the server runs, and it is worth deciding on purpose.
+
+A local stdio server shares a filesystem with the agent. The cheapest correct thing is to return absolute paths in the result — the final MP4, the timeline, the captions — and let the agent open them directly. No bytes cross the protocol. A remote server has no shared disk, so it must hand the artifact back over the wire: a tool result "MAY return links to Resources" as a `resource_link` URI the client fetches, or embed the bytes as a base64 resource in the response itself ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)). The spec even splits the URI schemes by who does the fetching — use `https://` only when "the client is able to fetch and load the resource directly from the web on its own," and otherwise prefer `file://` or a custom scheme the server serves itself ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)).
+
+ElevenLabs' official MCP server is a clean second example of a media surface making that choice explicit. Its audio tools ship three output modes: files, which "save files to disk and return file paths" for local work; resources, which return the audio "as base64-encoded data" for "containerized or serverless environments" with no writable disk; and both, which saves the file and also serves it later under an `elevenlabs://filename` URI ([ElevenLabs, accessed July 2026](https://github.com/elevenlabs/elevenlabs-mcp)). Same generated bytes, three transport answers, picked by where the server lives. A demo-render server faces the identical fork, with one twist: an MP4 is far heavier than a voice clip, which pushes a remote design toward a link the client fetches rather than base64 inlined into every response.
+
+## When a tool call is more than you need
+
+An MCP server is the right interface for one situation: an agent, mid-conversation, deciding to make or refresh a demo and needing to drive the pipeline itself. That is a real and growing situation, and it is why treating [the demo as a committed spec](/blog/demos-as-code) pays off — the thing the agent submits is text it can author.
+
+It is not the only situation, and the surface is easy to over-build. If the demo regenerates on a schedule or on the commit that changed the UI, no model is in the loop at render time and no MCP surface is needed; a plain CLI invoked from [a scheduled CI job](/blog/demo-videos-in-ci) is simpler and more reliable. The protocol earns its keep when an agent is the caller and the render is interactive. When the caller is cron, skip the ceremony. The job model above is worth building the day an agent needs to ask for a video and wait, by the clock, for one to come back — and worth skipping every other day.
+
+## Sources
+
+- [Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+- [Model Context Protocol — Lifecycle (request timeouts: establish, cancel on lapse, reset-on-progress is optional, enforce a maximum)](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle)
+- [Model Context Protocol — Progress (progressToken in request metadata, notifications/progress, receivers may send none)](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)
+- [Model Context Protocol — Cancellation (notifications/cancelled with requestId and reason; stop and free resources)](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation)
+- [Model Context Protocol — Resources (application-driven context; https vs file vs custom URI schemes)](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)
+- [MCP TypeScript SDK — protocol.ts (DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000, resetTimeoutOnProgress, maxTotalTimeout)](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/core-internal/src/shared/protocol.ts)
+- [ElevenLabs MCP server — output modes: files return paths, resources return base64, both serve an elevenlabs:// URI](https://github.com/elevenlabs/elevenlabs-mcp)
+
+## FAQ
+
+### Why not just make video rendering a normal synchronous MCP tool?
+
+Because a render runs for seconds to minutes and a synchronous tool call is on a timeout. The official MCP TypeScript SDK defaults to a 60-second request timeout, and the spec tells clients to cancel a request that overruns and to enforce a maximum even when progress is flowing. A four-minute render inside one `tools/call` gets cancelled mid-job. Returning a `jobId` immediately and exposing a status tool to poll moves the long work off the request path, where no timeout can reach it.
+
+### How does an agent get the finished video file back from an MCP server?
+
+It depends on where the server runs. A local stdio server shares a filesystem with the agent, so the cheapest correct answer is to return absolute file paths in the tool result and let the agent open them. A remote server has no shared disk and must send the artifact over the protocol, either as a `resource_link` URI the client fetches or as base64-embedded bytes in the response. Because an MP4 is large, remote designs usually favor a link over inlining the bytes into every message.
+
+### Do I need to write a custom MCP server to let an agent render videos?
+
+Only if an agent is the one driving the render interactively. If your demos regenerate on a schedule or when the UI changes, there is no model in the loop at render time, and a plain render CLI called from CI is simpler and more robust than an MCP surface. Build the server when the workflow is an agent deciding, mid-task, to make a video and needing to submit a spec, watch its progress, and collect the result itself.
 
 ---
 
@@ -7703,6 +8072,81 @@ Keep the majors and a rolling window of the most recent minors; let the deep bac
 ### How does a viewer end up watching the demo for their version?
 
 Borrow the versioned-docs pattern. Publish each demo at an immutable per-version URL like `/demo/v2.3.mp4`, cached for a year because its content is frozen, and have the docs page built for v2.3 embed that exact URL. Add one moving alias, `/demo/latest.mp4`, that points at the current release and gets a short cache, which the latest-docs build embeds. A reader on old docs sees the old demo; a reader on current docs sees today's — routed by the same version number the tag already carries.
+
+---
+
+# Versioning media assets in git: LFS, committed, or external
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/versioning-media-assets-in-git/
+
+> Git can diff a storyboard forever for free and chokes on the MP4 it renders. Where that binary lives — committed, LFS, or nowhere — is a real decision.
+
+## A rendered demo is a binary, and git was built for text
+
+Treat the demo as code and the source of truth is a storyboard: a few kilobytes of text that a deterministic player turns into footage. But the footage is real. Someone has to embed an MP4 in a README, a landing page, or a docs site, and that binary has to live somewhere a URL can reach it. The question here is narrower than "where do I host my video" and more mechanical: when the demo is [versioned like code](/blog/demos-as-code), does the rendered file belong in version control at all — committed straight into the tree, tracked through Git LFS, or kept out of git entirely and rebuilt from the spec?
+
+The three options are not close on the numbers. Committing the binary is the default nobody costed. Git LFS is the reflexive fix that trades one bill for another. And the option that falls out of treating the render as build output — keep the text, throw away the video — is usually the cheapest and the one people reach for last. The rest of this piece prices all three.
+
+## Why a committed binary is heavier than its file size
+
+The reason "just commit the MP4" quietly hurts is not the size of one file. It is what git does with every version of it. Git stores each changed version of a file as a whole new object, then, when it packs the repository, "looks for files that are named and sized similarly, and stores just the deltas from one version of the file to the next" ([Pro Git, accessed July 2026](https://git-scm.com/book/en/v2/Git-Internals-Packfiles)). Delta compression is why a repo of source code stays small after ten thousand commits: each edit to a text file shares almost all its bytes with the version before it, so git keeps the difference, not the whole thing.
+
+A re-encoded video defeats that mechanism completely. Change one button label in the UI, re-render, and the new MP4 shares almost no bytes with the old one — the encoder reshuffles the entire compressed bitstream, so there is no small delta to store. Git keeps the whole new file. Every re-render is a full copy, and once an object is in history it stays there in every clone forever; deleting the file in a later commit reclaims nothing, because the old object is still needed to check out the old commit.
+
+Put numbers on it. A 60-second 1080p screen-capture demo is roughly 40 MB — UI footage is low-motion and compresses well, the same [storage baseline the per-release piece uses](/blog/versioned-demos-per-release). Commit that and re-render it weekly against the current build for a year, and you have appended 52 near-incompressible copies, about 2 GB, to the packfile. Every `git clone`, every fresh CI checkout, every new teammate pulls all 2 GB, most of it old cuts of a marketing clip nobody will watch again. The storyboard that produced all 52, by contrast, is a few kilobytes of text that deltas so well the whole year of edits costs less than a single frame of the video.
+
+## Git LFS: a pointer in the tree, the payload on a server
+
+Git LFS is the standard answer to that bloat, and it works by not putting the binary in the tree at all. It "replaces large files such as audio samples, videos, datasets, and graphics with text pointers inside Git, while storing the file contents on a remote server" ([Git LFS, accessed July 2026](https://git-lfs.com/)). What git versions is the pointer: a text file under 1024 bytes holding a version line, the SHA-256 of the content, and the byte size ([Git LFS spec, accessed July 2026](https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md)). You opt a file type in with `git lfs track "*.mp4"`, which writes a `.gitattributes` entry; GitLab describes the same split, adding "a pointer to your Git repository, instead of the large file" while the binary goes to object storage ([GitLab, accessed July 2026](https://docs.gitlab.com/topics/git/lfs/)).
+
+That fixes the clone-bloat problem — history now carries kilobyte pointers, not gigabytes of video — but it moves the cost, it does not remove it, and the new cost is a metered bill with two dials. On GitHub, a Free or Pro account includes 10 GiB of LFS storage and 10 GiB of bandwidth per month ([GitHub Docs, accessed July 2026](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage)); Enterprise includes 250 GiB of each ([GitHub Docs, accessed July 2026](https://docs.github.com/en/enterprise-cloud@latest/billing/concepts/product-billing/git-lfs)). Past the free tier GitHub retired the old prepaid data packs for metered billing: storage runs $0.07 per GiB per month and download bandwidth $0.0875 per GiB ([GitHub Changelog, 2024](https://github.blog/changelog/2024-06-03-new-enterprise-accounts-have-metered-billing-for-git-lfs/)).
+
+Storage is the tame dial: a year of 40 MB renders is 2 GB, comfortably inside 10 GiB. Bandwidth is the one that surprises people, because it is charged per download and CI is a download machine. Every pipeline run that checks out the repo pulls the LFS objects it needs, and each pull counts. A 40 MB demo fetched by a CI job that runs 30 times a day burns 1.2 GB a day — the entire free monthly bandwidth allowance in a week and a half, before a single human has cloned the repo. A public repository is worse: every visitor who clones spends your bandwidth, not theirs. LFS solves the wrong half of the problem for a file that is regenerated often and fetched constantly.
+
+## The option that falls out of treating the demo as code
+
+If the storyboard is the source and the video is what the storyboard builds, then the render is not an asset to version at all — it is build output, the same category as `dist/` or a compiled binary. You do not commit those; you `.gitignore` them and rebuild them. The demo gets the same treatment: commit the spec, keep the MP4 out of git entirely, and [rebuild it in CI](/blog/demo-videos-in-ci) whenever the product changes, publishing the finished file wherever the embed points — a release asset, object storage, a Pages path.
+
+This is the option the other two skip past, and on the numbers it usually wins. Version control carries only text, so the clone stays small forever and there is no LFS meter to watch. Any past version's video is not archived, it is regenerable — check out the tag, run the render, get that version's demo back — which is exactly the guarantee [pinning a demo to each release](/blog/versioned-demos-per-release) depends on. Our own engine, aidemo, is built around this shape: the storyboard lives in the repo and the MP4 is a rebuildable artifact. Its limits, stated plainly: capture happens inside a browser and nowhere else, the walkthrough is scripted by an agent rather than trimmed by hand, and no drag-and-drop editor exists.
+
+The catch is the honest one. "Regenerable" is only true if the render actually reproduces from the spec, which means pinning the toolchain the way [reproducible renders](/blog/reproducible-demo-renders) spell out — a floating ffmpeg or an unpinned font turns "rebuild it" into "rebuild something like it." And a live embed still needs a durable URL, so the output has to land somewhere hosted even though it never enters git. Commit-the-spec moves the file out of version control; it does not excuse you from putting the render somewhere a browser can load it.
+
+## Which storage model to pick, and when
+
+| | Commit the binary | Git LFS | Commit the spec, rebuild |
+|---|---|---|---|
+| Clone size over time | grows without bound | stays small (pointers) | stays small (text only) |
+| Cost meter | none, but history bloats | storage + per-download bandwidth | none |
+| Special tooling to check out | no | yes (`git lfs`) | render step in CI |
+| Old versions recoverable | yes, from history | yes, unless purged | yes, by re-rendering the tag |
+| Works with no CI / air-gapped | yes | yes | no — needs a render step |
+| Best when | tiny asset (<1 MB) that rarely changes | large asset you cannot regenerate | a demo that re-renders on every ship |
+
+The decision reduces to two questions. Can you rebuild the file from something you already commit? If yes — and a demo-as-code render always can — keep the binary out of git and rebuild it: you get a small repo, no meter, and per-version demos for free. If no — a hand-shot launch film, a logo, a design asset with no build step — then it is genuine source, and the choice narrows to committing it (fine when it is small and static) versus Git LFS (right when it is large and rarely fetched, so the bandwidth meter stays quiet). Committing a big binary that changes every week, the thing most teams do by reflex, is the one answer that is almost never correct.
+
+## Sources
+
+- [Pro Git — Git Internals: Packfiles (delta compression stores just the differences between similar objects)](https://git-scm.com/book/en/v2/Git-Internals-Packfiles)
+- [Git LFS — replaces large files with text pointers, contents on a remote server](https://git-lfs.com/)
+- [Git LFS — pointer file spec (version/oid/size, under 1024 bytes)](https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md)
+- [GitHub Docs — Git LFS billing (10 GiB free storage and bandwidth for Free/Pro; metered, hourly storage)](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage)
+- [GitHub Docs — Git LFS billing for Enterprise (250 GiB free storage and bandwidth)](https://docs.github.com/en/enterprise-cloud@latest/billing/concepts/product-billing/git-lfs)
+- [GitHub Changelog — metered Git LFS rates ($0.07/GiB-month storage, $0.0875/GiB bandwidth)](https://github.blog/changelog/2024-06-03-new-enterprise-accounts-have-metered-billing-for-git-lfs/)
+- [GitLab Docs — Git LFS adds a pointer to the repo and stores the binary in object storage, tracked via .gitattributes](https://docs.gitlab.com/topics/git/lfs/)
+
+## FAQ
+
+### Is it bad to commit large binary files to a git repository?
+
+For anything you re-render, yes. Git stores each version of a file as a whole object and only saves space when it can delta similar objects together, and a re-encoded video shares almost no bytes with the previous render, so every version is kept in full and stays in history in every clone forever. A 40 MB demo rebuilt weekly adds roughly 2 GB a year that nobody can garbage-collect without rewriting history. The exception is small, static assets that rarely change — a logo or a favicon is fine committed directly.
+
+### How much does Git LFS cost on GitHub?
+
+GitHub Free and Pro accounts include 10 GiB of LFS storage and 10 GiB of download bandwidth per month; Enterprise includes 250 GiB of each. Beyond the free tier GitHub bills metered — the old prepaid data packs are gone — at $0.07 per GiB per month for storage and $0.0875 per GiB for bandwidth. Storage is usually cheap; bandwidth is the dial that surprises people, because it is charged on every download and CI pipelines re-fetch LFS objects on each run.
+
+### Does removing a file from Git LFS free up space or quota?
+
+Not on its own. Deleting the file in a new commit leaves every prior version in history, and LFS storage counts the objects your history still references, so the meter keeps running until you actually rewrite history to purge them. That is the same trap as committing the binary directly: git is built to never lose an old version, which is a virtue for source and a liability for regenerated media. The clean escape is to not track the render in git at all — commit the spec and rebuild the file.
 
 ---
 

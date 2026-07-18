@@ -301,5 +301,23 @@
   "accessible-tutorial-videos": {
     "subject": "a gently curving ramp rising to a low raised platform",
     "seedOffset": 1
+  },
+  "demo-video-background-music": {
+    "subject": "a wooden see-saw balanced on a smooth round fulcrum",
+    "seedOffset": 2
+  },
+  "docs-that-test-themselves": {
+    "subject": "a brass plumb bob hanging from a single fine thread"
+  },
+  "mcp-servers-for-media-generation": {
+    "subject": "a brass-capped pneumatic tube carrier capsule"
+  },
+  "versioning-media-assets-in-git": {
+    "subject": "a heavy round stone millstone resting on its edge",
+    "seedOffset": 1
+  },
+  "api-documentation-videos": {
+    "subject": "a wooden pyramid metronome with its pendulum mid-swing",
+    "seedOffset": 1
   }
 }

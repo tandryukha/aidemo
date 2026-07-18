@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Versioning media assets in git: LFS vs committed | aidemo</title>
+<meta name="description" content="Should a rendered demo live in git? Commit vs LFS vs external, with the repo-bloat math, GitHub LFS quotas and rates, and why committing the spec usually wins.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/versioning-media-assets-in-git/">
+<link rel="alternate" type="text/markdown" href="/blog/versioning-media-assets-in-git/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Versioning media assets in git: LFS vs committed | aidemo">
+<meta property="og:description" content="Should a rendered demo live in git? Commit vs LFS vs external, with the repo-bloat math, GitHub LFS quotas and rates, and why committing the spec usually wins.">
+<meta property="og:url" content="https://aidemo.top/blog/versioning-media-assets-in-git/">
+<meta property="og:image" content="https://aidemo.top/blog/images/versioning-media-assets-in-git-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Versioning media assets in git: LFS vs committed | aidemo">
+<meta name="twitter:description" content="Should a rendered demo live in git? Commit vs LFS vs external, with the repo-bloat math, GitHub LFS quotas and rates, and why committing the spec usually wins.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/versioning-media-assets-in-git-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Versioning media assets in git: LFS, committed, or external",
+  "description": "Should a rendered demo live in git? Commit vs LFS vs external, with the repo-bloat math, GitHub LFS quotas and rates, and why committing the spec usually wins.",
+  "image": [
+    "https://aidemo.top/blog/images/versioning-media-assets-in-git-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/versioning-media-assets-in-git/"
+  },
+  "wordCount": 1890,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Pro Git — Git Internals: Packfiles (delta compression stores just the differences between similar objects)",
+      "url": "https://git-scm.com/book/en/v2/Git-Internals-Packfiles"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Git LFS — replaces large files with text pointers, contents on a remote server",
+      "url": "https://git-lfs.com/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Git LFS — pointer file spec (version/oid/size, under 1024 bytes)",
+      "url": "https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Git LFS billing (10 GiB free storage and bandwidth for Free/Pro; metered, hourly storage)",
+      "url": "https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — Git LFS billing for Enterprise (250 GiB free storage and bandwidth)",
+      "url": "https://docs.github.com/en/enterprise-cloud@latest/billing/concepts/product-billing/git-lfs"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Changelog — metered Git LFS rates ($0.07/GiB-month storage, $0.0875/GiB bandwidth)",
+      "url": "https://github.blog/changelog/2024-06-03-new-enterprise-accounts-have-metered-billing-for-git-lfs/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitLab Docs — Git LFS adds a pointer to the repo and stores the binary in object storage, tracked via .gitattributes",
+      "url": "https://docs.gitlab.com/topics/git/lfs/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Versioning media assets in git: LFS, committed, or external",
+      "item": "https://aidemo.top/blog/versioning-media-assets-in-git/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is it bad to commit large binary files to a git repository?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For anything you re-render, yes. Git stores each version of a file as a whole object and only saves space when it can delta similar objects together, and a re-encoded video shares almost no bytes with the previous render, so every version is kept in full and stays in history in every clone forever. A 40 MB demo rebuilt weekly adds roughly 2 GB a year that nobody can garbage-collect without rewriting history. The exception is small, static assets that rarely change — a logo or a favicon is fine committed directly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does Git LFS cost on GitHub?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GitHub Free and Pro accounts include 10 GiB of LFS storage and 10 GiB of download bandwidth per month; Enterprise includes 250 GiB of each. Beyond the free tier GitHub bills metered — the old prepaid data packs are gone — at $0.07 per GiB per month for storage and $0.0875 per GiB for bandwidth. Storage is usually cheap; bandwidth is the dial that surprises people, because it is charged on every download and CI pipelines re-fetch LFS objects on each run."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does removing a file from Git LFS free up space or quota?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not on its own. Deleting the file in a new commit leaves every prior version in history, and LFS storage counts the objects your history still references, so the meter keeps running until you actually rewrite history to purge them. That is the same trap as committing the binary directly: git is built to never lose an old version, which is a virtue for source and a liability for regenerated media. The clean escape is to not track the render in git at all — commit the spec and rebuild the file."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Versioning media assets in git: LFS, committed, or external</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Versioning media assets in git: LFS, committed, or external</h1>
+        <p class="article-dek">Git can diff a storyboard forever for free and chokes on the MP4 it renders. Where that binary lives — committed, LFS, or nowhere — is a real decision.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-rendered-demo-is-a-binary-and-git-was-built-for-text">A rendered demo is a binary, and git was built for text</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-a-committed-binary-is-heavier-than-its-file-size">Why a committed binary is heavier than its file size</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#git-lfs-a-pointer-in-the-tree-the-payload-on-a-server">Git LFS: a pointer in the tree, the payload on a server</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-option-that-falls-out-of-treating-the-demo-as-code">The option that falls out of treating the demo as code</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-storage-model-to-pick-and-when">Which storage model to pick, and when</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/versioning-media-assets-in-git-800.webp" srcset="/blog/images/versioning-media-assets-in-git-400.webp 400w, /blog/images/versioning-media-assets-in-git-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A heavy round stone millstone with a center hole standing upright on its edge"><figcaption>Commit the render and every clone drags this through history forever; commit the spec and the weight stays where it belongs.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Git can't delta re-encoded video: a 40 MB demo re-rendered weekly adds ~2 GB/year to the packfile that every clone downloads forever, because binaries defeat delta compression.</li>
+    <li>Git LFS keeps only a sub-1 KB pointer in the tree but moves the cost to a metered bill: 10 GiB free storage and bandwidth (Free/Pro), then $0.07/GiB-mo storage and $0.0875/GiB bandwidth.</li>
+    <li>LFS bandwidth is charged per download and CI re-fetches every run: a 40 MB demo pulled 30 times a day burns the 10 GiB free monthly bandwidth in about ten days.</li>
+    <li>Usually cheapest: commit the storyboard, gitignore the render, rebuild it in CI — text-only history, no LFS meter, and any tag's demo is regenerable from the spec.</li>
+    <li>Rule: if the file rebuilds from a committed spec, keep it out of git; commit only small static assets; reserve Git LFS for large binaries you cannot regenerate.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-rendered-demo-is-a-binary-and-git-was-built-for-text">A rendered demo is a binary, and git was built for text<a class="hanchor" href="#a-rendered-demo-is-a-binary-and-git-was-built-for-text" aria-label="Link to section: A rendered demo is a binary, and git was built for text">#</a></h2>
+<p>Treat the demo as code and the source of truth is a storyboard: a few kilobytes of text that a deterministic player turns into footage. But the footage is real. Someone has to embed an MP4 in a README, a landing page, or a docs site, and that binary has to live somewhere a URL can reach it. The question here is narrower than &quot;where do I host my video&quot; and more mechanical: when the demo is <a href="/blog/demos-as-code/">versioned like code</a>, does the rendered file belong in version control at all — committed straight into the tree, tracked through Git LFS, or kept out of git entirely and rebuilt from the spec?</p>
+<p>The three options are not close on the numbers. Committing the binary is the default nobody costed. Git LFS is the reflexive fix that trades one bill for another. And the option that falls out of treating the render as build output — keep the text, throw away the video — is usually the cheapest and the one people reach for last. The rest of this piece prices all three.</p>
+<h2 id="why-a-committed-binary-is-heavier-than-its-file-size">Why a committed binary is heavier than its file size<a class="hanchor" href="#why-a-committed-binary-is-heavier-than-its-file-size" aria-label="Link to section: Why a committed binary is heavier than its file size">#</a></h2>
+<p>The reason &quot;just commit the MP4&quot; quietly hurts is not the size of one file. It is what git does with every version of it. Git stores each changed version of a file as a whole new object, then, when it packs the repository, &quot;looks for files that are named and sized similarly, and stores just the deltas from one version of the file to the next&quot;<sup class="article-cite"><a href="#src-1" title="Pro Git — Git Internals: Packfiles (delta compression stores just the differences between similar objects)">1</a></sup>. Delta compression is why a repo of source code stays small after ten thousand commits: each edit to a text file shares almost all its bytes with the version before it, so git keeps the difference, not the whole thing.</p>
+<p>A re-encoded video defeats that mechanism completely. Change one button label in the UI, re-render, and the new MP4 shares almost no bytes with the old one — the encoder reshuffles the entire compressed bitstream, so there is no small delta to store. Git keeps the whole new file. Every re-render is a full copy, and once an object is in history it stays there in every clone forever; deleting the file in a later commit reclaims nothing, because the old object is still needed to check out the old commit.</p>
+<p>Put numbers on it. A 60-second 1080p screen-capture demo is roughly 40 MB — UI footage is low-motion and compresses well, the same <a href="/blog/versioned-demos-per-release/">storage baseline the per-release piece uses</a>. Commit that and re-render it weekly against the current build for a year, and you have appended 52 near-incompressible copies, about 2 GB, to the packfile. Every <code>git clone</code>, every fresh CI checkout, every new teammate pulls all 2 GB, most of it old cuts of a marketing clip nobody will watch again. The storyboard that produced all 52, by contrast, is a few kilobytes of text that deltas so well the whole year of edits costs less than a single frame of the video.</p>
+<h2 id="git-lfs-a-pointer-in-the-tree-the-payload-on-a-server">Git LFS: a pointer in the tree, the payload on a server<a class="hanchor" href="#git-lfs-a-pointer-in-the-tree-the-payload-on-a-server" aria-label="Link to section: Git LFS: a pointer in the tree, the payload on a server">#</a></h2>
+<p>Git LFS is the standard answer to that bloat, and it works by not putting the binary in the tree at all. It &quot;replaces large files such as audio samples, videos, datasets, and graphics with text pointers inside Git, while storing the file contents on a remote server&quot;<sup class="article-cite"><a href="#src-2" title="Git LFS — replaces large files with text pointers, contents on a remote server">2</a></sup>. What git versions is the pointer: a text file under 1024 bytes holding a version line, the SHA-256 of the content, and the byte size<sup class="article-cite"><a href="#src-3" title="Git LFS — pointer file spec (version/oid/size, under 1024 bytes)">3</a></sup>. You opt a file type in with <code>git lfs track &quot;*.mp4&quot;</code>, which writes a <code>.gitattributes</code> entry; GitLab describes the same split, adding &quot;a pointer to your Git repository, instead of the large file&quot; while the binary goes to object storage<sup class="article-cite"><a href="#src-7" title="GitLab Docs — Git LFS adds a pointer to the repo and stores the binary in object storage, tracked via .gitattributes">7</a></sup>.</p>
+<p>That fixes the clone-bloat problem — history now carries kilobyte pointers, not gigabytes of video — but it moves the cost, it does not remove it, and the new cost is a metered bill with two dials. On GitHub, a Free or Pro account includes 10 GiB of LFS storage and 10 GiB of bandwidth per month<sup class="article-cite"><a href="#src-4" title="GitHub Docs — Git LFS billing (10 GiB free storage and bandwidth for Free/Pro; metered, hourly storage)">4</a></sup>; Enterprise includes 250 GiB of each<sup class="article-cite"><a href="#src-5" title="GitHub Docs — Git LFS billing for Enterprise (250 GiB free storage and bandwidth)">5</a></sup>. Past the free tier GitHub retired the old prepaid data packs for metered billing: storage runs $0.07 per GiB per month and download bandwidth $0.0875 per GiB<sup class="article-cite"><a href="#src-6" title="GitHub Changelog — metered Git LFS rates ($0.07/GiB-month storage, $0.0875/GiB bandwidth)">6</a></sup>.</p>
+<p>Storage is the tame dial: a year of 40 MB renders is 2 GB, comfortably inside 10 GiB. Bandwidth is the one that surprises people, because it is charged per download and CI is a download machine. Every pipeline run that checks out the repo pulls the LFS objects it needs, and each pull counts. A 40 MB demo fetched by a CI job that runs 30 times a day burns 1.2 GB a day — the entire free monthly bandwidth allowance in a week and a half, before a single human has cloned the repo. A public repository is worse: every visitor who clones spends your bandwidth, not theirs. LFS solves the wrong half of the problem for a file that is regenerated often and fetched constantly.</p>
+<h2 id="the-option-that-falls-out-of-treating-the-demo-as-code">The option that falls out of treating the demo as code<a class="hanchor" href="#the-option-that-falls-out-of-treating-the-demo-as-code" aria-label="Link to section: The option that falls out of treating the demo as code">#</a></h2>
+<p>If the storyboard is the source and the video is what the storyboard builds, then the render is not an asset to version at all — it is build output, the same category as <code>dist/</code> or a compiled binary. You do not commit those; you <code>.gitignore</code> them and rebuild them. The demo gets the same treatment: commit the spec, keep the MP4 out of git entirely, and <a href="/blog/demo-videos-in-ci/">rebuild it in CI</a> whenever the product changes, publishing the finished file wherever the embed points — a release asset, object storage, a Pages path.</p>
+<p>This is the option the other two skip past, and on the numbers it usually wins. Version control carries only text, so the clone stays small forever and there is no LFS meter to watch. Any past version&#39;s video is not archived, it is regenerable — check out the tag, run the render, get that version&#39;s demo back — which is exactly the guarantee <a href="/blog/versioned-demos-per-release/">pinning a demo to each release</a> depends on. Our own engine, aidemo, is built around this shape: the storyboard lives in the repo and the MP4 is a rebuildable artifact. Its limits, stated plainly: capture happens inside a browser and nowhere else, the walkthrough is scripted by an agent rather than trimmed by hand, and no drag-and-drop editor exists.</p>
+<p>The catch is the honest one. &quot;Regenerable&quot; is only true if the render actually reproduces from the spec, which means pinning the toolchain the way <a href="/blog/reproducible-demo-renders/">reproducible renders</a> spell out — a floating ffmpeg or an unpinned font turns &quot;rebuild it&quot; into &quot;rebuild something like it.&quot; And a live embed still needs a durable URL, so the output has to land somewhere hosted even though it never enters git. Commit-the-spec moves the file out of version control; it does not excuse you from putting the render somewhere a browser can load it.</p>
+<h2 id="which-storage-model-to-pick-and-when">Which storage model to pick, and when<a class="hanchor" href="#which-storage-model-to-pick-and-when" aria-label="Link to section: Which storage model to pick, and when">#</a></h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Commit the binary</th>
+<th>Git LFS</th>
+<th>Commit the spec, rebuild</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Clone size over time</td>
+<td>grows without bound</td>
+<td>stays small (pointers)</td>
+<td>stays small (text only)</td>
+</tr>
+<tr>
+<td>Cost meter</td>
+<td>none, but history bloats</td>
+<td>storage + per-download bandwidth</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Special tooling to check out</td>
+<td>no</td>
+<td>yes (<code>git lfs</code>)</td>
+<td>render step in CI</td>
+</tr>
+<tr>
+<td>Old versions recoverable</td>
+<td>yes, from history</td>
+<td>yes, unless purged</td>
+<td>yes, by re-rendering the tag</td>
+</tr>
+<tr>
+<td>Works with no CI / air-gapped</td>
+<td>yes</td>
+<td>yes</td>
+<td>no — needs a render step</td>
+</tr>
+<tr>
+<td>Best when</td>
+<td>tiny asset (&lt;1 MB) that rarely changes</td>
+<td>large asset you cannot regenerate</td>
+<td>a demo that re-renders on every ship</td>
+</tr>
+</tbody></table></div>
+<p>The decision reduces to two questions. Can you rebuild the file from something you already commit? If yes — and a demo-as-code render always can — keep the binary out of git and rebuild it: you get a small repo, no meter, and per-version demos for free. If no — a hand-shot launch film, a logo, a design asset with no build step — then it is genuine source, and the choice narrows to committing it (fine when it is small and static) versus Git LFS (right when it is large and rarely fetched, so the bandwidth meter stays quiet). Committing a big binary that changes every week, the thing most teams do by reflex, is the one answer that is almost never correct.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://git-scm.com/book/en/v2/Git-Internals-Packfiles" rel="noopener">Pro Git — Git Internals: Packfiles (delta compression stores just the differences between similar objects)</a></li>
+<li id="src-2"><a href="https://git-lfs.com/" rel="noopener">Git LFS — replaces large files with text pointers, contents on a remote server</a></li>
+<li id="src-3"><a href="https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md" rel="noopener">Git LFS — pointer file spec (version/oid/size, under 1024 bytes)</a></li>
+<li id="src-4"><a href="https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage" rel="noopener">GitHub Docs — Git LFS billing (10 GiB free storage and bandwidth for Free/Pro; metered, hourly storage)</a></li>
+<li id="src-5"><a href="https://docs.github.com/en/enterprise-cloud@latest/billing/concepts/product-billing/git-lfs" rel="noopener">GitHub Docs — Git LFS billing for Enterprise (250 GiB free storage and bandwidth)</a></li>
+<li id="src-6"><a href="https://github.blog/changelog/2024-06-03-new-enterprise-accounts-have-metered-billing-for-git-lfs/" rel="noopener">GitHub Changelog — metered Git LFS rates ($0.07/GiB-month storage, $0.0875/GiB bandwidth)</a></li>
+<li id="src-7"><a href="https://docs.gitlab.com/topics/git/lfs/" rel="noopener">GitLab Docs — Git LFS adds a pointer to the repo and stores the binary in object storage, tracked via .gitattributes</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-it-bad-to-commit-large-binary-files-to-a-git-repository" class="blog-faq-q">Is it bad to commit large binary files to a git repository?<a class="hanchor" href="#is-it-bad-to-commit-large-binary-files-to-a-git-repository" aria-label="Link to section: Is it bad to commit large binary files to a git repository?">#</a></h3>
+<p>For anything you re-render, yes. Git stores each version of a file as a whole object and only saves space when it can delta similar objects together, and a re-encoded video shares almost no bytes with the previous render, so every version is kept in full and stays in history in every clone forever. A 40 MB demo rebuilt weekly adds roughly 2 GB a year that nobody can garbage-collect without rewriting history. The exception is small, static assets that rarely change — a logo or a favicon is fine committed directly.</p>
+<h3 id="how-much-does-git-lfs-cost-on-github" class="blog-faq-q">How much does Git LFS cost on GitHub?<a class="hanchor" href="#how-much-does-git-lfs-cost-on-github" aria-label="Link to section: How much does Git LFS cost on GitHub?">#</a></h3>
+<p>GitHub Free and Pro accounts include 10 GiB of LFS storage and 10 GiB of download bandwidth per month; Enterprise includes 250 GiB of each. Beyond the free tier GitHub bills metered — the old prepaid data packs are gone — at $0.07 per GiB per month for storage and $0.0875 per GiB for bandwidth. Storage is usually cheap; bandwidth is the dial that surprises people, because it is charged on every download and CI pipelines re-fetch LFS objects on each run.</p>
+<h3 id="does-removing-a-file-from-git-lfs-free-up-space-or-quota" class="blog-faq-q">Does removing a file from Git LFS free up space or quota?<a class="hanchor" href="#does-removing-a-file-from-git-lfs-free-up-space-or-quota" aria-label="Link to section: Does removing a file from Git LFS free up space or quota?">#</a></h3>
+<p>Not on its own. Deleting the file in a new commit leaves every prior version in history, and LFS storage counts the objects your history still references, so the meter keeps running until you actually rewrite history to purge them. That is the same trap as committing the binary directly: git is built to never lose an old version, which is a virtue for source and a liability for regenerated media. The clean escape is to not track the render in git at all — commit the spec and rebuild the file.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">git lfs</span>
+        <span class="article-tag">versioning</span>
+        <span class="article-tag">binary assets</span>
+        <span class="article-tag">ci-cd</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/deterministic-browser-automation-for-video-400.webp" srcset="/blog/images/deterministic-browser-automation-for-video-400.webp 400w, /blog/images/deterministic-browser-automation-for-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Two stacked filmstrips of one demo flow, the pinned one identical frame for frame, the unpinned one drifting on a spinner, a font swap, and a layout column"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-rendered-demo-is-a-binary-and-git-was-built-for-text">A rendered demo is a binary, and git was built for text</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-a-committed-binary-is-heavier-than-its-file-size">Why a committed binary is heavier than its file size</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#git-lfs-a-pointer-in-the-tree-the-payload-on-a-server">Git LFS: a pointer in the tree, the payload on a server</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-option-that-falls-out-of-treating-the-demo-as-code">The option that falls out of treating the demo as code</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-storage-model-to-pick-and-when">Which storage model to pick, and when</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

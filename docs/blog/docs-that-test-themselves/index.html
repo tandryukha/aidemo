@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs that test themselves: executable docs | aidemo</title>
+<meta name="description" content="Doctests make code examples fail when they drift from behavior. Five languages ship the pattern; here is how to run the same self-check on a screenshot or demo.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/docs-that-test-themselves/">
+<link rel="alternate" type="text/markdown" href="/blog/docs-that-test-themselves/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Docs that test themselves: executable docs | aidemo">
+<meta property="og:description" content="Doctests make code examples fail when they drift from behavior. Five languages ship the pattern; here is how to run the same self-check on a screenshot or demo.">
+<meta property="og:url" content="https://aidemo.top/blog/docs-that-test-themselves/">
+<meta property="og:image" content="https://aidemo.top/blog/images/docs-that-test-themselves-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Docs that test themselves: executable docs | aidemo">
+<meta name="twitter:description" content="Doctests make code examples fail when they drift from behavior. Five languages ship the pattern; here is how to run the same self-check on a screenshot or demo.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/docs-that-test-themselves-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Docs that test themselves: executable documentation",
+  "description": "Doctests make code examples fail when they drift from behavior. Five languages ship the pattern; here is how to run the same self-check on a screenshot or demo.",
+  "image": [
+    "https://aidemo.top/blog/images/docs-that-test-themselves-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/docs-that-test-themselves/"
+  },
+  "wordCount": 2044,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)",
+      "url": "https://docs.python.org/3/library/doctest.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Rust — Documentation tests (rustdoc runs doc examples as tests; passes if they compile and run without panicking)",
+      "url": "https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Go — testing package (Example functions compiled and executed; // Output: comparison; Unordered output:)",
+      "url": "https://pkg.go.dev/testing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Sphinx — sphinx.ext.doctest (test snippets so the documentation stays up-to-date with the code)",
+      "url": "https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Elixir — ExUnit.DocTest (generate tests from code examples in @moduledoc and @doc)",
+      "url": "https://ex-unit.hexdocs.pm/ExUnit.DocTest.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Docs that test themselves: executable documentation",
+      "item": "https://aidemo.top/blog/docs-that-test-themselves/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is executable documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Executable documentation is documentation whose examples run as tests. Instead of a code sample a human promises to keep accurate, the sample is executed on every build and the build fails if its output no longer matches the code. Python's doctest docs name this outright as \"literate testing\" or \"executable documentation.\" The effect is that the docs cannot silently drift from behavior, because a drift turns into a red build, and the same principle extends to product media: a screenshot or demo that re-captures the live UI is executable documentation for the interface."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a doctest, and what does it check?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A doctest is an example embedded in documentation that a test runner executes to confirm it still works. Python's doctest reads >>> interactive sessions in docstrings, Rust's rustdoc runs fenced code blocks in /// comments, Go compiles Example functions and compares their output to an // Output: comment, and Elixir turns iex> lines in @doc into ExUnit cases. Depending on the language it checks one of two things: that the example still compiles and runs, or that its output still matches exactly. Either way the example is the assertion, so nobody has to remember to keep the docs in sync by hand."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a screenshot or demo video work like a doctest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, with one adjustment for the medium. A code doctest can store its expected output inline as text; a screenshot or demo produces pixels, so the expectation lives as a committed baseline (a golden image) or as a resolved action-spec instead. Re-capture the media from its spec against the live product, diff it against that baseline, and the asset fails when the UI moves, the same guarantee a doctest gives code. The cheap version checks only that the demo's flow still resolves; the expensive version checks that the frame still looks right."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Docs that test themselves: executable documentation</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Docs that test themselves: executable documentation</h1>
+        <p class="article-dek">Python's docs literally call it 'executable documentation': an example that fails when the code drifts. The same trick works one layer up, on your screenshots.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-doctest-bargain-an-example-that-fails-when-the-prose-lies">The doctest bargain: an example that fails when the prose lies</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#five-languages-already-ship-this-and-they-disagree-about-what-to-freeze">Five languages already ship this, and they disagree about what to freeze</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#one-layer-up-a-re-captured-screenshot-is-a-doctest-for-the-interface">One layer up: a re-captured screenshot is a doctest for the interface</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-gates-hide-in-one-word-does-it-run-and-does-it-match">Two gates hide in one word: does it run, and does it match</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#doctest-already-solved-the-flakiness-you-are-about-to-meet">doctest already solved the flakiness you are about to meet</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-it-runs-is-the-point-from-make-doctest-to-the-nightly-render">Where it runs is the point: from make doctest to the nightly render</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/docs-that-test-themselves-800.webp" srcset="/blog/images/docs-that-test-themselves-400.webp 400w, /blog/images/docs-that-test-themselves-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A polished brass plumb bob hanging motionless and vertical from a single thread"><figcaption>A plumb bob never debates which way is down, because gravity re-checks it on every drop; an executable doc never debates what the product does, because the test runs on every build.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Python's doctest docs name the pattern outright — 'literate testing' or 'executable documentation': the example runs on every build, so the docstring can't drift from behavior.</li>
+    <li>Five languages ship it — Rust doc tests, Go Example funcs with // Output:, Python doctest, Sphinx make doctest, Elixir ExUnit.DocTest — split over 'does it run' vs 'does the output match'.</li>
+    <li>Generalized to media: a screenshot or demo re-captured from a spec is a doctest for the interface — the picture fails when the UI moves, as a code example fails when the API moves.</li>
+    <li>Two gates, two costs: the run gate (every selector resolves) is cheap and deterministic; the match gate (pixel or still golden) is brittle and needs a threshold — the Rust-vs-Go split.</li>
+    <li>doctest already solved media flakiness: NORMALIZE_WHITESPACE / ELLIPSIS / SKIP for noisy output map one-to-one to masking dynamic regions and perceptual thresholds in a visual diff.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-doctest-bargain-an-example-that-fails-when-the-prose-lies">The doctest bargain: an example that fails when the prose lies<a class="hanchor" href="#the-doctest-bargain-an-example-that-fails-when-the-prose-lies" aria-label="Link to section: The doctest bargain: an example that fails when the prose lies">#</a></h2>
+<p>Documentation lies by omission of maintenance. Someone writes an accurate example, the code moves underneath it, and the example keeps sitting there, wrong and confident, until a reader trips on it. The doctest is the oldest fix for this, and it is almost aggressively simple: put the example where a test runner can find it, run it, and fail the build when its output stops matching reality. Python&#39;s <code>doctest</code> module states the mechanism plainly. It &quot;searches for pieces of text that look like interactive Python sessions, and then executes those sessions to verify that they work exactly as shown&quot;<sup class="article-cite"><a href="#src-1" title="Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)">1</a></sup>.</p>
+<p>The trade you are making has a name on the same page. Among doctest&#39;s stated uses is writing tutorial documentation &quot;liberally illustrated with input-output examples,&quot; which &quot;has the flavor of &#39;literate testing&#39; or &#39;executable documentation&#39;&quot;<sup class="article-cite"><a href="#src-1" title="Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)">1</a></sup>. The example is not a copy of the behavior that a human promises to keep in sync. The example is the behavior, exercised on every run, so drift has nowhere to hide. The module&#39;s own soapbox captures why that earns its keep: &quot;I&#39;m still amazed at how often one of my <code>doctest</code> examples stops working after a &#39;harmless&#39; change&quot;<sup class="article-cite"><a href="#src-1" title="Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)">1</a></sup>. That surprise is the entire product. The doc caught a lie the author did not know they had told.</p>
+<h2 id="five-languages-already-ship-this-and-they-disagree-about-what-to-freeze">Five languages already ship this, and they disagree about what to freeze<a class="hanchor" href="#five-languages-already-ship-this-and-they-disagree-about-what-to-freeze" aria-label="Link to section: Five languages already ship this, and they disagree about what to freeze">#</a></h2>
+<p>The idea is not Python&#39;s alone, and the disagreements between implementations are where it gets interesting. Rust builds doc tests into the compiler&#39;s front door: rustdoc &quot;supports executing your documentation examples as tests,&quot; which &quot;makes sure that examples within your documentation are up to date and working,&quot; and a plain doc test &quot;pass[es] if they compile and run without panicking&quot;<sup class="article-cite"><a href="#src-2" title="Rust — Documentation tests (rustdoc runs doc examples as tests; passes if they compile and run without panicking)">2</a></sup>. Go ties examples to <code>go test</code>: an <code>Example</code> function is &quot;compiled and executed as part of the package&#39;s test suite,&quot; and a trailing <code>// Output:</code> comment &quot;is compared with the standard output of the function when the tests are run&quot;<sup class="article-cite"><a href="#src-3" title="Go — testing package (Example functions compiled and executed; // Output: comparison; Unordered output:)">3</a></sup>. Sphinx offers a <code>doctest</code> builder for prose docs precisely because &quot;it is important to ensure that the documentation stays up-to-date with the code&quot;<sup class="article-cite"><a href="#src-4" title="Sphinx — sphinx.ext.doctest (test snippets so the documentation stays up-to-date with the code)">4</a></sup>. Elixir&#39;s ExUnit will &quot;generate tests from code examples found in <code>@moduledoc</code> and <code>@doc</code> attributes,&quot; turning every <code>iex&gt;</code> line in a docstring into an assertion<sup class="article-cite"><a href="#src-5" title="Elixir — ExUnit.DocTest (generate tests from code examples in @moduledoc and @doc)">5</a></sup>.</p>
+<p>Read them side by side and one fault line runs through the set: some check that the example still runs, and some check that its output still matches. That distinction decides everything downstream.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>The &quot;example&quot;</th>
+<th>It passes when</th>
+<th>You run it with</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rust doc test</td>
+<td>a fenced block in a <code>///</code> comment</td>
+<td>it compiles and runs without panicking</td>
+<td><code>cargo test</code></td>
+</tr>
+<tr>
+<td>Go testable example</td>
+<td>an <code>Example</code> func plus <code>// Output:</code></td>
+<td>stdout equals the annotated output</td>
+<td><code>go test</code></td>
+</tr>
+<tr>
+<td>Python doctest</td>
+<td>a <code>&gt;&gt;&gt;</code> session in a docstring</td>
+<td>the printed output matches exactly</td>
+<td><code>python -m doctest</code></td>
+</tr>
+<tr>
+<td>Sphinx doctest</td>
+<td>a directive-marked block in the prose</td>
+<td>the builder runs it green</td>
+<td><code>make doctest</code></td>
+</tr>
+<tr>
+<td>Elixir ExUnit.DocTest</td>
+<td>an <code>iex&gt;</code> example in <code>@doc</code></td>
+<td>it runs as an ExUnit case</td>
+<td><code>mix test</code></td>
+</tr>
+</tbody></table></div>
+<h2 id="one-layer-up-a-re-captured-screenshot-is-a-doctest-for-the-interface">One layer up: a re-captured screenshot is a doctest for the interface<a class="hanchor" href="#one-layer-up-a-re-captured-screenshot-is-a-doctest-for-the-interface" aria-label="Link to section: One layer up: a re-captured screenshot is a doctest for the interface">#</a></h2>
+<p>Now make the leap the executable-docs world never had to. Their examples are text that produces text, so the expected output can sit inline, human-readable, in the same file. Product media is text that produces pixels: a storyboard or a screenshot spec that yields a frame of a running UI, where the expected output cannot live in the source as a literal. But the bargain survives the change of medium. A screenshot re-captured from a spec against the live product is a doctest for the interface. It asserts that the picture in your docs still matches the software, and it fails when the software moves out from under it. That is exactly the failure a hand-shot PNG hides for months, the reason <a href="/blog/why-product-demos-go-stale/">product demos and screenshots rot on a schedule</a>.</p>
+<p>The mapping is close enough to be mechanical.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Executable-docs mechanism</th>
+<th>Its product-media analog</th>
+<th>The analog passes when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rust &quot;compiles and runs&quot; doc test</td>
+<td>a demo re-rendered from a storyboard</td>
+<td>every selector resolves and each navigation lands</td>
+</tr>
+<tr>
+<td>Go <code>Example</code> with <code>// Output:</code></td>
+<td>a named still frame with a committed baseline</td>
+<td>the re-captured PNG matches its golden</td>
+</tr>
+<tr>
+<td>Python <code>&gt;&gt;&gt;</code> output match</td>
+<td>a screenshot re-shot from a spec and diffed</td>
+<td>the pixels match within a threshold</td>
+</tr>
+<tr>
+<td>Sphinx <code>make doctest</code> in CI</td>
+<td>a scheduled re-render on the build server</td>
+<td>the render passes against today&#39;s build</td>
+</tr>
+<tr>
+<td>Elixir <code>iex&gt;</code> doctest</td>
+<td>the resolved action-spec, run as a check</td>
+<td>the flow still resolves against the live UI</td>
+</tr>
+</tbody></table></div>
+<p>The finished asset, the screenshot in the README or the sixty-second walkthrough on the docs page, doubles on that very render as proof the asset is not lying. That is the whole thesis of <a href="/blog/automated-product-demo-videos/">treating a demo as code you regenerate rather than a recording you own</a>.</p>
+<h2 id="two-gates-hide-in-one-word-does-it-run-and-does-it-match">Two gates hide in one word: does it run, and does it match<a class="hanchor" href="#two-gates-hide-in-one-word-does-it-run-and-does-it-match" aria-label="Link to section: Two gates hide in one word: does it run, and does it match">#</a></h2>
+<p>The Rust-versus-Go split is not a style preference. It is two different tests with two different price tags, and porting it to media saves you from the most common mistake in visual testing. A Rust doc test that only has to compile and run is cheap and almost never flaky, because it asserts behavior, not appearance. Its media twin is the behavior gate: re-render the demo and pass if every selector resolved to a real element and every navigation reached the page it was meant to. That check is deterministic text, it reads as a small clean diff in review, and it trips on the one thing that actually breaks a demo, a click that misses the button that moved, while staying quiet when only the paint changed.</p>
+<p>A Go example that must match <code>// Output:</code> byte for byte is the other gate, and it is where flakiness lives. Its media twin is the pixel or still-frame golden: capture the frame, diff it against a blessed baseline, fail on any difference. It catches visual regressions the behavior gate cannot see, and it pays for that reach with brittleness. Which layer to freeze, the resolved action-spec, a handful of key frames, or every pixel, is a decision with real consequences, <a href="/blog/testing-demos-like-code/">worked through in the golden-file piece</a>. The short version matches the doctest world: reach for the run gate first, and add the match gate only where appearance is the thing under test.</p>
+<h2 id="doctest-already-solved-the-flakiness-you-are-about-to-meet">doctest already solved the flakiness you are about to meet<a class="hanchor" href="#doctest-already-solved-the-flakiness-you-are-about-to-meet" aria-label="Link to section: doctest already solved the flakiness you are about to meet">#</a></h2>
+<p>Anyone who has written a doctest for a function that prints a dictionary or a memory address has met the output-match gate&#39;s dark side: the example is correct, the behavior is correct, and the test fails anyway because something irrelevant changed. Python&#39;s answer is a set of directives. <code>NORMALIZE_WHITESPACE</code> makes &quot;all sequences of whitespace (blanks and newlines) ... treated as equal,&quot; <code>ELLIPSIS</code> lets a <code>...</code> marker &quot;match any substring in the actual output,&quot; and <code>SKIP</code> drops an example from the run while keeping it in the docs<sup class="article-cite"><a href="#src-1" title="Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)">1</a></sup>. Go ships the same admission in miniature: an <code>Unordered output:</code> comment &quot;matches any line order,&quot; for output whose sequence is not meaningful<sup class="article-cite"><a href="#src-3" title="Go — testing package (Example functions compiled and executed; // Output: comparison; Unordered output:)">3</a></sup>.</p>
+<p>Every one of those directives has a pixel-side twin, and if you skip them your visual gate will flap until someone quietly disables it. A live clock in the corner, a rotating avatar, an animation mid-frame, a randomized dashboard: each is the media version of a memory address in a doctest, real output with a meaningless difference. The fixes rhyme with the directives. Mask the dynamic region so the diff ignores it, the way <code>ELLIPSIS</code> ignores a substring. Set a perceptual threshold instead of demanding an exact match, the way <code>NORMALIZE_WHITESPACE</code> loosens the comparison. Freeze the clock and disable animations before the shot, so there is nothing left to normalize. Tuning that noise floor is <a href="/blog/detecting-ui-drift/">its own detection-versus-false-positive problem</a>, and it is the reason the cheaper run gate belongs first.</p>
+<h2 id="where-it-runs-is-the-point-from-make-doctest-to-the-nightly-render">Where it runs is the point: from make doctest to the nightly render<a class="hanchor" href="#where-it-runs-is-the-point-from-make-doctest-to-the-nightly-render" aria-label="Link to section: Where it runs is the point: from make doctest to the nightly render">#</a></h2>
+<p>A doctest that never runs is a comment. The reason the pattern works is that it rides a command the team already types: <code>cargo test</code>, <code>mix test</code>, <code>make doctest</code> in the docs build. The example is checked because checking it costs nothing extra, stapled to the test run that gates every merge. Media inherits the same requirement and the same solution. A screenshot or demo that regenerates from a spec has to regenerate somewhere automatic, which is a CI job and not a good intention: on the commit that touched the UI, or on a nightly cron for the drift that seeps in through data and dependencies rather than a tidy diff.</p>
+<p>Our own engine, aidemo, freezes the run gate for browser demos this way. <code>aidemo probe --golden</code> replays a storyboard&#39;s action-spec and exits non-zero when a selector or navigation drifts, and it is honest about its edges: browser flows only, a storyboard an agent authors rather than a timeline you drag, and no GUI editor anywhere in the loop. The tool is beside the point. The point is the discipline the doctest normalized decades ago. An example nobody runs is documentation you are only hoping is true, and hope is not a test. Wire the check to the build, and <a href="/blog/video-documentation/">a video documentation library stays as honest as the prose around it</a>.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://docs.python.org/3/library/doctest.html" rel="noopener">Python — doctest module (searches interactive sessions and executes them; 'executable documentation'; NORMALIZE_WHITESPACE / ELLIPSIS / SKIP)</a></li>
+<li id="src-2"><a href="https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html" rel="noopener">Rust — Documentation tests (rustdoc runs doc examples as tests; passes if they compile and run without panicking)</a></li>
+<li id="src-3"><a href="https://pkg.go.dev/testing" rel="noopener">Go — testing package (Example functions compiled and executed; // Output: comparison; Unordered output:)</a></li>
+<li id="src-4"><a href="https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html" rel="noopener">Sphinx — sphinx.ext.doctest (test snippets so the documentation stays up-to-date with the code)</a></li>
+<li id="src-5"><a href="https://ex-unit.hexdocs.pm/ExUnit.DocTest.html" rel="noopener">Elixir — ExUnit.DocTest (generate tests from code examples in @moduledoc and @doc)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-executable-documentation" class="blog-faq-q">What is executable documentation?<a class="hanchor" href="#what-is-executable-documentation" aria-label="Link to section: What is executable documentation?">#</a></h3>
+<p>Executable documentation is documentation whose examples run as tests. Instead of a code sample a human promises to keep accurate, the sample is executed on every build and the build fails if its output no longer matches the code. Python&#39;s doctest docs name this outright as &quot;literate testing&quot; or &quot;executable documentation.&quot; The effect is that the docs cannot silently drift from behavior, because a drift turns into a red build, and the same principle extends to product media: a screenshot or demo that re-captures the live UI is executable documentation for the interface.</p>
+<h3 id="what-is-a-doctest-and-what-does-it-check" class="blog-faq-q">What is a doctest, and what does it check?<a class="hanchor" href="#what-is-a-doctest-and-what-does-it-check" aria-label="Link to section: What is a doctest, and what does it check?">#</a></h3>
+<p>A doctest is an example embedded in documentation that a test runner executes to confirm it still works. Python&#39;s doctest reads <code>&gt;&gt;&gt;</code> interactive sessions in docstrings, Rust&#39;s rustdoc runs fenced code blocks in <code>///</code> comments, Go compiles <code>Example</code> functions and compares their output to an <code>// Output:</code> comment, and Elixir turns <code>iex&gt;</code> lines in <code>@doc</code> into ExUnit cases. Depending on the language it checks one of two things: that the example still compiles and runs, or that its output still matches exactly. Either way the example is the assertion, so nobody has to remember to keep the docs in sync by hand.</p>
+<h3 id="can-a-screenshot-or-demo-video-work-like-a-doctest" class="blog-faq-q">Can a screenshot or demo video work like a doctest?<a class="hanchor" href="#can-a-screenshot-or-demo-video-work-like-a-doctest" aria-label="Link to section: Can a screenshot or demo video work like a doctest?">#</a></h3>
+<p>Yes, with one adjustment for the medium. A code doctest can store its expected output inline as text; a screenshot or demo produces pixels, so the expectation lives as a committed baseline (a golden image) or as a resolved action-spec instead. Re-capture the media from its spec against the live product, diff it against that baseline, and the asset fails when the UI moves, the same guarantee a doctest gives code. The cheap version checks only that the demo&#39;s flow still resolves; the expensive version checks that the frame still looks right.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">executable documentation</span>
+        <span class="article-tag">doctest</span>
+        <span class="article-tag">demo automation</span>
+        <span class="article-tag">testable docs</span>
+        <span class="article-tag">ci</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/app-store-screenshot-automation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/app-store-screenshot-automation-400.webp" srcset="/blog/images/app-store-screenshot-automation-400.webp 400w, /blog/images/app-store-screenshot-automation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay honeycomb slab of identical hexagonal cells"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Keeping App Store screenshots current with automation</h3>
+    <p class="article-card-excerpt">Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-doctest-bargain-an-example-that-fails-when-the-prose-lies">The doctest bargain: an example that fails when the prose lies</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#five-languages-already-ship-this-and-they-disagree-about-what-to-freeze">Five languages already ship this, and they disagree about what to freeze</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#one-layer-up-a-re-captured-screenshot-is-a-doctest-for-the-interface">One layer up: a re-captured screenshot is a doctest for the interface</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-gates-hide-in-one-word-does-it-run-and-does-it-match">Two gates hide in one word: does it run, and does it match</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#doctest-already-solved-the-flakiness-you-are-about-to-meet">doctest already solved the flakiness you are about to meet</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-it-runs-is-the-point-from-make-doctest-to-the-nightly-render">Where it runs is the point: from make doctest to the nightly render</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

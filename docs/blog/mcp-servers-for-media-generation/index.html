@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP servers for media generation | aidemo</title>
+<meta name="description" content="Why long media renders need an async MCP job model — submit a spec, poll status, fetch the artifact — not a synchronous tool call that hits the 60s timeout.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/mcp-servers-for-media-generation/">
+<link rel="alternate" type="text/markdown" href="/blog/mcp-servers-for-media-generation/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="MCP servers for media generation | aidemo">
+<meta property="og:description" content="Why long media renders need an async MCP job model — submit a spec, poll status, fetch the artifact — not a synchronous tool call that hits the 60s timeout.">
+<meta property="og:url" content="https://aidemo.top/blog/mcp-servers-for-media-generation/">
+<meta property="og:image" content="https://aidemo.top/blog/images/mcp-servers-for-media-generation-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MCP servers for media generation | aidemo">
+<meta name="twitter:description" content="Why long media renders need an async MCP job model — submit a spec, poll status, fetch the artifact — not a synchronous tool call that hits the 60s timeout.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/mcp-servers-for-media-generation-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "MCP servers for media generation: the agent-to-render interface",
+  "description": "Why long media renders need an async MCP job model — submit a spec, poll status, fetch the artifact — not a synchronous tool call that hits the 60s timeout.",
+  "image": [
+    "https://aidemo.top/blog/images/mcp-servers-for-media-generation-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/mcp-servers-for-media-generation/"
+  },
+  "wordCount": 2277,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/server/tools"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Lifecycle (request timeouts: establish, cancel on lapse, reset-on-progress is optional, enforce a maximum)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Progress (progressToken in request metadata, notifications/progress, receivers may send none)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Cancellation (notifications/cancelled with requestId and reason; stop and free resources)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Model Context Protocol — Resources (application-driven context; https vs file vs custom URI schemes)",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/server/resources"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MCP TypeScript SDK — protocol.ts (DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000, resetTimeoutOnProgress, maxTotalTimeout)",
+      "url": "https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/core-internal/src/shared/protocol.ts"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "ElevenLabs MCP server — output modes: files return paths, resources return base64, both serve an elevenlabs:// URI",
+      "url": "https://github.com/elevenlabs/elevenlabs-mcp"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "MCP servers for media generation: the agent-to-render interface",
+      "item": "https://aidemo.top/blog/mcp-servers-for-media-generation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why not just make video rendering a normal synchronous MCP tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because a render runs for seconds to minutes and a synchronous tool call is on a timeout. The official MCP TypeScript SDK defaults to a 60-second request timeout, and the spec tells clients to cancel a request that overruns and to enforce a maximum even when progress is flowing. A four-minute render inside one tools/call gets cancelled mid-job. Returning a jobId immediately and exposing a status tool to poll moves the long work off the request path, where no timeout can reach it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does an agent get the finished video file back from an MCP server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on where the server runs. A local stdio server shares a filesystem with the agent, so the cheapest correct answer is to return absolute file paths in the tool result and let the agent open them. A remote server has no shared disk and must send the artifact over the protocol, either as a resource_link URI the client fetches or as base64-embedded bytes in the response. Because an MP4 is large, remote designs usually favor a link over inlining the bytes into every message."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to write a custom MCP server to let an agent render videos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if an agent is the one driving the render interactively. If your demos regenerate on a schedule or when the UI changes, there is no model in the loop at render time, and a plain render CLI called from CI is simpler and more robust than an MCP surface. Build the server when the workflow is an agent deciding, mid-task, to make a video and needing to submit a spec, watch its progress, and collect the result itself."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>MCP servers for media generation: the agent-to-render interface</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">MCP servers for media generation: the agent-to-render interface</h1>
+        <p class="article-dek">A media render runs for minutes; an MCP tool call times out in sixty seconds. How to design the agent-to-render interface so the video survives the gap.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-sixty-second-wall-a-render-tool-hits">The sixty-second wall a render tool hits</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#submit-poll-fetch-the-media-job-as-three-round-trips">Submit, poll, fetch: the media job as three round trips</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-a-render-server-should-put-on-the-wire">What a render server should put on the wire</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#progress-and-cancellation-done-by-the-book">Progress and cancellation, done by the book</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#getting-the-artifact-home">Getting the artifact home</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-a-tool-call-is-more-than-you-need">When a tool call is more than you need</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/mcp-servers-for-media-generation-800.webp" srcset="/blog/images/mcp-servers-for-media-generation-400.webp 400w, /blog/images/mcp-servers-for-media-generation-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A cylindrical pneumatic-tube carrier capsule with rounded brass end caps standing upright on a plain surface"><figcaption>The agent never holds the render. It drops a spec in, the capsule travels, and the finished artifact comes back — the only shape a minutes-long job survives a sixty-second timeout in.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A media render runs seconds to minutes, past the MCP TypeScript SDK's 60-second default request timeout, so a synchronous render tool call gets cancelled mid-job. Return a job handle and poll instead.</li>
+    <li>The job model is three round trips: submit returns a jobId in milliseconds, poll status shows stage and scene progress, then fetch the artifact. One job at a time avoids a queue and lock races.</li>
+    <li>Split a good media surface into cheap read tools (guide, schema, validate — mark them readOnlyHint), expensive async jobs (probe, render), and control tools (job_status, job_cancel).</li>
+    <li>MCP progress notifications (progressToken plus notifications/progress) are optional on both ends and many clients drop them, so make the status-poll loop the source of truth.</li>
+    <li>Artifact return splits on transport: a local stdio server returns filesystem paths; a remote one hands back a resource_link URI or base64 resource. ElevenLabs' MCP ships all three modes.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-sixty-second-wall-a-render-tool-hits">The sixty-second wall a render tool hits<a class="hanchor" href="#the-sixty-second-wall-a-render-tool-hits" aria-label="Link to section: The sixty-second wall a render tool hits">#</a></h2>
+<p>An agent that wants a demo video calls a tool and waits for the answer. That is the whole ergonomics of the Model Context Protocol from the model&#39;s side: tools are &quot;model-controlled,&quot; discovered and invoked &quot;automatically based on its contextual understanding and the user&#39;s prompts&quot;<sup class="article-cite"><a href="#src-1" title="Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)">1</a></sup>. The client sends a <code>tools/call</code>, the server runs it, a result comes back. For a weather lookup that round trip is a few hundred milliseconds and nobody budgets for it.</p>
+<p>A media render is not a weather lookup. Producing a narrated, captioned demo means driving a browser through a flow, synthesizing speech, transcribing it back for caption timing, and running ffmpeg to trim and mux — seconds to minutes of real work. The default request timeout in the official MCP TypeScript SDK is <code>DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000</code>, sixty seconds, with <code>resetTimeoutOnProgress</code> defaulting to <code>false</code><sup class="article-cite"><a href="#src-6" title="MCP TypeScript SDK — protocol.ts (DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000, resetTimeoutOnProgress, maxTotalTimeout)">6</a></sup>. A four-minute render that blocks inside one <code>tools/call</code> sails past that wall, and the client cancels the request while the job is still running.</p>
+<p>The specification is deliberate here. Implementations &quot;SHOULD establish timeouts for all sent requests,&quot; SHOULD issue &quot;a cancellation notification&quot; when one lapses, MAY reset the clock on a progress notification, but &quot;SHOULD always enforce a maximum timeout, regardless of progress notifications&quot;<sup class="article-cite"><a href="#src-2" title="Model Context Protocol — Lifecycle (request timeouts: establish, cancel on lapse, reset-on-progress is optional, enforce a maximum)">2</a></sup>. You cannot promise your way past the wall by streaming updates forever. A long render wants a different shape than a long function call, and choosing that shape is the design problem of a media MCP server.</p>
+<h2 id="submit-poll-fetch-the-media-job-as-three-round-trips">Submit, poll, fetch: the media job as three round trips<a class="hanchor" href="#submit-poll-fetch-the-media-job-as-three-round-trips" aria-label="Link to section: Submit, poll, fetch: the media job as three round trips">#</a></h2>
+<p>MCP ships no built-in job or queue primitive. A render server has two ways to survive a minutes-long operation, and only one of them holds up.</p>
+<p>The first is to keep the <code>tools/call</code> open and lean on progress notifications plus <code>resetTimeoutOnProgress</code>. It fights the defaults the whole way: the reset is off unless the client opted in, the spec still wants a hard maximum, and a dropped connection loses the only handle to the work. The second is to make the call return in milliseconds with a job handle, then expose separate tools to poll status and collect the result. The expensive work moves off the request/response path entirely, so no single call is ever in danger of expiring.</p>
+<p>The second shape is the one that scales, and it is three round trips instead of one:</p>
+<ul>
+<li><strong>Submit.</strong> The render tool validates its arguments, starts the job, and returns a <code>jobId</code> and a log path right away. The <code>tools/call</code> is over in the time it takes to spawn the work.</li>
+<li><strong>Poll.</strong> A separate status tool takes the <code>jobId</code> and returns the current stage, per-scene counters, a log tail, and — once the job settles — the result or a structured error. The agent calls it on a loop.</li>
+<li><strong>Fetch.</strong> When status reads succeeded, the result carries the path or link to the finished artifact.</li>
+</ul>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Synchronous render tool</th>
+<th>Job handle (submit / poll / fetch)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>What <code>tools/call</code> returns</td>
+<td>the finished MP4, eventually</td>
+<td>a <code>jobId</code>, in milliseconds</td>
+</tr>
+<tr>
+<td>A four-minute render</td>
+<td>past the 60s default; cancelled</td>
+<td>never blocks a call; safe</td>
+</tr>
+<tr>
+<td>Progress visibility</td>
+<td>only if the client honors notifications</td>
+<td>any status poll shows it</td>
+</tr>
+<tr>
+<td>Cancel</td>
+<td>drop the connection and hope</td>
+<td>a cancel tool, keyed to <code>jobId</code></td>
+</tr>
+<tr>
+<td>Agent can do other work</td>
+<td>no, it is blocked in the call</td>
+<td>yes, between polls</td>
+</tr>
+</tbody></table></div>
+<p>This is the model the engine we build, aidemo, uses for its MCP server: every pipeline operation — probe, record, render, voice, captions, compose — returns a <code>jobId</code> immediately, and the agent polls a <code>job_status</code> tool for progress, per-scene counters, results, and failure artifacts. One long job runs at a time, a reject-when-busy slot rather than a queue, because a browser take already needs an exclusive Chrome profile and serializing the rest keeps same-demo stages from colliding. That is a worked example, disclosed as ours, and it comes with real limits: it records a browser and nothing native, its storyboards are <a href="/blog/coding-agents-that-make-demo-videos/">agent-authored text</a>, and it offers no drag-and-drop editor.</p>
+<h2 id="what-a-render-server-should-put-on-the-wire">What a render server should put on the wire<a class="hanchor" href="#what-a-render-server-should-put-on-the-wire" aria-label="Link to section: What a render server should put on the wire">#</a></h2>
+<p>The sync-versus-async decision is only the spine. The rest of the surface is a set of tools sorted by cost and by whether they change anything, and the sort maps cleanly onto MCP primitives. The verbs a media surface needs are validate, probe, render, and fetch — and they do not all deserve the same treatment.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>MCP primitive</th>
+<th>Cost</th>
+<th>Changes state</th>
+<th>Example tool</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Read the contract</td>
+<td>resource + tool, <code>readOnlyHint</code></td>
+<td>cheap</td>
+<td>no</td>
+<td>authoring guide, storyboard schema</td>
+</tr>
+<tr>
+<td>Validate the spec</td>
+<td>tool, <code>readOnlyHint</code></td>
+<td>cheap</td>
+<td>no</td>
+<td><code>validate_storyboard</code></td>
+</tr>
+<tr>
+<td>Dry-run the flow</td>
+<td>job</td>
+<td>expensive</td>
+<td>records only</td>
+<td><code>probe</code> with a golden compare</td>
+</tr>
+<tr>
+<td>Render</td>
+<td>job</td>
+<td>expensive</td>
+<td>writes the video</td>
+<td><code>render</code></td>
+</tr>
+<tr>
+<td>Poll and control</td>
+<td>tool, <code>readOnlyHint</code></td>
+<td>cheap</td>
+<td>no / cancels</td>
+<td><code>job_status</code>, <code>job_cancel</code></td>
+</tr>
+</tbody></table></div>
+<p>Two moves in that table earn their keep. Publishing the schema and the authoring guide as a resource — MCP resources are &quot;application-driven&quot; data that &quot;provides context to language models&quot;<sup class="article-cite"><a href="#src-5" title="Model Context Protocol — Resources (application-driven context; https vs file vs custom URI schemes)">5</a></sup> — lets the agent read the exact contract before it writes a line of the <a href="/blog/storyboard-design-patterns/">storyboard it will submit</a>, instead of guessing the format. And a cheap validate tool, marked <code>readOnlyHint</code>, is the gate that catches a malformed spec or a mistyped selector for the price of a schema check, before any render burns minutes. Annotations like <code>readOnlyHint</code> are advisory — clients &quot;MUST consider tool annotations to be untrusted unless they come from trusted servers&quot;<sup class="article-cite"><a href="#src-1" title="Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)">1</a></sup> — but they tell an agent which calls are safe to make freely and which spend real time.</p>
+<p>The submit half looks like this on the wire, arguments trimmed:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">json</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">// 1. cheap gate — returns in milliseconds</span></span>
+<span class="line"><span style="color:#383A42">{ </span><span style="color:#E45649">"name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"validate_storyboard"</span><span style="color:#383A42">, </span><span style="color:#E45649">"arguments"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"dir"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"/abs/demo"</span><span style="color:#383A42"> } }</span></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">// 2. start the render — returns a jobId, not a video</span></span>
+<span class="line"><span style="color:#383A42">{ </span><span style="color:#E45649">"name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"render"</span><span style="color:#383A42">, </span><span style="color:#E45649">"arguments"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"dir"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"/abs/demo"</span><span style="color:#383A42"> } }</span></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">// -> { "jobId": "b3f...", "status": "running", "logFile": "/abs/demo/logs/render.log" }</span></span>
+<span class="line"><span style="color:#6f747e;font-style:italic">// 3. poll until it settles, then read result.output</span></span>
+<span class="line"><span style="color:#383A42">{ </span><span style="color:#E45649">"name"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"job_status"</span><span style="color:#383A42">, </span><span style="color:#E45649">"arguments"</span><span style="color:#383A42">: { </span><span style="color:#E45649">"jobId"</span><span style="color:#383A42">: </span><span style="color:#50A14F">"b3f..."</span><span style="color:#383A42"> } }</span></span></code></pre>
+</div>
+<p>The dry-run row is the one people skip and regret. A probe that replays the flow without voice or encode is both faster than a full render and the seed of a regression test: pair it with a committed golden and the same call that checks selectors <a href="/blog/testing-demos-like-code/">fails CI when the UI drifts</a>. It works only because the underlying replay is deterministic in the first place, which is <a href="/blog/deterministic-browser-automation-for-video/">its own engineering problem</a>, not a protocol feature.</p>
+<h2 id="progress-and-cancellation-done-by-the-book">Progress and cancellation, done by the book<a class="hanchor" href="#progress-and-cancellation-done-by-the-book" aria-label="Link to section: Progress and cancellation, done by the book">#</a></h2>
+<p>MCP does have first-class progress. A caller that wants updates puts a <code>progressToken</code> in the request metadata, and the server &quot;MAY then send progress notifications&quot; carrying a <code>progress</code> value, an optional <code>total</code>, and a human-readable <code>message</code><sup class="article-cite"><a href="#src-3" title="Model Context Protocol — Progress (progressToken in request metadata, notifications/progress, receivers may send none)">3</a></sup>. For a per-scene render that maps perfectly: emit one notification per scene composed, with the scene count as the total.</p>
+<p>The catch is that the same spec makes the feature optional on both ends. A receiver &quot;MAY&quot; choose &quot;not to send any progress notifications,&quot; and a client is free to drop the ones it gets; in practice many hosts surface none of them. So a render server should send progress as a courtesy and still treat the status-poll loop as the source of truth, because that loop works no matter what the client does with notifications. Belt, then suspenders.</p>
+<p>Cancellation has a clean primitive too. Either side sends a <code>notifications/cancelled</code> with the <code>requestId</code> and an optional <code>reason</code>, and the receiver &quot;SHOULD&quot; both &quot;stop processing the cancelled request&quot; and &quot;free associated resources&quot;<sup class="article-cite"><a href="#src-4" title="Model Context Protocol — Cancellation (notifications/cancelled with requestId and reason; stop and free resources)">4</a></sup>. For a job-handle server the useful cancel is coarser and more durable than killing one in-flight message: a cancel tool keyed to the <code>jobId</code>, checked between scenes and stages, that can abort a wrong take a minute in without waiting for it to finish. A mid-record cancel that salvages the partial timeline beats one that leaves a half-written file and a locked browser profile behind.</p>
+<h2 id="getting-the-artifact-home">Getting the artifact home<a class="hanchor" href="#getting-the-artifact-home" aria-label="Link to section: Getting the artifact home">#</a></h2>
+<p>The last round trip is the one most write-ups wave at: the render finished, so how does the agent actually get the MP4? The answer depends on where the server runs, and it is worth deciding on purpose.</p>
+<p>A local stdio server shares a filesystem with the agent. The cheapest correct thing is to return absolute paths in the result — the final MP4, the timeline, the captions — and let the agent open them directly. No bytes cross the protocol. A remote server has no shared disk, so it must hand the artifact back over the wire: a tool result &quot;MAY return links to Resources&quot; as a <code>resource_link</code> URI the client fetches, or embed the bytes as a base64 resource in the response itself<sup class="article-cite"><a href="#src-1" title="Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)">1</a></sup>. The spec even splits the URI schemes by who does the fetching — use <code>https://</code> only when &quot;the client is able to fetch and load the resource directly from the web on its own,&quot; and otherwise prefer <code>file://</code> or a custom scheme the server serves itself<sup class="article-cite"><a href="#src-5" title="Model Context Protocol — Resources (application-driven context; https vs file vs custom URI schemes)">5</a></sup>.</p>
+<p>ElevenLabs&#39; official MCP server is a clean second example of a media surface making that choice explicit. Its audio tools ship three output modes: files, which &quot;save files to disk and return file paths&quot; for local work; resources, which return the audio &quot;as base64-encoded data&quot; for &quot;containerized or serverless environments&quot; with no writable disk; and both, which saves the file and also serves it later under an <code>elevenlabs://filename</code> URI<sup class="article-cite"><a href="#src-7" title="ElevenLabs MCP server — output modes: files return paths, resources return base64, both serve an elevenlabs:// URI">7</a></sup>. Same generated bytes, three transport answers, picked by where the server lives. A demo-render server faces the identical fork, with one twist: an MP4 is far heavier than a voice clip, which pushes a remote design toward a link the client fetches rather than base64 inlined into every response.</p>
+<h2 id="when-a-tool-call-is-more-than-you-need">When a tool call is more than you need<a class="hanchor" href="#when-a-tool-call-is-more-than-you-need" aria-label="Link to section: When a tool call is more than you need">#</a></h2>
+<p>An MCP server is the right interface for one situation: an agent, mid-conversation, deciding to make or refresh a demo and needing to drive the pipeline itself. That is a real and growing situation, and it is why treating <a href="/blog/demos-as-code/">the demo as a committed spec</a> pays off — the thing the agent submits is text it can author.</p>
+<p>It is not the only situation, and the surface is easy to over-build. If the demo regenerates on a schedule or on the commit that changed the UI, no model is in the loop at render time and no MCP surface is needed; a plain CLI invoked from <a href="/blog/demo-videos-in-ci/">a scheduled CI job</a> is simpler and more reliable. The protocol earns its keep when an agent is the caller and the render is interactive. When the caller is cron, skip the ceremony. The job model above is worth building the day an agent needs to ask for a video and wait, by the clock, for one to come back — and worth skipping every other day.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools" rel="noopener">Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)</a></li>
+<li id="src-2"><a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle" rel="noopener">Model Context Protocol — Lifecycle (request timeouts: establish, cancel on lapse, reset-on-progress is optional, enforce a maximum)</a></li>
+<li id="src-3"><a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress" rel="noopener">Model Context Protocol — Progress (progressToken in request metadata, notifications/progress, receivers may send none)</a></li>
+<li id="src-4"><a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation" rel="noopener">Model Context Protocol — Cancellation (notifications/cancelled with requestId and reason; stop and free resources)</a></li>
+<li id="src-5"><a href="https://modelcontextprotocol.io/specification/2025-06-18/server/resources" rel="noopener">Model Context Protocol — Resources (application-driven context; https vs file vs custom URI schemes)</a></li>
+<li id="src-6"><a href="https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/core-internal/src/shared/protocol.ts" rel="noopener">MCP TypeScript SDK — protocol.ts (DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000, resetTimeoutOnProgress, maxTotalTimeout)</a></li>
+<li id="src-7"><a href="https://github.com/elevenlabs/elevenlabs-mcp" rel="noopener">ElevenLabs MCP server — output modes: files return paths, resources return base64, both serve an elevenlabs:// URI</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="why-not-just-make-video-rendering-a-normal-synchronous-mcp-tool" class="blog-faq-q">Why not just make video rendering a normal synchronous MCP tool?<a class="hanchor" href="#why-not-just-make-video-rendering-a-normal-synchronous-mcp-tool" aria-label="Link to section: Why not just make video rendering a normal synchronous MCP tool?">#</a></h3>
+<p>Because a render runs for seconds to minutes and a synchronous tool call is on a timeout. The official MCP TypeScript SDK defaults to a 60-second request timeout, and the spec tells clients to cancel a request that overruns and to enforce a maximum even when progress is flowing. A four-minute render inside one <code>tools/call</code> gets cancelled mid-job. Returning a <code>jobId</code> immediately and exposing a status tool to poll moves the long work off the request path, where no timeout can reach it.</p>
+<h3 id="how-does-an-agent-get-the-finished-video-file-back-from-an-mcp-server" class="blog-faq-q">How does an agent get the finished video file back from an MCP server?<a class="hanchor" href="#how-does-an-agent-get-the-finished-video-file-back-from-an-mcp-server" aria-label="Link to section: How does an agent get the finished video file back from an MCP server?">#</a></h3>
+<p>It depends on where the server runs. A local stdio server shares a filesystem with the agent, so the cheapest correct answer is to return absolute file paths in the tool result and let the agent open them. A remote server has no shared disk and must send the artifact over the protocol, either as a <code>resource_link</code> URI the client fetches or as base64-embedded bytes in the response. Because an MP4 is large, remote designs usually favor a link over inlining the bytes into every message.</p>
+<h3 id="do-i-need-to-write-a-custom-mcp-server-to-let-an-agent-render-videos" class="blog-faq-q">Do I need to write a custom MCP server to let an agent render videos?<a class="hanchor" href="#do-i-need-to-write-a-custom-mcp-server-to-let-an-agent-render-videos" aria-label="Link to section: Do I need to write a custom MCP server to let an agent render videos?">#</a></h3>
+<p>Only if an agent is the one driving the render interactively. If your demos regenerate on a schedule or when the UI changes, there is no model in the loop at render time, and a plain render CLI called from CI is simpler and more robust than an MCP surface. Build the server when the workflow is an agent deciding, mid-task, to make a video and needing to submit a spec, watch its progress, and collect the result itself.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">mcp</span>
+        <span class="article-tag">media generation</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">coding agents</span>
+        <span class="article-tag">async jobs</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/deterministic-browser-automation-for-video-400.webp" srcset="/blog/images/deterministic-browser-automation-for-video-400.webp 400w, /blog/images/deterministic-browser-automation-for-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Two stacked filmstrips of one demo flow, the pinned one identical frame for frame, the unpinned one drifting on a spinner, a font swap, and a layout column"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-sixty-second-wall-a-render-tool-hits">The sixty-second wall a render tool hits</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#submit-poll-fetch-the-media-job-as-three-round-trips">Submit, poll, fetch: the media job as three round trips</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-a-render-server-should-put-on-the-wire">What a render server should put on the wire</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#progress-and-cancellation-done-by-the-book">Progress and cancellation, done by the book</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#getting-the-artifact-home">Getting the artifact home</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-a-tool-call-is-more-than-you-need">When a tool call is more than you need</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

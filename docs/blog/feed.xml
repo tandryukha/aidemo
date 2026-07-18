@@ -36,6 +36,13 @@
       <description>AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</description>
     </item>
     <item>
+      <title>API and SDK documentation videos that stay in sync with the API</title>
+      <link>https://aidemo.top/blog/api-documentation-videos/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/api-documentation-videos/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>A stale UI demo looks wrong on sight. A stale API quickstart shows valid JSON while the field it names no longer exists. How to keep one honest.</description>
+    </item>
+    <item>
       <title>App preview videos: hitting App Store and Play specs without a reshoot</title>
       <link>https://aidemo.top/blog/app-preview-video/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/app-preview-video/</guid>
@@ -127,6 +134,13 @@
       <description>A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</description>
     </item>
     <item>
+      <title>Background music for demo videos: licensing and the loudness math</title>
+      <link>https://aidemo.top/blog/demo-video-background-music/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-background-music/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Royalty-free is a billing term, not a free pass: the licenses that clear a paid demo, the clauses that bite, and the 20 dB gap that keeps the voice on top.</description>
+    </item>
+    <item>
       <title>Demo video CTAs: one ask, placed where viewers still are</title>
       <link>https://aidemo.top/blog/demo-video-call-to-action/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-video-call-to-action/</guid>
@@ -202,20 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/demo-videos-in-ci/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>GitHub&apos;s runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</description>
-    </item>
-    <item>
-      <title>Demos as code: commit the storyboard, render the video</title>
-      <link>https://aidemo.top/blog/demos-as-code/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/demos-as-code/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</description>
-    </item>
-    <item>
-      <title>Descript alternatives for editing demo videos</title>
-      <link>https://aidemo.top/blog/descript-alternatives-for-demo-editing/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/descript-alternatives-for-demo-editing/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Descript edits video by editing the transcript. That trick shines on a podcast and fights a screen demo. The alternatives, sorted by what you grab.</description>
     </item>
   </channel>
 </rss>

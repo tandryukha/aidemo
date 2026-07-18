@@ -1,0 +1,80 @@
+# Versioning media assets in git: LFS, committed, or external
+
+July 18, 2026 · Demos as Code · 7 min read · https://aidemo.top/blog/versioning-media-assets-in-git/
+
+> Git can diff a storyboard forever for free and chokes on the MP4 it renders. Where that binary lives — committed, LFS, or nowhere — is a real decision.
+
+**Key takeaways**
+
+- Git can't delta re-encoded video: a 40 MB demo re-rendered weekly adds ~2 GB/year to the packfile that every clone downloads forever, because binaries defeat delta compression.
+- Git LFS keeps only a sub-1 KB pointer in the tree but moves the cost to a metered bill: 10 GiB free storage and bandwidth (Free/Pro), then $0.07/GiB-mo storage and $0.0875/GiB bandwidth.
+- LFS bandwidth is charged per download and CI re-fetches every run: a 40 MB demo pulled 30 times a day burns the 10 GiB free monthly bandwidth in about ten days.
+- Usually cheapest: commit the storyboard, gitignore the render, rebuild it in CI — text-only history, no LFS meter, and any tag's demo is regenerable from the spec.
+- Rule: if the file rebuilds from a committed spec, keep it out of git; commit only small static assets; reserve Git LFS for large binaries you cannot regenerate.
+
+## A rendered demo is a binary, and git was built for text
+
+Treat the demo as code and the source of truth is a storyboard: a few kilobytes of text that a deterministic player turns into footage. But the footage is real. Someone has to embed an MP4 in a README, a landing page, or a docs site, and that binary has to live somewhere a URL can reach it. The question here is narrower than "where do I host my video" and more mechanical: when the demo is [versioned like code](/blog/demos-as-code), does the rendered file belong in version control at all — committed straight into the tree, tracked through Git LFS, or kept out of git entirely and rebuilt from the spec?
+
+The three options are not close on the numbers. Committing the binary is the default nobody costed. Git LFS is the reflexive fix that trades one bill for another. And the option that falls out of treating the render as build output — keep the text, throw away the video — is usually the cheapest and the one people reach for last. The rest of this piece prices all three.
+
+## Why a committed binary is heavier than its file size
+
+The reason "just commit the MP4" quietly hurts is not the size of one file. It is what git does with every version of it. Git stores each changed version of a file as a whole new object, then, when it packs the repository, "looks for files that are named and sized similarly, and stores just the deltas from one version of the file to the next" ([Pro Git, accessed July 2026](https://git-scm.com/book/en/v2/Git-Internals-Packfiles)). Delta compression is why a repo of source code stays small after ten thousand commits: each edit to a text file shares almost all its bytes with the version before it, so git keeps the difference, not the whole thing.
+
+A re-encoded video defeats that mechanism completely. Change one button label in the UI, re-render, and the new MP4 shares almost no bytes with the old one — the encoder reshuffles the entire compressed bitstream, so there is no small delta to store. Git keeps the whole new file. Every re-render is a full copy, and once an object is in history it stays there in every clone forever; deleting the file in a later commit reclaims nothing, because the old object is still needed to check out the old commit.
+
+Put numbers on it. A 60-second 1080p screen-capture demo is roughly 40 MB — UI footage is low-motion and compresses well, the same [storage baseline the per-release piece uses](/blog/versioned-demos-per-release). Commit that and re-render it weekly against the current build for a year, and you have appended 52 near-incompressible copies, about 2 GB, to the packfile. Every `git clone`, every fresh CI checkout, every new teammate pulls all 2 GB, most of it old cuts of a marketing clip nobody will watch again. The storyboard that produced all 52, by contrast, is a few kilobytes of text that deltas so well the whole year of edits costs less than a single frame of the video.
+
+## Git LFS: a pointer in the tree, the payload on a server
+
+Git LFS is the standard answer to that bloat, and it works by not putting the binary in the tree at all. It "replaces large files such as audio samples, videos, datasets, and graphics with text pointers inside Git, while storing the file contents on a remote server" ([Git LFS, accessed July 2026](https://git-lfs.com/)). What git versions is the pointer: a text file under 1024 bytes holding a version line, the SHA-256 of the content, and the byte size ([Git LFS spec, accessed July 2026](https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md)). You opt a file type in with `git lfs track "*.mp4"`, which writes a `.gitattributes` entry; GitLab describes the same split, adding "a pointer to your Git repository, instead of the large file" while the binary goes to object storage ([GitLab, accessed July 2026](https://docs.gitlab.com/topics/git/lfs/)).
+
+That fixes the clone-bloat problem — history now carries kilobyte pointers, not gigabytes of video — but it moves the cost, it does not remove it, and the new cost is a metered bill with two dials. On GitHub, a Free or Pro account includes 10 GiB of LFS storage and 10 GiB of bandwidth per month ([GitHub Docs, accessed July 2026](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage)); Enterprise includes 250 GiB of each ([GitHub Docs, accessed July 2026](https://docs.github.com/en/enterprise-cloud@latest/billing/concepts/product-billing/git-lfs)). Past the free tier GitHub retired the old prepaid data packs for metered billing: storage runs $0.07 per GiB per month and download bandwidth $0.0875 per GiB ([GitHub Changelog, 2024](https://github.blog/changelog/2024-06-03-new-enterprise-accounts-have-metered-billing-for-git-lfs/)).
+
+Storage is the tame dial: a year of 40 MB renders is 2 GB, comfortably inside 10 GiB. Bandwidth is the one that surprises people, because it is charged per download and CI is a download machine. Every pipeline run that checks out the repo pulls the LFS objects it needs, and each pull counts. A 40 MB demo fetched by a CI job that runs 30 times a day burns 1.2 GB a day — the entire free monthly bandwidth allowance in a week and a half, before a single human has cloned the repo. A public repository is worse: every visitor who clones spends your bandwidth, not theirs. LFS solves the wrong half of the problem for a file that is regenerated often and fetched constantly.
+
+## The option that falls out of treating the demo as code
+
+If the storyboard is the source and the video is what the storyboard builds, then the render is not an asset to version at all — it is build output, the same category as `dist/` or a compiled binary. You do not commit those; you `.gitignore` them and rebuild them. The demo gets the same treatment: commit the spec, keep the MP4 out of git entirely, and [rebuild it in CI](/blog/demo-videos-in-ci) whenever the product changes, publishing the finished file wherever the embed points — a release asset, object storage, a Pages path.
+
+This is the option the other two skip past, and on the numbers it usually wins. Version control carries only text, so the clone stays small forever and there is no LFS meter to watch. Any past version's video is not archived, it is regenerable — check out the tag, run the render, get that version's demo back — which is exactly the guarantee [pinning a demo to each release](/blog/versioned-demos-per-release) depends on. Our own engine, aidemo, is built around this shape: the storyboard lives in the repo and the MP4 is a rebuildable artifact. Its limits, stated plainly: capture happens inside a browser and nowhere else, the walkthrough is scripted by an agent rather than trimmed by hand, and no drag-and-drop editor exists.
+
+The catch is the honest one. "Regenerable" is only true if the render actually reproduces from the spec, which means pinning the toolchain the way [reproducible renders](/blog/reproducible-demo-renders) spell out — a floating ffmpeg or an unpinned font turns "rebuild it" into "rebuild something like it." And a live embed still needs a durable URL, so the output has to land somewhere hosted even though it never enters git. Commit-the-spec moves the file out of version control; it does not excuse you from putting the render somewhere a browser can load it.
+
+## Which storage model to pick, and when
+
+| | Commit the binary | Git LFS | Commit the spec, rebuild |
+|---|---|---|---|
+| Clone size over time | grows without bound | stays small (pointers) | stays small (text only) |
+| Cost meter | none, but history bloats | storage + per-download bandwidth | none |
+| Special tooling to check out | no | yes (`git lfs`) | render step in CI |
+| Old versions recoverable | yes, from history | yes, unless purged | yes, by re-rendering the tag |
+| Works with no CI / air-gapped | yes | yes | no — needs a render step |
+| Best when | tiny asset (<1 MB) that rarely changes | large asset you cannot regenerate | a demo that re-renders on every ship |
+
+The decision reduces to two questions. Can you rebuild the file from something you already commit? If yes — and a demo-as-code render always can — keep the binary out of git and rebuild it: you get a small repo, no meter, and per-version demos for free. If no — a hand-shot launch film, a logo, a design asset with no build step — then it is genuine source, and the choice narrows to committing it (fine when it is small and static) versus Git LFS (right when it is large and rarely fetched, so the bandwidth meter stays quiet). Committing a big binary that changes every week, the thing most teams do by reflex, is the one answer that is almost never correct.
+
+## Sources
+
+- [Pro Git — Git Internals: Packfiles (delta compression stores just the differences between similar objects)](https://git-scm.com/book/en/v2/Git-Internals-Packfiles)
+- [Git LFS — replaces large files with text pointers, contents on a remote server](https://git-lfs.com/)
+- [Git LFS — pointer file spec (version/oid/size, under 1024 bytes)](https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md)
+- [GitHub Docs — Git LFS billing (10 GiB free storage and bandwidth for Free/Pro; metered, hourly storage)](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage)
+- [GitHub Docs — Git LFS billing for Enterprise (250 GiB free storage and bandwidth)](https://docs.github.com/en/enterprise-cloud@latest/billing/concepts/product-billing/git-lfs)
+- [GitHub Changelog — metered Git LFS rates ($0.07/GiB-month storage, $0.0875/GiB bandwidth)](https://github.blog/changelog/2024-06-03-new-enterprise-accounts-have-metered-billing-for-git-lfs/)
+- [GitLab Docs — Git LFS adds a pointer to the repo and stores the binary in object storage, tracked via .gitattributes](https://docs.gitlab.com/topics/git/lfs/)
+
+## FAQ
+
+### Is it bad to commit large binary files to a git repository?
+
+For anything you re-render, yes. Git stores each version of a file as a whole object and only saves space when it can delta similar objects together, and a re-encoded video shares almost no bytes with the previous render, so every version is kept in full and stays in history in every clone forever. A 40 MB demo rebuilt weekly adds roughly 2 GB a year that nobody can garbage-collect without rewriting history. The exception is small, static assets that rarely change — a logo or a favicon is fine committed directly.
+
+### How much does Git LFS cost on GitHub?
+
+GitHub Free and Pro accounts include 10 GiB of LFS storage and 10 GiB of download bandwidth per month; Enterprise includes 250 GiB of each. Beyond the free tier GitHub bills metered — the old prepaid data packs are gone — at $0.07 per GiB per month for storage and $0.0875 per GiB for bandwidth. Storage is usually cheap; bandwidth is the dial that surprises people, because it is charged on every download and CI pipelines re-fetch LFS objects on each run.
+
+### Does removing a file from Git LFS free up space or quota?
+
+Not on its own. Deleting the file in a new commit leaves every prior version in history, and LFS storage counts the objects your history still references, so the meter keeps running until you actually rewrite history to purge them. That is the same trap as committing the binary directly: git is built to never lose an old version, which is a virtue for source and a liability for regenerated media. The clean escape is to not track the render in git at all — commit the spec and rebuild the file.

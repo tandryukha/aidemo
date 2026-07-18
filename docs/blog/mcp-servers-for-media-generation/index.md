@@ -1,0 +1,117 @@
+# MCP servers for media generation: the agent-to-render interface
+
+July 18, 2026 · Demos as Code · 8 min read · https://aidemo.top/blog/mcp-servers-for-media-generation/
+
+> A media render runs for minutes; an MCP tool call times out in sixty seconds. How to design the agent-to-render interface so the video survives the gap.
+
+**Key takeaways**
+
+- A media render runs seconds to minutes, past the MCP TypeScript SDK's 60-second default request timeout, so a synchronous render tool call gets cancelled mid-job. Return a job handle and poll instead.
+- The job model is three round trips: submit returns a jobId in milliseconds, poll status shows stage and scene progress, then fetch the artifact. One job at a time avoids a queue and lock races.
+- Split a good media surface into cheap read tools (guide, schema, validate — mark them readOnlyHint), expensive async jobs (probe, render), and control tools (job_status, job_cancel).
+- MCP progress notifications (progressToken plus notifications/progress) are optional on both ends and many clients drop them, so make the status-poll loop the source of truth.
+- Artifact return splits on transport: a local stdio server returns filesystem paths; a remote one hands back a resource_link URI or base64 resource. ElevenLabs' MCP ships all three modes.
+
+## The sixty-second wall a render tool hits
+
+An agent that wants a demo video calls a tool and waits for the answer. That is the whole ergonomics of the Model Context Protocol from the model's side: tools are "model-controlled," discovered and invoked "automatically based on its contextual understanding and the user's prompts" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)). The client sends a `tools/call`, the server runs it, a result comes back. For a weather lookup that round trip is a few hundred milliseconds and nobody budgets for it.
+
+A media render is not a weather lookup. Producing a narrated, captioned demo means driving a browser through a flow, synthesizing speech, transcribing it back for caption timing, and running ffmpeg to trim and mux — seconds to minutes of real work. The default request timeout in the official MCP TypeScript SDK is `DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000`, sixty seconds, with `resetTimeoutOnProgress` defaulting to `false` ([MCP TypeScript SDK, accessed July 2026](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/core-internal/src/shared/protocol.ts)). A four-minute render that blocks inside one `tools/call` sails past that wall, and the client cancels the request while the job is still running.
+
+The specification is deliberate here. Implementations "SHOULD establish timeouts for all sent requests," SHOULD issue "a cancellation notification" when one lapses, MAY reset the clock on a progress notification, but "SHOULD always enforce a maximum timeout, regardless of progress notifications" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle)). You cannot promise your way past the wall by streaming updates forever. A long render wants a different shape than a long function call, and choosing that shape is the design problem of a media MCP server.
+
+## Submit, poll, fetch: the media job as three round trips
+
+MCP ships no built-in job or queue primitive. A render server has two ways to survive a minutes-long operation, and only one of them holds up.
+
+The first is to keep the `tools/call` open and lean on progress notifications plus `resetTimeoutOnProgress`. It fights the defaults the whole way: the reset is off unless the client opted in, the spec still wants a hard maximum, and a dropped connection loses the only handle to the work. The second is to make the call return in milliseconds with a job handle, then expose separate tools to poll status and collect the result. The expensive work moves off the request/response path entirely, so no single call is ever in danger of expiring.
+
+The second shape is the one that scales, and it is three round trips instead of one:
+
+- **Submit.** The render tool validates its arguments, starts the job, and returns a `jobId` and a log path right away. The `tools/call` is over in the time it takes to spawn the work.
+- **Poll.** A separate status tool takes the `jobId` and returns the current stage, per-scene counters, a log tail, and — once the job settles — the result or a structured error. The agent calls it on a loop.
+- **Fetch.** When status reads succeeded, the result carries the path or link to the finished artifact.
+
+| Dimension | Synchronous render tool | Job handle (submit / poll / fetch) |
+|---|---|---|
+| What `tools/call` returns | the finished MP4, eventually | a `jobId`, in milliseconds |
+| A four-minute render | past the 60s default; cancelled | never blocks a call; safe |
+| Progress visibility | only if the client honors notifications | any status poll shows it |
+| Cancel | drop the connection and hope | a cancel tool, keyed to `jobId` |
+| Agent can do other work | no, it is blocked in the call | yes, between polls |
+
+This is the model the engine we build, aidemo, uses for its MCP server: every pipeline operation — probe, record, render, voice, captions, compose — returns a `jobId` immediately, and the agent polls a `job_status` tool for progress, per-scene counters, results, and failure artifacts. One long job runs at a time, a reject-when-busy slot rather than a queue, because a browser take already needs an exclusive Chrome profile and serializing the rest keeps same-demo stages from colliding. That is a worked example, disclosed as ours, and it comes with real limits: it records a browser and nothing native, its storyboards are [agent-authored text](/blog/coding-agents-that-make-demo-videos), and it offers no drag-and-drop editor.
+
+## What a render server should put on the wire
+
+The sync-versus-async decision is only the spine. The rest of the surface is a set of tools sorted by cost and by whether they change anything, and the sort maps cleanly onto MCP primitives. The verbs a media surface needs are validate, probe, render, and fetch — and they do not all deserve the same treatment.
+
+| Surface | MCP primitive | Cost | Changes state | Example tool |
+|---|---|---|---|---|
+| Read the contract | resource + tool, `readOnlyHint` | cheap | no | authoring guide, storyboard schema |
+| Validate the spec | tool, `readOnlyHint` | cheap | no | `validate_storyboard` |
+| Dry-run the flow | job | expensive | records only | `probe` with a golden compare |
+| Render | job | expensive | writes the video | `render` |
+| Poll and control | tool, `readOnlyHint` | cheap | no / cancels | `job_status`, `job_cancel` |
+
+Two moves in that table earn their keep. Publishing the schema and the authoring guide as a resource — MCP resources are "application-driven" data that "provides context to language models" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)) — lets the agent read the exact contract before it writes a line of the [storyboard it will submit](/blog/storyboard-design-patterns), instead of guessing the format. And a cheap validate tool, marked `readOnlyHint`, is the gate that catches a malformed spec or a mistyped selector for the price of a schema check, before any render burns minutes. Annotations like `readOnlyHint` are advisory — clients "MUST consider tool annotations to be untrusted unless they come from trusted servers" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)) — but they tell an agent which calls are safe to make freely and which spend real time.
+
+The submit half looks like this on the wire, arguments trimmed:
+
+```json
+// 1. cheap gate — returns in milliseconds
+{ "name": "validate_storyboard", "arguments": { "dir": "/abs/demo" } }
+// 2. start the render — returns a jobId, not a video
+{ "name": "render", "arguments": { "dir": "/abs/demo" } }
+// -> { "jobId": "b3f...", "status": "running", "logFile": "/abs/demo/logs/render.log" }
+// 3. poll until it settles, then read result.output
+{ "name": "job_status", "arguments": { "jobId": "b3f..." } }
+```
+
+The dry-run row is the one people skip and regret. A probe that replays the flow without voice or encode is both faster than a full render and the seed of a regression test: pair it with a committed golden and the same call that checks selectors [fails CI when the UI drifts](/blog/testing-demos-like-code). It works only because the underlying replay is deterministic in the first place, which is [its own engineering problem](/blog/deterministic-browser-automation-for-video), not a protocol feature.
+
+## Progress and cancellation, done by the book
+
+MCP does have first-class progress. A caller that wants updates puts a `progressToken` in the request metadata, and the server "MAY then send progress notifications" carrying a `progress` value, an optional `total`, and a human-readable `message` ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)). For a per-scene render that maps perfectly: emit one notification per scene composed, with the scene count as the total.
+
+The catch is that the same spec makes the feature optional on both ends. A receiver "MAY" choose "not to send any progress notifications," and a client is free to drop the ones it gets; in practice many hosts surface none of them. So a render server should send progress as a courtesy and still treat the status-poll loop as the source of truth, because that loop works no matter what the client does with notifications. Belt, then suspenders.
+
+Cancellation has a clean primitive too. Either side sends a `notifications/cancelled` with the `requestId` and an optional `reason`, and the receiver "SHOULD" both "stop processing the cancelled request" and "free associated resources" ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation)). For a job-handle server the useful cancel is coarser and more durable than killing one in-flight message: a cancel tool keyed to the `jobId`, checked between scenes and stages, that can abort a wrong take a minute in without waiting for it to finish. A mid-record cancel that salvages the partial timeline beats one that leaves a half-written file and a locked browser profile behind.
+
+## Getting the artifact home
+
+The last round trip is the one most write-ups wave at: the render finished, so how does the agent actually get the MP4? The answer depends on where the server runs, and it is worth deciding on purpose.
+
+A local stdio server shares a filesystem with the agent. The cheapest correct thing is to return absolute paths in the result — the final MP4, the timeline, the captions — and let the agent open them directly. No bytes cross the protocol. A remote server has no shared disk, so it must hand the artifact back over the wire: a tool result "MAY return links to Resources" as a `resource_link` URI the client fetches, or embed the bytes as a base64 resource in the response itself ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)). The spec even splits the URI schemes by who does the fetching — use `https://` only when "the client is able to fetch and load the resource directly from the web on its own," and otherwise prefer `file://` or a custom scheme the server serves itself ([MCP, 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)).
+
+ElevenLabs' official MCP server is a clean second example of a media surface making that choice explicit. Its audio tools ship three output modes: files, which "save files to disk and return file paths" for local work; resources, which return the audio "as base64-encoded data" for "containerized or serverless environments" with no writable disk; and both, which saves the file and also serves it later under an `elevenlabs://filename` URI ([ElevenLabs, accessed July 2026](https://github.com/elevenlabs/elevenlabs-mcp)). Same generated bytes, three transport answers, picked by where the server lives. A demo-render server faces the identical fork, with one twist: an MP4 is far heavier than a voice clip, which pushes a remote design toward a link the client fetches rather than base64 inlined into every response.
+
+## When a tool call is more than you need
+
+An MCP server is the right interface for one situation: an agent, mid-conversation, deciding to make or refresh a demo and needing to drive the pipeline itself. That is a real and growing situation, and it is why treating [the demo as a committed spec](/blog/demos-as-code) pays off — the thing the agent submits is text it can author.
+
+It is not the only situation, and the surface is easy to over-build. If the demo regenerates on a schedule or on the commit that changed the UI, no model is in the loop at render time and no MCP surface is needed; a plain CLI invoked from [a scheduled CI job](/blog/demo-videos-in-ci) is simpler and more reliable. The protocol earns its keep when an agent is the caller and the render is interactive. When the caller is cron, skip the ceremony. The job model above is worth building the day an agent needs to ask for a video and wait, by the clock, for one to come back — and worth skipping every other day.
+
+## Sources
+
+- [Model Context Protocol — Tools (model-controlled, readOnlyHint annotation, resource_link and embedded-resource results, outputSchema)](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+- [Model Context Protocol — Lifecycle (request timeouts: establish, cancel on lapse, reset-on-progress is optional, enforce a maximum)](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle)
+- [Model Context Protocol — Progress (progressToken in request metadata, notifications/progress, receivers may send none)](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)
+- [Model Context Protocol — Cancellation (notifications/cancelled with requestId and reason; stop and free resources)](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation)
+- [Model Context Protocol — Resources (application-driven context; https vs file vs custom URI schemes)](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)
+- [MCP TypeScript SDK — protocol.ts (DEFAULT_REQUEST_TIMEOUT_MSEC = 60_000, resetTimeoutOnProgress, maxTotalTimeout)](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/core-internal/src/shared/protocol.ts)
+- [ElevenLabs MCP server — output modes: files return paths, resources return base64, both serve an elevenlabs:// URI](https://github.com/elevenlabs/elevenlabs-mcp)
+
+## FAQ
+
+### Why not just make video rendering a normal synchronous MCP tool?
+
+Because a render runs for seconds to minutes and a synchronous tool call is on a timeout. The official MCP TypeScript SDK defaults to a 60-second request timeout, and the spec tells clients to cancel a request that overruns and to enforce a maximum even when progress is flowing. A four-minute render inside one `tools/call` gets cancelled mid-job. Returning a `jobId` immediately and exposing a status tool to poll moves the long work off the request path, where no timeout can reach it.
+
+### How does an agent get the finished video file back from an MCP server?
+
+It depends on where the server runs. A local stdio server shares a filesystem with the agent, so the cheapest correct answer is to return absolute file paths in the tool result and let the agent open them. A remote server has no shared disk and must send the artifact over the protocol, either as a `resource_link` URI the client fetches or as base64-embedded bytes in the response. Because an MP4 is large, remote designs usually favor a link over inlining the bytes into every message.
+
+### Do I need to write a custom MCP server to let an agent render videos?
+
+Only if an agent is the one driving the render interactively. If your demos regenerate on a schedule or when the UI changes, there is no model in the loop at render time, and a plain render CLI called from CI is simpler and more robust than an MCP surface. Build the server when the workflow is an agent deciding, mid-task, to make a video and needing to submit a spec, watch its progress, and collect the result itself.
