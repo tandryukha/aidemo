@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Video Thumbnail: Poster vs Cover | aidemo</title>
+<meta name="description" content="Three images get called the demo video thumbnail: the in-player poster, the YouTube cover, and the og:image. The spec for each, and how to pick the frame.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/demo-video-thumbnail/">
+<link rel="alternate" type="text/markdown" href="/blog/demo-video-thumbnail/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Demo Video Thumbnail: Poster vs Cover | aidemo">
+<meta property="og:description" content="Three images get called the demo video thumbnail: the in-player poster, the YouTube cover, and the og:image. The spec for each, and how to pick the frame.">
+<meta property="og:url" content="https://aidemo.top/blog/demo-video-thumbnail/">
+<meta property="og:image" content="https://aidemo.top/blog/images/demo-video-thumbnail-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Demo Video Thumbnail: Poster vs Cover | aidemo">
+<meta name="twitter:description" content="Three images get called the demo video thumbnail: the in-player poster, the YouTube cover, and the og:image. The spec for each, and how to pick the frame.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/demo-video-thumbnail-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The demo video thumbnail: poster frame vs marketing cover",
+  "description": "Three images get called the demo video thumbnail: the in-player poster, the YouTube cover, and the og:image. The spec for each, and how to pick the frame.",
+  "image": [
+    "https://aidemo.top/blog/images/demo-video-thumbnail-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/demo-video-thumbnail/"
+  },
+  "wordCount": 1880,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — The Video Embed element (\u003cvideo>), poster attribute",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "SiteLint — Fixing HTML video autoplay, blank poster, and the first frame on Safari and iOS",
+      "url": "https://www.sitelint.com/blog/fixing-html-video-autoplay-blank-poster-first-frame-and-improving-performance-in-safari-and-ios-devices"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube Help — Thumbnail & title tips",
+      "url": "https://support.google.com/youtube/answer/12340300?hl=en"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube Help — Add custom thumbnails",
+      "url": "https://support.google.com/youtube/answer/72431?hl=en"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "The Open Graph protocol (og:image)",
+      "url": "https://ogp.me/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Product Demo Videos",
+      "item": "https://aidemo.top/blog/topics/demo-videos/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The demo video thumbnail: poster frame vs marketing cover",
+      "item": "https://aidemo.top/blog/demo-video-thumbnail/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between a video poster and a thumbnail?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The poster is the still shown inside the \u003cvideo> element before playback, set with the poster attribute in your own markup; MDN notes that without it the browser falls back to the video's first frame (MDN, 2026). A thumbnail, in the everyday sense, is the cover tile a platform like YouTube shows in a grid to earn the click, uploaded separately and judged by click-through rate. They can share the same image, but they live in different places and answer to different specs, so treating them as one is how one of them ends up as whatever defaulted."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What frame should I use as a demo video thumbnail?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A frame that shows the product populated and mid-action, never a spinner, a login screen, an empty state, or literal frame zero, which is usually a fade-in. Pick a moment roughly a third of the way in, where real data is on screen and the interface is visibly doing the thing the demo is about. On any surface where playback waits for a click, that frame is the whole pitch, so choose it deliberately rather than accepting the exporter's or the platform's automatic pick."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What size should a YouTube demo thumbnail be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "YouTube's current guidance recommends a 3840x2160 image at a 16:9 aspect ratio, with a minimum width of 640 pixels, uploaded as JPG, GIF, or PNG and kept under 2 MB from mobile (50 MB on desktop) (YouTube, 2026). That is a step up from the 1280x720 many older guides still cite. For the in-player poster and the Open Graph share image, size for the web instead: around 1600 px wide and near 100 KB, so the poster does not become the slowest element the page is timed against."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-videos/">Product Demo Videos</a><span class="sep">/</span><span>The demo video thumbnail: poster frame vs marketing cover</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-videos/">Product Demo Videos</a>
+        <h1 class="article-title">The demo video thumbnail: poster frame vs marketing cover</h1>
+        <p class="article-dek">The poster that fills the box, the cover that earns the click, and the share card a crawler reads are three different pictures. Which frame to pick for each.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-different-pictures-all-called-the-thumbnail">Three different pictures all called the thumbnail</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-poster-attribute-and-what-it-does-when-you-skip-it">The poster attribute, and what it does when you skip it</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-marketing-cover-that-actually-earns-the-click">The marketing cover that actually earns the click</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-frame-that-shows-the-product-actually-working">The frame that shows the product actually working</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#producing-the-still-on-purpose-not-by-accident">Producing the still on purpose, not by accident</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/demo-video-thumbnail-800.webp" srcset="/blog/images/demo-video-thumbnail-400.webp 400w, /blog/images/demo-video-thumbnail-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A wrapped gift box tied with a single ribbon bow"><figcaption>Nobody opens a box that looks empty, and nobody plays a demo whose one visible frame is a login screen.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Three images get called the thumbnail: the in-player poster, the platform cover (YouTube CTR), and the og:image share card. Different specs, different jobs, rarely the same file.</li>
+    <li>Omit the poster attribute and the browser shows frame zero; iOS Safari shows a blank box unless the video autoplays or the source URL ends in #t=0.001 (SiteLint).</li>
+    <li>YouTube recommends a 3840x2160 16:9 thumbnail, min width 640, under 2 MB on mobile; 90% of best-performing videos use a custom cover, judged by CTR in the first 24 hours.</li>
+    <li>Never poster a spinner, login screen, empty state, or frame zero; pick a frame about a third in with real data on screen and the UI mid-action.</li>
+    <li>The chosen frame goes stale when the UI ships; extract it from the same spec that renders the video so poster, cover, and og:image regenerate.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="three-different-pictures-all-called-the-thumbnail">Three different pictures all called the thumbnail<a class="hanchor" href="#three-different-pictures-all-called-the-thumbnail" aria-label="Link to section: Three different pictures all called the thumbnail">#</a></h2>
+<p>&quot;Thumbnail&quot; is doing three jobs under one word, and conflating them is why a demo&#39;s cover so often lands wrong. There are three distinct images here. Each one lives in a different place, obeys a different spec, and is judged by a different number, so treating them as a single picture guarantees that at least two of them end up as whatever the software defaulted to.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>What the picture is</th>
+<th>Where you set it</th>
+<th>The spec that governs it</th>
+<th>The one job it has</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>In-player poster</td>
+<td>The still inside the <code>&lt;video&gt;</code> box before play</td>
+<td>The <code>poster</code> attribute in your markup</td>
+<td>MDN <code>&lt;video&gt;</code> poster behavior, plus the iOS fix</td>
+<td>Fill the frame before playback without slowing the page</td>
+</tr>
+<tr>
+<td>Platform thumbnail</td>
+<td>The cover tile in a YouTube or gallery grid</td>
+<td>Uploaded in the platform&#39;s studio</td>
+<td>YouTube: 3840x2160, 16:9, under 2 MB on mobile</td>
+<td>Win the click against a wall of rival tiles</td>
+</tr>
+<tr>
+<td>Social share card</td>
+<td>The image on a link unfurl</td>
+<td>The <code>og:image</code> tag in the page <code>&lt;head&gt;</code></td>
+<td>The Open Graph protocol</td>
+<td>Survive a paste into Slack, LinkedIn, or iMessage</td>
+</tr>
+</tbody></table></div>
+<p>The poster is a rendering detail, the platform thumbnail is a marketing asset, and the share card is metadata a crawler reads. They are not interchangeable and they are rarely the same file. A team that designs a sharp YouTube cover but leaves the embedded <code>&lt;video&gt;</code> posterless, or never sets the page&#39;s <code>og:image</code>, has solved one problem out of three and will watch the other two fail quietly, in surfaces it does not habitually look at. The rest of this takes each in turn, then answers the question that decides all three at once: which frame.</p>
+<h2 id="the-poster-attribute-and-what-it-does-when-you-skip-it">The poster attribute, and what it does when you skip it<a class="hanchor" href="#the-poster-attribute-and-what-it-does-when-you-skip-it" aria-label="Link to section: The poster attribute, and what it does when you skip it">#</a></h2>
+<p>Start with the one most teams leave to chance. The <code>poster</code> attribute is, in MDN&#39;s words, &quot;a URL for an image to be shown while the video is downloading,&quot; and the sentence right after it is the one that bites: &quot;if this attribute isn&#39;t specified, nothing is displayed until the first frame is available, then the first frame is shown as the poster frame&quot;<sup class="article-cite"><a href="#src-1" title="MDN — The Video Embed element (&lt;video&gt;), poster attribute">1</a></sup>. So a <code>&lt;video&gt;</code> with no poster shows its own frame zero, which on almost every export is the worst still in the file: a fade up from black, an empty chrome, a login screen, the app mid-mount. Setting <code>poster</code> is not decoration, it is refusing to let frame zero speak for the video.</p>
+<p>iOS turns that default from bad to broken. Safari on iPhone does not display the first frame of an HTML video by default, and when the clip is not autoplaying &quot;the first frame of the video is never fetched,&quot; so a posterless <code>&lt;video&gt;</code> renders as a blank rectangle<sup class="article-cite"><a href="#src-2" title="SiteLint — Fixing HTML video autoplay, blank poster, and the first frame on Safari and iOS">2</a></sup>. Two fixes exist: set a real poster image, or append <code>#t=0.001</code> to the source URL so Safari seeks one millisecond in and paints that frame. The media-fragment trick is <a href="/blog/autoplay-video-on-website/">worked out in full for the cross-browser autoplay recipe</a>, and the caveat to carry from it is the one SiteLint names, that <code>#t=0.001</code> &quot;forces the browser to download the first few seconds of the video to extract that frame,&quot; which a static poster does not. Prefer a real poster; keep the fragment for when you cannot ship one.</p>
+<p>The poster also settles a bill you might not know you owe. For a <code>&lt;video&gt;</code> element the browser times Largest Contentful Paint by the poster&#39;s load or the first frame, whichever comes first, so a small, well-compressed poster caps the number the page is graded on. The <a href="/blog/demo-video-on-landing-page/">full landing-page arithmetic</a> shows a roughly 100 KB poster arriving in about half a second where the clip itself takes tens. Pick that poster once and it does triple duty: the <code>poster</code> attribute, the LCP governor, and the <code>thumbnailUrl</code> in your <a href="/blog/video-seo-for-product-pages/">VideoObject markup</a>.</p>
+<h2 id="the-marketing-cover-that-actually-earns-the-click">The marketing cover that actually earns the click<a class="hanchor" href="#the-marketing-cover-that-actually-earns-the-click" aria-label="Link to section: The marketing cover that actually earns the click">#</a></h2>
+<p>The platform thumbnail is a different animal, because it competes. On YouTube, in search, in a suggested-videos rail, your cover sits in a grid of rivals and the only question is whether a thumb stops on yours. YouTube states the stakes plainly: &quot;90% of the best-performing videos have custom thumbnails,&quot; and it tells you to measure the guess by &quot;click-through rate (CTR) on Home and Suggested in the first 24 hours after publication&quot;<sup class="article-cite"><a href="#src-3" title="YouTube Help — Thumbnail &amp; title tips">3</a></sup>. The custom cover is not optional polish; it is the one lever the platform says the top of the distribution pulls.</p>
+<p>The specs are stricter than the cargo-culted &quot;1280x720&quot; most guides still quote. YouTube&#39;s current guidance recommends a 3840x2160 image at a 16:9 aspect ratio, minimum width 640 pixels, in JPG, GIF, or PNG, kept under 2 MB when uploaded from mobile (50 MB on desktop)<sup class="article-cite"><a href="#src-4" title="YouTube Help — Add custom thumbnails">4</a></sup>. Build the cover at 4K and it stays crisp on a living-room TV; build it at the old 1280 floor and it is already at its ceiling.</p>
+<p>What goes on the cover is where a demo diverges from the advice written for vloggers. The generic playbook says put a shocked human face on it; a product demo&#39;s subject is the interface, not a reaction shot. Apply the rule of thirds YouTube suggests, then spend the frame on the product mid-outcome and overlay three to five words naming what the viewer gets, in a font legible at the size a suggested rail shrinks it to. The face-and-hype cover wins entertainment CTR; a demo wins it by making the payoff readable before anyone clicks.</p>
+<h2 id="the-frame-that-shows-the-product-actually-working">The frame that shows the product actually working<a class="hanchor" href="#the-frame-that-shows-the-product-actually-working" aria-label="Link to section: The frame that shows the product actually working">#</a></h2>
+<p>All three surfaces reduce to one decision: which single frame of the run stands in for it. The failure mode is passive, letting the exporter, the platform&#39;s auto-pick, or frame zero decide, and the fix is a short veto list. Every row below is a frame the software will happily choose for you, next to the reason not to let it.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>The frame you can land on</th>
+<th>Why it costs the view</th>
+<th>Choose instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A loading spinner or skeleton</td>
+<td>Reads as slow or broken before a click</td>
+<td>The state after the data has painted</td>
+</tr>
+<tr>
+<td>A login or auth screen</td>
+<td>Signals work-before-value, and shows no product</td>
+<td>The signed-in, populated view</td>
+</tr>
+<tr>
+<td>An empty state with zero data</td>
+<td>Looks like a tool where nothing happens</td>
+<td>A screen carrying real, plausible content</td>
+</tr>
+<tr>
+<td>A modal mid-transition or a blur frame</td>
+<td>Reads as a glitch, not a feature</td>
+<td>A settled, sharp frame on the key screen</td>
+</tr>
+<tr>
+<td>A bare cursor over whitespace</td>
+<td>Has no subject for the eye to land on</td>
+<td>The cursor on the element that matters</td>
+</tr>
+<tr>
+<td>Literal frame zero at 0:00</td>
+<td>Usually a fade-in or chrome, never the point</td>
+<td>A frame roughly a third in, mid-action</td>
+</tr>
+</tbody></table></div>
+<p>The through-line is the same one that governs <a href="/blog/demo-video-hook/">the first frame of a click-to-play hook</a>: a viewer reads the still as a promise about the video, so the still has to show the product doing the thing, populated and in motion, not booting up. If you can get only one frame right, get the one a human sees before pressing play, because on a gated surface that frame is the entire argument.</p>
+<h2 id="producing-the-still-on-purpose-not-by-accident">Producing the still on purpose, not by accident<a class="hanchor" href="#producing-the-still-on-purpose-not-by-accident" aria-label="Link to section: Producing the still on purpose, not by accident">#</a></h2>
+<p>Once you know which frame, pulling it is one command. To grab a chosen moment from a finished cut, <code>ffmpeg</code> seeks to the timecode and writes a single frame:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -ss</span><span style="color:#50A14F"> 00:00:07</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> demo.mp4</span><span style="color:#986801"> -frames:v</span><span style="color:#986801"> 1</span><span style="color:#986801"> -q:v</span><span style="color:#986801"> 2</span><span style="color:#50A14F"> poster.jpg</span></span></code></pre>
+</div>
+<p>Encode it small (WebP or JPEG, around 1600 px wide, near 100 KB) so it doubles as the LCP-safe poster, then reuse the same file as the base for the YouTube cover and the <code>og:image</code>. That is the manual path, and it has one flaw: the moment the product&#39;s UI ships a change, the frame you carefully chose now shows a screen that no longer exists, and nothing tells you.</p>
+<p>The durable version renders the still from the same spec that renders the video. aidemo, the open-source engine this blog belongs to, lets a storyboard mark named frames and exports them as stills on every build, so the poster, the cover base, and the share image regenerate whenever the demo does and never drift from the current UI. Its honest limits are worth stating: capture happens inside a browser only, a coding agent writes the storyboard instead of a person nudging clips on a visual timeline, and there is no GUI editor for hand-picking a frame by eye, you name the moment in text and let the engine cut it. Whichever tool pulls the frame, the rule holds and it belongs to the same <a href="/blog/how-to-make-a-product-demo-video/">script-first demo playbook</a>: the thumbnail is a decision the software will make for you if you decline to make it, and it will make it badly.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video" rel="noopener">MDN — The Video Embed element (&lt;video&gt;), poster attribute</a></li>
+<li id="src-2"><a href="https://www.sitelint.com/blog/fixing-html-video-autoplay-blank-poster-first-frame-and-improving-performance-in-safari-and-ios-devices" rel="noopener">SiteLint — Fixing HTML video autoplay, blank poster, and the first frame on Safari and iOS</a></li>
+<li id="src-3"><a href="https://support.google.com/youtube/answer/12340300?hl=en" rel="noopener">YouTube Help — Thumbnail &amp; title tips</a></li>
+<li id="src-4"><a href="https://support.google.com/youtube/answer/72431?hl=en" rel="noopener">YouTube Help — Add custom thumbnails</a></li>
+<li id="src-5"><a href="https://ogp.me/" rel="noopener">The Open Graph protocol (og:image)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-is-the-difference-between-a-video-poster-and-a-thumbnail" class="blog-faq-q">What is the difference between a video poster and a thumbnail?<a class="hanchor" href="#what-is-the-difference-between-a-video-poster-and-a-thumbnail" aria-label="Link to section: What is the difference between a video poster and a thumbnail?">#</a></h3>
+<p>The poster is the still shown inside the <code>&lt;video&gt;</code> element before playback, set with the <code>poster</code> attribute in your own markup; MDN notes that without it the browser falls back to the video&#39;s first frame<sup class="article-cite"><a href="#src-1" title="MDN — The Video Embed element (&lt;video&gt;), poster attribute">1</a></sup>. A thumbnail, in the everyday sense, is the cover tile a platform like YouTube shows in a grid to earn the click, uploaded separately and judged by click-through rate. They can share the same image, but they live in different places and answer to different specs, so treating them as one is how one of them ends up as whatever defaulted.</p>
+<h3 id="what-frame-should-i-use-as-a-demo-video-thumbnail" class="blog-faq-q">What frame should I use as a demo video thumbnail?<a class="hanchor" href="#what-frame-should-i-use-as-a-demo-video-thumbnail" aria-label="Link to section: What frame should I use as a demo video thumbnail?">#</a></h3>
+<p>A frame that shows the product populated and mid-action, never a spinner, a login screen, an empty state, or literal frame zero, which is usually a fade-in. Pick a moment roughly a third of the way in, where real data is on screen and the interface is visibly doing the thing the demo is about. On any surface where playback waits for a click, that frame is the whole pitch, so choose it deliberately rather than accepting the exporter&#39;s or the platform&#39;s automatic pick.</p>
+<h3 id="what-size-should-a-youtube-demo-thumbnail-be" class="blog-faq-q">What size should a YouTube demo thumbnail be?<a class="hanchor" href="#what-size-should-a-youtube-demo-thumbnail-be" aria-label="Link to section: What size should a YouTube demo thumbnail be?">#</a></h3>
+<p>YouTube&#39;s current guidance recommends a 3840x2160 image at a 16:9 aspect ratio, with a minimum width of 640 pixels, uploaded as JPG, GIF, or PNG and kept under 2 MB from mobile (50 MB on desktop)<sup class="article-cite"><a href="#src-4" title="YouTube Help — Add custom thumbnails">4</a></sup>. That is a step up from the 1280x720 many older guides still cite. For the in-player <code>poster</code> and the Open Graph share image, size for the web instead: around 1600 px wide and near 100 KB, so the poster does not become the slowest element the page is timed against.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demo video thumbnail</span>
+        <span class="article-tag">video poster</span>
+        <span class="article-tag">youtube thumbnail</span>
+        <span class="article-tag">og image</span>
+        <span class="article-tag">product demo</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-make-a-product-demo-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-make-a-product-demo-video-400.webp" srcset="/blog/images/how-to-make-a-product-demo-video-400.webp 400w, /blog/images/how-to-make-a-product-demo-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A scripted storyboard on the left and the finished, captioned demo frame it produces on the right"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">How to make a product demo video (that people finish)</h3>
+    <p class="article-card-excerpt">The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>11 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/ai-voiceover-for-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-voiceover-for-demo-videos-400.webp" srcset="/blog/images/ai-voiceover-for-demo-videos-400.webp 400w, /blog/images/ai-voiceover-for-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Storyboard scene list where editing one narration line re-renders only that scene's audio clip"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">AI voiceover for demo videos: quality, cost, and workflow</h3>
+    <p class="article-card-excerpt">AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/app-preview-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/app-preview-video-400.webp" srcset="/blog/images/app-preview-video-400.webp 400w, /blog/images/app-preview-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay tailor's dress form standing on a slim wooden tripod stand"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">App preview videos: hitting App Store and Play specs without a reshoot</h3>
+    <p class="article-card-excerpt">Apple wants an uploaded H.264 file at 886 x 1920; Google Play wants a YouTube link. The exact cross-store specs, and how to hit them without a reshoot.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-different-pictures-all-called-the-thumbnail">Three different pictures all called the thumbnail</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-poster-attribute-and-what-it-does-when-you-skip-it">The poster attribute, and what it does when you skip it</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-marketing-cover-that-actually-earns-the-click">The marketing cover that actually earns the click</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-frame-that-shows-the-product-actually-working">The frame that shows the product actually working</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#producing-the-still-on-purpose-not-by-accident">Producing the still on purpose, not by accident</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

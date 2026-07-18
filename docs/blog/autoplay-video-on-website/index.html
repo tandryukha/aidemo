@@ -274,7 +274,7 @@
 <pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#6f747e;font-style:italic">&#x3C;!-- Paint a still first frame on iOS when no separate poster is set --></span></span>
 <span class="line"><span style="color:#383A42">&#x3C;</span><span style="color:#E45649">source</span><span style="color:#986801"> src</span><span style="color:#383A42">=</span><span style="color:#50A14F">"/demo.mp4#t=0.001"</span><span style="color:#986801"> type</span><span style="color:#383A42">=</span><span style="color:#50A14F">"video/mp4"</span><span style="color:#383A42">></span></span></code></pre>
 </div>
-<p>It is a stopgap, not a substitute for a chosen poster. Which frame you freeze on, a populated UI rather than a spinner or a login screen, is a decision worth making on purpose rather than surrendering to whatever the first millisecond happens to hold.</p>
+<p>It is a stopgap, not a substitute for a chosen poster. Which frame you freeze on, a populated UI rather than a spinner or a login screen, is <a href="/blog/demo-video-thumbnail/">a decision worth making on purpose</a> rather than surrendering to whatever the first millisecond happens to hold.</p>
 <h2 id="preload-the-dial-that-autoplay-quietly-overrides">Preload: the dial that autoplay quietly overrides<a class="hanchor" href="#preload-the-dial-that-autoplay-quietly-overrides" aria-label="Link to section: Preload: the dial that autoplay quietly overrides">#</a></h2>
 <p>The instinct is to reach for <code>preload=&quot;none&quot;</code> to keep a background video off the critical path. On an autoplaying element it does nothing, and knowing why saves a wasted optimization.</p>
 <div class="table-scroll"><table>

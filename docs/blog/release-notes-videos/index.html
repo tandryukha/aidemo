@@ -291,7 +291,7 @@
 <span class="line"><span style="color:#E45649">          GH_TOKEN</span><span style="color:#383A42">: </span><span style="color:#50A14F">${{ github.token }}</span></span></code></pre>
 </div>
 <p>The guard is a heuristic, not a proof: a hand-cut <code>v2.4.0</code> that is really an emergency patch would still trip it, and it does not tell a minor from a major if you want different-length cuts (check the middle and first fields for that). But for the common case it reads the triage decision off the tag string with no extra metadata. The runner-level details — that <code>ubuntu-latest</code> ships Chrome but not the encoder, which fonts non-Latin captions need, and where large files should land — are their own subject, covered in <a href="/blog/demo-videos-in-ci/">rendering demo videos in CI</a>.</p>
-<p>The last step is the one that makes this a changelog and not just a video. Uploading the MP4 as a release asset pins it to the tag, so v2.4.0&#39;s video lives with v2.4.0 permanently and a later ship never overwrites it — the same durability the written entry has, and the point of pinning a demo to each shipped version.</p>
+<p>The last step is the one that makes this a changelog and not just a video. Uploading the MP4 as a release asset pins it to the tag, so v2.4.0&#39;s video lives with v2.4.0 permanently and a later ship never overwrites it — the same durability the written entry has, and the point of <a href="/blog/versioned-demos-per-release/">pinning a demo to each shipped version</a>.</p>
 <h2 id="a-cadence-you-can-keep-without-a-standing-meeting">A cadence you can keep without a standing meeting<a class="hanchor" href="#a-cadence-you-can-keep-without-a-standing-meeting" aria-label="Link to section: A cadence you can keep without a standing meeting">#</a></h2>
 <p>Frequency, not polish, is what earns trust from release notes: &quot;A short, consistent cadence builds more trust than irregular comprehensive releases&quot;<sup class="article-cite"><a href="#src-3" title="Appcues — release notes examples, cadence, and using visuals">3</a></sup>. The monthly recap fails exactly on that axis — it is the irregular, comprehensive, easy-to-skip option by construction. A per-qualifying-tag video is short and consistent because the release cadence, not a human&#39;s willpower, sets the beat. High-frequency written streams already prove the appetite: GitHub&#39;s own changelog posts several dated entries a day (github.blog/changelog, accessed July 2026), all text — the lesson is not &quot;film every entry&quot; but that a fast release stream already exists and the video should ride a filtered slice of it.</p>
 <div class="table-scroll"><table>
@@ -381,21 +381,21 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
+<a class="article-card" href="/blog/app-store-screenshot-automation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/app-store-screenshot-automation-400.webp" srcset="/blog/images/app-store-screenshot-automation-400.webp 400w, /blog/images/app-store-screenshot-automation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay honeycomb slab of identical hexagonal cells"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Keeping App Store screenshots current with automation</h3>
+    <p class="article-card-excerpt">Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/automating-product-screenshots/">
   <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
   <div class="article-card-content">
     <div class="article-card-category">Demo Automation</div>
     <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
     <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/demo-videos-in-ci/">
-  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-videos-in-ci-400.webp" srcset="/blog/images/demo-videos-in-ci-400.webp 400w, /blog/images/demo-videos-in-ci-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A GitHub Actions run log with a passing render-demo job and an attached MP4, beside the workflow YAML that triggered it"></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Demo Automation</div>
-    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
-    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>

@@ -283,5 +283,23 @@
   "embedding-videos-in-docs-sites": {
     "subject": "a ship in a bottle resting on a small wooden stand",
     "seedOffset": 1
+  },
+  "demo-video-thumbnail": {
+    "subject": "a wrapped gift box tied with a single ribbon bow"
+  },
+  "app-store-screenshot-automation": {
+    "subject": "a golden honeycomb slab of identical hexagonal cells"
+  },
+  "versioned-demos-per-release": {
+    "subject": "a cross-section of a tree trunk with concentric growth rings",
+    "seedOffset": 2
+  },
+  "reproducible-demo-renders": {
+    "subject": "a fluted copper jelly mould resting on a plate",
+    "seedOffset": 1
+  },
+  "accessible-tutorial-videos": {
+    "subject": "a gently curving ramp rising to a low raised platform",
+    "seedOffset": 1
   }
 }

@@ -1,0 +1,95 @@
+# Keeping App Store screenshots current with automation
+
+July 18, 2026 · Demo Automation · 7 min read · https://aidemo.top/blog/app-store-screenshot-automation/
+
+> Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.
+
+**Key takeaways**
+
+- App Store screenshots are mandatory even though the preview video is optional: 1 to 10 per device family per localization, across up to 50 metadata locales (11 added March 2026).
+- Apple now needs only the largest display per family (6.9-inch iPhone at 1320x2868, 13-inch iPad) and auto-scales down, so device sizes cap at two while locales push the total into the hundreds.
+- fastlane snapshot (MIT) turns your XCUITest target into the camera: snapshot() calls per screen, a Snapfile of devices and languages, override_status_bar for a clean 9:41, and parallel simulators.
+- snapshot then frameit then deliver is capture, frame-and-caption, and upload; frameit builds localized framed shots from a Framefile.json plus per-locale title.strings, regenerable from config.
+- Browser capture beats the simulator path only when the store surface is web (PWA, responsive, web view) or CI has no macOS/Xcode; for native UI the simulator is the honest camera.
+
+## Every locale, every device, is another stack of PNGs
+
+Open App Store Connect and it is the screenshots that are mandatory, not the preview video. Apple lets you skip the video; it will not let you publish a listing with an empty screenshot slot. Each supported device family requires at least one screenshot and accepts up to ten per localization, as PNG or JPEG with no alpha channel ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)). Metadata now localizes into 50 languages and locales ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/)) — Apple added 11 of them in March 2026, most Indian languages ([Apple, 2026](https://developer.apple.com/news/?id=97t4mt64)). Multiply those two numbers and the "screenshots" line item stops being an afternoon and becomes a spreadsheet.
+
+The current rules do grant one mercy. You no longer author a bespoke set for every screen size in Apple's back catalog. Provide the largest display in each family — the 6.9-inch iPhone at 1320 x 2868 and the 13-inch iPad at 2064 x 2752 — and the store scales those down to fill the 6.5-inch, 6.3-inch, and 11-inch slots for you ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)). Device sizes cap at two. Locales do not.
+
+Here is the matrix a real listing produces at eight shots per device, a normal marketing set well under the ten-shot ceiling:
+
+| Listing | Shots | Device families | Locales | Total PNGs |
+|---|---|---|---|---|
+| iPhone-only, English plus four | 8 | 1 | 5 | 40 |
+| Universal, 12 locales | 8 | 2 | 12 | 192 |
+| Universal, 25 locales | 8 | 2 | 25 | 400 |
+| Universal, every locale at the ceiling | 10 | 2 | 50 | 1,000 |
+
+Add Google Play, which wants two to eight phone screenshots plus a tablet set, each sized between 320 and 3,840 px ([Google, 2026](https://support.google.com/googleplay/android-developer/answer/9866151)), and the cross-store count roughly doubles. Nobody hand-produces four hundred pixel-exact PNGs once, and Apple's metadata-accuracy expectations mean you produce them again whenever the UI they show changes. The [moving-picture cousin of this problem, the app preview video](/blog/app-preview-video), has its own spec sheet; this is the still-frame half, and it is the taller stack.
+
+## fastlane snapshot: your UI tests drive the camera
+
+fastlane is a Ruby toolkit for iOS and Android release automation, MIT-licensed ([fastlane, 2026](https://github.com/fastlane/fastlane)). Its `snapshot` action solves capture by reusing something your project may already own: a UI-test target. Rather than script a separate screenshot bot, you drop `snapshot("01LoginScreen")` at the point in an XCUITest where the screen you want is on-screen ([fastlane, 2026](https://docs.fastlane.tools/actions/snapshot/)). A UI test cannot render a window directly, so under the hood snapshot triggers a device rotation to an orientation a user would never pick and lets Xcode's test reporter grab the frame — a hack, but a reliable one.
+
+The fan-out lives in a `Snapfile`:
+
+```ruby
+devices(["iPhone 16 Pro Max", "iPad Pro 13-inch (M4)"])
+languages(["en-US", "de-DE", "ja", "fr-FR"])
+scheme("UITests")
+override_status_bar(true)
+```
+
+`fastlane snapshot` runs that test once per device per language, across simulators in parallel on Xcode 9 and later. Two options make the output store-ready rather than merely captured. `override_status_bar` pins the clean 9:41, full-battery, full-signal bar Apple uses in its own marketing, so the clock in shot one matches the clock in shot two hundred. And `launch_arguments` lets the test boot the app into a fixed state — a seeded account, a chosen theme — so the pixels are reproducible instead of whatever the demo database happened to hold that morning ([fastlane, 2026](https://docs.fastlane.tools/actions/snapshot/)).
+
+The quiet win is resolution. A simulator renders at the true device pixel grid: the iPhone 16 Pro Max simulator produces 1320 x 2868, which is exactly the 6.9-inch screenshot spec, with no resize step. That is the reverse of the app preview video, where you downscale to a smaller 886 x 1920 frame — Apple wants screenshots at full native resolution and the video at a reduced one. For stills, the simulator hands you the right number for free.
+
+## frameit: the frame and the caption are JSON, not Photoshop
+
+A raw simulator capture is a bare app screen. The App Store shots that actually convert are usually set in a device bezel under a headline, and producing that by hand is where the localized matrix truly detonates. `frameit` moves it into config. It wraps each PNG in a device frame and, driven by a `Framefile.json`, adds a title and keyword line with your fonts, colors, background, and padding ([fastlane, 2026](https://docs.fastlane.tools/actions/frameit/)). A `default` block sets the global look; a `data` array overrides per screenshot by filename filter.
+
+The captions localize the way the app already does. frameit reads `title.strings` and `keyword.strings` files — ordinary iOS `.strings` files, one folder per locale — so the German headline for shot three comes from `de-DE/title.strings` and the Japanese one from `ja/title.strings`, fed by the same translation workflow you use for in-app copy ([fastlane, 2026](https://docs.fastlane.tools/actions/frameit/)). The framed, captioned, localized set is now a function of a JSON file plus per-language strings, which is the property that makes it regenerate: change the headline and re-run, instead of reopening forty layered documents. `deliver` closes the chain by uploading everything in `fastlane/screenshots` to App Store Connect ([fastlane, 2026](https://docs.fastlane.tools/getting-started/ios/screenshots/)), so `snapshot` then `frameit` then `deliver` is capture, dress, and publish behind a single CI job.
+
+## The screenshots break exactly when the UI tests do
+
+This pipeline earns the candor the [pillar on regenerating media instead of re-recording it](/blog/automated-product-demo-videos) asks for. Its cost is the UI test. snapshot only captures a screen the test can reach, so every shot rides on a test that taps through the app by accessibility identifier — and a redesign that renames or moves those controls breaks the capture before it breaks anything a user sees. That is the same [UI drift that quietly dates every screenshot](/blog/detecting-ui-drift), except it surfaces as a failing test rather than a stale image, which is the better place to catch it. Simulators are slow, too; parallelism helps, but a fifty-locale run is a real slice of CI minutes, and the whole thing assumes macOS, Xcode, and a maintained test target. None of that is free. It is only cheaper than the alternative, which is [letting the images rot until a customer notices](/blog/why-product-demos-go-stale).
+
+## When the browser beats the simulator as the camera
+
+The simulator path is the right one for a genuinely native app, and it would be dishonest to claim otherwise: a browser cannot render authentic iOS chrome, and an App Store shot of a native app should show the native UI. But a large share of "apps" are web underneath — a PWA, a responsive web build, a Capacitor or web-view wrapper, a cross-platform surface that paints HTML. For those, booting a simulator is a heavy way to photograph a web page, and a browser-capture pipeline wins on the axes that matter:
+
+| Situation | Reach for | Why |
+|---|---|---|
+| Native iOS/Android UI | Simulator (fastlane snapshot) | Only the simulator or device renders authentic native chrome at the exact device grid |
+| PWA, responsive web, web view | Browser capture | The store screen is a web page; a headless browser pins the viewport and re-renders on change |
+| No macOS or Xcode in CI | Browser capture | The simulator path needs the Apple toolchain; a browser runs on any runner |
+| One set for store, docs, and web | Browser capture | A single [deterministic capture](/blog/deterministic-browser-automation-for-video) feeds every surface instead of two pipelines |
+
+A browser path still owes you frames and captions — the frameit job — but you add those as a compositing pass from the same JSON. Our own engine, aidemo, takes the browser route: an agent writes the storyboard and a deterministic replay records the web UI. The disclosures that matter here: it is ours, it photographs a browser and nothing native (a real iOS binary stays out of reach), the storyboard is code a coding agent produces instead of a timeline anyone drags, and it ships no visual editor. The tool matters less than the boundary it draws: [pick the camera by what the product actually is](/blog/automating-product-screenshots). If the store screen is native, let the simulator shoot it; if it is a web page wearing an app icon, do not boot a phone to take its picture.
+
+## Sources
+
+- [Apple — App Store screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
+- [Apple — App Store localizations (metadata languages)](https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/)
+- [Apple — App Store adds 11 languages for localized metadata (March 2026)](https://developer.apple.com/news/?id=97t4mt64)
+- [fastlane snapshot action docs](https://docs.fastlane.tools/actions/snapshot/)
+- [fastlane frameit action docs](https://docs.fastlane.tools/actions/frameit/)
+- [fastlane iOS screenshots getting-started guide](https://docs.fastlane.tools/getting-started/ios/screenshots/)
+- [fastlane repository (MIT license)](https://github.com/fastlane/fastlane)
+- [Google Play — screenshot and graphic asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151)
+
+## FAQ
+
+### How do I automate App Store screenshots?
+
+The standard iOS pipeline is three fastlane commands. `snapshot` captures them by running your XCUITest target once per device and language listed in the Snapfile, capturing wherever you call `snapshot("name")`. `frameit` wraps each capture in a device frame and adds a localized title from a Framefile.json plus per-locale `.strings` files. `deliver` uploads the finished set to App Store Connect. All three are MIT-licensed and driven by config, so a UI change means re-running the job rather than reshooting by hand.
+
+### How many App Store screenshots do I actually need?
+
+At minimum one, for the largest display in each device family your app supports — a 6.9-inch iPhone shot, plus a 13-inch iPad shot if the app is universal — because Apple scales those down to every smaller size automatically. The ceiling is ten per device family per localization. A typical marketing listing uses five to eight, and with up to 50 metadata localizations available, that single choice decides whether you are maintaining dozens of PNGs or hundreds.
+
+### Do I need a Mac and Xcode to use fastlane snapshot?
+
+Yes. snapshot drives `xcodebuild` and the iOS Simulator, so it needs macOS, Xcode, and a maintained UI-test target; there is no headless-Linux shortcut for capturing native iOS chrome. If your app's store surface is actually a web page — a PWA or a web-view wrapper — you can skip the Apple toolchain and drive a headless browser instead, which runs on any CI runner and produces the same PNGs.

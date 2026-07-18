@@ -8,6 +8,13 @@
     <language>en</language>
     <lastBuildDate>Sat, 18 Jul 2026 00:00:00 GMT</lastBuildDate>
     <item>
+      <title>Accessible tutorial videos: captions, transcripts, audio description</title>
+      <link>https://aidemo.top/blog/accessible-tutorial-videos/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/accessible-tutorial-videos/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Captions clear one of seven WCAG media checks. The descriptive transcript that serves a Deaf-blind reader is the same text your search box needs.</description>
+    </item>
+    <item>
       <title>AI demo video generators: what the label actually covers</title>
       <link>https://aidemo.top/blog/ai-demo-video-generators/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/ai-demo-video-generators/</guid>
@@ -34,6 +41,13 @@
       <guid isPermaLink="true">https://aidemo.top/blog/app-preview-video/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Apple wants an uploaded H.264 file at 886 x 1920; Google Play wants a YouTube link. The exact cross-store specs, and how to hit them without a reshoot.</description>
+    </item>
+    <item>
+      <title>Keeping App Store screenshots current with automation</title>
+      <link>https://aidemo.top/blog/app-store-screenshot-automation/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/app-store-screenshot-automation/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.</description>
     </item>
     <item>
       <title>Arcade vs Navattic vs Storylane: picking an interactive demo platform</title>
@@ -176,6 +190,13 @@
       <description>Sticker prices lie because the units differ: per seat, per minute, per demo, per view. Normalized to cost per finished demo-minute, the ranking flips.</description>
     </item>
     <item>
+      <title>The demo video thumbnail: poster frame vs marketing cover</title>
+      <link>https://aidemo.top/blog/demo-video-thumbnail/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/demo-video-thumbnail/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>The poster that fills the box, the cover that earns the click, and the share card a crawler reads are three different pictures. Which frame to pick for each.</description>
+    </item>
+    <item>
       <title>Rendering demo videos in CI: a GitHub Actions walkthrough</title>
       <link>https://aidemo.top/blog/demo-videos-in-ci/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/demo-videos-in-ci/</guid>
@@ -195,27 +216,6 @@
       <guid isPermaLink="true">https://aidemo.top/blog/descript-alternatives-for-demo-editing/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>Descript edits video by editing the transcript. That trick shines on a podcast and fights a screen demo. The alternatives, sorted by what you grab.</description>
-    </item>
-    <item>
-      <title>Detecting UI drift before your demo lies about the product</title>
-      <link>https://aidemo.top/blog/detecting-ui-drift/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/detecting-ui-drift/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>A raw pixel diff fires on every font tweak; a bare selector check misses a button that moved. Here is the ladder in between, rung by rung.</description>
-    </item>
-    <item>
-      <title>Deterministic browser automation for video capture</title>
-      <link>https://aidemo.top/blog/deterministic-browser-automation-for-video/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/deterministic-browser-automation-for-video/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</description>
-    </item>
-    <item>
-      <title>Developer-education screencasts: terminal, code, and browser together</title>
-      <link>https://aidemo.top/blog/developer-education-screencasts/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/developer-education-screencasts/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Editors, terminals, and browsers each break a generic recorder differently. A format guide for dev screencasts that stay legible after the codec.</description>
     </item>
   </channel>
 </rss>

@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reproducible video renders, byte-for-byte | aidemo</title>
+<meta name="description" content="Two encodes of the same demo hash differently because of timestamps, an encoder build string, and thread count. The ffmpeg bitexact recipe that pins all three.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/reproducible-demo-renders/">
+<link rel="alternate" type="text/markdown" href="/blog/reproducible-demo-renders/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Reproducible video renders, byte-for-byte | aidemo">
+<meta property="og:description" content="Two encodes of the same demo hash differently because of timestamps, an encoder build string, and thread count. The ffmpeg bitexact recipe that pins all three.">
+<meta property="og:url" content="https://aidemo.top/blog/reproducible-demo-renders/">
+<meta property="og:image" content="https://aidemo.top/blog/images/reproducible-demo-renders-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reproducible video renders, byte-for-byte | aidemo">
+<meta name="twitter:description" content="Two encodes of the same demo hash differently because of timestamps, an encoder build string, and thread count. The ffmpeg bitexact recipe that pins all three.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/reproducible-demo-renders-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Reproducible demo renders: byte-for-byte, on purpose",
+  "description": "Two encodes of the same demo hash differently because of timestamps, an encoder build string, and thread count. The ffmpeg bitexact recipe that pins all three.",
+  "image": [
+    "https://aidemo.top/blog/images/reproducible-demo-renders-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/reproducible-demo-renders/"
+  },
+  "wordCount": 1675,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Reproducible Builds — Definition (bit-by-bit identical artifacts from the same source, environment, and instructions)",
+      "url": "https://reproducible-builds.org/docs/definition/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Reproducible Builds — Timestamps (the biggest single source of non-reproducibility; strip-nondeterminism, libfaketime)",
+      "url": "https://reproducible-builds.org/docs/timestamps/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Reproducible Builds — SOURCE_DATE_EPOCH (seconds since the Unix epoch; the one timestamp a build may use)",
+      "url": "https://reproducible-builds.org/docs/source-date-epoch/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Formats documentation (fflags bitexact: only platform-, build- and time-independent data, reproducible checksums)",
+      "url": "https://ffmpeg.org/ffmpeg-formats.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Codecs documentation (codec flags bitexact; -threads default 'auto')",
+      "url": "https://ffmpeg.org/ffmpeg-codecs.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Charmbracelet vhs — .txt/.ascii output for golden files, diffed between tape runs in CI",
+      "url": "https://github.com/charmbracelet/vhs"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Reproducible demo renders: byte-for-byte, on purpose",
+      "item": "https://aidemo.top/blog/reproducible-demo-renders/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why do two encodes of the same video produce different checksums?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the file records more than the picture. The container stamps in wall-clock creation and modification times, the encoder writes its own build-and-settings string into the bitstream, and multi-threaded encoding can split frames differently depending on how many cores the machine has. None of those are pixels, but all of them are bytes, so identical footage still hashes differently unless you strip the metadata and pin the encode."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you make an ffmpeg render byte-for-byte reproducible?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add -fflags +bitexact -flags:v +bitexact -flags:a +bitexact, which FFmpeg documents as writing only \"platform-, build- and time-independent data\" so \"checksums are reproducible and match between platforms.\" Then pin the thread count with -threads 1 (its default is the machine-dependent auto), drop container metadata with -map_metadata -1, and run the whole thing inside a pinned toolchain, since the output only matches other machines up to the encoder version."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does SOURCE_DATE_EPOCH work for video files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not directly. FFmpeg does not read SOURCE_DATE_EPOCH; its own mechanism for \"no wall clock in the file\" is the bitexact flag, which writes time-independent data instead of the current time. Use SOURCE_DATE_EPOCH in the surrounding build tooling that archives or packages the render, and reach for a post-processor like strip-nondeterminism for any timestamp a tool embeds regardless."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Reproducible demo renders: byte-for-byte, on purpose</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Reproducible demo renders: byte-for-byte, on purpose</h1>
+        <p class="article-dek">You pinned the browser so it paints the same pixels every run. The MP4 still differs. Here is why, and the reproducible-builds discipline that closes it.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 6 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#same-spec-same-pixels-a-different-file-every-time">Same spec, same pixels, a different file every time</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-render-is-a-build-so-borrow-the-build-contract">A render is a build, so borrow the build contract</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-the-bytes-diverge-ranked-by-how-often-they-bite">Where the bytes diverge, ranked by how often they bite</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-recipe-most-renders-never-apply">The recipe most renders never apply</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#hashing-the-output-and-what-a-green-hash-means">Hashing the output, and what a green hash means</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-byte-for-byte-earns-its-keep">When byte-for-byte earns its keep</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/reproducible-demo-renders-800.webp" srcset="/blog/images/reproducible-demo-renders-400.webp 400w, /blog/images/reproducible-demo-renders-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A fluted copper jelly mould resting upside down on a small round plate"><figcaption>Pour the same mixture into the same mould and every casting comes out identical; a render only becomes a build artifact once it does the same.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A deterministic browser replay feeds identical pixels to the encoder, yet the MP4 still differs: the file also carries timestamps, an encoder build string, and thread-dependent bitstream choices.</li>
+    <li>Reproducible Builds' own finding transfers to video: timestamps are the single biggest non-determinism source, and the top three (timestamps, encoder identity, thread count) cover nearly every mismatch.</li>
+    <li>FFmpeg ships the fix: -fflags +bitexact -flags:v +bitexact writes 'platform-, build- and time-independent data' for reproducible checksums; add -threads 1 and -map_metadata -1.</li>
+    <li>Byte-for-byte is brittle: one libx264 point release rewrites every hash, so it only means anything with a pinned toolchain in a container. Pin it, then hash the output like a golden file.</li>
+    <li>For a marketing demo, freeze a higher layer (behavior golden or still frames), not the bytes. Byte reproducibility earns its keep for cache-dedup, provenance, and archival.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="same-spec-same-pixels-a-different-file-every-time">Same spec, same pixels, a different file every time<a class="hanchor" href="#same-spec-same-pixels-a-different-file-every-time" aria-label="Link to section: Same spec, same pixels, a different file every time">#</a></h2>
+<p>You did the expensive part. The demo is <a href="/blog/demos-as-code/">a committed spec that replays into footage</a>, and the browser side is <a href="/blog/deterministic-browser-automation-for-video/">pinned hard enough to paint identical frames on every run</a>: fixed viewport, frozen clock, fonts awaited, network stubbed. Two runs, the same picture frame for frame. Then you <code>sha256sum</code> the two MP4s and they disagree.</p>
+<p>That is not a bug in the replay. The file holds more than the image. An MP4 is a container wrapped around an encoded bitstream, and both layers stamp in facts about the moment and the machine that produced them: when the mux ran, which encoder build did the work, how many CPU threads split the frames. Identical input, different provenance, different bytes. The received wisdom is that two encodes never match, and as a default that is fair. It stops being true the moment you decide to make it stop.</p>
+<h2 id="a-render-is-a-build-so-borrow-the-build-contract">A render is a build, so borrow the build contract<a class="hanchor" href="#a-render-is-a-build-so-borrow-the-build-contract" aria-label="Link to section: A render is a build, so borrow the build contract">#</a></h2>
+<p>The people who fought this exact war are the Reproducible Builds project, whose whole job is making a compiler emit the same binary twice. Their definition is the one to steal: a build is reproducible when, given the same source, environment, and instructions, any party can recreate &quot;bit-by-bit identical copies of all specified artifacts,&quot; verified by a plain hash comparison<sup class="article-cite"><a href="#src-1" title="Reproducible Builds — Definition (bit-by-bit identical artifacts from the same source, environment, and instructions)">1</a></sup>.</p>
+<p>Every noun maps onto a render. The <em>source</em> is the storyboard plus the captured frames and the narration. The <em>instructions</em> are the compose command: the filter graph, the codec, the flags. The <em>environment</em> is the part nobody writes down, the exact ffmpeg, the exact libx264, the fonts installed on the box, the number of cores. Pin all three and the render is a build like any other. Leave any one floating and you do not have a build, you have a coincidence that saved to disk.</p>
+<h2 id="where-the-bytes-diverge-ranked-by-how-often-they-bite">Where the bytes diverge, ranked by how often they bite<a class="hanchor" href="#where-the-bytes-diverge-ranked-by-how-often-they-bite" aria-label="Link to section: Where the bytes diverge, ranked by how often they bite">#</a></h2>
+<p>The Reproducible Builds project names the worst offender before you ever reach video: &quot;Timestamps make the biggest source of reproducibility issues. Many build tools record the current date and time&quot;<sup class="article-cite"><a href="#src-2" title="Reproducible Builds — Timestamps (the biggest single source of non-reproducibility; strip-nondeterminism, libfaketime)">2</a></sup>. That ranking holds for an MP4, and the rest of the list is short enough to memorize.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Source of drift</th>
+<th>What it stamps into the file</th>
+<th>Bites when</th>
+<th>The pin</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Wall-clock timestamps</td>
+<td>creation and modification time in the movie header</td>
+<td>every single render</td>
+<td><code>+bitexact</code> writes time-independent data</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Encoder identity</td>
+<td>x264&#39;s build-and-settings string in the bitstream, plus an <code>encoder</code> tag in the container</td>
+<td>any toolchain version change</td>
+<td><code>-flags:v +bitexact</code> strips it</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Thread count</td>
+<td>frame-split decisions under some rate-control modes</td>
+<td>across machines with different core counts</td>
+<td><code>-threads 1</code>, or a fixed N</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Font rasterization</td>
+<td>the exact pixels of baked-in captions and cards</td>
+<td>across OS or image versions</td>
+<td>ship the font files; pin the rasterizer</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Container muxing</td>
+<td>atom order, padding, faststart placement</td>
+<td>across ffmpeg versions</td>
+<td>fixed flags plus <code>+bitexact</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Audio encoder</td>
+<td>AAC psychoacoustic choices, encoder version</td>
+<td>on any audio-codec change</td>
+<td>pin the toolchain, or master in FLAC/PCM</td>
+</tr>
+</tbody></table></div>
+<p>Read it top down and a pattern falls out. The first three rows account for nearly every mismatch you will actually see, and all three are metadata or machine facts, not one pixel of the demo. Rows four through six fire only when the environment itself moves, which is precisely why the environment is the thing you freeze rather than chase.</p>
+<h2 id="the-recipe-most-renders-never-apply">The recipe most renders never apply<a class="hanchor" href="#the-recipe-most-renders-never-apply" aria-label="Link to section: The recipe most renders never apply">#</a></h2>
+<p>None of this needs a new tool. FFmpeg already ships the lever, and it is embarrassingly close to a one-liner. The <code>bitexact</code> flag exists specifically to &quot;only write platform-, build- and time-independent data,&quot; so that &quot;file and data checksums are reproducible and match between platforms&quot;<sup class="article-cite"><a href="#src-4" title="FFmpeg — Formats documentation (fflags bitexact: only platform-, build- and time-independent data, reproducible checksums)">4</a></sup>. Set it on the container and on each codec, pin the thread count away from its machine-dependent default of <code>auto</code><sup class="article-cite"><a href="#src-5" title="FFmpeg — Codecs documentation (codec flags bitexact; -threads default 'auto')">5</a></sup>, and drop any stray global metadata:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> frames.mp4</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> narration.wav</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">  -map</span><span style="color:#50A14F"> 0:v</span><span style="color:#986801"> -map</span><span style="color:#50A14F"> 1:a</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">  -c:v</span><span style="color:#50A14F"> libx264</span><span style="color:#986801"> -preset</span><span style="color:#50A14F"> veryfast</span><span style="color:#986801"> -crf</span><span style="color:#986801"> 20</span><span style="color:#986801"> -threads</span><span style="color:#986801"> 1</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">  -flags:v</span><span style="color:#50A14F"> +bitexact</span><span style="color:#986801"> -flags:a</span><span style="color:#50A14F"> +bitexact</span><span style="color:#986801"> -fflags</span><span style="color:#50A14F"> +bitexact</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#986801">  -map_metadata</span><span style="color:#986801"> -1</span><span style="color:#986801"> -movflags</span><span style="color:#50A14F"> +faststart</span><span style="color:#0184BC"> \</span></span>
+<span class="line"><span style="color:#50A14F">  out.mp4</span></span>
+<span class="line"><span style="color:#4078F2">sha256sum</span><span style="color:#50A14F"> out.mp4</span></span></code></pre>
+</div>
+<p><code>SOURCE_DATE_EPOCH</code> is the cross-tool convention that names the one timestamp a build may use, expressed as seconds since the Unix epoch of January 1st 1970 UTC, so every tool that honors it agrees on &quot;now&quot;<sup class="article-cite"><a href="#src-3" title="Reproducible Builds — SOURCE_DATE_EPOCH (seconds since the Unix epoch; the one timestamp a build may use)">3</a></sup>. FFmpeg does not read it, but the wrapper that archives the finished MP4 should, and for the leaks a tool bakes in anyway there is <code>strip-nondeterminism</code>, the post-processing normalizer the same project maintains<sup class="article-cite"><a href="#src-2" title="Reproducible Builds — Timestamps (the biggest single source of non-reproducibility; strip-nondeterminism, libfaketime)">2</a></sup>. The last mile is pinning the toolchain itself: the <code>bitexact</code> output matches across platforms only up to the encoder version, so the recipe belongs inside a pinned container image, <a href="/blog/demo-videos-in-ci/">built once and reused by the CI job that renders the demo</a>.</p>
+<h2 id="hashing-the-output-and-what-a-green-hash-means">Hashing the output, and what a green hash means<a class="hanchor" href="#hashing-the-output-and-what-a-green-hash-means" aria-label="Link to section: Hashing the output, and what a green hash means">#</a></h2>
+<p>Once the bytes are stable, the render gets the same superpower a compiler does: its output has a hash, and the hash is an assertion. Commit it, and CI re-renders and compares; a matching digest is a fast, total proof that nothing observable changed. This is the golden-file pattern the terminal world already runs. vhs emits a <code>.txt</code> or <code>.ascii</code> transcript precisely so teams can &quot;generate golden files&quot; and commit them, catching any unintended change when the tape is replayed in CI<sup class="article-cite"><a href="#src-6" title="Charmbracelet vhs — .txt/.ascii output for golden files, diffed between tape runs in CI">6</a></sup>, and a bit-exact MP4 pushes that same idea down to the byte layer of a real video.</p>
+<p>The catch is the one that makes a byte hash <a href="/blog/testing-demos-like-code/">the noisiest layer you can freeze</a>: it tells you the bytes differ, never why. A red digest is a real product change, a bumped ffmpeg, or a runner with a different core count, and the digest cannot tell the three apart. So the hash is load-bearing only when the environment underneath it is nailed down. A reproducible render without a pinned toolchain is not reproducible; it is lucky.</p>
+<h2 id="when-byte-for-byte-earns-its-keep">When byte-for-byte earns its keep<a class="hanchor" href="#when-byte-for-byte-earns-its-keep" aria-label="Link to section: When byte-for-byte earns its keep">#</a></h2>
+<p>Byte reproducibility is brittle on purpose. One libx264 point release rewrites every hash in the repository at once, which is the whole point when you are verifying a supply chain and exactly the wrong tax to pay to regression-test a marketing clip. For most demos the better move is to freeze a higher, calmer layer, the resolved behavior or a handful of still frames, and let the pixels re-encode however they like. That is the call the <a href="/blog/testing-demos-like-code/">golden-layer decision</a> already covers.</p>
+<p>The cases where hashing the actual bytes pays for itself are specific and real. Cache-dedup: if the inputs hash the same, skip the re-encode entirely and reuse yesterday&#39;s artifact, turning a nightly render into a no-op on the days nothing changed. Provenance: an archival or compliance copy that a third party can rebuild and verify to the bit. And genuine bisection, where you need to prove a byte moved between two commits, not merely that a perceptual diff wobbled past a threshold.</p>
+<p>Our own engine, aidemo, sits deliberately on one side of this line, and it is worth being exact about which. It makes the capture reproducible, driving a real Chrome through a fixed action-spec and shipping a timing-free behavior golden you diff in a pull request, but it does not currently emit a byte-for-byte identical MP4: its libx264 compose writes the encoder&#39;s build string and takes the machine&#39;s default thread count, so the finished file is not something you would hash. It is browser-only, an agent writes its storyboards instead of a human dragging clips on a timeline, and byte-level determinism is a compose-time flag it has not yet flipped. The honest version of &quot;reproducible demo renders&quot; is a ladder: pin the capture first, freeze the behavior next, and reach for the bit-exact bytes last, once you know which artifact you are actually versioning.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://reproducible-builds.org/docs/definition/" rel="noopener">Reproducible Builds — Definition (bit-by-bit identical artifacts from the same source, environment, and instructions)</a></li>
+<li id="src-2"><a href="https://reproducible-builds.org/docs/timestamps/" rel="noopener">Reproducible Builds — Timestamps (the biggest single source of non-reproducibility; strip-nondeterminism, libfaketime)</a></li>
+<li id="src-3"><a href="https://reproducible-builds.org/docs/source-date-epoch/" rel="noopener">Reproducible Builds — SOURCE_DATE_EPOCH (seconds since the Unix epoch; the one timestamp a build may use)</a></li>
+<li id="src-4"><a href="https://ffmpeg.org/ffmpeg-formats.html" rel="noopener">FFmpeg — Formats documentation (fflags bitexact: only platform-, build- and time-independent data, reproducible checksums)</a></li>
+<li id="src-5"><a href="https://ffmpeg.org/ffmpeg-codecs.html" rel="noopener">FFmpeg — Codecs documentation (codec flags bitexact; -threads default 'auto')</a></li>
+<li id="src-6"><a href="https://github.com/charmbracelet/vhs" rel="noopener">Charmbracelet vhs — .txt/.ascii output for golden files, diffed between tape runs in CI</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="why-do-two-encodes-of-the-same-video-produce-different-checksums" class="blog-faq-q">Why do two encodes of the same video produce different checksums?<a class="hanchor" href="#why-do-two-encodes-of-the-same-video-produce-different-checksums" aria-label="Link to section: Why do two encodes of the same video produce different checksums?">#</a></h3>
+<p>Because the file records more than the picture. The container stamps in wall-clock creation and modification times, the encoder writes its own build-and-settings string into the bitstream, and multi-threaded encoding can split frames differently depending on how many cores the machine has. None of those are pixels, but all of them are bytes, so identical footage still hashes differently unless you strip the metadata and pin the encode.</p>
+<h3 id="how-do-you-make-an-ffmpeg-render-byte-for-byte-reproducible" class="blog-faq-q">How do you make an ffmpeg render byte-for-byte reproducible?<a class="hanchor" href="#how-do-you-make-an-ffmpeg-render-byte-for-byte-reproducible" aria-label="Link to section: How do you make an ffmpeg render byte-for-byte reproducible?">#</a></h3>
+<p>Add <code>-fflags +bitexact -flags:v +bitexact -flags:a +bitexact</code>, which FFmpeg documents as writing only &quot;platform-, build- and time-independent data&quot; so &quot;checksums are reproducible and match between platforms.&quot; Then pin the thread count with <code>-threads 1</code> (its default is the machine-dependent <code>auto</code>), drop container metadata with <code>-map_metadata -1</code>, and run the whole thing inside a pinned toolchain, since the output only matches other machines up to the encoder version.</p>
+<h3 id="does-sourcedateepoch-work-for-video-files" class="blog-faq-q">Does SOURCE_DATE_EPOCH work for video files?<a class="hanchor" href="#does-sourcedateepoch-work-for-video-files" aria-label="Link to section: Does SOURCE_DATE_EPOCH work for video files?">#</a></h3>
+<p>Not directly. FFmpeg does not read <code>SOURCE_DATE_EPOCH</code>; its own mechanism for &quot;no wall clock in the file&quot; is the <code>bitexact</code> flag, which writes time-independent data instead of the current time. Use <code>SOURCE_DATE_EPOCH</code> in the surrounding build tooling that archives or packages the render, and reach for a post-processor like <code>strip-nondeterminism</code> for any timestamp a tool embeds regardless.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">reproducible builds</span>
+        <span class="article-tag">ffmpeg</span>
+        <span class="article-tag">determinism</span>
+        <span class="article-tag">demos as code</span>
+        <span class="article-tag">golden files</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demos-as-code-400.webp" srcset="/blog/images/demos-as-code-400.webp 400w, /blog/images/demos-as-code-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request diff of a demo storyboard next to the two video frames it renders, differing by one relabeled button, with a green CI check"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/coding-agents-that-make-demo-videos-400.webp" srcset="/blog/images/coding-agents-that-make-demo-videos-400.webp 400w, /blog/images/coding-agents-that-make-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A diagram splitting demo creation into an agent's exploratory authoring on the left and a deterministic engine's locked capture pipeline on the right, divided by a line labeled no LLM past this line"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/deterministic-browser-automation-for-video-400.webp" srcset="/blog/images/deterministic-browser-automation-for-video-400.webp 400w, /blog/images/deterministic-browser-automation-for-video-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Two stacked filmstrips of one demo flow, the pinned one identical frame for frame, the unpinned one drifting on a spinner, a font swap, and a layout column"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#same-spec-same-pixels-a-different-file-every-time">Same spec, same pixels, a different file every time</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-render-is-a-build-so-borrow-the-build-contract">A render is a build, so borrow the build contract</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-the-bytes-diverge-ranked-by-how-often-they-bite">Where the bytes diverge, ranked by how often they bite</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-recipe-most-renders-never-apply">The recipe most renders never apply</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#hashing-the-output-and-what-a-green-hash-means">Hashing the output, and what a green hash means</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-byte-for-byte-earns-its-keep">When byte-for-byte earns its keep</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

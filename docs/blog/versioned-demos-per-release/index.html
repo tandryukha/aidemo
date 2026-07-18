@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Versioned demos: one demo per release | aidemo</title>
+<meta name="description" content="Pin each release's demo to its version tag so old versions keep their own cut. SemVer's immutability rule, per-version URLs, and the storage math for keeping N.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/versioned-demos-per-release/">
+<link rel="alternate" type="text/markdown" href="/blog/versioned-demos-per-release/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Versioned demos: one demo per release | aidemo">
+<meta property="og:description" content="Pin each release's demo to its version tag so old versions keep their own cut. SemVer's immutability rule, per-version URLs, and the storage math for keeping N.">
+<meta property="og:url" content="https://aidemo.top/blog/versioned-demos-per-release/">
+<meta property="og:image" content="https://aidemo.top/blog/images/versioned-demos-per-release-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Versioned demos: one demo per release | aidemo">
+<meta name="twitter:description" content="Pin each release's demo to its version tag so old versions keep their own cut. SemVer's immutability rule, per-version URLs, and the storage math for keeping N.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/versioned-demos-per-release-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Versioned demos: one demo per product release",
+  "description": "Pin each release's demo to its version tag so old versions keep their own cut. SemVer's immutability rule, per-version URLs, and the storage math for keeping N.",
+  "image": [
+    "https://aidemo.top/blog/images/versioned-demos-per-release-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/versioned-demos-per-release/"
+  },
+  "wordCount": 1887,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Semantic Versioning 2.0.0 — released versions must not be modified (Item 3)",
+      "url": "https://semver.org/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Read the Docs — hosting multiple documentation versions, default/latest/stable",
+      "url": "https://docs.readthedocs.com/platform/en/stable/versions.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Docusaurus — documentation versioning and its maintenance cost",
+      "url": "https://docusaurus.io/docs/versioning"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Docs — about releases (based on Git tags, 2 GiB asset limit)",
+      "url": "https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — HTTP caching, immutable content and versioned URLs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Versioned demos: one demo per product release",
+      "item": "https://aidemo.top/blog/versioned-demos-per-release/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need a separate demo for every patch release?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. By Semantic Versioning's definition a PATCH is a backward-compatible bug fix with no new user-visible surface, so the demo you recorded for v2.3.0 is still accurate for v2.3.7 — nothing a viewer can see has changed. Key your demos at major.minor and let every patch in a line reuse that line's cut. That turns a project with two hundred tags into roughly a dozen demos, one per line that actually changed a screen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many old demo versions should I keep?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keep the majors and a rolling window of the most recent minors; let the deep back-catalog expire. Storage is not the constraint — a 60-second 1080p demo is about 40 MB, so even 40 versions is under 1.6 GB, and attached as release assets they never touch your git history. The real limit is the one Docusaurus names for versioned docs: obsolete versions nobody reads still cost attention, so do not archive a demo for a release no customer still runs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does a viewer end up watching the demo for their version?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Borrow the versioned-docs pattern. Publish each demo at an immutable per-version URL like /demo/v2.3.mp4, cached for a year because its content is frozen, and have the docs page built for v2.3 embed that exact URL. Add one moving alias, /demo/latest.mp4, that points at the current release and gets a short cache, which the latest-docs build embeds. A reader on old docs sees the old demo; a reader on current docs sees today's — routed by the same version number the tag already carries."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Versioned demos: one demo per product release</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Versioned demos: one demo per product release</h1>
+        <p class="article-dek">A nightly build keeps one demo current. Versioning does the opposite job: it lets v2.3's demo stay v2.3's forever, so nobody sees a feature they don't have.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-demo-can-lie-in-two-directions-not-one">A demo can lie in two directions, not one</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#borrow-the-rule-semver-already-wrote-for-you">Borrow the rule SemVer already wrote for you</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#how-coarse-can-the-version-key-be">How coarse can the version key be?</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-storage-math-for-keeping-every-version-around">The storage math for keeping every version around</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#give-each-version-a-url-that-never-moves-and-one-that-does">Give each version a URL that never moves (and one that does)</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/versioned-demos-per-release-800.webp" srcset="/blog/images/versioned-demos-per-release-400.webp 400w, /blog/images/versioned-demos-per-release-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A tree-trunk cross-section showing concentric annual growth rings from the center outward"><figcaption>The tree never goes back and redraws an inner ring to match this year's; a versioned demo leaves each release's cut exactly where it was recorded.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A demo can be wrong in two directions: stale (behind the product) or ahead of the version a viewer runs. Nightly re-renders fix the first; versioning fixes the second.</li>
+    <li>SemVer Item 3 says a released version's contents must not change. Apply it to demos: pin v2.3's cut to the tag and never overwrite it, so old versions keep their own demo.</li>
+    <li>Key demos at major.minor, not per patch: a PATCH adds no visible surface, so v2.3.0's demo stays correct for all of v2.3.x. That collapses ~200 tags into ~15 demos.</li>
+    <li>Storage is cheap: a 60s 1080p demo is ~40 MB, so 40 minor versions is ~1.6 GB as release assets (2 GiB/file limit); committing them into git bloats every clone forever.</li>
+    <li>Serve two URL classes like versioned docs: an immutable /demo/v2.3.mp4 (cache a year) plus a moving /demo/latest.mp4 that the current docs embed.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-demo-can-lie-in-two-directions-not-one">A demo can lie in two directions, not one<a class="hanchor" href="#a-demo-can-lie-in-two-directions-not-one" aria-label="Link to section: A demo can lie in two directions, not one">#</a></h2>
+<p>Everyone worries that a demo is <em>behind</em> the product: the button moved, the screen got redrawn, the flow gained a step. That is drift, and it is <a href="/blog/why-product-demos-go-stale/">what makes a demo rot the moment you ship past it</a>. The cure is to keep one demo pinned to the tip of the tree — <a href="/blog/automated-product-demo-videos/">regenerate it from a committed spec</a> so shipping the change is the update, and let <a href="/blog/nightly-demo-builds/">a nightly re-render guard it</a> against the drift a code diff never shows.</p>
+<p>There is a second way a demo can be wrong, and chasing the first one makes it worse. A demo can be <em>ahead</em> of the version the viewer is actually running. A customer on your self-hosted v2.3, an enterprise account pinned to last quarter&#39;s release, a reader following a tutorial written against v2 — each of them opens &quot;the demo,&quot; sees a v3.0 workflow, and hunts for a button that does not exist in their build yet. Nightly re-rendering, the fix for staleness, aims the single canonical demo squarely at HEAD, which is exactly where those viewers are not. The more diligently you keep one demo current, the more wrong it is for everyone off the latest version.</p>
+<p>Versioning answers the second failure, and it is a different discipline from keeping the current one fresh. The move is to stop treating the demo as one file that always shows the newest thing, and start treating it as a release artifact: v2.3&#39;s demo shows v2.3, v3.0&#39;s demo shows v3.0, and the two coexist instead of one silently overwriting the other. Old versions keep their old demo. That single rule is the whole idea, and the version number you already ship is what makes it mechanical.</p>
+<h2 id="borrow-the-rule-semver-already-wrote-for-you">Borrow the rule SemVer already wrote for you<a class="hanchor" href="#borrow-the-rule-semver-already-wrote-for-you" aria-label="Link to section: Borrow the rule SemVer already wrote for you">#</a></h2>
+<p>Semantic Versioning codified the principle in a clause most people skim past. Item 3: &quot;Once a versioned package has been released, the contents of that version MUST NOT be modified. Any modifications MUST be released as a new version&quot;<sup class="article-cite"><a href="#src-1" title="Semantic Versioning 2.0.0 — released versions must not be modified (Item 3)">1</a></sup>. A published version is frozen. You do not edit v2.3.1 in place; you ship v2.3.2.</p>
+<p>A demo pinned to a release inherits that rule for free. Once v2.3 ships with its demo, that demo is v2.3&#39;s forever — you never re-render over it, the same way you never rewrite a tag. When v2.4 ships it gets <em>its own</em> demo, a new artifact at a new address, and v2.3&#39;s cut stays exactly where it was recorded. This is the opposite instinct from a nightly build, which overwrites yesterday&#39;s render on purpose, and it complements <a href="/blog/release-notes-videos/">rendering a fresh cut for each release</a>: that piece decides which tags earn a brand-new video, this one insists the old videos never get clobbered when they do.</p>
+<p>The freeze is only credible if you can prove the old demo still matches the old release. Because the storyboard is committed next to the code, checking out the v2.3 tag and rendering reproduces v2.3&#39;s demo from v2.3&#39;s spec — the same input, the same output, <a href="/blog/reproducible-demo-renders/">byte-stable on purpose</a>. In our own engine, aidemo — ours, and honestly browser-only, with the storyboard written by a coding agent rather than dragged across a GUI timeline — the spec lives in the repo, so the demo for any past tag is regenerable from that tag alone, not from a video file someone hopefully archived to a drive.</p>
+<h2 id="how-coarse-can-the-version-key-be">How coarse can the version key be?<a class="hanchor" href="#how-coarse-can-the-version-key-be" aria-label="Link to section: How coarse can the version key be?">#</a></h2>
+<p>Not every tag needs its own demo, and getting the granularity right is what keeps the practice from drowning you. A PATCH, by SemVer&#39;s own definition, is a backward-compatible fix with no new user-visible surface — which is precisely the surface a demo shows. So the demo you recorded for v2.3.0 is still honest for v2.3.7: nothing a viewer can see has changed. Key demos at <code>major.minor</code>, and let every patch in a line reuse its line&#39;s cut.</p>
+<p>That collapses the numbers hard. A three-year-old project can carry two hundred–plus tags; the overwhelming majority are patches. Say it cut roughly 40 minor lines and 3 majors, and that only about half of those minors actually touched a screen a demo features. You are not keeping two hundred demos. You are keeping about 15 — one per visible-change line — and every patch tag simply points at its line&#39;s demo.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Version change</th>
+<th>New visible surface?</th>
+<th>Its own demo?</th>
+<th>A viewer on it watches</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MAJOR (<strong>X</strong>.0.0)</td>
+<td>usually, and large</td>
+<td>Yes</td>
+<td>its own cut</td>
+</tr>
+<tr>
+<td>MINOR (x.<strong>Y</strong>.0), UI changed</td>
+<td>yes</td>
+<td>Yes</td>
+<td>its own cut</td>
+</tr>
+<tr>
+<td>MINOR, nothing visible moved</td>
+<td>no</td>
+<td>No</td>
+<td>the previous line&#39;s cut</td>
+</tr>
+<tr>
+<td>PATCH (x.y.<strong>Z</strong>)</td>
+<td>no, by definition</td>
+<td>No</td>
+<td>its minor line&#39;s cut</td>
+</tr>
+</tbody></table></div>
+<p>The granularity decision is the one that makes versioned demos sustainable rather than a second full-time job. Tie a demo to every tag and you are back to the release-a-week treadmill; tie it to every visible-change line and the count grows at the pace of redesigns, which is slow.</p>
+<h2 id="the-storage-math-for-keeping-every-version-around">The storage math for keeping every version around<a class="hanchor" href="#the-storage-math-for-keeping-every-version-around" aria-label="Link to section: The storage math for keeping every version around">#</a></h2>
+<p>The reflexive objection is that keeping every version means unbounded storage. Do the arithmetic and the objection evaporates. A 60-second 1080p screen-capture demo encodes small, because UI footage is low-motion and low-entropy: figure roughly 25–50 MB in H.264 at a 4–6 Mbps rate. Take 40 MB as a round working number.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Retention policy</th>
+<th>Versions kept</th>
+<th>At ~40 MB each</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Every demoed line (~15)</td>
+<td>15</td>
+<td>~600 MB</td>
+<td>trivial</td>
+</tr>
+<tr>
+<td>Every minor tag, visible or not (~40)</td>
+<td>40</td>
+<td>~1.6 GB</td>
+<td>fine as release assets</td>
+</tr>
+<tr>
+<td>Rolling window, last 6</td>
+<td>6</td>
+<td>~240 MB</td>
+<td>trivial</td>
+</tr>
+<tr>
+<td>Majors only (~3)</td>
+<td>3</td>
+<td>~120 MB</td>
+<td>trivial</td>
+</tr>
+</tbody></table></div>
+<p>Where the files live decides whether that number even matters. Attach each demo to its release and GitHub pins it to the tag — &quot;Releases are based on Git tags,&quot; and each attached file must be &quot;under 2 GiB&quot;<sup class="article-cite"><a href="#src-4" title="GitHub Docs — about releases (based on Git tags, 2 GiB asset limit)">4</a></sup> — and it never enters your git history, so the clone stays small no matter how many versions you archive. Commit the same MP4s into the repository and every version you keep rides in every clone forever; that is the commit-versus-LFS-versus-external decision in its own right.</p>
+<p>Because disk is this cheap, the real ceiling is human, not storage. Docusaurus, whose docs-versioning is the closest neighbor to this whole idea, warns that &quot;most of the time, you don&#39;t need versioning as it will just increase your build time,&quot; and that you &quot;will very likely to have a lot of obsolete versioned documentation that nobody even reads anymore&quot;<sup class="article-cite"><a href="#src-3" title="Docusaurus — documentation versioning and its maintenance cost">3</a></sup>. The same restraint applies to demos. Keep the majors and a rolling window of recent minors, let the deep back-catalog expire, and never spend a render on a version nobody still runs.</p>
+<h2 id="give-each-version-a-url-that-never-moves-and-one-that-does">Give each version a URL that never moves (and one that does)<a class="hanchor" href="#give-each-version-a-url-that-never-moves-and-one-that-does" aria-label="Link to section: Give each version a URL that never moves (and one that does)">#</a></h2>
+<p>Keeping the files is half the job. Getting the right one in front of the right viewer is the other half, and documentation tooling already solved it. Read the Docs &quot;supports publishing multiple versions of your documentation,&quot; so &quot;your users can read the exact documentation for the specific version of the project they are using,&quot; redirecting the bare URL to a default that is usually <code>latest</code> or <code>stable</code>, where stable tracks &quot;your greatest stable semantic version number release&quot;<sup class="article-cite"><a href="#src-2" title="Read the Docs — hosting multiple documentation versions, default/latest/stable">2</a></sup>. Docusaurus does the same with per-version routes: v1.0.0&#39;s pages sit under <code>/docs/1.0.0/</code> while the working copy lives under <code>/docs/next/</code><sup class="article-cite"><a href="#src-3" title="Docusaurus — documentation versioning and its maintenance cost">3</a></sup>.</p>
+<p>A versioned demo wants exactly that shape — two classes of URL that behave differently on purpose.</p>
+<ul>
+<li>An <strong>immutable per-version address</strong>, <code>/demo/v2.3.mp4</code>, that never changes once published. Because its content is frozen, you serve it with a year-long cache and never revalidate. MDN&#39;s rule for content that never changes is a &quot;long <code>max-age</code> by using cache busting... including a version number, hash value, etc., in the request URL,&quot; served as <code>Cache-Control: max-age=31536000, immutable</code><sup class="article-cite"><a href="#src-5" title="MDN — HTTP caching, immutable content and versioned URLs">5</a></sup>. The v2.3 docs page embeds this, and it can sit in every CDN edge until the heat death of the project.</li>
+<li>A <strong>moving alias</strong>, <code>/demo/latest.mp4</code> (or <code>stable</code>), that resolves to whichever version is current. The latest-docs page embeds the alias; because it moves, it gets a short <code>max-age</code> and revalidates. This is the one URL a nightly build is allowed to overwrite.</li>
+</ul>
+<p>Wire the docs so a page built for version N embeds the immutable <code>/demo/vN.mp4</code> and the &quot;latest&quot; build embeds the alias. A reader on the v2.3 docs watches v2.3&#39;s demo; a reader on the current docs watches today&#39;s. Nobody is shown a feature they do not have, nobody has to remember which video went with which release, and the version identifier that already threads through the git tag, the changelog, and the release assets threads through the demo URL too. The demo stops being one file that always shows the newest thing and becomes what the release already is: a numbered, frozen, addressable artifact — one per version, each telling the truth about the version whose name it carries.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://semver.org/" rel="noopener">Semantic Versioning 2.0.0 — released versions must not be modified (Item 3)</a></li>
+<li id="src-2"><a href="https://docs.readthedocs.com/platform/en/stable/versions.html" rel="noopener">Read the Docs — hosting multiple documentation versions, default/latest/stable</a></li>
+<li id="src-3"><a href="https://docusaurus.io/docs/versioning" rel="noopener">Docusaurus — documentation versioning and its maintenance cost</a></li>
+<li id="src-4"><a href="https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases" rel="noopener">GitHub Docs — about releases (based on Git tags, 2 GiB asset limit)</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching" rel="noopener">MDN — HTTP caching, immutable content and versioned URLs</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="do-i-need-a-separate-demo-for-every-patch-release" class="blog-faq-q">Do I need a separate demo for every patch release?<a class="hanchor" href="#do-i-need-a-separate-demo-for-every-patch-release" aria-label="Link to section: Do I need a separate demo for every patch release?">#</a></h3>
+<p>No. By Semantic Versioning&#39;s definition a PATCH is a backward-compatible bug fix with no new user-visible surface, so the demo you recorded for v2.3.0 is still accurate for v2.3.7 — nothing a viewer can see has changed. Key your demos at <code>major.minor</code> and let every patch in a line reuse that line&#39;s cut. That turns a project with two hundred tags into roughly a dozen demos, one per line that actually changed a screen.</p>
+<h3 id="how-many-old-demo-versions-should-i-keep" class="blog-faq-q">How many old demo versions should I keep?<a class="hanchor" href="#how-many-old-demo-versions-should-i-keep" aria-label="Link to section: How many old demo versions should I keep?">#</a></h3>
+<p>Keep the majors and a rolling window of the most recent minors; let the deep back-catalog expire. Storage is not the constraint — a 60-second 1080p demo is about 40 MB, so even 40 versions is under 1.6 GB, and attached as release assets they never touch your git history. The real limit is the one Docusaurus names for versioned docs: obsolete versions nobody reads still cost attention, so do not archive a demo for a release no customer still runs.</p>
+<h3 id="how-does-a-viewer-end-up-watching-the-demo-for-their-version" class="blog-faq-q">How does a viewer end up watching the demo for their version?<a class="hanchor" href="#how-does-a-viewer-end-up-watching-the-demo-for-their-version" aria-label="Link to section: How does a viewer end up watching the demo for their version?">#</a></h3>
+<p>Borrow the versioned-docs pattern. Publish each demo at an immutable per-version URL like <code>/demo/v2.3.mp4</code>, cached for a year because its content is frozen, and have the docs page built for v2.3 embed that exact URL. Add one moving alias, <code>/demo/latest.mp4</code>, that points at the current release and gets a short cache, which the latest-docs build embeds. A reader on old docs sees the old demo; a reader on current docs sees today&#39;s — routed by the same version number the tag already carries.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">demo automation</span>
+        <span class="article-tag">versioning</span>
+        <span class="article-tag">semver</span>
+        <span class="article-tag">release assets</span>
+        <span class="article-tag">ci-cd</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/app-store-screenshot-automation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/app-store-screenshot-automation-400.webp" srcset="/blog/images/app-store-screenshot-automation-400.webp 400w, /blog/images/app-store-screenshot-automation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay honeycomb slab of identical hexagonal cells"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Keeping App Store screenshots current with automation</h3>
+    <p class="article-card-excerpt">Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-demo-can-lie-in-two-directions-not-one">A demo can lie in two directions, not one</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#borrow-the-rule-semver-already-wrote-for-you">Borrow the rule SemVer already wrote for you</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#how-coarse-can-the-version-key-be">How coarse can the version key be?</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-storage-math-for-keeping-every-version-around">The storage math for keeping every version around</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#give-each-version-a-url-that-never-moves-and-one-that-does">Give each version a URL that never moves (and one that does)</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

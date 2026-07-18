@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automate App Store screenshots | aidemo</title>
+<meta name="description" content="App Store screenshots multiply by locale and device into the hundreds. The fastlane snapshot + frameit pipeline to keep them current, and when a browser wins.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/app-store-screenshot-automation/">
+<link rel="alternate" type="text/markdown" href="/blog/app-store-screenshot-automation/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Automate App Store screenshots | aidemo">
+<meta property="og:description" content="App Store screenshots multiply by locale and device into the hundreds. The fastlane snapshot + frameit pipeline to keep them current, and when a browser wins.">
+<meta property="og:url" content="https://aidemo.top/blog/app-store-screenshot-automation/">
+<meta property="og:image" content="https://aidemo.top/blog/images/app-store-screenshot-automation-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Automate App Store screenshots | aidemo">
+<meta name="twitter:description" content="App Store screenshots multiply by locale and device into the hundreds. The fastlane snapshot + frameit pipeline to keep them current, and when a browser wins.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/app-store-screenshot-automation-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Keeping App Store screenshots current with automation",
+  "description": "App Store screenshots multiply by locale and device into the hundreds. The fastlane snapshot + frameit pipeline to keep them current, and when a browser wins.",
+  "image": [
+    "https://aidemo.top/blog/images/app-store-screenshot-automation-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/app-store-screenshot-automation/"
+  },
+  "wordCount": 1698,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — App Store screenshot specifications",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — App Store localizations (metadata languages)",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple — App Store adds 11 languages for localized metadata (March 2026)",
+      "url": "https://developer.apple.com/news/?id=97t4mt64"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "fastlane snapshot action docs",
+      "url": "https://docs.fastlane.tools/actions/snapshot/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "fastlane frameit action docs",
+      "url": "https://docs.fastlane.tools/actions/frameit/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "fastlane iOS screenshots getting-started guide",
+      "url": "https://docs.fastlane.tools/getting-started/ios/screenshots/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "fastlane repository (MIT license)",
+      "url": "https://github.com/fastlane/fastlane"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Google Play — screenshot and graphic asset requirements",
+      "url": "https://support.google.com/googleplay/android-developer/answer/9866151"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Keeping App Store screenshots current with automation",
+      "item": "https://aidemo.top/blog/app-store-screenshot-automation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I automate App Store screenshots?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The standard iOS pipeline is three fastlane commands. snapshot captures them by running your XCUITest target once per device and language listed in the Snapfile, capturing wherever you call snapshot(\"name\"). frameit wraps each capture in a device frame and adds a localized title from a Framefile.json plus per-locale .strings files. deliver uploads the finished set to App Store Connect. All three are MIT-licensed and driven by config, so a UI change means re-running the job rather than reshooting by hand."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many App Store screenshots do I actually need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At minimum one, for the largest display in each device family your app supports — a 6.9-inch iPhone shot, plus a 13-inch iPad shot if the app is universal — because Apple scales those down to every smaller size automatically. The ceiling is ten per device family per localization. A typical marketing listing uses five to eight, and with up to 50 metadata localizations available, that single choice decides whether you are maintaining dozens of PNGs or hundreds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a Mac and Xcode to use fastlane snapshot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. snapshot drives xcodebuild and the iOS Simulator, so it needs macOS, Xcode, and a maintained UI-test target; there is no headless-Linux shortcut for capturing native iOS chrome. If your app's store surface is actually a web page — a PWA or a web-view wrapper — you can skip the Apple toolchain and drive a headless browser instead, which runs on any CI runner and produces the same PNGs."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Keeping App Store screenshots current with automation</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Keeping App Store screenshots current with automation</h1>
+        <p class="article-dek">Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 8 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#every-locale-every-device-is-another-stack-of-pngs">Every locale, every device, is another stack of PNGs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#fastlane-snapshot-your-ui-tests-drive-the-camera">fastlane snapshot: your UI tests drive the camera</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#frameit-the-frame-and-the-caption-are-json-not-photoshop">frameit: the frame and the caption are JSON, not Photoshop</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-screenshots-break-exactly-when-the-ui-tests-do">The screenshots break exactly when the UI tests do</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-the-browser-beats-the-simulator-as-the-camera">When the browser beats the simulator as the camera</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/app-store-screenshot-automation-800.webp" srcset="/blog/images/app-store-screenshot-automation-400.webp 400w, /blog/images/app-store-screenshot-automation-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay honeycomb slab of identical hexagonal cells"><figcaption>Bees never hand-carve a cell: every hexagon comes from one pattern, the way a hundred localized screenshots should come from one template.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>App Store screenshots are mandatory even though the preview video is optional: 1 to 10 per device family per localization, across up to 50 metadata locales (11 added March 2026).</li>
+    <li>Apple now needs only the largest display per family (6.9-inch iPhone at 1320x2868, 13-inch iPad) and auto-scales down, so device sizes cap at two while locales push the total into the hundreds.</li>
+    <li>fastlane snapshot (MIT) turns your XCUITest target into the camera: snapshot() calls per screen, a Snapfile of devices and languages, override_status_bar for a clean 9:41, and parallel simulators.</li>
+    <li>snapshot then frameit then deliver is capture, frame-and-caption, and upload; frameit builds localized framed shots from a Framefile.json plus per-locale title.strings, regenerable from config.</li>
+    <li>Browser capture beats the simulator path only when the store surface is web (PWA, responsive, web view) or CI has no macOS/Xcode; for native UI the simulator is the honest camera.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="every-locale-every-device-is-another-stack-of-pngs">Every locale, every device, is another stack of PNGs<a class="hanchor" href="#every-locale-every-device-is-another-stack-of-pngs" aria-label="Link to section: Every locale, every device, is another stack of PNGs">#</a></h2>
+<p>Open App Store Connect and it is the screenshots that are mandatory, not the preview video. Apple lets you skip the video; it will not let you publish a listing with an empty screenshot slot. Each supported device family requires at least one screenshot and accepts up to ten per localization, as PNG or JPEG with no alpha channel<sup class="article-cite"><a href="#src-1" title="Apple — App Store screenshot specifications">1</a></sup>. Metadata now localizes into 50 languages and locales<sup class="article-cite"><a href="#src-2" title="Apple — App Store localizations (metadata languages)">2</a></sup> — Apple added 11 of them in March 2026, most Indian languages<sup class="article-cite"><a href="#src-3" title="Apple — App Store adds 11 languages for localized metadata (March 2026)">3</a></sup>. Multiply those two numbers and the &quot;screenshots&quot; line item stops being an afternoon and becomes a spreadsheet.</p>
+<p>The current rules do grant one mercy. You no longer author a bespoke set for every screen size in Apple&#39;s back catalog. Provide the largest display in each family — the 6.9-inch iPhone at 1320 x 2868 and the 13-inch iPad at 2064 x 2752 — and the store scales those down to fill the 6.5-inch, 6.3-inch, and 11-inch slots for you<sup class="article-cite"><a href="#src-1" title="Apple — App Store screenshot specifications">1</a></sup>. Device sizes cap at two. Locales do not.</p>
+<p>Here is the matrix a real listing produces at eight shots per device, a normal marketing set well under the ten-shot ceiling:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Listing</th>
+<th>Shots</th>
+<th>Device families</th>
+<th>Locales</th>
+<th>Total PNGs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iPhone-only, English plus four</td>
+<td>8</td>
+<td>1</td>
+<td>5</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Universal, 12 locales</td>
+<td>8</td>
+<td>2</td>
+<td>12</td>
+<td>192</td>
+</tr>
+<tr>
+<td>Universal, 25 locales</td>
+<td>8</td>
+<td>2</td>
+<td>25</td>
+<td>400</td>
+</tr>
+<tr>
+<td>Universal, every locale at the ceiling</td>
+<td>10</td>
+<td>2</td>
+<td>50</td>
+<td>1,000</td>
+</tr>
+</tbody></table></div>
+<p>Add Google Play, which wants two to eight phone screenshots plus a tablet set, each sized between 320 and 3,840 px<sup class="article-cite"><a href="#src-8" title="Google Play — screenshot and graphic asset requirements">8</a></sup>, and the cross-store count roughly doubles. Nobody hand-produces four hundred pixel-exact PNGs once, and Apple&#39;s metadata-accuracy expectations mean you produce them again whenever the UI they show changes. The <a href="/blog/app-preview-video/">moving-picture cousin of this problem, the app preview video</a>, has its own spec sheet; this is the still-frame half, and it is the taller stack.</p>
+<h2 id="fastlane-snapshot-your-ui-tests-drive-the-camera">fastlane snapshot: your UI tests drive the camera<a class="hanchor" href="#fastlane-snapshot-your-ui-tests-drive-the-camera" aria-label="Link to section: fastlane snapshot: your UI tests drive the camera">#</a></h2>
+<p>fastlane is a Ruby toolkit for iOS and Android release automation, MIT-licensed<sup class="article-cite"><a href="#src-7" title="fastlane repository (MIT license)">7</a></sup>. Its <code>snapshot</code> action solves capture by reusing something your project may already own: a UI-test target. Rather than script a separate screenshot bot, you drop <code>snapshot(&quot;01LoginScreen&quot;)</code> at the point in an XCUITest where the screen you want is on-screen<sup class="article-cite"><a href="#src-4" title="fastlane snapshot action docs">4</a></sup>. A UI test cannot render a window directly, so under the hood snapshot triggers a device rotation to an orientation a user would never pick and lets Xcode&#39;s test reporter grab the frame — a hack, but a reliable one.</p>
+<p>The fan-out lives in a <code>Snapfile</code>:</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">ruby</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="code-plain" tabindex="0"><code>devices([&quot;iPhone 16 Pro Max&quot;, &quot;iPad Pro 13-inch (M4)&quot;])
+languages([&quot;en-US&quot;, &quot;de-DE&quot;, &quot;ja&quot;, &quot;fr-FR&quot;])
+scheme(&quot;UITests&quot;)
+override_status_bar(true)</code></pre>
+</div>
+<p><code>fastlane snapshot</code> runs that test once per device per language, across simulators in parallel on Xcode 9 and later. Two options make the output store-ready rather than merely captured. <code>override_status_bar</code> pins the clean 9:41, full-battery, full-signal bar Apple uses in its own marketing, so the clock in shot one matches the clock in shot two hundred. And <code>launch_arguments</code> lets the test boot the app into a fixed state — a seeded account, a chosen theme — so the pixels are reproducible instead of whatever the demo database happened to hold that morning<sup class="article-cite"><a href="#src-4" title="fastlane snapshot action docs">4</a></sup>.</p>
+<p>The quiet win is resolution. A simulator renders at the true device pixel grid: the iPhone 16 Pro Max simulator produces 1320 x 2868, which is exactly the 6.9-inch screenshot spec, with no resize step. That is the reverse of the app preview video, where you downscale to a smaller 886 x 1920 frame — Apple wants screenshots at full native resolution and the video at a reduced one. For stills, the simulator hands you the right number for free.</p>
+<h2 id="frameit-the-frame-and-the-caption-are-json-not-photoshop">frameit: the frame and the caption are JSON, not Photoshop<a class="hanchor" href="#frameit-the-frame-and-the-caption-are-json-not-photoshop" aria-label="Link to section: frameit: the frame and the caption are JSON, not Photoshop">#</a></h2>
+<p>A raw simulator capture is a bare app screen. The App Store shots that actually convert are usually set in a device bezel under a headline, and producing that by hand is where the localized matrix truly detonates. <code>frameit</code> moves it into config. It wraps each PNG in a device frame and, driven by a <code>Framefile.json</code>, adds a title and keyword line with your fonts, colors, background, and padding<sup class="article-cite"><a href="#src-5" title="fastlane frameit action docs">5</a></sup>. A <code>default</code> block sets the global look; a <code>data</code> array overrides per screenshot by filename filter.</p>
+<p>The captions localize the way the app already does. frameit reads <code>title.strings</code> and <code>keyword.strings</code> files — ordinary iOS <code>.strings</code> files, one folder per locale — so the German headline for shot three comes from <code>de-DE/title.strings</code> and the Japanese one from <code>ja/title.strings</code>, fed by the same translation workflow you use for in-app copy<sup class="article-cite"><a href="#src-5" title="fastlane frameit action docs">5</a></sup>. The framed, captioned, localized set is now a function of a JSON file plus per-language strings, which is the property that makes it regenerate: change the headline and re-run, instead of reopening forty layered documents. <code>deliver</code> closes the chain by uploading everything in <code>fastlane/screenshots</code> to App Store Connect<sup class="article-cite"><a href="#src-6" title="fastlane iOS screenshots getting-started guide">6</a></sup>, so <code>snapshot</code> then <code>frameit</code> then <code>deliver</code> is capture, dress, and publish behind a single CI job.</p>
+<h2 id="the-screenshots-break-exactly-when-the-ui-tests-do">The screenshots break exactly when the UI tests do<a class="hanchor" href="#the-screenshots-break-exactly-when-the-ui-tests-do" aria-label="Link to section: The screenshots break exactly when the UI tests do">#</a></h2>
+<p>This pipeline earns the candor the <a href="/blog/automated-product-demo-videos/">pillar on regenerating media instead of re-recording it</a> asks for. Its cost is the UI test. snapshot only captures a screen the test can reach, so every shot rides on a test that taps through the app by accessibility identifier — and a redesign that renames or moves those controls breaks the capture before it breaks anything a user sees. That is the same <a href="/blog/detecting-ui-drift/">UI drift that quietly dates every screenshot</a>, except it surfaces as a failing test rather than a stale image, which is the better place to catch it. Simulators are slow, too; parallelism helps, but a fifty-locale run is a real slice of CI minutes, and the whole thing assumes macOS, Xcode, and a maintained test target. None of that is free. It is only cheaper than the alternative, which is <a href="/blog/why-product-demos-go-stale/">letting the images rot until a customer notices</a>.</p>
+<h2 id="when-the-browser-beats-the-simulator-as-the-camera">When the browser beats the simulator as the camera<a class="hanchor" href="#when-the-browser-beats-the-simulator-as-the-camera" aria-label="Link to section: When the browser beats the simulator as the camera">#</a></h2>
+<p>The simulator path is the right one for a genuinely native app, and it would be dishonest to claim otherwise: a browser cannot render authentic iOS chrome, and an App Store shot of a native app should show the native UI. But a large share of &quot;apps&quot; are web underneath — a PWA, a responsive web build, a Capacitor or web-view wrapper, a cross-platform surface that paints HTML. For those, booting a simulator is a heavy way to photograph a web page, and a browser-capture pipeline wins on the axes that matter:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Reach for</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Native iOS/Android UI</td>
+<td>Simulator (fastlane snapshot)</td>
+<td>Only the simulator or device renders authentic native chrome at the exact device grid</td>
+</tr>
+<tr>
+<td>PWA, responsive web, web view</td>
+<td>Browser capture</td>
+<td>The store screen is a web page; a headless browser pins the viewport and re-renders on change</td>
+</tr>
+<tr>
+<td>No macOS or Xcode in CI</td>
+<td>Browser capture</td>
+<td>The simulator path needs the Apple toolchain; a browser runs on any runner</td>
+</tr>
+<tr>
+<td>One set for store, docs, and web</td>
+<td>Browser capture</td>
+<td>A single <a href="/blog/deterministic-browser-automation-for-video/">deterministic capture</a> feeds every surface instead of two pipelines</td>
+</tr>
+</tbody></table></div>
+<p>A browser path still owes you frames and captions — the frameit job — but you add those as a compositing pass from the same JSON. Our own engine, aidemo, takes the browser route: an agent writes the storyboard and a deterministic replay records the web UI. The disclosures that matter here: it is ours, it photographs a browser and nothing native (a real iOS binary stays out of reach), the storyboard is code a coding agent produces instead of a timeline anyone drags, and it ships no visual editor. The tool matters less than the boundary it draws: <a href="/blog/automating-product-screenshots/">pick the camera by what the product actually is</a>. If the store screen is native, let the simulator shoot it; if it is a web page wearing an app icon, do not boot a phone to take its picture.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/" rel="noopener">Apple — App Store screenshot specifications</a></li>
+<li id="src-2"><a href="https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/" rel="noopener">Apple — App Store localizations (metadata languages)</a></li>
+<li id="src-3"><a href="https://developer.apple.com/news/?id=97t4mt64" rel="noopener">Apple — App Store adds 11 languages for localized metadata (March 2026)</a></li>
+<li id="src-4"><a href="https://docs.fastlane.tools/actions/snapshot/" rel="noopener">fastlane snapshot action docs</a></li>
+<li id="src-5"><a href="https://docs.fastlane.tools/actions/frameit/" rel="noopener">fastlane frameit action docs</a></li>
+<li id="src-6"><a href="https://docs.fastlane.tools/getting-started/ios/screenshots/" rel="noopener">fastlane iOS screenshots getting-started guide</a></li>
+<li id="src-7"><a href="https://github.com/fastlane/fastlane" rel="noopener">fastlane repository (MIT license)</a></li>
+<li id="src-8"><a href="https://support.google.com/googleplay/android-developer/answer/9866151" rel="noopener">Google Play — screenshot and graphic asset requirements</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-automate-app-store-screenshots" class="blog-faq-q">How do I automate App Store screenshots?<a class="hanchor" href="#how-do-i-automate-app-store-screenshots" aria-label="Link to section: How do I automate App Store screenshots?">#</a></h3>
+<p>The standard iOS pipeline is three fastlane commands. <code>snapshot</code> captures them by running your XCUITest target once per device and language listed in the Snapfile, capturing wherever you call <code>snapshot(&quot;name&quot;)</code>. <code>frameit</code> wraps each capture in a device frame and adds a localized title from a Framefile.json plus per-locale <code>.strings</code> files. <code>deliver</code> uploads the finished set to App Store Connect. All three are MIT-licensed and driven by config, so a UI change means re-running the job rather than reshooting by hand.</p>
+<h3 id="how-many-app-store-screenshots-do-i-actually-need" class="blog-faq-q">How many App Store screenshots do I actually need?<a class="hanchor" href="#how-many-app-store-screenshots-do-i-actually-need" aria-label="Link to section: How many App Store screenshots do I actually need?">#</a></h3>
+<p>At minimum one, for the largest display in each device family your app supports — a 6.9-inch iPhone shot, plus a 13-inch iPad shot if the app is universal — because Apple scales those down to every smaller size automatically. The ceiling is ten per device family per localization. A typical marketing listing uses five to eight, and with up to 50 metadata localizations available, that single choice decides whether you are maintaining dozens of PNGs or hundreds.</p>
+<h3 id="do-i-need-a-mac-and-xcode-to-use-fastlane-snapshot" class="blog-faq-q">Do I need a Mac and Xcode to use fastlane snapshot?<a class="hanchor" href="#do-i-need-a-mac-and-xcode-to-use-fastlane-snapshot" aria-label="Link to section: Do I need a Mac and Xcode to use fastlane snapshot?">#</a></h3>
+<p>Yes. snapshot drives <code>xcodebuild</code> and the iOS Simulator, so it needs macOS, Xcode, and a maintained UI-test target; there is no headless-Linux shortcut for capturing native iOS chrome. If your app&#39;s store surface is actually a web page — a PWA or a web-view wrapper — you can skip the Apple toolchain and drive a headless browser instead, which runs on any CI runner and produces the same PNGs.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">app store</span>
+        <span class="article-tag">screenshot automation</span>
+        <span class="article-tag">fastlane</span>
+        <span class="article-tag">localization</span>
+        <span class="article-tag">mobile app</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automated-product-demo-videos-400.webp" srcset="/blog/images/automated-product-demo-videos-400.webp 400w, /blog/images/automated-product-demo-videos-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Four automation mechanisms for demo videos, with only spec-driven replay looping back through CI to re-render the live UI"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/automating-product-screenshots-400.webp" srcset="/blog/images/automating-product-screenshots-400.webp 400w, /blog/images/automating-product-screenshots-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A pull request comparing an old and a regenerated product screenshot, the changed UI element highlighted"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-videos-in-ci-400.webp" srcset="/blog/images/demo-videos-in-ci-400.webp 400w, /blog/images/demo-videos-in-ci-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A GitHub Actions run log with a passing render-demo job and an attached MP4, beside the workflow YAML that triggered it"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#every-locale-every-device-is-another-stack-of-pngs">Every locale, every device, is another stack of PNGs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#fastlane-snapshot-your-ui-tests-drive-the-camera">fastlane snapshot: your UI tests drive the camera</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#frameit-the-frame-and-the-caption-are-json-not-photoshop">frameit: the frame and the caption are JSON, not Photoshop</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-screenshots-break-exactly-when-the-ui-tests-do">The screenshots break exactly when the UI tests do</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-the-browser-beats-the-simulator-as-the-camera">When the browser beats the simulator as the camera</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

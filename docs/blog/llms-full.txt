@@ -4,6 +4,95 @@
 
 ---
 
+# Accessible tutorial videos: captions, transcripts, audio description
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/accessible-tutorial-videos/
+
+> Captions clear one of seven WCAG media checks. The descriptive transcript that serves a Deaf-blind reader is the same text your search box needs.
+
+## “Add captions” answers one line of an accessibility spec that has at least seven
+
+Most teams treat an accessible tutorial video as done the moment a caption track exists. Captions are the visible, well-documented requirement, and they matter, but they answer for exactly one audience on one channel: a viewer who can see the screen and needs the spoken words in text. A tutorial video fails a different set of people in ways a caption never touches. The cursor that glides silently to a gear icon while the narrator says “click here” tells a blind listener nothing. The play button a keyboard-only user cannot reach with Tab leaves the whole video unplayed. And the search box on your own docs site, indexing text and not pixels, cannot find the answer buried in ninety seconds of MP4, which is the same wall a screen reader hits.
+
+That last overlap is the useful one. The artifact that lets a Deaf-blind reader reach your tutorial, a text version of everything the video says and shows, is the same artifact that gives a search engine something to index and a hurried sighted reader something to skim. Accessibility and findability are not two projects competing for one budget line. Done right they are a single piece of work: turn the video’s content into structured text, wire up a player anyone can operate, and account for what the screen does when the narration goes quiet. WCAG 2.2 names each of those, and W3C’s own media guide organizes the same list into description, captions, transcripts, and an accessible player ([W3C WAI, Making Audio and Video Media Accessible](https://www.w3.org/WAI/media/av/)). For a prerecorded tutorial the relevant criteria run to at least seven, only one of which is “add captions.”
+
+## Every media criterion, mapped to a tutorial requirement
+
+WCAG groups time-based media under Guideline 1.2 and adds the player and autoplay rules elsewhere. Stated as standards they read abstractly; the value is pinning each to a concrete thing a product tutorial has to ship.
+
+| WCAG success criterion | Level | What the standard asks | For a product tutorial, that means |
+|---|---|---|---|
+| 1.2.1 Audio-only and Video-only (Prerecorded) | A | Text alternative for audio-only; text alternative or audio track for video-only | A silent how-to microvideo needs a text description beside it; a voice-only clip needs a transcript |
+| 1.2.2 Captions (Prerecorded) | A | Synchronized captions of speech and non-speech audio | A caption track on every narrated clip, carrying the click chime and error tone, not only the words |
+| 1.2.3 Audio Description or Media Alternative (Prerecorded) | A | Either audio description or a full text alternative | The Level-A escape hatch: a descriptive transcript satisfies this with no separate description track |
+| 1.2.5 Audio Description (Prerecorded) | AA | Audio description specifically | Target AA and the transcript stops covering it: visual-only moments must be described in the audio |
+| 1.4.2 Audio Control | A | Pause/stop or independent volume for audio auto-playing over 3s | A sound-on autoplay demo needs a visible mute or pause |
+| 2.2.2 Pause, Stop, Hide | A | Pause/stop/hide for moving content that auto-starts, runs over 5s, sits beside other content | A muted hero loop past five seconds needs a pause control |
+| 2.1.1 Keyboard | A | All functionality operable by keyboard | Play, pause, scrub, volume, and the captions toggle all reachable by Tab and Enter |
+
+Read the levels first. Everything at Level A is the floor, WCAG’s base tier and the one most legal accessibility commitments reference. Six of the seven rows sit there, which is worth stating plainly, because the common belief that captions alone clear the bar is wrong even at the lowest conformance level. The 1.2.1 requirement for video-only content is the one people forget most: a silent GIF or wordless microvideo carries no audio to caption, so it needs a text description or an audio track instead ([W3C, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html)). The single Level-AA row, audio description under 1.2.5, is the one most tutorials quietly skip. Captions themselves are a deep enough subject to have [their own timing, format, and WCAG treatment](/blog/demo-video-captions); the next three sections are the rest of the map, starting with the two rows teams miss most.
+
+## The transcript is a separate document, and it doubles as your search text
+
+A caption and a transcript are not the same deliverable, and conflating them is why so many “accessible” videos still fail. A caption is a timed cue that lives inside the video, appearing and vanishing in step with the audio; re-host the MP4 in a player that ignores the sidecar and the caption goes with it. A transcript is a standalone block of text on the page: HTML the browser renders, the screen reader speaks at the reader’s own pace, and the crawler indexes like any other paragraph.
+
+WAI draws a sharper line inside the transcript itself. A basic transcript is the speech and non-speech audio written out, the same content captions carry, in document form. A descriptive transcript adds text descriptions of the visual information, and WAI names the audience that needs it: people who are Deaf-blind, who read a braille display and neither see the screen nor hear the audio ([W3C WAI, Transcripts](https://www.w3.org/WAI/media/av/transcripts/)). For a UI tutorial the descriptive version is the one that carries weight, because the whole point of the video is visual, which control and which panel in what order, and a basic transcript of “click here, then here” describes none of it.
+
+Here the two jobs collapse into one. The descriptive transcript is also the richest text your video will ever hand a search engine. A ninety-second MP4 is opaque to a crawler; the transcript beneath it is a keyword-dense account of the exact task users search for, and WAI notes that giving it headings and links “also helps with SEO” ([W3C WAI, Transcripts](https://www.w3.org/WAI/media/av/transcripts/)). The [text a video page needs to rank](/blog/video-seo-for-product-pages) and the text a Deaf-blind reader needs to follow along are the same text. Produce it once, satisfy both. It also clears the Level-A choice in SC 1.2.3, which accepts a full text alternative in place of an audio description ([W3C, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-or-media-alternative-prerecorded.html)), so a good descriptive transcript is doing at least three jobs before you have recorded a second of description.
+
+## Audio description, or a script that describes itself
+
+The moment captions cannot rescue is the silent one: the narrator pauses, the cursor slides across the screen, a menu opens, and a viewer who cannot see it has no idea what happened. WCAG’s answer is audio description, spoken narration added in the gaps that says what the picture shows. SC 1.2.5 makes it a Level-AA requirement for all prerecorded video, and it is stricter than the Level-A rule before it: 1.2.3 let you swap in a text alternative, while 1.2.5 removes that option and asks for the description in audio ([W3C, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-prerecorded.html)). The standard’s own out is the useful part: if everything important in the picture is already spoken in the main soundtrack, no separate description is needed.
+
+That out is a design instruction for anyone scripting a demo. A tutorial’s narration is written before it is recorded, which means you can write it to describe the screen in the first place, a technique WAI calls integrated description, where the account of what is happening is “naturally woven into the script for the main speaker” and which it recommends as “usually best for most training videos” ([W3C WAI, Description](https://www.w3.org/WAI/media/av/description/)). Compare two versions of one line:
+
+- Leans on the picture: “Now click here, and you’ll see it update over there.”
+- Describes itself: “Open the Filters menu in the top-right toolbar, choose Last 30 days, and the table below reloads with the narrower range.”
+
+The second needs no separate description track, because the words already carry what the cursor is doing. It reads a little more deliberately, and it is better narration for everyone: the caption inherits the same specific words, the transcript becomes genuinely descriptive at no extra cost, and a sighted viewer with a busy screen is told exactly where to look. Where a demo truly cannot avoid a wordless stretch, a long animated transition or a build console scrolling, the fallback is a real description track, which HTML exposes through a `<track kind="descriptions">` pointing at a WebVTT file for the browser to synthesize as speech ([MDN, The track element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track)). Browser and screen-reader support for that kind is thin, though, so self-describing narration plus a descriptive transcript is the more dependable path, and it is one you author rather than bolt on.
+
+## The player has to work without a mouse
+
+Everything so far assumes the viewer can start the video. A keyboard-only user, someone with a motor disability or anyone driving the page by keyboard, has to reach the play button, the scrubber, the volume, and the captions toggle with Tab and Enter, and see where the focus sits while doing it. SC 2.1.1 makes keyboard operability of all functionality a Level-A requirement ([W3C, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html)), and WAI’s media-player guidance is concrete about the cost: “provide keyboard support,” “make the keyboard focus indicator visible,” and build a player that “works without a mouse” and with screen readers ([W3C WAI, Media Players](https://www.w3.org/WAI/media/av/player/)). The native HTML `<video controls>` element gets most of this for free; a custom player skinned for brand reasons is where keyboard access quietly breaks, so test it with the mouse unplugged.
+
+Autoplay adds two rules teams forget because the clip seems harmless. A demo that plays sound automatically for more than three seconds must offer a way to pause or stop it, or independent volume control, under SC 1.4.2 at Level A ([W3C, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-control.html)). And a muted hero loop is not exempt: any content that moves automatically, runs longer than five seconds, and sits alongside other content needs a pause, stop, or hide control under SC 2.2.2, also Level A ([W3C, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)). The looping muted demo that so many pages [autoplay above the fold](/blog/autoplay-video-on-website) is exactly that moving content, and a surprising number ship with no way to stop it. A visible pause button is the entire fix.
+
+## Making accessibility and findability one build step
+
+Accessible tutorials get skipped because they look like four extra deliverables, captions, a transcript, a description pass, an audited player, bolted onto a finished video by hand. They are cheaper than that, because three of the four come from one source: the script. Narration written to describe itself is already the audio description. Transcribing that exact narration with word-level timing produces the caption track, and the [same speech-to-text step behind captions](/blog/demo-video-captions) emits the transcript as a byproduct; folding the visual descriptions from the script into it makes it descriptive. The player is a one-time template choice. Author the script for accessibility and most of the artifacts fall out of the render.
+
+That is also what keeps them honest. A transcript typed by hand after the fact drifts the moment the UI changes and the video is re-recorded; a transcript generated from the same source as the video rebuilds with it. This is the discipline the [broader case for video documentation](/blog/video-documentation) rests on: treat the demo as something regenerated from a spec, not re-recorded by hand, and its accessible text regenerates too. Our own engine, aidemo, works this way, with captions and transcript both coming from transcribing the narration audio, so they rebuild whenever the demo does, and with the limits worth stating plainly: it captures a browser only, an agent authors the storyboard instead of a person editing a timeline, and there is no visual editor for nudging a caption or a description into place. The tool is incidental. The principle is that the words a blind reader, a Deaf-blind reader, and a search crawler all need are the same words, produced once from the script the video was built on.
+
+## Sources
+
+- [W3C WAI — Making Audio and Video Media Accessible](https://www.w3.org/WAI/media/av/)
+- [W3C — Understanding SC 1.2.1: Audio-only and Video-only (Prerecorded), WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html)
+- [W3C — Understanding SC 1.2.3: Audio Description or Media Alternative (Prerecorded), WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-or-media-alternative-prerecorded.html)
+- [W3C — Understanding SC 1.2.5: Audio Description (Prerecorded), WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-prerecorded.html)
+- [W3C — Understanding SC 1.4.2: Audio Control, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-control.html)
+- [W3C — Understanding SC 2.1.1: Keyboard, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html)
+- [W3C — Understanding SC 2.2.2: Pause, Stop, Hide, WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)
+- [W3C WAI — Transcripts (basic and descriptive)](https://www.w3.org/WAI/media/av/transcripts/)
+- [W3C WAI — Description of Visual Information (integrated and separate)](https://www.w3.org/WAI/media/av/description/)
+- [W3C WAI — Accessible Media Players](https://www.w3.org/WAI/media/av/player/)
+- [MDN — The Embed Text Track element (track), kind values and WebVTT](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track)
+
+## FAQ
+
+### What is a descriptive transcript, and how is it different from captions?
+
+Captions are timed text cues that appear inside the video in sync with the audio; a transcript is a standalone text document on the page. A basic transcript writes out the speech and non-speech audio, the same content captions carry. A descriptive transcript goes further, adding text descriptions of the visual information, which is what a Deaf-blind reader on a braille display needs and what turns the transcript into a full account of a UI tutorial rather than a list of unplaced clicks. That descriptive version is also the text a search engine indexes, so it serves accessibility and findability at once.
+
+### Do tutorial videos need audio description?
+
+Under WCAG 2.2, prerecorded video needs audio description at Level AA (SC 1.2.5) whenever the picture carries information the soundtrack does not, and a tutorial full of silent cursor movements and menu changes usually does. The efficient fix is to avoid the gap in the first place: script the narration to name what it is doing, “open the Filters menu in the top-right” rather than “click here,” which WAI calls integrated description and recommends for most training videos. If everything important on screen is already spoken, no separate description track is required.
+
+### How do I make a video player keyboard accessible?
+
+Every control, play, pause, scrub, volume, and captions, has to be reachable and operable with the keyboard alone, and the focus indicator has to stay visible as you Tab through them, per WCAG SC 2.1.1 at Level A. The native HTML `<video controls>` element provides this out of the box; custom-skinned players are where it usually breaks. Test by unplugging the mouse and driving the whole player with Tab, Enter, and the arrow keys, and if any control is unreachable, it is not accessible yet.
+
+---
+
 # AI demo video generators: what the label actually covers
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/ai-demo-video-generators/
@@ -368,6 +457,96 @@ The content can be the same, but the delivery cannot. Apple needs an uploaded H.
 ### Does an app preview have to be recorded on a real device?
 
 It has to be genuine app footage. Apple's Review Guideline 2.3.4 allows only screen captures of the app itself, and its App Previews page requires footage "captured on device" with no fingers or device frames in shot. In practice that means a screen recording from a device, from the iOS Simulator or Android emulator, or from the app's real web surface — not stock clips and not synthetic text-to-video of a UI that does not exist.
+
+---
+
+# Keeping App Store screenshots current with automation
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/app-store-screenshot-automation/
+
+> Localize into 50 languages and App Store screenshots become hundreds of PNGs. The fastlane pipeline that regenerates them, and when a browser wins.
+
+## Every locale, every device, is another stack of PNGs
+
+Open App Store Connect and it is the screenshots that are mandatory, not the preview video. Apple lets you skip the video; it will not let you publish a listing with an empty screenshot slot. Each supported device family requires at least one screenshot and accepts up to ten per localization, as PNG or JPEG with no alpha channel ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)). Metadata now localizes into 50 languages and locales ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/)) — Apple added 11 of them in March 2026, most Indian languages ([Apple, 2026](https://developer.apple.com/news/?id=97t4mt64)). Multiply those two numbers and the "screenshots" line item stops being an afternoon and becomes a spreadsheet.
+
+The current rules do grant one mercy. You no longer author a bespoke set for every screen size in Apple's back catalog. Provide the largest display in each family — the 6.9-inch iPhone at 1320 x 2868 and the 13-inch iPad at 2064 x 2752 — and the store scales those down to fill the 6.5-inch, 6.3-inch, and 11-inch slots for you ([Apple, 2026](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)). Device sizes cap at two. Locales do not.
+
+Here is the matrix a real listing produces at eight shots per device, a normal marketing set well under the ten-shot ceiling:
+
+| Listing | Shots | Device families | Locales | Total PNGs |
+|---|---|---|---|---|
+| iPhone-only, English plus four | 8 | 1 | 5 | 40 |
+| Universal, 12 locales | 8 | 2 | 12 | 192 |
+| Universal, 25 locales | 8 | 2 | 25 | 400 |
+| Universal, every locale at the ceiling | 10 | 2 | 50 | 1,000 |
+
+Add Google Play, which wants two to eight phone screenshots plus a tablet set, each sized between 320 and 3,840 px ([Google, 2026](https://support.google.com/googleplay/android-developer/answer/9866151)), and the cross-store count roughly doubles. Nobody hand-produces four hundred pixel-exact PNGs once, and Apple's metadata-accuracy expectations mean you produce them again whenever the UI they show changes. The [moving-picture cousin of this problem, the app preview video](/blog/app-preview-video), has its own spec sheet; this is the still-frame half, and it is the taller stack.
+
+## fastlane snapshot: your UI tests drive the camera
+
+fastlane is a Ruby toolkit for iOS and Android release automation, MIT-licensed ([fastlane, 2026](https://github.com/fastlane/fastlane)). Its `snapshot` action solves capture by reusing something your project may already own: a UI-test target. Rather than script a separate screenshot bot, you drop `snapshot("01LoginScreen")` at the point in an XCUITest where the screen you want is on-screen ([fastlane, 2026](https://docs.fastlane.tools/actions/snapshot/)). A UI test cannot render a window directly, so under the hood snapshot triggers a device rotation to an orientation a user would never pick and lets Xcode's test reporter grab the frame — a hack, but a reliable one.
+
+The fan-out lives in a `Snapfile`:
+
+```ruby
+devices(["iPhone 16 Pro Max", "iPad Pro 13-inch (M4)"])
+languages(["en-US", "de-DE", "ja", "fr-FR"])
+scheme("UITests")
+override_status_bar(true)
+```
+
+`fastlane snapshot` runs that test once per device per language, across simulators in parallel on Xcode 9 and later. Two options make the output store-ready rather than merely captured. `override_status_bar` pins the clean 9:41, full-battery, full-signal bar Apple uses in its own marketing, so the clock in shot one matches the clock in shot two hundred. And `launch_arguments` lets the test boot the app into a fixed state — a seeded account, a chosen theme — so the pixels are reproducible instead of whatever the demo database happened to hold that morning ([fastlane, 2026](https://docs.fastlane.tools/actions/snapshot/)).
+
+The quiet win is resolution. A simulator renders at the true device pixel grid: the iPhone 16 Pro Max simulator produces 1320 x 2868, which is exactly the 6.9-inch screenshot spec, with no resize step. That is the reverse of the app preview video, where you downscale to a smaller 886 x 1920 frame — Apple wants screenshots at full native resolution and the video at a reduced one. For stills, the simulator hands you the right number for free.
+
+## frameit: the frame and the caption are JSON, not Photoshop
+
+A raw simulator capture is a bare app screen. The App Store shots that actually convert are usually set in a device bezel under a headline, and producing that by hand is where the localized matrix truly detonates. `frameit` moves it into config. It wraps each PNG in a device frame and, driven by a `Framefile.json`, adds a title and keyword line with your fonts, colors, background, and padding ([fastlane, 2026](https://docs.fastlane.tools/actions/frameit/)). A `default` block sets the global look; a `data` array overrides per screenshot by filename filter.
+
+The captions localize the way the app already does. frameit reads `title.strings` and `keyword.strings` files — ordinary iOS `.strings` files, one folder per locale — so the German headline for shot three comes from `de-DE/title.strings` and the Japanese one from `ja/title.strings`, fed by the same translation workflow you use for in-app copy ([fastlane, 2026](https://docs.fastlane.tools/actions/frameit/)). The framed, captioned, localized set is now a function of a JSON file plus per-language strings, which is the property that makes it regenerate: change the headline and re-run, instead of reopening forty layered documents. `deliver` closes the chain by uploading everything in `fastlane/screenshots` to App Store Connect ([fastlane, 2026](https://docs.fastlane.tools/getting-started/ios/screenshots/)), so `snapshot` then `frameit` then `deliver` is capture, dress, and publish behind a single CI job.
+
+## The screenshots break exactly when the UI tests do
+
+This pipeline earns the candor the [pillar on regenerating media instead of re-recording it](/blog/automated-product-demo-videos) asks for. Its cost is the UI test. snapshot only captures a screen the test can reach, so every shot rides on a test that taps through the app by accessibility identifier — and a redesign that renames or moves those controls breaks the capture before it breaks anything a user sees. That is the same [UI drift that quietly dates every screenshot](/blog/detecting-ui-drift), except it surfaces as a failing test rather than a stale image, which is the better place to catch it. Simulators are slow, too; parallelism helps, but a fifty-locale run is a real slice of CI minutes, and the whole thing assumes macOS, Xcode, and a maintained test target. None of that is free. It is only cheaper than the alternative, which is [letting the images rot until a customer notices](/blog/why-product-demos-go-stale).
+
+## When the browser beats the simulator as the camera
+
+The simulator path is the right one for a genuinely native app, and it would be dishonest to claim otherwise: a browser cannot render authentic iOS chrome, and an App Store shot of a native app should show the native UI. But a large share of "apps" are web underneath — a PWA, a responsive web build, a Capacitor or web-view wrapper, a cross-platform surface that paints HTML. For those, booting a simulator is a heavy way to photograph a web page, and a browser-capture pipeline wins on the axes that matter:
+
+| Situation | Reach for | Why |
+|---|---|---|
+| Native iOS/Android UI | Simulator (fastlane snapshot) | Only the simulator or device renders authentic native chrome at the exact device grid |
+| PWA, responsive web, web view | Browser capture | The store screen is a web page; a headless browser pins the viewport and re-renders on change |
+| No macOS or Xcode in CI | Browser capture | The simulator path needs the Apple toolchain; a browser runs on any runner |
+| One set for store, docs, and web | Browser capture | A single [deterministic capture](/blog/deterministic-browser-automation-for-video) feeds every surface instead of two pipelines |
+
+A browser path still owes you frames and captions — the frameit job — but you add those as a compositing pass from the same JSON. Our own engine, aidemo, takes the browser route: an agent writes the storyboard and a deterministic replay records the web UI. The disclosures that matter here: it is ours, it photographs a browser and nothing native (a real iOS binary stays out of reach), the storyboard is code a coding agent produces instead of a timeline anyone drags, and it ships no visual editor. The tool matters less than the boundary it draws: [pick the camera by what the product actually is](/blog/automating-product-screenshots). If the store screen is native, let the simulator shoot it; if it is a web page wearing an app icon, do not boot a phone to take its picture.
+
+## Sources
+
+- [Apple — App Store screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
+- [Apple — App Store localizations (metadata languages)](https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/)
+- [Apple — App Store adds 11 languages for localized metadata (March 2026)](https://developer.apple.com/news/?id=97t4mt64)
+- [fastlane snapshot action docs](https://docs.fastlane.tools/actions/snapshot/)
+- [fastlane frameit action docs](https://docs.fastlane.tools/actions/frameit/)
+- [fastlane iOS screenshots getting-started guide](https://docs.fastlane.tools/getting-started/ios/screenshots/)
+- [fastlane repository (MIT license)](https://github.com/fastlane/fastlane)
+- [Google Play — screenshot and graphic asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151)
+
+## FAQ
+
+### How do I automate App Store screenshots?
+
+The standard iOS pipeline is three fastlane commands. `snapshot` captures them by running your XCUITest target once per device and language listed in the Snapfile, capturing wherever you call `snapshot("name")`. `frameit` wraps each capture in a device frame and adds a localized title from a Framefile.json plus per-locale `.strings` files. `deliver` uploads the finished set to App Store Connect. All three are MIT-licensed and driven by config, so a UI change means re-running the job rather than reshooting by hand.
+
+### How many App Store screenshots do I actually need?
+
+At minimum one, for the largest display in each device family your app supports — a 6.9-inch iPhone shot, plus a 13-inch iPad shot if the app is universal — because Apple scales those down to every smaller size automatically. The ceiling is ten per device family per localization. A typical marketing listing uses five to eight, and with up to 50 metadata localizations available, that single choice decides whether you are maintaining dozens of PNGs or hundreds.
+
+### Do I need a Mac and Xcode to use fastlane snapshot?
+
+Yes. snapshot drives `xcodebuild` and the iOS Simulator, so it needs macOS, Xcode, and a maintained UI-test target; there is no headless-Linux shortcut for capturing native iOS chrome. If your app's store surface is actually a web page — a PWA or a web-view wrapper — you can skip the Apple toolchain and drive a headless browser instead, which runs on any CI runner and produces the same PNGs.
 
 ---
 
@@ -2275,6 +2454,91 @@ For a team making a demo or two a month, a flat single-seat recorder like Screen
 ### Do interactive demo tools cost more than screen recorders?
 
 Usually yes, and they are priced for a different job. A screen recorder is a flat $9 to $24 a month; an interactive-tour platform's comparable-fidelity tier is a four-figure line item, such as Storylane's $500-a-month Growth plan billed yearly, and Navattic quotes its paid tiers only by a sales call ([Navattic, July 2026](https://www.navattic.com/pricing)). You pay more because you are buying a clickable HTML embed and its visitor analytics, not a video file, so the two do not compare on cost per minute at all.
+
+---
+
+# The demo video thumbnail: poster frame vs marketing cover
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/demo-video-thumbnail/
+
+> The poster that fills the box, the cover that earns the click, and the share card a crawler reads are three different pictures. Which frame to pick for each.
+
+## Three different pictures all called the thumbnail
+
+"Thumbnail" is doing three jobs under one word, and conflating them is why a demo's cover so often lands wrong. There are three distinct images here. Each one lives in a different place, obeys a different spec, and is judged by a different number, so treating them as a single picture guarantees that at least two of them end up as whatever the software defaulted to.
+
+| Surface | What the picture is | Where you set it | The spec that governs it | The one job it has |
+| --- | --- | --- | --- | --- |
+| In-player poster | The still inside the `<video>` box before play | The `poster` attribute in your markup | MDN `<video>` poster behavior, plus the iOS fix | Fill the frame before playback without slowing the page |
+| Platform thumbnail | The cover tile in a YouTube or gallery grid | Uploaded in the platform's studio | YouTube: 3840x2160, 16:9, under 2 MB on mobile | Win the click against a wall of rival tiles |
+| Social share card | The image on a link unfurl | The `og:image` tag in the page `<head>` | The Open Graph protocol | Survive a paste into Slack, LinkedIn, or iMessage |
+
+The poster is a rendering detail, the platform thumbnail is a marketing asset, and the share card is metadata a crawler reads. They are not interchangeable and they are rarely the same file. A team that designs a sharp YouTube cover but leaves the embedded `<video>` posterless, or never sets the page's `og:image`, has solved one problem out of three and will watch the other two fail quietly, in surfaces it does not habitually look at. The rest of this takes each in turn, then answers the question that decides all three at once: which frame.
+
+## The poster attribute, and what it does when you skip it
+
+Start with the one most teams leave to chance. The `poster` attribute is, in MDN's words, "a URL for an image to be shown while the video is downloading," and the sentence right after it is the one that bites: "if this attribute isn't specified, nothing is displayed until the first frame is available, then the first frame is shown as the poster frame" ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). So a `<video>` with no poster shows its own frame zero, which on almost every export is the worst still in the file: a fade up from black, an empty chrome, a login screen, the app mid-mount. Setting `poster` is not decoration, it is refusing to let frame zero speak for the video.
+
+iOS turns that default from bad to broken. Safari on iPhone does not display the first frame of an HTML video by default, and when the clip is not autoplaying "the first frame of the video is never fetched," so a posterless `<video>` renders as a blank rectangle ([SiteLint](https://www.sitelint.com/blog/fixing-html-video-autoplay-blank-poster-first-frame-and-improving-performance-in-safari-and-ios-devices)). Two fixes exist: set a real poster image, or append `#t=0.001` to the source URL so Safari seeks one millisecond in and paints that frame. The media-fragment trick is [worked out in full for the cross-browser autoplay recipe](/blog/autoplay-video-on-website), and the caveat to carry from it is the one SiteLint names, that `#t=0.001` "forces the browser to download the first few seconds of the video to extract that frame," which a static poster does not. Prefer a real poster; keep the fragment for when you cannot ship one.
+
+The poster also settles a bill you might not know you owe. For a `<video>` element the browser times Largest Contentful Paint by the poster's load or the first frame, whichever comes first, so a small, well-compressed poster caps the number the page is graded on. The [full landing-page arithmetic](/blog/demo-video-on-landing-page) shows a roughly 100 KB poster arriving in about half a second where the clip itself takes tens. Pick that poster once and it does triple duty: the `poster` attribute, the LCP governor, and the `thumbnailUrl` in your [VideoObject markup](/blog/video-seo-for-product-pages).
+
+## The marketing cover that actually earns the click
+
+The platform thumbnail is a different animal, because it competes. On YouTube, in search, in a suggested-videos rail, your cover sits in a grid of rivals and the only question is whether a thumb stops on yours. YouTube states the stakes plainly: "90% of the best-performing videos have custom thumbnails," and it tells you to measure the guess by "click-through rate (CTR) on Home and Suggested in the first 24 hours after publication" ([YouTube, 2026](https://support.google.com/youtube/answer/12340300?hl=en)). The custom cover is not optional polish; it is the one lever the platform says the top of the distribution pulls.
+
+The specs are stricter than the cargo-culted "1280x720" most guides still quote. YouTube's current guidance recommends a 3840x2160 image at a 16:9 aspect ratio, minimum width 640 pixels, in JPG, GIF, or PNG, kept under 2 MB when uploaded from mobile (50 MB on desktop) ([YouTube, 2026](https://support.google.com/youtube/answer/72431?hl=en)). Build the cover at 4K and it stays crisp on a living-room TV; build it at the old 1280 floor and it is already at its ceiling.
+
+What goes on the cover is where a demo diverges from the advice written for vloggers. The generic playbook says put a shocked human face on it; a product demo's subject is the interface, not a reaction shot. Apply the rule of thirds YouTube suggests, then spend the frame on the product mid-outcome and overlay three to five words naming what the viewer gets, in a font legible at the size a suggested rail shrinks it to. The face-and-hype cover wins entertainment CTR; a demo wins it by making the payoff readable before anyone clicks.
+
+## The frame that shows the product actually working
+
+All three surfaces reduce to one decision: which single frame of the run stands in for it. The failure mode is passive, letting the exporter, the platform's auto-pick, or frame zero decide, and the fix is a short veto list. Every row below is a frame the software will happily choose for you, next to the reason not to let it.
+
+| The frame you can land on | Why it costs the view | Choose instead |
+| --- | --- | --- |
+| A loading spinner or skeleton | Reads as slow or broken before a click | The state after the data has painted |
+| A login or auth screen | Signals work-before-value, and shows no product | The signed-in, populated view |
+| An empty state with zero data | Looks like a tool where nothing happens | A screen carrying real, plausible content |
+| A modal mid-transition or a blur frame | Reads as a glitch, not a feature | A settled, sharp frame on the key screen |
+| A bare cursor over whitespace | Has no subject for the eye to land on | The cursor on the element that matters |
+| Literal frame zero at 0:00 | Usually a fade-in or chrome, never the point | A frame roughly a third in, mid-action |
+
+The through-line is the same one that governs [the first frame of a click-to-play hook](/blog/demo-video-hook): a viewer reads the still as a promise about the video, so the still has to show the product doing the thing, populated and in motion, not booting up. If you can get only one frame right, get the one a human sees before pressing play, because on a gated surface that frame is the entire argument.
+
+## Producing the still on purpose, not by accident
+
+Once you know which frame, pulling it is one command. To grab a chosen moment from a finished cut, `ffmpeg` seeks to the timecode and writes a single frame:
+
+```sh
+ffmpeg -ss 00:00:07 -i demo.mp4 -frames:v 1 -q:v 2 poster.jpg
+```
+
+Encode it small (WebP or JPEG, around 1600 px wide, near 100 KB) so it doubles as the LCP-safe poster, then reuse the same file as the base for the YouTube cover and the `og:image`. That is the manual path, and it has one flaw: the moment the product's UI ships a change, the frame you carefully chose now shows a screen that no longer exists, and nothing tells you.
+
+The durable version renders the still from the same spec that renders the video. aidemo, the open-source engine this blog belongs to, lets a storyboard mark named frames and exports them as stills on every build, so the poster, the cover base, and the share image regenerate whenever the demo does and never drift from the current UI. Its honest limits are worth stating: capture happens inside a browser only, a coding agent writes the storyboard instead of a person nudging clips on a visual timeline, and there is no GUI editor for hand-picking a frame by eye, you name the moment in text and let the engine cut it. Whichever tool pulls the frame, the rule holds and it belongs to the same [script-first demo playbook](/blog/how-to-make-a-product-demo-video): the thumbnail is a decision the software will make for you if you decline to make it, and it will make it badly.
+
+## Sources
+
+- [MDN — The Video Embed element (`<video>`), poster attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)
+- [SiteLint — Fixing HTML video autoplay, blank poster, and the first frame on Safari and iOS](https://www.sitelint.com/blog/fixing-html-video-autoplay-blank-poster-first-frame-and-improving-performance-in-safari-and-ios-devices)
+- [YouTube Help — Thumbnail & title tips](https://support.google.com/youtube/answer/12340300?hl=en)
+- [YouTube Help — Add custom thumbnails](https://support.google.com/youtube/answer/72431?hl=en)
+- [The Open Graph protocol (og:image)](https://ogp.me/)
+
+## FAQ
+
+### What is the difference between a video poster and a thumbnail?
+
+The poster is the still shown inside the `<video>` element before playback, set with the `poster` attribute in your own markup; MDN notes that without it the browser falls back to the video's first frame ([MDN, 2026](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)). A thumbnail, in the everyday sense, is the cover tile a platform like YouTube shows in a grid to earn the click, uploaded separately and judged by click-through rate. They can share the same image, but they live in different places and answer to different specs, so treating them as one is how one of them ends up as whatever defaulted.
+
+### What frame should I use as a demo video thumbnail?
+
+A frame that shows the product populated and mid-action, never a spinner, a login screen, an empty state, or literal frame zero, which is usually a fade-in. Pick a moment roughly a third of the way in, where real data is on screen and the interface is visibly doing the thing the demo is about. On any surface where playback waits for a click, that frame is the whole pitch, so choose it deliberately rather than accepting the exporter's or the platform's automatic pick.
+
+### What size should a YouTube demo thumbnail be?
+
+YouTube's current guidance recommends a 3840x2160 image at a 16:9 aspect ratio, with a minimum width of 640 pixels, uploaded as JPG, GIF, or PNG and kept under 2 MB from mobile (50 MB on desktop) ([YouTube, 2026](https://support.google.com/youtube/answer/72431?hl=en)). That is a step up from the 1280x720 many older guides still cite. For the in-player `poster` and the Open Graph share image, size for the web instead: around 1600 px wide and near 100 KB, so the poster does not become the slowest element the page is timed against.
 
 ---
 
@@ -6150,6 +6414,87 @@ They are complements, not substitutes. Written notes are searchable, linkable, a
 
 ---
 
+# Reproducible demo renders: byte-for-byte, on purpose
+
+July 18, 2026 · Demos as Code · https://aidemo.top/blog/reproducible-demo-renders/
+
+> You pinned the browser so it paints the same pixels every run. The MP4 still differs. Here is why, and the reproducible-builds discipline that closes it.
+
+## Same spec, same pixels, a different file every time
+
+You did the expensive part. The demo is [a committed spec that replays into footage](/blog/demos-as-code), and the browser side is [pinned hard enough to paint identical frames on every run](/blog/deterministic-browser-automation-for-video): fixed viewport, frozen clock, fonts awaited, network stubbed. Two runs, the same picture frame for frame. Then you `sha256sum` the two MP4s and they disagree.
+
+That is not a bug in the replay. The file holds more than the image. An MP4 is a container wrapped around an encoded bitstream, and both layers stamp in facts about the moment and the machine that produced them: when the mux ran, which encoder build did the work, how many CPU threads split the frames. Identical input, different provenance, different bytes. The received wisdom is that two encodes never match, and as a default that is fair. It stops being true the moment you decide to make it stop.
+
+## A render is a build, so borrow the build contract
+
+The people who fought this exact war are the Reproducible Builds project, whose whole job is making a compiler emit the same binary twice. Their definition is the one to steal: a build is reproducible when, given the same source, environment, and instructions, any party can recreate "bit-by-bit identical copies of all specified artifacts," verified by a plain hash comparison ([Reproducible Builds, accessed July 2026](https://reproducible-builds.org/docs/definition/)).
+
+Every noun maps onto a render. The *source* is the storyboard plus the captured frames and the narration. The *instructions* are the compose command: the filter graph, the codec, the flags. The *environment* is the part nobody writes down, the exact ffmpeg, the exact libx264, the fonts installed on the box, the number of cores. Pin all three and the render is a build like any other. Leave any one floating and you do not have a build, you have a coincidence that saved to disk.
+
+## Where the bytes diverge, ranked by how often they bite
+
+The Reproducible Builds project names the worst offender before you ever reach video: "Timestamps make the biggest source of reproducibility issues. Many build tools record the current date and time" ([Reproducible Builds, accessed July 2026](https://reproducible-builds.org/docs/timestamps/)). That ranking holds for an MP4, and the rest of the list is short enough to memorize.
+
+| Rank | Source of drift | What it stamps into the file | Bites when | The pin |
+|---|---|---|---|---|
+| 1 | Wall-clock timestamps | creation and modification time in the movie header | every single render | `+bitexact` writes time-independent data |
+| 2 | Encoder identity | x264's build-and-settings string in the bitstream, plus an `encoder` tag in the container | any toolchain version change | `-flags:v +bitexact` strips it |
+| 3 | Thread count | frame-split decisions under some rate-control modes | across machines with different core counts | `-threads 1`, or a fixed N |
+| 4 | Font rasterization | the exact pixels of baked-in captions and cards | across OS or image versions | ship the font files; pin the rasterizer |
+| 5 | Container muxing | atom order, padding, faststart placement | across ffmpeg versions | fixed flags plus `+bitexact` |
+| 6 | Audio encoder | AAC psychoacoustic choices, encoder version | on any audio-codec change | pin the toolchain, or master in FLAC/PCM |
+
+Read it top down and a pattern falls out. The first three rows account for nearly every mismatch you will actually see, and all three are metadata or machine facts, not one pixel of the demo. Rows four through six fire only when the environment itself moves, which is precisely why the environment is the thing you freeze rather than chase.
+
+## The recipe most renders never apply
+
+None of this needs a new tool. FFmpeg already ships the lever, and it is embarrassingly close to a one-liner. The `bitexact` flag exists specifically to "only write platform-, build- and time-independent data," so that "file and data checksums are reproducible and match between platforms" ([FFmpeg, accessed July 2026](https://ffmpeg.org/ffmpeg-formats.html)). Set it on the container and on each codec, pin the thread count away from its machine-dependent default of `auto` ([FFmpeg, accessed July 2026](https://ffmpeg.org/ffmpeg-codecs.html)), and drop any stray global metadata:
+
+```sh
+ffmpeg -i frames.mp4 -i narration.wav \
+  -map 0:v -map 1:a \
+  -c:v libx264 -preset veryfast -crf 20 -threads 1 \
+  -flags:v +bitexact -flags:a +bitexact -fflags +bitexact \
+  -map_metadata -1 -movflags +faststart \
+  out.mp4
+sha256sum out.mp4
+```
+
+`SOURCE_DATE_EPOCH` is the cross-tool convention that names the one timestamp a build may use, expressed as seconds since the Unix epoch of January 1st 1970 UTC, so every tool that honors it agrees on "now" ([Reproducible Builds, accessed July 2026](https://reproducible-builds.org/docs/source-date-epoch/)). FFmpeg does not read it, but the wrapper that archives the finished MP4 should, and for the leaks a tool bakes in anyway there is `strip-nondeterminism`, the post-processing normalizer the same project maintains ([Reproducible Builds, accessed July 2026](https://reproducible-builds.org/docs/timestamps/)). The last mile is pinning the toolchain itself: the `bitexact` output matches across platforms only up to the encoder version, so the recipe belongs inside a pinned container image, [built once and reused by the CI job that renders the demo](/blog/demo-videos-in-ci).
+
+## Hashing the output, and what a green hash means
+
+Once the bytes are stable, the render gets the same superpower a compiler does: its output has a hash, and the hash is an assertion. Commit it, and CI re-renders and compares; a matching digest is a fast, total proof that nothing observable changed. This is the golden-file pattern the terminal world already runs. vhs emits a `.txt` or `.ascii` transcript precisely so teams can "generate golden files" and commit them, catching any unintended change when the tape is replayed in CI ([Charmbracelet, accessed July 2026](https://github.com/charmbracelet/vhs)), and a bit-exact MP4 pushes that same idea down to the byte layer of a real video.
+
+The catch is the one that makes a byte hash [the noisiest layer you can freeze](/blog/testing-demos-like-code): it tells you the bytes differ, never why. A red digest is a real product change, a bumped ffmpeg, or a runner with a different core count, and the digest cannot tell the three apart. So the hash is load-bearing only when the environment underneath it is nailed down. A reproducible render without a pinned toolchain is not reproducible; it is lucky.
+
+## When byte-for-byte earns its keep
+
+Byte reproducibility is brittle on purpose. One libx264 point release rewrites every hash in the repository at once, which is the whole point when you are verifying a supply chain and exactly the wrong tax to pay to regression-test a marketing clip. For most demos the better move is to freeze a higher, calmer layer, the resolved behavior or a handful of still frames, and let the pixels re-encode however they like. That is the call the [golden-layer decision](/blog/testing-demos-like-code) already covers.
+
+The cases where hashing the actual bytes pays for itself are specific and real. Cache-dedup: if the inputs hash the same, skip the re-encode entirely and reuse yesterday's artifact, turning a nightly render into a no-op on the days nothing changed. Provenance: an archival or compliance copy that a third party can rebuild and verify to the bit. And genuine bisection, where you need to prove a byte moved between two commits, not merely that a perceptual diff wobbled past a threshold.
+
+Our own engine, aidemo, sits deliberately on one side of this line, and it is worth being exact about which. It makes the capture reproducible, driving a real Chrome through a fixed action-spec and shipping a timing-free behavior golden you diff in a pull request, but it does not currently emit a byte-for-byte identical MP4: its libx264 compose writes the encoder's build string and takes the machine's default thread count, so the finished file is not something you would hash. It is browser-only, an agent writes its storyboards instead of a human dragging clips on a timeline, and byte-level determinism is a compose-time flag it has not yet flipped. The honest version of "reproducible demo renders" is a ladder: pin the capture first, freeze the behavior next, and reach for the bit-exact bytes last, once you know [which artifact you are actually versioning](/blog/versioning-media-assets-in-git).
+
+## Sources
+- [Reproducible Builds — Definition (bit-by-bit identical artifacts from the same source, environment, and instructions)](https://reproducible-builds.org/docs/definition/)
+- [Reproducible Builds — Timestamps (the biggest single source of non-reproducibility; strip-nondeterminism, libfaketime)](https://reproducible-builds.org/docs/timestamps/)
+- [Reproducible Builds — SOURCE_DATE_EPOCH (seconds since the Unix epoch; the one timestamp a build may use)](https://reproducible-builds.org/docs/source-date-epoch/)
+- [FFmpeg — Formats documentation (fflags bitexact: only platform-, build- and time-independent data, reproducible checksums)](https://ffmpeg.org/ffmpeg-formats.html)
+- [FFmpeg — Codecs documentation (codec flags bitexact; -threads default 'auto')](https://ffmpeg.org/ffmpeg-codecs.html)
+- [Charmbracelet vhs — .txt/.ascii output for golden files, diffed between tape runs in CI](https://github.com/charmbracelet/vhs)
+
+## FAQ
+### Why do two encodes of the same video produce different checksums?
+Because the file records more than the picture. The container stamps in wall-clock creation and modification times, the encoder writes its own build-and-settings string into the bitstream, and multi-threaded encoding can split frames differently depending on how many cores the machine has. None of those are pixels, but all of them are bytes, so identical footage still hashes differently unless you strip the metadata and pin the encode.
+### How do you make an ffmpeg render byte-for-byte reproducible?
+Add `-fflags +bitexact -flags:v +bitexact -flags:a +bitexact`, which FFmpeg documents as writing only "platform-, build- and time-independent data" so "checksums are reproducible and match between platforms." Then pin the thread count with `-threads 1` (its default is the machine-dependent `auto`), drop container metadata with `-map_metadata -1`, and run the whole thing inside a pinned toolchain, since the output only matches other machines up to the encoder version.
+### Does SOURCE_DATE_EPOCH work for video files?
+Not directly. FFmpeg does not read `SOURCE_DATE_EPOCH`; its own mechanism for "no wall clock in the file" is the `bitexact` flag, which writes time-independent data instead of the current time. Use `SOURCE_DATE_EPOCH` in the surrounding build tooling that archives or packages the render, and reach for a post-processor like `strip-nondeterminism` for any timestamp a tool embeds regardless.
+
+---
+
 # SaaS demo video examples: what the best ones do differently
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/saas-demo-video-examples/
@@ -7271,6 +7616,93 @@ Golden file testing captures the output of a run once, commits that output as th
 They are the same mechanism under two names, with a nuance of scale and culture. "Golden file" comes from systems and CLI testing, where the reference is often a sizeable file on disk updated with an explicit `-update` flag; "snapshot testing" is the name Jest popularized for inline or co-located references in unit tests. Both capture output, commit it, diff against it, and require a deliberate update to change the baseline. Any difference is convention, not concept.
 ### Why not just diff the MP4 file to test a demo?
 Because an MP4 is the worst possible golden. Two encodes of identical footage are never byte-for-byte equal, so a byte diff fails on every run and tests your encoder instead of your product. A per-frame pixel diff swings the other way, firing on font hinting and a one-minute clock tick unless you pin the whole render and set a perceptual threshold. The stable thing to freeze is the demo's resolved behavior, which selectors resolved and where navigation landed, because it is deterministic text that fails only when the flow actually breaks.
+
+---
+
+# Versioned demos: one demo per product release
+
+July 18, 2026 · Demo Automation · https://aidemo.top/blog/versioned-demos-per-release/
+
+> A nightly build keeps one demo current. Versioning does the opposite job: it lets v2.3's demo stay v2.3's forever, so nobody sees a feature they don't have.
+
+## A demo can lie in two directions, not one
+
+Everyone worries that a demo is *behind* the product: the button moved, the screen got redrawn, the flow gained a step. That is drift, and it is [what makes a demo rot the moment you ship past it](/blog/why-product-demos-go-stale). The cure is to keep one demo pinned to the tip of the tree — [regenerate it from a committed spec](/blog/automated-product-demo-videos) so shipping the change is the update, and let [a nightly re-render guard it](/blog/nightly-demo-builds) against the drift a code diff never shows.
+
+There is a second way a demo can be wrong, and chasing the first one makes it worse. A demo can be *ahead* of the version the viewer is actually running. A customer on your self-hosted v2.3, an enterprise account pinned to last quarter's release, a reader following a tutorial written against v2 — each of them opens "the demo," sees a v3.0 workflow, and hunts for a button that does not exist in their build yet. Nightly re-rendering, the fix for staleness, aims the single canonical demo squarely at HEAD, which is exactly where those viewers are not. The more diligently you keep one demo current, the more wrong it is for everyone off the latest version.
+
+Versioning answers the second failure, and it is a different discipline from keeping the current one fresh. The move is to stop treating the demo as one file that always shows the newest thing, and start treating it as a release artifact: v2.3's demo shows v2.3, v3.0's demo shows v3.0, and the two coexist instead of one silently overwriting the other. Old versions keep their old demo. That single rule is the whole idea, and the version number you already ship is what makes it mechanical.
+
+## Borrow the rule SemVer already wrote for you
+
+Semantic Versioning codified the principle in a clause most people skim past. Item 3: "Once a versioned package has been released, the contents of that version MUST NOT be modified. Any modifications MUST be released as a new version" ([Semantic Versioning 2.0.0, accessed July 2026](https://semver.org/)). A published version is frozen. You do not edit v2.3.1 in place; you ship v2.3.2.
+
+A demo pinned to a release inherits that rule for free. Once v2.3 ships with its demo, that demo is v2.3's forever — you never re-render over it, the same way you never rewrite a tag. When v2.4 ships it gets *its own* demo, a new artifact at a new address, and v2.3's cut stays exactly where it was recorded. This is the opposite instinct from a nightly build, which overwrites yesterday's render on purpose, and it complements [rendering a fresh cut for each release](/blog/release-notes-videos): that piece decides which tags earn a brand-new video, this one insists the old videos never get clobbered when they do.
+
+The freeze is only credible if you can prove the old demo still matches the old release. Because the storyboard is committed next to the code, checking out the v2.3 tag and rendering reproduces v2.3's demo from v2.3's spec — the same input, the same output, [byte-stable on purpose](/blog/reproducible-demo-renders). In our own engine, aidemo — ours, and honestly browser-only, with the storyboard written by a coding agent rather than dragged across a GUI timeline — the spec lives in the repo, so the demo for any past tag is regenerable from that tag alone, not from a video file someone hopefully archived to a drive.
+
+## How coarse can the version key be?
+
+Not every tag needs its own demo, and getting the granularity right is what keeps the practice from drowning you. A PATCH, by SemVer's own definition, is a backward-compatible fix with no new user-visible surface — which is precisely the surface a demo shows. So the demo you recorded for v2.3.0 is still honest for v2.3.7: nothing a viewer can see has changed. Key demos at `major.minor`, and let every patch in a line reuse its line's cut.
+
+That collapses the numbers hard. A three-year-old project can carry two hundred–plus tags; the overwhelming majority are patches. Say it cut roughly 40 minor lines and 3 majors, and that only about half of those minors actually touched a screen a demo features. You are not keeping two hundred demos. You are keeping about 15 — one per visible-change line — and every patch tag simply points at its line's demo.
+
+| Version change | New visible surface? | Its own demo? | A viewer on it watches |
+|---|---|---|---|
+| MAJOR (**X**.0.0) | usually, and large | Yes | its own cut |
+| MINOR (x.**Y**.0), UI changed | yes | Yes | its own cut |
+| MINOR, nothing visible moved | no | No | the previous line's cut |
+| PATCH (x.y.**Z**) | no, by definition | No | its minor line's cut |
+
+The granularity decision is the one that makes versioned demos sustainable rather than a second full-time job. Tie a demo to every tag and you are back to the release-a-week treadmill; tie it to every visible-change line and the count grows at the pace of redesigns, which is slow.
+
+## The storage math for keeping every version around
+
+The reflexive objection is that keeping every version means unbounded storage. Do the arithmetic and the objection evaporates. A 60-second 1080p screen-capture demo encodes small, because UI footage is low-motion and low-entropy: figure roughly 25–50 MB in H.264 at a 4–6 Mbps rate. Take 40 MB as a round working number.
+
+| Retention policy | Versions kept | At ~40 MB each | Verdict |
+|---|---|---|---|
+| Every demoed line (~15) | 15 | ~600 MB | trivial |
+| Every minor tag, visible or not (~40) | 40 | ~1.6 GB | fine as release assets |
+| Rolling window, last 6 | 6 | ~240 MB | trivial |
+| Majors only (~3) | 3 | ~120 MB | trivial |
+
+Where the files live decides whether that number even matters. Attach each demo to its release and GitHub pins it to the tag — "Releases are based on Git tags," and each attached file must be "under 2 GiB" ([GitHub Docs, accessed July 2026](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)) — and it never enters your git history, so the clone stays small no matter how many versions you archive. Commit the same MP4s into the repository and every version you keep rides in every clone forever; that is the [commit-versus-LFS-versus-external decision](/blog/versioning-media-assets-in-git) in its own right.
+
+Because disk is this cheap, the real ceiling is human, not storage. Docusaurus, whose docs-versioning is the closest neighbor to this whole idea, warns that "most of the time, you don't need versioning as it will just increase your build time," and that you "will very likely to have a lot of obsolete versioned documentation that nobody even reads anymore" ([Docusaurus, accessed July 2026](https://docusaurus.io/docs/versioning)). The same restraint applies to demos. Keep the majors and a rolling window of recent minors, let the deep back-catalog expire, and never spend a render on a version nobody still runs.
+
+## Give each version a URL that never moves (and one that does)
+
+Keeping the files is half the job. Getting the right one in front of the right viewer is the other half, and documentation tooling already solved it. Read the Docs "supports publishing multiple versions of your documentation," so "your users can read the exact documentation for the specific version of the project they are using," redirecting the bare URL to a default that is usually `latest` or `stable`, where stable tracks "your greatest stable semantic version number release" ([Read the Docs, accessed July 2026](https://docs.readthedocs.com/platform/en/stable/versions.html)). Docusaurus does the same with per-version routes: v1.0.0's pages sit under `/docs/1.0.0/` while the working copy lives under `/docs/next/` ([Docusaurus, accessed July 2026](https://docusaurus.io/docs/versioning)).
+
+A versioned demo wants exactly that shape — two classes of URL that behave differently on purpose.
+
+- An **immutable per-version address**, `/demo/v2.3.mp4`, that never changes once published. Because its content is frozen, you serve it with a year-long cache and never revalidate. MDN's rule for content that never changes is a "long `max-age` by using cache busting... including a version number, hash value, etc., in the request URL," served as `Cache-Control: max-age=31536000, immutable` ([MDN, accessed July 2026](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching)). The v2.3 docs page embeds this, and it can sit in every CDN edge until the heat death of the project.
+- A **moving alias**, `/demo/latest.mp4` (or `stable`), that resolves to whichever version is current. The latest-docs page embeds the alias; because it moves, it gets a short `max-age` and revalidates. This is the one URL a nightly build is allowed to overwrite.
+
+Wire the docs so a page built for version N embeds the immutable `/demo/vN.mp4` and the "latest" build embeds the alias. A reader on the v2.3 docs watches v2.3's demo; a reader on the current docs watches today's. Nobody is shown a feature they do not have, nobody has to remember which video went with which release, and the version identifier that already threads through the git tag, the changelog, and the release assets threads through the demo URL too. The demo stops being one file that always shows the newest thing and becomes what the release already is: a numbered, frozen, addressable artifact — one per version, each telling the truth about the version whose name it carries.
+
+## Sources
+
+- [Semantic Versioning 2.0.0 — released versions must not be modified (Item 3)](https://semver.org/)
+- [Read the Docs — hosting multiple documentation versions, default/latest/stable](https://docs.readthedocs.com/platform/en/stable/versions.html)
+- [Docusaurus — documentation versioning and its maintenance cost](https://docusaurus.io/docs/versioning)
+- [GitHub Docs — about releases (based on Git tags, 2 GiB asset limit)](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
+- [MDN — HTTP caching, immutable content and versioned URLs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching)
+
+## FAQ
+
+### Do I need a separate demo for every patch release?
+
+No. By Semantic Versioning's definition a PATCH is a backward-compatible bug fix with no new user-visible surface, so the demo you recorded for v2.3.0 is still accurate for v2.3.7 — nothing a viewer can see has changed. Key your demos at `major.minor` and let every patch in a line reuse that line's cut. That turns a project with two hundred tags into roughly a dozen demos, one per line that actually changed a screen.
+
+### How many old demo versions should I keep?
+
+Keep the majors and a rolling window of the most recent minors; let the deep back-catalog expire. Storage is not the constraint — a 60-second 1080p demo is about 40 MB, so even 40 versions is under 1.6 GB, and attached as release assets they never touch your git history. The real limit is the one Docusaurus names for versioned docs: obsolete versions nobody reads still cost attention, so do not archive a demo for a release no customer still runs.
+
+### How does a viewer end up watching the demo for their version?
+
+Borrow the versioned-docs pattern. Publish each demo at an immutable per-version URL like `/demo/v2.3.mp4`, cached for a year because its content is frozen, and have the docs page built for v2.3 embed that exact URL. Add one moving alias, `/demo/latest.mp4`, that points at the current release and gets a short cache, which the latest-docs build embeds. A reader on old docs sees the old demo; a reader on current docs sees today's — routed by the same version number the tag already carries.
 
 ---
 
