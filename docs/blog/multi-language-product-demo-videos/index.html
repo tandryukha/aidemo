@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-language demo videos from one take | aidemo</title>
+<meta name="description" content="The economics of multi-language demo videos: re-record per locale vs re-voice one take, the speech-rate timing trap, TTS language coverage, and caption QA.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/multi-language-product-demo-videos/">
+<link rel="alternate" type="text/markdown" href="/blog/multi-language-product-demo-videos/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Multi-language demo videos from one take | aidemo">
+<meta property="og:description" content="The economics of multi-language demo videos: re-record per locale vs re-voice one take, the speech-rate timing trap, TTS language coverage, and caption QA.">
+<meta property="og:url" content="https://aidemo.top/blog/multi-language-product-demo-videos/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Multi-language demo videos from one take | aidemo">
+<meta name="twitter:description" content="The economics of multi-language demo videos: re-record per locale vs re-voice one take, the speech-rate timing trap, TTS language coverage, and caption QA.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Multi-language product demo videos from one recording",
+  "description": "The economics of multi-language demo videos: re-record per locale vs re-voice one take, the speech-rate timing trap, TTS language coverage, and caption QA.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/multi-language-product-demo-videos/"
+  },
+  "wordCount": 2064,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Coupé, Oh, Dediu & Pellegrino — Different languages, similar encoding efficiency (Science Advances, 2019)",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6984970/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "OpenAI — Text to speech guide (supported languages)",
+      "url": "https://developers.openai.com/api/docs/guides/text-to-speech"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "ElevenLabs — Models and language support",
+      "url": "https://elevenlabs.io/docs/overview/models"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "W3C Internationalization — Text size in translation",
+      "url": "https://www.w3.org/International/articles/article-text-size.en.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Netflix — English (USA) Timed Text Style Guide",
+      "url": "https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977-English-USA-Timed-Text-Style-Guide"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Multi-language product demo videos from one recording",
+      "item": "https://aidemo.top/blog/multi-language-product-demo-videos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I have to re-record my demo for every language?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The recorded browser flow has no language of its own, so one take can back every locale: you translate the script, generate a new voice track and caption set per language, and recompose the same footage to fit each. You only re-record when the app's on-screen UI has to appear in the local language and your product supports that, and even then a deterministic replay re-renders the flow rather than making a person perform it again."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will the app's on-screen text be translated too?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if the app itself is localized. Re-voicing swaps the narration and captions, but the pixels still show whatever language the interface rendered when you captured it, usually English. That is acceptable for developer tools and English-first products, and a problem for consumer flows where the buyer expects to see their own language. If the app supports locale switching, re-running the same recorded flow with the UI set to each language gets you a localized screen without a manual reshoot."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many languages can AI voiceover handle for a demo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "As of July 2026, OpenAI's speech models take text in 99 languages though the voices are tuned for English, and ElevenLabs voices 29 languages on Multilingual v2 or 32 on Flash v2.5. Breadth is not quality, so audition the specific voice for each locale before committing. For a language no model voices convincingly, that single locale is worth recording with a human."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Multi-language product demo videos from one recording</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Multi-language product demo videos from one recording</h1>
+        <p class="article-dek">Localizing a demo doesn't mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-recording-is-language-neutral-the-narration-is-where-the-locale-lives">The recording is language-neutral; the narration is where the locale lives</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#re-record-per-locale-or-re-voice-one-take">Re-record per locale, or re-voice one take</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#different-languages-run-on-different-clocks">Different languages run on different clocks</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-screen-is-still-in-english">The screen is still in English</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#which-languages-your-tts-actually-speaks">Which languages your TTS actually speaks</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#translating-captions-without-blowing-the-reading-budget">Translating captions without blowing the reading budget</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#rendering-the-matrix-one-take-many-locales">Rendering the matrix: one take, many locales</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>One recording, N narration tracks, N caption sets: re-voicing turns five locales into one take plus four translation-and-voice passes, not five recordings that each rot alone.</li>
+    <li>Speech rate ranges from ~4.3 to 9.1 syllables/sec but information rate converges near 39 bits/s (Coupé et al., 2019), so demo totals hold while individual scenes drift and need fitting.</li>
+    <li>Coverage is not quality: OpenAI speech reaches 99 languages (voices tuned for English), ElevenLabs 29-32 (Jul 2026). Audition the specific voice per locale, not the language count.</li>
+    <li>The screen stays English unless the app is localized: fine for dev tools, a visible seam for a consumer buyer expecting their own language.</li>
+    <li>Translated captions expand (W3C: +30% long strings, up to 200-300% short) yet must still read at 17-20 CPS (Netflix), so QA checks meaning and reading budget together.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-recording-is-language-neutral-the-narration-is-where-the-locale-lives">The recording is language-neutral; the narration is where the locale lives<a class="hanchor" href="#the-recording-is-language-neutral-the-narration-is-where-the-locale-lives" aria-label="Link to section: The recording is language-neutral; the narration is where the locale lives">#</a></h2>
+<p>A product demo is two artifacts sharing one MP4. There is the recorded browser flow — the pixels, the cursor, the clicks, the scroll down a settings page — and there is the track laid over it: narration and captions, the same words in two forms. Only the second artifact has a language. Footage of someone filtering a table and opening a record is identical whether you explain it in English, German, or Japanese.</p>
+<p>That split is the entire economics of localization. Treat the demo as one indivisible performance and five languages means five performances. Treat it as a recording plus a script and five languages means one recording and five scripts. The recorded flow is the costly part to produce, and the part that <a href="/blog/why-product-demos-go-stale/">goes out of date on its own the moment the UI moves</a>. The script is cheap to translate and cheaper still to re-voice. Localizing well is mostly a discipline of never paying for the recording twice.</p>
+<p>Say it as a matrix: one recorded take, N narration tracks, N caption sets. The recording count stays at one while the language-bearing parts multiply. Everything below is that arithmetic, plus the four places it gets complicated in real life.</p>
+<h2 id="re-record-per-locale-or-re-voice-one-take">Re-record per locale, or re-voice one take<a class="hanchor" href="#re-record-per-locale-or-re-voice-one-take" aria-label="Link to section: Re-record per locale, or re-voice one take">#</a></h2>
+<p>Put numbers on it. Take a 90-second, six-scene demo carrying about 225 words of narration — roughly 1,350 characters — and cost five locales two ways. &quot;Re-record&quot; means a person sets up, performs, and retakes the browser flow in each language before narrating it. &quot;Re-voice&quot; means the flow is recorded once and every locale reuses that footage, swapping only the <a href="/blog/ai-voiceover-for-demo-videos/">narration text a TTS model reads</a> and the caption set aligned to it. The rates below are illustrative, not a quote: a two-hour record-and-retake loop, thirty-five dollars for a reviewed translation of 225 words, two cents of synthetic speech per language.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Per demo</th>
+<th>1 locale (baseline)</th>
+<th>5 locales, re-record each</th>
+<th>5 locales, re-voice one take</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Browser recordings produced</td>
+<td>1</td>
+<td>5</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Human record + retake time (~2 h each)</td>
+<td>~2 h</td>
+<td>~10 h</td>
+<td>~2 h</td>
+</tr>
+<tr>
+<td>Script translations (~$35 each)</td>
+<td>0</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>TTS narration passes (~$0.02 each)</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Caption sets, auto-aligned</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Recompose passes (compute, minutes)</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Artifacts that rot independently</td>
+<td>1</td>
+<td>5</td>
+<td>1</td>
+</tr>
+</tbody></table></div>
+<p>The dollar rows barely move. Synthetic narration is cents per language and machine translation is nearly free before a human touches it. The row that moves is time, and it is human time. Re-recording pays the setup-and-retake loop once per language and leaves you holding five separate recordings, each drifting out of date on its own. Re-voicing pays for the recording once; the parts that multiply across locales are the cheap, scriptable ones, while the expensive human step stays flat. That is the practical case for treating <a href="/blog/demos-as-code/">the demo as a committed spec</a> instead of a captured take.</p>
+<p>Two caveats keep this from being free money, and they are the honest core of the subject: each locale&#39;s narration runs for a different length of time, and the screen beneath it is still in whatever language your app rendered during capture.</p>
+<h2 id="different-languages-run-on-different-clocks">Different languages run on different clocks<a class="hanchor" href="#different-languages-run-on-different-clocks" aria-label="Link to section: Different languages run on different clocks">#</a></h2>
+<p>Languages are not spoken at the same speed, and they do not pack the same meaning into a syllable. Across a corpus of 17 languages from 9 families, speech rate averaged 6.63 syllables per second but varied widely by speaker, from roughly 4.3 to 9.1, while information density ran from 4.8 bits per syllable for Basque up to 8.0 for Vietnamese<sup class="article-cite"><a href="#src-1" title="Coupé, Oh, Dediu &amp; Pellegrino — Different languages, similar encoding efficiency (Science Advances, 2019)">1</a></sup>. The study&#39;s headline is reassuring for localizers: those two properties trade off, so information rate converges near 39 bits per second across every language measured. The same meaning takes broadly the same time to say, whatever the language.</p>
+<p>The trouble is that a demo does not sync at the level of the whole meaning. It syncs at the moment — the click lands at 0:08, the dropdown opens at 0:11 — and translation is not length-preserving scene by scene. Translated text expands, and short strings expand most: IBM&#39;s and the W3C&#39;s localization guidance puts growth around 30% for long passages but 200–300% for strings under ten characters<sup class="article-cite"><a href="#src-4" title="W3C Internationalization — Text size in translation">4</a></sup>. A TTS voice then speaks that expanded text at its own cadence, so scene four&#39;s German narration can overrun the English it was timed against even when the demo&#39;s total runtime holds steady.</p>
+<p>There are two honest fixes, and subtitle localizers have used the first for decades. Condense the translated line to fit the scene&#39;s fixed window, trading a little literalness for sync. Or let the window move: because the flow is a deterministic replay rather than a hand-cut clip, each scene&#39;s duration can be recomputed per locale — hold a frame a beat longer where the German runs long, trim idle time where the Japanese runs short — without retouching the recording. The polish stays a recompose, never a re-shoot.</p>
+<h2 id="the-screen-is-still-in-english">The screen is still in English<a class="hanchor" href="#the-screen-is-still-in-english" aria-label="Link to section: The screen is still in English">#</a></h2>
+<p>Re-voicing localizes the explanation, not the product. The recorded pixels show whatever language your app rendered at capture time, which is usually English, so a German viewer hears German over an English UI. Whether that seam matters depends entirely on who is watching.</p>
+<p>It is fine more often than nervous marketers assume. Developer tools, infrastructure products, and anything whose own interface ships English-only lose nothing: the narration localizes the teaching while the UI shows the product as it actually is. Internal enablement and technical evaluators who work in English all day rarely register it. It breaks trust exactly where the product&#39;s own localization is part of the pitch — a consumer checkout, a regional compliance workflow, a claim that the app speaks the buyer&#39;s language. A prospect being sold &quot;works in your language&quot; while watching an English screen sees the gap at once.</p>
+<p>When the UI has to match, there is a middle path that is not a full re-shoot. If your app supports locale switching, run the same deterministic flow again with the app set to each language. Because it is spec-driven replay, the second capture is a re-render, not a person redoing the take, so you get a genuinely localized UI at close to matrix cost. The hard limit is worth stating plainly: if the app itself is not localized, no rendering trick paints the screen in another language.</p>
+<h2 id="which-languages-your-tts-actually-speaks">Which languages your TTS actually speaks<a class="hanchor" href="#which-languages-your-tts-actually-speaks" aria-label="Link to section: Which languages your TTS actually speaks">#</a></h2>
+<p>The matrix assumes a voice exists for each locale, and coverage varies more than the marketing implies. OpenAI&#39;s speech models accept text in 99 languages but note that the voices are optimized for English<sup class="article-cite"><a href="#src-2" title="OpenAI — Text to speech guide (supported languages)">2</a></sup>. ElevenLabs voices 29 languages on its higher-quality Multilingual v2 model and 32 on the low-latency Flash v2.5<sup class="article-cite"><a href="#src-3" title="ElevenLabs — Models and language support">3</a></sup>.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>TTS option</th>
+<th>Languages (Jul 2026)</th>
+<th>The catch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OpenAI speech models</td>
+<td>99</td>
+<td>voices are optimized for English</td>
+</tr>
+<tr>
+<td>ElevenLabs Multilingual v2</td>
+<td>29</td>
+<td>the higher-quality tier</td>
+</tr>
+<tr>
+<td>ElevenLabs Flash v2.5</td>
+<td>32</td>
+<td>low latency; adds Hungarian, Norwegian, Vietnamese</td>
+</tr>
+<tr>
+<td>Self-hosted open-weight (e.g. Kokoro)</td>
+<td>varies by voice pack</td>
+<td>confirm the pack before you promise a locale</td>
+</tr>
+</tbody></table></div>
+<p>Read the table for the trap: a language count is not a quality guarantee. A locale can be &quot;supported&quot; and still land a flat, foreign-accented read that undercuts the very trust you localized to build, so audition the specific voice you intend to ship, not the language it belongs to. When a language you need has no voice worth shipping, that one locale drops back to a human recording, which breaks the flat-human-cost property for that locale alone and is a perfectly reasonable place to spend money.</p>
+<h2 id="translating-captions-without-blowing-the-reading-budget">Translating captions without blowing the reading budget<a class="hanchor" href="#translating-captions-without-blowing-the-reading-budget" aria-label="Link to section: Translating captions without blowing the reading budget">#</a></h2>
+<p>Captions inherit the same translation and one constraint the narration does not: they have to be read, in the time the scene allows, at a human reading speed. Subtitle practice has a published number for that. Netflix&#39;s English timed-text guide caps reading speed at 20 characters per second for adult programs and 17 for children&#39;s, on lines of at most 42 characters<sup class="article-cite"><a href="#src-5" title="Netflix — English (USA) Timed Text Style Guide">5</a></sup>. A caption that fit its scene comfortably in English can breach that budget once expansion inflates it, so the translated line sometimes has to be condensed even where the audio does not.</p>
+<p>That makes caption localization a two-part job. Machine translation drafts every locale in seconds; a native reviewer then checks two things at once — that the meaning survived, and that each cue still fits its window under the reading-speed cap. The timing itself is mechanical: captions are generated from the translated narration and <a href="/blog/demo-video-captions/">re-aligned to the audio automatically per locale</a>, so the human spends attention on language and fit, not on stopwatch work. Skip the review and machine translation will confidently caption your product&#39;s name as a common noun in six languages at once.</p>
+<h2 id="rendering-the-matrix-one-take-many-locales">Rendering the matrix: one take, many locales<a class="hanchor" href="#rendering-the-matrix-one-take-many-locales" aria-label="Link to section: Rendering the matrix: one take, many locales">#</a></h2>
+<p>Assemble the pieces and localization becomes a render, not a reshoot. One recorded take, a reviewed translation per locale, and the pipeline emits N videos, each footage recomposition muxed to its own narration track and burned with its own caption set. Adding Portuguese is adding a row, not booking a studio.</p>
+<p>This is where our own engine, aidemo, earns its mention: a single flag renders one recorded take into a chosen set of locales, each with translated narration and realigned captions. The disclosure owed here is the shape of the limits — aidemo runs in the browser only, the storyboard behind it is written by an agent instead of assembled by hand on a timeline, and it ships no visual editor, so a locale is tuned by editing text and re-running the render. The same render-matrix pattern that fans one take into many languages also fans it into many prospects, which is the more valuable version of the trick.</p>
+<p>None of this localizes what it cannot reach. The matrix makes every step downstream of the recording cheap to repeat; it does not translate an English UI, and it does not retire the native reviewer. What it removes is the thing that actually cost you — performing the same take, five times over, by hand.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6984970/" rel="noopener">Coupé, Oh, Dediu &amp; Pellegrino — Different languages, similar encoding efficiency (Science Advances, 2019)</a></li>
+<li id="src-2"><a href="https://developers.openai.com/api/docs/guides/text-to-speech" rel="noopener">OpenAI — Text to speech guide (supported languages)</a></li>
+<li id="src-3"><a href="https://elevenlabs.io/docs/overview/models" rel="noopener">ElevenLabs — Models and language support</a></li>
+<li id="src-4"><a href="https://www.w3.org/International/articles/article-text-size.en.html" rel="noopener">W3C Internationalization — Text size in translation</a></li>
+<li id="src-5"><a href="https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977-English-USA-Timed-Text-Style-Guide" rel="noopener">Netflix — English (USA) Timed Text Style Guide</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="do-i-have-to-re-record-my-demo-for-every-language" class="blog-faq-q">Do I have to re-record my demo for every language?<a class="hanchor" href="#do-i-have-to-re-record-my-demo-for-every-language" aria-label="Link to section: Do I have to re-record my demo for every language?">#</a></h3>
+<p>No. The recorded browser flow has no language of its own, so one take can back every locale: you translate the script, generate a new voice track and caption set per language, and recompose the same footage to fit each. You only re-record when the app&#39;s on-screen UI has to appear in the local language and your product supports that, and even then a deterministic replay re-renders the flow rather than making a person perform it again.</p>
+<h3 id="will-the-apps-on-screen-text-be-translated-too" class="blog-faq-q">Will the app&#39;s on-screen text be translated too?<a class="hanchor" href="#will-the-apps-on-screen-text-be-translated-too" aria-label="Link to section: Will the app's on-screen text be translated too?">#</a></h3>
+<p>Only if the app itself is localized. Re-voicing swaps the narration and captions, but the pixels still show whatever language the interface rendered when you captured it, usually English. That is acceptable for developer tools and English-first products, and a problem for consumer flows where the buyer expects to see their own language. If the app supports locale switching, re-running the same recorded flow with the UI set to each language gets you a localized screen without a manual reshoot.</p>
+<h3 id="how-many-languages-can-ai-voiceover-handle-for-a-demo" class="blog-faq-q">How many languages can AI voiceover handle for a demo?<a class="hanchor" href="#how-many-languages-can-ai-voiceover-handle-for-a-demo" aria-label="Link to section: How many languages can AI voiceover handle for a demo?">#</a></h3>
+<p>As of July 2026, OpenAI&#39;s speech models take text in 99 languages though the voices are tuned for English, and ElevenLabs voices 29 languages on Multilingual v2 or 32 on Flash v2.5. Breadth is not quality, so audition the specific voice for each locale before committing. For a language no model voices convincingly, that single locale is worth recording with a human.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">localization</span>
+        <span class="article-tag">multi-language</span>
+        <span class="article-tag">demo videos</span>
+        <span class="article-tag">tts</span>
+        <span class="article-tag">captions</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-recording-is-language-neutral-the-narration-is-where-the-locale-lives">The recording is language-neutral; the narration is where the locale lives</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#re-record-per-locale-or-re-voice-one-take">Re-record per locale, or re-voice one take</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#different-languages-run-on-different-clocks">Different languages run on different clocks</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-screen-is-still-in-english">The screen is still in English</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#which-languages-your-tts-actually-speaks">Which languages your TTS actually speaks</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#translating-captions-without-blowing-the-reading-budget">Translating captions without blowing the reading budget</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#rendering-the-matrix-one-take-many-locales">Rendering the matrix: one take, many locales</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

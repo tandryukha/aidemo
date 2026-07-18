@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automate product screenshots for docs | aidemo</title>
+<meta name="description" content="The stills automation playbook: shot-scraper YAML, the Playwright options that matter, a scheduled re-capture PR loop, and when stills beat video.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/automating-product-screenshots/">
+<link rel="alternate" type="text/markdown" href="/blog/automating-product-screenshots/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Automate product screenshots for docs | aidemo">
+<meta property="og:description" content="The stills automation playbook: shot-scraper YAML, the Playwright options that matter, a scheduled re-capture PR loop, and when stills beat video.">
+<meta property="og:url" content="https://aidemo.top/blog/automating-product-screenshots/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Automate product screenshots for docs | aidemo">
+<meta name="twitter:description" content="The stills automation playbook: shot-scraper YAML, the Playwright options that matter, a scheduled re-capture PR loop, and when stills beat video.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Automating product screenshots for docs and marketing",
+  "description": "The stills automation playbook: shot-scraper YAML, the Playwright options that matter, a scheduled re-capture PR loop, and when stills beat video.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/automating-product-screenshots/"
+  },
+  "wordCount": 1629,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "shot-scraper writeup — Simon Willison, March 2022",
+      "url": "https://simonwillison.net/2022/Mar/10/shot-scraper/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "shot-scraper repository (Apache-2.0)",
+      "url": "https://github.com/simonw/shot-scraper"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "shot-scraper multi command docs",
+      "url": "https://shot-scraper.datasette.io/en/stable/multi.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright screenshots guide",
+      "url": "https://playwright.dev/docs/screenshots"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright page.screenshot() API reference",
+      "url": "https://playwright.dev/docs/api/class-page#page-screenshot"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright visual comparisons (toHaveScreenshot)",
+      "url": "https://playwright.dev/docs/test-snapshots"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Heroshot README — omachala/heroshot",
+      "url": "https://github.com/omachala/heroshot/blob/main/README.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Actions schedule / cron trigger docs",
+      "url": "https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Apple App Store screenshot specifications",
+      "url": "https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Automation",
+      "item": "https://aidemo.top/blog/topics/demo-automation/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Automating product screenshots for docs and marketing",
+      "item": "https://aidemo.top/blog/automating-product-screenshots/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I keep the screenshots in my documentation from going out of date?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Store them as a declarative shot list — a shot-scraper shots.yml or a Heroshot config — then run that list from a scheduled GitHub Action that opens a pull request with the regenerated images. A person reviews the visual diff, and the docs image tracks the product instead of tracking the day someone last remembered to recapture."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the best tool to automate website screenshots?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For plain, diffable control, shot-scraper's YAML multi-shot mode is hard to beat and it is Apache-2.0. For a point-and-click picker plus a ready-made auto-PR workflow and light/dark variants, Heroshot fits. If you already run Playwright tests, toHaveScreenshot() gives you capture and diffing inside the suite you have. All three drive a real browser, so the pixels are the real UI."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do automated screenshots replace visual regression testing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They are the same mechanism pointed at two goals. A deterministic screenshot pipeline compares each new capture against a stored baseline, which is exactly what a visual regression test does. The difference is what you do with a diff: publish it as a fresh docs image, or fail the build. Wire both to one capture and you get the marketing asset and the guardrail from a single run."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-automation/">Demo Automation</a><span class="sep">/</span><span>Automating product screenshots for docs and marketing</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-automation/">Demo Automation</a>
+        <h1 class="article-title">Automating product screenshots for docs and marketing</h1>
+        <p class="article-dek">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 9 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-screenshot-is-a-demo-video-with-the-frames-thrown-away">A screenshot is a demo video with the frames thrown away</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#one-yaml-file-every-screenshot-in-your-docs">One YAML file, every screenshot in your docs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-four-screenshot-options-that-separate-a-docs-shot-from-a-snapshot">The four screenshot options that separate a docs shot from a snapshot</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#regenerate-on-a-schedule-land-the-diff-as-a-pull-request">Regenerate on a schedule, land the diff as a pull request</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-same-run-that-refreshes-the-docs-can-also-fail-the-build">The same run that refreshes the docs can also fail the build</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#when-a-set-of-named-stills-beats-a-video-outright">When a set of named stills beats a video outright</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A screenshot set is the cheapest demo automation to ship: shot-scraper's `shot-scraper multi shots.yml` renders every named still from one diffable YAML file (Apache-2.0, built on Playwright).</li>
+    <li>Four Playwright options make a docs shot deterministic: fullPage, clip, mask (blank live or private data), and animations:'disabled' to freeze mid-fade frames.</li>
+    <li>The Heroshot pattern closes the loop: a scheduled GitHub Action recaptures headlessly, commits, and opens a PR so a human reviews the visual diff before merge.</li>
+    <li>A deterministic screenshot set is already a visual regression test — Playwright's toHaveScreenshot diffs each run against a baseline via pixelmatch; --update-snapshots accepts intended changes.</li>
+    <li>Stills beat video where the surface renders images: the App Store allows 1-10 screenshots per device and locale and treats the preview video as optional (Apple, 2026).</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-screenshot-is-a-demo-video-with-the-frames-thrown-away">A screenshot is a demo video with the frames thrown away<a class="hanchor" href="#a-screenshot-is-a-demo-video-with-the-frames-thrown-away" aria-label="Link to section: A screenshot is a demo video with the frames thrown away">#</a></h2>
+<p>A product screenshot is the smallest unit of demo media, and by far the cheapest to keep honest. Everything the <a href="/blog/automated-product-demo-videos/">pillar on regenerating demos instead of re-recording them</a> argues about video is true of stills with far less machinery behind it: no narration to re-voice, no timeline to trim, no ffmpeg graph to babysit. If you have never automated any product media, a named-screenshot set is the place to start, because the whole pipeline is a config file and one command, and it earns its keep the first time a button moves.</p>
+<p>The reason to bother is volume. A marketing page localized to eight languages with five hero shots each is 40 images. An App Store listing that ships for the 6.9-inch iPhone and the 13-inch iPad, across eight locales, at up to ten screenshots per device, is as many as 160 required stills<sup class="article-cite"><a href="#src-9" title="Apple App Store screenshot specifications">9</a></sup> — and Apple treats the preview video as optional while the screenshots are mandatory. Nobody captures 160 images by hand once, let alone every release, and every one of them lands stale the day a designer nudges a color token. What it costs to let those images <a href="/blog/why-product-demos-go-stale/">drift out of date</a> is a separate story; this one is about the pipeline that stops it before a customer ever sees the gap.</p>
+<h2 id="one-yaml-file-every-screenshot-in-your-docs">One YAML file, every screenshot in your docs<a class="hanchor" href="#one-yaml-file-every-screenshot-in-your-docs" aria-label="Link to section: One YAML file, every screenshot in your docs">#</a></h2>
+<p>The cleanest place to start is Simon Willison&#39;s shot-scraper, a Playwright-based CLI first released in March 2022 (<a href="https://simonwillison.net/2022/Mar/10/shot-scraper/" rel="noopener">Willison, 2022</a>; <a href="https://github.com/simonw/shot-scraper" rel="noopener">repo, Apache-2.0</a>). Its multi-shot mode reads a YAML file where each entry is one named still, and <code>shot-scraper multi shots.yml</code> renders all of them in a single pass:</p>
+<pre><code class="language-yaml">#shots.yml — one entry per named still
+- output: dashboard-hero.png
+  url: https://app.example.com/dashboard
+  width: 1280
+  height: 720
+  wait: 800
+
+- output: billing-card.png
+  url: https://app.example.com/settings/billing
+  selector: &quot;#billing-card&quot;
+  padding: 24
+  javascript: |
+    document.querySelector(&#39;.cookie-banner&#39;)?.remove()
+
+- output: pricing.png
+  url: https://example.com/pricing
+  height: 900
+  quality: 80
+</code></pre>
+<p>Every key earns its place. <code>selector</code> crops to one element instead of the whole viewport; <code>padding</code> gives that element breathing room; <code>javascript</code> runs before the shot so you can dismiss a cookie banner or open a menu; <code>wait</code> holds for the page to settle<sup class="article-cite"><a href="#src-3" title="shot-scraper multi command docs">3</a></sup>. The file is plain text, so it diffs, it reviews, and it lives next to the code it documents. shot-scraper also ships a template repo that runs the same YAML on a GitHub Actions schedule, so the machine that has the browser installed is not your laptop.</p>
+<h2 id="the-four-screenshot-options-that-separate-a-docs-shot-from-a-snapshot">The four screenshot options that separate a docs shot from a snapshot<a class="hanchor" href="#the-four-screenshot-options-that-separate-a-docs-shot-from-a-snapshot" aria-label="Link to section: The four screenshot options that separate a docs shot from a snapshot">#</a></h2>
+<p>shot-scraper leans on Playwright underneath, and if you drive Playwright directly, four of its <code>page.screenshot()</code> options decide whether a shot is publishable or merely captured<sup class="article-cite"><a href="#src-5" title="Playwright page.screenshot() API reference">5</a></sup>:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it does</th>
+<th>Why a docs shot needs it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>fullPage: true</code></td>
+<td>Captures the whole scrollable page, not just the viewport</td>
+<td>Long pricing tables and settings pages fit in one frame</td>
+</tr>
+<tr>
+<td><code>clip: {x,y,width,height}</code></td>
+<td>Restricts capture to a pixel rectangle</td>
+<td>Frame a single card or region with no wrapper element</td>
+</tr>
+<tr>
+<td><code>mask: [locator]</code></td>
+<td>Replaces a locator with a solid box (pink by default, <code>maskColor</code> to change)</td>
+<td>Blank a live clock, a real user name, or a session token so the shot is reproducible</td>
+</tr>
+<tr>
+<td><code>animations: &#39;disabled&#39;</code></td>
+<td>Stops CSS animations and transitions</td>
+<td>Kills the mid-fade frame that makes every run look different</td>
+</tr>
+</tbody></table></div>
+<p>The last two matter more than they read. <code>mask</code> and <code>animations: &#39;disabled&#39;</code> are what turn a screenshot from a thing that changes on every capture into a thing that changes only when the product does — which is the exact property the rest of this playbook depends on.</p>
+<h2 id="regenerate-on-a-schedule-land-the-diff-as-a-pull-request">Regenerate on a schedule, land the diff as a pull request<a class="hanchor" href="#regenerate-on-a-schedule-land-the-diff-as-a-pull-request" aria-label="Link to section: Regenerate on a schedule, land the diff as a pull request">#</a></h2>
+<p>Declarative shots are only half the win. The other half is a loop that reruns them without a human remembering to. Heroshot (MIT, <code>npx heroshot</code>) is built around precisely that loop<sup class="article-cite"><a href="#src-7" title="Heroshot README — omachala/heroshot">7</a></sup>: you define each shot once with a point-and-click picker, it saves them to a <code>.heroshot/config.json</code>, and a headless <code>npx heroshot</code> regenerates every image — fanning one definition out to six variants (desktop, tablet, mobile, each in light and dark). The step that closes the loop is a GitHub Actions workflow that recaptures, commits the changed PNGs, and opens a pull request.</p>
+<p>That auto-PR is the review gate, and it is the whole reason the loop is trustworthy. A scheduled render on its own would silently overwrite your images; a pull request puts the visual diff in front of a person before anything merges. GitHub Actions allows a <code>schedule</code> trigger as often as every five minutes, though scheduled runs are delayed at the top of every hour under load and are auto-disabled after 60 days of no activity on a public repo<sup class="article-cite"><a href="#src-8" title="GitHub Actions schedule / cron trigger docs">8</a></sup> — so a daily or on-deploy cadence is the sane setting, never a five-minute one. The <a href="/blog/demo-videos-in-ci/">CI runner mechanics</a> are the same as for video, minus most of the weight, since a still needs no audio, no fonts, and no encode. Heroshot is young and small next to shot-scraper; reach for it when you want the picker and the ready-made PR workflow, and for shot-scraper when you want plain-YAML control.</p>
+<h2 id="the-same-run-that-refreshes-the-docs-can-also-fail-the-build">The same run that refreshes the docs can also fail the build<a class="hanchor" href="#the-same-run-that-refreshes-the-docs-can-also-fail-the-build" aria-label="Link to section: The same run that refreshes the docs can also fail the build">#</a></h2>
+<p>Here is the part almost nobody wires up: a deterministic screenshot set is already a visual regression suite, at no extra cost. Playwright&#39;s own test runner makes the equivalence explicit. <code>expect(page).toHaveScreenshot()</code> writes a baseline PNG on its first run — stored as <code>&lt;test&gt;-snapshots/&lt;name&gt;-&lt;browser&gt;-&lt;platform&gt;.png</code> — and every later run diffs the fresh capture against that baseline with the pixelmatch library, tuned by <code>maxDiffPixels</code>, <code>maxDiffPixelRatio</code>, and <code>threshold</code><sup class="article-cite"><a href="#src-6" title="Playwright visual comparisons (toHaveScreenshot)">6</a></sup>. When a change is intended, <code>--update-snapshots</code> rewrites the baseline.</p>
+<p>Point the same shots you publish at a stored baseline and the arithmetic changes shape: an unexpected pixel delta turns the build red, and an intended one is accepted in the same pull request that ships the new docs image. The masks and disabled animations from the section above are exactly what keep that signal clean instead of firing on every timestamp, which is why <a href="/blog/deterministic-browser-automation-for-video/">deterministic replay</a> — waiting on page state rather than sleeping on a timer — is the load-bearing discipline underneath all of this. One capture, two jobs: it refreshes the marketing image, and it guards against the change you did not mean to ship.</p>
+<h2 id="when-a-set-of-named-stills-beats-a-video-outright">When a set of named stills beats a video outright<a class="hanchor" href="#when-a-set-of-named-stills-beats-a-video-outright" aria-label="Link to section: When a set of named stills beats a video outright">#</a></h2>
+<p>Motion is not always the right medium, and knowing when to skip the video saves the entire production. The rule keys off the surface, not the content:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Reach for</th>
+<th>Because</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>App Store / Play listing</td>
+<td>Stills</td>
+<td>Screenshots are required per device and locale; the preview video is optional<sup class="article-cite"><a href="#src-9" title="Apple App Store screenshot specifications">9</a></sup></td>
+</tr>
+<tr>
+<td>Documentation page</td>
+<td>Stills</td>
+<td>Readers scan and copy; they do not press play to find one panel</td>
+</tr>
+<tr>
+<td>Localized marketing</td>
+<td>Stills</td>
+<td>N locales times M shots is a render matrix; a video is N re-voiced takes</td>
+</tr>
+<tr>
+<td>Email, PDF, print</td>
+<td>Stills</td>
+<td>An <code>&lt;img&gt;</code> renders everywhere a <code>&lt;video&gt;</code> is awkward or dead</td>
+</tr>
+<tr>
+<td>A flow, a drag, a live update</td>
+<td>Video</td>
+<td>The meaning lives in the change between frames, and a <a href="/blog/readme-gifs-that-update-themselves/">self-updating GIF or clip</a> carries it</td>
+</tr>
+</tbody></table></div>
+<p>The strongest setup never chooses once and for all — it emits both from one spec, so they can never disagree about what the product looks like. Our own engine, aidemo (browser-only, storyboards are agent-authored, no GUI timeline editor), does this with a marker: dropping <code>{ &quot;op&quot;: &quot;still&quot;, &quot;name&quot;: &quot;hero&quot; }</code> into the action-spec makes <code>stills</code> mode extract <code>output/stills/hero.png</code> from the same clean take that produces the narrated video, with no API key and no re-record. The tool is beside the point. What matters is that the still and the video come from a single source of truth, so a UI change updates both in one commit and the two never tell a visitor different stories.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://simonwillison.net/2022/Mar/10/shot-scraper/" rel="noopener">shot-scraper writeup — Simon Willison, March 2022</a></li>
+<li id="src-2"><a href="https://github.com/simonw/shot-scraper" rel="noopener">shot-scraper repository (Apache-2.0)</a></li>
+<li id="src-3"><a href="https://shot-scraper.datasette.io/en/stable/multi.html" rel="noopener">shot-scraper multi command docs</a></li>
+<li id="src-4"><a href="https://playwright.dev/docs/screenshots" rel="noopener">Playwright screenshots guide</a></li>
+<li id="src-5"><a href="https://playwright.dev/docs/api/class-page#page-screenshot" rel="noopener">Playwright page.screenshot() API reference</a></li>
+<li id="src-6"><a href="https://playwright.dev/docs/test-snapshots" rel="noopener">Playwright visual comparisons (toHaveScreenshot)</a></li>
+<li id="src-7"><a href="https://github.com/omachala/heroshot/blob/main/README.md" rel="noopener">Heroshot README — omachala/heroshot</a></li>
+<li id="src-8"><a href="https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule" rel="noopener">GitHub Actions schedule / cron trigger docs</a></li>
+<li id="src-9"><a href="https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications/" rel="noopener">Apple App Store screenshot specifications</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-i-keep-the-screenshots-in-my-documentation-from-going-out-of-date" class="blog-faq-q">How do I keep the screenshots in my documentation from going out of date?<a class="hanchor" href="#how-do-i-keep-the-screenshots-in-my-documentation-from-going-out-of-date" aria-label="Link to section: How do I keep the screenshots in my documentation from going out of date?">#</a></h3>
+<p>Store them as a declarative shot list — a shot-scraper <code>shots.yml</code> or a Heroshot config — then run that list from a scheduled GitHub Action that opens a pull request with the regenerated images. A person reviews the visual diff, and the docs image tracks the product instead of tracking the day someone last remembered to recapture.</p>
+<h3 id="what-is-the-best-tool-to-automate-website-screenshots" class="blog-faq-q">What is the best tool to automate website screenshots?<a class="hanchor" href="#what-is-the-best-tool-to-automate-website-screenshots" aria-label="Link to section: What is the best tool to automate website screenshots?">#</a></h3>
+<p>For plain, diffable control, shot-scraper&#39;s YAML multi-shot mode is hard to beat and it is Apache-2.0. For a point-and-click picker plus a ready-made auto-PR workflow and light/dark variants, Heroshot fits. If you already run Playwright tests, <code>toHaveScreenshot()</code> gives you capture and diffing inside the suite you have. All three drive a real browser, so the pixels are the real UI.</p>
+<h3 id="do-automated-screenshots-replace-visual-regression-testing" class="blog-faq-q">Do automated screenshots replace visual regression testing?<a class="hanchor" href="#do-automated-screenshots-replace-visual-regression-testing" aria-label="Link to section: Do automated screenshots replace visual regression testing?">#</a></h3>
+<p>They are the same mechanism pointed at two goals. A deterministic screenshot pipeline compares each new capture against a stored baseline, which is exactly what a visual regression test does. The difference is what you do with a diff: publish it as a fresh docs image, or fail the build. Wire both to one capture and you get the marketing asset and the guardrail from a single run.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screenshot automation</span>
+        <span class="article-tag">documentation</span>
+        <span class="article-tag">visual regression</span>
+        <span class="article-tag">ci</span>
+        <span class="article-tag">shot-scraper</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/automated-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automated product demo videos: regenerate, don't re-record</h3>
+    <p class="article-card-excerpt">Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-videos-in-ci/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
+    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/readme-gifs-that-update-themselves/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">README GIFs that update themselves</h3>
+    <p class="article-card-excerpt">A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-screenshot-is-a-demo-video-with-the-frames-thrown-away">A screenshot is a demo video with the frames thrown away</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#one-yaml-file-every-screenshot-in-your-docs">One YAML file, every screenshot in your docs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-four-screenshot-options-that-separate-a-docs-shot-from-a-snapshot">The four screenshot options that separate a docs shot from a snapshot</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#regenerate-on-a-schedule-land-the-diff-as-a-pull-request">Regenerate on a schedule, land the diff as a pull request</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-same-run-that-refreshes-the-docs-can-also-fail-the-build">The same run that refreshes the docs can also fail the build</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#when-a-set-of-named-stills-beats-a-video-outright">When a set of named stills beats a video outright</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

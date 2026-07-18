@@ -196,7 +196,7 @@
 <pre><code class="language-yaml">- run: sudo apt-get update &amp;&amp; sudo apt-get install -y ffmpeg
 </code></pre>
 <p>Fonts are the second trap, and a quieter one. The image installs exactly one font package, <code>fonts-noto-color-emoji</code><sup class="article-cite"><a href="#src-1" title="actions/runner-images — Ubuntu 24.04 (ubuntu-latest) installed software">1</a></sup>. Latin captions render from the base system fonts, but the moment your narration text, a title card, or a caption line carries CJK, Arabic, Cyrillic, or Devanagari, headless Chrome has no glyph and paints the tofu box (□). The fix is the same shape as the ffmpeg one: <code>apt-get install -y fonts-noto-cjk fonts-noto</code> for the families you need. This gap is common enough that the vhs GitHub Action ships an <code>install-fonts</code> input specifically to paper over it<sup class="article-cite"><a href="#src-6" title="charmbracelet/vhs-action — VHS in CI">6</a></sup>.</p>
-<p>The third category is headless quirks. There is no display, no GPU by default, and no window manager, so anything that waits on a real paint or a hardware compositor stalls. This is where a video job is genuinely harder than a screenshot job: a still tolerates a frame captured a few milliseconds early, but a video that records the same flow twice and produces two different timelines is unusable footage. Deterministic replay — pinned viewport and device-pixel-ratio, explicit waits instead of sleeps, controlled animation clocks — is the cost of a stable render, and it is a discipline of its own worth reading up on before you ship (deterministic browser replay). It is also why polished desktop recorders don&#39;t transfer to CI: a macOS-only GUI app cannot run on a Linux runner at all, which is the practical push toward <a href="/blog/screen-studio-alternatives/">headless, scriptable alternatives</a> once a demo has to rebuild itself.</p>
+<p>The third category is headless quirks. There is no display, no GPU by default, and no window manager, so anything that waits on a real paint or a hardware compositor stalls. This is where a video job is genuinely harder than a screenshot job: a still tolerates a frame captured a few milliseconds early, but a video that records the same flow twice and produces two different timelines is unusable footage. Deterministic replay — pinned viewport and device-pixel-ratio, explicit waits instead of sleeps, controlled animation clocks — is the cost of a stable render, and it is a discipline of its own worth reading up on before you ship (<a href="/blog/deterministic-browser-automation-for-video/">deterministic browser replay</a>). It is also why polished desktop recorders don&#39;t transfer to CI: a macOS-only GUI app cannot run on a Linux runner at all, which is the practical push toward <a href="/blog/screen-studio-alternatives/">headless, scriptable alternatives</a> once a demo has to rebuild itself.</p>
 <p>Here is the whole inventory in one table.</p>
 <div class="table-scroll"><table>
 <thead>
@@ -391,6 +391,15 @@ jobs:
     <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/readme-gifs-that-update-themselves/">
   <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
   <div class="article-card-content">
@@ -398,15 +407,6 @@ jobs:
     <h3 class="article-card-title">README GIFs that update themselves</h3>
     <p class="article-card-excerpt">A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/why-product-demos-go-stale/">
-  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Demo Automation</div>
-    <h3 class="article-card-title">Why every product demo is out of date (and what rot costs)</h3>
-    <p class="article-card-excerpt">Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
   </div>
 </a>
   </div>

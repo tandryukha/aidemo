@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What makes a screen recording look professional | aidemo</title>
+<meta name="description" content="The professional look in a screen recording is five deterministic transforms: zoom-on-click, cursor smoothing, dead-time trim, reframing, and capture hygiene.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/professional-screen-recordings/">
+<link rel="alternate" type="text/markdown" href="/blog/professional-screen-recordings/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="What makes a screen recording look professional | aidemo">
+<meta property="og:description" content="The professional look in a screen recording is five deterministic transforms: zoom-on-click, cursor smoothing, dead-time trim, reframing, and capture hygiene.">
+<meta property="og:url" content="https://aidemo.top/blog/professional-screen-recordings/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="What makes a screen recording look professional | aidemo">
+<meta name="twitter:description" content="The professional look in a screen recording is five deterministic transforms: zoom-on-click, cursor smoothing, dead-time trim, reframing, and capture hygiene.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "What makes a screen recording look professional",
+  "description": "The professional look in a screen recording is five deterministic transforms: zoom-on-click, cursor smoothing, dead-time trim, reframing, and capture hygiene.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/professional-screen-recordings/"
+  },
+  "wordCount": 2336,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — product site and feature descriptions",
+      "url": "https://screen.studio/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Material Design — motion duration and easing guidance",
+      "url": "https://m1.material.io/motion/duration-easing.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Material Design 3 — motion duration and easing tokens (material-components-android)",
+      "url": "https://raw.githubusercontent.com/material-components/material-components-android/master/docs/theming/Motion.md"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — filters documentation (zoompan, crop, pad)",
+      "url": "https://ffmpeg.org/ffmpeg-filters.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Window.devicePixelRatio",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Product Demo Videos",
+      "item": "https://aidemo.top/blog/topics/demo-videos/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "What makes a screen recording look professional",
+      "item": "https://aidemo.top/blog/professional-screen-recordings/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do you make a screen recording look professional?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Apply five transforms to the raw capture: zoom in on each interaction, smooth the cursor path, trim the idle gaps, reframe to the aspect ratio of the destination, and get the capture hygiene right (a clean profile, a pinned viewport, high pixel density). None of them requires an editor's eye; each is an input signal plus a parameter with a sane default, which is why tools can apply them automatically."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What zoom level and speed look best for a screen recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A scale around 1.5x centered on the clicked control, eased in over roughly half a second and held a beat before easing out. The duration matters more than the exact number: Material Design's motion guidance treats desktop transitions of 150 to 200 ms as snappy and flags anything past about 400 ms as sluggish, so use an ease-in-out curve rather than a linear move, and keep the whole gesture under a second."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I record at a higher resolution than the final video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Recording with extra pixels (a pinned viewport at device pixel ratio 2, for example) gives you headroom to zoom in during editing without the image turning soft, because a punch-in is a crop and a crop of a low-resolution frame has no detail left to show. Capture large and downscale on export; you cannot add pixels back that the capture never had."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demo-videos/">Product Demo Videos</a><span class="sep">/</span><span>What makes a screen recording look professional</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demo-videos/">Product Demo Videos</a>
+        <h1 class="article-title">What makes a screen recording look professional</h1>
+        <p class="article-dek">The polish people call professional is five named transforms with parameters, not a knack. Here is what each one does and why a bad zoom is a recompose.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#professional-is-a-stack-of-transforms-not-a-knack">Professional is a stack of transforms, not a knack</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#zoom-on-interaction-pick-the-point-then-pick-the-curve">Zoom on interaction: pick the point, then pick the curve</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#cursor-smoothing-fit-a-curve-do-not-render-the-jitter">Cursor smoothing: fit a curve, do not render the jitter</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#cutting-dead-time-find-the-idle-gaps-then-close-them">Cutting dead time: find the idle gaps, then close them</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#reframing-for-another-aspect-ratio-pad-or-crop-and-the-math-is-unkind">Reframing for another aspect ratio: pad or crop, and the math is unkind</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-the-capture-must-nail-and-what-compose-can-still-fix">What the capture must nail, and what compose can still fix</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#why-a-bad-zoom-is-a-recompose-not-a-reshoot">Why a bad zoom is a recompose, not a reshoot</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>The professional look decomposes into five deterministic transforms — zoom-on-click, cursor smoothing, dead-time trim, reframe, capture hygiene — each a parameter, not taste.</li>
+    <li>Ease is a number: Material Design puts desktop UI motion at 150-200 ms and flags past ~400 ms as sluggish; a screen zoom sits near 600 ms of ease-in-out, never a linear crawl.</li>
+    <li>Reframing 16:9 to 9:16 is lossy either way: a letterbox keeps the action in the middle ~32% of the frame; a center-crop discards ~68% of the width. Compose for the target.</li>
+    <li>Split the pipeline by reversibility: device pixel ratio, viewport, and a clean profile must be right at record time; zoom, cursor, trim, and captions are re-derivable at compose time.</li>
+    <li>A bad zoom is a recompose (change a parameter, re-run ffmpeg), not a re-record — which is exactly why software, not taste, can produce the polish.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="professional-is-a-stack-of-transforms-not-a-knack">Professional is a stack of transforms, not a knack<a class="hanchor" href="#professional-is-a-stack-of-transforms-not-a-knack" aria-label="Link to section: Professional is a stack of transforms, not a knack">#</a></h2>
+<p>The look people call &quot;professional&quot; in a screen recording is not a skill you either have or lack. It is a short list of operations applied to raw footage, and every one of them takes a number as its input. Screen Studio built a business by making those operations run on their own: it punches in on whatever you click and turns a &quot;shaky and rapid&quot; cursor path into a clean glide<sup class="article-cite"><a href="#src-1" title="Screen Studio — product site and feature descriptions">1</a></sup>. Nothing in that is taste. A click has coordinates, a zoom has a scale and a duration, an idle gap has a length in milliseconds. Name the operation, name its parameters, and &quot;make it look good&quot; becomes &quot;run these five transforms with sane defaults.&quot;</p>
+<p>That reframing is the whole article. Which recorder applies them for you is a platform-and-price question I take up in <a href="/blog/screen-studio-alternatives/">the Screen Studio alternatives rundown</a>; this piece is about the operations themselves. Here is the decomposition, with a defensible default for each and the thing the default is actually a function of.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Transform</th>
+<th>Its parameters</th>
+<th>A sane default</th>
+<th>What the choice tracks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Zoom on interaction</td>
+<td>focus point (x, y), scale, ease duration, hold</td>
+<td>~1.5x, ~600 ms ease, ~1.7 s hold</td>
+<td>size of the click target; perceived speed</td>
+</tr>
+<tr>
+<td>Cursor smoothing</td>
+<td>sample rate, curve tension, pointer scale</td>
+<td>eased path resampled per frame</td>
+<td>amplitude of the raw jitter</td>
+</tr>
+<tr>
+<td>Dead-time trimming</td>
+<td>idle threshold, max kept gap</td>
+<td>collapse gaps past ~400 ms</td>
+<td>narration timing</td>
+</tr>
+<tr>
+<td>Reframe / letterbox</td>
+<td>target W×H, fit mode</td>
+<td>contain (pad) or cover (crop)</td>
+<td>the destination aspect ratio</td>
+</tr>
+<tr>
+<td>Capture hygiene</td>
+<td>viewport, device pixel ratio, profile</td>
+<td>1280×720 at DPR 2, clean profile</td>
+<td>zoom headroom; what is on screen</td>
+</tr>
+</tbody></table></div>
+<p>None of these needs a human with an eye. Each needs an input signal — where the clicks were, where the cursor sampled, where the idle spans are — and a parameter. The rest of this piece is what each transform is really doing, and why getting one wrong is cheap to fix.</p>
+<h2 id="zoom-on-interaction-pick-the-point-then-pick-the-curve">Zoom on interaction: pick the point, then pick the curve<a class="hanchor" href="#zoom-on-interaction-pick-the-point-then-pick-the-curve" aria-label="Link to section: Zoom on interaction: pick the point, then pick the curve">#</a></h2>
+<p>Two decisions make an auto-zoom: where to punch in, and how the camera gets there.</p>
+<p>Where is the easy half. The focus point is the interaction, not the middle of the screen: the button that was clicked, the field being typed into, the row that just expanded. A recorder that logs click and keystroke coordinates already knows the target, so the zoom only has to center the crop window on it.</p>
+<p>How is where amateur and produced footage split apart. A hard cut to 1.5x reads as a glitch, and a slow creep reads as sludge. The camera has to accelerate and then decelerate, which means an easing curve, and the curve has a duration you get to set. This is exactly the parameter that UI-motion designers already publish numbers for. Google&#39;s Material Design guidance puts standard desktop transitions at 150 to 200 ms and warns that anything past roughly 400 ms starts to feel sluggish<sup class="article-cite"><a href="#src-2" title="Material Design — motion duration and easing guidance">2</a></sup>; its later token set spells the same idea out as a scale from 50 ms up to 1000 ms, with an &quot;emphasized&quot; ease-in-out curve reserved for the larger moves<sup class="article-cite"><a href="#src-3" title="Material Design 3 — motion duration and easing tokens (material-components-android)">3</a></sup>. A screen zoom is a bigger gesture than a toggle flipping, so it lives at the long end of that scale, near half a second of ease-in-out, but the perceptual ceiling still bites: hold a small on-screen element in transit past 400 ms and the viewer feels the tool instead of the product. The default worth stealing is a smoothstep or cubic-bezier ease around 600 ms, held for a beat or two, then eased back out.</p>
+<p>The curve is not decoration. Linear interpolation travels at constant speed, and the eye reads constant speed on a camera as mechanical; the ease-in-out is the part that sells it as a camera rather than a crop animation.</p>
+<p>Mechanically this is one ffmpeg filter. <code>zoompan</code> takes per-frame expressions for the zoom factor and for the x and y of the crop window, plus an output size, so an eased zoom is those three expressions evaluated over output time<sup class="article-cite"><a href="#src-4" title="FFmpeg — filters documentation (zoompan, crop, pad)">4</a></sup>. Two implementation notes separate clean output from shimmery output. The crop coordinates land on integer pixels, so on a sub-1600-px source you upscale it 2x first or the punched-in image crawls at the edges. And two clicks close together in time should pan the already-zoomed camera between them, not bounce out to 1.0x and back in, which is genuinely nauseating to watch.</p>
+<h2 id="cursor-smoothing-fit-a-curve-do-not-render-the-jitter">Cursor smoothing: fit a curve, do not render the jitter<a class="hanchor" href="#cursor-smoothing-fit-a-curve-do-not-render-the-jitter" aria-label="Link to section: Cursor smoothing: fit a curve, do not render the jitter">#</a></h2>
+<p>A real mouse path is high-frequency noise. Between two clicks the pointer overshoots, corrects, drifts while you read, and stutters on the trackpad. Rendered faithfully, that jitter is the loudest single tell that a human recorded this live.</p>
+<p>The transform is a curve fit. Take the pointer positions the recorder sampled, fit a smoothing spline through them (a Catmull-Rom or bezier path is the usual pick), then resample that curve at the video frame rate. The rendered pointer now travels a continuous, gently accelerating arc instead of the raw polyline. Two cosmetic parameters ride along: the pointer is scaled up so it reads at small sizes, and each click gets a brief ripple so the viewer&#39;s eye lands where the action is. Screen Studio&#39;s &quot;smooth and beautiful glide&quot; is this and nothing more exotic.</p>
+<p>There is a cleaner move than smoothing a captured path, which is to never capture one. In our own engine, aidemo — browser-only, and driven by a storyboard an agent authors rather than a take a person performs — the operating-system cursor is hidden and a synthetic pointer is drawn along an ease-in-out path between targets, so there is no jitter to remove because none was ever recorded. The trade is that you give up freehand mouse expression; for a product walkthrough, that expression was noise you were about to filter out anyway.</p>
+<h2 id="cutting-dead-time-find-the-idle-gaps-then-close-them">Cutting dead time: find the idle gaps, then close them<a class="hanchor" href="#cutting-dead-time-find-the-idle-gaps-then-close-them" aria-label="Link to section: Cutting dead time: find the idle gaps, then close them">#</a></h2>
+<p>Every unedited take is mostly waiting. A page loads for 900 ms, the narrator pauses to find a word, the cursor hunts for the next control. The transform that removes it is idle-gap detection: mark every span with no input event and no meaningful pixel change, and any span past a threshold of a few hundred milliseconds is dead air. Then close the gap: cut it to a short sliver, or time-stretch the kept content to a voiceover so the action lands under the words.</p>
+<p>This is a detection problem with one parameter, the idle threshold, and it runs without judgment. It is also strictly separate from the editorial question of what to drop when a demo is simply too long for its slot — <a href="/blog/how-long-should-a-demo-video-be/">that ordering is a length decision</a>, and it belongs to the script, not the filter. Dead-time trimming is the mechanical floor underneath it: even the tightest script leaves machine-shaped gaps around loads and transitions, and those come out the same way on every render.</p>
+<h2 id="reframing-for-another-aspect-ratio-pad-or-crop-and-the-math-is-unkind">Reframing for another aspect ratio: pad or crop, and the math is unkind<a class="hanchor" href="#reframing-for-another-aspect-ratio-pad-or-crop-and-the-math-is-unkind" aria-label="Link to section: Reframing for another aspect ratio: pad or crop, and the math is unkind">#</a></h2>
+<p>A recording is 16:9 because screens are. A LinkedIn feed or a Reels slot wants 9:16. Getting from one to the other is a deterministic transform with exactly two honest options, and both charge you.</p>
+<p>Contain (letterbox): scale the whole frame to fit the target width, then pad the remainder with bars. Cover (crop): scale to fill the target, then center-crop the overflow. ffmpeg does either with the core <code>pad</code> and <code>crop</code> filters, no exotic build required<sup class="article-cite"><a href="#src-4" title="FFmpeg — filters documentation (zoompan, crop, pad)">4</a></sup>. The catch is what the numbers do. Take a 1280×720 recording into a 1080×1920 vertical frame. Letterbox it and the content scales to 1080×608 pixels: it occupies the middle 32% of the frame&#39;s height, and the remaining two-thirds are black bars. Crop it instead, and to fill 1920 pixels of height you scale the width to 3413 pixels, then keep only the center 1080 of it, which shows barely a third of the horizontal content and throws the left and right thirds away.</p>
+<p>Notice both options keep only about a third of what mattered. There is no free reframe from landscape to vertical: you either shrink the action into a stripe or amputate two-thirds of it. The professional answer is to decide the target aspect before you record and compose for it — zoom so the action lives in the center third a crop will keep, or record a taller viewport in the first place. Reframing is a transform you can apply after the fact; it just is not a lossless one, and no tool rewrites that arithmetic.</p>
+<h2 id="what-the-capture-must-nail-and-what-compose-can-still-fix">What the capture must nail, and what compose can still fix<a class="hanchor" href="#what-the-capture-must-nail-and-what-compose-can-still-fix" aria-label="Link to section: What the capture must nail, and what compose can still fix">#</a></h2>
+<p>The reason a bad zoom is cheap and a bad capture is not is reversibility. Some things are transforms you run on footage, so they stay re-derivable forever. Others are properties baked into the pixels at record time, and no filter recovers them. The whole discipline of a clean recording is knowing which is which.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Fix at record time (irreversible)</th>
+<th>Fix at compose time (re-derivable)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Device pixel ratio and viewport size</td>
+<td>Zoom scale, focus point, ease, hold</td>
+</tr>
+<tr>
+<td>A clean profile: no personal bookmarks, extensions, notifications</td>
+<td>Cursor path and pointer size</td>
+</tr>
+<tr>
+<td>Hidden scrollbars, dismissed cookie banners</td>
+<td>Which idle gaps to trim, and how hard</td>
+</tr>
+<tr>
+<td>Resolution headroom for a later zoom</td>
+<td>Target aspect ratio and letterbox mode</td>
+</tr>
+<tr>
+<td>Whatever secrets are on the screen</td>
+<td>Captions, music, cards</td>
+</tr>
+</tbody></table></div>
+<p>The record-time column is the one people skip and later regret. Device pixel ratio is the quiet one: it is the ratio of physical pixels to CSS pixels, and &quot;a value of 1 indicates a classic 96 DPI display, while a value of 2 is expected for HiDPI/Retina displays&quot;<sup class="article-cite"><a href="#src-5" title="MDN — Window.devicePixelRatio">5</a></sup>. Record a UI at DPR 1 and you have captured half the pixels, so there is nothing to zoom into later without it turning to mush; a produced pipeline pins the viewport and forces DPR 2 up front precisely to bank that headroom. The rest of the left column is hygiene: a clean browser profile keeps someone&#39;s bookmarks and Slack toasts out of frame, hidden scrollbars stop a stray gray bar from dating the shot, and the point of pinning the whole environment is that <a href="/blog/deterministic-browser-automation-for-video/">the same run produces the same footage twice</a>. The right column, by contrast, is all parameters, and changing any of them costs a re-render and nothing else.</p>
+<h2 id="why-a-bad-zoom-is-a-recompose-not-a-reshoot">Why a bad zoom is a recompose, not a reshoot<a class="hanchor" href="#why-a-bad-zoom-is-a-recompose-not-a-reshoot" aria-label="Link to section: Why a bad zoom is a recompose, not a reshoot">#</a></h2>
+<p>Line the five transforms up and one property is shared: each reads an input signal plus a parameter and writes footage. The zoom reads the click timeline and a scale; the trim reads the idle spans and a threshold; the reframe reads a target size. Change the parameter and the transform re-runs over the identical source. That is the entire reason a zoom that landed a beat late, or punched in too hard, is a one-line edit and a re-encode rather than a fresh recording. The footage never had to change; only the number did.</p>
+<p>This is also the split between a recorder and a renderer. A hand-driven take bakes the zoom, the cursor, and the trim into one indivisible performance, so fixing the zoom means performing the whole thing over. A pipeline that keeps the capture and the parameters apart lets you <a href="/blog/automated-product-demo-videos/">regenerate the output from the spec</a> as many times as the polish takes to get right. In aidemo that is literally a JSON parameter and an ffmpeg re-run, with the honest caveats that it captures a browser only, the storyboard is authored in code rather than dragged on a timeline, and for a single one-off a GUI recorder is simply less friction. The payoff arrives when you will retouch or retarget the same demo more than once. Either way the principle outlives the tool: <a href="/blog/how-to-make-a-product-demo-video/">decide what &quot;professional&quot; means as parameters</a>, and getting it wrong stops being a reason to shoot the take again.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://screen.studio/" rel="noopener">Screen Studio — product site and feature descriptions</a></li>
+<li id="src-2"><a href="https://m1.material.io/motion/duration-easing.html" rel="noopener">Material Design — motion duration and easing guidance</a></li>
+<li id="src-3"><a href="https://raw.githubusercontent.com/material-components/material-components-android/master/docs/theming/Motion.md" rel="noopener">Material Design 3 — motion duration and easing tokens (material-components-android)</a></li>
+<li id="src-4"><a href="https://ffmpeg.org/ffmpeg-filters.html" rel="noopener">FFmpeg — filters documentation (zoompan, crop, pad)</a></li>
+<li id="src-5"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio" rel="noopener">MDN — Window.devicePixelRatio</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-you-make-a-screen-recording-look-professional" class="blog-faq-q">How do you make a screen recording look professional?<a class="hanchor" href="#how-do-you-make-a-screen-recording-look-professional" aria-label="Link to section: How do you make a screen recording look professional?">#</a></h3>
+<p>Apply five transforms to the raw capture: zoom in on each interaction, smooth the cursor path, trim the idle gaps, reframe to the aspect ratio of the destination, and get the capture hygiene right (a clean profile, a pinned viewport, high pixel density). None of them requires an editor&#39;s eye; each is an input signal plus a parameter with a sane default, which is why tools can apply them automatically.</p>
+<h3 id="what-zoom-level-and-speed-look-best-for-a-screen-recording" class="blog-faq-q">What zoom level and speed look best for a screen recording?<a class="hanchor" href="#what-zoom-level-and-speed-look-best-for-a-screen-recording" aria-label="Link to section: What zoom level and speed look best for a screen recording?">#</a></h3>
+<p>A scale around 1.5x centered on the clicked control, eased in over roughly half a second and held a beat before easing out. The duration matters more than the exact number: Material Design&#39;s motion guidance treats desktop transitions of 150 to 200 ms as snappy and flags anything past about 400 ms as sluggish, so use an ease-in-out curve rather than a linear move, and keep the whole gesture under a second.</p>
+<h3 id="should-i-record-at-a-higher-resolution-than-the-final-video" class="blog-faq-q">Should I record at a higher resolution than the final video?<a class="hanchor" href="#should-i-record-at-a-higher-resolution-than-the-final-video" aria-label="Link to section: Should I record at a higher resolution than the final video?">#</a></h3>
+<p>Yes. Recording with extra pixels (a pinned viewport at device pixel ratio 2, for example) gives you headroom to zoom in during editing without the image turning soft, because a punch-in is a crop and a crop of a low-resolution frame has no detail left to show. Capture large and downscale on export; you cannot add pixels back that the capture never had.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">video polish</span>
+        <span class="article-tag">ffmpeg</span>
+        <span class="article-tag">zoom effects</span>
+        <span class="article-tag">demo videos</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-make-a-product-demo-video/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">How to make a product demo video (that people finish)</h3>
+    <p class="article-card-excerpt">The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>11 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/ai-voiceover-for-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">AI voiceover for demo videos: quality, cost, and workflow</h3>
+    <p class="article-card-excerpt">AI voiceover per minute is settled and cheap. The real questions: which TTS gives you consistency and one-line re-renders, and where a human voice still wins.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-captions/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Product Demo Videos</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Product Demo Videos</div>
+    <h3 class="article-card-title">Captions on demo videos: the accessibility case and the numbers</h3>
+    <p class="article-card-excerpt">Most demo views start muted, so the caption is the demo, not the soundtrack: the timing, the formats, and the WCAG rule that decide whether the words land.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#professional-is-a-stack-of-transforms-not-a-knack">Professional is a stack of transforms, not a knack</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#zoom-on-interaction-pick-the-point-then-pick-the-curve">Zoom on interaction: pick the point, then pick the curve</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#cursor-smoothing-fit-a-curve-do-not-render-the-jitter">Cursor smoothing: fit a curve, do not render the jitter</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#cutting-dead-time-find-the-idle-gaps-then-close-them">Cutting dead time: find the idle gaps, then close them</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#reframing-for-another-aspect-ratio-pad-or-crop-and-the-math-is-unkind">Reframing for another aspect ratio: pad or crop, and the math is unkind</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-the-capture-must-nail-and-what-compose-can-still-fix">What the capture must nail, and what compose can still fix</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#why-a-bad-zoom-is-a-recompose-not-a-reshoot">Why a bad zoom is a recompose, not a reshoot</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

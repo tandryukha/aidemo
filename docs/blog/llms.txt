@@ -14,6 +14,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Demo Automation
 
 - [Automated product demo videos: regenerate, don't re-record](https://aidemo.top/blog/automated-product-demo-videos/index.md): Four unrelated machines ship under one label. Only one makes 'the product changed' and 'the demo is current' the same event.
+- [Automating product screenshots for docs and marketing](https://aidemo.top/blog/automating-product-screenshots/index.md): The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.
 - [Rendering demo videos in CI: a GitHub Actions walkthrough](https://aidemo.top/blog/demo-videos-in-ci/index.md): GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.
 - [README GIFs that update themselves](https://aidemo.top/blog/readme-gifs-that-update-themselves/index.md): A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.
 - [Why every product demo is out of date (and what rot costs)](https://aidemo.top/blog/why-product-demos-go-stale/index.md): Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.
@@ -25,11 +26,15 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [Demo video script template: problem, walkthrough, proof](https://aidemo.top/blog/demo-video-script-template/index.md): Narration runs about 2.5 words a second, so a demo's runtime is a word budget. Grab a copy-paste script skeleton and two worked scripts, counted line by line.
 - [How long should a demo video be? The retention math](https://aidemo.top/blog/how-long-should-a-demo-video-be/index.md): Most demos run longer than they should, and that is an editing problem. Here is the target length for every placement, plus what to cut first.
 - [How to make a product demo video (that people finish)](https://aidemo.top/blog/how-to-make-a-product-demo-video/index.md): The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
+- [What makes a screen recording look professional](https://aidemo.top/blog/professional-screen-recordings/index.md): The polish people call professional is five named transforms with parameters, not a knack. Here is what each one does and why a bad zoom is a recompose.
 
 ## Demos as Code
 
 - [Letting a coding agent make your demo video](https://aidemo.top/blog/coding-agents-that-make-demo-videos/index.md): A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.
 - [Demos as code: commit the storyboard, render the video](https://aidemo.top/blog/demos-as-code/index.md): A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.
+- [Deterministic browser automation for video capture](https://aidemo.top/blog/deterministic-browser-automation-for-video/index.md): A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.
+- [Multi-language product demo videos from one recording](https://aidemo.top/blog/multi-language-product-demo-videos/index.md): Localizing a demo doesn't mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.
+- [Video-as-code tools: Remotion, Revideo, editly, vhs — and real-UI capture](https://aidemo.top/blog/video-as-code-tools/index.md): Remotion and Revideo draw every frame, editly stitches clips, vhs replays a terminal, real-UI capture films your product. Five models, one map.
 
 ## Optional
 

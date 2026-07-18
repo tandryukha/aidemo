@@ -265,7 +265,7 @@
 <h2 id="drift-is-debt-and-it-compounds">Drift is debt, and it compounds<a class="hanchor" href="#drift-is-debt-and-it-compounds" aria-label="Link to section: Drift is debt, and it compounds">#</a></h2>
 <p>Left alone, a demo is not a fixed cost. Every ship that touches a demoed surface widens the gap between what the video shows and what the product does, and that gap is a debt: you either pay it down by re-recording or you carry it and let every viewer see the interest. Unlike code debt, nothing goes red when a demo drifts. No test fails. The video just keeps playing, confidently wrong, until a human happens to notice — and the human who notices is usually a prospect, the worst possible auditor.</p>
 <p>The market already concedes the pain. Trainn sells a demo tool whose headline promise is that when the UI changes you swap the outdated clips and it updates the video everywhere, &quot;no re-recording needed&quot;<sup class="article-cite"><a href="#src-6" title="Trainn — Product Demo Video Maker">6</a></sup>, a feature you build only if staleness is what customers fear most. It helps with a clip library a person still curates, but it does not touch the expensive step, which is diagnosis: knowing which of your videos the last release just falsified.</p>
-<p>The only way to make the debt stop compounding is to stop treating the demo as a recording you own and start treating it as output you regenerate. If the flow is a committed specification rather than a captured take, a machine can replay it against the current build and produce a current video, so the re-render can ride the same release that caused the drift — the mechanics of that live in <a href="/blog/demo-videos-in-ci/">rendering demo videos in CI</a>. Stills submit to the same treatment one level down, which is the subject of automating product screenshots: a named shot re-captured from a spec cannot drift in silence. Our own engine, aidemo, is one browser-only, agent-authored instance of that pattern, and it earns its keep only on demos you mean to keep. The half-life does not change. What changes is who pays for it: a CI runner on the day of the ship, instead of a prospect three months later.</p>
+<p>The only way to make the debt stop compounding is to stop treating the demo as a recording you own and start treating it as output you regenerate. If the flow is a committed specification rather than a captured take, a machine can replay it against the current build and produce a current video, so the re-render can ride the same release that caused the drift — the mechanics of that live in <a href="/blog/demo-videos-in-ci/">rendering demo videos in CI</a>. Stills submit to the same treatment one level down, which is the subject of <a href="/blog/automating-product-screenshots/">automating product screenshots</a>: a named shot re-captured from a spec cannot drift in silence. Our own engine, aidemo, is one browser-only, agent-authored instance of that pattern, and it earns its keep only on demos you mean to keep. The half-life does not change. What changes is who pays for it: a CI runner on the day of the ship, instead of a prospect three months later.</p>
 <h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
 <ol class="article-sources">
 <li id="src-1"><a href="https://linear.app/changelog" rel="noopener">Linear — Changelog</a></li>
@@ -320,6 +320,15 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
+<a class="article-card" href="/blog/automating-product-screenshots/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Automating product screenshots for docs and marketing</h3>
+    <p class="article-card-excerpt">The complete stills playbook: one YAML for every screenshot, a pull request that recaptures them on a schedule, and a visual regression test you get for free.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
 <a class="article-card" href="/blog/demo-videos-in-ci/">
   <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
   <div class="article-card-content">
@@ -327,15 +336,6 @@
     <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
     <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
     <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
-  </div>
-</a>
-<a class="article-card" href="/blog/readme-gifs-that-update-themselves/">
-  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
-  <div class="article-card-content">
-    <div class="article-card-category">Demo Automation</div>
-    <h3 class="article-card-title">README GIFs that update themselves</h3>
-    <p class="article-card-excerpt">A 20-second demo GIF can weigh 18 MB, past GitHub's 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
   </div>
 </a>
   </div>

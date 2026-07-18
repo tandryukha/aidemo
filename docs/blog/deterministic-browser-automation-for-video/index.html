@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deterministic browser automation | aidemo</title>
+<meta name="description" content="Replaying a browser flow into identical footage: auto-waiting over sleeps, animation and clock control, viewport, DPR and font pinning, and network variance.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/deterministic-browser-automation-for-video/">
+<link rel="alternate" type="text/markdown" href="/blog/deterministic-browser-automation-for-video/index.md">
+<link rel="stylesheet" href="/blog/blog.9a841bc6.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Deterministic browser automation | aidemo">
+<meta property="og:description" content="Replaying a browser flow into identical footage: auto-waiting over sleeps, animation and clock control, viewport, DPR and font pinning, and network variance.">
+<meta property="og:url" content="https://aidemo.top/blog/deterministic-browser-automation-for-video/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Deterministic browser automation | aidemo">
+<meta name="twitter:description" content="Replaying a browser flow into identical footage: auto-waiting over sleeps, animation and clock control, viewport, DPR and font pinning, and network variance.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Deterministic browser automation for video capture",
+  "description": "Replaying a browser flow into identical footage: auto-waiting over sleeps, animation and clock control, viewport, DPR and font pinning, and network variance.",
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/deterministic-browser-automation-for-video/"
+  },
+  "wordCount": 2143,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Google Testing Blog — Flaky Tests at Google and How We Mitigate Them (1.5% of runs, 16% of tests, 84% of pass-to-fail transitions)",
+      "url": "https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Auto-waiting and actionability checks (visible, stable, receives events, enabled)",
+      "url": "https://playwright.dev/docs/actionability"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Clock API (v1.45; mock Date, timers, requestAnimationFrame)",
+      "url": "https://playwright.dev/docs/api/class-clock"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Emulation (viewport, deviceScaleFactor, reducedMotion, colorScheme)",
+      "url": "https://playwright.dev/docs/emulation"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Playwright — Videos (recordVideo on newContext, viewport-sized, saved on context close)",
+      "url": "https://playwright.dev/docs/videos"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — prefers-reduced-motion media feature",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — FontFaceSet.ready (promise resolves when fonts and layout are complete)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/FontFaceSet/ready"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demos as Code",
+      "item": "https://aidemo.top/blog/topics/demos-as-code/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Deterministic browser automation for video capture",
+      "item": "https://aidemo.top/blog/deterministic-browser-automation-for-video/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does deterministic replay matter more for a video than for a test?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A flaky test is recoverable: the runner reruns it and a later pass counts, so a suite tolerates the roughly 1.5% of runs that flake. A render has no rerun. Whatever the browser did on that pass is baked into the frames, so a mistimed click or a spinner caught mid-spin is not a retry, it is a defect in the deliverable. The practical consequence is a higher bar, not \"eventually passes\" but \"produces identical footage twice.\""
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can Playwright record a demo video deterministically on its own?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Playwright can record the session: the recordVideo option on newContext captures the page as it runs, sized to the viewport and written when the context closes (Playwright, accessed July 2026). But recording is not determinism. That recorder films whatever the run did, flakes included, so you still have to pin the waits, animations, clock, fonts, and network yourself, or two recordings of the same script come out different. The recorder captures determinism, it does not create it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I keep a loading spinner from ruining a screen recording?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A spinner is a timer-and-animation effect, so it lands at a different phase every capture. Emulate prefers-reduced-motion so the app serves its calmer state, or install a fake clock so the spinner and the request behind it advance by the same ticks each run. Then wait on the loaded condition rather than a fixed sleep, and trim the idle so the finished video never sits on the spinner at all."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/demos-as-code/">Demos as Code</a><span class="sep">/</span><span>Deterministic browser automation for video capture</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/demos-as-code/">Demos as Code</a>
+        <h1 class="article-title">Deterministic browser automation for video capture</h1>
+        <p class="article-dek">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>8 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 7 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-green-test-forgives-what-a-rendered-frame-keeps">A green test forgives what a rendered frame keeps</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#auto-waiting-beats-a-sleep-and-on-camera-it-beats-it-by-more">Auto-waiting beats a sleep, and on camera it beats it by more</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#freeze-the-motion-reduced-motion-pinned-animations-a-fake-clock">Freeze the motion: reduced-motion, pinned animations, a fake clock</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pin-the-frame-geometry-viewport-pixel-ratio-and-fonts">Pin the frame geometry: viewport, pixel ratio, and fonts</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#take-the-network-out-of-the-shot">Take the network out of the shot</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-determinism-checklist-in-one-table">The determinism checklist, in one table</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A test suite hides flakiness behind a rerun; Google measured ~1.5% of test runs and 16% of tests as flaky. A video has no rerun, so the flake is a frame you ship.</li>
+    <li>The bar rises from 'eventually passes' to 'same pixels twice.' Wait on conditions (Playwright's stable check = same bounding box for 2 animation frames), never sleep(n).</li>
+    <li>Freeze motion three ways: emulate prefers-reduced-motion, install a fake clock (Playwright v1.45 controls Date, timers, requestAnimationFrame), and drive kept motion over fixed frames.</li>
+    <li>Pin the frame before capture: an explicit viewport, a fixed deviceScaleFactor (2 for crisp text), and await document.fonts.ready so a late font swap can't reflow the shot.</li>
+    <li>Network variance can't be pinned from inside the browser: record against localhost or a seeded fixture with stubbed responses so pacing and on-screen numbers stay identical.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="a-green-test-forgives-what-a-rendered-frame-keeps">A green test forgives what a rendered frame keeps<a class="hanchor" href="#a-green-test-forgives-what-a-rendered-frame-keeps" aria-label="Link to section: A green test forgives what a rendered frame keeps">#</a></h2>
+<p>A test suite and a video renderer run the same browser through the same flow. They part ways on one word: rerun. When a test flakes, the runner retries it, and a pass on the second attempt is still a pass. That safety net is load-bearing at scale. Google, measuring its own corpus, reported that about 1.5% of all test runs report a flaky result, that almost 16% of its tests carry some level of flakiness, and that about 84% of the transitions it sees from pass to fail turn out to be flaky rather than real regressions<sup class="article-cite"><a href="#src-1" title="Google Testing Blog — Flaky Tests at Google and How We Mitigate Them (1.5% of runs, 16% of tests, 84% of pass-to-fail transitions)">1</a></sup>. A suite survives those numbers because the retry hides them.</p>
+<p>A render has no retry. The flake is not a red check you can run again to green; it is a frame in the file. A click that lands a beat early is a recorded misclick. A wait that resolves while a panel is still sliding is a recorded stutter. A spinner caught at a different angle is a different picture. The bar for a test is &quot;eventually passes.&quot; The bar for footage is &quot;produces the same pixels twice,&quot; and the second bar is strictly higher: every flaky behavior a suite would have quietly retried away is, on camera, a defect you ship.</p>
+<p>That is why treating a demo as <a href="/blog/demos-as-code/">a committed spec you can diff and rebuild</a> only pays off if the rebuild is deterministic. A spec that renders a slightly different video each run is not a spec; it is a random seed. The rest of this is the checklist that closes the gap between the two bars, variable by variable: what drifts between runs, what that drift looks like on screen, and how to pin it.</p>
+<h2 id="auto-waiting-beats-a-sleep-and-on-camera-it-beats-it-by-more">Auto-waiting beats a sleep, and on camera it beats it by more<a class="hanchor" href="#auto-waiting-beats-a-sleep-and-on-camera-it-beats-it-by-more" aria-label="Link to section: Auto-waiting beats a sleep, and on camera it beats it by more">#</a></h2>
+<p>The oldest determinism bug is <code>sleep(2000)</code>. A fixed pause is a bet that the thing you are waiting for finishes inside the guess, and the guess is wrong in both directions. Too short and the next action fires into a half-loaded page. Too long and you have bought dead frames of a screen doing nothing. In a test the first failure just retries; on video both failures are permanent. The misfire is recorded, and the dead air pads the runtime you then have to trim.</p>
+<p>The fix is to wait on the condition, not the clock. Playwright&#39;s actionability model waits, before every action, until the target element is visible, stable, receiving events, and enabled, and it defines &quot;stable&quot; precisely: the element has held &quot;the same bounding box for at least two consecutive animation frames&quot;<sup class="article-cite"><a href="#src-2" title="Playwright — Auto-waiting and actionability checks (visible, stable, receives events, enabled)">2</a></sup>. That last check is the one that matters for footage, because it refuses to click a button that is still animating into place. Playwright also ships auto-retrying assertions that poll a condition until it holds instead of failing on the first look. The one escape hatch to distrust is <code>force</code>, which disables the non-essential checks; it makes a test pass and a video stutter, because it clicks whether or not the element was ready.</p>
+<p>Two conditions cover most demos: the element is stable and hittable, and the network the step depends on has gone quiet. Key the action to those, and the same flow paces itself identically whether the page painted in 80 ms or 800.</p>
+<h2 id="freeze-the-motion-reduced-motion-pinned-animations-a-fake-clock">Freeze the motion: reduced-motion, pinned animations, a fake clock<a class="hanchor" href="#freeze-the-motion-reduced-motion-pinned-animations-a-fake-clock" aria-label="Link to section: Freeze the motion: reduced-motion, pinned animations, a fake clock">#</a></h2>
+<p>Motion is the richest source of per-run drift, because most of it is driven by the wall clock at the instant the frame is grabbed. A spinner&#39;s rotation, a card&#39;s fade-in, a skeleton shimmer, a toast that dismisses itself on a timer: each is at a different phase every run. On camera the same scene shows the spinner at a new angle, a modal caught 40% slid-in on one take and 70% on the next, a fade that is complete in one render and still going in another. Nothing is broken; nothing matches.</p>
+<p>Three controls, coarse to fine:</p>
+<ul>
+<li><strong>Emulate reduced motion.</strong> The <code>prefers-reduced-motion</code> media feature signals that the user wants an interface that &quot;removes, reduces, or replaces motion-based animations&quot;<sup class="article-cite"><a href="#src-6" title="MDN — prefers-reduced-motion media feature">6</a></sup>; a well-built app already tones its animations down under it. Playwright can emulate it directly with <code>reducedMotion: &#39;reduce&#39;</code>, so the app serves its calmer, less time-dependent motion for the capture<sup class="article-cite"><a href="#src-4" title="Playwright — Emulation (viewport, deviceScaleFactor, reducedMotion, colorScheme)">4</a></sup>. That is free determinism for any motion the app agreed to drop.</li>
+<li><strong>Pin the clock.</strong> For motion the app keeps, take away its clock. Playwright&#39;s clock API, added in v1.45, replaces the page&#39;s <code>Date</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>requestAnimationFrame</code>, and <code>performance</code> with a fake one you control, so every timer- and animation-frame-driven effect advances by exactly the ticks you allow<sup class="article-cite"><a href="#src-3" title="Playwright — Clock API (v1.45; mock Date, timers, requestAnimationFrame)">3</a></sup>. Install it before you navigate and set it just behind the intended time, the docs note, so page-load timers still fire and nothing hangs. A pinned clock is also what makes a &quot;3 minutes ago&quot; label read the same in every render.</li>
+<li><strong>Drive the motion you keep.</strong> For the one move you want on purpose, a reveal or a highlight, do not leave its duration to the browser. Compute it yourself over a fixed number of frames, so it is both smooth and identical every time.</li>
+</ul>
+<h2 id="pin-the-frame-geometry-viewport-pixel-ratio-and-fonts">Pin the frame geometry: viewport, pixel ratio, and fonts<a class="hanchor" href="#pin-the-frame-geometry-viewport-pixel-ratio-and-fonts" aria-label="Link to section: Pin the frame geometry: viewport, pixel ratio, and fonts">#</a></h2>
+<p>Geometry decides what the same DOM actually looks like. Three settings move it, and all three have to be nailed down before the first frame.</p>
+<p><strong>Viewport.</strong> Width drives layout. Capture the flow at 1280 wide in one run and 1360 in another and a responsive grid drops a column, a nav collapses to a hamburger, a tooltip flips sides: the same demo, a different composition. Set an explicit viewport (Playwright takes <code>viewport: { width, height }</code> on the context) and never let the window size float<sup class="article-cite"><a href="#src-4" title="Playwright — Emulation (viewport, deviceScaleFactor, reducedMotion, colorScheme)">4</a></sup>.</p>
+<p><strong>Device-pixel-ratio.</strong> DPR is sharpness. A capture at <code>deviceScaleFactor: 1</code> upscaled to a 1080p canvas is soft, and its text anti-aliases onto different subpixels than a native 2x render. Pin <code>deviceScaleFactor</code> (2 is the safe default for crisp text) and every run rasterizes to the same grid.</p>
+<p><strong>Fonts.</strong> A web font that arrives after the first paint gives you the flash of unstyled text: the fallback renders, then the real font swaps in and the line reflows. If the glyph is missing entirely you get a tofu box instead. The wait is one line. <code>document.fonts.ready</code> resolves once &quot;the document has completed loading fonts, layout operations are completed, and no further font loads are needed&quot;<sup class="article-cite"><a href="#src-7" title="MDN — FontFaceSet.ready (promise resolves when fonts and layout are complete)">7</a></sup>, so block the first frame on it. Availability is a separate problem: a CI runner that lacks the font family paints the box no matter how long you wait, which is <a href="/blog/demo-videos-in-ci/">its own thing to provision on the runner</a>.</p>
+<h2 id="take-the-network-out-of-the-shot">Take the network out of the shot<a class="hanchor" href="#take-the-network-out-of-the-shot" aria-label="Link to section: Take the network out of the shot">#</a></h2>
+<p>Network variance is the drift you cannot pin from inside the browser, so the move is to remove it. Three flavors, all corrosive to a repeatable render:</p>
+<ul>
+<li><strong>Latency jitter.</strong> A request that returns in 120 ms one run and 900 ms the next changes when content paints and how long your idle wait sits. Even with condition-based waits, the pacing wobbles.</li>
+<li><strong>Live data.</strong> A feed, a counter, a relative timestamp, a &quot;trending now&quot; rail: anything that reflects the real world films whatever the world was doing at capture time, so the numbers on screen change between runs.</li>
+<li><strong>Variants and third parties.</strong> Production may serve an A/B branch, a feature flag, a cookie wall, a late-loading chat widget or an ad slot. Occasionally the render simply films the wrong UI.</li>
+</ul>
+<p>The remedy is to record against a target you own: localhost, a seeded staging build, or a fixture with a pinned dataset, and to stub or mock the requests so responses come back instant and identical. This is the same reason <a href="/blog/coding-agents-that-make-demo-videos/">the agent seeds state before it writes the spec</a>: the demo should depend on data it controls, not on whatever production happened to be serving. Filming a real service and hoping is how a golden render quietly <a href="/blog/why-product-demos-go-stale/">drifts out of true</a>.</p>
+<h2 id="the-determinism-checklist-in-one-table">The determinism checklist, in one table<a class="hanchor" href="#the-determinism-checklist-in-one-table" aria-label="Link to section: The determinism checklist, in one table">#</a></h2>
+<p>Every variable above, its on-camera symptom, and its pin, in one place. This is the difference between a flow that turns a test green and one that renders the same footage twice.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>What drifts between runs</th>
+<th>On camera</th>
+<th>How to pin it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Waits</td>
+<td>when a step is &quot;ready&quot;</td>
+<td>early misclick, or dead air</td>
+<td>actionability plus a network-quiet condition, never <code>sleep(n)</code></td>
+</tr>
+<tr>
+<td>CSS/JS animation</td>
+<td>phase at capture</td>
+<td>fade or slide caught mid-way</td>
+<td><code>reducedMotion: &#39;reduce&#39;</code>; drive kept motion yourself</td>
+</tr>
+<tr>
+<td>Timers and clock</td>
+<td><code>Date</code>, <code>setTimeout</code>, rAF</td>
+<td>spinner angle, &quot;3 min ago&quot; text</td>
+<td>install a fake clock before navigating</td>
+</tr>
+<tr>
+<td>Viewport</td>
+<td>width to layout</td>
+<td>dropped column, hamburger nav</td>
+<td>an explicit <code>viewport</code>, never floating</td>
+</tr>
+<tr>
+<td>Device-pixel-ratio</td>
+<td>rasterization grid</td>
+<td>soft text, different anti-aliasing</td>
+<td>pin <code>deviceScaleFactor</code> (2 for crisp text)</td>
+</tr>
+<tr>
+<td>Fonts</td>
+<td>load timing and availability</td>
+<td>reflow on swap, tofu box</td>
+<td>await <code>document.fonts.ready</code>; ship the family</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>latency, data, variants</td>
+<td>pacing wobble, changed numbers</td>
+<td>localhost or fixture plus stubbed responses</td>
+</tr>
+<tr>
+<td>Scroll</td>
+<td>smooth-scroll duration and offset</td>
+<td>jumpy or subpixel-different scroll</td>
+<td>an eased curve over fixed frames to an integer offset</td>
+</tr>
+</tbody></table></div>
+<p>Scroll earns the last row on its own. A native <code>scroll-behavior: smooth</code> hands both the duration and the final resting offset to the browser, and both come back slightly different per run, which reads as a jitter no zoom can hide. Compute the scroll instead: an easing curve over a fixed frame count to a pinned integer offset, so the move looks hand-glided and repeats to the pixel.</p>
+<p>None of this is exotic. It is a fixed viewport, a locked pixel ratio, waits keyed to conditions rather than a countdown, motion under a frozen clock, and a network you own. An engine built for this bakes the list in: aidemo, which is ours, drives a real Chrome through a fixed action-spec with an injected cursor, pins the viewport and pixel ratio, and waits on conditions, so one storyboard renders the same frames on every run. It works only in the browser, its storyboards come from an agent rather than a drag-and-drop timeline, and it has no click-to-trim editor, which are the same constraints that make the take reproducible. Get the list right and the demo stops being a performance you hope repeats and becomes something <a href="/blog/demo-videos-in-ci/">a CI job can rebuild on the commit that changed the UI</a>.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html" rel="noopener">Google Testing Blog — Flaky Tests at Google and How We Mitigate Them (1.5% of runs, 16% of tests, 84% of pass-to-fail transitions)</a></li>
+<li id="src-2"><a href="https://playwright.dev/docs/actionability" rel="noopener">Playwright — Auto-waiting and actionability checks (visible, stable, receives events, enabled)</a></li>
+<li id="src-3"><a href="https://playwright.dev/docs/api/class-clock" rel="noopener">Playwright — Clock API (v1.45; mock Date, timers, requestAnimationFrame)</a></li>
+<li id="src-4"><a href="https://playwright.dev/docs/emulation" rel="noopener">Playwright — Emulation (viewport, deviceScaleFactor, reducedMotion, colorScheme)</a></li>
+<li id="src-5"><a href="https://playwright.dev/docs/videos" rel="noopener">Playwright — Videos (recordVideo on newContext, viewport-sized, saved on context close)</a></li>
+<li id="src-6"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" rel="noopener">MDN — prefers-reduced-motion media feature</a></li>
+<li id="src-7"><a href="https://developer.mozilla.org/en-US/docs/Web/API/FontFaceSet/ready" rel="noopener">MDN — FontFaceSet.ready (promise resolves when fonts and layout are complete)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="why-does-deterministic-replay-matter-more-for-a-video-than-for-a-test" class="blog-faq-q">Why does deterministic replay matter more for a video than for a test?<a class="hanchor" href="#why-does-deterministic-replay-matter-more-for-a-video-than-for-a-test" aria-label="Link to section: Why does deterministic replay matter more for a video than for a test?">#</a></h3>
+<p>A flaky test is recoverable: the runner reruns it and a later pass counts, so a suite tolerates the roughly 1.5% of runs that flake. A render has no rerun. Whatever the browser did on that pass is baked into the frames, so a mistimed click or a spinner caught mid-spin is not a retry, it is a defect in the deliverable. The practical consequence is a higher bar, not &quot;eventually passes&quot; but &quot;produces identical footage twice.&quot;</p>
+<h3 id="can-playwright-record-a-demo-video-deterministically-on-its-own" class="blog-faq-q">Can Playwright record a demo video deterministically on its own?<a class="hanchor" href="#can-playwright-record-a-demo-video-deterministically-on-its-own" aria-label="Link to section: Can Playwright record a demo video deterministically on its own?">#</a></h3>
+<p>Playwright can record the session: the <code>recordVideo</code> option on <code>newContext</code> captures the page as it runs, sized to the viewport and written when the context closes<sup class="article-cite"><a href="#src-5" title="Playwright — Videos (recordVideo on newContext, viewport-sized, saved on context close)">5</a></sup>. But recording is not determinism. That recorder films whatever the run did, flakes included, so you still have to pin the waits, animations, clock, fonts, and network yourself, or two recordings of the same script come out different. The recorder captures determinism, it does not create it.</p>
+<h3 id="how-do-i-keep-a-loading-spinner-from-ruining-a-screen-recording" class="blog-faq-q">How do I keep a loading spinner from ruining a screen recording?<a class="hanchor" href="#how-do-i-keep-a-loading-spinner-from-ruining-a-screen-recording" aria-label="Link to section: How do I keep a loading spinner from ruining a screen recording?">#</a></h3>
+<p>A spinner is a timer-and-animation effect, so it lands at a different phase every capture. Emulate <code>prefers-reduced-motion</code> so the app serves its calmer state, or install a fake clock so the spinner and the request behind it advance by the same ticks each run. Then wait on the loaded condition rather than a fixed sleep, and trim the idle so the finished video never sits on the spinner at all.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">deterministic replay</span>
+        <span class="article-tag">browser automation</span>
+        <span class="article-tag">playwright</span>
+        <span class="article-tag">flaky tests</span>
+        <span class="article-tag">demos as code</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/demos-as-code/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Demos as code: commit the storyboard, render the video</h3>
+    <p class="article-card-excerpt">A recording is a performance you own and maintain. A spec is text you can diff, review, regenerate, and hand to an agent. That decides everything downstream.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/coding-agents-that-make-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Letting a coding agent make your demo video</h3>
+    <p class="article-card-excerpt">A coding agent can explore your app and write the demo storyboard. Driving the browser live is the one thing it must not do, and here is exactly why.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/multi-language-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Multi-language product demo videos from one recording</h3>
+    <p class="article-card-excerpt">Localizing a demo doesn't mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-green-test-forgives-what-a-rendered-frame-keeps">A green test forgives what a rendered frame keeps</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#auto-waiting-beats-a-sleep-and-on-camera-it-beats-it-by-more">Auto-waiting beats a sleep, and on camera it beats it by more</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#freeze-the-motion-reduced-motion-pinned-animations-a-fake-clock">Freeze the motion: reduced-motion, pinned animations, a fake clock</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pin-the-frame-geometry-viewport-pixel-ratio-and-fonts">Pin the frame geometry: viewport, pixel ratio, and fonts</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#take-the-network-out-of-the-shot">Take the network out of the shot</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-determinism-checklist-in-one-table">The determinism checklist, in one table</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

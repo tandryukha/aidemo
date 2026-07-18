@@ -202,7 +202,7 @@
 <h2 id="why-a-live-driven-take-is-a-different-video-every-run">Why a live-driven take is a different video every run<a class="hanchor" href="#why-a-live-driven-take-is-a-different-video-every-run" aria-label="Link to section: Why a live-driven take is a different video every run">#</a></h2>
 <p>Picture the naive version: hand a browser tool to an agent and tell it to record a demo. It reads the page, picks an element, clicks, waits for something to load, decides that looked good, scrolls, narrates. Every one of those is a fresh decision the model makes at inference time, and inference is not deterministic. OpenAI&#39;s own guidance on reproducible outputs is blunt: even with a fixed seed and a matching backend fingerprint, &quot;there is a small chance that responses differ ... due to the inherent non-determinism of our models,&quot; and the seed only buys a &quot;best effort to sample deterministically&quot;<sup class="article-cite"><a href="#src-3" title="OpenAI Cookbook — Reproducible outputs with the seed parameter (determinism not guaranteed)">3</a></sup>.</p>
 <p>Now compound that across a take. Say a 45-second demo involves a dozen model-made decisions: which element, when to scroll, how long to wait, whether to retry. Give each decision a modest 3% chance of landing differently on a re-run. The odds that all twelve come out identical are 0.97 to the twelfth, about 69%, so roughly one run in three diverges somewhere. Divergence is not a crash. It is a video where the cursor takes a different path, a wait resolves a beat early, a scroll overshoots. The demo becomes a random walk with a low but real branch probability, and you cannot review a random walk. You can only watch each render and hope.</p>
-<p>The fix is to move the model&#39;s decisions out of the take entirely. The agent makes all of them once, up front, and writes them into a fixed action-spec. Then a deterministic player, not the model, executes that spec the same way every time. It is the difference between a stunt performed live and a motion-control camera rig: the move is programmed once, and the rig repeats it frame-for-frame on take after take. The judgment still happened, it just happened at authoring time, where a wrong call is a line you edit rather than a shot you re-shoot. How the player makes a browser itself replay identically is its own engineering problem; the point here is only that the model is not in that loop.</p>
+<p>The fix is to move the model&#39;s decisions out of the take entirely. The agent makes all of them once, up front, and writes them into a fixed action-spec. Then a deterministic player, not the model, executes that spec the same way every time. It is the difference between a stunt performed live and a motion-control camera rig: the move is programmed once, and the rig repeats it frame-for-frame on take after take. The judgment still happened, it just happened at authoring time, where a wrong call is a line you edit rather than a shot you re-shoot. How the player makes a browser itself replay identically is <a href="/blog/deterministic-browser-automation-for-video/">its own engineering problem</a>; the point here is only that the model is not in that loop.</p>
 <h2 id="what-the-agent-has-to-learn-about-your-app-first">What the agent has to learn about your app first<a class="hanchor" href="#what-the-agent-has-to-learn-about-your-app-first" aria-label="Link to section: What the agent has to learn about your app first">#</a></h2>
 <p>Before an agent can write a spec, it has to explore, and this is the one phase where a live browser session is exactly right, because nothing it produces here ships. The exploration is disposable. Only its findings survive into text.</p>
 <p>Three things the agent has to pin down:</p>
@@ -357,13 +357,22 @@
     <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
   </div>
 </a>
-<a class="article-card" href="/blog/demo-videos-in-ci/">
-  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demo Automation</span></div>
+<a class="article-card" href="/blog/deterministic-browser-automation-for-video/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
   <div class="article-card-content">
-    <div class="article-card-category">Demo Automation</div>
-    <h3 class="article-card-title">Rendering demo videos in CI: a GitHub Actions walkthrough</h3>
-    <p class="article-card-excerpt">GitHub's runner ships Chrome but not ffmpeg. Here is what a video-rendering job actually needs, how to trigger it, and where the file should land.</p>
-    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Deterministic browser automation for video capture</h3>
+    <p class="article-card-excerpt">A test that flakes just reruns. A demo that flakes ships the stutter. The eight-variable checklist for making one browser flow render the same pixels twice.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/multi-language-product-demo-videos/">
+  <div class="article-card-image article-card-image--noimg" aria-hidden="true"><span class="noimg-topic">Demos as Code</span></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demos as Code</div>
+    <h3 class="article-card-title">Multi-language product demo videos from one recording</h3>
+    <p class="article-card-excerpt">Localizing a demo doesn't mean re-shooting it five times. Keep one recorded take, swap the words, and do the honest math on where each locale really costs you.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
   </div>
 </a>
   </div>
