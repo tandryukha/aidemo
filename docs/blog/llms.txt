@@ -9,6 +9,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [AI demo video generators: what the label actually covers](https://aidemo.top/blog/ai-demo-video-generators/index.md): Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.
 - [Arcade vs Navattic vs Storylane: picking an interactive demo platform](https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/index.md): They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.
 - [Camtasia alternatives for software demos and tutorials](https://aidemo.top/blog/camtasia-alternatives/index.md): TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.
+- [Cap vs Screen Studio: open-source polish vs the macOS standard](https://aidemo.top/blog/cap-vs-screen-studio/index.md): Both automate the same polish. One is open source and runs anywhere; one is the macOS benchmark. Where Cap wins, where it breaks, and when to pick neither.
 - [Interactive product demos vs video demos: when each wins](https://aidemo.top/blog/interactive-demo-vs-video-demo/index.md): One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.
 - [Loom alternatives for product demos after the Atlassian era](https://aidemo.top/blog/loom-alternatives-for-product-demos/index.md): Loom is async video messaging that Atlassian now owns, not a product-demo tool. Sort the alternatives by which of Loom's jobs you are actually replacing.
 - [Open-source demo video tools, scored by license and install reality](https://aidemo.top/blog/open-source-demo-video-tools/index.md): Not everything on GitHub is open source. Cap, vhs, Remotion, Revideo, editly, and aidemo, scored on OSI compliance, install friction, and what the pixels are.
@@ -35,6 +36,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 - [How to make a product demo video (that people finish)](https://aidemo.top/blog/how-to-make-a-product-demo-video/index.md): The playbook for a demo people actually finish: script first, record second, with the word, scene, and length budgets that decide every second.
 - [What makes a screen recording look professional](https://aidemo.top/blog/professional-screen-recordings/index.md): The polish people call professional is five named transforms with parameters, not a knack. Here is what each one does and why a bad zoom is a recompose.
 - [SaaS demo video examples: what the best ones do differently](https://aidemo.top/blog/saas-demo-video-examples/index.md): Six real SaaS demo videos from Vercel, Notion, Loom, Linear, Warp, and Retool, read with a stopwatch and a transcript instead of a mood board.
+- [The async sales demo video: a repeatable asset, not a live call](https://aidemo.top/blog/sales-demo-video/index.md): Your live demo reached the one stakeholder in the room; the deal needs twelve more. The shot list for a recorded sales demo, and when it beats a call.
 
 ## Demos as Code
 
@@ -48,11 +50,13 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 ## Screen Recording
 
 - [Best frame rate for screen recording: 30 vs 60 fps by content](https://aidemo.top/blog/best-frame-rate-for-screen-recording/index.md): Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.
+- [Best resolution for screen recording: match delivery, not your monitor](https://aidemo.top/blog/best-resolution-for-screen-recording/index.md): Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.
 - [How to record your screen in high quality: the settings that matter](https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/index.md): Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.
 - [How to record just one browser tab (three ways, one clean result)](https://aidemo.top/blog/record-a-browser-tab/index.md): Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.
 
 ## Video Documentation & Tutorials
 
+- [Keeping a tutorial video library current at scale](https://aidemo.top/blog/keeping-tutorial-libraries-current/index.md): Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.
 - [Video documentation for software: when the medium earns its keep](https://aidemo.top/blog/video-documentation/index.md): The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.
 - [Video vs written documentation: the decision, with evidence](https://aidemo.top/blog/video-vs-written-documentation/index.md): Stop asking whether your docs should be video or text. Score each doc job on four axes and read the right format off the total, evidence not vibes.
 
@@ -60,6 +64,7 @@ Every article is available as raw markdown at the .md URLs below (the .md suffix
 
 - [Putting a demo video on your landing page without wrecking load time](https://aidemo.top/blog/demo-video-on-landing-page/index.md): A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.
 - [Does video actually increase conversion? Tracing the 80% claim](https://aidemo.top/blog/does-video-increase-conversion/index.md): The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.
+- [The Product Hunt launch video: spec, format, and the first five seconds](https://aidemo.top/blog/product-hunt-launch-video/index.md): The Product Hunt feed shows a 240x240 thumbnail, not your video. The real asset spec, an honest read on the 53% stat, and a shot-list for the night before.
 - [Video marketing for software: one recording, every channel](https://aidemo.top/blog/video-marketing-for-software/index.md): Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.
 
 ## Optional

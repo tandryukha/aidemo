@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cap vs Screen Studio: an honest comparison | aidemo</title>
+<meta name="description" content="Cap (open source, cross-platform, $29/yr) vs Screen Studio (macOS-only, ~$9/mo): auto-zoom, cursor, and backgrounds compared, plus each tool's real gaps.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/cap-vs-screen-studio/">
+<link rel="alternate" type="text/markdown" href="/blog/cap-vs-screen-studio/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Cap vs Screen Studio: an honest comparison | aidemo">
+<meta property="og:description" content="Cap (open source, cross-platform, $29/yr) vs Screen Studio (macOS-only, ~$9/mo): auto-zoom, cursor, and backgrounds compared, plus each tool's real gaps.">
+<meta property="og:url" content="https://aidemo.top/blog/cap-vs-screen-studio/">
+<meta property="og:image" content="https://aidemo.top/blog/images/cap-vs-screen-studio-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cap vs Screen Studio: an honest comparison | aidemo">
+<meta name="twitter:description" content="Cap (open source, cross-platform, $29/yr) vs Screen Studio (macOS-only, ~$9/mo): auto-zoom, cursor, and backgrounds compared, plus each tool's real gaps.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/cap-vs-screen-studio-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Cap vs Screen Studio: open-source polish vs the macOS standard",
+  "description": "Cap (open source, cross-platform, $29/yr) vs Screen Studio (macOS-only, ~$9/mo): auto-zoom, cursor, and backgrounds compared, plus each tool's real gaps.",
+  "image": [
+    "https://aidemo.top/blog/images/cap-vs-screen-studio-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/cap-vs-screen-studio/"
+  },
+  "wordCount": 1885,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — product site and pricing",
+      "url": "https://screen.studio/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Screen Studio — auto zoom guide",
+      "url": "https://screen.studio/guide/auto-zoom"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — pricing",
+      "url": "https://cap.so/pricing"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — downloads (macOS, Windows beta, Linux .deb)",
+      "url": "https://cap.so/download"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — Studio Mode features",
+      "url": "https://cap.so/features/studio-mode"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — GitHub repository (license, release 0.5.6)",
+      "url": "https://github.com/CapSoftware/Cap"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — issue #1557, export flicker and playback lag",
+      "url": "https://github.com/CapSoftware/Cap/issues/1557"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — issue #1589, excessive RAM usage (~15GB)",
+      "url": "https://github.com/CapSoftware/Cap/issues/1589"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Cap — issue #1948, Linux onboarding window renders black",
+      "url": "https://github.com/CapSoftware/Cap/issues/1948"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Demo Tools & Alternatives",
+      "item": "https://aidemo.top/blog/topics/ai-demo-tools/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Cap vs Screen Studio: open-source polish vs the macOS standard",
+      "item": "https://aidemo.top/blog/cap-vs-screen-studio/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Cap as good as Screen Studio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For polish features, close to it. Cap does the same produced auto-zoom, cursor smoothing, and styled backgrounds Screen Studio pioneered, and it adds cross-platform support and a free tier Screen Studio does not have. Where Screen Studio still leads is maturity: it renders one macOS path very cleanly, while Cap's exporter has open reports of flicker, lag, and heavy memory use on some hardware. On a Mac where you want the most reliable output today, Screen Studio has the edge; almost everywhere else, Cap closes the gap."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Cap work on Linux?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, with caveats. Cap publishes a Linux .deb, so it installs and records on Linux, but Linux is not a first-class target. Its GitHub README foregrounds macOS and Windows, and open issues include the onboarding window rendering black on Wayland until you set WEBKIT_DISABLE_DMABUF_RENDERER=1. Screen Studio, by contrast, has no Linux build at all, so a working .deb with rough edges still beats nothing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Cap free, and what does the paid version add?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Cap's free tier records locally with Studio Mode, but it caps recordings at five minutes and is licensed for personal use only. The $29-a-year Desktop License removes the cap for unlimited local recording and editing and grants commercial rights; Cap Pro, at $12 a user a month, adds cloud storage, shareable links, and AI features like auto-generated titles and transcripts. Screen Studio has no free tier, so any use starts on a paid plan."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a><span class="sep">/</span><span>Cap vs Screen Studio: open-source polish vs the macOS standard</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+        <h1 class="article-title">Cap vs Screen Studio: open-source polish vs the macOS standard</h1>
+        <p class="article-dek">Both automate the same polish. One is open source and runs anywhere; one is the macOS benchmark. Where Cap wins, where it breaks, and when to pick neither.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 9 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-bets-on-the-same-polish-problem">Two bets on the same polish problem</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-head-to-head-feature-by-feature">The head-to-head, feature by feature</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#where-cap-actually-falls-short">Where Cap actually falls short</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-screen-studio-makes-you-give-up">What Screen Studio makes you give up</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-free-tier-is-where-they-really-part">The free tier is where they really part</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#pick-one-or-pick-neither">Pick one, or pick neither</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/cap-vs-screen-studio-800.webp" srcset="/blog/images/cap-vs-screen-studio-400.webp 400w, /blog/images/cap-vs-screen-studio-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay chess pawn wearing a small gold crown"><figcaption>Cap has the incumbent's polish within range; platform, license, and a few rough edges decide whether the crown changes hands.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Cap and Screen Studio have near-identical polish (auto-zoom, cursor smoothing, styled backgrounds); the real split is platform, license, and price, not features.</li>
+    <li>Cap is open source (AGPLv3), runs on macOS, Windows (beta) and a Linux .deb, and starts free (5-min, personal use); a $29/yr Desktop License adds commercial rights.</li>
+    <li>Screen Studio is macOS-only (Ventura 13.1+), has no free tier, and is subscription-only at about $9/mo billed yearly; the polish is mature but the platform wall is real.</li>
+    <li>Cap's rough edges are logged in its own tracker: open reports of export flicker and lag (#1557), ~15GB RAM on long takes (#1589), and a black Linux onboarding window (#1948).</li>
+    <li>Decision: Mac + solo -&gt; Screen Studio; Windows/Linux/mixed team or free -&gt; Cap; a demo that must re-render on every UI change -&gt; neither, use a headless CI pipeline.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="two-bets-on-the-same-polish-problem">Two bets on the same polish problem<a class="hanchor" href="#two-bets-on-the-same-polish-problem" aria-label="Link to section: Two bets on the same polish problem">#</a></h2>
+<p>Cap and Screen Studio automate an identical trick and disagree about nearly everything around it. Both watch where you click, punch the camera in on the target, ease the pointer into a produced glide, and set the whole recording on a padded, rounded-corner background. That is the automatic polish that defined the category, and on a feature list the two tools look close to matched. The split is structural. Screen Studio is a macOS-only subscription app that has spent years tuning a single rendering path; Cap is open source, ships on three operating systems, and moves fast enough to still be shaking bugs out of its exporter. So &quot;Cap vs Screen Studio&quot; is not really a features question. It is a question of which of those two bets fits your machine, your license tolerance, and your budget.</p>
+<p>This is the two-tool deep read. The wider field of recorders is sorted by operating system in the <a href="/blog/screen-studio-alternatives/">Screen Studio alternatives rundown</a>, and the polish effects themselves are pulled apart, one transform at a time, in <a href="/blog/professional-screen-recordings/">what makes a screen recording look professional</a>. Here it is just these two, head to head, with the honest gaps named on both sides.</p>
+<h2 id="the-head-to-head-feature-by-feature">The head-to-head, feature by feature<a class="hanchor" href="#the-head-to-head-feature-by-feature" aria-label="Link to section: The head-to-head, feature by feature">#</a></h2>
+<p>Every figure below is checked against the two vendors&#39; own pages and Cap&#39;s repository in July 2026. Cap&#39;s current desktop build is 0.5.6, released July 17, 2026<sup class="article-cite"><a href="#src-6" title="Cap — GitHub repository (license, release 0.5.6)">6</a></sup>.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Cap</th>
+<th>Screen Studio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Platforms</td>
+<td>macOS, Windows (beta), Linux (.deb)</td>
+<td>macOS only (Ventura 13.1+)</td>
+</tr>
+<tr>
+<td>Auto-zoom</td>
+<td>Smart Auto-Zoom, live or in the editor</td>
+<td>click-detected, added after the take</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>eased path, custom size/style, motion blur</td>
+<td>smoothed path, resizable after recording</td>
+</tr>
+<tr>
+<td>Backgrounds</td>
+<td>color, gradient, image, blur; padding, corners</td>
+<td>background, spacing, shadow, inset</td>
+</tr>
+<tr>
+<td>Captions</td>
+<td>Cap AI transcript and captions</td>
+<td>transcript to subtitles</td>
+</tr>
+<tr>
+<td>Camera + device</td>
+<td>webcam</td>
+<td>webcam plus iPhone/iPad over USB</td>
+</tr>
+<tr>
+<td>Export</td>
+<td>4K/60</td>
+<td>4K/60, GIF</td>
+</tr>
+<tr>
+<td>Free tier</td>
+<td>yes: 5-minute cap, personal use</td>
+<td>none</td>
+</tr>
+<tr>
+<td>License</td>
+<td>AGPLv3 (some capture crates MIT)</td>
+<td>proprietary</td>
+</tr>
+<tr>
+<td>Price</td>
+<td>free / $29 a year / $12 a user a month</td>
+<td>~$9/mo yearly, ~$20/mo monthly</td>
+</tr>
+</tbody></table></div>
+<p>Read across the polish rows and the two are near twins. Both apply produced auto-zoom, both smooth and resize the cursor, both composite the take onto a styled background with padding and rounded corners (<a href="https://cap.so/features/studio-mode" rel="noopener">Cap, 2026</a>; <a href="https://screen.studio/" rel="noopener">Screen Studio, 2026</a>). Neither auto-zoom is the hands-off magic the marketing suggests, either. Screen Studio&#39;s own guide is candid: the effect &quot;focuses on the areas where clicks occurred,&quot; and &quot;if you add auto-zoom where no mouse click occurs, it will not zoom to any area,&quot; at which point you place the zoom by hand<sup class="article-cite"><a href="#src-2" title="Screen Studio — auto zoom guide">2</a></sup>. Cap&#39;s Smart Auto-Zoom has the same shape, running during the recording or as zooms you drop into the timeline afterward<sup class="article-cite"><a href="#src-5" title="Cap — Studio Mode features">5</a></sup>. Both are editor-assisted, not autonomous.</p>
+<p>Which means the feature list does not settle this. Three things do: what breaks in Cap, what Screen Studio makes you give up, and how each one treats the person who has not paid yet.</p>
+<h2 id="where-cap-actually-falls-short">Where Cap actually falls short<a class="hanchor" href="#where-cap-actually-falls-short" aria-label="Link to section: Where Cap actually falls short">#</a></h2>
+<p>Cap is younger than Screen Studio and covers more platforms, and its public issue tracker shows the price of both. These are individual reports against a fast-moving 0.5.x release, not guaranteed failures, but they cluster on the one output a demo tool cannot afford to get wrong: the exported file.</p>
+<p>The worst is flicker and lag on export. An open issue describes a rendered video that &quot;flashes or flickers constantly&quot; and plays back &quot;extremely laggy (low frame rate),&quot; with the reporter tracing it to hardware encoding on a dual-GPU (Intel plus NVIDIA) Windows machine<sup class="article-cite"><a href="#src-7" title="Cap — issue #1557, export flicker and playback lag">7</a></sup>. Another open report has Cap holding roughly 15 GB of RAM through a long recording and not releasing it until the app is fully quit<sup class="article-cite"><a href="#src-8" title="Cap — issue #1589, excessive RAM usage (~15GB)">8</a></sup>.</p>
+<p>The Linux story is its own caveat. Comparison pages tend to flatten Cap to &quot;Mac and Windows,&quot; which undersells it in one direction and oversells it in the other. Cap does ship a Linux <code>.deb</code><sup class="article-cite"><a href="#src-4" title="Cap — downloads (macOS, Windows beta, Linux .deb)">4</a></sup>, so Linux is genuinely supported. But it is visibly second-class: an open issue has the onboarding window rendering as a solid black box on Wayland unless you launch with the environment variable <code>WEBKIT_DISABLE_DMABUF_RENDERER=1</code><sup class="article-cite"><a href="#src-9" title="Cap — issue #1948, Linux onboarding window renders black">9</a></sup>. If Linux is your daily driver, Cap installs and runs, but plan for rough edges the macOS build does not have.</p>
+<p>None of this is mysterious. Screen Studio renders one path: Apple silicon, one graphics stack, tuned relentlessly. Cap has to encode correctly across macOS, Windows, and Linux, on every GPU and compositor its users happen to own, and that surface is exactly where the flicker, the memory pressure, and the black window come from. Cap&#39;s breadth is its headline advantage and the source of its roughest edges at once.</p>
+<h2 id="what-screen-studio-makes-you-give-up">What Screen Studio makes you give up<a class="hanchor" href="#what-screen-studio-makes-you-give-up" aria-label="Link to section: What Screen Studio makes you give up">#</a></h2>
+<p>Screen Studio&#39;s weak points are the mirror image: not bugs, but walls the product model draws on purpose.</p>
+<p>The first is the platform wall. Screen Studio runs on macOS only and recommends Ventura 13.1 or newer, with no Windows or Linux build<sup class="article-cite"><a href="#src-1" title="Screen Studio — product site and pricing">1</a></sup>. For a solo Mac user that costs nothing. For a team it is a recurring tax: the day one teammate is on Windows or Linux, they cannot open the same app, and your demos start coming out of two pipelines with two different looks. Cap&#39;s cross-platform reach exists to close that seam.</p>
+<p>The second is the money model. Screen Studio is subscription-only with no free rung at all; the cheapest door in is a paid plan at about $9 a month billed yearly, or roughly $20 month to month<sup class="article-cite"><a href="#src-1" title="Screen Studio — product site and pricing">1</a></sup>. It also retired its old one-time license in 2025 — that history, and the three-year cost arithmetic against Cap and OBS, is worked out in the <a href="/blog/screen-studio-alternatives/">alternatives rundown</a> and is worth reading before you write off &quot;subscription&quot; as a dealbreaker. For this head-to-head the point is narrower: you cannot try Screen Studio without paying, and you can try Cap without paying.</p>
+<h2 id="the-free-tier-is-where-they-really-part">The free tier is where they really part<a class="hanchor" href="#the-free-tier-is-where-they-really-part" aria-label="Link to section: The free tier is where they really part">#</a></h2>
+<p>For a lot of buyers the deciding factor is not a feature at all. It is whether you can ship something before spending money, and what you are allowed to do with it.</p>
+<p>Cap records locally on the free tier with Studio Mode included, capped at five minutes per recording and licensed for personal use only<sup class="article-cite"><a href="#src-3" title="Cap — pricing">3</a></sup>. Cross the commercial line or the five-minute cap and the Desktop License is $29 a year for unlimited local recording and editing plus commercial rights; Cap Pro layers on cloud sharing and AI features at $12 a user a month<sup class="article-cite"><a href="#src-3" title="Cap — pricing">3</a></sup>. Screen Studio has no counterpart to any of that free lane.</p>
+<p>Then there is the license. Cap is AGPLv3, with a handful of its capture crates released under MIT<sup class="article-cite"><a href="#src-6" title="Cap — GitHub repository (license, release 0.5.6)">6</a></sup>; Screen Studio is closed, proprietary software. For almost everyone the difference stays abstract: the recordings you produce are yours, and the copyleft only reaches Cap&#39;s own code if you fork it and run a modified build as a hosted service. The clause-by-clause reading, and why &quot;the source is on GitHub&quot; is not the same claim as &quot;open source,&quot; is the job of <a href="/blog/open-source-demo-video-tools/">the open-source demo tools scorecard</a>. The short version for this comparison: if owning and self-hosting your recorder matters, only one of these two lets you.</p>
+<h2 id="pick-one-or-pick-neither">Pick one, or pick neither<a class="hanchor" href="#pick-one-or-pick-neither" aria-label="Link to section: Pick one, or pick neither">#</a></h2>
+<p>Name your constraint and the choice stops being close.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>If you are…</th>
+<th>Reach for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>On macOS, solo, want the most mature auto-polish</td>
+<td>Screen Studio</td>
+</tr>
+<tr>
+<td>On Windows or Linux, or on a mixed-OS team</td>
+<td>Cap</td>
+</tr>
+<tr>
+<td>Not willing to pay before you have shipped anything</td>
+<td>Cap (free: 5 minutes, personal use)</td>
+</tr>
+<tr>
+<td>Committed to open source and self-hosting</td>
+<td>Cap</td>
+</tr>
+<tr>
+<td>Recording a long commercial take on a Mac, budget aside</td>
+<td>either: Screen Studio for polish maturity, Cap to stay portable</td>
+</tr>
+</tbody></table></div>
+<p>There is a third answer neither tool offers, because both assume a person sits down and performs a take in a GUI. If the demo has to stay current as the product ships, re-rendered on the same commit that changed the UI with nobody at the keyboard, you want a headless pipeline, not a desktop recorder. That is the lane <a href="/blog/ai-demo-video-generators/">aidemo</a> occupies, which we build and disclose as ours: instead of performing a take, an agent (or you) writes the storyboard spec, and a deterministic engine replays it in a real browser, draws an eased synthetic cursor, times captions, applies compose-time zoom, and muxes the MP4. The honest limits are the flip side of that bet. It captures a browser only, so no native windows and no iPhone-over-USB the way Screen Studio does it, and there is no drag-on-a-timeline editor: the storyboard is the edit, and a change is a re-render. For a one-off marketing clip on a Mac, Cap or Screen Studio is plainly less friction. For a demo you will regenerate every release, a hand-driven recorder of either brand is the wrong shape of tool.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://screen.studio/" rel="noopener">Screen Studio — product site and pricing</a></li>
+<li id="src-2"><a href="https://screen.studio/guide/auto-zoom" rel="noopener">Screen Studio — auto zoom guide</a></li>
+<li id="src-3"><a href="https://cap.so/pricing" rel="noopener">Cap — pricing</a></li>
+<li id="src-4"><a href="https://cap.so/download" rel="noopener">Cap — downloads (macOS, Windows beta, Linux .deb)</a></li>
+<li id="src-5"><a href="https://cap.so/features/studio-mode" rel="noopener">Cap — Studio Mode features</a></li>
+<li id="src-6"><a href="https://github.com/CapSoftware/Cap" rel="noopener">Cap — GitHub repository (license, release 0.5.6)</a></li>
+<li id="src-7"><a href="https://github.com/CapSoftware/Cap/issues/1557" rel="noopener">Cap — issue #1557, export flicker and playback lag</a></li>
+<li id="src-8"><a href="https://github.com/CapSoftware/Cap/issues/1589" rel="noopener">Cap — issue #1589, excessive RAM usage (~15GB)</a></li>
+<li id="src-9"><a href="https://github.com/CapSoftware/Cap/issues/1948" rel="noopener">Cap — issue #1948, Linux onboarding window renders black</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="is-cap-as-good-as-screen-studio" class="blog-faq-q">Is Cap as good as Screen Studio?<a class="hanchor" href="#is-cap-as-good-as-screen-studio" aria-label="Link to section: Is Cap as good as Screen Studio?">#</a></h3>
+<p>For polish features, close to it. Cap does the same produced auto-zoom, cursor smoothing, and styled backgrounds Screen Studio pioneered, and it adds cross-platform support and a free tier Screen Studio does not have. Where Screen Studio still leads is maturity: it renders one macOS path very cleanly, while Cap&#39;s exporter has open reports of flicker, lag, and heavy memory use on some hardware. On a Mac where you want the most reliable output today, Screen Studio has the edge; almost everywhere else, Cap closes the gap.</p>
+<h3 id="does-cap-work-on-linux" class="blog-faq-q">Does Cap work on Linux?<a class="hanchor" href="#does-cap-work-on-linux" aria-label="Link to section: Does Cap work on Linux?">#</a></h3>
+<p>Yes, with caveats. Cap publishes a Linux <code>.deb</code>, so it installs and records on Linux, but Linux is not a first-class target. Its GitHub README foregrounds macOS and Windows, and open issues include the onboarding window rendering black on Wayland until you set <code>WEBKIT_DISABLE_DMABUF_RENDERER=1</code>. Screen Studio, by contrast, has no Linux build at all, so a working <code>.deb</code> with rough edges still beats nothing.</p>
+<h3 id="is-cap-free-and-what-does-the-paid-version-add" class="blog-faq-q">Is Cap free, and what does the paid version add?<a class="hanchor" href="#is-cap-free-and-what-does-the-paid-version-add" aria-label="Link to section: Is Cap free, and what does the paid version add?">#</a></h3>
+<p>Cap&#39;s free tier records locally with Studio Mode, but it caps recordings at five minutes and is licensed for personal use only. The $29-a-year Desktop License removes the cap for unlimited local recording and editing and grants commercial rights; Cap Pro, at $12 a user a month, adds cloud storage, shareable links, and AI features like auto-generated titles and transcripts. Screen Studio has no free tier, so any use starts on a paid plan.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">cap vs screen studio</span>
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">open source</span>
+        <span class="article-tag">demo tools</span>
+        <span class="article-tag">screen studio</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/ai-demo-video-generators/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/ai-demo-video-generators-400.webp" srcset="/blog/images/ai-demo-video-generators-400.webp 400w, /blog/images/ai-demo-video-generators-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="One search bar branching into four outputs: a video, an interactive embed, an avatar clip, and a real-UI render"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">AI demo video generators: what the label actually covers</h3>
+    <p class="article-card-excerpt">Four unrelated tools rank for 'AI demo video generator,' and two never output a video of your product. A mechanism map so you buy the right object.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/arcade-vs-navattic-vs-storylane/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/arcade-vs-navattic-vs-storylane-400.webp" srcset="/blog/images/arcade-vs-navattic-vs-storylane-400.webp 400w, /blog/images/arcade-vs-navattic-vs-storylane-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A single ice cream cone piled with scoops of ice cream in different colors"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Arcade vs Navattic vs Storylane: picking an interactive demo platform</h3>
+    <p class="article-card-excerpt">They rank on the same grids, but Navattic clones your DOM, Arcade stitches screenshots, and Storylane does both. Pick by capture engine, not feature count.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/camtasia-alternatives/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/camtasia-alternatives-400.webp" srcset="/blog/images/camtasia-alternatives-400.webp 400w, /blog/images/camtasia-alternatives-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An overloaded key ring crowded with chunky keys"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Tools &amp; Alternatives</div>
+    <h3 class="article-card-title">Camtasia alternatives for software demos and tutorials</h3>
+    <p class="article-card-excerpt">TechSmith retired Camtasia's perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-bets-on-the-same-polish-problem">Two bets on the same polish problem</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-head-to-head-feature-by-feature">The head-to-head, feature by feature</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#where-cap-actually-falls-short">Where Cap actually falls short</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-screen-studio-makes-you-give-up">What Screen Studio makes you give up</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-free-tier-is-where-they-really-part">The free tier is where they really part</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#pick-one-or-pick-neither">Pick one, or pick neither</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

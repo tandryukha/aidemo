@@ -117,5 +117,23 @@
   },
   "synthesia-alternatives-for-software-demos": {
     "subject": "a ventriloquist dummy seated on a wooden stool"
+  },
+  "sales-demo-video": {
+    "subject": "a vintage gramophone with a large flared horn"
+  },
+  "best-resolution-for-screen-recording": {
+    "subject": "a wide copper funnel narrowing to a single spout",
+    "seedOffset": 1
+  },
+  "product-hunt-launch-video": {
+    "subject": "a stubby toy rocket poised on a small round launchpad"
+  },
+  "cap-vs-screen-studio": {
+    "subject": "a chess pawn wearing a gold crown",
+    "seedOffset": 1
+  },
+  "keeping-tutorial-libraries-current": {
+    "subject": "a chunky toy ice resurfacer leaving a smooth glossy trail on ice",
+    "seedOffset": 2
   }
 }

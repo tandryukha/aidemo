@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen recording resolution: match delivery | aidemo</title>
+<meta name="description" content="Pick screen recording resolution from where the video plays, not your monitor: a source-to-delivery table, the file-size math, and why 4K blurs 1080p text.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/best-resolution-for-screen-recording/">
+<link rel="alternate" type="text/markdown" href="/blog/best-resolution-for-screen-recording/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Screen recording resolution: match delivery | aidemo">
+<meta property="og:description" content="Pick screen recording resolution from where the video plays, not your monitor: a source-to-delivery table, the file-size math, and why 4K blurs 1080p text.">
+<meta property="og:url" content="https://aidemo.top/blog/best-resolution-for-screen-recording/">
+<meta property="og:image" content="https://aidemo.top/blog/images/best-resolution-for-screen-recording-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Screen recording resolution: match delivery | aidemo">
+<meta name="twitter:description" content="Pick screen recording resolution from where the video plays, not your monitor: a source-to-delivery table, the file-size math, and why 4K blurs 1080p text.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/best-resolution-for-screen-recording-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Best resolution for screen recording: match delivery, not your monitor",
+  "description": "Pick screen recording resolution from where the video plays, not your monitor: a source-to-delivery table, the file-size math, and why 4K blurs 1080p text.",
+  "image": [
+    "https://aidemo.top/blog/images/best-resolution-for-screen-recording-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/best-resolution-for-screen-recording/"
+  },
+  "wordCount": 1821,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Vimeo — Video and audio compression guidelines (bitrate by resolution)",
+      "url": "https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "MDN — Window.devicePixelRatio",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "TechSmith — How to fix a blurry video",
+      "url": "https://www.techsmith.com/blog/video-blurry-techsmith-tips/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "FFmpeg — Scaler options (sws_flags algorithms, default bicubic)",
+      "url": "https://ffmpeg.org/ffmpeg-scaler.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Screen Recording",
+      "item": "https://aidemo.top/blog/topics/screen-recording/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Best resolution for screen recording: match delivery, not your monitor",
+      "item": "https://aidemo.top/blog/best-resolution-for-screen-recording/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What resolution should I record my screen at?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Record at whatever resolution feeds your delivery target, not the maximum your monitor offers. If the video will play at 1080p, capture the physical pixels of a DPR-2 window sized to a 960x540 layout, which lands as a crisp native 1920x1080 with text drawn at double density. Go higher only when you actually deliver higher, or when you need extra pixels to survive a zoom in the edit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is recording in 4K worth it for a demo video?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rarely. Unless you will deliver in 4K or plan to punch deep into the frame while editing, a 4K capture of a video that plays at 1080p costs about three times the bytes (recommended bitrates run 30 to 60 Mbps at 4K versus 10 to 20 Mbps at 1080p) for pixels the delivery discards. Worse, shrinking a full 4K desktop down to 1080p can soften small text, because each glyph loses roughly half its linear pixels."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is my screen recording still blurry after downscaling to 1080p?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two causes dominate. Either the downscale used a fast, soft filter (ffmpeg defaults to bicubic, and some pipelines fall back to fast bilinear) when lanczos would have held the edges, or you shrank too much content into the frame so the text dropped below the pixels it needs to resolve. Fix the first with an explicit lanczos flag; fix the second by capturing a window sized to the delivery target rather than the whole high-resolution desktop."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/screen-recording/">Screen Recording</a><span class="sep">/</span><span>Best resolution for screen recording: match delivery, not your monitor</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/screen-recording/">Screen Recording</a>
+        <h1 class="article-title">Best resolution for screen recording: match delivery, not your monitor</h1>
+        <p class="article-dek">Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 4 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#delivery-size-is-the-number-the-monitor-is-a-distraction">Delivery size is the number; the monitor is a distraction</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#capture-at-twice-the-delivery-size-then-let-the-shrink-sharpen">Capture at twice the delivery size, then let the shrink sharpen</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-source-to-delivery-table-you-can-record-straight-from">A source-to-delivery table you can record straight from</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-bits-you-pay-to-record-bigger-than-you-ship">The bits you pay to record bigger than you ship</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#how-a-4k-capture-can-make-1080p-text-worse-not-better">How a 4K capture can make 1080p text worse, not better</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-downscale-filter-decides-whether-the-sharpness-survives">The downscale filter decides whether the sharpness survives</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#recording-for-a-target-you-cannot-see-yet">Recording for a target you cannot see yet</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/best-resolution-for-screen-recording-800.webp" srcset="/blog/images/best-resolution-for-screen-recording-400.webp 400w, /blog/images/best-resolution-for-screen-recording-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A matte-clay funnel standing upright, its wide mouth tapering to a single narrow spout"><figcaption>Recording bigger than you deliver looks like waste and is the opposite: the surplus pixels pour into the few you keep and come out sharp.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Pick delivery resolution from where the video plays; capture 2x that on a DPR-2 display so the downscale supersamples four pixels into one and text stays crisp.</li>
+    <li>A 4K master for a 1080p embed runs ~3x the bytes (Vimeo recommends 30-60 Mbps at 4K vs 10-20 Mbps at 1080p) and a hosting platform re-encodes to its own bitrate anyway.</li>
+    <li>Capturing the full 4K desktop then downscaling to 1080p halves each glyph's pixels and softens small text; capture a DPR-2 window sized to the delivery target instead.</li>
+    <li>Downscale with lanczos, not ffmpeg's default bicubic or a fast-bilinear fallback, or the sharpness you paid for at capture leaks back out.</li>
+    <li>Capture true 4K only when you deliver 4K or need zoom headroom to punch into the frame in the edit; otherwise it is pure waste.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="delivery-size-is-the-number-the-monitor-is-a-distraction">Delivery size is the number; the monitor is a distraction<a class="hanchor" href="#delivery-size-is-the-number-the-monitor-is-a-distraction" aria-label="Link to section: Delivery size is the number; the monitor is a distraction">#</a></h2>
+<p>Open a screen recorder and the resolution it offers is whatever your display can do: 1920x1080 on a plain panel, 2560x1440 on a nicer one, 3840x2160 on a 4K monitor, more still on a 5K iMac. Every one of those is the wrong place to start. The resolution that matters is the one the finished video plays at, and that is set by where the video lives, not by the glass in front of you. A README clip renders in a column a few hundred pixels wide. A landing-page hero sits at 1080p inside a card. A YouTube walkthrough is capped by the viewer&#39;s window, not by how big your upload was. Pick that number first and work backward to a capture that feeds it, because recording at your monitor&#39;s native resolution and hoping the export sorts it out is how you end up with a 300 MB file of soft text.</p>
+<p>This is the resolution layer of <a href="/blog/how-to-record-your-screen-in-high-quality/">the full capture-settings checklist</a>, and it shares one rule with <a href="/blog/best-frame-rate-for-screen-recording/">the frame-rate layer</a>: capture is a decision you make once and cannot take back, so spend pixels where they land and nowhere else.</p>
+<h2 id="capture-at-twice-the-delivery-size-then-let-the-shrink-sharpen">Capture at twice the delivery size, then let the shrink sharpen<a class="hanchor" href="#capture-at-twice-the-delivery-size-then-let-the-shrink-sharpen" aria-label="Link to section: Capture at twice the delivery size, then let the shrink sharpen">#</a></h2>
+<p>There is one honest reason to record larger than you deliver, and it is why &quot;just record at 1080p&quot; produces mush on a modern laptop. Screens are high-density. MDN puts a device-pixel-ratio of 1 at a classic 96-DPI display and a ratio of 2 at a HiDPI or Retina panel, defining it as &quot;the ratio of the resolution in physical pixels to the resolution in CSS pixels&quot;<sup class="article-cite"><a href="#src-2" title="MDN — Window.devicePixelRatio">2</a></sup>. On a DPR-2 display, a browser window sized to 960x540 CSS pixels is actually painted across 1920x1080 physical pixels. A recorder that grabs those physical pixels hands you a native, crisp 1080p frame with text drawn at double density. The deeper mechanics of why grabbing the logical layer instead softens everything belong to the checklist above; here it just sets up the pairing.</p>
+<p>When the capture is larger than the delivery target, the shrink does extra work for free. Downscaling averages each block of captured pixels into one delivered pixel, a supersample that smooths the edges that would otherwise alias, so text arrives sharper than the panel showed it. Capture at exactly your delivery size and you skip that pass; capture at twice it and you bank it.</p>
+<h2 id="a-source-to-delivery-table-you-can-record-straight-from">A source-to-delivery table you can record straight from<a class="hanchor" href="#a-source-to-delivery-table-you-can-record-straight-from" aria-label="Link to section: A source-to-delivery table you can record straight from">#</a></h2>
+<p>Once the delivery target is fixed, the pairing is mechanical. Capture the physical pixels of a window sized so the content you want to show fills a frame at your delivery resolution, or twice it when you want the free supersample.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Where it plays</th>
+<th>Deliver at</th>
+<th>Capture (the source)</th>
+<th>Downscale?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>README clip, docs microvideo, email GIF</td>
+<td>720p</td>
+<td>1280x720 physical (DPR-2 render of a 640x360 layout)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Landing hero, embedded demo, sales send</td>
+<td>1080p</td>
+<td>1920x1080 physical (DPR-2 render of a 960x540 layout)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>YouTube or Vimeo, plus room to zoom in the edit</td>
+<td>1080p</td>
+<td>3840x2160 full HiDPI grid, scaled down to 1080p</td>
+<td>yes, 4 into 1</td>
+</tr>
+<tr>
+<td>You genuinely ship 4K</td>
+<td>2160p</td>
+<td>3840x2160 physical (native 4K panel at DPR 2)</td>
+<td>no</td>
+</tr>
+</tbody></table></div>
+<p>The row most guides get wrong is the third. Capturing 4K for a 1080p deliverable is worth it in exactly one case: you know you will punch into the frame while editing and need the extra pixels to survive <a href="/blog/professional-screen-recordings/">a zoom that would otherwise soften</a>. Absent that, rows one and two already give crisp text at the delivery size with no downscale to tune and no bits to waste. And notice what the capture column controls that the delivery column does not: how much of the UI sits in the frame. Fit less content into a smaller CSS window and every glyph is drawn with more pixels, which is why a slightly zoomed demo reads better than a full desktop shrunk to fit.</p>
+<h2 id="the-bits-you-pay-to-record-bigger-than-you-ship">The bits you pay to record bigger than you ship<a class="hanchor" href="#the-bits-you-pay-to-record-bigger-than-you-ship" aria-label="Link to section: The bits you pay to record bigger than you ship">#</a></h2>
+<p>The waste in over-capturing is not abstract; it has a bitrate and a byte count. Vimeo publishes the bitrate it recommends at each resolution, and the ladder climbs fast: 5 to 10 Mbps for 720p, 10 to 20 Mbps for 1080p, 20 to 30 Mbps for 2K, and 30 to 60 Mbps for 4K<sup class="article-cite"><a href="#src-1" title="Vimeo — Video and audio compression guidelines (bitrate by resolution)">1</a></sup>. Turn those into file sizes for a 60-second demo with the only formula you need, size in megabytes equals bitrate in megabits times seconds divided by eight:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Delivery resolution</th>
+<th>Recommended bitrate</th>
+<th>~Size, 60-second clip</th>
+<th>vs 1080p</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>720p (1280x720)</td>
+<td>5-10 Mbps</td>
+<td>~55 MB</td>
+<td>~0.5x</td>
+</tr>
+<tr>
+<td>1080p (1920x1080)</td>
+<td>10-20 Mbps</td>
+<td>~110 MB</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>1440p / 2K (2560x1440)</td>
+<td>20-30 Mbps</td>
+<td>~190 MB</td>
+<td>~1.7x</td>
+</tr>
+<tr>
+<td>2160p / 4K (3840x2160)</td>
+<td>30-60 Mbps</td>
+<td>~340 MB</td>
+<td>~3x</td>
+</tr>
+</tbody></table></div>
+<p>A 4K master of a video that will play at 1080p runs roughly three times the bytes of the 1080p version, and if the destination is a hosting platform, it transcodes your upload down to its own per-resolution bitrate on the way in, so the surplus never reaches a viewer. You paid the upload, the storage, and the longer encode for pixels the delivery discards. Where the file is self-hosted, a mostly-static UI compresses well below these figures, but the ratio between resolutions holds. The codec and container that carry the bits are a separate decision, and no codec makes 4K cheaper than 1080p for the same footage.</p>
+<h2 id="how-a-4k-capture-can-make-1080p-text-worse-not-better">How a 4K capture can make 1080p text worse, not better<a class="hanchor" href="#how-a-4k-capture-can-make-1080p-text-worse-not-better" aria-label="Link to section: How a 4K capture can make 1080p text worse, not better">#</a></h2>
+<p>Wasting bits is the forgivable half. The surprising half is that a 4K capture can deliver softer 1080p than a 1080p capture does, and the cause is content density, not the shrink itself. Record the whole 4K desktop and you are fitting four times the screen area into the frame. Downscale that to 1080p and every element, text included, lands at roughly half its original linear pixel count. A 14-pixel label that was legible on the 4K grid is drawn with about seven vertical pixels after the shrink, under the floor where fine strokes stay distinct, so it goes fuzzy. Capture a DPR-2 window sized to the delivery target instead and that same label keeps its full pixel budget. TechSmith names the same trap from the recorder&#39;s side, warning that footage &quot;becomes blurry when you zoom in or scale footage larger than what you originally recorded at&quot;<sup class="article-cite"><a href="#src-3" title="TechSmith — How to fix a blurry video">3</a></sup>; the mirror image is shrinking so much content into so few pixels that the text can no longer resolve.</p>
+<h2 id="the-downscale-filter-decides-whether-the-sharpness-survives">The downscale filter decides whether the sharpness survives<a class="hanchor" href="#the-downscale-filter-decides-whether-the-sharpness-survives" aria-label="Link to section: The downscale filter decides whether the sharpness survives">#</a></h2>
+<p>Supersampling only pays off if the shrink uses a filter built for it, and the default often is not. FFmpeg&#39;s scaler offers a menu of algorithms, from fast_bilinear and bilinear through bicubic to lanczos and spline, with a documented default of bicubic<sup class="article-cite"><a href="#src-4" title="FFmpeg — Scaler options (sws_flags algorithms, default bicubic)">4</a></sup>. Bicubic is acceptable; the fast bilinear that some pipelines fall back to for speed is not, and it is where the crispness you captured leaks back out as a soft, faintly smeared downscale. For shrinking UI text, name lanczos explicitly: its sharper kernel preserves the high-frequency edges that make small type readable, for a little more CPU and nothing else.</p>
+<div class="code-block">
+<div class="code-block-bar"><span class="code-lang">sh</span><button class="code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>
+<pre class="shiki one-light" style="background-color:transparent;color:#383A42" tabindex="0"><code><span class="line"><span style="color:#4078F2">ffmpeg</span><span style="color:#986801"> -i</span><span style="color:#50A14F"> take.mov</span><span style="color:#986801"> -vf</span><span style="color:#50A14F"> "scale=1920:1080:flags=lanczos"</span><span style="color:#986801"> -crf</span><span style="color:#986801"> 18</span><span style="color:#50A14F"> out.mp4</span></span></code></pre>
+</div>
+<p>Set the target dimensions, name the filter, and encode to a quality target rather than a fixed bitrate so the still stretches of the demo do not overspend. That one flag is the difference between a downscale that antialiases and one that just blurs.</p>
+<h2 id="recording-for-a-target-you-cannot-see-yet">Recording for a target you cannot see yet<a class="hanchor" href="#recording-for-a-target-you-cannot-see-yet" aria-label="Link to section: Recording for a target you cannot see yet">#</a></h2>
+<p>The delivery resolution is easy to pin when you can eyeball the export. It gets harder when the demo is regenerated on a schedule, on a server with no monitor at all, where &quot;whatever my display can do&quot; is not even a value. That is the case that forces the discipline this whole page argues for: the capture resolution, the device pixel ratio, and the downscale target become fixed inputs rather than a menu someone picks under deadline, and <a href="/blog/deterministic-browser-automation-for-video/">the same run produces the same frame every time</a>.</p>
+<p>Our own engine, aidemo, works this way: the viewport size and DPR live in a storyboard, so a demo re-renders at the identical resolution whether it runs on a laptop or a headless CI box, and the downscale to the delivery target is part of the spec, not a hand-tuned export. The honest limits are worth stating. It reaches into a browser and nowhere else, so a native desktop app is out of scope; the take is written as a storyboard by a coding agent, not laid out by hand on a GUI timeline; and for a one-off clip you will never regenerate, a point-and-click recorder is faster to reach for. What it buys is the thing a hand-recorded 4K file cannot promise: the resolution you chose on purpose, reproduced next quarter without a reshoot.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines" rel="noopener">Vimeo — Video and audio compression guidelines (bitrate by resolution)</a></li>
+<li id="src-2"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio" rel="noopener">MDN — Window.devicePixelRatio</a></li>
+<li id="src-3"><a href="https://www.techsmith.com/blog/video-blurry-techsmith-tips/" rel="noopener">TechSmith — How to fix a blurry video</a></li>
+<li id="src-4"><a href="https://ffmpeg.org/ffmpeg-scaler.html" rel="noopener">FFmpeg — Scaler options (sws_flags algorithms, default bicubic)</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="what-resolution-should-i-record-my-screen-at" class="blog-faq-q">What resolution should I record my screen at?<a class="hanchor" href="#what-resolution-should-i-record-my-screen-at" aria-label="Link to section: What resolution should I record my screen at?">#</a></h3>
+<p>Record at whatever resolution feeds your delivery target, not the maximum your monitor offers. If the video will play at 1080p, capture the physical pixels of a DPR-2 window sized to a 960x540 layout, which lands as a crisp native 1920x1080 with text drawn at double density. Go higher only when you actually deliver higher, or when you need extra pixels to survive a zoom in the edit.</p>
+<h3 id="is-recording-in-4k-worth-it-for-a-demo-video" class="blog-faq-q">Is recording in 4K worth it for a demo video?<a class="hanchor" href="#is-recording-in-4k-worth-it-for-a-demo-video" aria-label="Link to section: Is recording in 4K worth it for a demo video?">#</a></h3>
+<p>Rarely. Unless you will deliver in 4K or plan to punch deep into the frame while editing, a 4K capture of a video that plays at 1080p costs about three times the bytes (recommended bitrates run 30 to 60 Mbps at 4K versus 10 to 20 Mbps at 1080p) for pixels the delivery discards. Worse, shrinking a full 4K desktop down to 1080p can soften small text, because each glyph loses roughly half its linear pixels.</p>
+<h3 id="why-is-my-screen-recording-still-blurry-after-downscaling-to-1080p" class="blog-faq-q">Why is my screen recording still blurry after downscaling to 1080p?<a class="hanchor" href="#why-is-my-screen-recording-still-blurry-after-downscaling-to-1080p" aria-label="Link to section: Why is my screen recording still blurry after downscaling to 1080p?">#</a></h3>
+<p>Two causes dominate. Either the downscale used a fast, soft filter (ffmpeg defaults to bicubic, and some pipelines fall back to fast bilinear) when lanczos would have held the edges, or you shrank too much content into the frame so the text dropped below the pixels it needs to resolve. Fix the first with an explicit lanczos flag; fix the second by capturing a window sized to the delivery target rather than the whole high-resolution desktop.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">screen recording</span>
+        <span class="article-tag">resolution</span>
+        <span class="article-tag">1080p vs 4k</span>
+        <span class="article-tag">downscaling</span>
+        <span class="article-tag">bitrate</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/how-to-record-your-screen-in-high-quality/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/how-to-record-your-screen-in-high-quality-400.webp" srcset="/blog/images/how-to-record-your-screen-in-high-quality-400.webp 400w, /blog/images/how-to-record-your-screen-in-high-quality-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay camera lens with a knurled focus ring, standing upright"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record your screen in high quality: the settings that matter</h3>
+    <p class="article-card-excerpt">Blurry text, a laggy cursor, the wrong frame rate: high quality is a handful of capture settings, each with one number and a one-line fix.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/best-frame-rate-for-screen-recording/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/best-frame-rate-for-screen-recording-400.webp" srcset="/blog/images/best-frame-rate-for-screen-recording-400.webp 400w, /blog/images/best-frame-rate-for-screen-recording-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay hummingbird hovering beside a flower, wings spread mid-beat"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">Best frame rate for screen recording: 30 vs 60 fps by content</h3>
+    <p class="article-card-excerpt">Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>8 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/record-a-browser-tab/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/record-a-browser-tab-400.webp" srcset="/blog/images/record-a-browser-tab-400.webp 400w, /blog/images/record-a-browser-tab-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A matte-clay star-shaped cookie cutter standing upright in a flat sheet of dough"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Screen Recording</div>
+    <h3 class="article-card-title">How to record just one browser tab (three ways, one clean result)</h3>
+    <p class="article-card-excerpt">Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#delivery-size-is-the-number-the-monitor-is-a-distraction">Delivery size is the number; the monitor is a distraction</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#capture-at-twice-the-delivery-size-then-let-the-shrink-sharpen">Capture at twice the delivery size, then let the shrink sharpen</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-source-to-delivery-table-you-can-record-straight-from">A source-to-delivery table you can record straight from</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-bits-you-pay-to-record-bigger-than-you-ship">The bits you pay to record bigger than you ship</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#how-a-4k-capture-can-make-1080p-text-worse-not-better">How a 4K capture can make 1080p text worse, not better</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-downscale-filter-decides-whether-the-sharpness-survives">The downscale filter decides whether the sharpness survives</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#recording-for-a-target-you-cannot-see-yet">Recording for a target you cannot see yet</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+(function () {
+  var btns = document.querySelectorAll('.code-copy');
+  if (!navigator.clipboard || !window.isSecureContext) {
+    btns.forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.closest('.code-block').querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.innerText).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

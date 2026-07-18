@@ -665,6 +665,93 @@ Record continuous high-motion content like gameplay, canvas animation, or fast-s
 
 ---
 
+# Best resolution for screen recording: match delivery, not your monitor
+
+July 18, 2026 · Screen Recording · https://aidemo.top/blog/best-resolution-for-screen-recording/
+
+> Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.
+
+## Delivery size is the number; the monitor is a distraction
+
+Open a screen recorder and the resolution it offers is whatever your display can do: 1920x1080 on a plain panel, 2560x1440 on a nicer one, 3840x2160 on a 4K monitor, more still on a 5K iMac. Every one of those is the wrong place to start. The resolution that matters is the one the finished video plays at, and that is set by where the video lives, not by the glass in front of you. A README clip renders in a column a few hundred pixels wide. A landing-page hero sits at 1080p inside a card. A YouTube walkthrough is capped by the viewer's window, not by how big your upload was. Pick that number first and work backward to a capture that feeds it, because recording at your monitor's native resolution and hoping the export sorts it out is how you end up with a 300 MB file of soft text.
+
+This is the resolution layer of [the full capture-settings checklist](/blog/how-to-record-your-screen-in-high-quality), and it shares one rule with [the frame-rate layer](/blog/best-frame-rate-for-screen-recording): capture is a decision you make once and cannot take back, so spend pixels where they land and nowhere else.
+
+## Capture at twice the delivery size, then let the shrink sharpen
+
+There is one honest reason to record larger than you deliver, and it is why "just record at 1080p" produces mush on a modern laptop. Screens are high-density. MDN puts a device-pixel-ratio of 1 at a classic 96-DPI display and a ratio of 2 at a HiDPI or Retina panel, defining it as "the ratio of the resolution in physical pixels to the resolution in CSS pixels" ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio)). On a DPR-2 display, a browser window sized to 960x540 CSS pixels is actually painted across 1920x1080 physical pixels. A recorder that grabs those physical pixels hands you a native, crisp 1080p frame with text drawn at double density. The deeper mechanics of why grabbing the logical layer instead softens everything belong to the checklist above; here it just sets up the pairing.
+
+When the capture is larger than the delivery target, the shrink does extra work for free. Downscaling averages each block of captured pixels into one delivered pixel, a supersample that smooths the edges that would otherwise alias, so text arrives sharper than the panel showed it. Capture at exactly your delivery size and you skip that pass; capture at twice it and you bank it.
+
+## A source-to-delivery table you can record straight from
+
+Once the delivery target is fixed, the pairing is mechanical. Capture the physical pixels of a window sized so the content you want to show fills a frame at your delivery resolution, or twice it when you want the free supersample.
+
+| Where it plays | Deliver at | Capture (the source) | Downscale? |
+|---|---|---|---|
+| README clip, docs microvideo, email GIF | 720p | 1280x720 physical (DPR-2 render of a 640x360 layout) | no |
+| Landing hero, embedded demo, sales send | 1080p | 1920x1080 physical (DPR-2 render of a 960x540 layout) | no |
+| YouTube or Vimeo, plus room to zoom in the edit | 1080p | 3840x2160 full HiDPI grid, scaled down to 1080p | yes, 4 into 1 |
+| You genuinely ship 4K | 2160p | 3840x2160 physical (native 4K panel at DPR 2) | no |
+
+The row most guides get wrong is the third. Capturing 4K for a 1080p deliverable is worth it in exactly one case: you know you will punch into the frame while editing and need the extra pixels to survive [a zoom that would otherwise soften](/blog/professional-screen-recordings). Absent that, rows one and two already give crisp text at the delivery size with no downscale to tune and no bits to waste. And notice what the capture column controls that the delivery column does not: how much of the UI sits in the frame. Fit less content into a smaller CSS window and every glyph is drawn with more pixels, which is why a slightly zoomed demo reads better than a full desktop shrunk to fit.
+
+## The bits you pay to record bigger than you ship
+
+The waste in over-capturing is not abstract; it has a bitrate and a byte count. Vimeo publishes the bitrate it recommends at each resolution, and the ladder climbs fast: 5 to 10 Mbps for 720p, 10 to 20 Mbps for 1080p, 20 to 30 Mbps for 2K, and 30 to 60 Mbps for 4K ([Vimeo](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)). Turn those into file sizes for a 60-second demo with the only formula you need, size in megabytes equals bitrate in megabits times seconds divided by eight:
+
+| Delivery resolution | Recommended bitrate | ~Size, 60-second clip | vs 1080p |
+|---|---|---|---|
+| 720p (1280x720) | 5-10 Mbps | ~55 MB | ~0.5x |
+| 1080p (1920x1080) | 10-20 Mbps | ~110 MB | 1x |
+| 1440p / 2K (2560x1440) | 20-30 Mbps | ~190 MB | ~1.7x |
+| 2160p / 4K (3840x2160) | 30-60 Mbps | ~340 MB | ~3x |
+
+A 4K master of a video that will play at 1080p runs roughly three times the bytes of the 1080p version, and if the destination is a hosting platform, it transcodes your upload down to its own per-resolution bitrate on the way in, so the surplus never reaches a viewer. You paid the upload, the storage, and the longer encode for pixels the delivery discards. Where the file is self-hosted, a mostly-static UI compresses well below these figures, but the ratio between resolutions holds. The codec and container that carry the bits are [a separate decision](/blog/best-video-format-for-screen-recording), and no codec makes 4K cheaper than 1080p for the same footage.
+
+## How a 4K capture can make 1080p text worse, not better
+
+Wasting bits is the forgivable half. The surprising half is that a 4K capture can deliver softer 1080p than a 1080p capture does, and the cause is content density, not the shrink itself. Record the whole 4K desktop and you are fitting four times the screen area into the frame. Downscale that to 1080p and every element, text included, lands at roughly half its original linear pixel count. A 14-pixel label that was legible on the 4K grid is drawn with about seven vertical pixels after the shrink, under the floor where fine strokes stay distinct, so it goes fuzzy. Capture a DPR-2 window sized to the delivery target instead and that same label keeps its full pixel budget. TechSmith names the same trap from the recorder's side, warning that footage "becomes blurry when you zoom in or scale footage larger than what you originally recorded at" ([TechSmith](https://www.techsmith.com/blog/video-blurry-techsmith-tips/)); the mirror image is shrinking so much content into so few pixels that the text can no longer resolve.
+
+## The downscale filter decides whether the sharpness survives
+
+Supersampling only pays off if the shrink uses a filter built for it, and the default often is not. FFmpeg's scaler offers a menu of algorithms, from fast_bilinear and bilinear through bicubic to lanczos and spline, with a documented default of bicubic ([FFmpeg](https://ffmpeg.org/ffmpeg-scaler.html)). Bicubic is acceptable; the fast bilinear that some pipelines fall back to for speed is not, and it is where the crispness you captured leaks back out as a soft, faintly smeared downscale. For shrinking UI text, name lanczos explicitly: its sharper kernel preserves the high-frequency edges that make small type readable, for a little more CPU and nothing else.
+
+```sh
+ffmpeg -i take.mov -vf "scale=1920:1080:flags=lanczos" -crf 18 out.mp4
+```
+
+Set the target dimensions, name the filter, and encode to a quality target rather than a fixed bitrate so the still stretches of the demo do not overspend. That one flag is the difference between a downscale that antialiases and one that just blurs.
+
+## Recording for a target you cannot see yet
+
+The delivery resolution is easy to pin when you can eyeball the export. It gets harder when the demo is regenerated on a schedule, on a server with no monitor at all, where "whatever my display can do" is not even a value. That is the case that forces the discipline this whole page argues for: the capture resolution, the device pixel ratio, and the downscale target become fixed inputs rather than a menu someone picks under deadline, and [the same run produces the same frame every time](/blog/deterministic-browser-automation-for-video).
+
+Our own engine, aidemo, works this way: the viewport size and DPR live in a storyboard, so a demo re-renders at the identical resolution whether it runs on a laptop or a headless CI box, and the downscale to the delivery target is part of the spec, not a hand-tuned export. The honest limits are worth stating. It reaches into a browser and nowhere else, so a native desktop app is out of scope; the take is written as a storyboard by a coding agent, not laid out by hand on a GUI timeline; and for a one-off clip you will never regenerate, a point-and-click recorder is faster to reach for. What it buys is the thing a hand-recorded 4K file cannot promise: the resolution you chose on purpose, reproduced next quarter without a reshoot.
+
+## Sources
+
+- [Vimeo — Video and audio compression guidelines (bitrate by resolution)](https://help.vimeo.com/hc/en-us/articles/12426043233169-Video-and-audio-compression-guidelines)
+- [MDN — Window.devicePixelRatio](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio)
+- [TechSmith — How to fix a blurry video](https://www.techsmith.com/blog/video-blurry-techsmith-tips/)
+- [FFmpeg — Scaler options (sws_flags algorithms, default bicubic)](https://ffmpeg.org/ffmpeg-scaler.html)
+
+## FAQ
+
+### What resolution should I record my screen at?
+
+Record at whatever resolution feeds your delivery target, not the maximum your monitor offers. If the video will play at 1080p, capture the physical pixels of a DPR-2 window sized to a 960x540 layout, which lands as a crisp native 1920x1080 with text drawn at double density. Go higher only when you actually deliver higher, or when you need extra pixels to survive a zoom in the edit.
+
+### Is recording in 4K worth it for a demo video?
+
+Rarely. Unless you will deliver in 4K or plan to punch deep into the frame while editing, a 4K capture of a video that plays at 1080p costs about three times the bytes (recommended bitrates run 30 to 60 Mbps at 4K versus 10 to 20 Mbps at 1080p) for pixels the delivery discards. Worse, shrinking a full 4K desktop down to 1080p can soften small text, because each glyph loses roughly half its linear pixels.
+
+### Why is my screen recording still blurry after downscaling to 1080p?
+
+Two causes dominate. Either the downscale used a fast, soft filter (ffmpeg defaults to bicubic, and some pipelines fall back to fast bilinear) when lanczos would have held the edges, or you shrank too much content into the frame so the text dropped below the pixels it needs to resolve. Fix the first with an explicit lanczos flag; fix the second by capturing a window sized to the delivery target rather than the whole high-resolution desktop.
+
+---
+
 # Camtasia alternatives for software demos and tutorials
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/camtasia-alternatives/
@@ -770,6 +857,107 @@ No. TechSmith discontinued Camtasia's perpetual license, with the last perpetual
 ### What is the best Camtasia alternative for making software tutorials?
 
 It depends on whether your tutorials are native-app or web, and how often they change. For a native desktop app you want a real timeline, so Camtasia or Cap. For occasional web tutorials on a budget, ScreenPal or Cap. For a growing library where you would rather a machine assemble the cut, Guidde or Clueso. For a library on a fast-shipping web product, a code-native renderer like the one we build re-generates from a spec so the tutorial updates when the UI does.
+
+---
+
+# Cap vs Screen Studio: open-source polish vs the macOS standard
+
+July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/cap-vs-screen-studio/
+
+> Both automate the same polish. One is open source and runs anywhere; one is the macOS benchmark. Where Cap wins, where it breaks, and when to pick neither.
+
+## Two bets on the same polish problem
+
+Cap and Screen Studio automate an identical trick and disagree about nearly everything around it. Both watch where you click, punch the camera in on the target, ease the pointer into a produced glide, and set the whole recording on a padded, rounded-corner background. That is the automatic polish that defined the category, and on a feature list the two tools look close to matched. The split is structural. Screen Studio is a macOS-only subscription app that has spent years tuning a single rendering path; Cap is open source, ships on three operating systems, and moves fast enough to still be shaking bugs out of its exporter. So "Cap vs Screen Studio" is not really a features question. It is a question of which of those two bets fits your machine, your license tolerance, and your budget.
+
+This is the two-tool deep read. The wider field of recorders is sorted by operating system in the [Screen Studio alternatives rundown](/blog/screen-studio-alternatives), and the polish effects themselves are pulled apart, one transform at a time, in [what makes a screen recording look professional](/blog/professional-screen-recordings). Here it is just these two, head to head, with the honest gaps named on both sides.
+
+## The head-to-head, feature by feature
+
+Every figure below is checked against the two vendors' own pages and Cap's repository in July 2026. Cap's current desktop build is 0.5.6, released July 17, 2026 ([Cap, 2026](https://github.com/CapSoftware/Cap)).
+
+| | Cap | Screen Studio |
+|---|---|---|
+| Platforms | macOS, Windows (beta), Linux (.deb) | macOS only (Ventura 13.1+) |
+| Auto-zoom | Smart Auto-Zoom, live or in the editor | click-detected, added after the take |
+| Cursor | eased path, custom size/style, motion blur | smoothed path, resizable after recording |
+| Backgrounds | color, gradient, image, blur; padding, corners | background, spacing, shadow, inset |
+| Captions | Cap AI transcript and captions | transcript to subtitles |
+| Camera + device | webcam | webcam plus iPhone/iPad over USB |
+| Export | 4K/60 | 4K/60, GIF |
+| Free tier | yes: 5-minute cap, personal use | none |
+| License | AGPLv3 (some capture crates MIT) | proprietary |
+| Price | free / $29 a year / $12 a user a month | ~$9/mo yearly, ~$20/mo monthly |
+
+Read across the polish rows and the two are near twins. Both apply produced auto-zoom, both smooth and resize the cursor, both composite the take onto a styled background with padding and rounded corners ([Cap, 2026](https://cap.so/features/studio-mode); [Screen Studio, 2026](https://screen.studio/)). Neither auto-zoom is the hands-off magic the marketing suggests, either. Screen Studio's own guide is candid: the effect "focuses on the areas where clicks occurred," and "if you add auto-zoom where no mouse click occurs, it will not zoom to any area," at which point you place the zoom by hand ([Screen Studio, 2026](https://screen.studio/guide/auto-zoom)). Cap's Smart Auto-Zoom has the same shape, running during the recording or as zooms you drop into the timeline afterward ([Cap, 2026](https://cap.so/features/studio-mode)). Both are editor-assisted, not autonomous.
+
+Which means the feature list does not settle this. Three things do: what breaks in Cap, what Screen Studio makes you give up, and how each one treats the person who has not paid yet.
+
+## Where Cap actually falls short
+
+Cap is younger than Screen Studio and covers more platforms, and its public issue tracker shows the price of both. These are individual reports against a fast-moving 0.5.x release, not guaranteed failures, but they cluster on the one output a demo tool cannot afford to get wrong: the exported file.
+
+The worst is flicker and lag on export. An open issue describes a rendered video that "flashes or flickers constantly" and plays back "extremely laggy (low frame rate)," with the reporter tracing it to hardware encoding on a dual-GPU (Intel plus NVIDIA) Windows machine ([Cap issue #1557, 2026](https://github.com/CapSoftware/Cap/issues/1557)). Another open report has Cap holding roughly 15 GB of RAM through a long recording and not releasing it until the app is fully quit ([Cap issue #1589, 2026](https://github.com/CapSoftware/Cap/issues/1589)).
+
+The Linux story is its own caveat. Comparison pages tend to flatten Cap to "Mac and Windows," which undersells it in one direction and oversells it in the other. Cap does ship a Linux `.deb` ([Cap, 2026](https://cap.so/download)), so Linux is genuinely supported. But it is visibly second-class: an open issue has the onboarding window rendering as a solid black box on Wayland unless you launch with the environment variable `WEBKIT_DISABLE_DMABUF_RENDERER=1` ([Cap issue #1948, 2026](https://github.com/CapSoftware/Cap/issues/1948)). If Linux is your daily driver, Cap installs and runs, but plan for rough edges the macOS build does not have.
+
+None of this is mysterious. Screen Studio renders one path: Apple silicon, one graphics stack, tuned relentlessly. Cap has to encode correctly across macOS, Windows, and Linux, on every GPU and compositor its users happen to own, and that surface is exactly where the flicker, the memory pressure, and the black window come from. Cap's breadth is its headline advantage and the source of its roughest edges at once.
+
+## What Screen Studio makes you give up
+
+Screen Studio's weak points are the mirror image: not bugs, but walls the product model draws on purpose.
+
+The first is the platform wall. Screen Studio runs on macOS only and recommends Ventura 13.1 or newer, with no Windows or Linux build ([Screen Studio, 2026](https://screen.studio/)). For a solo Mac user that costs nothing. For a team it is a recurring tax: the day one teammate is on Windows or Linux, they cannot open the same app, and your demos start coming out of two pipelines with two different looks. Cap's cross-platform reach exists to close that seam.
+
+The second is the money model. Screen Studio is subscription-only with no free rung at all; the cheapest door in is a paid plan at about $9 a month billed yearly, or roughly $20 month to month ([Screen Studio, 2026](https://screen.studio/)). It also retired its old one-time license in 2025 — that history, and the three-year cost arithmetic against Cap and OBS, is worked out in the [alternatives rundown](/blog/screen-studio-alternatives) and is worth reading before you write off "subscription" as a dealbreaker. For this head-to-head the point is narrower: you cannot try Screen Studio without paying, and you can try Cap without paying.
+
+## The free tier is where they really part
+
+For a lot of buyers the deciding factor is not a feature at all. It is whether you can ship something before spending money, and what you are allowed to do with it.
+
+Cap records locally on the free tier with Studio Mode included, capped at five minutes per recording and licensed for personal use only ([Cap, 2026](https://cap.so/pricing)). Cross the commercial line or the five-minute cap and the Desktop License is $29 a year for unlimited local recording and editing plus commercial rights; Cap Pro layers on cloud sharing and AI features at $12 a user a month ([Cap, 2026](https://cap.so/pricing)). Screen Studio has no counterpart to any of that free lane.
+
+Then there is the license. Cap is AGPLv3, with a handful of its capture crates released under MIT ([Cap, 2026](https://github.com/CapSoftware/Cap)); Screen Studio is closed, proprietary software. For almost everyone the difference stays abstract: the recordings you produce are yours, and the copyleft only reaches Cap's own code if you fork it and run a modified build as a hosted service. The clause-by-clause reading, and why "the source is on GitHub" is not the same claim as "open source," is the job of [the open-source demo tools scorecard](/blog/open-source-demo-video-tools). The short version for this comparison: if owning and self-hosting your recorder matters, only one of these two lets you.
+
+## Pick one, or pick neither
+
+Name your constraint and the choice stops being close.
+
+| If you are… | Reach for |
+|---|---|
+| On macOS, solo, want the most mature auto-polish | Screen Studio |
+| On Windows or Linux, or on a mixed-OS team | Cap |
+| Not willing to pay before you have shipped anything | Cap (free: 5 minutes, personal use) |
+| Committed to open source and self-hosting | Cap |
+| Recording a long commercial take on a Mac, budget aside | either: Screen Studio for polish maturity, Cap to stay portable |
+
+There is a third answer neither tool offers, because both assume a person sits down and performs a take in a GUI. If the demo has to stay current as the product ships, re-rendered on the same commit that changed the UI with nobody at the keyboard, you want a headless pipeline, not a desktop recorder. That is the lane [aidemo](/blog/ai-demo-video-generators) occupies, which we build and disclose as ours: instead of performing a take, an agent (or you) writes the storyboard spec, and a deterministic engine replays it in a real browser, draws an eased synthetic cursor, times captions, applies compose-time zoom, and muxes the MP4. The honest limits are the flip side of that bet. It captures a browser only, so no native windows and no iPhone-over-USB the way Screen Studio does it, and there is no drag-on-a-timeline editor: the storyboard is the edit, and a change is a re-render. For a one-off marketing clip on a Mac, Cap or Screen Studio is plainly less friction. For a demo you will regenerate every release, a hand-driven recorder of either brand is the wrong shape of tool.
+
+## Sources
+
+- [Screen Studio — product site and pricing](https://screen.studio/)
+- [Screen Studio — auto zoom guide](https://screen.studio/guide/auto-zoom)
+- [Cap — pricing](https://cap.so/pricing)
+- [Cap — downloads (macOS, Windows beta, Linux .deb)](https://cap.so/download)
+- [Cap — Studio Mode features](https://cap.so/features/studio-mode)
+- [Cap — GitHub repository (license, release 0.5.6)](https://github.com/CapSoftware/Cap)
+- [Cap — issue #1557, export flicker and playback lag](https://github.com/CapSoftware/Cap/issues/1557)
+- [Cap — issue #1589, excessive RAM usage (~15GB)](https://github.com/CapSoftware/Cap/issues/1589)
+- [Cap — issue #1948, Linux onboarding window renders black](https://github.com/CapSoftware/Cap/issues/1948)
+
+## FAQ
+
+### Is Cap as good as Screen Studio?
+
+For polish features, close to it. Cap does the same produced auto-zoom, cursor smoothing, and styled backgrounds Screen Studio pioneered, and it adds cross-platform support and a free tier Screen Studio does not have. Where Screen Studio still leads is maturity: it renders one macOS path very cleanly, while Cap's exporter has open reports of flicker, lag, and heavy memory use on some hardware. On a Mac where you want the most reliable output today, Screen Studio has the edge; almost everywhere else, Cap closes the gap.
+
+### Does Cap work on Linux?
+
+Yes, with caveats. Cap publishes a Linux `.deb`, so it installs and records on Linux, but Linux is not a first-class target. Its GitHub README foregrounds macOS and Windows, and open issues include the onboarding window rendering black on Wayland until you set `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Screen Studio, by contrast, has no Linux build at all, so a working `.deb` with rough edges still beats nothing.
+
+### Is Cap free, and what does the paid version add?
+
+Cap's free tier records locally with Studio Mode, but it caps recordings at five minutes and is licensed for personal use only. The $29-a-year Desktop License removes the cap for unlimited local recording and editing and grants commercial rights; Cap Pro, at $12 a user a month, adds cloud storage, shareable links, and AI features like auto-generated titles and transcripts. Screen Studio has no free tier, so any use starts on a paid plan.
 
 ---
 
@@ -2167,6 +2355,88 @@ Build for your highest-traffic surface and funnel stage first. If most of your q
 
 ---
 
+# Keeping a tutorial video library current at scale
+
+July 18, 2026 · Video Documentation & Tutorials · https://aidemo.top/blog/keeping-tutorial-libraries-current/
+
+> Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.
+
+## The re-record backlog that closes video programs
+
+Ask a docs team why they stopped shipping tutorial videos and the answer is rarely "nobody watched them." It is that the library got big enough to become a liability. A dozen clips are a nice-to-have you re-shoot on a slow Friday. Two hundred clips are a standing obligation, and the day a designer renames the navigation or reworks the empty state, every one of them is a little bit wrong at once. The cost of a video library is not the recording. It is the derivative: how fast the product moves, times how many videos you own.
+
+That derivative is why the [pillar case for video documentation](/blog/video-documentation) treats maintenance, not production quality, as the thing that sinks most programs. A single stale clip is a nuisance. A shelf of them is an accusation, a whole wing of the product's own documentation quietly contradicting the product. And unlike a broken build, nothing turns red. The videos keep playing, confidently narrating a button that moved, until a user files a ticket asking why the app looks nothing like the help center. This piece is about the arithmetic underneath that failure, and the three things you can do about it.
+
+## Sizing the maintenance debt in hours, not vibes
+
+Start with the two numbers that set the bill: how fast your interface moves, and how many videos it can falsify.
+
+Ship velocity is measurable. [How fast a demo actually rots](/blog/why-product-demos-go-stale) works the rate off public changelogs: a disciplined mid-size SaaS changes something a user can see roughly one to two times a week, which gives any single clip a half-life of roughly two months between redesigns, collapsing to one unannounced day whenever the team reskins the app. Bigger platforms move faster. GitHub's public changelog posted on the order of twenty-five to thirty user-visible product changes a week across July 1-17, 2026, a rebuilt repository overview, a pull-request archive, mobile changes, at a company whose docs and video library run to the thousands ([GitHub, accessed July 2026](https://github.blog/changelog/)).
+
+Now multiply. Two rot clocks run against a library at once. The slow one is incremental drift: feature surfaces move, and over a year a meaningful share of any clip picks up at least one change worth re-shooting for. The fast one is the redesign, which does not tick, it detonates, one release redrawing the chrome behind every clip on the same day. Budget one visual refresh a year, conservative for a fast shipper, and it alone demands N re-records. Add incremental drift on, say, a third of the remaining clips and the annual demand lands near 1.3 times the whole library. A fast-shipping product asks you to re-record its entire tutorial library, and then a bit more, every single year.
+
+Put hours on it. A short tutorial clip is not free to redo: you diagnose what changed, re-shoot the flow, re-edit, re-record the narration, re-sync captions, and re-publish, call it one to two hours each, more honestly than the "just re-record it" hand-wave suggests. At 1.5 hours a clip and 1.3 re-records per clip per year, the bill is roughly two hours per video per year.
+
+| Library size | Full re-records demanded / year (~1.3x) | Maintenance hours / year (~2h x N) | In FTE-weeks |
+|---|---|---|---|
+| 40 clips | ~52 | ~80 | ~2 weeks |
+| 120 clips | ~156 | ~235 | ~6 weeks |
+| 200 clips | ~260 | ~390 | ~10 weeks |
+
+Ten weeks of one person's year, producing zero net-new content, just to stop the library from lying. That is the line item nobody writes into the plan, and it is why the library quietly stops growing at whatever size the team can bear to babysit. Plug your own N and ship rate in; the shape does not change. The human cost is linear in the size of the thing you built.
+
+## Three strategies, and only one that scales with the library
+
+There are three honest responses to that bill. You can pay it in trust, pay it in headcount, or refuse the premise that a video is a recording you maintain.
+
+| Strategy | Up-front cost | Recurring cost | Scales with library? | Coverage you can sustain | Honest when |
+|---|---|---|---|---|---|
+| Accept the rot | none | none in cash, all in trust | irrelevant, everything drifts | any size, all of it aging | archival or clearly-dated content only |
+| Prune aggressively | an audit | a quarterly re-audit | linear, bigger library, bigger audit | small and curated | you can bear a deliberately small library |
+| Regenerate from source | write the specs | CI minutes | flat in human hours | large | the product ships from a repo you control |
+
+Accepting the rot is the default nobody chooses on purpose; you back into it the first time a redesign outpaces the team. It is defensible for content you date and freeze ("here is the 2024 flow") and indefensible for a help center a paying user trusts today. Pruning and regenerating are the two real strategies, and they answer different questions: pruning asks how small the library should be, regeneration asks how the library rebuilds. The rest of this piece takes each in turn.
+
+## What pruning buys, and where it stops
+
+Pruning is underrated and it works. HubSpot deleted about 3,000 pages from its blog in a single audit and watched traffic climb rather than fall, partly because a leaner corpus indexed faster and stopped cannibalizing itself ([HubSpot, accessed July 2026](https://blog.hubspot.com/marketing/remove-outdated-content)). The same logic transfers to a video library: most tutorial clips get almost no views, cover a flow that barely changed, or duplicate a paragraph that reads faster than the clip plays. Cutting them is not loss, it is focus.
+
+A workable triage keeps a clip only when it clears two bars at once: it earns its views, and it shows a flow stable enough to survive an ordinary sprint. Rank every video by watch-through and by rot exposure. A clip of a settings page that gets reworked quarterly is a maintenance sink no matter how good it is, while a clip of the core value flow that rarely changes is worth keeping. Deciding which clips a given release actually falsified is its own discipline, and a cheap one: a selector probe against the live build tells you which flows broke before a human watches a single frame, which is the subject of [detecting UI drift](/blog/detecting-ui-drift). Run the audit on a cadence, quarterly is the going rate for content pruning, so the library shrinks back to sustainable between growth spurts.
+
+Here is where pruning stops. It attacks the wrong variable. The bill is ship rate times library size, and pruning can only shrink the second factor. You buy a smaller number to multiply, not a smaller multiplier, so the cost stays linear: a curated 60-clip library still bleeds three-plus FTE-weeks a year, and every clip you were forced to cut is a question a user now has to answer some other way. Pruning lets you afford a small library honestly. It cannot let you afford a large one.
+
+## Regeneration decouples the bill from the library size
+
+The only strategy that changes the shape of the cost, rather than the size of one input, is to stop treating a tutorial as a captured performance and treat it as output you rebuild from a committed source. This is not exotic. It is what every other artifact in your docs already does. The [Write the Docs testing guide](https://www.writethedocs.org/guide/tools/testing/) puts documentation checks "on each commit of your project" through continuous integration so the docs stay "in a consistent state," and Simon Willison built shot-scraper in 2022 for the image version of this problem, because feature screenshots in a web app's docs drift out of date as the design moves; you declare the shots in a YAML file once and regenerate them all with one command ([Willison, 2022](https://simonwillison.net/2022/Oct/14/automating-screenshots/)). Video is the same move one level up: describe the flow once as a spec, and let a machine replay it against the current build to emit a current clip. The full case for [regenerating demos instead of re-recording them](/blog/automated-product-demo-videos) lays out the mechanism.
+
+Watch what that does to the arithmetic. Writing a spec costs more than a single recording, call it three hours against one and a half, because you are encoding intent rather than performing it once. But after the spec exists, a re-render is CI minutes and roughly zero human hours. Per clip, the spec pays for itself after a single re-record, which for a fast-shipping product arrives inside the first year. The library-level effect is the one that matters: a single CI run re-renders every spec, so the human cost of a redesign is fixed whether you own 20 clips or 2,000. The two-hours-per-video-per-year line goes flat. You wire it to the same triggers your other jobs use, a push that touches a UI path, a nightly cron (GitHub Actions caps scheduled runs at once every five minutes and warns they "can be delayed during periods of high loads," so a 4am rebuild is fine and a to-the-second promise is not), and a manual dispatch for the human in a hurry ([GitHub, accessed July 2026](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)). The [CI plumbing](/blog/demo-videos-in-ci) and the [nightly rebuild habit](/blog/nightly-demo-builds) are where the runner specifics live.
+
+Our own engine, aidemo, is one instance of this pattern, and it belongs in a docs pipeline only on honest terms: it is ours, it captures a browser and nothing else, its storyboards are written by a coding agent rather than dragged together on a timeline, and it ships no GUI editor. It fits a team that keeps its flows in a repo and wants them to rebuild on the ship that broke them, not a one-off marketing reel. The tool is incidental. The principle is that a tutorial library stays current at scale only if "the product changed" and "the video is current" are the same event, which is possible only when the video is a function of a source you commit, not a file you babysit.
+
+## Sources
+
+- [GitHub — Changelog](https://github.blog/changelog/)
+- [HubSpot — Why We Removed 3,000 Pieces of Outdated Content From the HubSpot Blog](https://blog.hubspot.com/marketing/remove-outdated-content)
+- [Write the Docs — Testing your documentation](https://www.writethedocs.org/guide/tools/testing/)
+- [Simon Willison — Automating screenshots for the Datasette documentation (2022)](https://simonwillison.net/2022/Oct/14/automating-screenshots/)
+- [GitHub Actions — Events that trigger workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
+
+## FAQ
+
+### How do you keep a tutorial video library up to date?
+
+Pick a maintenance model before the library outgrows your ability to re-shoot it by hand. For a small, curated set you can prune on a quarterly audit and re-record the survivors. Past a few dozen clips the only model that holds is regeneration: commit each flow as a spec, wire a CI job to re-render on the commits and the nightly cron, and "the product changed" and "the video is current" become one event instead of a backlog.
+
+### When should you delete a tutorial video instead of updating it?
+
+Delete it when it fails either of two tests: nobody watches it, or it covers a surface that changes so often that keeping it current costs more than the coverage is worth. HubSpot removed about 3,000 pages in one audit and saw traffic rise, because a leaner library indexes better and stops competing with itself. A clip of a rarely-used settings page that gets reworked every quarter is a maintenance sink; cut it and answer the question in text.
+
+### How much time does maintaining a video tutorial library take?
+
+More than teams budget. A short tutorial clip takes roughly one to two hours to diagnose, re-shoot, re-edit, re-narrate, and re-publish, and a fast-shipping product falsifies its whole library about 1.3 times a year. That works out to around two hours per video per year, so a 200-clip library costs on the order of 390 hours, about ten weeks of one person's time, annually, just to keep it honest.
+
+---
+
 # Loom alternatives for product demos after the Atlassian era
 
 July 18, 2026 · Demo Tools & Alternatives · https://aidemo.top/blog/loom-alternatives-for-product-demos/
@@ -2555,6 +2825,96 @@ Two things the shallower tiers skip: an app that can be seeded with prospect-rel
 
 ---
 
+# The Product Hunt launch video: spec, format, and the first five seconds
+
+July 18, 2026 · Video Marketing for Software · https://aidemo.top/blog/product-hunt-launch-video/
+
+> The Product Hunt feed shows a 240x240 thumbnail, not your video. The real asset spec, an honest read on the 53% stat, and a shot-list for the night before.
+
+## The feed shows a thumbnail, not your video
+
+When someone scrolls the Product Hunt homepage on launch day, the video you spent a week on is not on screen. What is on screen is a 240x240 square thumbnail, a name, a one-line tagline, and an upvote button. The video sits one click deeper, inside the gallery on the product page. That single fact reorders the whole job: the thumbnail earns the click, and only then does the video get to argue. Most launch-video advice inverts this, treating the video as the hero asset and the thumbnail as an afterthought, which is backwards for the surface Product Hunt actually renders first.
+
+So a Product Hunt launch is two assets doing two jobs. The thumbnail is a muted, motionless first impression that has to read at the size of a large app icon. The gallery video is the second sell, watched only by people who already clicked, which means it can assume interest but not patience. Get the spec for both right and you have removed the mechanical reasons a launch stalls; what is left to win on is the product. Product Hunt is one row in [the wider channel matrix](/blog/video-marketing-for-software), but it is the row with the most specific and least-documented rules.
+
+## The asset spec, in one table
+
+Everything Product Hunt requires or recommends, pulled from its own launch guide and help center, in one place.
+
+| Asset | Spec | Notes |
+| --- | --- | --- |
+| Thumbnail | 240x240 square, under 3MB | Static image or GIF; a GIF animates only on hover, so the first frame is the thumbnail |
+| Gallery images | 1270x760 (1.67:1), 2+ required | PNG for stills, GIF for short motion; drag to reorder, and the first is the most seen |
+| Gallery video | Public YouTube link, full URL | No file upload, no Vimeo; confirm it is not private before launch |
+| Video encoding | Inherits YouTube: MP4/H.264, 16:9, 1080p at ~8 Mbps, AAC 48kHz | Standard-frame-rate 1080p; the same 16:9 master you cut for every other channel |
+
+Two of those cells trip people. First, the thumbnail GIF does not autoplay in the feed; it animates only when a viewer hovers, so a motion thumbnail that depends on its animation to make sense shows a random frame to everyone who does not hover, which on mobile is nearly everyone ([Product Hunt help center, accessed July 2026](https://help.producthunt.com/en/articles/479557-how-to-post-a-product)). Design the first frame to stand alone. Second, the video is a YouTube link, not an upload ([Product Hunt help center, accessed July 2026](https://help.producthunt.com/en/articles/479557-how-to-post-a-product)), so its spec is YouTube's spec: an MP4 in H.264 at 16:9, 1080p around 8 Mbps for standard frame rates, with AAC audio ([YouTube, accessed July 2026](https://support.google.com/youtube/answer/1722171)). That is the same 16:9 master you keep for a landing hero and a YouTube upload, which is the whole reason to treat the recording as one master with per-channel cuts rather than a fresh shoot per surface.
+
+## The 53% number, traced to where it comes from
+
+Every launch guide repeats that products with a video win more. Follow the claim to its origin and it is a single first-party line: Product Hunt's own launch guide states that "about 53% of products that reached Product of the Day since 2021 include a video" ([Product Hunt, accessed July 2026](https://www.producthunt.com/launch/preparing-for-launch)). That is the source. The larger multiples that circulate on marketing blogs do not trace to a published method, and Product Hunt itself declines the causal version: the same page calls video "not always necessary," says it "can help depending on what your product is," and notes that a quick Loom demo is a fine stand-in for a produced piece.
+
+Read honestly, 53% is a correlation, not a lift. Products that reach Product of the Day are made by teams that invested in the launch, and a video is one visible signal of that investment, sitting alongside a crafted thumbnail, a maker's first comment, and a rallied audience. The video may help the ranking; it is not a coin you insert to buy one. What the number does justify is a floor: video is table stakes often enough that skipping it is a decision to defend, not a default. If the flow is already recorded for [your broader launch-day kit](/blog/product-launch-video), the Product Hunt cut is nearly free, and nearly free is the right budget for an asset with a correlational rather than causal payoff.
+
+## Two jobs, one video: demo walkthrough or maker story
+
+A Product Hunt video does one of two jobs, and the failure mode is trying to do both. The demo walkthrough shows the product doing its work; the maker story puts a face on the launch and explains why you built it. Pick one.
+
+| | Demo walkthrough | Maker story |
+| --- | --- | --- |
+| Shows | The product performing one real task | The founder, the problem, the why |
+| Best when | The value is visual and needs to be seen in motion | The product is abstract or trust is the barrier |
+| Camera | Screen capture, deliberate cursor, no face | Talking head or a webcam bubble over the screen |
+| Length | 30-60s | 60-90s |
+| Failure | A feature tour with no narrative | A pitch with no product on screen |
+
+The maker story is where a [webcam overlay earns its place](/blog/screen-recording-with-webcam): a founder's face on launch day builds the trust a bare screen recording cannot, and Product Hunt's audience expects a human in the comments anyway. The demo walkthrough is the safer default for a product whose value is legible on screen. Whichever you pick, length is a retention decision rather than a house style, [tuned to where the clip plays](/blog/how-long-should-a-demo-video-be), and the gallery rewards the shorter end because the viewer is one click from leaving.
+
+## The first five seconds, when the video is click-to-play
+
+The landing-page rule, autoplay muted so burn captions and open on the outcome, only half-applies here, and the half that does not is where launches waste the click. The gallery video is a YouTube embed the visitor plays deliberately; it does not autoplay muted the way a hero loop does. So the muted first impression is the thumbnail's job, and the video's job begins the instant someone hits play, which is where YouTube's own audience behavior takes over: people skip intros and bounce on throat-clearing. "Hi, I'm the founder, and today I'll walk you through" spends the exact seconds you cannot afford to spend.
+
+Captions still matter, because 69% of consumers watch video with the sound off in public places, and captions make 80% of them likelier to watch a clip through to the end ([Verizon Media via Forbes, 2019](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)). Someone browsing Product Hunt at a desk with a muted tab is squarely in that 69%. So burn captions into the file instead of leaning on YouTube's auto-captions, which land late and mangle product names; the [captions-as-pixels case](/blog/demo-video-captions) carries over unchanged. The composite rule for this surface: the thumbnail carries the silent hook, the first five seconds of the video show the product doing the thing, and captions keep both watchable with the sound off.
+
+## A shot-list you can record the night before launch
+
+You do not need a two-week production. You need a five-shot list and a quiet hour. Here is the demo-walkthrough version, timed to a 45-second cut.
+
+| Shot | Seconds | What is on screen |
+| --- | --- | --- |
+| 1. Cold open | 0-5 | The outcome, already happening: the product mid-result, never a logo card |
+| 2. The problem, once | 5-12 | One line naming the pain, over the empty or before state |
+| 3. The aha | 12-32 | The single workflow that is the reason to care, cursor moving deliberately |
+| 4. The proof | 32-40 | The result, populated and real: data, output, the thing actually done |
+| 5. The ask | 40-45 | One call to action, paying off the promise the thumbnail made |
+
+Two rules make this recordable the night before. Trim the dead time between clicks in the edit rather than by rushing the take, so the pacing stays calm while the runtime stays tight. And record the flow so it is reproducible, because the one certainty of a launch is a last-minute copy change, and a demo you can re-run beats one you have to reshoot. This is where a spec-driven recording pays off: aidemo, our open-source engine, records the flow from an agent-authored storyboard, so a pricing typo caught at 11pm is a re-render rather than a reshoot. Its limits are worth stating plainly: it captures the browser only, has no drag-on-a-timeline editor, and an agent writes the storyboard rather than a person clicking it together in a GUI, so it is the wrong tool for a one-off Loom and the right one when the same flow has to become a Product Hunt cut, a landing hero, and a launch-day social clip from a single source.
+
+Then upload the YouTube video the day before, confirm it is public, paste the full URL into the gallery, order the images with the strongest first, and put a face in the comments. The mechanics are settled; the day is about the product and the people you brought to see it.
+
+## Sources
+
+- [Product Hunt - Preparing for your launch (video and asset guidance, the 53% figure)](https://www.producthunt.com/launch/preparing-for-launch)
+- [Product Hunt Help Center - How to post a product (thumbnail, gallery, and video specs)](https://help.producthunt.com/en/articles/479557-how-to-post-a-product)
+- [YouTube Help - Recommended upload encoding settings](https://support.google.com/youtube/answer/1722171)
+- [Forbes - Verizon Media says 69% of consumers watch video with sound off](https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/)
+
+## FAQ
+
+### Do you need a video for a Product Hunt launch?
+
+Not strictly. Product Hunt's own guide calls video "not always necessary" and says a quick Loom demo can stand in for a produced piece, while noting that about 53% of Product-of-the-Day products since 2021 included one. Treat it as a strong default rather than a rule: if the flow is already recorded for your launch kit, the gallery cut is nearly free, and skipping it becomes a decision to justify. If your product's value is hard to see in a still image, the video does work no screenshot can.
+
+### What are the Product Hunt image and video dimensions?
+
+The thumbnail is a 240x240 square under 3MB, and a GIF there animates only on hover, so the first frame has to stand alone. Gallery images are 1270x760, and you need at least two. The video is not uploaded: it is a public YouTube link pasted in full, so it inherits YouTube's spec, an MP4 in H.264 at 16:9 and 1080p around 8 Mbps with AAC audio.
+
+### How long should a Product Hunt launch video be?
+
+Short enough that a viewer one click from leaving still finishes it: 30-60 seconds for a demo walkthrough, up to about 90 for a maker story. Product Hunt sets no hard cap because the video is a YouTube link, but the gallery context punishes length harder than a landing page does, since the visitor came to browse rather than to watch. Open on the outcome, cut the dead time between clicks, and end on a single ask.
+
+---
+
 # What makes a screen recording look professional
 
 July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/professional-screen-recordings/
@@ -2934,6 +3294,81 @@ Open on the product or a one-line reframe, not a staged problem scene. None of t
 ### Do SaaS demo videos need a voiceover, or can music carry them?
 
 Both ship, but they solve different problems. Vercel's 48-second v0 launch runs on music with no voiceover, which looks striking but cannot be re-voiced for another language and says nothing with the sound off unless captions are burned in. A voiceover, human or synthetic, is what lets you localize and caption the same footage, so if the demo has to travel across markets, script the words.
+
+---
+
+# The async sales demo video: a repeatable asset, not a live call
+
+July 18, 2026 · Product Demo Videos · https://aidemo.top/blog/sales-demo-video/
+
+> Your live demo reached the one stakeholder in the room; the deal needs twelve more. The shot list for a recorded sales demo, and when it beats a call.
+
+## The demo you gave reached one person on a committee of thirteen
+
+A live sales demo is a performance with an audience of whoever could make the meeting. That is rarely the room that decides. Forrester's 2024 State of Business Buying puts the average B2B purchase at 13 people inside the buying organization, with 89% of purchases pulling in two or more departments, and finds that 86% of B2B purchases stall somewhere in the process ([Forrester, 2024](https://www.forrester.com/press-newsroom/forrester-the-state-of-business-buying-2024/)). Do the subtraction. Your champion watched the demo; the other twelve stakeholders got a secondhand summary, or nothing, and any one of them can be the reason the deal parks itself for a quarter. Worse, the job of re-selling the demo internally now falls to your champion, who is not a trained seller and does not have your framing, your objection handling, or your deck.
+
+That is the case for the async sales demo video, and it is a different case from the marketing demo on your homepage. This one is not a top-of-funnel hook. It is the artifact your champion forwards into a Slack channel, an email thread, or a procurement review, so the workflow you showed once gets seen by the people who actually sign. A live call cannot be forwarded. A recording is built to be.
+
+What follows is three parts: what those three moments should contain, when a recording beats a live call or an interactive tour, and the arithmetic that makes a recorded demo a repeatable asset instead of a repeated chore. The [end-to-end production playbook](/blog/how-to-make-a-product-demo-video) covers making any demo; this is only the sales cut.
+
+## Three moments a buyer needs, and what belongs on screen in each
+
+A sales demo video, unlike a marketing one, comes after discovery. You already know the account's problem, the stakeholders, and the one workflow that matters to them, so the cut can be specific in a way a homepage clip never can. Gong's analysis of 67,149 sales demos found that the openings of successful ones spend under two minutes on a contextual overview and lead with the most important points rather than a feature tour ([Gong Labs](https://www.gong.io/blog/sales-demos)). Three moments, in order.
+
+| Moment | Budget | On screen | What the sales cut does that a marketing cut doesn't |
+|---|---|---|---|
+| Problem framing | first 10-15 s | The buyer's own workflow, named from discovery | Names this account's pain, not a generic one |
+| The aha workflow | the middle ~60% | The one workflow that removes it, start to result | Uses their use case and realistic data; skips the tour |
+| Proof | last 15-20 s | The result as a number, plus a comparable customer | Cites a peer in their segment, not a logo wall |
+
+The middle moment is the whole video. Everything before it earns the right to show it, and everything after it is evidence that it was real. Resist the pull to show the second-best feature: a demo that follows one workflow to its result outperforms one that shows six halfway, because the buyer is trying to picture their own job getting easier, not inventory your roadmap. The [problem, walkthrough, proof script skeleton](/blog/demo-video-script-template) hands you the per-section word budgets; the only sales-specific edit is that discovery lets you fill the blanks with the buyer's own nouns.
+
+## Live demo, recorded demo, or interactive tour: pick by deal stage and ACV
+
+The usual comparison pits a recorded video against an [interactive product tour](/blog/interactive-demo-vs-video-demo), and that piece works the distribution tradeoff: an iframe cannot ride inside an email or a README, a file can. The axis that decides a sales motion, though, is not the surface. It is deal economics, how much a deal is worth set against how much rep time it can absorb.
+
+| Deal stage x ACV | Format that leads | Why |
+|---|---|---|
+| Early stage, any ACV | Recorded demo or interactive tour | Async and re-watchable; a live call this early spends a rep hour to reach one person |
+| Mid stage, low ACV (self-serve) | Interactive tour, recorded backup | Per-deal rep time can't be justified at volume; the buyer wants to click, not book |
+| Mid stage, high ACV | Recorded demo, then a live call | The recording briefs the committee; the call goes deep with the champion |
+| Late stage, high ACV | Tailored live demo | The deal warrants the rep hour; a recorded recap still travels to the twelve who missed it |
+| After any demo | Recorded recap | Reaches the buying group and keeps a stalled deal from going quiet |
+
+Read the table and the recorded demo is never the only answer, but it sits on almost every row, because it is the one format that does not consume a rep and does not require the buyer to be present. A live demo is worth its cost exactly where that cost is small relative to the deal: late stage, high ACV, one champion who needs depth. Below that line, a recorded asset and an interactive tour split the work, and the [B2B versus PLG cut](/blog/b2b-demo-video) turns on the same economics.
+
+## One rep-hour versus one render
+
+Here is why the recording keeps earning after you make it. Gong's winning demos ran 47 minutes on average against 36 for the ones that lost ([Gong Labs](https://www.gong.io/blog/sales-demos)); a good live demo is a real, non-trivial slice of a rep's day, and it produces exactly one viewing for the people in the meeting. A recorded demo inverts that. It costs its authoring time once, then close to nothing per send, plays for all 13 stakeholders Forrester counts, and can be re-watched at double speed by the procurement analyst who joined late.
+
+The field data backs the swap. In Vidyard's virtual-selling survey, more than 70% of reps using custom-recorded video said it beat plain text email at producing opens, clicks, and replies, and nearly half said it shortened their deal cycle ([Vidyard, 2021](https://www.vidyard.com/press-releases/sales-teams-using-video-increase-response-rates/)). Length is on the recording's side too: Vidyard's 2025 benchmark, across 943,305 videos, found 65% of viewers finish a sub-one-minute video against 20% for one over twenty minutes ([Vidyard, 2025](https://www.vidyard.com/business-video-benchmarks/)). A tight recorded demo gets watched to the end; a 45-minute call recording does not. It also runs on the committee's schedule rather than the calendar's: a stakeholder three time zones away watches the ninety-second cut on a Tuesday night, and the deal keeps moving while everyone's calendar stays full. The recording also personalizes without a reshoot: parameterize the account name, the seeded data, even the flow, and [render a variant per prospect](/blog/personalized-demo-videos-at-scale) instead of performing the same demo forty times.
+
+## Keeping the sales demo honest as the product ships
+
+The one liability of a recorded asset is that it freezes the UI the day you record it, and [a demo goes out of date the moment the product it shows moves on](/blog/why-product-demos-go-stale). A live demo never has this problem, because the rep always drives the current build; that reach against currency is the real trade. The fix is not to re-record every sprint, it is to make the demo cheap to regenerate.
+
+That is the bet behind aidemo, our open-source engine: the sales demo is a storyboard a coding agent authors and a real browser replays, so a UI change becomes a re-render rather than a reshoot, and a per-account variant becomes a parameter rather than another hour on a call. The honest limits are that aidemo captures a browser only, has no visual timeline editor, and needs that storyboard authored as text by an agent rather than assembled by hand, so it is a poor trade for a one-off screen recording and a good one for a demo you send to a new committee every week. Whichever tool you pick, the discipline is the same: treat the sales demo as an asset you keep current, not a call you perform again, and it goes on paying down the 86% of deals that would otherwise stall.
+
+## Sources
+
+- [Forrester — The State of Business Buying, 2024](https://www.forrester.com/press-newsroom/forrester-the-state-of-business-buying-2024/)
+- [Gong Labs — Sales demos: data-backed tips from 67,149 demos](https://www.gong.io/blog/sales-demos)
+- [Vidyard — Sales teams using video increase response rates (State of Virtual Selling)](https://www.vidyard.com/press-releases/sales-teams-using-video-increase-response-rates/)
+- [Vidyard — Video in Business Benchmark Report (2025)](https://www.vidyard.com/business-video-benchmarks/)
+
+## FAQ
+
+### Should you send a recorded sales demo video or book a live demo call?
+
+Send the recording first and save the live call for depth. A recorded demo reaches every stakeholder on a buying committee that Forrester sizes at 13 people, re-watchable and forwardable, without spending a rep hour per viewer. A live demo earns its cost late in a high-value deal, where a rep tailoring the flow to one champion is worth the time. Most teams do both: the recording briefs the committee and qualifies interest, and the call closes.
+
+### What should a B2B sales demo video include?
+
+Three moments, in order: the buyer's problem named from discovery, one workflow that removes it shown start to finish, and proof as a number plus a comparable customer. Because a sales demo follows discovery, it can be specific where a marketing demo stays generic. Gong's analysis of successful demos found they open with a contextual overview under two minutes and lead with the points that matter most, not a feature tour.
+
+### How long should a recorded sales demo video be?
+
+Shorter than the live call it replaces. Vidyard's 2025 data across 943,305 videos shows 65% of viewers finish a video under a minute, and engagement drops at every length milestone after that. Aim for 60 to 90 seconds for a cold or early-stage send, and up to two or three minutes for a warm post-discovery walkthrough. If it needs to run longer than that, it is really a live call or a chaptered recording, not one continuous clip.
 
 ---
 

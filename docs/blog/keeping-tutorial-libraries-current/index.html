@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keeping a tutorial video library current | aidemo</title>
+<meta name="description" content="A tutorial video library needs re-recording about 1.3 times a year at fast ship velocity. The maintenance-hour math by library size, and the three ways out.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/keeping-tutorial-libraries-current/">
+<link rel="alternate" type="text/markdown" href="/blog/keeping-tutorial-libraries-current/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="Keeping a tutorial video library current | aidemo">
+<meta property="og:description" content="A tutorial video library needs re-recording about 1.3 times a year at fast ship velocity. The maintenance-hour math by library size, and the three ways out.">
+<meta property="og:url" content="https://aidemo.top/blog/keeping-tutorial-libraries-current/">
+<meta property="og:image" content="https://aidemo.top/blog/images/keeping-tutorial-libraries-current-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Keeping a tutorial video library current | aidemo">
+<meta name="twitter:description" content="A tutorial video library needs re-recording about 1.3 times a year at fast ship velocity. The maintenance-hour math by library size, and the three ways out.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/keeping-tutorial-libraries-current-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Keeping a tutorial video library current at scale",
+  "description": "A tutorial video library needs re-recording about 1.3 times a year at fast ship velocity. The maintenance-hour math by library size, and the three ways out.",
+  "image": [
+    "https://aidemo.top/blog/images/keeping-tutorial-libraries-current-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/keeping-tutorial-libraries-current/"
+  },
+  "wordCount": 2014,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub — Changelog",
+      "url": "https://github.blog/changelog/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "HubSpot — Why We Removed 3,000 Pieces of Outdated Content From the HubSpot Blog",
+      "url": "https://blog.hubspot.com/marketing/remove-outdated-content"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Write the Docs — Testing your documentation",
+      "url": "https://www.writethedocs.org/guide/tools/testing/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Simon Willison — Automating screenshots for the Datasette documentation (2022)",
+      "url": "https://simonwillison.net/2022/Oct/14/automating-screenshots/"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "GitHub Actions — Events that trigger workflows",
+      "url": "https://docs.github.com/actions/using-workflows/events-that-trigger-workflows"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Documentation & Tutorials",
+      "item": "https://aidemo.top/blog/topics/video-docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Keeping a tutorial video library current at scale",
+      "item": "https://aidemo.top/blog/keeping-tutorial-libraries-current/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do you keep a tutorial video library up to date?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pick a maintenance model before the library outgrows your ability to re-shoot it by hand. For a small, curated set you can prune on a quarterly audit and re-record the survivors. Past a few dozen clips the only model that holds is regeneration: commit each flow as a spec, wire a CI job to re-render on the commits and the nightly cron, and \"the product changed\" and \"the video is current\" become one event instead of a backlog."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should you delete a tutorial video instead of updating it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Delete it when it fails either of two tests: nobody watches it, or it covers a surface that changes so often that keeping it current costs more than the coverage is worth. HubSpot removed about 3,000 pages in one audit and saw traffic rise, because a leaner library indexes better and stops competing with itself. A clip of a rarely-used settings page that gets reworked every quarter is a maintenance sink; cut it and answer the question in text."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much time does maintaining a video tutorial library take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "More than teams budget. A short tutorial clip takes roughly one to two hours to diagnose, re-shoot, re-edit, re-narrate, and re-publish, and a fast-shipping product falsifies its whole library about 1.3 times a year. That works out to around two hours per video per year, so a 200-clip library costs on the order of 390 hours, about ten weeks of one person's time, annually, just to keep it honest."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a><span class="sep">/</span><span>Keeping a tutorial video library current at scale</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+        <h1 class="article-title">Keeping a tutorial video library current at scale</h1>
+        <p class="article-dek">Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 5 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-re-record-backlog-that-closes-video-programs">The re-record backlog that closes video programs</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sizing-the-maintenance-debt-in-hours-not-vibes">Sizing the maintenance debt in hours, not vibes</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#three-strategies-and-only-one-that-scales-with-the-library">Three strategies, and only one that scales with the library</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#what-pruning-buys-and-where-it-stops">What pruning buys, and where it stops</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#regeneration-decouples-the-bill-from-the-library-size">Regeneration decouples the bill from the library size</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/keeping-tutorial-libraries-current-800.webp" srcset="/blog/images/keeping-tutorial-libraries-current-400.webp 400w, /blog/images/keeping-tutorial-libraries-current-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A rounded purple toy truck with snow piled on top, plowing through fresh snow."><figcaption>Nobody clears a snowed-in lot with a shovel; one pass renews the whole surface, which is the only maintenance a library of any size can afford.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>A fast-shipping product's UI changes 1-2 times a week (GitHub's changelog: ~25-30/week in July 2026), so a tutorial library needs re-recording ~1.3 times over per year.</li>
+    <li>The maintenance bill is linear: ~2 hours per video per year, so a 200-clip library burns ~390 hours (~10 FTE-weeks) annually just to stop lying about the product.</li>
+    <li>Three options: accept the rot (paid in trust), prune aggressively (HubSpot cut ~3,000 pages and traffic rose), or regenerate every clip from a committed spec.</li>
+    <li>Pruning only shrinks library size, so cost stays linear; regeneration decouples it, one CI run re-renders 20 clips or 2,000 for the same human hours.</li>
+    <li>A spec costs ~3h to write vs ~1.5h to record once, but pays back after a single re-record (inside year one for a fast shipper), then costs only CI minutes.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-re-record-backlog-that-closes-video-programs">The re-record backlog that closes video programs<a class="hanchor" href="#the-re-record-backlog-that-closes-video-programs" aria-label="Link to section: The re-record backlog that closes video programs">#</a></h2>
+<p>Ask a docs team why they stopped shipping tutorial videos and the answer is rarely &quot;nobody watched them.&quot; It is that the library got big enough to become a liability. A dozen clips are a nice-to-have you re-shoot on a slow Friday. Two hundred clips are a standing obligation, and the day a designer renames the navigation or reworks the empty state, every one of them is a little bit wrong at once. The cost of a video library is not the recording. It is the derivative: how fast the product moves, times how many videos you own.</p>
+<p>That derivative is why the <a href="/blog/video-documentation/">pillar case for video documentation</a> treats maintenance, not production quality, as the thing that sinks most programs. A single stale clip is a nuisance. A shelf of them is an accusation, a whole wing of the product&#39;s own documentation quietly contradicting the product. And unlike a broken build, nothing turns red. The videos keep playing, confidently narrating a button that moved, until a user files a ticket asking why the app looks nothing like the help center. This piece is about the arithmetic underneath that failure, and the three things you can do about it.</p>
+<h2 id="sizing-the-maintenance-debt-in-hours-not-vibes">Sizing the maintenance debt in hours, not vibes<a class="hanchor" href="#sizing-the-maintenance-debt-in-hours-not-vibes" aria-label="Link to section: Sizing the maintenance debt in hours, not vibes">#</a></h2>
+<p>Start with the two numbers that set the bill: how fast your interface moves, and how many videos it can falsify.</p>
+<p>Ship velocity is measurable. <a href="/blog/why-product-demos-go-stale/">How fast a demo actually rots</a> works the rate off public changelogs: a disciplined mid-size SaaS changes something a user can see roughly one to two times a week, which gives any single clip a half-life of roughly two months between redesigns, collapsing to one unannounced day whenever the team reskins the app. Bigger platforms move faster. GitHub&#39;s public changelog posted on the order of twenty-five to thirty user-visible product changes a week across July 1-17, 2026, a rebuilt repository overview, a pull-request archive, mobile changes, at a company whose docs and video library run to the thousands<sup class="article-cite"><a href="#src-1" title="GitHub — Changelog">1</a></sup>.</p>
+<p>Now multiply. Two rot clocks run against a library at once. The slow one is incremental drift: feature surfaces move, and over a year a meaningful share of any clip picks up at least one change worth re-shooting for. The fast one is the redesign, which does not tick, it detonates, one release redrawing the chrome behind every clip on the same day. Budget one visual refresh a year, conservative for a fast shipper, and it alone demands N re-records. Add incremental drift on, say, a third of the remaining clips and the annual demand lands near 1.3 times the whole library. A fast-shipping product asks you to re-record its entire tutorial library, and then a bit more, every single year.</p>
+<p>Put hours on it. A short tutorial clip is not free to redo: you diagnose what changed, re-shoot the flow, re-edit, re-record the narration, re-sync captions, and re-publish, call it one to two hours each, more honestly than the &quot;just re-record it&quot; hand-wave suggests. At 1.5 hours a clip and 1.3 re-records per clip per year, the bill is roughly two hours per video per year.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Library size</th>
+<th>Full re-records demanded / year (~1.3x)</th>
+<th>Maintenance hours / year (~2h x N)</th>
+<th>In FTE-weeks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>40 clips</td>
+<td>~52</td>
+<td>~80</td>
+<td>~2 weeks</td>
+</tr>
+<tr>
+<td>120 clips</td>
+<td>~156</td>
+<td>~235</td>
+<td>~6 weeks</td>
+</tr>
+<tr>
+<td>200 clips</td>
+<td>~260</td>
+<td>~390</td>
+<td>~10 weeks</td>
+</tr>
+</tbody></table></div>
+<p>Ten weeks of one person&#39;s year, producing zero net-new content, just to stop the library from lying. That is the line item nobody writes into the plan, and it is why the library quietly stops growing at whatever size the team can bear to babysit. Plug your own N and ship rate in; the shape does not change. The human cost is linear in the size of the thing you built.</p>
+<h2 id="three-strategies-and-only-one-that-scales-with-the-library">Three strategies, and only one that scales with the library<a class="hanchor" href="#three-strategies-and-only-one-that-scales-with-the-library" aria-label="Link to section: Three strategies, and only one that scales with the library">#</a></h2>
+<p>There are three honest responses to that bill. You can pay it in trust, pay it in headcount, or refuse the premise that a video is a recording you maintain.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Up-front cost</th>
+<th>Recurring cost</th>
+<th>Scales with library?</th>
+<th>Coverage you can sustain</th>
+<th>Honest when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Accept the rot</td>
+<td>none</td>
+<td>none in cash, all in trust</td>
+<td>irrelevant, everything drifts</td>
+<td>any size, all of it aging</td>
+<td>archival or clearly-dated content only</td>
+</tr>
+<tr>
+<td>Prune aggressively</td>
+<td>an audit</td>
+<td>a quarterly re-audit</td>
+<td>linear, bigger library, bigger audit</td>
+<td>small and curated</td>
+<td>you can bear a deliberately small library</td>
+</tr>
+<tr>
+<td>Regenerate from source</td>
+<td>write the specs</td>
+<td>CI minutes</td>
+<td>flat in human hours</td>
+<td>large</td>
+<td>the product ships from a repo you control</td>
+</tr>
+</tbody></table></div>
+<p>Accepting the rot is the default nobody chooses on purpose; you back into it the first time a redesign outpaces the team. It is defensible for content you date and freeze (&quot;here is the 2024 flow&quot;) and indefensible for a help center a paying user trusts today. Pruning and regenerating are the two real strategies, and they answer different questions: pruning asks how small the library should be, regeneration asks how the library rebuilds. The rest of this piece takes each in turn.</p>
+<h2 id="what-pruning-buys-and-where-it-stops">What pruning buys, and where it stops<a class="hanchor" href="#what-pruning-buys-and-where-it-stops" aria-label="Link to section: What pruning buys, and where it stops">#</a></h2>
+<p>Pruning is underrated and it works. HubSpot deleted about 3,000 pages from its blog in a single audit and watched traffic climb rather than fall, partly because a leaner corpus indexed faster and stopped cannibalizing itself<sup class="article-cite"><a href="#src-2" title="HubSpot — Why We Removed 3,000 Pieces of Outdated Content From the HubSpot Blog">2</a></sup>. The same logic transfers to a video library: most tutorial clips get almost no views, cover a flow that barely changed, or duplicate a paragraph that reads faster than the clip plays. Cutting them is not loss, it is focus.</p>
+<p>A workable triage keeps a clip only when it clears two bars at once: it earns its views, and it shows a flow stable enough to survive an ordinary sprint. Rank every video by watch-through and by rot exposure. A clip of a settings page that gets reworked quarterly is a maintenance sink no matter how good it is, while a clip of the core value flow that rarely changes is worth keeping. Deciding which clips a given release actually falsified is its own discipline, and a cheap one: a selector probe against the live build tells you which flows broke before a human watches a single frame, which is the subject of <a href="/blog/detecting-ui-drift/">detecting UI drift</a>. Run the audit on a cadence, quarterly is the going rate for content pruning, so the library shrinks back to sustainable between growth spurts.</p>
+<p>Here is where pruning stops. It attacks the wrong variable. The bill is ship rate times library size, and pruning can only shrink the second factor. You buy a smaller number to multiply, not a smaller multiplier, so the cost stays linear: a curated 60-clip library still bleeds three-plus FTE-weeks a year, and every clip you were forced to cut is a question a user now has to answer some other way. Pruning lets you afford a small library honestly. It cannot let you afford a large one.</p>
+<h2 id="regeneration-decouples-the-bill-from-the-library-size">Regeneration decouples the bill from the library size<a class="hanchor" href="#regeneration-decouples-the-bill-from-the-library-size" aria-label="Link to section: Regeneration decouples the bill from the library size">#</a></h2>
+<p>The only strategy that changes the shape of the cost, rather than the size of one input, is to stop treating a tutorial as a captured performance and treat it as output you rebuild from a committed source. This is not exotic. It is what every other artifact in your docs already does. The <a href="https://www.writethedocs.org/guide/tools/testing/" rel="noopener">Write the Docs testing guide</a> puts documentation checks &quot;on each commit of your project&quot; through continuous integration so the docs stay &quot;in a consistent state,&quot; and Simon Willison built shot-scraper in 2022 for the image version of this problem, because feature screenshots in a web app&#39;s docs drift out of date as the design moves; you declare the shots in a YAML file once and regenerate them all with one command<sup class="article-cite"><a href="#src-4" title="Simon Willison — Automating screenshots for the Datasette documentation (2022)">4</a></sup>. Video is the same move one level up: describe the flow once as a spec, and let a machine replay it against the current build to emit a current clip. The full case for <a href="/blog/automated-product-demo-videos/">regenerating demos instead of re-recording them</a> lays out the mechanism.</p>
+<p>Watch what that does to the arithmetic. Writing a spec costs more than a single recording, call it three hours against one and a half, because you are encoding intent rather than performing it once. But after the spec exists, a re-render is CI minutes and roughly zero human hours. Per clip, the spec pays for itself after a single re-record, which for a fast-shipping product arrives inside the first year. The library-level effect is the one that matters: a single CI run re-renders every spec, so the human cost of a redesign is fixed whether you own 20 clips or 2,000. The two-hours-per-video-per-year line goes flat. You wire it to the same triggers your other jobs use, a push that touches a UI path, a nightly cron (GitHub Actions caps scheduled runs at once every five minutes and warns they &quot;can be delayed during periods of high loads,&quot; so a 4am rebuild is fine and a to-the-second promise is not), and a manual dispatch for the human in a hurry<sup class="article-cite"><a href="#src-5" title="GitHub Actions — Events that trigger workflows">5</a></sup>. The <a href="/blog/demo-videos-in-ci/">CI plumbing</a> and the nightly rebuild habit are where the runner specifics live.</p>
+<p>Our own engine, aidemo, is one instance of this pattern, and it belongs in a docs pipeline only on honest terms: it is ours, it captures a browser and nothing else, its storyboards are written by a coding agent rather than dragged together on a timeline, and it ships no GUI editor. It fits a team that keeps its flows in a repo and wants them to rebuild on the ship that broke them, not a one-off marketing reel. The tool is incidental. The principle is that a tutorial library stays current at scale only if &quot;the product changed&quot; and &quot;the video is current&quot; are the same event, which is possible only when the video is a function of a source you commit, not a file you babysit.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://github.blog/changelog/" rel="noopener">GitHub — Changelog</a></li>
+<li id="src-2"><a href="https://blog.hubspot.com/marketing/remove-outdated-content" rel="noopener">HubSpot — Why We Removed 3,000 Pieces of Outdated Content From the HubSpot Blog</a></li>
+<li id="src-3"><a href="https://www.writethedocs.org/guide/tools/testing/" rel="noopener">Write the Docs — Testing your documentation</a></li>
+<li id="src-4"><a href="https://simonwillison.net/2022/Oct/14/automating-screenshots/" rel="noopener">Simon Willison — Automating screenshots for the Datasette documentation (2022)</a></li>
+<li id="src-5"><a href="https://docs.github.com/actions/using-workflows/events-that-trigger-workflows" rel="noopener">GitHub Actions — Events that trigger workflows</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="how-do-you-keep-a-tutorial-video-library-up-to-date" class="blog-faq-q">How do you keep a tutorial video library up to date?<a class="hanchor" href="#how-do-you-keep-a-tutorial-video-library-up-to-date" aria-label="Link to section: How do you keep a tutorial video library up to date?">#</a></h3>
+<p>Pick a maintenance model before the library outgrows your ability to re-shoot it by hand. For a small, curated set you can prune on a quarterly audit and re-record the survivors. Past a few dozen clips the only model that holds is regeneration: commit each flow as a spec, wire a CI job to re-render on the commits and the nightly cron, and &quot;the product changed&quot; and &quot;the video is current&quot; become one event instead of a backlog.</p>
+<h3 id="when-should-you-delete-a-tutorial-video-instead-of-updating-it" class="blog-faq-q">When should you delete a tutorial video instead of updating it?<a class="hanchor" href="#when-should-you-delete-a-tutorial-video-instead-of-updating-it" aria-label="Link to section: When should you delete a tutorial video instead of updating it?">#</a></h3>
+<p>Delete it when it fails either of two tests: nobody watches it, or it covers a surface that changes so often that keeping it current costs more than the coverage is worth. HubSpot removed about 3,000 pages in one audit and saw traffic rise, because a leaner library indexes better and stops competing with itself. A clip of a rarely-used settings page that gets reworked every quarter is a maintenance sink; cut it and answer the question in text.</p>
+<h3 id="how-much-time-does-maintaining-a-video-tutorial-library-take" class="blog-faq-q">How much time does maintaining a video tutorial library take?<a class="hanchor" href="#how-much-time-does-maintaining-a-video-tutorial-library-take" aria-label="Link to section: How much time does maintaining a video tutorial library take?">#</a></h3>
+<p>More than teams budget. A short tutorial clip takes roughly one to two hours to diagnose, re-shoot, re-edit, re-narrate, and re-publish, and a fast-shipping product falsifies its whole library about 1.3 times a year. That works out to around two hours per video per year, so a 200-clip library costs on the order of 390 hours, about ten weeks of one person&#39;s time, annually, just to keep it honest.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">video documentation</span>
+        <span class="article-tag">tutorial library</span>
+        <span class="article-tag">demo maintenance</span>
+        <span class="article-tag">documentation debt</span>
+        <span class="article-tag">regeneration</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-documentation-400.webp" srcset="/blog/images/video-documentation-400.webp 400w, /blog/images/video-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="An open wooden toolbox with its lift-out tray raised above the main compartment."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video documentation for software: when the medium earns its keep</h3>
+    <p class="article-card-excerpt">The evidence-based case for video as a documentation medium: where a clip beats a paragraph, where it quietly loses, and how to route each doc job.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>9 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/video-vs-written-documentation/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-vs-written-documentation-400.webp" srcset="/blog/images/video-vs-written-documentation-400.webp 400w, /blog/images/video-vs-written-documentation-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A cast-iron railroad switch stand with a round throw lever."></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Documentation &amp; Tutorials</div>
+    <h3 class="article-card-title">Video vs written documentation: the decision, with evidence</h3>
+    <p class="article-card-excerpt">Stop asking whether your docs should be video or text. Score each doc job on four axes and read the right format off the total, evidence not vibes.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/why-product-demos-go-stale/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/why-product-demos-go-stale-400.webp" srcset="/blog/images/why-product-demos-go-stale-400.webp 400w, /blog/images/why-product-demos-go-stale-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A January demo frame and the same product screen in March after a UI refresh, differing in navigation, icons, and headers"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Demo Automation</div>
+    <h3 class="article-card-title">Why every product demo is out of date (and what rot costs)</h3>
+    <p class="article-card-excerpt">Linear redrew every header, icon, and nav in one release, and every demo filmed before that day went wrong in every frame. This is how fast demos rot.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-re-record-backlog-that-closes-video-programs">The re-record backlog that closes video programs</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sizing-the-maintenance-debt-in-hours-not-vibes">Sizing the maintenance debt in hours, not vibes</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#three-strategies-and-only-one-that-scales-with-the-library">Three strategies, and only one that scales with the library</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#what-pruning-buys-and-where-it-stops">What pruning buys, and where it stops</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#regeneration-decouples-the-bill-from-the-library-size">Regeneration decouples the bill from the library size</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

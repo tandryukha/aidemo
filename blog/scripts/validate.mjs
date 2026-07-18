@@ -571,7 +571,11 @@ async function checkUrl(url) {
           headers: { 'user-agent': UA, accept: 'text/html,*/*' },
         });
         if (res.ok) return { ok: true, status: res.status };
-        if (res.status === 404 || res.status === 410) return { ok: false, status: res.status, dead: true };
+        // Some hosts (e.g. support.google.com) 404 HEAD requests they serve
+        // fine via GET — only trust a dead verdict from GET.
+        if ((res.status === 404 || res.status === 410) && method === 'GET') {
+          return { ok: false, status: res.status, dead: true };
+        }
         if (method === 'GET' && [401, 403, 405, 429, 503].includes(res.status)) {
           return { ok: false, status: res.status, blocked: true }; // bot-blocked, can't verify
         }

@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Product Hunt Launch Video Spec | aidemo</title>
+<meta name="description" content="Product Hunt launch video, specced: 240x240 thumbnail, 1270x760 gallery, a YouTube-only video, the 53% stat traced to its origin, and a night-before shot-list.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://aidemo.top/blog/product-hunt-launch-video/">
+<link rel="alternate" type="text/markdown" href="/blog/product-hunt-launch-video/index.md">
+<link rel="stylesheet" href="/blog/blog.ca8ef1ed.css">
+<link rel="alternate" type="application/rss+xml" title="aidemo blog" href="https://aidemo.top/blog/feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="aidemo">
+<meta property="og:title" content="The Product Hunt Launch Video Spec | aidemo">
+<meta property="og:description" content="Product Hunt launch video, specced: 240x240 thumbnail, 1270x760 gallery, a YouTube-only video, the 53% stat traced to its origin, and a night-before shot-list.">
+<meta property="og:url" content="https://aidemo.top/blog/product-hunt-launch-video/">
+<meta property="og:image" content="https://aidemo.top/blog/images/product-hunt-launch-video-800.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Product Hunt Launch Video Spec | aidemo">
+<meta name="twitter:description" content="Product Hunt launch video, specced: 240x240 thumbnail, 1270x760 gallery, a YouTube-only video, the 53% stat traced to its origin, and a night-before shot-list.">
+<meta name="twitter:image" content="https://aidemo.top/blog/images/product-hunt-launch-video-800.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The Product Hunt launch video: spec, format, and the first five seconds",
+  "description": "Product Hunt launch video, specced: 240x240 thumbnail, 1270x760 gallery, a YouTube-only video, the 53% stat traced to its origin, and a night-before shot-list.",
+  "image": [
+    "https://aidemo.top/blog/images/product-hunt-launch-video-800.webp"
+  ],
+  "datePublished": "2026-07-18",
+  "dateModified": "2026-07-18",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://aidemo.top/blog/product-hunt-launch-video/"
+  },
+  "wordCount": 1903,
+  "author": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "aidemo",
+    "url": "https://aidemo.top"
+  },
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Product Hunt - Preparing for your launch (video and asset guidance, the 53% figure)",
+      "url": "https://www.producthunt.com/launch/preparing-for-launch"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Product Hunt Help Center - How to post a product (thumbnail, gallery, and video specs)",
+      "url": "https://help.producthunt.com/en/articles/479557-how-to-post-a-product"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "YouTube Help - Recommended upload encoding settings",
+      "url": "https://support.google.com/youtube/answer/1722171"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Forbes - Verizon Media says 69% of consumers watch video with sound off",
+      "url": "https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "https://aidemo.top/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Video Marketing for Software",
+      "item": "https://aidemo.top/blog/topics/video-marketing/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The Product Hunt launch video: spec, format, and the first five seconds",
+      "item": "https://aidemo.top/blog/product-hunt-launch-video/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do you need a video for a Product Hunt launch?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not strictly. Product Hunt's own guide calls video \"not always necessary\" and says a quick Loom demo can stand in for a produced piece, while noting that about 53% of Product-of-the-Day products since 2021 included one. Treat it as a strong default rather than a rule: if the flow is already recorded for your launch kit, the gallery cut is nearly free, and skipping it becomes a decision to justify. If your product's value is hard to see in a still image, the video does work no screenshot can."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the Product Hunt image and video dimensions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The thumbnail is a 240x240 square under 3MB, and a GIF there animates only on hover, so the first frame has to stand alone. Gallery images are 1270x760, and you need at least two. The video is not uploaded: it is a public YouTube link pasted in full, so it inherits YouTube's spec, an MP4 in H.264 at 16:9 and 1080p around 8 Mbps with AAC audio."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should a Product Hunt launch video be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Short enough that a viewer one click from leaving still finishes it: 30-60 seconds for a demo walkthrough, up to about 90 for a maker story. Product Hunt sets no hard cap because the video is a YouTube link, but the gallery context punishes length harder than a landing page does, since the visitor came to browse rather than to watch. Open on the outcome, cut the dead time between clicks, and end on a single ask."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="https://aidemo.top/">ai<em>demo</em></a>
+    <nav class="site-nav">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="https://aidemo.top/">Get started</a>
+    </nav>
+  </div>
+</header>
+<div class="article-progress" aria-hidden="true"><div class="article-progress-fill"></div></div>
+<main class="article-page">
+  <nav class="article-breadcrumb" aria-label="Breadcrumb">
+    <a href="/blog/">Blog</a><span class="sep">/</span><a href="/blog/topics/video-marketing/">Video Marketing for Software</a><span class="sep">/</span><span>The Product Hunt launch video: spec, format, and the first five seconds</span>
+  </nav>
+  <div class="article-layout">
+    <article class="article-main">
+      <header class="article-header">
+        <a class="article-category" href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+        <h1 class="article-title">The Product Hunt launch video: spec, format, and the first five seconds</h1>
+        <p class="article-dek">The Product Hunt feed shows a 240x240 thumbnail, not your video. The real asset spec, an honest read on the 53% stat, and a shot-list for the night before.</p>
+        <div class="article-meta">
+          <span class="article-meta-line">By <a href="/blog/editorial-policy/">the aidemo maintainers</a><span class="dot">&middot;</span><time datetime="2026-07-18">July 18, 2026</time><span class="dot">&middot;</span>7 min read</span>
+          <a class="article-badge" href="#sources">Evidence-based &middot; 4 sources</a>
+        </div>
+      </header>
+      <details class="article-toc-mobile">
+  <summary>On this page</summary>
+  <ul>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-feed-shows-a-thumbnail-not-your-video">The feed shows a thumbnail, not your video</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-asset-spec-in-one-table">The asset spec, in one table</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-53-number-traced-to-where-it-comes-from">The 53% number, traced to where it comes from</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#two-jobs-one-video-demo-walkthrough-or-maker-story">Two jobs, one video: demo walkthrough or maker story</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#the-first-five-seconds-when-the-video-is-click-to-play">The first five seconds, when the video is click-to-play</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#a-shot-list-you-can-record-the-night-before-launch">A shot-list you can record the night before launch</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+    <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+  </ul>
+</details>
+      <figure class="article-hero"><img src="/blog/images/product-hunt-launch-video-800.webp" srcset="/blog/images/product-hunt-launch-video-400.webp 400w, /blog/images/product-hunt-launch-video-800.webp 800w" sizes="(max-width: 900px) 100vw, 840px" width="1216" height="832" alt="A small rounded toy rocket standing on a circular launchpad with a curl of smoke at its base"><figcaption>The crowd decides in the seconds after ignition, so build the video for the moment the fuse catches, not the minute after.</figcaption></figure>
+      <aside class="article-takeaways" aria-labelledby="key-takeaways-label">
+  <div class="article-takeaways-title" id="key-takeaways-label">Key takeaways</div>
+  <ul>
+    <li>Product Hunt's feed shows a 240x240 square thumbnail, not your video; the video lives in the gallery as a YouTube link, so the thumbnail carries the muted first impression.</li>
+    <li>Gallery images are 1270x760 (1.67:1) and at least 2 are required; the thumbnail must be under 3MB, and its GIF animates only on hover, so the first frame has to stand alone.</li>
+    <li>About 53% of Product-of-the-Day products since 2021 included a video, but Product Hunt itself calls video 'not always necessary' -- it is a correlation, not a proven lift.</li>
+    <li>The video is a YouTube link, so it inherits YouTube's spec: MP4/H.264, 16:9, 1080p at ~8 Mbps, AAC audio -- the same 16:9 master every other channel uses.</li>
+    <li>Pick one job for the video, a demo walkthrough or a maker story, and record it the night before from a five-shot list rather than a two-week production.</li>
+  </ul>
+</aside>
+      <div class="article-content">
+<h2 id="the-feed-shows-a-thumbnail-not-your-video">The feed shows a thumbnail, not your video<a class="hanchor" href="#the-feed-shows-a-thumbnail-not-your-video" aria-label="Link to section: The feed shows a thumbnail, not your video">#</a></h2>
+<p>When someone scrolls the Product Hunt homepage on launch day, the video you spent a week on is not on screen. What is on screen is a 240x240 square thumbnail, a name, a one-line tagline, and an upvote button. The video sits one click deeper, inside the gallery on the product page. That single fact reorders the whole job: the thumbnail earns the click, and only then does the video get to argue. Most launch-video advice inverts this, treating the video as the hero asset and the thumbnail as an afterthought, which is backwards for the surface Product Hunt actually renders first.</p>
+<p>So a Product Hunt launch is two assets doing two jobs. The thumbnail is a muted, motionless first impression that has to read at the size of a large app icon. The gallery video is the second sell, watched only by people who already clicked, which means it can assume interest but not patience. Get the spec for both right and you have removed the mechanical reasons a launch stalls; what is left to win on is the product. Product Hunt is one row in <a href="/blog/video-marketing-for-software/">the wider channel matrix</a>, but it is the row with the most specific and least-documented rules.</p>
+<h2 id="the-asset-spec-in-one-table">The asset spec, in one table<a class="hanchor" href="#the-asset-spec-in-one-table" aria-label="Link to section: The asset spec, in one table">#</a></h2>
+<p>Everything Product Hunt requires or recommends, pulled from its own launch guide and help center, in one place.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Spec</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Thumbnail</td>
+<td>240x240 square, under 3MB</td>
+<td>Static image or GIF; a GIF animates only on hover, so the first frame is the thumbnail</td>
+</tr>
+<tr>
+<td>Gallery images</td>
+<td>1270x760 (1.67:1), 2+ required</td>
+<td>PNG for stills, GIF for short motion; drag to reorder, and the first is the most seen</td>
+</tr>
+<tr>
+<td>Gallery video</td>
+<td>Public YouTube link, full URL</td>
+<td>No file upload, no Vimeo; confirm it is not private before launch</td>
+</tr>
+<tr>
+<td>Video encoding</td>
+<td>Inherits YouTube: MP4/H.264, 16:9, 1080p at ~8 Mbps, AAC 48kHz</td>
+<td>Standard-frame-rate 1080p; the same 16:9 master you cut for every other channel</td>
+</tr>
+</tbody></table></div>
+<p>Two of those cells trip people. First, the thumbnail GIF does not autoplay in the feed; it animates only when a viewer hovers, so a motion thumbnail that depends on its animation to make sense shows a random frame to everyone who does not hover, which on mobile is nearly everyone<sup class="article-cite"><a href="#src-2" title="Product Hunt Help Center - How to post a product (thumbnail, gallery, and video specs)">2</a></sup>. Design the first frame to stand alone. Second, the video is a YouTube link, not an upload<sup class="article-cite"><a href="#src-2" title="Product Hunt Help Center - How to post a product (thumbnail, gallery, and video specs)">2</a></sup>, so its spec is YouTube&#39;s spec: an MP4 in H.264 at 16:9, 1080p around 8 Mbps for standard frame rates, with AAC audio<sup class="article-cite"><a href="#src-3" title="YouTube Help - Recommended upload encoding settings">3</a></sup>. That is the same 16:9 master you keep for a landing hero and a YouTube upload, which is the whole reason to treat the recording as one master with per-channel cuts rather than a fresh shoot per surface.</p>
+<h2 id="the-53-number-traced-to-where-it-comes-from">The 53% number, traced to where it comes from<a class="hanchor" href="#the-53-number-traced-to-where-it-comes-from" aria-label="Link to section: The 53% number, traced to where it comes from">#</a></h2>
+<p>Every launch guide repeats that products with a video win more. Follow the claim to its origin and it is a single first-party line: Product Hunt&#39;s own launch guide states that &quot;about 53% of products that reached Product of the Day since 2021 include a video&quot;<sup class="article-cite"><a href="#src-1" title="Product Hunt - Preparing for your launch (video and asset guidance, the 53% figure)">1</a></sup>. That is the source. The larger multiples that circulate on marketing blogs do not trace to a published method, and Product Hunt itself declines the causal version: the same page calls video &quot;not always necessary,&quot; says it &quot;can help depending on what your product is,&quot; and notes that a quick Loom demo is a fine stand-in for a produced piece.</p>
+<p>Read honestly, 53% is a correlation, not a lift. Products that reach Product of the Day are made by teams that invested in the launch, and a video is one visible signal of that investment, sitting alongside a crafted thumbnail, a maker&#39;s first comment, and a rallied audience. The video may help the ranking; it is not a coin you insert to buy one. What the number does justify is a floor: video is table stakes often enough that skipping it is a decision to defend, not a default. If the flow is already recorded for your broader launch-day kit, the Product Hunt cut is nearly free, and nearly free is the right budget for an asset with a correlational rather than causal payoff.</p>
+<h2 id="two-jobs-one-video-demo-walkthrough-or-maker-story">Two jobs, one video: demo walkthrough or maker story<a class="hanchor" href="#two-jobs-one-video-demo-walkthrough-or-maker-story" aria-label="Link to section: Two jobs, one video: demo walkthrough or maker story">#</a></h2>
+<p>A Product Hunt video does one of two jobs, and the failure mode is trying to do both. The demo walkthrough shows the product doing its work; the maker story puts a face on the launch and explains why you built it. Pick one.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>Demo walkthrough</th>
+<th>Maker story</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Shows</td>
+<td>The product performing one real task</td>
+<td>The founder, the problem, the why</td>
+</tr>
+<tr>
+<td>Best when</td>
+<td>The value is visual and needs to be seen in motion</td>
+<td>The product is abstract or trust is the barrier</td>
+</tr>
+<tr>
+<td>Camera</td>
+<td>Screen capture, deliberate cursor, no face</td>
+<td>Talking head or a webcam bubble over the screen</td>
+</tr>
+<tr>
+<td>Length</td>
+<td>30-60s</td>
+<td>60-90s</td>
+</tr>
+<tr>
+<td>Failure</td>
+<td>A feature tour with no narrative</td>
+<td>A pitch with no product on screen</td>
+</tr>
+</tbody></table></div>
+<p>The maker story is where a webcam overlay earns its place: a founder&#39;s face on launch day builds the trust a bare screen recording cannot, and Product Hunt&#39;s audience expects a human in the comments anyway. The demo walkthrough is the safer default for a product whose value is legible on screen. Whichever you pick, length is a retention decision rather than a house style, <a href="/blog/how-long-should-a-demo-video-be/">tuned to where the clip plays</a>, and the gallery rewards the shorter end because the viewer is one click from leaving.</p>
+<h2 id="the-first-five-seconds-when-the-video-is-click-to-play">The first five seconds, when the video is click-to-play<a class="hanchor" href="#the-first-five-seconds-when-the-video-is-click-to-play" aria-label="Link to section: The first five seconds, when the video is click-to-play">#</a></h2>
+<p>The landing-page rule, autoplay muted so burn captions and open on the outcome, only half-applies here, and the half that does not is where launches waste the click. The gallery video is a YouTube embed the visitor plays deliberately; it does not autoplay muted the way a hero loop does. So the muted first impression is the thumbnail&#39;s job, and the video&#39;s job begins the instant someone hits play, which is where YouTube&#39;s own audience behavior takes over: people skip intros and bounce on throat-clearing. &quot;Hi, I&#39;m the founder, and today I&#39;ll walk you through&quot; spends the exact seconds you cannot afford to spend.</p>
+<p>Captions still matter, because 69% of consumers watch video with the sound off in public places, and captions make 80% of them likelier to watch a clip through to the end<sup class="article-cite"><a href="#src-4" title="Forbes - Verizon Media says 69% of consumers watch video with sound off">4</a></sup>. Someone browsing Product Hunt at a desk with a muted tab is squarely in that 69%. So burn captions into the file instead of leaning on YouTube&#39;s auto-captions, which land late and mangle product names; the <a href="/blog/demo-video-captions/">captions-as-pixels case</a> carries over unchanged. The composite rule for this surface: the thumbnail carries the silent hook, the first five seconds of the video show the product doing the thing, and captions keep both watchable with the sound off.</p>
+<h2 id="a-shot-list-you-can-record-the-night-before-launch">A shot-list you can record the night before launch<a class="hanchor" href="#a-shot-list-you-can-record-the-night-before-launch" aria-label="Link to section: A shot-list you can record the night before launch">#</a></h2>
+<p>You do not need a two-week production. You need a five-shot list and a quiet hour. Here is the demo-walkthrough version, timed to a 45-second cut.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Shot</th>
+<th>Seconds</th>
+<th>What is on screen</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Cold open</td>
+<td>0-5</td>
+<td>The outcome, already happening: the product mid-result, never a logo card</td>
+</tr>
+<tr>
+<td>2. The problem, once</td>
+<td>5-12</td>
+<td>One line naming the pain, over the empty or before state</td>
+</tr>
+<tr>
+<td>3. The aha</td>
+<td>12-32</td>
+<td>The single workflow that is the reason to care, cursor moving deliberately</td>
+</tr>
+<tr>
+<td>4. The proof</td>
+<td>32-40</td>
+<td>The result, populated and real: data, output, the thing actually done</td>
+</tr>
+<tr>
+<td>5. The ask</td>
+<td>40-45</td>
+<td>One call to action, paying off the promise the thumbnail made</td>
+</tr>
+</tbody></table></div>
+<p>Two rules make this recordable the night before. Trim the dead time between clicks in the edit rather than by rushing the take, so the pacing stays calm while the runtime stays tight. And record the flow so it is reproducible, because the one certainty of a launch is a last-minute copy change, and a demo you can re-run beats one you have to reshoot. This is where a spec-driven recording pays off: aidemo, our open-source engine, records the flow from an agent-authored storyboard, so a pricing typo caught at 11pm is a re-render rather than a reshoot. Its limits are worth stating plainly: it captures the browser only, has no drag-on-a-timeline editor, and an agent writes the storyboard rather than a person clicking it together in a GUI, so it is the wrong tool for a one-off Loom and the right one when the same flow has to become a Product Hunt cut, a landing hero, and a launch-day social clip from a single source.</p>
+<p>Then upload the YouTube video the day before, confirm it is public, paste the full URL into the gallery, order the images with the strongest first, and put a face in the comments. The mechanics are settled; the day is about the product and the people you brought to see it.</p>
+<h2 id="sources">Sources<a class="hanchor" href="#sources" aria-label="Link to section: Sources">#</a></h2>
+<ol class="article-sources">
+<li id="src-1"><a href="https://www.producthunt.com/launch/preparing-for-launch" rel="noopener">Product Hunt - Preparing for your launch (video and asset guidance, the 53% figure)</a></li>
+<li id="src-2"><a href="https://help.producthunt.com/en/articles/479557-how-to-post-a-product" rel="noopener">Product Hunt Help Center - How to post a product (thumbnail, gallery, and video specs)</a></li>
+<li id="src-3"><a href="https://support.google.com/youtube/answer/1722171" rel="noopener">YouTube Help - Recommended upload encoding settings</a></li>
+<li id="src-4"><a href="https://www.forbes.com/sites/tjmccue/2019/07/31/verizon-media-says-69-percent-of-consumers-watching-video-with-sound-off/" rel="noopener">Forbes - Verizon Media says 69% of consumers watch video with sound off</a></li>
+</ol>
+
+<h2 id="faq">FAQ<a class="hanchor" href="#faq" aria-label="Link to section: FAQ">#</a></h2>
+<h3 id="do-you-need-a-video-for-a-product-hunt-launch" class="blog-faq-q">Do you need a video for a Product Hunt launch?<a class="hanchor" href="#do-you-need-a-video-for-a-product-hunt-launch" aria-label="Link to section: Do you need a video for a Product Hunt launch?">#</a></h3>
+<p>Not strictly. Product Hunt&#39;s own guide calls video &quot;not always necessary&quot; and says a quick Loom demo can stand in for a produced piece, while noting that about 53% of Product-of-the-Day products since 2021 included one. Treat it as a strong default rather than a rule: if the flow is already recorded for your launch kit, the gallery cut is nearly free, and skipping it becomes a decision to justify. If your product&#39;s value is hard to see in a still image, the video does work no screenshot can.</p>
+<h3 id="what-are-the-product-hunt-image-and-video-dimensions" class="blog-faq-q">What are the Product Hunt image and video dimensions?<a class="hanchor" href="#what-are-the-product-hunt-image-and-video-dimensions" aria-label="Link to section: What are the Product Hunt image and video dimensions?">#</a></h3>
+<p>The thumbnail is a 240x240 square under 3MB, and a GIF there animates only on hover, so the first frame has to stand alone. Gallery images are 1270x760, and you need at least two. The video is not uploaded: it is a public YouTube link pasted in full, so it inherits YouTube&#39;s spec, an MP4 in H.264 at 16:9 and 1080p around 8 Mbps with AAC audio.</p>
+<h3 id="how-long-should-a-product-hunt-launch-video-be" class="blog-faq-q">How long should a Product Hunt launch video be?<a class="hanchor" href="#how-long-should-a-product-hunt-launch-video-be" aria-label="Link to section: How long should a Product Hunt launch video be?">#</a></h3>
+<p>Short enough that a viewer one click from leaving still finishes it: 30-60 seconds for a demo walkthrough, up to about 90 for a maker story. Product Hunt sets no hard cap because the video is a YouTube link, but the gallery context punishes length harder than a landing page does, since the visitor came to browse rather than to watch. Open on the outcome, cut the dead time between clicks, and end on a single ask.</p>
+
+      </div>
+      <p class="article-ai-disclosure">This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding. <a href="/blog/editorial-policy/">How we research and correct our articles &rarr;</a></p>
+      <div class="article-tags">
+        <span class="article-tag">product hunt</span>
+        <span class="article-tag">launch video</span>
+        <span class="article-tag">video marketing</span>
+        <span class="article-tag">product launch</span>
+        <span class="article-tag">demo video</span>
+      </div>
+      <!-- Blog CTA banner — the ONE file to edit when the campaign changes.
+     Injected verbatim by bake.mjs at the bottom of every article (after content,
+     before "Keep reading") and above the footer on index/hub pages. Never in
+     the .md mirrors or llms.txt. Delete/empty this file to ship bannerless
+     pages (bake treats missing as none). Static links only — no forms, no JS. -->
+<aside class="blog-cta" aria-label="Try aidemo">
+  <span class="blog-cta-eyebrow">Open source · MIT</span>
+  <h2 class="blog-cta-title">Your coding agent can make this demo.</h2>
+  <p class="blog-cta-lede">aidemo is the engine behind this blog — your agent writes a storyboard, aidemo records a narrated, captioned product-demo video in real Chrome, and CI re-renders it when your product changes. No re-recording, ~$0 a render.</p>
+  <div class="blog-cta-actions">
+    <a class="primary" href="https://aidemo.top/" rel="noopener">Get started</a>
+    <a class="secondary" href="https://github.com/tandryukha/aidemo" rel="noopener">Star on GitHub</a>
+  </div>
+  <span class="blog-cta-code">npx -y github:tandryukha/aidemo#stable init my-demo</span>
+</aside>
+<section class="related-articles">
+  <h2>Keep reading</h2>
+  <div class="related-articles-grid">
+<a class="article-card" href="/blog/video-marketing-for-software/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/video-marketing-for-software-400.webp" srcset="/blog/images/video-marketing-for-software-400.webp 400w, /blog/images/video-marketing-for-software-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A lighthouse casting broad beams of light outward in several directions at once"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Video marketing for software: one recording, every channel</h3>
+    <p class="article-card-excerpt">Your buyers sit on nine surfaces; your budget is for one recording. The channel-by-channel spec that turns a single demo into every placement it needs.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>10 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/demo-video-on-landing-page/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/demo-video-on-landing-page-400.webp" srcset="/blog/images/demo-video-on-landing-page-400.webp 400w, /blog/images/demo-video-on-landing-page-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A paper airplane caught in mid-glide, nose tilted slightly upward"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Putting a demo video on your landing page without wrecking load time</h3>
+    <p class="article-card-excerpt">A hero video is the heaviest thing on the page and the thing Google times it by. Here is how to ship one so the page still paints in under 2.5 seconds.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+<a class="article-card" href="/blog/does-video-increase-conversion/">
+  <div class="article-card-image"><img loading="lazy" src="/blog/images/does-video-increase-conversion-400.webp" srcset="/blog/images/does-video-increase-conversion-400.webp 400w, /blog/images/does-video-increase-conversion-800.webp 800w" sizes="(max-width: 768px) 100vw, 400px" alt="A brass-style balance scale tipped to one side, one shallow pan hanging lower than the other"></div>
+  <div class="article-card-content">
+    <div class="article-card-category">Video Marketing for Software</div>
+    <h3 class="article-card-title">Does video actually increase conversion? Tracing the 80% claim</h3>
+    <p class="article-card-excerpt">The famous 80% conversion lift traces to one 2011 A/B test. Here is what a 35,000-page analysis and your LCP budget actually say about video.</p>
+    <div class="article-card-meta"><span>July 18, 2026</span><span>7 min read</span></div>
+  </div>
+</a>
+  </div>
+</section>
+    </article>
+    <aside class="article-sidebar">
+  <nav class="article-toc" aria-label="Table of contents">
+    <div class="article-toc-title">On this page</div>
+    <ul class="article-toc-list">
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-feed-shows-a-thumbnail-not-your-video">The feed shows a thumbnail, not your video</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-asset-spec-in-one-table">The asset spec, in one table</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-53-number-traced-to-where-it-comes-from">The 53% number, traced to where it comes from</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#two-jobs-one-video-demo-walkthrough-or-maker-story">Two jobs, one video: demo walkthrough or maker story</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#the-first-five-seconds-when-the-video-is-click-to-play">The first five seconds, when the video is click-to-play</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#a-shot-list-you-can-record-the-night-before-launch">A shot-list you can record the night before launch</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#sources">Sources</a></li>
+      <li class="article-toc-item"><a class="article-toc-link" href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+</aside>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <span class="site-footer-brand">aidemo — your coding agent writes the storyboard; the engine renders the narrated, captioned demo video. MIT open source.</span>
+      <nav class="site-footer-topics" aria-label="Topics">
+      <a href="/blog/topics/ai-demo-tools/">Demo Tools &amp; Alternatives</a>
+      <a href="/blog/topics/demo-automation/">Demo Automation</a>
+      <a href="/blog/topics/demo-videos/">Product Demo Videos</a>
+      <a href="/blog/topics/demos-as-code/">Demos as Code</a>
+      <a href="/blog/topics/screen-recording/">Screen Recording</a>
+      <a href="/blog/topics/video-docs/">Video Documentation &amp; Tutorials</a>
+      <a href="/blog/topics/video-marketing/">Video Marketing for Software</a>
+      </nav>
+    </div>
+    <nav class="site-footer-links" aria-label="Site">
+      <a href="https://aidemo.top/">aidemo.top</a>
+      <a href="https://github.com/tandryukha/aidemo" rel="noopener">GitHub</a>
+      <a href="/blog/editorial-policy/">Editorial policy</a>
+      <a href="/blog/feed.xml">RSS</a>
+      <a href="/blog/llms.txt">llms.txt</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var fill = document.querySelector('.article-progress-fill');
+  if (fill) {
+    var paint = function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      fill.style.width = (max > 0 ? Math.min(1, window.scrollY / max) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  var items = {};
+  document.querySelectorAll('.article-sidebar .article-toc-item').forEach(function (li) {
+    var a = li.querySelector('.article-toc-link');
+    if (a) items[a.getAttribute('href').slice(1)] = li;
+  });
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.article-content h2[id]'));
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+  var current = null;
+  function activate(id) {
+    if (current === id) return;
+    current = id;
+    Object.keys(items).forEach(function (k) { items[k].classList.toggle('active', k === id); });
+  }
+  var observer = new IntersectionObserver(function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
+  headings.forEach(function (h) { observer.observe(h); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120;
+    var active = headings[0].id;
+    headings.forEach(function (h) { if (h.offsetTop <= y) active = h.id; });
+    activate(active);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

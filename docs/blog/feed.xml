@@ -57,11 +57,25 @@
       <description>Doubling the frame rate does not double the file, and on a static form it costs almost nothing. A content-type table for when 60 fps is actually worth it.</description>
     </item>
     <item>
+      <title>Best resolution for screen recording: match delivery, not your monitor</title>
+      <link>https://aidemo.top/blog/best-resolution-for-screen-recording/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/best-resolution-for-screen-recording/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Your monitor is not the resolution to record at. A source-to-delivery table, the bitrate math, and why a 4K capture can make 1080p text worse.</description>
+    </item>
+    <item>
       <title>Camtasia alternatives for software demos and tutorials</title>
       <link>https://aidemo.top/blog/camtasia-alternatives/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/camtasia-alternatives/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
       <description>TechSmith retired Camtasia&apos;s perpetual license, and the timeline was always the real bill. The alternatives, sorted by who does the editing.</description>
+    </item>
+    <item>
+      <title>Cap vs Screen Studio: open-source polish vs the macOS standard</title>
+      <link>https://aidemo.top/blog/cap-vs-screen-studio/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/cap-vs-screen-studio/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Both automate the same polish. One is open source and runs anywhere; one is the macOS benchmark. Where Cap wins, where it breaks, and when to pick neither.</description>
     </item>
     <item>
       <title>Letting a coding agent make your demo video</title>
@@ -162,6 +176,13 @@
       <description>One is a program you drive, the other a file that plays anywhere. Where clickable tours beat video, where video wins, and the two costs listicles skip.</description>
     </item>
     <item>
+      <title>Keeping a tutorial video library current at scale</title>
+      <link>https://aidemo.top/blog/keeping-tutorial-libraries-current/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/keeping-tutorial-libraries-current/</guid>
+      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+      <description>Two hundred tutorials meet one redesign, and the re-record backlog no docs team gets funded to clear. Here is the maintenance math, and the one way out.</description>
+    </item>
+    <item>
       <title>Loom alternatives for product demos after the Atlassian era</title>
       <link>https://aidemo.top/blog/loom-alternatives-for-product-demos/</link>
       <guid isPermaLink="true">https://aidemo.top/blog/loom-alternatives-for-product-demos/</guid>
@@ -190,32 +211,11 @@
       <description>A merge field with the prospect&apos;s name is not a demo that shows their data. Three depths of personalization, priced honestly for a fifty-prospect batch.</description>
     </item>
     <item>
-      <title>What makes a screen recording look professional</title>
-      <link>https://aidemo.top/blog/professional-screen-recordings/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/professional-screen-recordings/</guid>
+      <title>The Product Hunt launch video: spec, format, and the first five seconds</title>
+      <link>https://aidemo.top/blog/product-hunt-launch-video/</link>
+      <guid isPermaLink="true">https://aidemo.top/blog/product-hunt-launch-video/</guid>
       <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>The polish people call professional is five named transforms with parameters, not a knack. Here is what each one does and why a bad zoom is a recompose.</description>
-    </item>
-    <item>
-      <title>README GIFs that update themselves</title>
-      <link>https://aidemo.top/blog/readme-gifs-that-update-themselves/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/readme-gifs-that-update-themselves/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>A 20-second demo GIF can weigh 18 MB, past GitHub&apos;s 10 MB ceiling. The format rules, the real size math, and a recapture loop that keeps it honest.</description>
-    </item>
-    <item>
-      <title>How to record just one browser tab (three ways, one clean result)</title>
-      <link>https://aidemo.top/blog/record-a-browser-tab/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/record-a-browser-tab/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Recording one browser tab is picking a capture surface, not cropping your desktop. Three ways to do it, scored on fidelity, what leaks, and repeatability.</description>
-    </item>
-    <item>
-      <title>SaaS demo video examples: what the best ones do differently</title>
-      <link>https://aidemo.top/blog/saas-demo-video-examples/</link>
-      <guid isPermaLink="true">https://aidemo.top/blog/saas-demo-video-examples/</guid>
-      <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-      <description>Six real SaaS demo videos from Vercel, Notion, Loom, Linear, Warp, and Retool, read with a stopwatch and a transcript instead of a mood board.</description>
+      <description>The Product Hunt feed shows a 240x240 thumbnail, not your video. The real asset spec, an honest read on the 53% stat, and a shot-list for the night before.</description>
     </item>
   </channel>
 </rss>
