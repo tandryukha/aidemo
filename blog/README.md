@@ -132,3 +132,20 @@ fields, never from the clock. robots.txt is NOT baked here — the site root
 4. Flip status to `published`, re-validate, `node scripts/bake.mjs`.
 5. Commit `blog/` + `docs/blog/` together and push — GitHub Pages is the
    deploy.
+
+## Daily GSC indexing (maintainer automation)
+
+`scripts/daily-indexing.sh` runs daily at 10:00 via launchd
+(`com.aidemo.seo-indexing`) on the maintainer's machine: it drives Google
+Search Console URL Inspection for the `aidemo.top` property through a
+Chrome-automation agent, submitting up to 5 never-submitted URLs and
+re-checking up to 3 pending ones per day (GSC's request-indexing quota is
+~10-12/day per property). The queue (`data/seo/indexing-urls.txt`) was seeded
+from both sitemaps and auto-appends newly published articles on every run;
+`data/seo/indexing-state.json` is the submitted/indexed ledger. Install by
+substituting `__REPO__`/`__HOME__`/`__NTFY_TOPIC__` in
+`ops/com.aidemo.seo-indexing.plist.template` and copying it to
+`~/Library/LaunchAgents/` (the notification topic is deliberately not stored
+in the repo). Delete `data/seo/gsc-property-verified` to pause the job
+cleanly. First run 2026-07-20: 5/5 submitted (home, blog index, 3 topic
+hubs).
