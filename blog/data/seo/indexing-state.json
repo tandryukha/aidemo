@@ -1,1 +1,32 @@
-{"submitted": [], "last_run": null, "total_submitted": 0, "total_indexed": 0}
+{
+  "submitted": [
+    {
+      "url": "https://aidemo.top/",
+      "date": "2026-07-20",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/",
+      "date": "2026-07-20",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/ai-demo-tools/",
+      "date": "2026-07-20",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/demo-automation/",
+      "date": "2026-07-20",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/demo-videos/",
+      "date": "2026-07-20",
+      "indexed": false
+    }
+  ],
+  "last_run": "2026-07-20",
+  "total_submitted": 5,
+  "total_indexed": 0
+}
