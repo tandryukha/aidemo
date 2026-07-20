@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.aidemo.seo-indexing</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-l</string>
+        <string>-c</string>
+        <string>__REPO__/blog/scripts/daily-indexing.sh</string>
+    </array>
+    <!-- 10:00 daily — staggered after the other GSC indexing jobs on this
+         machine (08:30, 09:15) so they never fight over the same Chrome. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>10</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/aidemo/seo-indexing.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/aidemo/seo-indexing.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <!-- Private notification channel — set your own topic here on install.
+             The install command substitutes this; the value is never committed. -->
+        <key>NTFY_ANALYTICS_TOPIC</key>
+        <string>__NTFY_TOPIC__</string>
+    </dict>
+</dict>
+</plist>
