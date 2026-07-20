@@ -2,6 +2,12 @@
 /**
  * validate.mjs — aidemo blog article quality gate.
  *
+ * FROZEN pending engine parity — this stays the operational gate but takes no
+ * new features; file blog-engine feedback instead. The centralized engine's
+ * validator currently false-positives 58 aidemo articles (BurnWeek "honest"
+ * diction doctrine + missing per-topic productMentionCap — blog-engine issues
+ * #7 and #8); retire per blog/README.md § "Blog-engine migration (M3)".
+ *
  * Usage: node blog/scripts/validate.mjs [--resolve]
  *
  * Checks every blog/data/articles/*.json for schema completeness, length

@@ -133,6 +133,58 @@ fields, never from the clock. robots.txt is NOT baked here — the site root
 5. Commit `blog/` + `docs/blog/` together and push — GitHub Pages is the
    deploy.
 
+## Blog-engine migration (M3) — status: PARKED behind the next engine release
+
+This blog is mid-migration onto the centralized
+[blog-engine](https://github.com/tandryukha/blog-engine) (2026-07-20). The
+consumer layer is installed and proven; the local scripts stay operational
+until the engine cuts a release. **Owner-review summary — what a swap would
+change: nothing.** The engine bake on main@`87918ce` is **byte-identical**
+(diff -r empty, 422 files) to the committed `docs/blog/`, verified against
+both a fresh local bake and the live tree, so the URL set (102 articles + 7
+hubs + index + editorial-policy + sitemap + feed + llms.txt + llms-full.txt +
+md mirrors + images + hashed CSS) is preserved exactly.
+
+Installed now:
+
+- `.claude/skills/aidemo-blog/` — thin engine skill (installed.json pins
+  v0.1.1) + `.claude/settings.json` SessionStart update-check hook (merged
+  additively; aidemo's own consumer-hook mechanics untouched).
+- `blog/blog.config.json` — the machine-enforced knobs (brand/mention-cap 2,
+  word bands, link budget, aidemo's banned openers + 14 banned phrasings,
+  citations policy `resolve` with the AidemoBlogValidator UA, sdxl images at
+  800/400, waves of 5). Three bake knobs are load-bearing for parity:
+  `site.codeBlocks` (shiki + copy buttons), `site.indexHeading`
+  (`The aidemo blog`), `publish.robots: false` (the site root
+  `docs/robots.txt` owns crawler policy — never bake a second one).
+- `blog/style/` — `header.html` + `footer.html` partials
+  (`{{siteOrigin}}`/`{{base}}`/`{{topicLinks}}`), `styles.json` (the
+  matte-clay house style extracted from hero_images.mjs),
+  `writer-overrides.md` (voice/claims policy, STRICT layer for engine lane
+  prompts). CSS + banner + editorial-policy stay single-sourced in
+  `templates/` (the config points at them).
+
+Why parked, not swapped:
+
+1. **Pinning**: `#stable` = v0.1.1, which predates the three bake knobs — the
+   pinned channel cannot regenerate this site yet (engine issue
+   [#9](https://github.com/tandryukha/blog-engine/issues/9)).
+2. **Validator parity**: the engine gate is 44/102 on this corpus — false
+   positives from hardcoded BurnWeek diction doctrine
+   ([#7](https://github.com/tandryukha/blog-engine/issues/7)) and the missing
+   per-topic `productMentionCap`
+   ([#8](https://github.com/tandryukha/blog-engine/issues/8)).
+
+`blog/scripts/*` are therefore **frozen pending engine parity** (marked in
+each header): keep using them exactly as documented above, but new pipeline
+features go to the engine as feedback, not here. Retirement checklist (run
+when stable ≥ the release containing 87918ce AND #7/#8 are fixed):
+`blog-engine skill update` → engine `bake --out /tmp/x` + `diff -r /tmp/x
+docs/blog` empty → engine `validate` green → delete `blog/scripts/*` +
+`blog/ops/lane-prompt.md`, repoint `blog/package.json` scripts at
+`npx -y github:tandryukha/blog-engine#stable`, thin the `blog-wave` skill to
+call engine CLIs.
+
 ## Daily GSC indexing (maintainer automation)
 
 `scripts/daily-indexing.sh` runs daily at 10:00 via launchd

@@ -1,0 +1,73 @@
+{
+  "engine": { "minVersion": "0.1.1" },
+  "site": {
+    "origin": "https://aidemo.top",
+    "base": "/blog",
+    "name": "aidemo blog",
+    "language": "en",
+    "headerHtml": "style/header.html",
+    "footerHtml": "style/footer.html",
+    "css": "templates/blog.css",
+    "editorialPolicy": "templates/editorial-policy.md",
+    "indexTitle": "aidemo blog — product demo videos, automated",
+    "indexDescription": "Practical, evidence-backed writing on product demo videos — scripting, recording, automating, and keeping them fresh — from the team behind aidemo, the open-source demo engine for coding agents.",
+    "hubDescriptionTemplate": "Articles about {topic} from the aidemo project.",
+    "feedDescription": "Practical, evidence-backed writing on product demo videos and demo automation.",
+    "llmsDescription": "Practical, evidence-backed articles on product demo videos — scripting, recording, automation, AI tooling, and demos-as-code — from the team behind aidemo, the open-source engine that turns an agent-authored storyboard into a narrated, captioned demo video.",
+    "editorialPolicyDescription": "How aidemo blog articles are researched, written, reviewed, and corrected — evidence standards, AI-assistance disclosure, and how to file corrections.",
+    "indexHeading": "The aidemo blog",
+    "codeBlocks": true
+  },
+  "brand": {
+    "name": "aidemo",
+    "legalEntity": "aidemo",
+    "byline": "the aidemo maintainers",
+    "mentionRegex": "\\baidemo\\b",
+    "mentionCap": 2,
+    "seoTitleSuffix": " | aidemo",
+    "aiDisclosure": "This article was researched and drafted with AI assistance and reviewed by the aidemo maintainers. Tool capabilities and prices change — check vendor docs before deciding."
+  },
+  "content": {
+    "wordsByRole": { "spoke": [1200, 2000], "pillar": [1800, 2600] },
+    "internalLinks": [3, 6],
+    "bannedOpeners": ["^introduction$", "^overview$", "^what is\\b"],
+    "bannedPhrases": [
+      "\\bin today'?s (?:fast-paced|digital|competitive)\\b",
+      "\\bin the (?:ever-)?(?:changing|evolving) (?:world|landscape) of\\b",
+      "\\bgame[- ]chang(?:er|ing)\\b",
+      "\\brevolutioniz\\w+\\b",
+      "\\bseamless(?:ly)?\\b",
+      "\\bunlock the (?:power|potential|full potential)\\b",
+      "\\b(?:let'?s )?di(?:ve|ving) (?:in|into|deep)\\b",
+      "\\bdelve\\b",
+      "\\bit'?s (?:important|worth) (?:to note|noting)\\b",
+      "\\bin conclusion\\b",
+      "\\blook no further\\b",
+      "\\bwhether you'?re a\\b",
+      "\\bto the next level\\b",
+      "\\bisn'?t just (?:a|about)\\b"
+    ]
+  },
+  "citations": {
+    "policy": "resolve",
+    "maxUnknown": 0,
+    "resolverUA": "Mozilla/5.0 (compatible; AidemoBlogValidator/1.0; +https://aidemo.top)"
+  },
+  "images": {
+    "backend": "sdxl",
+    "styles": "style/styles.json",
+    "defaultStyle": "matte-clay",
+    "allowPeople": false,
+    "widths": [800, 400]
+  },
+  "models": {
+    "orchestrator": "opus",
+    "writerLanes": 5,
+    "writerModel": "opus",
+    "writerEffort": "xhigh",
+    "judge": "fable"
+  },
+  "wave": { "namespace": "aidemo", "articlesPerWave": 5, "cadencePerDay": 5 },
+  "cta": { "banner": "templates/banner.html" },
+  "publish": { "adapter": "static", "outDir": "dist", "robots": false }
+}

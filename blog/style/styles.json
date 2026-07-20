@@ -1,0 +1,10 @@
+{
+  "_comment": "Extracted verbatim from blog/scripts/hero_images.mjs (the locked aidemo matte-clay house style). aidemo semantics: the article's hero.subject is substituted for {subject} inside the pos wrapper — only the subject varies, the style never does. Rendered at 1216x832 (native SDXL landscape bucket = the bake's hero aspect), seed = fnv1a(slug)+seedOffset from data/hero-subjects.json.",
+  "styles": {
+    "matte-clay": {
+      "pos": "minimalist matte clay 3D scene of {subject}, soft rounded shapes, smooth studio render, plain dark charcoal background, coral orange and violet purple rim lighting, gentle top light, soft shadows, high detail, wide cinematic composition",
+      "neg": "text, words, letters, numbers, logos, labels, screens, user interface, watermark, person, face, hands, photo, photorealistic, blurry, low quality, deformed"
+    }
+  },
+  "clusterStyle": {}
+}

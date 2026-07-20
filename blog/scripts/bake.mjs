@@ -2,6 +2,15 @@
 /**
  * bake.mjs — aidemo blog static-site generator (ported from the BurnWeek blog).
  *
+ * FROZEN pending engine parity at a released tag — this script stays the
+ * operational bake (the site must remain regenerable) but takes no new
+ * features; file blog-engine feedback instead. The centralized engine
+ * (github:tandryukha/blog-engine) reproduces this output byte-for-byte on
+ * main@87918ce with blog/blog.config.json (site.codeBlocks/indexHeading,
+ * publish.robots=false), but #stable (v0.1.1) predates those knobs. Retire
+ * per the checklist in blog/README.md § "Blog-engine migration (M3)" +
+ * blog-engine issue #9.
+ *
  * Usage: node blog/scripts/bake.mjs [--drafts] [--out docs/blog]
  *
  * Reads blog/data/articles/*.json (+ blog/data/topics.json when present,

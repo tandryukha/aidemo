@@ -23,6 +23,14 @@ interruptions and a session restart.
 - `blog/data/topics.json` — the topic map; `wave` field orders the build
 - `blog/scripts/validate.mjs` / `bake.mjs` / `hero_images.mjs`
 
+> **Engine migration parked (2026-07-20):** the centralized blog-engine
+> reproduces our bake byte-for-byte on its main, but the pinned `#stable`
+> release + its validator aren't there yet — see `blog/README.md`
+> § "Blog-engine migration (M3)". Keep using the local scripts (they are
+> FROZEN: operational, no new features — pipeline improvements go to
+> blog-engine as feedback issues, repo-local knobs go to
+> `blog/blog.config.json`).
+
 Supporting files in this directory:
 - `wave.workflow.js` — the wave workflow: parallel opus-xhigh writers → one
   fable-xhigh ship agent. Args: `{wave: N, topics: [{slug, role}...]}`.

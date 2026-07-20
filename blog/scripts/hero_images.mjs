@@ -2,6 +2,12 @@
 /**
  * hero_images.mjs — generate matte-clay hero images for blog articles.
  *
+ * FROZEN pending engine parity — operational, no new features; the house
+ * style is mirrored in blog/style/styles.json for the centralized engine
+ * (aidemo's subject-in-wrapper + fnv1a-seed semantics differ from the
+ * engine's candidates/compose/pick lane — see blog/README.md §
+ * "Blog-engine migration (M3)" before porting).
+ *
  * Usage:
  *   node blog/scripts/hero_images.mjs [--force] [--only slug1,slug2] [--dry-run]
  *
