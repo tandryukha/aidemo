@@ -1,7 +1,8 @@
 # aidemo writer overrides — STRICT, these win over the base lane prompt
 
 Voice and claims policy for the aidemo blog (https://aidemo.top/blog/). The
-full historical writer contract lives in `blog/ops/lane-prompt.md`; machine-
+base writer contract is served by the engine (`blog-engine guide AUTHORING`);
+this file is the STRICT aidemo layer appended verbatim on top of it. Machine-
 enforced numbers (word bands, link budgets, mention cap, banned diction) live
 in `blog/blog.config.json` — never restate them here.
 

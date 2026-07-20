@@ -1,5 +1,5 @@
 {
-  "engine": { "minVersion": "0.1.1" },
+  "engine": { "minVersion": "0.2.0" },
   "site": {
     "origin": "https://aidemo.top",
     "base": "/blog",
@@ -46,6 +46,11 @@
       "\\bwhether you'?re a\\b",
       "\\bto the next level\\b",
       "\\bisn'?t just (?:a|about)\\b"
+    ],
+    "cappedWords": {},
+    "headingBannedWords": [],
+    "forbiddenStrings": [
+      { "pattern": "burnweek|maxfit|irondust|calorie-slo", "message": "article leaks another brand's pipeline provenance (burnweek/maxfit/irondust/calorie-slo)" }
     ]
   },
   "citations": {

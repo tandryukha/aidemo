@@ -1,5 +1,5 @@
 {
-  "_comment": "Extracted verbatim from blog/scripts/hero_images.mjs (the locked aidemo matte-clay house style). aidemo semantics: the article's hero.subject is substituted for {subject} inside the pos wrapper — only the subject varies, the style never does. Rendered at 1216x832 (native SDXL landscape bucket = the bake's hero aspect), seed = fnv1a(slug)+seedOffset from data/hero-subjects.json.",
+  "_comment": "The locked aidemo matte-clay house style, read by the blog-engine hero lane (images.styles → this file; images.defaultStyle: matte-clay). Originally extracted from the retired blog/scripts/hero_images.mjs (see git history). aidemo semantics: the article's hero.subject is substituted for {subject} inside the pos wrapper — only the subject varies, the style never does. Rendered at 1216x832 (native SDXL landscape bucket = the bake's hero aspect), seed = fnv1a(slug)+seedOffset from data/hero-subjects.json.",
   "styles": {
     "matte-clay": {
       "pos": "minimalist matte clay 3D scene of {subject}, soft rounded shapes, smooth studio render, plain dark charcoal background, coral orange and violet purple rim lighting, gentle top light, soft shadows, high detail, wide cinematic composition",

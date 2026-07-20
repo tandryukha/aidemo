@@ -61,9 +61,10 @@ examples/workflows/   copy-paste consumer CI workflow templates
 .claude/skills/       record-demo (thin adapter → AUTHORING.md) + dev skills
 .claude-plugin/       marketplace.json — Claude Code plugin marketplace catalog
 plugins/record-demo/  published plugin (bundles record-demo skill + aidemo MCP)
-blog/                 SEO blog source: article JSON + bake/validate scripts →
-                      committed docs/blog/ (served at aidemo.top/blog); writer
-                      contract in blog/ops/lane-prompt.md, map in data/topics.json
+blog/                 SEO blog source: article JSON + blog.config.json →
+                      blog-engine-baked, committed docs/blog/ (served at
+                      aidemo.top/blog); writer contract via `blog-engine guide
+                      AUTHORING`, map in data/topics.json
 examples/local-demo/  self-contained fixture + storyboard — the smoke test
 test/mcp-smoke.mjs    MCP-surface smoke test (local, needs Chrome)
 demos/                untracked local working area

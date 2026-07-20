@@ -1,5 +1,5 @@
 {
-  "//": "Per-slug hero-image subjects for blog/scripts/hero_images.mjs. Each subject is ONE physical object metaphor (<=12 words, no screens/text/UI/two-object comparisons) rendered in the locked matte-clay house style. seedOffset (optional, default 0) bumps the deterministic seed to re-roll a single image reproducibly. Writers: pick metaphors NOT already in this file.",
+  "//": "Per-slug hero-image subjects for the blog-engine hero lane (blog-engine heroes …). Each subject is ONE physical object metaphor (<=12 words, no screens/text/UI/two-object comparisons) rendered in the locked matte-clay house style. seedOffset (optional, default 0) bumps the deterministic seed to re-roll a single image reproducibly. Writers: pick metaphors NOT already in this file.",
   "ai-demo-video-generators": {
     "subject": "a glowing crystal ball on a rounded pedestal"
   },

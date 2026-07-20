@@ -36,8 +36,10 @@ aidemo-local.
   on conflict` header. This is where editorial voice lives, not here.
 - `blog/data/topics.json` — the hub-and-spoke topic map (slugs, clusters, pillars,
   crossLinks, science/evidence hooks).
-- `blog/data/generation-log.md` — the lab notebook + hero-debt table. Append one
-  entry per wave.
+- your **generation log** — the lab notebook + hero-debt table; append one entry
+  per wave. This repo keeps it under `blog/data/` or `docs/blog/`
+  (`generation-log.md`); if yours is elsewhere, record the exact path in the
+  gotchas region below so future waves and `blog-engine feedback` find it.
 - `blog/data/articles/` — the corpus (disk is the ledger).
 
 ## Self-update (do this at a wave boundary, never mid-wave)
@@ -60,7 +62,7 @@ For each learning this wave, ask: **"would another consumer's next wave benefit?
 - **Yes** → file an engine issue with `blog-engine feedback` (categories:
   guide / lane-template / validator / renderer / judge / driver / bake).
 - **No** → make a local edit (voice, topics, model budget, style routing, cadence
-  dates) and record it in `blog/data/generation-log.md`.
+  dates) and record it in your generation log (see the local-files list above).
 - **Both** → local hotfix now **and** an engine issue for the durable fix, noting
   the workaround you applied locally.
 
@@ -82,10 +84,17 @@ Feedback: <N> engine issues filed (<links>) / 0 with reason
      Doctrine that any consumer would hit belongs in an engine feedback issue, not
      here. Start empty; append as aidemo accumulates scars. -->
 
-- **Migration is PARKED** — until stable ≥ the release with the M3 bake knobs
-  AND engine issues #7/#8 land, waves run on the local `blog/scripts/*`
-  (frozen-but-operational) via the `blog-wave` skill, not engine CLIs. See
-  `blog/README.md` § "Blog-engine migration (M3)" for the retirement checklist.
+- **Migration COMPLETED 2026-07-20** — waves now run entirely on the engine
+  (`#stable` v0.2.0) via THIS skill. The old local `blog/scripts/*` +
+  `ops/lane-prompt.md` + the pre-engine `blog-wave` skill/workflows were
+  deleted (git history preserves them). `validate` is 102/102 and the engine
+  bake is byte-identical to `docs/blog` (422 files). See `blog/README.md`
+  § "Blog-engine migration (M3)".
+- **Hero lane blocked by blog-engine#15** — `blog-engine heroes …` crashes with
+  `KeyError: 'lifestyle'` because the engine ignores `images.defaultStyle`
+  (aidemo = `matte-clay`) and hardcodes a `lifestyle` fallback. Non-blocking
+  now (all 102 heroes are committed), but the NEXT wave that needs new heroes
+  is blocked until the fix lands — check the issue before generating heroes.
 - **Deploy = git push.** `docs/blog/` is the committed GitHub Pages output at
   https://aidemo.top/blog/ — never hand-edit it, and only ever commit a bake
   whose diff you have reviewed. Live in ~30-60s after push.
