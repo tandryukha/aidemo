@@ -21,6 +21,7 @@ demo.
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-aidemo-1f6feb)](https://registry.modelcontextprotocol.io)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-d97757)](#three-ways-to-use-it)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
+[![Glama](https://glama.ai/mcp/servers/tandryukha/aidemo/badges/score.svg)](https://glama.ai/mcp/servers/tandryukha/aidemo)
 
 **Install:** Claude Code `/plugin marketplace add tandryukha/aidemo` · CI `uses: tandryukha/aidemo@stable` · CLI `npx -y @tandryukha/aidemo` · Homebrew `brew install tandryukha/aidemo/aidemo`
 <br>Published on the [GitHub Marketplace](https://github.com/marketplace/actions/aidemo-demo-video), [npm](https://www.npmjs.com/package/@tandryukha/aidemo), a [Homebrew tap](https://github.com/tandryukha/homebrew-aidemo), and the [MCP Registry](https://registry.modelcontextprotocol.io).
