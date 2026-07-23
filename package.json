@@ -25,6 +25,7 @@
   "scripts": {
     "aidemo": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
     "guard-openai-key": "tsx scripts/guard-openai-key.ts",
