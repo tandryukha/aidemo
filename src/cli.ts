@@ -14,6 +14,7 @@ import { record } from "./recorder.js";
 import { parseCookieFlag } from "./setup.js";
 import { extractFrames } from "./frames.js";
 import { inspectPage } from "./inspect.js";
+import { importTrace, scaffoldImported } from "./import-trace.js";
 import { GUIDE_TOPIC_NAMES, guideHeadings, readGuide, sliceGuide } from "./guide.js";
 import { lintStoryboard, logLint } from "./lint.js";
 import { readJson, writeJson } from "./util.js";
@@ -117,6 +118,24 @@ program
       );
     }
   );
+
+program
+  .command("import-trace")
+  .argument("<file>", "Playwright trace.zip (context.tracing / --trace on) or a *.spec.ts test file")
+  .requiredOption("--name <name>", "demo name (creates ./demos/<name>/)")
+  .option("--force", "overwrite an existing demos/<name>/storyboard", false)
+  .option("--json", "print the draft storyboard to stdout instead of writing a demo", false)
+  .description("draft a storyboard from a Playwright trace or test: its actions + selectors become scenes (no LLM)")
+  .action(async (file: string, opts: { name: string; force?: boolean; json?: boolean }) => {
+    const result = await importTrace(resolve(file), opts.name);
+    if (opts.json) {
+      process.stdout.write(JSON.stringify(result.storyboard, null, 2) + "\n");
+      return;
+    }
+    const dir = await scaffoldImported(process.cwd(), opts.name, result, { force: opts.force });
+    for (const n of result.notes) log(`  · ${n}`);
+    ok(`write the narration in ${dir}/generated/storyboard.json, then: aidemo probe ${dir}`);
+  });
 
 program
   .command("repo-init")

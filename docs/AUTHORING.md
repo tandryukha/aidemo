@@ -28,6 +28,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | Validate a storyboard | `validate_storyboard` | `aidemo validate <dir>` (or `--file <path>`; `--json`) |
 | Lint / pacing forecast (no browser) | `lint_storyboard` | `aidemo lint <dir>` (`--file`, `--lang`, `--json`, `--strict`) |
 | Scaffold a demo | `init_demo` (`fromUrl` drafts from a live page) | `aidemo init <name> [--from-url <url>]` |
+| Draft from a Playwright trace / test | `import_trace` | `aidemo import-trace <trace.zip \| spec.ts> --name <name>` |
 | Environment check | `doctor` | `aidemo doctor` |
 | Discover selectors on a page | `inspect` (job) | `aidemo inspect <url> [--dir <dir>] [--frame name=sel]` |
 | Dry-run the flow | `probe` (job) | `aidemo probe <dir>` |
@@ -1067,6 +1068,31 @@ CLI. If nothing came up, skip this.
 - `doctor` checks Node, ffmpeg, Chrome, the TTS/STT endpoint (and flags
   LLM-only servers like Ollama, which have no audio endpoints — point
   `OPENAI_BASE_URL` at a speech server such as speaches instead).
+
+## Import from Playwright (trace or test file)
+
+When the product already has an e2e test for the flow, don't re-derive the
+selectors: `import_trace {file, name}` / `aidemo import-trace <file> --name
+<name>` takes a **`trace.zip`** (`npx playwright test --trace on`, or
+`context.tracing.start/stop`) or a **`*.spec.ts`** file and writes
+`demos/<name>/` with a draft storyboard:
+
+- the run's own actions become beats — `goto`, `fill`→`type`, `click`,
+  `hover`, `press`, `selectOption`→`select`, `setInputFiles`→`upload`,
+  `waitForSelector`→`waitForWidget`, `dragAndDrop`→`drag`, `expect(...)
+  .toBeVisible/toHaveText/toHaveURL`→`assert`; calls that failed in the trace
+  are dropped;
+- `getByRole/getByTestId/getByText/getByPlaceholder` and `internal:` engines
+  become plain storyboard selectors (`role=button[name="Add to basket"i]`,
+  `[data-testid="x"]`, `text=…`); `frameLocator` chains become a `frames`
+  entry + `target.frame`; `.first()/.nth()/.last()` become `nth`/`last`;
+- scenes are cut at each `goto` and before a click whose payoff is an explicit
+  wait or assertion; narration is `<narrate: …>` placeholders; `_notes` lists
+  every approximation (a `getByLabel` turned into a text match, an upload
+  whose file you must copy into `input/`).
+
+Then write the narration, merge or split scenes to one beat each, and
+`probe`. Nothing is inferred by a model — the storyboard is the test, retold.
 
 ## Demo as regression test
 

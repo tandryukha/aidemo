@@ -176,6 +176,7 @@ re-recording, recompose without re-transcribing, etc.
 ```bash
 aidemo init <name>            # scaffold demos/<name>/ with a starter storyboard
 aidemo init <name> --from-url <url>   # …drafted from the live page's headings + real selectors
+aidemo import-trace trace.zip --name <name>   # …or from a Playwright trace / *.spec.ts (actions + selectors → scenes)
 aidemo voice   <dir>          # per-scene TTS → narration.mp3 + voice.json
 aidemo record  <dir>          # drive Chrome → raw video + timeline.json
 aidemo probe   <dir>          # record-only dry run (verify selectors), no key needed

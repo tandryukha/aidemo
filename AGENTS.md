@@ -21,6 +21,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
 | Resume a take | `node bin/aidemo.mjs record <dir> --from-scene <id>` (also `render`, MCP `fromScene`) — reuses the previous take's earlier scenes (hash-guarded), replays their actions fast, records from `<id>` |
+| Draft from a Playwright trace/test | `node bin/aidemo.mjs import-trace <trace.zip\|spec.ts> --name <demo>` — actions + selectors → scenes, no LLM (MCP `import_trace`) |
 | Draft from a URL | `node bin/aidemo.mjs init <name> --from-url <url>` — inspect first, headings → scenes, unique selectors → beats (MCP `init_demo {fromUrl}`) |
 | Selector discovery | `node bin/aidemo.mjs inspect <url> --dir <demo>` — unique selectors per visible element (MCP `inspect` job); the same scan writes `logs/drift-*.json` suggestions when a take's selector matches nothing |
 | Validate a storyboard (no browser) | `node bin/aidemo.mjs validate <dir>` (`--file <path>`, `--json`; non-zero exit on issues) |
@@ -58,7 +59,8 @@ src/                  pipeline stages: voice, recorder/player/cursor (record),
                       filter), inspect (page scan → unique selectors; drift
                       ranking for failed selectors), anchors ({{@word}} markers → piecewise
                       retime), frame (produced-look canvas PNG), guide
-                      (topic slices of AUTHORING.md), lint (browser-free
+                      (topic slices of AUTHORING.md), import-trace (Playwright
+                      trace.zip / spec → draft storyboard), lint (browser-free
                       pacing forecast + pitfalls), recorder (take lifecycle,
                       resume via per-scene hashes + raw.keep-* footage),
                       stills (screenshot mode), frames (review PNGs),

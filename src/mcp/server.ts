@@ -24,6 +24,7 @@ import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
 import { extractFrames } from "../frames.js";
 import { inspectPage } from "../inspect.js";
+import { importTrace, scaffoldImported } from "../import-trace.js";
 import { exportWalkthrough } from "../walkthrough.js";
 import { GUIDE_TOPIC_NAMES, guideHeadings, guidePath as guideFilePath, sliceGuide } from "../guide.js";
 import { lintStoryboard, logLint } from "../lint.js";
@@ -943,6 +944,50 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         }
         return base;
       })
+  );
+
+  server.registerTool(
+    "import_trace",
+    {
+      title: "Draft a storyboard from a Playwright trace or test",
+      description:
+        "Turn a Playwright trace.zip (context.tracing / `--trace on`) or a *.spec.ts " +
+        "test file into demos/<name>/ with a draft storyboard: the run's own actions " +
+        "and selectors become scenes (cut at navigations and async payoffs), narration " +
+        "is left as placeholders, and `_notes` lists what was approximated. No LLM, " +
+        "no browser. Then write the narration and probe.",
+      inputSchema: {
+        file: z.string().describe("absolute path to trace.zip or the test file"),
+        name: z.string().describe("demo name (creates demos/<name>/)"),
+        dir: z.string().optional().describe("repo to scaffold into (default: server cwd)"),
+        force: z.boolean().optional(),
+      },
+      outputSchema: {
+        demoDir: z.string(),
+        storyboardPath: z.string(),
+        steps: z.number(),
+        scenes: z.number(),
+        notes: z.array(z.string()),
+      },
+    },
+    async (args) => {
+      try {
+        const result = await importTrace(resolve(args.file), args.name);
+        const demoDir = await scaffoldImported(args.dir ? resolve(args.dir) : process.cwd(), args.name, result, {
+          force: args.force,
+        });
+        const project = new Project(demoDir);
+        return jsonResult({
+          demoDir,
+          storyboardPath: project.storyboardPath,
+          steps: result.steps,
+          scenes: (result.storyboard.scenes as unknown[]).length,
+          notes: result.notes,
+        });
+      } catch (err) {
+        return errorResult({ message: (err as Error).message });
+      }
+    }
   );
 
   registerJob(
