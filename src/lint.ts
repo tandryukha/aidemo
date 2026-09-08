@@ -137,6 +137,10 @@ export function estimateActionMs(a: Action): number {
       return IDLE_CAP_MS; // idle-marked → trimmed to the cap
     case "waitForChange":
       return a.idle ? IDLE_CAP_MS : 900;
+    case "moveTo":
+      return 450; // glide + 150 ms settle
+    case "assert":
+      return 250; // usually already true; the poll returns on first check
     default:
       return 300;
   }
@@ -252,6 +256,61 @@ export function lintStoryboard(
       const next = scene.actions[ai + 1];
       const rest = scene.actions.slice(ai + 1);
       const sel = "target" in a && a.target ? a.target.selector ?? "" : "";
+
+      if (a.op === "moveTo" && !a.target && (a.x == null || a.y == null)) {
+        push({
+          severity: "error",
+          code: "moveto-no-point",
+          scene: scene.id,
+          action: ai,
+          message: "`moveTo` needs a `target` or both `x` and `y` — the take fails at this action",
+          fix: "give it a target, or an absolute viewport point {x, y}",
+        });
+      }
+      if (a.op === "assert") {
+        if (!a.target && !a.url) {
+          push({
+            severity: "error",
+            code: "assert-no-check",
+            scene: scene.id,
+            action: ai,
+            message: "`assert` needs a `target` and/or a `url` — the take fails at this action",
+            fix: "assert the payoff element ({target, textMatches?}) or the destination ({url})",
+          });
+        } else if (a.textMatches && !a.target) {
+          push({
+            severity: "warn",
+            code: "assert-text-no-target",
+            scene: scene.id,
+            action: ai,
+            message: "`assert.textMatches` is ignored without a `target`",
+            fix: "add the target whose text should match",
+          });
+        }
+        for (const re of [a.textMatches, a.url]) {
+          if (re == null) continue;
+          try {
+            new RegExp(re);
+          } catch (e) {
+            push({
+              severity: "error",
+              code: "assert-bad-regex",
+              scene: scene.id,
+              action: ai,
+              message: `\`assert\` regex ${JSON.stringify(re)} is invalid: ${(e as Error).message}`,
+            });
+          }
+        }
+      }
+      if (a.retry && !["click", "type", "hover", "scrollTo", "focus", "moveTo", "assert"].includes(a.op)) {
+        push({
+          severity: "info",
+          code: "retry-noop",
+          scene: scene.id,
+          action: ai,
+          message: `\`retry\` does nothing on \`${a.op}\` — only interactions and assert re-attempt`,
+        });
+      }
 
       if (a.op === "type" && next?.op === "press" && /^enter$/i.test(next.key)) {
         const waits = rest.some((r) => /^wait/.test(r.op));

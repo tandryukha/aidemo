@@ -148,11 +148,39 @@ function assertVoiceIdsMatchProvider(storyboard: Storyboard): void {
 }
 
 function planFor(storyboard: Storyboard, sceneVoice?: VoicePlan): VoicePlan {
+  const pronounce =
+    storyboard.voice?.pronounce || sceneVoice?.pronounce
+      ? { ...(storyboard.voice?.pronounce ?? {}), ...(sceneVoice?.pronounce ?? {}) }
+      : undefined;
   return {
     voiceId: sceneVoice?.voiceId ?? storyboard.voice?.voiceId ?? "marin",
     instructions: sceneVoice?.instructions ?? storyboard.voice?.instructions,
     speed: sceneVoice?.speed ?? storyboard.voice?.speed,
+    ...(pronounce ? { pronounce } : {}),
   };
+}
+
+/**
+ * Apply `voice.pronounce` to the text handed to TTS: whole-word, case-sensitive
+ * substitutions (longest key first so "SQL Server" wins over "SQL"). The
+ * narration itself — and so the script-timed captions — keeps the written
+ * form; only the spoken audio changes.
+ */
+export function applyPronounce(text: string, map?: Record<string, string>): string {
+  if (!map) return text;
+  const keys = Object.keys(map)
+    .filter((k) => k.trim())
+    .sort((a, b) => b.length - a.length);
+  let out = text;
+  for (const k of keys) {
+    const esc = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Word-ish boundaries that also work for keys with punctuation ("k8s", "C#").
+    out = out.replace(
+      new RegExp(`(^|[^\\p{L}\\p{N}_])${esc}(?=$|[^\\p{L}\\p{N}_])`, "gu"),
+      (_m, pre: string) => `${pre}${map[k]}`
+    );
+  }
+  return out;
 }
 
 /**
@@ -305,7 +333,9 @@ export async function generateVoice(
           scene.narration.length > 48 ? "…" : ""
         }" (${plan.voiceId})`
       );
-      const audio = await provider().synthesize({ text: scene.narration, plan });
+      const spoken = applyPronounce(scene.narration, plan.pronounce);
+      if (spoken !== scene.narration) log(`  pronounce → "${spoken.slice(0, 64)}…"`);
+      const audio = await provider().synthesize({ text: spoken, plan });
       await fs.writeFile(outPath, audio);
       const durationMs = await probeDurationMs(outPath);
       manifest.scenes.push({ id: scene.id, file: outPath, durationMs, hash });

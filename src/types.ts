@@ -56,6 +56,14 @@ const BaseAction = {
    * a log line.
    */
   optional: z.boolean().optional(),
+  /**
+   * Re-attempt an interaction (click/type/hover/scrollTo/focus/moveTo/assert)
+   * up to this many extra times when it throws — a beat apart — before the
+   * take fails. For UI that re-renders under the cursor (a list that
+   * reorders on load, a button that mounts twice). Retries land in
+   * timeline.json `actions[].retries`. Optional actions skip instead.
+   */
+  retry: z.number().int().min(0).max(5).optional(),
 };
 
 /**
@@ -234,6 +242,36 @@ export const ActionSchema = z.discriminatedUnion("op", [
    * across the storyboard are a hard error at extraction.
    */
   z.object({ ...BaseAction, op: z.literal("still"), name: z.string() }),
+  /**
+   * Park the cursor deliberately: glide it to `target` (element center) or an
+   * absolute viewport point (`x`,`y` CSS px) without clicking. Use it to move
+   * the cursor out of the way before a reveal, or to point at what the
+   * narration is talking about without an interaction.
+   */
+  z.object({
+    ...BaseAction,
+    op: z.literal("moveTo"),
+    target: TargetSchema.optional(),
+    x: z.number().optional(),
+    y: z.number().optional(),
+  }),
+  /**
+   * Prove the payoff happened. Fails the take with a named error unless
+   * `target` is visible (and, when set, its text matches `textMatches`) and/or
+   * the page URL matches `url` — polled until `timeoutMs` (default 5000). A
+   * demo whose confirmation never rendered should fail loudly at record time,
+   * not ship a video of a spinner.
+   */
+  z.object({
+    ...BaseAction,
+    op: z.literal("assert"),
+    target: TargetSchema.optional(),
+    /** Regex the target's text must match (JS syntax, e.g. "Order #\\d+"). */
+    textMatches: z.string().optional(),
+    /** Regex the page URL must match. */
+    url: z.string().optional(),
+    timeoutMs: z.number().optional(),
+  }),
 ]);
 export type Action = z.infer<typeof ActionSchema>;
 
@@ -252,6 +290,13 @@ export const VoicePlanSchema = z.object({
   instructions: z.string().optional(),
   /** Playback speed hint passed to the provider when supported. Default 1.0. */
   speed: z.number().min(0.5).max(2).optional(),
+  /**
+   * TTS-only substitutions, whole-word, case-sensitive: `{"aidemo":"A.I. demo",
+   * "SQL":"sequel"}`. Applied to the text sent to the voice provider; the
+   * narration (and therefore the captions) keeps the written form. Merged
+   * storyboard → scene (scene entries win).
+   */
+  pronounce: z.record(z.string(), z.string()).optional(),
 });
 export type VoicePlan = z.infer<typeof VoicePlanSchema>;
 
@@ -660,6 +705,30 @@ export const CursorSampleSchema = z.object({
 });
 export type CursorSample = z.infer<typeof CursorSampleSchema>;
 
+/**
+ * What one storyboard action actually did during the take: wall-clock window,
+ * outcome, retries, and anything worth a second look (failed requests seen in
+ * its window, an optional skip). The per-action twin of the compose report —
+ * an agent reads this to see which action ate the time or was skipped without
+ * regex-mining the log. Default [] keeps older timelines valid.
+ */
+export const TimelineActionSchema = z.object({
+  /** 0-based index in the scene's actions[]. */
+  index: z.number(),
+  op: z.string(),
+  /** Resolved target (named→selector, frame-prefixed) / goto URL, when any. */
+  target: z.string().optional(),
+  startMs: z.number(),
+  endMs: z.number(),
+  ok: z.boolean(),
+  /** An `optional` action whose target never appeared / that failed. */
+  skipped: z.boolean().optional(),
+  /** Extra attempts consumed before success (from `retry`). */
+  retries: z.number().optional(),
+  warnings: z.array(z.string()).optional(),
+});
+export type TimelineAction = z.infer<typeof TimelineActionSchema>;
+
 export const TimelineSceneSchema = z.object({
   id: z.string(),
   startMs: z.number(),
@@ -668,6 +737,7 @@ export const TimelineSceneSchema = z.object({
   focusEvents: z.array(FocusEventSchema).default([]),
   stillEvents: z.array(StillEventSchema).default([]),
   cursorSamples: z.array(CursorSampleSchema).default([]),
+  actions: z.array(TimelineActionSchema).default([]),
 });
 export type TimelineScene = z.infer<typeof TimelineSceneSchema>;
 

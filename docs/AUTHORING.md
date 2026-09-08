@@ -141,7 +141,11 @@ network.
   `AIDEMO_TTS_PROVIDER=elevenlabs`; a Kokoro voice id — af_heart, am_adam, … —
   if it runs with `AIDEMO_TTS_PROVIDER=local`; both non-default providers
   ignore `instructions`) and `instructions` to steer tone/emotion/pace. Keep it
-  consistent across scenes.
+  consistent across scenes. **`voice.pronounce`** (`{"aidemo":"A.I. demo",
+  "SQL":"sequel"}`, whole-word, case-sensitive, storyboard-level or per
+  scene) rewrites only what the TTS *hears* — the narration text, and so the
+  captions, keep the written form. Use it for product names, acronyms, and
+  version strings the voice mangles.
 
 ## Storyboard schema (quick reference)
 
@@ -150,7 +154,7 @@ The precise contract is the JSON Schema from `get_storyboard_schema`
 
 Top level: `title`, `language?`, `knownTerms?`, `targetLengthSeconds?`, `video{width,height}`
 (default 1280x720), `frames{ name: iframeSelector }`,
-`voice{voiceId,instructions,speed}` (default, scenes may override), `music?`,
+`voice{voiceId,instructions,speed,pronounce?}` (default, scenes may override), `music?`,
 `zoom?`, `intro?`, `outro?`, `transition?`, `hold?`, `output?`, `setup?`, `scenes[]`.
 
 `setup?` prepares the take before the first action — for cookie-gated or
@@ -322,8 +326,14 @@ baked at record time as before (the default).
 
 ## Action vocabulary
 
-A `target` is `{selector}` or `{frame,selector}` or `{named:"composer"}`:
-- `{op:"goto", url}`
+A `target` is `{selector}` or `{frame,selector}` or `{named:"composer"}`.
+Every action also accepts `comment?`, `optional?` (best-effort, see below) and
+`retry?` (0–5 extra attempts, interactions and `assert` only, a beat apart —
+for UI that re-renders under the cursor):
+- `{op:"goto", url}` — waits for `domcontentloaded`, then (capped at ~3.4 s)
+  for the network to go quiet and fonts to load; that extra wait is recorded
+  as trimmable idle (`"load"`), so a first click never lands on a skeleton
+  screen and the take doesn't get longer for it.
 - `{op:"type", target, text, humanize?}` — human-cadence typing
 - `{op:"press", key}` — e.g. "Enter"
 - `{op:"click", target}` · `{op:"hover", target}`
@@ -376,6 +386,17 @@ A `target` is `{selector}` or `{frame,selector}` or `{named:"composer"}`:
   `"2"` for a 1→2 re-render. `idle:true` records it as trimmable idle like
   `waitForWidget`.
 - `{op:"pause", ms}` — a deliberate on-screen beat (not trimmed)
+- `{op:"moveTo", target}` · `{op:"moveTo", x, y}` — glide the cursor to an
+  element's center or an absolute viewport point **without clicking**: park it
+  out of the way before a reveal, or point at what the narration names.
+- `{op:"assert", target?, textMatches?, url?, timeoutMs?=5000}` — **prove the
+  payoff happened**: polls until `target` is visible (and its text matches
+  `textMatches`, JS regex, no inline flags — use `[Cc]onfirmed`) and/or the
+  page URL matches `url`; otherwise **fails the take with a named error**
+  (`assert failed after 5000ms: text "…" does not match /…/`). Put one after
+  the moment the demo exists to show (order confirmed, item added) so a
+  spinner never ships as a video. `optional:true` turns a miss into a logged
+  skip.
 
 Target `last`/`nth` pick among matching **frames** on framed targets and among
 matching **elements** on plain (frameless) targets — e.g.
@@ -734,6 +755,12 @@ CLI. If nothing came up, skip this.
 
 ## Debugging
 
+- **`generated/timeline.json` → `scenes[].actions[]`** is the per-action
+  record of the take: `{index, op, target, startMs, endMs, ok, skipped?,
+  retries?, warnings?[]}`. Read it to see which action ate the time, which
+  optional action was skipped and why, and which action window saw failed
+  requests (`"2 failed request(s): 500 POST /api/cart …"`) — the record-side
+  twin of `output/report.json`.
 - Every run tees its output to `<demo>/logs/<command>.log`; a failed take also
   leaves `logs/fail-<scene>-<n>.{png,json}`. `job_status` surfaces all of these
   paths on failure.

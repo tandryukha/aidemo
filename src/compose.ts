@@ -1176,6 +1176,10 @@ async function muxAudio(
     "aac",
     "-b:a",
     "192k",
+    // moov atom up front so the MP4 streams/scrubs in a browser tab or a PR
+    // preview before it has fully downloaded (frames identical; container only).
+    "-movflags",
+    "+faststart",
     "-t",
     durSec,
     project.outputPath

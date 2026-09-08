@@ -116,6 +116,10 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
 - `zoompan`: use `on/FPS` as the time base (input must be CFR), single-quote
   every expression (they contain commas), and pre-upscale 2× below ~1600 px
   width or integer-pixel crops shimmer.
+- The final mux writes `-movflags +faststart` (moov first, web-playable), so
+  **compare renders by stream, not by file hash**: `ffmpeg -i out.mp4 -map 0:v
+  -c copy -f md5 -` (and `-map 0:a`) must match the pre-change render for an
+  unchanged storyboard; the container bytes legitimately differ.
 - Debugging compose: `AIDEMO_KEEP_TMP=1` preserves `.compose-tmp/`
   intermediates. Logs land in `<demo>/logs/<command>.log`; a failed take also
   leaves `logs/fail-*.png/json`.

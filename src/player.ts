@@ -16,6 +16,7 @@ import type {
   WaitState,
   ProbeActionOutcome,
   ProbeGoldenScene,
+  TimelineAction,
 } from "./types.js";
 import {
   easeInOutCubic,
@@ -97,7 +98,23 @@ interface SceneCapture {
   focusEvents: FocusEvent[];
   stillEvents: StillEvent[];
   cursorSamples: CursorSample[];
+  actions: TimelineAction[];
 }
+
+/** Ops `retry` applies to: interactions whose failure is usually transient. */
+const RETRYABLE_OPS = new Set([
+  "click",
+  "type",
+  "hover",
+  "scrollTo",
+  "focus",
+  "moveTo",
+  "assert",
+]);
+const RETRY_GAP_MS = 400;
+
+/** After `goto`'s domcontentloaded: how long we're willing to wait for quiet. */
+const GOTO_QUIET_CAP_MS = 3400;
 
 /** Records a cursor position into the current scene (compose-cursor mode only). */
 type CursorSampler = (x: number, y: number) => void;
@@ -235,6 +252,7 @@ export async function runStoryboard(
       focusEvents: [],
       stillEvents: [],
       cursorSamples: [],
+      actions: [],
     };
     // Cursor path sampler — only records when the storyboard opts into the
     // compose-time cursor overlay, so a plain take's timeline stays unchanged.
@@ -260,13 +278,38 @@ export async function runStoryboard(
       // XHR actually failed (issue #44).
       const netWindowMs = prevActionStartMs;
       prevActionStartMs = now();
+      const rec: TimelineAction = {
+        index: i,
+        op: action.op,
+        startMs: now(),
+        endMs: 0,
+        ok: false,
+      };
+      const recTarget = describeActionTarget(storyboard, action);
+      if (recTarget) rec.target = recTarget;
+      const recWarnings: string[] = [];
       try {
         if (await optionalTargetAbsent(page, storyboard, action)) {
           log(`  ⚠ optional ${action.op} skipped — target not present`);
+          rec.skipped = true;
+          recWarnings.push("optional: target not present");
         } else {
-          await runAction(page, storyboard, action, mouse, capture, opts, sample);
+          const retries = await runActionWithRetry(
+            page,
+            storyboard,
+            action,
+            mouse,
+            capture,
+            opts,
+            sample
+          );
+          if (retries > 0) {
+            rec.retries = retries;
+            recWarnings.push(`succeeded after ${retries} retr${retries === 1 ? "y" : "ies"}`);
+          }
         }
         if (outcome) outcome.ok = true;
+        rec.ok = true;
       } catch (err) {
         if (action.optional) {
           // Best-effort by authoring contract: log and continue. Counts as ok
@@ -274,12 +317,16 @@ export async function runStoryboard(
           // an optional action's outcome varies by environment state, which
           // is the point of marking it optional.
           if (outcome) outcome.ok = true;
+          rec.ok = true;
+          rec.skipped = true;
+          recWarnings.push(`optional: ${firstLine(err)}`);
           log(`  ⚠ optional ${action.op} skipped — ${firstLine(err)}`);
         } else if (outcome) {
           // Golden probe: record the failure and keep going, so a broken
           // selector shows up as a single flipped field in the diff instead of
           // aborting the whole projection.
           outcome.ok = false;
+          recWarnings.push(firstLine(err));
           log(
             `  ✗ probe: ${action.op} failed — ${firstLine(err)}`
           );
@@ -293,11 +340,28 @@ export async function runStoryboard(
           // widget frames present — so a phantom click or a platform
           // interruption is diagnosable from the log instead of by
           // hand-extracting webm frames.
+          rec.endMs = now();
+          recWarnings.push(firstLine(err));
+          rec.warnings = recWarnings;
+          capture.actions.push(rec);
           await failAction(page, storyboard, scene, i, action, opts, err, {
             failedRequests: net.since(netWindowMs),
           });
         }
       }
+      rec.endMs = now();
+      const failedInWindow = net.since(rec.startMs);
+      if (failedInWindow.length) {
+        recWarnings.push(
+          `${failedInWindow.length} failed request(s): ` +
+            failedInWindow
+              .slice(-3)
+              .map((e) => `${e.status ?? "ERR"} ${e.method} ${e.url}`)
+              .join("; ")
+        );
+      }
+      if (recWarnings.length) rec.warnings = recWarnings;
+      capture.actions.push(rec);
       if (outcome) {
         // Optional actions skip the found-enrichment: whether their target
         // resolves is environment-dependent, and the golden projection must
@@ -318,6 +382,7 @@ export async function runStoryboard(
       focusEvents: capture.focusEvents,
       stillEvents: capture.stillEvents,
       cursorSamples: capture.cursorSamples,
+      actions: capture.actions,
     };
     scenes.push(tlScene);
     opts.onSceneComplete?.(tlScene, si, total);
@@ -775,7 +840,14 @@ async function waitForNewReply(
  * probe first. Wait ops are excluded — waiting is their whole job, and they
  * carry their own timeoutMs.
  */
-const INTERACTION_OPS = new Set(["click", "type", "hover", "scrollTo", "focus"]);
+const INTERACTION_OPS = new Set([
+  "click",
+  "type",
+  "hover",
+  "scrollTo",
+  "focus",
+  "moveTo",
+]);
 const OPTIONAL_PROBE_MS = 3000;
 
 /**
@@ -802,6 +874,62 @@ async function optionalTargetAbsent(
   }
 }
 
+/**
+ * Run an action, re-attempting it `action.retry` times (retryable ops only)
+ * with a beat between attempts. Returns the number of extra attempts used.
+ * The last failure propagates so the normal fail/optional paths apply.
+ */
+async function runActionWithRetry(
+  page: Page,
+  storyboard: Storyboard,
+  action: Action,
+  mouse: MouseState,
+  capture: SceneCapture,
+  opts: PlayerOptions,
+  sample?: CursorSampler
+): Promise<number> {
+  const budget = action.retry && RETRYABLE_OPS.has(action.op) ? action.retry : 0;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await runAction(page, storyboard, action, mouse, capture, opts, sample);
+      return attempt;
+    } catch (err) {
+      if (attempt >= budget || opts.signal?.aborted) throw err;
+      log(
+        `  ↻ ${action.op} failed (${firstLine(err)}) — retry ${attempt + 1}/${budget}`
+      );
+      await sleep(RETRY_GAP_MS);
+    }
+  }
+}
+
+/**
+ * After a navigation's domcontentloaded: wait for the page to go quiet (no
+ * network for 500 ms, fonts loaded), capped. The wait beyond the classic
+ * 600 ms settle is recorded as an idle span so compose trims it — the take
+ * doesn't get slower, but the first click no longer lands on a half-fetched
+ * page (a skeleton screen, a still-loading nav) and gets misread as a miss.
+ */
+async function awaitGotoReadiness(
+  page: Page,
+  capture: SceneCapture,
+  t0: number
+): Promise<void> {
+  await sleep(600);
+  const start = Date.now();
+  await Promise.all([
+    page.waitForLoadState("networkidle", { timeout: GOTO_QUIET_CAP_MS }).catch(() => {}),
+    page
+      .evaluate(() => (document as unknown as { fonts?: { ready: Promise<unknown> } }).fonts?.ready)
+      .catch(() => {}),
+  ]);
+  const waited = Date.now() - start;
+  if (waited > 150) {
+    capture.idleSpans.push({ startMs: start - t0, endMs: Date.now() - t0, label: "load" });
+    log(`  page quiet after +${waited}ms (idle "load")`);
+  }
+}
+
 async function runAction(
   page: Page,
   storyboard: Storyboard,
@@ -818,8 +946,64 @@ async function runAction(
   switch (action.op) {
     case "goto":
       await page.goto(action.url, { waitUntil: "domcontentloaded" });
-      await sleep(600);
+      await awaitGotoReadiness(page, capture, t0);
       return;
+
+    case "moveTo": {
+      if (!action.target && (action.x == null || action.y == null)) {
+        throw new Error("moveTo needs a target or both x and y");
+      }
+      let x = action.x ?? mouse.x;
+      let y = action.y ?? mouse.y;
+      if (action.target) {
+        const loc = await resolveTargetLocator(page, storyboard, action.target);
+        const box = await boxOf(page, loc);
+        x = box.cx;
+        y = box.cy;
+      }
+      await moveMouseTo(page, mouse, x, y, sample);
+      await sleep(150);
+      return;
+    }
+
+    case "assert": {
+      if (!action.target && !action.url) {
+        throw new Error("assert needs a target and/or a url");
+      }
+      const timeoutMs = action.timeoutMs ?? 5000;
+      const deadline = Date.now() + timeoutMs;
+      const textRe = action.textMatches ? new RegExp(action.textMatches) : null;
+      const urlRe = action.url ? new RegExp(action.url) : null;
+      let why = "";
+      if (action.target) {
+        // Visible first (honest total-budget error if it never shows up).
+        await waitForTargetVisible(page, storyboard, action.target, timeoutMs);
+      }
+      for (;;) {
+        why = "";
+        if (urlRe && !urlRe.test(page.url())) {
+          why = `url ${JSON.stringify(page.url())} does not match /${action.url}/`;
+        } else if (textRe && action.target) {
+          const loc = await resolveTargetLocator(page, storyboard, action.target);
+          const text =
+            ((await loc.first().textContent({ timeout: 800 }).catch(() => null)) ?? "")
+              .replace(/\s+/g, " ")
+              .trim();
+          if (!textRe.test(text)) {
+            why =
+              `text ${JSON.stringify(text.slice(0, 80))} does not match ` +
+              `/${action.textMatches}/`;
+          }
+        }
+        if (!why) return;
+        if (Date.now() >= deadline) break;
+        await sleep(200);
+      }
+      throw new Error(
+        `assert failed after ${timeoutMs}ms: ${why}` +
+          (action.comment ? ` — ${action.comment}` : "")
+      );
+    }
 
     case "click": {
       const loc = await resolveTargetLocator(page, storyboard, action.target);
@@ -1111,8 +1295,24 @@ function initProbeOutcome(
     case "focus":
       o.target = describeProbeTarget(storyboard, action.target);
       break;
+    case "moveTo":
+      o.target = action.target
+        ? describeProbeTarget(storyboard, action.target)
+        : `${action.x},${action.y}`;
+      break;
+    case "assert":
+      o.target = action.target
+        ? describeProbeTarget(storyboard, action.target)
+        : `url:${action.url}`;
+      break;
   }
   return o;
+}
+
+/** The timeline.json `actions[].target` string for any action (or undefined). */
+function describeActionTarget(storyboard: Storyboard, action: Action): string | undefined {
+  const t = initProbeOutcome(storyboard, action).target;
+  return t;
 }
 
 /** Add the post-run stable signals: goto's final URL, target element-found. */
