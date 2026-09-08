@@ -7,6 +7,7 @@ import {
   type Storyboard,
 } from "./types.js";
 import { writeJson, exists } from "./util.js";
+import { join } from "node:path";
 
 /**
  * Golden probe/timeline diffing — a demo doubles as a regression test (vhs's
@@ -106,4 +107,30 @@ function valuesEqual(a: unknown, b: unknown): boolean {
 
 function fmt(v: unknown): string {
   return v === undefined ? "(absent)" : JSON.stringify(v);
+}
+
+/**
+ * For a golden diff, the drift-suggestion files the probe just wrote for the
+ * actions whose `ok`/`found` flipped (`logs/drift-<scene>-<n>.json`, see
+ * player diagnostics) — so the fix is one edit away. Only existing files.
+ */
+export async function driftFilesForDiff(
+  project: Project,
+  golden: ProbeGolden,
+  diffs: string[]
+): Promise<Array<{ scene: string; action: number; file: string }>> {
+  const out: Array<{ scene: string; action: number; file: string }> = [];
+  const seen = new Set<string>();
+  for (const d of diffs) {
+    const m = /^\$\.scenes\[(\d+)\]\.actions\[(\d+)\]\.(ok|found):/.exec(d);
+    if (!m) continue;
+    const scene = golden.scenes[Number(m[1])];
+    if (!scene) continue;
+    const action = Number(m[2]);
+    const file = join(project.dir, "logs", `drift-${scene.id}-${action + 1}.json`);
+    if (seen.has(file) || !(await exists(file))) continue;
+    seen.add(file);
+    out.push({ scene: scene.id, action: action + 1, file });
+  }
+  return out;
 }

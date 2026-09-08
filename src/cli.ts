@@ -20,6 +20,7 @@ import { readJson, writeJson } from "./util.js";
 import {
   buildProbeGolden,
   diffGolden,
+  driftFilesForDiff,
   readProbeGolden,
   writeProbeGolden,
 } from "./golden.js";
@@ -777,6 +778,10 @@ program
         if (diffs.length > 0) {
           fail(`golden probe mismatch — ${diffs.length} field difference(s):`);
           for (const d of diffs) log(d);
+          const drift = await driftFilesForDiff(project, actual, diffs);
+          for (const f of drift) {
+            log(`  selector drift → ${f.file} (scene ${f.scene}, action #${f.action}: nearest candidates)`);
+          }
           throw new Error(
             `probe --golden failed: the recorded flow drifted from ` +
               `${project.goldenProbePath} (${diffs.length} difference(s)). ` +

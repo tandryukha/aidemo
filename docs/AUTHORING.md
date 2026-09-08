@@ -1076,8 +1076,13 @@ prints a readable field-level diff (`$.scenes[2].actions[0].found: expected
 true, got false`) and exits non-zero. A missing baseline is a clear error
 telling you to run `--update-golden` first. In golden mode a failing action is
 recorded (`ok:false`) and the run continues, so you get the full diff instead of
-an abort at the first break. (The MCP `probe` tool takes the same `updateGolden`
-/ `golden` params and returns `golden.match` + `golden.diffs` in its result.)
+an abort at the first break — and each broken selector gets the same
+diagnostics as a hard failure: `logs/fail-<scene>-<n>.png` plus
+`logs/drift-<scene>-<n>.json` with the nearest interactive elements and their
+unique selectors, listed under the diff as `selector drift → …`. Read the drift
+file, swap the selector, re-probe. (The MCP `probe` tool takes the same
+`updateGolden` / `golden` params and returns `golden.match`, `golden.diffs` and
+`golden.drift[]` — `{scene, action, file}` — in its result.)
 
 Wire it into CI so a breaking UI change is a failed check:
 

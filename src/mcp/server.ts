@@ -12,6 +12,7 @@ import { record, type RecordOptions } from "../recorder.js";
 import {
   buildProbeGolden,
   diffGolden,
+  driftFilesForDiff,
   readProbeGolden,
   writeProbeGolden,
 } from "../golden.js";
@@ -909,13 +910,18 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
               },
             };
           }
-          const diffs = diffGolden(expected, buildProbeGolden(storyboard, probeScenes));
+          const actual = buildProbeGolden(storyboard, probeScenes);
+          const diffs = diffGolden(expected, actual);
+          const drift = diffs.length ? await driftFilesForDiff(project, actual, diffs) : [];
           return {
             ...base,
             golden: {
               path: project.goldenProbePath,
               match: diffs.length === 0,
               diffs,
+              // Nearest-selector suggestions for the actions that flipped
+              // (logs/drift-<scene>-<n>.json — read them, fix, re-probe).
+              ...(drift.length ? { drift } : {}),
             },
           };
         }

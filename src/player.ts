@@ -418,6 +418,20 @@ export async function runStoryboard(
             log(`    ${failed.length} failed request(s) since the previous action:`);
             for (const l of describeFailedRequests(failed)) log(l);
           }
+          // Same screenshot + drift suggestions as a hard failure, so a golden
+          // mismatch points at the nearest replacement selector.
+          if (opts.logsDir) {
+            const diag = await dumpDiagnostics(
+              page,
+              storyboard,
+              scene.id,
+              i,
+              action,
+              opts.logsDir,
+              failed
+            ).catch(() => "");
+            for (const l of diag.split("\n")) if (l) log(l);
+          }
         } else {
           // Name the failing scene/action, screenshot the page, and dump the
           // widget frames present — so a phantom click or a platform
