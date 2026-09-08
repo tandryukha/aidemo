@@ -92,14 +92,17 @@ The tap lives in its own repo, **`tandryukha/homebrew-aidemo`**, and its formula
 (`Formula/aidemo.rb`) points at the **npm** tarball — so a tap bump is only
 possible once npm publishing is on (`NPM_PUBLISH=true`).
 
-`release.yml` bumps the formula's `url` + `sha256` automatically after the npm
-publish, but only when the repo secret **`HOMEBREW_TAP_TOKEN`** exists — a
-fine-grained PAT scoped to `tandryukha/homebrew-aidemo` with
-`Contents: read and write`. Without it the step logs a warning and the tap
-stays behind (this is how the tap sat on 0.8.0 through v0.14.0 — issue #45).
+The tap **bumps itself**: `.github/workflows/bump.yml` in that repo runs daily
+(06:17 UTC), reads the latest version off the npm registry and rewrites `url` +
+`sha256` using its own `GITHUB_TOKEN` — no cross-repo PAT, nothing to configure
+here. Nothing automated this before, which is how the tap sat on 0.8.0 through
+v0.14.0 (issue #45).
 
-**One-time:** create the PAT → repo → Settings → Secrets and variables →
-Actions → Secrets → `HOMEBREW_TAP_TOKEN`.
+To pull it forward immediately after a release instead of waiting for the cron:
+
+```bash
+gh workflow run bump.yml -R tandryukha/homebrew-aidemo
+```
 
 **Verify after a release:** `npm view @tandryukha/aidemo version` and
 `grep sha256 -B1 Formula/aidemo.rb` in the tap should both read the new version.
