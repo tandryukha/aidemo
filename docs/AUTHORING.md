@@ -27,7 +27,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | Storyboard JSON Schema | `get_storyboard_schema` | — (see below) |
 | Validate a storyboard | `validate_storyboard` | `aidemo validate <dir>` (or `--file <path>`; `--json`) |
 | Lint / pacing forecast (no browser) | `lint_storyboard` | `aidemo lint <dir>` (`--file`, `--lang`, `--json`, `--strict`) |
-| Scaffold a demo | `init_demo` | `aidemo init <name>` |
+| Scaffold a demo | `init_demo` (`fromUrl` drafts from a live page) | `aidemo init <name> [--from-url <url>]` |
 | Environment check | `doctor` | `aidemo doctor` |
 | Discover selectors on a page | `inspect` (job) | `aidemo inspect <url> [--dir <dir>] [--frame name=sel]` |
 | Dry-run the flow | `probe` (job) | `aidemo probe <dir>` |
@@ -103,7 +103,13 @@ network.
    one thing to prove, audience, tone, length, CTA. Otherwise infer sensible
    defaults.
 2. **Scaffold**: `init_demo` / `aidemo init <name>` → creates `demos/<name>/`
-   with a starter `generated/storyboard.json`.
+   with a starter `generated/storyboard.json`. When you already know the URL,
+   pass `fromUrl` (`--from-url`): the engine inspects the page first and the
+   draft uses its **real** headings as scenes and its **real** unique selectors
+   as beats (search box → `type`, first CTA → a `hover` you turn into the
+   click), with everything else it saw in `_candidates` and `input/brief.md`.
+   No LLM runs — you still write the narration and choose the flow; you just
+   never start from `#search` placeholders.
 3. **Confirm selectors for a new/changed flow.** Don't guess. The cheapest way
    is a **probe** — a record-only dry run (narration optional) that drives the
    real flow in ~90 s without spending TTS or a full take, so you can verify
@@ -479,6 +485,12 @@ shadowed window on a styled canvas, with captions in the padding band below.
 - `radius` (default 14), `shadow` (default true).
 - `chrome`: `"browser"` (neutral dots + address pill) or `"mac"` (traffic
   lights). `url` (wins) or `title` fills the pill; omit both for an empty bar.
+  For a phone-sized take (`video: {width: 390, height: 844}` — record at the
+  mobile viewport) use `"iphone"` (rounded bezel + dynamic island) or
+  `"android"` (bezel + punch-hole): no bar, `radius` defaults to 40, and the
+  camera cut-out sits over the top of the video, so keep the app's own status
+  bar area clear or accept it being covered. Pair with `output.preset:
+  "short"` for a 9:16 export — the padding grows to fill the aspect.
 - Zoom, cursor, attention overlays and redaction all happen **before** the
   frame, so they ride inside the window; captions, keystroke chips, cards and
   the watermark render at the canvas size.

@@ -9,6 +9,8 @@ description: >
   on the page. Do NOT use for: the GitHub README (separate, hand-curated), the
   docs/internal/ planning docs, or recording demo videos (that's record-demo).
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
+metadata:
+  internal: true
 ---
 
 # landing-page

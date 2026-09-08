@@ -472,11 +472,21 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       title: "Scaffold a new demo",
       description:
         "Create demos/<name>/ with a starter brief + storyboard. dir is the " +
-        "repo to scaffold into (absolute path recommended; default: server cwd).",
+        "repo to scaffold into (absolute path recommended; default: server cwd). " +
+        "With fromUrl the page is inspected first (no LLM): its headings become " +
+        "scenes and its unique selectors become the beats + a `_candidates` list — " +
+        "you then write the narration and turn the candidate hover into the real click.",
       inputSchema: {
         name: z.string().describe("demo name (creates demos/<name>/)"),
         dir: z.string().optional(),
         force: z.boolean().optional(),
+        fromUrl: z.string().optional().describe("draft the storyboard from this live page"),
+        headless: z.boolean().optional().describe("fromUrl: run Chrome headless (default true)"),
+        profile: z.string().optional().describe("fromUrl: Chrome user-data dir (logged-in pages)"),
+        viewport: z
+          .object({ width: z.number(), height: z.number() })
+          .optional()
+          .describe("fromUrl: viewport (default 1280x720)"),
       },
       outputSchema: {
         demoDir: z.string(),
@@ -488,7 +498,13 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       const demoDir = await scaffoldDemo(
         args.dir ? resolve(args.dir) : process.cwd(),
         args.name,
-        { force: args.force }
+        {
+          force: args.force,
+          fromUrl: args.fromUrl,
+          headed: args.headless === false,
+          profileDir: args.profile,
+          viewport: args.viewport,
+        }
       );
       const project = new Project(demoDir);
       return jsonResult({

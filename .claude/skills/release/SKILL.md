@@ -11,6 +11,8 @@ description: >
   engine is npx-from-git only), or installing/updating the skill in consumer
   repos (that's `aidemo skill update`).
 allowed-tools: Bash, Read, Grep
+metadata:
+  internal: true
 ---
 
 # release — bump + push, CI does the tagging

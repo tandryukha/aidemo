@@ -475,8 +475,13 @@ export const FrameSchema = z.object({
   radius: z.number().min(0).max(80).optional(),
   /** Drop shadow under the window. Default true. */
   shadow: z.boolean().optional(),
-  /** Window chrome above the video: "none" (default), "browser", "mac" (traffic lights). */
-  chrome: z.enum(["none", "browser", "mac"]).optional(),
+  /**
+   * Window chrome: "none" (default), "browser" / "mac" (a bar with dots or
+   * traffic lights above the video), or a device bezel for phone-sized
+   * viewports — "iphone" (rounded bezel + dynamic island) / "android" (bezel +
+   * punch-hole camera). Device chrome adds no bar; `radius` defaults to 40.
+   */
+  chrome: z.enum(["none", "browser", "mac", "iphone", "android"]).optional(),
   /** Text in the chrome's address pill (url wins over title). */
   title: z.string().optional(),
   url: z.string().optional(),

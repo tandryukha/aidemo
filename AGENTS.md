@@ -21,6 +21,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
 | Resume a take | `node bin/aidemo.mjs record <dir> --from-scene <id>` (also `render`, MCP `fromScene`) — reuses the previous take's earlier scenes (hash-guarded), replays their actions fast, records from `<id>` |
+| Draft from a URL | `node bin/aidemo.mjs init <name> --from-url <url>` — inspect first, headings → scenes, unique selectors → beats (MCP `init_demo {fromUrl}`) |
 | Selector discovery | `node bin/aidemo.mjs inspect <url> --dir <demo>` — unique selectors per visible element (MCP `inspect` job); the same scan writes `logs/drift-*.json` suggestions when a take's selector matches nothing |
 | Validate a storyboard (no browser) | `node bin/aidemo.mjs validate <dir>` (`--file <path>`, `--json`; non-zero exit on issues) |
 | Lint / pacing forecast (no browser) | `node bin/aidemo.mjs lint <dir>` (`--lang`, `--json`, `--strict`) — also auto-runs in probe/record/render; measured counterpart is `output/report.json` from compose |

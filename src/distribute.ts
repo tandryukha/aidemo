@@ -20,7 +20,8 @@ import { platform, release } from "node:os";
 import { ENGINE_ROOT, engineVersion, openAiBaseUrl, ttsProvider } from "./config.js";
 import { localTtsStatus } from "./voice-local.js";
 import { Project } from "./project.js";
-import { STARTER_BRIEF, STARTER_STORYBOARD } from "./starter.js";
+import { STARTER_BRIEF, STARTER_STORYBOARD, briefFromInspect, storyboardFromInspect } from "./starter.js";
+import { inspectPage } from "./inspect.js";
 import { ensureDir, exists, ok, step, fail, log } from "./util.js";
 
 const execFileAsync = promisify(execFile);
@@ -239,7 +240,14 @@ async function registerMcpServer(
 export async function scaffoldDemo(
   baseDir: string,
   name: string,
-  opts: { force?: boolean } = {}
+  opts: {
+    force?: boolean;
+    /** Draft from a live page: inspect it and turn headings/selectors into scenes. */
+    fromUrl?: string;
+    headed?: boolean;
+    profileDir?: string;
+    viewport?: { width: number; height: number };
+  } = {}
 ): Promise<string> {
   const dir = resolve(baseDir, "demos", name);
   if ((await exists(dir)) && !opts.force) {
@@ -248,6 +256,23 @@ export async function scaffoldDemo(
   }
   const project = new Project(dir);
   await project.ensureDirs();
+  if (opts.fromUrl) {
+    step(`Inspecting ${opts.fromUrl} for a first draft`);
+    const res = await inspectPage({
+      url: opts.fromUrl,
+      headless: !opts.headed,
+      profileDir: opts.profileDir,
+      viewport: opts.viewport,
+      screenshotPath: project.p("logs", "inspect-init.png"),
+    });
+    await fs.writeFile(project.p("logs", "inspect-init.json"), JSON.stringify(res, null, 2));
+    await fs.writeFile(project.p("input", "brief.md"), briefFromInspect(name, res));
+    await fs.writeFile(project.storyboardPath, storyboardFromInspect(name, res));
+    ok(
+      `scaffolded demos/${name}/ from ${res.finalUrl || res.url} — ${res.headings.length} heading(s), ${res.elements.length} element(s) seen`
+    );
+    return dir;
+  }
   await fs.writeFile(project.p("input", "brief.md"), STARTER_BRIEF(name));
   await fs.writeFile(project.storyboardPath, STARTER_STORYBOARD(name));
   ok(`scaffolded demos/${name}/`);

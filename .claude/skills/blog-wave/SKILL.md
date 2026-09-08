@@ -3,6 +3,8 @@ name: blog-wave
 description: RETIRED 2026-07-20 — this local pre-engine wave-orchestration skill has been superseded by the centralized blog-engine. If you land here for "new blog wave", "next blog wave", "write blog articles", "add blog topics", "expand the blog", "more articles", or growing aidemo.top/blog to N articles, use the `aidemo-blog` skill instead (it drives the engine). This stub only exists to redirect; it carries no orchestration logic.
 allowed-tools: Read
 model: sonnet
+metadata:
+  internal: true
 ---
 
 # blog-wave — RETIRED (use `aidemo-blog` + the engine)

@@ -3,6 +3,8 @@ name: aidemo-blog
 description: Run a blog-generation wave for aidemo using the centralized blog engine. Use when the user says "run a blog wave", "generate blog articles", "write the next N articles", "blog batch", or "continue the blog generation" for aidemo. This is a THIN adapter — the engine's `blog-wave` skill + its served guides carry the actual doctrine (research-first citations, SDXL hero taxonomy, wave runbook, model tiering). It points at aidemo's local config, style overrides, topic map, and repo-specific gotchas, and mandates filing engine feedback at the end of every wave. Do NOT use for: editing one existing article (edit the JSON + re-bake), deploying the blog (aidemo's deploy target), or changing the engine itself (file feedback instead).
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent, WebSearch, WebFetch
 model: opus
+metadata:
+  internal: true
 ---
 
 # aidemo-blog — blog waves for aidemo (thin adapter)

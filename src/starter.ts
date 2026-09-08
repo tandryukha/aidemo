@@ -139,3 +139,197 @@ export const STARTER_STORYBOARD = (name: string): string =>
     null,
     2
   ) + "\n";
+
+// ---------------------------------------------------------------------------
+// `init --from-url`: a draft built from what `inspect` saw on the page — real
+// headings become scenes, real unique selectors become the beats. No LLM: the
+// agent still writes the narration and decides the flow; this only removes
+// the selector archaeology from the first draft.
+// ---------------------------------------------------------------------------
+
+import type { InspectElement, InspectResult } from "./inspect.js";
+
+function slug(text: string, max = 24): string {
+  const s = text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, max)
+    .replace(/-+$/g, "");
+  return s || "scene";
+}
+
+function jsonText(text: string): string {
+  return text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/** Headings worth a scene: h1/h2 (h3 when there are too few), deduped, ≤ 4. */
+function sceneHeadings(res: InspectResult): Array<{ level: number; text: string }> {
+  const clean = res.headings
+    .map((h) => ({ level: h.level, text: h.text.replace(/\s+/g, " ").trim() }))
+    .filter((h) => h.text.length >= 3 && h.text.length <= 80);
+  const seen = new Set<string>();
+  const pick = (maxLevel: number) =>
+    clean.filter((h) => {
+      if (h.level > maxLevel || seen.has(h.text.toLowerCase())) return false;
+      seen.add(h.text.toLowerCase());
+      return true;
+    });
+  let out = pick(2);
+  if (out.length < 2) out = [...out, ...pick(3)];
+  return out.slice(0, 4);
+}
+
+/** The most promising interactive elements: named, unique, in the viewport first. */
+function candidateElements(res: InspectResult, max = 8): InspectElement[] {
+  const score = (e: InspectElement): number =>
+    (e.selectors.length ? 2 : 0) +
+    (e.inViewport ? 2 : 0) +
+    (e.role === "button" || e.role === "textbox" || e.role === "searchbox" ? 1 : 0) +
+    (e.name ? 1 : 0) +
+    (e.testid ? 1 : 0);
+  return [...res.elements]
+    .filter((e) => e.selectors.length && e.name)
+    .sort((a, b) => score(b) - score(a))
+    .slice(0, max);
+}
+
+export function storyboardFromInspect(name: string, res: InspectResult): string {
+  const headings = sceneHeadings(res);
+  const cands = candidateElements(res);
+  const search = cands.find((e) => e.role === "textbox" || e.role === "searchbox");
+  const cta = cands.find((e) => e.role === "button" || e.role === "link");
+  const title = res.title?.trim() || name;
+  const scenes: unknown[] = [];
+
+  scenes.push({
+    id: "s1-open",
+    narration: `<hook: what ${title} does, in one sentence>`,
+    actions: [
+      { op: "goto", url: res.finalUrl || res.url },
+      { op: "pause", ms: 1200 },
+      ...(search
+        ? [
+            {
+              op: "type",
+              target: { selector: search.selector },
+              humanize: false,
+              text: "<a realistic query>",
+              comment: `textbox "${search.name}" — delete this beat if the story doesn't start with a search`,
+            },
+            { op: "press", key: "Enter" },
+            { op: "pause", ms: 1400 },
+          ]
+        : []),
+    ],
+  });
+
+  headings.slice(search ? 0 : 1).forEach((h, i) => {
+    scenes.push({
+      id: `s${scenes.length + 1}-${slug(h.text)}`,
+      narration: `<narrate the "${h.text}" section>`,
+      actions: [
+        {
+          op: "scrollTo",
+          target: { selector: `h${h.level}:has-text("${jsonText(h.text)}")` },
+          easing: "smooth",
+        },
+        { op: "pause", ms: 1400 },
+      ],
+      ...(i === 0 ? {} : {}),
+    });
+  });
+
+  if (cta) {
+    scenes.push({
+      id: `s${scenes.length + 1}-${slug(cta.name)}`,
+      narration: `<the payoff: what happens after "${cta.name}">`,
+      actions: [
+        {
+          op: "hover",
+          target: { selector: cta.selector },
+          comment: `${cta.role} "${cta.name}" — change to click once the flow after it is known, then assert the result`,
+        },
+        { op: "pause", ms: 1400 },
+      ],
+    });
+  }
+
+  const frames: Record<string, string> = {};
+  for (const f of res.iframes.slice(0, 3)) frames[f.name || `frame${Object.keys(frames).length + 1}`] = f.selector;
+
+  const doc = {
+    _README:
+      `Draft from \`inspect ${res.url}\` — headings became scenes, unique selectors became beats. ` +
+      "Write the narration (one idea per scene, ~2.5 words/s), turn the candidate hover into the real click + an assert, " +
+      "drop scenes that don't serve the story, then `aidemo probe`. `_candidates` lists more selectors seen on the page.",
+    title,
+    targetLengthSeconds: 45,
+    video: { width: res.viewport.width, height: res.viewport.height },
+    ...(Object.keys(frames).length ? { frames } : {}),
+    voice: {
+      voiceId: "marin",
+      instructions: "Confident, friendly founder. Clear and warm, brisk but not rushed.",
+      speed: 1.05,
+    },
+    zoom: { scale: 1.55, easeMs: 600, holdMs: 1700 },
+    intro: { title, subtitle: "<one-line value prop>", durationMs: 2600 },
+    outro: { title: "<call to action>", subtitle: "<your-domain.example>", durationMs: 2600 },
+    scenes,
+    _candidates: cands.map((e) => ({
+      role: e.role,
+      name: e.name,
+      selector: e.selector,
+      ...(e.frame ? { frame: e.frame } : {}),
+      ...(e.inViewport ? {} : { belowFold: true }),
+    })),
+  };
+  return JSON.stringify(doc, null, 2) + "\n";
+}
+
+export function briefFromInspect(name: string, res: InspectResult): string {
+  const headings = res.headings.map((h) => `${"  ".repeat(Math.max(0, h.level - 1))}- h${h.level} ${h.text}`);
+  const cands = candidateElements(res, 12).map(
+    (e) => `| ${e.role} | ${e.name.replace(/\|/g, "/")} | \`${e.selector}\` | ${e.inViewport ? "" : "below fold"} |`
+  );
+  return `# Demo Brief — ${name}
+
+Drafted from \`aidemo inspect ${res.url}\` (page title: ${res.title || "—"}).
+Fill in the product, audience, tone and CTA; the storyboard next to this file
+already has the page's real selectors.
+
+## Product
+<your product>
+
+## Demo goal
+<the core flow, end to end>
+
+## Audience
+<who is this for>
+
+## Tone
+Friendly, practical, founder-style. Brisk.
+
+## Length
+~45-60 seconds.
+
+## CTA
+<what should the viewer do next>
+
+---
+
+## What inspect saw
+
+Headings:
+${headings.join("\n") || "- (none)"}
+
+Interactive elements (unique selectors):
+
+| role | name | selector | |
+|---|---|---|---|
+${cands.join("\n") || "| — | — | — | |"}
+${res.iframes.length ? `\niframes: ${res.iframes.map((f) => `${f.name || "?"} → \`${f.selector}\``).join(", ")}\n` : ""}
+Next: write the narration, replace the candidate hover with the real click +
+\`assert\`, then \`aidemo probe\` (or the MCP \`probe\` job).
+`;
+}

@@ -22,8 +22,14 @@ export interface FrameLayout {
 }
 
 const CHROME_H = 40;
+/** Device bezel thickness (logical px) for phone chrome. */
+const BEZEL = 14;
 const DEFAULT_BG =
   "linear-gradient(135deg, #1b2440 0%, #0e1322 55%, #0a0d18 100%)";
+
+export function isDeviceChrome(chrome: Frame["chrome"]): boolean {
+  return chrome === "iphone" || chrome === "android";
+}
 
 function esc(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -37,8 +43,10 @@ export function frameLayout(
   pxScale: number,
   aspect?: number
 ): FrameLayout {
-  const pad = frame.padding ?? 48;
-  const chromeH = frame.chrome && frame.chrome !== "none" ? CHROME_H : 0;
+  const device = isDeviceChrome(frame.chrome);
+  // A bezel needs room; the default padding already has it.
+  const pad = Math.max(frame.padding ?? 48, device ? BEZEL + 8 : 0);
+  const chromeH = frame.chrome && frame.chrome !== "none" && !device ? CHROME_H : 0;
   const even = (n: number) => Math.round(n) & ~1;
   // Logical canvas; when the output has a target aspect (preset or explicit
   // size) grow the padding on one axis so the canvas already matches it and
@@ -74,9 +82,10 @@ export async function renderFramePng(
   aspect?: number
 ): Promise<FrameLayout> {
   const layout = frameLayout(frame, videoW, videoH, pxScale, aspect);
-  const radius = frame.radius ?? 14;
   const chrome = frame.chrome ?? "none";
-  const chromeH = chrome !== "none" ? CHROME_H : 0;
+  const device = isDeviceChrome(chrome);
+  const radius = frame.radius ?? (device ? 40 : 14);
+  const chromeH = chrome !== "none" && !device ? CHROME_H : 0;
   const accent = brand?.accent ?? "#6c8cff";
   const background =
     frame.background ??
@@ -108,6 +117,22 @@ export async function renderFramePng(
   const shadow =
     frame.shadow === false ? "none" : "0 24px 60px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.35)";
   let chromeHtml = "";
+  let deviceHtml = "";
+  let deviceCss = "";
+  if (device) {
+    // Bezel behind the hole (masked with the canvas) + an unmasked camera
+    // cut-out drawn over the video: a dynamic island or a punch-hole.
+    const bx = winX - BEZEL;
+    const by = winY - BEZEL;
+    deviceCss =
+      `.bezel{position:absolute;left:${bx}px;top:${by}px;width:${winW + 2 * BEZEL}px;height:${winH + 2 * BEZEL}px;` +
+      `border-radius:${radius + BEZEL}px;background:#0b0b0d;border:2px solid #2b2d33;box-shadow:${shadow};}` +
+      `.cam{position:absolute;background:#000;}` +
+      (chrome === "iphone"
+        ? `.island{left:${winX + winW / 2 - 55}px;top:${winY + 12}px;width:110px;height:32px;border-radius:16px;}`
+        : `.hole{left:${winX + winW / 2 - 7}px;top:${winY + 14}px;width:14px;height:14px;border-radius:50%;}`);
+    deviceHtml = `<div class="cam ${chrome === "iphone" ? "island" : "hole"}"></div>`;
+  }
   if (chromeH) {
     const lights =
       chrome === "mac"
@@ -125,7 +150,8 @@ export async function renderFramePng(
     .canvas{position:absolute;inset:0;background:${background};
       -webkit-mask-image:${maskUrl};mask-image:${maskUrl};}
     .win{position:absolute;left:${winX}px;top:${winY}px;width:${winW}px;height:${winH}px;
-      border-radius:${radius}px;box-shadow:${shadow};background:#0b0e18;}
+      border-radius:${radius}px;box-shadow:${device ? "none" : shadow};background:#0b0e18;}
+    ${deviceCss}
     .bar{position:absolute;left:${winX}px;top:${winY}px;width:${winW}px;height:${chromeH}px;
       border-radius:${radius}px ${radius}px 0 0;background:#1a1f2e;
       display:flex;align-items:center;padding:0 14px;gap:14px;
@@ -136,7 +162,7 @@ export async function renderFramePng(
       background:rgba(255,255,255,.07);color:rgba(230,234,245,.75);font-size:13px;
       text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 12px;}
   </style></head><body>
-    <div class="canvas"><div class="win"></div>${chromeHtml}</div>
+    <div class="canvas">${device ? '<div class="bezel"></div>' : ""}<div class="win"></div>${chromeHtml}</div>${deviceHtml}
   </body></html>`;
 
   const browser = await chromium.launch({ channel: "chrome", headless: true });

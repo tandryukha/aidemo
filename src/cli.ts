@@ -86,13 +86,37 @@ program
   .command("init")
   .argument("<name>", "demo name (creates ./demos/<name>/)")
   .option("--force", "overwrite an existing demos/<name>/", false)
+  .option(
+    "--from-url <url>",
+    "draft from a live page: inspect it, headings → scenes, unique selectors → beats (no LLM)"
+  )
+  .option("--headed", "show the browser while inspecting (--from-url)", false)
+  .option("--profile <dir>", "Chrome user-data dir for --from-url (logged-in pages)")
+  .option("--viewport <WxH>", "viewport for --from-url (default 1280x720)")
   .description("scaffold a new demo project (in the current repo) with a starter storyboard")
-  .action(async (name: string, opts: { force?: boolean }) => {
-    // Scaffold into the *current* working directory, so `init` works both in the
-    // engine's own repo and in a consumer repo that invoked it via npx.
-    const dir = await scaffoldDemo(process.cwd(), name, { force: opts.force });
-    ok(`edit generated/storyboard.json, then: aidemo render ${dir}`);
-  });
+  .action(
+    async (
+      name: string,
+      opts: { force?: boolean; fromUrl?: string; headed?: boolean; profile?: string; viewport?: string }
+    ) => {
+      // Scaffold into the *current* working directory, so `init` works both in the
+      // engine's own repo and in a consumer repo that invoked it via npx.
+      const vp = opts.viewport ? /^(\d+)x(\d+)$/.exec(opts.viewport) : null;
+      if (opts.viewport && !vp) throw new Error(`--viewport expects WxH, got ${opts.viewport}`);
+      const dir = await scaffoldDemo(process.cwd(), name, {
+        force: opts.force,
+        fromUrl: opts.fromUrl,
+        headed: opts.headed,
+        profileDir: opts.profile,
+        ...(vp ? { viewport: { width: Number(vp[1]), height: Number(vp[2]) } } : {}),
+      });
+      ok(
+        opts.fromUrl
+          ? `write the narration in generated/storyboard.json (input/brief.md lists what inspect saw), then: aidemo probe ${dir}`
+          : `edit generated/storyboard.json, then: aidemo render ${dir}`
+      );
+    }
+  );
 
 program
   .command("repo-init")

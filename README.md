@@ -23,7 +23,7 @@ demo.
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tandryukha/aidemo/badge)](https://scorecard.dev/viewer/?uri=github.com/tandryukha/aidemo)
 [![Glama](https://glama.ai/mcp/servers/tandryukha/aidemo/badges/score.svg)](https://glama.ai/mcp/servers/tandryukha/aidemo)
 
-**Install:** Claude Code `/plugin marketplace add tandryukha/aidemo` · CI `uses: tandryukha/aidemo@stable` · CLI `npx -y @tandryukha/aidemo` · Homebrew `brew install tandryukha/aidemo/aidemo`
+**Install:** Claude Code `/plugin marketplace add tandryukha/aidemo` · any agent `npx skills add tandryukha/aidemo` (skill only; add the MCP server with `repo-init`) · CI `uses: tandryukha/aidemo@stable` · CLI `npx -y @tandryukha/aidemo` · Homebrew `brew install tandryukha/aidemo/aidemo`
 <br>Published on the [GitHub Marketplace](https://github.com/marketplace/actions/aidemo-demo-video), [npm](https://www.npmjs.com/package/@tandryukha/aidemo), a [Homebrew tap](https://github.com/tandryukha/homebrew-aidemo), and the [MCP Registry](https://registry.modelcontextprotocol.io).
 
 [![aidemo demoing itself on Wikipedia — recorded with aidemo](docs/demo.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/wikipedia-showcase-demo.mp4)
@@ -175,6 +175,7 @@ re-recording, recompose without re-transcribing, etc.
 
 ```bash
 aidemo init <name>            # scaffold demos/<name>/ with a starter storyboard
+aidemo init <name> --from-url <url>   # …drafted from the live page's headings + real selectors
 aidemo voice   <dir>          # per-scene TTS → narration.mp3 + voice.json
 aidemo record  <dir>          # drive Chrome → raw video + timeline.json
 aidemo probe   <dir>          # record-only dry run (verify selectors), no key needed

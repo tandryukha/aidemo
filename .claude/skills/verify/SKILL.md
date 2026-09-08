@@ -12,6 +12,8 @@ description: >
   from failed takes. Do NOT use for: recording real product demos (use
   record-demo) or doc-only changes with no runtime surface.
 allowed-tools: Bash, Read, Glob, Grep
+metadata:
+  internal: true
 ---
 
 # verify — e2e smoke test for engine changes
