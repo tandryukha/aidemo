@@ -19,9 +19,10 @@ export const GUIDE_TOPICS = {
     "Action vocabulary",
     "Verify before declaring done",
   ],
-  schema: ["Storyboard schema", "Action vocabulary"],
+  schema: ["Storyboard schema", "Action vocabulary", "Narration-anchored beats"],
   polish: [
     "Demo-director principles",
+    "Narration-anchored beats",
     "Transitions, output sizing",
     "Attention",
     "Motion blur & cursor",

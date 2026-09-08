@@ -153,8 +153,63 @@ export async function generateCaptions(
   }
   const cues = groupWords(words, sceneEnds);
   await writeCaptionFiles(project, cues);
-  await writeCaptionsManifest(project, { mode: "stt", inputHash, config, cues });
+  await writeCaptionsManifest(project, {
+    mode: "stt",
+    inputHash,
+    config,
+    scenes: splitWordsByScene(words, ids, sceneEnds, config.gapMs),
+    cues,
+  });
   reportDone();
+}
+
+/**
+ * Split an absolute transcript into scene-relative words (for narration
+ * anchors and per-scene reuse). Scene i spans [prevEnd + gap, sceneEnds[i]];
+ * a word is assigned by its start time.
+ */
+function splitWordsByScene(
+  words: Word[],
+  ids: string[],
+  sceneEnds: number[],
+  gapMs: number
+): NonNullable<CaptionsManifest["scenes"]> {
+  const out: NonNullable<CaptionsManifest["scenes"]> = [];
+  let startMs = 0;
+  for (let i = 0; i < sceneEnds.length; i++) {
+    const endMs = sceneEnds[i];
+    const mine = words
+      .filter((w) => {
+        const t = w.start * 1000;
+        return t >= startMs - 1 && (i === sceneEnds.length - 1 || t < endMs + gapMs / 2);
+      })
+      .map((w) => ({
+        word: w.word.trim(),
+        start: Math.max(0, w.start - startMs / 1000),
+        end: Math.max(0, w.end - startMs / 1000),
+      }));
+    out.push({
+      id: ids[i] ?? String(i),
+      hash: hashOf({ stt: true, startMs, endMs }),
+      durationMs: endMs - startMs,
+      words: mine,
+    });
+    startMs = endMs + gapMs;
+  }
+  return out;
+}
+
+/** Scene-relative words for a scene; script-timed fallback when the manifest has none. */
+export async function sceneWordsFor(
+  project: Project,
+  sceneId: string,
+  narration: string,
+  durationMs: number
+): Promise<Word[]> {
+  const manifest = await readCaptionsManifest(project);
+  const stored = manifest?.scenes?.find((s) => s.id === sceneId);
+  if (stored && stored.words.length) return stored.words;
+  return deriveSceneWords(narration, durationMs);
 }
 
 /**

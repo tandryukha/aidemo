@@ -51,7 +51,8 @@ src/                  pipeline stages: voice, recorder/player/cursor (record),
                       captions/caption-render, compose/zoom/cards/music/ffmpeg
                       (compose writes output/report.json), attention (highlight/
                       spotlight/callout/keystroke/click-ring PNGs + redact blur
-                      filter), frame (produced-look canvas PNG), guide
+                      filter), anchors ({{@word}} markers → piecewise
+                      retime), frame (produced-look canvas PNG), guide
                       (topic slices of AUTHORING.md), lint (browser-free
                       pacing forecast + pitfalls),
                       stills (screenshot mode), frames (review PNGs), setup

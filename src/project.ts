@@ -1,6 +1,7 @@
 import { resolve, isAbsolute } from "node:path";
 import { StoryboardSchema, type Storyboard } from "./types.js";
 import { applyParams } from "./params.js";
+import { applyAnchors } from "./anchors.js";
 import { ensureDir, exists, readJson, writeJson, log } from "./util.js";
 
 /**
@@ -273,11 +274,12 @@ export function parseStoryboard(
       issues: [{ path: "params", message: applied.message, code: "params" }],
     };
   }
+  const storyboard = applyAnchors(applied.storyboard);
   return {
     ok: true,
-    storyboard: applied.storyboard,
+    storyboard,
     resolved: applied.resolved,
-    warnings: storyboardWarnings(applied.storyboard),
+    warnings: storyboardWarnings(storyboard),
   };
 }
 

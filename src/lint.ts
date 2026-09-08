@@ -256,6 +256,49 @@ export function lintStoryboard(
     }
     estimate.push({ id: scene.id, words, narrationMs, actionMs, holdPct: Number(holdPct.toFixed(3)), overrunMs });
 
+    // --- narration anchors: every {{@name}} needs an action and vice versa ---
+    const anchorDefs =
+      (opts.lang && scene.narrations?.[opts.lang] ? scene.narrationAnchors?.[opts.lang] : undefined) ??
+      scene.anchors ??
+      {};
+    const anchorUse = new Map<string, number[]>();
+    scene.actions.forEach((a, ai) => {
+      if (!a.anchor) return;
+      anchorUse.set(a.anchor, [...(anchorUse.get(a.anchor) ?? []), ai]);
+    });
+    for (const [name, idxs] of anchorUse) {
+      if (!(name in anchorDefs)) {
+        push({
+          severity: "error",
+          code: "anchor-missing",
+          scene: scene.id,
+          action: idxs[0],
+          message: `action anchor "${name}" has no {{@${name}}} marker in this scene's narration — compose can't place the beat`,
+          fix: `write {{@${name}}} right before the word the action should land on`,
+        });
+      }
+      if (idxs.length > 1) {
+        push({
+          severity: "error",
+          code: "anchor-duplicate",
+          scene: scene.id,
+          action: idxs[1],
+          message: `anchor "${name}" is on ${idxs.length} actions — a marker can only place one beat`,
+          fix: "use distinct anchor names ({{@add}}, {{@checkout}})",
+        });
+      }
+    }
+    for (const name of Object.keys(anchorDefs)) {
+      if (anchorUse.has(name)) continue;
+      push({
+        severity: "warn",
+        code: "anchor-unused",
+        scene: scene.id,
+        message: `narration marks {{@${name}}} but no action in this scene has anchor: "${name}" — the marker does nothing`,
+        fix: `add anchor: "${name}" to the click/type/press that should land on that word`,
+      });
+    }
+
     // --- structural rules over the action list ---
     scene.actions.forEach((a, ai) => {
       const next = scene.actions[ai + 1];

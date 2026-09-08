@@ -64,6 +64,12 @@ const BaseAction = {
    * timeline.json `actions[].retries`. Optional actions skip instead.
    */
   retry: z.number().int().min(0).max(5).optional(),
+  /**
+   * Narration anchor: land this action on the word marked `{{@name}}` in the
+   * scene's narration. Compose retimes the scene piecewise so the beat plays
+   * as the word is spoken. See docs/AUTHORING.md "Narration-anchored beats".
+   */
+  anchor: z.string().regex(/^[\w.-]+$/).optional(),
 };
 
 /**
@@ -476,6 +482,14 @@ export const SceneSchema = z.object({
    * LLM to translate. A code missing here falls back to `narration`.
    */
   narrations: z.record(z.string(), z.string()).optional(),
+  /**
+   * Engine-populated at parse time from `{{@name}}` markers in `narration`:
+   * name → 0-based index of the word the beat lands on. Don't author this —
+   * write the marker in the narration instead.
+   */
+  anchors: z.record(z.string(), z.number().int().min(0)).optional(),
+  /** Same, per `narrations` language code. */
+  narrationAnchors: z.record(z.string(), z.record(z.string(), z.number().int().min(0))).optional(),
   voice: VoicePlanSchema.optional(),
   music: MusicCueSchema.optional(),
   /** Set false to suppress auto-zoom for this scene's clicks/typing. */
@@ -967,6 +981,8 @@ export const TimelineSceneSchema = z.object({
   attentionEvents: z.array(AttentionEventSchema).default([]),
   keyEvents: z.array(KeyEventSchema).default([]),
   redactSpans: z.array(RedactSpanSchema).default([]),
+  /** Anchored actions: when the beat happened in the raw take (scene-relative like tMs elsewhere). */
+  anchorEvents: z.array(z.object({ name: z.string(), tMs: z.number(), action: z.number() })).default([]),
 });
 export type TimelineScene = z.infer<typeof TimelineSceneSchema>;
 
@@ -1019,6 +1035,18 @@ export const ComposeSceneReportSchema = z.object({
   spans: z.number(),
   /** Focus points (zoom) this scene contributed. */
   focusEvents: z.number(),
+  /** Narration anchors: where the beat was asked to land vs where it did (content ms, scene-relative). */
+  anchors: z
+    .array(
+      z.object({
+        name: z.string(),
+        targetMs: z.number(),
+        landedMs: z.number(),
+        /** landedMs − targetMs; |offMs| > 150 raises `anchor-unreachable`. */
+        offMs: z.number(),
+      })
+    )
+    .optional(),
 });
 export type ComposeSceneReport = z.infer<typeof ComposeSceneReportSchema>;
 
@@ -1108,9 +1136,10 @@ export const CaptionsManifestSchema = z.object({
     maxCueMs: z.number(),
   }),
   /**
-   * Per-scene inputs + reusable scene-relative word timings (offline path only).
-   * Enables per-scene reuse: only a scene whose narration/duration changed is
-   * re-derived; the rest keep their stored words.
+   * Per-scene inputs + reusable scene-relative word timings. Offline path:
+   * enables per-scene reuse (only a changed scene is re-derived). STT path:
+   * the transcript split per scene, so compose can place narration anchors
+   * on the word that was actually spoken.
    */
   scenes: z
     .array(

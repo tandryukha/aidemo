@@ -106,6 +106,7 @@ interface SceneCapture {
   attentionEvents: AttentionEvent[];
   keyEvents: KeyEvent[];
   redactSpans: RedactSpan[];
+  anchorEvents: Array<{ name: string; tMs: number; action: number }>;
 }
 
 /** Record-time dwell for an attention beat (the hold itself is compose-time). */
@@ -304,6 +305,7 @@ export async function runStoryboard(
       attentionEvents: [],
       keyEvents: [],
       redactSpans: [],
+      anchorEvents: [],
     };
     // Per-scene `hide` (top-level hides are injected by the recorder's init
     // script so they survive navigations); applied now, removed at scene end.
@@ -423,6 +425,15 @@ export async function runStoryboard(
       }
       if (recWarnings.length) rec.warnings = recWarnings;
       capture.actions.push(rec);
+      if (action.anchor && !rec.skipped) {
+        // The beat = the action's focus moment when it produced one (a click
+        // fires its focus event right after the press), else the action start.
+        const focusAt = capture.focusEvents.length
+          ? capture.focusEvents[capture.focusEvents.length - 1].tMs
+          : -1;
+        const tMs = focusAt >= rec.startMs && focusAt <= rec.endMs ? focusAt : rec.startMs;
+        capture.anchorEvents.push({ name: action.anchor, tMs, action: i });
+      }
       await measureRedact();
       if (outcome) {
         // Optional actions skip the found-enrichment: whether their target
@@ -455,6 +466,7 @@ export async function runStoryboard(
       attentionEvents: capture.attentionEvents,
       keyEvents: capture.keyEvents,
       redactSpans: capture.redactSpans,
+      anchorEvents: capture.anchorEvents,
     };
     scenes.push(tlScene);
     opts.onSceneComplete?.(tlScene, si, total);

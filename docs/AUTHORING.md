@@ -256,6 +256,9 @@ Cinematic keys (all opt-in; omit for the plain look):
 
 Each scene: `id`, `title?` (chapter name), `narration`, `voice?`, `music?`,
 `zoom?` (false to disable), `captions?`, `redact?`, `hide?`, `actions[]`.
+Narration may carry `{{@name}}` anchor markers (see *Narration-anchored
+beats*); the engine strips them at load and keeps the word index on the
+scene as `anchors` (don't author that field).
 
 ## Transitions, output sizing & loudness
 
@@ -321,6 +324,54 @@ Override or disable via `loudness`:
 
 Targets are the ffmpeg `loudnorm` `I` (LUFS), `TP` (dBTP), and `LRA` (LU). The
 pass runs last over the muxed audio and pins the rate back to 44.1 kHz.
+
+## Narration-anchored beats (`{{@name}}` + `anchor`)
+
+By default compose stretches a whole scene by one factor so its take fills
+the narration. That keeps things in sync on average, but the click you care
+about still lands wherever the recording put it — often a second before or
+after the word that describes it. Anchors pin a beat to a word:
+
+```json
+{
+  "id": "s3",
+  "narration": "Add the one you want, and it {{@drop}}drops straight into your basket.",
+  "actions": [
+    { "op": "pause", "ms": 1200 },
+    { "op": "click", "target": { "selector": "[data-testid=add-to-cart]" }, "anchor": "drop" }
+  ]
+}
+```
+
+- Write `{{@name}}` immediately before the word the beat should land on
+  (`[\w.-]+` names; the marker is stripped before TTS, captions and lint, so
+  the narration reads and sounds unchanged). Put `anchor: "name"` on the
+  action — a click, type, press, scrollTo, hover, or an attention beat. The
+  moment used is the click/press itself (the focus event), not the cursor
+  glide before it.
+- Compose then retimes the scene **piecewise**: each stretch between anchors
+  gets its own factor so the action plays exactly as the word is spoken, and
+  the remainder of the scene fills the narration as before. Every piece stays
+  within the usual x0.5–x1.6 limits — if the beat still can't be reached, the
+  render succeeds and reports **`anchor-unreachable`** with the miss in ms
+  (`report.json` → scene `anchors[]`: `targetMs`, `landedMs`, `offMs`). The
+  fix is authoring: give the action more lead-in (a `pause` before it) when
+  it lands early, or trim what happens before it (mark waits idle, move the
+  marker later) when it lands late.
+- Several anchors per scene are fine (`{{@add}} … {{@checkout}}`); they must
+  be in the same order as their actions. One marker per action; lint flags a
+  marker without an action (`anchor-unused`), an action without a marker
+  (`anchor-missing`) and a name reused on two actions (`anchor-duplicate`).
+- Scenes without anchors are untouched (the single-piece path is the exact
+  pre-anchor arithmetic), so adding one anchor never shifts another scene.
+- Multi-language: put markers in each `narrations[lang]` string too; the
+  engine keeps a per-language word index, so the beat lands on the translated
+  word.
+- With STT captions the word time comes from the transcript (matched to the
+  script by normalized token, falling back to the proportional position); with
+  script-timed captions it comes from the same length-weighted model the
+  captions use. Re-run `captions` after changing a narration so the anchor
+  reads fresh timings.
 
 ## Attention: highlight, spotlight, callout, keystrokes, redact, hide
 
@@ -485,9 +536,10 @@ baked at record time as before (the default).
 ## Action vocabulary
 
 A `target` is `{selector}` or `{frame,selector}` or `{named:"composer"}`.
-Every action also accepts `comment?`, `optional?` (best-effort, see below) and
+Every action also accepts `comment?`, `optional?` (best-effort, see below),
 `retry?` (0–5 extra attempts, interactions and `assert` only, a beat apart —
-for UI that re-renders under the cursor):
+for UI that re-renders under the cursor) and `anchor?` (land this action on a
+`{{@name}}` word in the narration — see *Narration-anchored beats*):
 - `{op:"goto", url}` — waits for `domcontentloaded`, then (capped at ~3.4 s)
   for the network to go quiet and fonts to load; that extra wait is recorded
   as trimmable idle (`"load"`), so a first click never lands on a skeleton
@@ -895,9 +947,11 @@ the recorded length, the narration target, the retime `factor` applied, and
 blank-frame trims, focus events kept vs dropped, and `warnings[]` —
 `scene-freeze` (a scene is >40% held frame), `overrun-trim` (actions ran past
 the narration even at the x1.6 ceiling and were cut), `blank-tail`,
-`stale-captions`, `focus-dropped`, `cursor-missing`. A held scene is a
-storyboard problem, not a compose problem: give it on-screen beats or shorten
-its narration, then re-run `voice` + `compose`.
+`stale-captions`, `focus-dropped`, `cursor-missing`, `anchor-unreachable`
+(an anchored action could not reach its word within the retime limits; the
+scene's `anchors[]` shows `targetMs` / `landedMs` / `offMs`). A held scene
+is a storyboard problem, not a compose problem: give it on-screen beats or
+shorten its narration, then re-run `voice` + `compose`.
 
 Then play (or frame-extract — `aidemo frames <dir>` / the `frames` job)
 `output/final-demo.mp4`: cursor glides and clicks pulse, narration matches

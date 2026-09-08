@@ -13,7 +13,8 @@ import type {
   ComposeWarning,
 } from "./types.js";
 import { TimelineSchema, VoiceManifestSchema, LoudnessSchema, HoldSchema } from "./types.js";
-import type { Cue } from "./captions.js";
+import { sceneWordsFor, type Cue } from "./captions.js";
+import { wordStartMs } from "./anchors.js";
 import { renderCaptionPngs } from "./caption-render.js";
 import { renderCardPng } from "./cards.js";
 import { renderCursorPng } from "./cursor.js";
@@ -174,8 +175,89 @@ export async function compose(
     // (freeze) the last frame for the remainder — natural for a static page,
     // and far better than 3x slow-motion.
     const ratio = targetMs / Math.max(srcMs, 1);
-    const factor = Math.min(MAX_STRETCH, Math.max(MIN_FACTOR, ratio));
-    let stretchedMs = factor * srcMs;
+    const uniformFactor = Math.min(MAX_STRETCH, Math.max(MIN_FACTOR, ratio));
+
+    // Narration anchors → piecewise retime. Each anchored action is a raw
+    // offset (inside the kept spans) that must land on the ms its word is
+    // spoken; between anchors the factor is whatever gets there (clamped to
+    // the same [MIN_FACTOR, MAX_STRETCH], so a beat that can't be reached is
+    // reported, never faked). No anchors → one piece, the uniform factor —
+    // arithmetically identical to the pre-anchor path.
+    const sceneDef = sceneById.get(tl.id);
+    const anchorDefs = sceneDef?.anchors ?? {};
+    const anchorPts: Array<{ name: string; raw: number; target: number }> = [];
+    if (Object.keys(anchorDefs).length && (tl.anchorEvents ?? []).length) {
+      const words = await sceneWordsFor(project, tl.id, sceneDef?.narration ?? "", narrMs);
+      for (const ev of tl.anchorEvents) {
+        const wi = anchorDefs[ev.name];
+        if (wi == null) continue;
+        const target = wordStartMs(words, sceneDef?.narration ?? "", wi);
+        if (target == null) continue;
+        const raw = offsetInKeeps(keeps, ev.tMs + timeline.leadInMs);
+        if (raw > srcMs - 40) {
+          warn(
+            "anchor-unreachable",
+            `scene ${tl.id}: anchor "${ev.name}" fires at the very end of the take (${Math.round(raw)}ms of ${Math.round(srcMs)}ms) — add a pause or a later action after it so the beat has room`,
+            tl.id
+          );
+          continue;
+        }
+        anchorPts.push({ name: ev.name, raw, target });
+      }
+      anchorPts.sort((a, b) => a.raw - b.raw);
+    }
+    const pieces: RetimePiece[] = [];
+    const anchorReport: NonNullable<ComposeSceneReport["anchors"]> = [];
+    if (anchorPts.length) {
+      let out = 0;
+      let prevRaw = 0;
+      const bounds = [
+        ...anchorPts.map((a) => ({ raw: a.raw, target: a.target, name: a.name as string | null })),
+        { raw: srcMs, target: targetMs, name: null as string | null },
+      ];
+      for (const bnd of bounds) {
+        const len = bnd.raw - prevRaw;
+        if (len >= 40) {
+          const want = bnd.target - out;
+          const f = Math.min(MAX_STRETCH, Math.max(MIN_FACTOR, want / len));
+          pieces.push({ a: prevRaw, b: bnd.raw, f, out });
+          out += len * f;
+          prevRaw = bnd.raw;
+        }
+        if (bnd.name) {
+          const offMs = Math.round(out - bnd.target);
+          anchorReport.push({
+            name: bnd.name,
+            targetMs: Math.round(bnd.target),
+            landedMs: Math.round(out),
+            offMs,
+          });
+          if (Math.abs(offMs) > 150) {
+            warn(
+              "anchor-unreachable",
+              `scene ${tl.id}: anchor "${bnd.name}" lands ${Math.abs(offMs)}ms ${offMs > 0 ? "after" : "before"} its word even at ${offMs > 0 ? "2x speed" : "x1.6 slow-motion"} — ${
+                offMs > 0
+                  ? "trim what happens before the action (mark waits idle, drop a scroll) or move the {{@" + bnd.name + "}} marker later"
+                  : "give the action more lead-in (a pause, a hover) or move the {{@" + bnd.name + "}} marker earlier"
+              }`,
+              tl.id
+            );
+          }
+        }
+      }
+    }
+    if (!pieces.length) pieces.push({ a: 0, b: srcMs, f: uniformFactor, out: 0 });
+    const anchored = anchorPts.length > 0;
+    let stretchedMs = anchored
+      ? pieces[pieces.length - 1].out + (pieces[pieces.length - 1].b - pieces[pieces.length - 1].a) * pieces[pieces.length - 1].f
+      : uniformFactor * srcMs;
+    const factor = anchored ? stretchedMs / Math.max(srcMs, 1) : uniformFactor;
+    /** Kept-span offset (raw ms inside the concatenated keeps) → stretched scene ms. */
+    const stretchLocal = (local: number): number => {
+      let pc = pieces[0];
+      for (const q of pieces) if (local >= q.a) pc = q;
+      return pc.out + (local - pc.a) * pc.f;
+    };
     // A scene whose active video exceeds 2x its narration would OVERRUN its
     // narration slot — the narration track is fixed, so every later scene's
     // video drifts behind its audio and the finale slides past the end of the
@@ -200,15 +282,38 @@ export async function compose(
     if (blankTrimMs > 0) {
       vf += `trim=duration=${(srcMs / 1000).toFixed(3)},setpts=PTS-STARTPTS,`;
     }
-    vf += `setpts=${factor.toFixed(6)}*PTS`;
+    // Tail (shared by the uniform and the piecewise path): overrun trim,
+    // backoff trim, freeze hold.
+    let tail = "";
     if (overrunTrimMs > 0) {
-      vf += `,trim=duration=${(targetMs / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
+      tail += `,trim=duration=${(targetMs / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
     }
     if (backoffMs > 0) {
-      vf += `,trim=duration=${((stretchedMs - backoffMs) / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
+      tail += `,trim=duration=${((stretchedMs - backoffMs) / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
     }
     if (holding && !driftHold) {
-      vf += `,tpad=stop_mode=clone:stop_duration=${((holdMs + backoffMs) / 1000).toFixed(3)}`;
+      tail += `,tpad=stop_mode=clone:stop_duration=${((holdMs + backoffMs) / 1000).toFixed(3)}`;
+    }
+    let filterArgs: string[];
+    if (anchored) {
+      // split → per-piece trim + setpts → concat. Same source, same format,
+      // so concat is a plain join; everything stays in the core filter set.
+      const n = pieces.length;
+      const splitLabels = pieces.map((_, k) => `[s${k}]`).join("");
+      const pieceFilters = pieces
+        .map(
+          (pc, k) =>
+            `[s${k}]trim=start=${(pc.a / 1000).toFixed(3)}:end=${(pc.b / 1000).toFixed(3)},` +
+            `setpts=(PTS-STARTPTS)*${pc.f.toFixed(6)}[p${k}]`
+        )
+        .join(";");
+      const concatIn = pieces.map((_, k) => `[p${k}]`).join("");
+      const fc =
+        `[0:v]${vf}split=${n}${splitLabels};${pieceFilters};` +
+        `${concatIn}concat=n=${n}:v=1:a=0,setpts=PTS-STARTPTS${tail}[vout]`;
+      filterArgs = ["-filter_complex", fc, "-map", "[vout]"];
+    } else {
+      filterArgs = ["-vf", `${vf}setpts=${factor.toFixed(6)}*PTS${tail}`];
     }
 
     // Map this scene's focus events into final-video time for the zoom pass:
@@ -218,7 +323,7 @@ export async function compose(
       for (const ev of tl.focusEvents ?? []) {
         sceneFocus++;
         const rawT = ev.tMs + timeline.leadInMs;
-        const local = offsetInKeeps(keeps, rawT) * factor;
+        const local = stretchLocal(offsetInKeeps(keeps, rawT));
         zoomEvents.push({
           tMs: outCursorMs + Math.min(local, stretchedMs),
           x: ev.x * pxScale,
@@ -236,7 +341,7 @@ export async function compose(
       const sceneStart = outCursorMs;
       for (const s of tl.cursorSamples ?? []) {
         const rawT = s.tMs + timeline.leadInMs;
-        const local = offsetInKeeps(keeps, rawT) * factor;
+        const local = stretchLocal(offsetInKeeps(keeps, rawT));
         cursorPts.push({
           t: (outCursorMs + Math.min(local, stretchedMs)) / 1000,
           x: s.x * pxScale - dotOffset,
@@ -256,7 +361,7 @@ export async function compose(
       const sceneStart = outCursorMs;
       const sceneEnd = outCursorMs + stretchedMs + (holdMs > 40 ? holdMs : 0);
       const toContent = (rawMs: number): number =>
-        sceneStart + Math.min(offsetInKeeps(keeps, rawMs + timeline.leadInMs) * factor, stretchedMs);
+        sceneStart + Math.min(stretchLocal(offsetInKeeps(keeps, rawMs + timeline.leadInMs)), stretchedMs);
       for (const ev of tl.attentionEvents ?? []) {
         const a = toContent(ev.tMs);
         const b = Math.min(sceneEnd, a + ev.holdMs);
@@ -292,8 +397,7 @@ export async function compose(
     await runFfmpeg([
       "-i",
       rawSegPath,
-      "-vf",
-      vf,
+      ...filterArgs,
       "-an",
       "-r",
       String(FPS),
@@ -329,7 +433,12 @@ export async function compose(
             : ""
         }${
           overrunTrimMs > 0 ? ` - ${Math.round(overrunTrimMs)}ms tail trim` : ""
-        }${blankTrimMs > 0 ? ` - ${Math.round(blankTrimMs)}ms blank tail` : ""}, ${keeps.length} span(s))`
+        }${blankTrimMs > 0 ? ` - ${Math.round(blankTrimMs)}ms blank tail` : ""}, ${keeps.length} span(s)${
+          anchored
+            ? `, ${pieces.length} piece(s): ` +
+              anchorReport.map((a) => `${a.name} ${a.offMs >= 0 ? "+" : ""}${a.offMs}ms`).join(" ")
+            : ""
+        })`
     );
     sceneReports.push({
       id: tl.id,
@@ -342,6 +451,7 @@ export async function compose(
       blankTrimMs: Math.round(blankTrimMs),
       spans: keeps.length,
       focusEvents: sceneFocus,
+      ...(anchorReport.length ? { anchors: anchorReport } : {}),
     });
     if (holdPct > FREEZE_WARN_PCT) {
       warn(
@@ -1195,6 +1305,14 @@ function keepIntervals(
   if (cursor < vEnd) keeps.push([cursor, vEnd]);
   // Drop empty/negative spans.
   return keeps.filter(([a, b]) => b - a > 20);
+}
+
+/** One retime piece: kept-span offsets [a,b) play at factor f, starting at stretched ms `out`. */
+interface RetimePiece {
+  a: number;
+  b: number;
+  f: number;
+  out: number;
 }
 
 /**

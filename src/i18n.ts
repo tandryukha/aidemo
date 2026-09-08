@@ -62,10 +62,13 @@ export function localizeStoryboard(sb: Storyboard, lang: string): Storyboard {
     ...sb,
     intro: localizeCard(sb.intro, lang),
     outro: localizeCard(sb.outro, lang),
-    scenes: sb.scenes.map((scene) => ({
-      ...scene,
-      narration: scene.narrations?.[lang] ?? scene.narration,
-    })),
+    scenes: sb.scenes.map((scene) => {
+      const translated = scene.narrations?.[lang];
+      if (translated == null) return scene;
+      const anchors = scene.narrationAnchors?.[lang];
+      const { anchors: _base, ...rest } = scene;
+      return { ...rest, narration: translated, ...(anchors ? { anchors } : {}) };
+    }),
   };
 }
 
