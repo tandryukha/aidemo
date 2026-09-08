@@ -173,6 +173,14 @@ const RECORD_INPUT_SHAPE = {
         "wrong story. Not for logged-in demos (a fresh profile has no login)."
     ),
   capture: z.enum(["playwright", "native", "obs"]).optional(),
+  fromScene: z
+    .string()
+    .optional()
+    .describe(
+      "resume: keep the previous take's scenes before this scene id (footage + " +
+        "timeline, verified unchanged by hash) and record from it — after a " +
+        "late-scene failure or a change to the tail of the storyboard"
+    ),
   storageState: z
     .string()
     .optional()
@@ -792,6 +800,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       storageState?: string;
       cookies?: SeedCookie[];
       profileSeeded?: boolean;
+      fromScene?: string;
     },
     job: Job,
     reloadStoryboard?: () => Promise<Storyboard>
@@ -805,6 +814,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       reloadStoryboard,
       headed: !args.headless,
       capture: args.capture,
+      fromScene: args.fromScene,
       signal: job.controller.signal,
       onSceneStart: (sceneId, index, total) => {
         job.currentScene = sceneId;

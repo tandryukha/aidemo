@@ -20,6 +20,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | Fixture server | `node examples/local-demo/serve.mjs` (port 8787) |
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
+| Resume a take | `node bin/aidemo.mjs record <dir> --from-scene <id>` (also `render`, MCP `fromScene`) — reuses the previous take's earlier scenes (hash-guarded), replays their actions fast, records from `<id>` |
 | Selector discovery | `node bin/aidemo.mjs inspect <url> --dir <demo>` — unique selectors per visible element (MCP `inspect` job); the same scan writes `logs/drift-*.json` suggestions when a take's selector matches nothing |
 | Validate a storyboard (no browser) | `node bin/aidemo.mjs validate <dir>` (`--file <path>`, `--json`; non-zero exit on issues) |
 | Lint / pacing forecast (no browser) | `node bin/aidemo.mjs lint <dir>` (`--lang`, `--json`, `--strict`) — also auto-runs in probe/record/render; measured counterpart is `output/report.json` from compose |
@@ -57,7 +58,8 @@ src/                  pipeline stages: voice, recorder/player/cursor (record),
                       ranking for failed selectors), anchors ({{@word}} markers → piecewise
                       retime), frame (produced-look canvas PNG), guide
                       (topic slices of AUTHORING.md), lint (browser-free
-                      pacing forecast + pitfalls),
+                      pacing forecast + pitfalls), recorder (take lifecycle,
+                      resume via per-scene hashes + raw.keep-* footage),
                       stills (screenshot mode), frames (review PNGs),
                       walkthrough (HTML/Markdown bundle from the final video), setup
                       (cookie/storageState seeding + preflight hook),

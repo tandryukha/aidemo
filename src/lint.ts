@@ -146,6 +146,14 @@ export function estimateActionMs(a: Action): number {
       return 450; // glide + 150 ms settle
     case "assert":
       return 250; // usually already true; the poll returns on first check
+    case "select":
+      return 900; // click + programmatic pick + settle
+    case "drag":
+      return 1100; // two glides + press/release sleeps
+    case "upload":
+      return 800;
+    case "back":
+      return 1400; // like goto
     default:
       return 300;
   }
@@ -350,7 +358,10 @@ export function lintStoryboard(
           }
         }
       }
-      if (a.retry && !["click", "type", "hover", "scrollTo", "focus", "moveTo", "assert"].includes(a.op)) {
+      if (
+        a.retry &&
+        !["click", "type", "hover", "scrollTo", "focus", "moveTo", "assert", "select", "drag", "upload"].includes(a.op)
+      ) {
         push({
           severity: "info",
           code: "retry-noop",

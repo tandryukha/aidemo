@@ -153,9 +153,12 @@ export async function compose(
     }
 
     let blankTrimMs = 0;
-    const keeps = keepIntervals(tl, timeline.leadInMs);
+    // A resumed take's reused scenes live in an earlier raw file with its own lead-in.
+    const leadInMs = tl.leadInMs ?? timeline.leadInMs;
+    const sceneRaw = tl.source ? resolve(project.dir, tl.source) : rawVideo;
+    const keeps = keepIntervals(tl, leadInMs);
     const rawSegPath = resolve(tmp, `scene-${i}-raw.mp4`);
-    await extractAndConcat(rawVideo, keeps, rawSegPath, tmp, i);
+    await extractAndConcat(sceneRaw, keeps, rawSegPath, tmp, i);
 
     let srcMs = await probeDurationMs(rawSegPath);
     // A scene that ends right before a `goto` can trail off into the browser's
@@ -193,7 +196,7 @@ export async function compose(
         if (wi == null) continue;
         const target = wordStartMs(words, sceneDef?.narration ?? "", wi);
         if (target == null) continue;
-        const raw = offsetInKeeps(keeps, ev.tMs + timeline.leadInMs);
+        const raw = offsetInKeeps(keeps, ev.tMs + leadInMs);
         if (raw > srcMs - 40) {
           warn(
             "anchor-unreachable",
@@ -322,7 +325,7 @@ export async function compose(
     if (zoomCfg && sceneById.get(tl.id)?.zoom !== false) {
       for (const ev of tl.focusEvents ?? []) {
         sceneFocus++;
-        const rawT = ev.tMs + timeline.leadInMs;
+        const rawT = ev.tMs + leadInMs;
         const local = stretchLocal(offsetInKeeps(keeps, rawT));
         zoomEvents.push({
           tMs: outCursorMs + Math.min(local, stretchedMs),
@@ -340,7 +343,7 @@ export async function compose(
     if (cursorCfg) {
       const sceneStart = outCursorMs;
       for (const s of tl.cursorSamples ?? []) {
-        const rawT = s.tMs + timeline.leadInMs;
+        const rawT = s.tMs + leadInMs;
         const local = stretchLocal(offsetInKeeps(keeps, rawT));
         cursorPts.push({
           t: (outCursorMs + Math.min(local, stretchedMs)) / 1000,
@@ -361,7 +364,7 @@ export async function compose(
       const sceneStart = outCursorMs;
       const sceneEnd = outCursorMs + stretchedMs + (holdMs > 40 ? holdMs : 0);
       const toContent = (rawMs: number): number =>
-        sceneStart + Math.min(stretchLocal(offsetInKeeps(keeps, rawMs + timeline.leadInMs)), stretchedMs);
+        sceneStart + Math.min(stretchLocal(offsetInKeeps(keeps, rawMs + leadInMs)), stretchedMs);
       for (const ev of tl.attentionEvents ?? []) {
         const a = toContent(ev.tMs);
         const b = Math.min(sceneEnd, a + ev.holdMs);

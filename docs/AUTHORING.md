@@ -125,7 +125,8 @@ network.
    `compose` — voice **skips unchanged scenes** (hashes narration + voice
    plan), so only the edited scene is re-voiced and an approved take is
    preserved (`force` re-voices all; `scene <id>` targets one). Re-record only
-   if the browser flow changed.
+   if the browser flow changed — and then only from the first changed scene
+   (`record --from-scene <id>` / `fromScene`): earlier scenes keep their take.
 
 ## Demo-director principles (make it feel human-made)
 
@@ -572,7 +573,22 @@ for UI that re-renders under the cursor) and `anchor?` (land this action on a
   screen and the take doesn't get longer for it.
 - `{op:"type", target, text, humanize?}` — human-cadence typing
 - `{op:"press", key}` — e.g. "Enter"
-- `{op:"click", target}` · `{op:"hover", target}`
+- `{op:"click", target, followPopup?}` · `{op:"hover", target}` —
+  `followPopup:true` handles a link/button that opens a **new tab**
+  (`target=_blank`, `window.open`): the tab is closed and the recorded tab
+  navigates to its URL. The take is one window — a second tab is never in the
+  video, so there is no `newTab`/`switchTab`; write the story in one tab.
+- `{op:"back"}` — browser history back, same readiness wait as `goto`.
+- `{op:"select", target, value? | label?}` — native `<select>`: the cursor
+  clicks it, the option is committed programmatically (the OS dropdown never
+  paints into a recording), `change` fires.
+- `{op:"drag", target, to:{target} | to:{x,y}}` — press on `target`, glide
+  with the cursor, release on the destination (pointer-event and HTML5 DnD
+  libraries both see a real drag; the cursor path is recorded).
+- `{op:"upload", target, files:[…]}` — attach files: `target` is the file
+  input (set directly) or the button that opens the file chooser (clicked; the
+  chooser is answered headlessly, no OS dialog in the take). Paths resolve
+  against the demo dir (`input/sample.csv`); a missing file fails the take.
 - `{op:"scrollTo", target, easing?, durationMs?, state?, settleMs?}` ·
   `{op:"scrollBy", dy, target?, easing?, durationMs?, settleMs?}` — easing
   presets: `"smooth"` (default) | `"snappy"` | `"glide"` | `"linear"`.
@@ -632,7 +648,9 @@ for UI that re-renders under the cursor) and `anchor?` (land this action on a
   (`assert failed after 5000ms: text "…" does not match /…/`). Put one after
   the moment the demo exists to show (order confirmed, item added) so a
   spinner never ships as a video. `optional:true` turns a miss into a logged
-  skip.
+  skip. Pair it with `select`/`drag`/`upload`: assert the visible result
+  (`"3 files attached"`, the dropped card) — the actions themselves only prove
+  the input was delivered.
 
 Target `last`/`nth` pick among matching **frames** on framed targets and among
 matching **elements** on plain (frameless) targets — e.g.
@@ -883,8 +901,14 @@ Always set `"last": true` on widget targets (newest widget for this turn).
   `logs/fail-<scene>-<n>.{png,json}` (screenshot + which frames matched).
 - **A failed take is salvaged, not lost**: `record` writes a partial
   `timeline.json` and keeps the main recording even when a late scene fails, so
-  a scene-7-of-7 failure doesn't discard the good footage. Re-run to get a
-  clean take.
+  a scene-7-of-7 failure doesn't discard the good footage. Then **resume
+  instead of re-recording**: `record {fromScene: "s7"}` (CLI `record <dir>
+  --from-scene s7`, also on `render`) keeps the earlier scenes' footage and
+  timeline, replays their actions at speed only to rebuild the app state, and
+  records from `s7` on. Reuse is guarded by a per-scene hash of the actions
+  (+ hide/redact/viewport/cursor mode): an edited earlier scene refuses with
+  "resume from `<id>` or earlier". The same flag is the cheap way to re-shoot
+  a tail you changed after an approved take.
 
 `init_demo` / `aidemo init` scaffolds a storyboard already using all of the
 above.
@@ -1022,6 +1046,10 @@ CLI. If nothing came up, skip this.
 - **`aidemo frames <dir> --every 3`** (MCP `frames`) dumps evenly spaced PNGs
   from `output/final-demo.mp4` (or `--source raw` for the latest take) into
   `output/frames/` — look at them instead of hand-running `ffmpeg -ss`.
+- **Resumed takes** (`--from-scene`): `timeline.json` scenes reused from an
+  earlier take carry `source` (their raw file, `recordings/raw.keep-*`) and
+  `leadInMs`; `recordings/raw.*` holds only the new tail. `frames --source
+  raw` therefore shows the new part only — review the composed video instead.
 - `AIDEMO_KEEP_TMP=1` preserves `.compose-tmp/` intermediates when debugging
   compose.
 - `doctor` checks Node, ffmpeg, Chrome, the TTS/STT endpoint (and flags

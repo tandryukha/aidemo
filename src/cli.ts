@@ -270,6 +270,8 @@ function parseParams(pairs?: string[]): Record<string, string> | undefined {
   return out;
 }
 
+const FROM_SCENE_OPT_DESC =
+  "resume: keep the previous take's scenes before this id (verified unchanged) and record from it";
 const PARAM_OPT_DESC =
   "set a storyboard template param (key=value; repeatable; must be declared in the storyboard's params block)";
 
@@ -647,6 +649,7 @@ program
     "capture path: playwright (default) | native (ffmpeg screen grab) | obs"
   )
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option("--from-scene <id>", FROM_SCENE_OPT_DESC)
   .description("drive the storyboard in Chrome and record raw video + timeline.json")
   .action(
     async (
@@ -660,6 +663,7 @@ program
         headless?: boolean;
         capture?: string;
         param?: string[];
+        fromScene?: string;
       }
     ) => {
       const project = new Project(dir);
@@ -674,6 +678,7 @@ program
         reloadStoryboard: load,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
+        fromScene: opts.fromScene,
       });
     }
   );
@@ -1001,6 +1006,7 @@ program
   )
   .option("--lang <code>", LANG_OPT_DESC)
   .option("--langs <codes>", `${LANGS_OPT_DESC} — records ONCE, then renders each`)
+  .option("--from-scene <id>", FROM_SCENE_OPT_DESC)
   .description("run the full pipeline: voice → record → captions → compose")
   .action(
     async (
@@ -1020,6 +1026,7 @@ program
         variants?: string;
         lang?: string;
         langs?: string;
+        fromScene?: string;
       }
     ) => {
       applyTtsFlag(opts.tts);
@@ -1078,6 +1085,7 @@ program
             reloadStoryboard: load,
             headed: !opts.headless,
             capture: parseCapture(opts.capture),
+            fromScene: opts.fromScene,
           })
         );
         await stageLog(base, "captions", () => captionsFor(base, storyboard));
@@ -1107,6 +1115,7 @@ program
           reloadStoryboard: load,
           headed: !opts.headless,
           capture: parseCapture(opts.capture),
+          fromScene: opts.fromScene,
         })
       );
       if (storyboardHasStills(storyboard)) {

@@ -107,6 +107,12 @@ export const ActionSchema = z.discriminatedUnion("op", [
     ...BaseAction,
     op: z.literal("click"),
     target: TargetSchema,
+    /**
+     * When the click opens a NEW TAB (target=_blank, window.open), close it and
+     * continue in the recorded tab at that URL — the take is one window, a
+     * second tab is never in the video. Default false (a popup is left alone).
+     */
+    followPopup: z.boolean().optional(),
   }),
   z.object({
     ...BaseAction,
@@ -335,6 +341,41 @@ export const ActionSchema = z.discriminatedUnion("op", [
     url: z.string().optional(),
     timeoutMs: z.number().optional(),
   }),
+  /** Choose an option in a native <select> by value or visible label (the cursor clicks it first). */
+  z.object({
+    ...BaseAction,
+    op: z.literal("select"),
+    target: TargetSchema,
+    value: z.string().optional(),
+    label: z.string().optional(),
+  }),
+  /**
+   * Drag `target` to `to` (another target, or absolute viewport `x`,`y`):
+   * press, glide with the cursor, release — the drag shows in the take.
+   */
+  z.object({
+    ...BaseAction,
+    op: z.literal("drag"),
+    target: TargetSchema,
+    to: z.object({
+      target: TargetSchema.optional(),
+      x: z.number().optional(),
+      y: z.number().optional(),
+    }),
+  }),
+  /**
+   * Attach files: `target` is a file input (set directly) or the button that
+   * opens the OS file chooser (clicked; the chooser is answered headlessly —
+   * no dialog appears in the take). Paths resolve against the demo dir.
+   */
+  z.object({
+    ...BaseAction,
+    op: z.literal("upload"),
+    target: TargetSchema,
+    files: z.array(z.string()).min(1),
+  }),
+  /** Browser back (history), with the same readiness wait as `goto`. */
+  z.object({ ...BaseAction, op: z.literal("back") }),
 ]);
 export type Action = z.infer<typeof ActionSchema>;
 
@@ -989,6 +1030,15 @@ export const TimelineSceneSchema = z.object({
   redactSpans: z.array(RedactSpanSchema).default([]),
   /** Anchored actions: when the beat happened in the raw take (scene-relative like tMs elsewhere). */
   anchorEvents: z.array(z.object({ name: z.string(), tMs: z.number(), action: z.number() })).default([]),
+  /**
+   * Resume (`record --from-scene`): scenes reused from an earlier take name the
+   * raw file they live in (relative to the demo dir) and that take's lead-in;
+   * absent = the current take (`recordings/raw.*` + the timeline's leadInMs).
+   */
+  source: z.string().optional(),
+  leadInMs: z.number().optional(),
+  /** Identity of the scene's action-spec at record time — resume reuses a scene only when it matches. */
+  hash: z.string().optional(),
 });
 export type TimelineScene = z.infer<typeof TimelineSceneSchema>;
 

@@ -1,7 +1,8 @@
 import type { Page, Locator, Frame, Request, Response } from "playwright";
 import { scanInteractive, rankCandidates, type DriftCandidate } from "./inspect.js";
 import { promises as fs } from "node:fs";
-import { join } from "node:path";
+import { basename, isAbsolute, join, resolve } from "node:path";
+import { existsSync } from "node:fs";
 import type {
   Storyboard,
   Scene,
@@ -75,6 +76,18 @@ export interface PlayerOptions {
   /** Called when a scene's first action is about to run (job progress). */
   onSceneStart?: (sceneId: string, index: number, total: number) => void;
   /**
+   * Resume: scenes before this index are REPLAYED, not recorded — their
+   * actions run at speed (no humanized typing, pauses/dwells capped, stills
+   * skipped) purely to rebuild the app state the resumed scene starts from,
+   * and they don't enter the returned timeline (the recorder reuses the
+   * previous take's footage for them).
+   */
+  replayUntil?: number;
+  /** Called after a replayed (not recorded) scene finished. */
+  onSceneReplayed?: (sceneId: string, index: number, total: number) => void;
+  /** Demo directory — `upload` file paths resolve against it (default: cwd). */
+  baseDir?: string;
+  /**
    * Best-effort cancellation, checked before every action. Aborting mid-scene
    * throws CanceledError, which rides the recorder's salvage path (partial
    * timeline + kept footage).
@@ -108,6 +121,8 @@ interface SceneCapture {
   keyEvents: KeyEvent[];
   redactSpans: RedactSpan[];
   anchorEvents: Array<{ name: string; tMs: number; action: number }>;
+  /** Replay-only scene (resume): skip the waits that exist for the camera. */
+  fast?: boolean;
 }
 
 /** Record-time dwell for an attention beat (the hold itself is compose-time). */
@@ -307,6 +322,7 @@ export async function runStoryboard(
       keyEvents: [],
       redactSpans: [],
       anchorEvents: [],
+      fast: opts.replayUntil != null && si < opts.replayUntil,
     };
     // Per-scene `hide` (top-level hides are injected by the recorder's init
     // script so they survive navigations); applied now, removed at scene end.
@@ -328,7 +344,10 @@ export async function runStoryboard(
             y: Math.round(y),
           })
       : undefined;
-    log(`scene ${scene.id}: ${scene.actions.length} action(s)`);
+    log(
+      `scene ${scene.id}: ${scene.actions.length} action(s)` +
+        (capture.fast ? " (replay only — footage reused from the previous take)" : "")
+    );
     opts.onSceneStart?.(scene.id, si, total);
     const probeOutcomes: ProbeActionOutcome[] = [];
 
@@ -454,6 +473,10 @@ export async function runStoryboard(
     }
     redactOpen.clear();
     if (scene.hide?.length) await setSceneHide(page, []);
+    if (capture.fast) {
+      opts.onSceneReplayed?.(scene.id, si, total);
+      continue;
+    }
 
     const tlScene: TimelineScene = {
       id: scene.id,
@@ -1095,8 +1118,104 @@ async function runAction(
 
     case "click": {
       const loc = await resolveTargetLocator(page, storyboard, action.target);
+      // followPopup: catch a tab the click opens, then bring its URL into the
+      // recorded tab — Playwright records one video per page, so a second tab
+      // would never reach the take.
+      const popup = action.followPopup
+        ? page.context().waitForEvent("page", { timeout: 4000 }).catch(() => null)
+        : null;
       const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame, sample);
       markFocus(cx, cy, "click");
+      if (popup) {
+        const tab = await popup;
+        if (tab) {
+          await tab.waitForLoadState("domcontentloaded", { timeout: 8000 }).catch(() => {});
+          const url = tab.url();
+          await tab.close().catch(() => {});
+          if (url && url !== "about:blank") {
+            log(`  popup → ${url} (followed in the recorded tab)`);
+            await page.goto(url, { waitUntil: "domcontentloaded" });
+            await awaitGotoReadiness(page, capture, t0);
+          } else {
+            log("  ! popup opened without a URL; nothing to follow");
+          }
+        } else {
+          log("  (followPopup: the click opened no new tab)");
+        }
+      }
+      return;
+    }
+
+    case "back":
+      await page.goBack({ waitUntil: "domcontentloaded" });
+      await awaitGotoReadiness(page, capture, t0);
+      return;
+
+    case "select": {
+      if (action.value == null && action.label == null) {
+        throw new Error("select needs a value or a label");
+      }
+      const loc = await resolveTargetLocator(page, storyboard, action.target);
+      const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame, sample);
+      markFocus(cx, cy, "click");
+      // The native dropdown never paints into the recording; commit the choice
+      // programmatically (fires input/change like a real pick) and close it.
+      await loc.selectOption(action.value != null ? { value: action.value } : { label: action.label! });
+      await page.keyboard.press("Escape").catch(() => {});
+      await sleep(200);
+      return;
+    }
+
+    case "drag": {
+      if (!action.to.target && (action.to.x == null || action.to.y == null)) {
+        throw new Error("drag needs `to.target` or both `to.x` and `to.y`");
+      }
+      const loc = await resolveTargetLocator(page, storyboard, action.target);
+      const from = await boxOf(page, loc);
+      let tx = action.to.x ?? mouse.x;
+      let ty = action.to.y ?? mouse.y;
+      if (action.to.target) {
+        const dest = await resolveTargetLocator(page, storyboard, action.to.target);
+        const box = await boxOf(page, dest);
+        tx = box.cx;
+        ty = box.cy;
+      }
+      await moveMouseTo(page, mouse, from.cx, from.cy, sample);
+      await sleep(120);
+      await page.mouse.down();
+      // A few pixels first so HTML5 drag-and-drop and pointer-based libraries
+      // both pass their drag threshold before the real glide.
+      await page.mouse.move(from.cx + 4, from.cy + 4);
+      await sleep(80);
+      await moveMouseTo(page, mouse, tx, ty, sample);
+      await sleep(120);
+      await page.mouse.up();
+      markFocus(tx, ty, "drag");
+      await sleep(200);
+      return;
+    }
+
+    case "upload": {
+      const loc = await resolveTargetLocator(page, storyboard, action.target);
+      const files = action.files.map((f) =>
+        isAbsolute(f) ? f : resolve(opts.baseDir ?? process.cwd(), f)
+      );
+      for (const f of files) {
+        if (!existsSync(f)) throw new Error(`upload: file not found: ${f}`);
+      }
+      const isFileInput = await loc
+        .evaluate((el) => el.tagName === "INPUT" && (el as HTMLInputElement).type === "file")
+        .catch(() => false);
+      if (isFileInput) {
+        await loc.setInputFiles(files);
+      } else {
+        const chooser = page.waitForEvent("filechooser", { timeout: 8000 });
+        const { cx, cy } = await humanClick(page, loc, mouse, !!action.target.frame, sample);
+        markFocus(cx, cy, "click");
+        await (await chooser).setFiles(files);
+      }
+      log(`  upload: ${files.map((f) => basename(f)).join(", ")}`);
+      await sleep(300);
       return;
     }
 
@@ -1133,7 +1252,7 @@ async function runAction(
         await page.keyboard.press("ControlOrMeta+a");
         await page.keyboard.press("Backspace");
       }
-      await humanType(page, loc, action.text, action.humanize !== false);
+      await humanType(page, loc, action.text, !capture.fast && action.humanize !== false);
       return;
     }
 
@@ -1172,7 +1291,7 @@ async function runAction(
         if (action.padding != null) ev.padding = action.padding;
       }
       capture.attentionEvents.push(ev);
-      await sleep(Math.min(holdMs, ATTENTION_DWELL_MAX_MS));
+      if (!capture.fast) await sleep(Math.min(holdMs, ATTENTION_DWELL_MAX_MS));
       return;
     }
 
@@ -1205,6 +1324,7 @@ async function runAction(
       // Let the frame settle first, then record the marker at the settled
       // moment so compose-time extraction lands on a clean frame (not mid-
       // transition). The PNG is pulled from the CLEAN take by `aidemo stills`.
+      if (capture.fast) return;
       await sleep(120);
       capture.stillEvents.push({ tMs: Date.now() - t0, name: action.name });
       log(`  still "${action.name}" @ ${Date.now() - t0}ms`);
@@ -1351,7 +1471,8 @@ async function runAction(
     }
 
     case "pause":
-      await sleep(action.ms);
+      // A replayed scene (resume) only needs the state, not the beat.
+      await sleep(capture.fast ? Math.min(action.ms, 100) : action.ms);
       return;
   }
 }
@@ -1418,6 +1539,9 @@ function initProbeOutcome(
     case "highlight":
     case "spotlight":
     case "callout":
+    case "select":
+    case "drag":
+    case "upload":
       o.target = describeProbeTarget(storyboard, action.target);
       break;
     case "moveTo":

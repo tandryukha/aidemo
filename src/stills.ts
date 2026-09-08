@@ -14,6 +14,8 @@ interface StillMarker {
   sceneId: string;
   name: string;
   tMs: number;
+  source?: string;
+  leadInMs?: number;
 }
 
 /** True if any scene declares a `still` action (drives auto-extract in render). */
@@ -65,7 +67,14 @@ export async function extractStills(
         );
       }
       seen.set(ev.name, scene.id);
-      markers.push({ sceneId: scene.id, name: ev.name, tMs: ev.tMs });
+      markers.push({
+        sceneId: scene.id,
+        name: ev.name,
+        tMs: ev.tMs,
+        // Resumed takes: a reused scene's still lives in its own raw file.
+        source: scene.source ? resolve(project.dir, scene.source) : undefined,
+        leadInMs: scene.leadInMs,
+      });
     }
   }
 
@@ -96,8 +105,10 @@ export async function extractStills(
     // The same timeline→video mapping compose uses (rawT = tMs + leadInMs).
     // Clamp just inside the recording so a marker at the very tail still yields
     // a decodable frame rather than an ffmpeg seek past EOF.
-    const rawMs = m.tMs + timeline.leadInMs;
-    const seekMs = Math.max(0, Math.min(rawMs, Math.max(0, videoMs - 60)));
+    const src = m.source ?? rawVideo;
+    const srcMs = m.source ? await probeDurationMs(src) : videoMs;
+    const rawMs = m.tMs + (m.leadInMs ?? timeline.leadInMs);
+    const seekMs = Math.max(0, Math.min(rawMs, Math.max(0, srcMs - 60)));
     const out = resolve(outDir, `${m.name}.png`);
     // -ss before -i is a fast, accurate seek (accurate_seek is on by default);
     // -frames:v 1 grabs exactly one frame. No overlay/drawtext filters, so this
@@ -106,7 +117,7 @@ export async function extractStills(
       "-ss",
       (seekMs / 1000).toFixed(3),
       "-i",
-      rawVideo,
+      src,
       "-frames:v",
       "1",
       out,
