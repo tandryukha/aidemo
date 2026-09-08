@@ -22,7 +22,9 @@ const CURSOR_STROKE = "#111111";
  */
 export async function renderCursorPng(
   outPath: string,
-  sizePx: number
+  sizePx: number,
+  style: "arrow" | "dot" = "arrow",
+  color = "rgba(255,90,95,.85)"
 ): Promise<void> {
   // Logical canvas is 32 units (24 arrow + shadow headroom); scale to sizePx.
   const LOGICAL = 32;
@@ -42,8 +44,12 @@ export async function renderCursorPng(
       </style></head><body>
         <svg width="${LOGICAL}" height="${LOGICAL}" viewBox="0 0 ${LOGICAL} ${LOGICAL}"
              xmlns="http://www.w3.org/2000/svg">
-          <path d="${CURSOR_ARROW_PATH}" fill="${CURSOR_FILL}"
-            stroke="${CURSOR_STROKE}" stroke-width="1.3" stroke-linejoin="round"/>
+          ${
+            style === "dot"
+              ? `<circle cx="16" cy="16" r="9" fill="${color}" stroke="rgba(255,255,255,.9)" stroke-width="2"/>`
+              : `<path d="${CURSOR_ARROW_PATH}" fill="${CURSOR_FILL}"
+            stroke="${CURSOR_STROKE}" stroke-width="1.3" stroke-linejoin="round"/>`
+          }
         </svg>
       </body></html>`,
       { waitUntil: "load" }

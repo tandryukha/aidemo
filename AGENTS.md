@@ -49,8 +49,9 @@ bin/aidemo.mjs        CLI entry (launches tsx → src/cli.ts)
 src/types.ts          storyboard schema (zod) — the contract everything shares
 src/                  pipeline stages: voice, recorder/player/cursor (record),
                       captions/caption-render, compose/zoom/cards/music/ffmpeg
-                      (compose writes output/report.json), lint (browser-free
-                      pacing forecast + pitfalls),
+                      (compose writes output/report.json), attention (highlight/
+                      spotlight/callout/keystroke/click-ring PNGs + redact blur
+                      filter), lint (browser-free pacing forecast + pitfalls),
                       stills (screenshot mode), frames (review PNGs), setup
                       (cookie/storageState seeding + preflight hook),
                       i18n (multi-language),

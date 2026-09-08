@@ -9,6 +9,7 @@ import type {
 } from "./types.js";
 import { Project } from "./project.js";
 import { cursorInitScript } from "./cursor.js";
+import { hideCss } from "./player.js";
 import { runStoryboard } from "./player.js";
 import {
   defaultCaptureMode,
@@ -225,6 +226,21 @@ export async function record(
     await context.addInitScript({ content: cursorInitScript() });
   } else {
     log("cursor: compose-time overlay (recording cursor-free take + path)");
+  }
+
+  // Top-level `hide`: a stylesheet injected before any page script, in every
+  // frame and across navigations — teasers, cookie bars, ad slots that would
+  // photobomb the take. The ONE record-time exception to compose-time polish.
+  if (storyboard.hide?.length) {
+    const css = hideCss(storyboard.hide);
+    await context.addInitScript({
+      content:
+        `(() => { const add = () => { const s = document.createElement("style");` +
+        ` s.id = "__aidemo_hide"; s.textContent = ${JSON.stringify(css)};` +
+        ` (document.head || document.documentElement).appendChild(s); };` +
+        ` if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", add); else add(); })();`,
+    });
+    log(`hide: ${storyboard.hide.length} selector(s) hidden at record time`);
   }
 
   const page = context.pages()[0] ?? (await context.newPage());

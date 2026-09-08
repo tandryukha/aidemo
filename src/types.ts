@@ -82,6 +82,19 @@ export type EasingPreset = z.infer<typeof EasingPresetSchema>;
 export const WaitStateSchema = z.enum(["visible", "attached"]);
 export type WaitState = z.infer<typeof WaitStateSchema>;
 
+/** Look of an attention overlay (highlight ring, spotlight edge, callout pill). */
+export const AttentionStyleSchema = z.object({
+  /** CSS color. Default: the storyboard `attention.color`, else #ff5a5f. */
+  color: z.string().optional(),
+  /** Outline thickness, px. Default 3. */
+  thickness: z.number().min(1).max(12).optional(),
+  /** Room between the element's box and the outline, px. Default 6. */
+  padding: z.number().min(0).max(60).optional(),
+  /** "box" (rounded rectangle, default) or "ring" (pill/circle). */
+  shape: z.enum(["box", "ring"]).optional(),
+});
+export type AttentionStyle = z.infer<typeof AttentionStyleSchema>;
+
 export const ActionSchema = z.discriminatedUnion("op", [
   z.object({ ...BaseAction, op: z.literal("goto"), url: z.string() }),
   z.object({
@@ -97,7 +110,13 @@ export const ActionSchema = z.discriminatedUnion("op", [
     /** Per-keystroke jitter for a human cadence. Default true. */
     humanize: z.boolean().optional(),
   }),
-  z.object({ ...BaseAction, op: z.literal("press"), key: z.string() }),
+  z.object({
+    ...BaseAction,
+    op: z.literal("press"),
+    key: z.string(),
+    /** Show a keystroke chip for this press (overrides the top-level `keystrokes`). */
+    keystrokes: z.boolean().optional(),
+  }),
   z.object({
     ...BaseAction,
     op: z.literal("hover"),
@@ -243,6 +262,44 @@ export const ActionSchema = z.discriminatedUnion("op", [
    */
   z.object({ ...BaseAction, op: z.literal("still"), name: z.string() }),
   /**
+   * Attention beats — compose-time overlays drawn from a box the player
+   * measures (like `focus`, they are timeline markers; the drawing happens at
+   * compose, so restyling is a recompose). Each dwells briefly at record time
+   * (min(holdMs, 800) ms) so the eye registers it before the next action.
+   */
+  /** Outline `target` (box or ring) for `holdMs`. */
+  z.object({
+    ...BaseAction,
+    op: z.literal("highlight"),
+    target: TargetSchema,
+    /** How long the outline stays, ms. Default 1600. */
+    holdMs: z.number().min(100).max(15000).optional(),
+    style: AttentionStyleSchema.optional(),
+  }),
+  /** Dim everything except `target` for `holdMs`. */
+  z.object({
+    ...BaseAction,
+    op: z.literal("spotlight"),
+    target: TargetSchema,
+    holdMs: z.number().min(100).max(15000).optional(),
+    /** Opacity of the dim layer, 0–0.9. Default 0.55. */
+    dimTo: z.number().min(0).max(0.9).optional(),
+    /** Extra room around the element, px. Default 10. */
+    padding: z.number().min(0).max(80).optional(),
+    style: AttentionStyleSchema.optional(),
+  }),
+  /** Pin a short label to `target` for `holdMs`. */
+  z.object({
+    ...BaseAction,
+    op: z.literal("callout"),
+    target: TargetSchema,
+    text: z.string().min(1).max(80),
+    /** Where the label sits relative to the element. Default "auto". */
+    placement: z.enum(["auto", "top", "bottom", "left", "right"]).optional(),
+    holdMs: z.number().min(100).max(15000).optional(),
+    style: AttentionStyleSchema.optional(),
+  }),
+  /**
    * Park the cursor deliberately: glide it to `target` (element center) or an
    * absolute viewport point (`x`,`y` CSS px) without clicking. Use it to move
    * the cursor out of the way before a reveal, or to point at what the
@@ -313,6 +370,40 @@ export const MusicCueSchema = z.object({
 // Scene + Storyboard
 // ---------------------------------------------------------------------------
 
+/**
+ * A region to blur at compose time. The player re-measures the selector after
+ * every action (all matches, up to 8) and logs the spans; compose crops, blurs
+ * and overlays each span back — so a price, an email, a token never ships,
+ * and the strength is a recompose. Frame-relative selectors use `frame`.
+ */
+export const RedactSchema = z.object({
+  selector: z.string(),
+  frame: z.string().optional(),
+  /** boxblur radius, px at the logical size. Default 14. */
+  blur: z.number().min(2).max(60).optional(),
+});
+export type Redact = z.infer<typeof RedactSchema>;
+
+/** Caption strip placement. */
+export const CaptionsConfigSchema = z.object({
+  /**
+   * "bottom" (default) or "top". With "auto-flip" (the default behaviour when
+   * omitted at scene level) compose moves the strip to the top while a
+   * highlight/spotlight/callout box or a keystroke chip would collide with it.
+   */
+  position: z.enum(["bottom", "top"]).optional(),
+});
+export type CaptionsConfig = z.infer<typeof CaptionsConfigSchema>;
+
+/** Storyboard-wide defaults for the attention overlays. */
+export const AttentionConfigSchema = z.object({
+  /** Default outline / pill accent color. Default #ff5a5f. */
+  color: z.string().optional(),
+  /** Draw a click ring where every click lands (compose-time cursor only). */
+  clicks: z.boolean().optional(),
+});
+export type AttentionConfig = z.infer<typeof AttentionConfigSchema>;
+
 export const SceneSchema = z.object({
   id: z.string(),
   /** Spoken narration for this beat. Also the caption source of truth. */
@@ -330,6 +421,12 @@ export const SceneSchema = z.object({
   music: MusicCueSchema.optional(),
   /** Set false to suppress auto-zoom for this scene's clicks/typing. */
   zoom: z.boolean().optional(),
+  /** Caption placement for this scene (overrides top-level `captions.position`). */
+  captions: CaptionsConfigSchema.optional(),
+  /** Blur these regions while this scene records (adds to top-level `redact`). */
+  redact: z.array(RedactSchema).optional(),
+  /** Hide these selectors for this scene (adds to top-level `hide`). */
+  hide: z.array(z.string()).optional(),
   actions: z.array(ActionSchema).default([]),
 });
 export type Scene = z.infer<typeof SceneSchema>;
@@ -413,6 +510,10 @@ export const CursorConfigSchema = z.object({
   hideScenes: z.array(z.string()).optional(),
   /** Cursor size multiplier (1 = the 24px baseline arrow). */
   scale: z.number().min(0.5).max(4).optional(),
+  /** Pointer look: classic "arrow" (default) or a soft "dot" (screen-recorder style). */
+  style: z.enum(["arrow", "dot"]).optional(),
+  /** Dot style only: fill color. Default rgba(255,90,95,.85). */
+  color: z.string().optional(),
 });
 export type CursorConfig = z.infer<typeof CursorConfigSchema>;
 
@@ -649,6 +750,16 @@ export const StoryboardSchema = z.object({
   setup: SetupSchema.optional(),
   /** How compose fills narration that outlasts a scene's action (freeze | drift). Opt-in. */
   hold: HoldSchema.optional(),
+  /** Defaults for highlight/spotlight/callout overlays + click rings. Opt-in. */
+  attention: AttentionConfigSchema.optional(),
+  /** Show a keystroke chip on every `press` (per-action `keystrokes` overrides). Opt-in. */
+  keystrokes: z.boolean().optional(),
+  /** Caption strip placement (bottom | top). Opt-in; per-scene `captions` overrides. */
+  captions: CaptionsConfigSchema.optional(),
+  /** Regions blurred at compose time throughout the demo. Opt-in. */
+  redact: z.array(RedactSchema).optional(),
+  /** Selectors hidden (visibility:hidden) at record time throughout the demo. Opt-in. */
+  hide: z.array(z.string()).optional(),
   scenes: z.array(SceneSchema).min(1),
 });
 export type Storyboard = z.infer<typeof StoryboardSchema>;
@@ -729,6 +840,39 @@ export const TimelineActionSchema = z.object({
 });
 export type TimelineAction = z.infer<typeof TimelineActionSchema>;
 
+/** A measured attention beat (highlight/spotlight/callout) — viewport CSS px. */
+export const AttentionEventSchema = z.object({
+  tMs: z.number(),
+  kind: z.enum(["highlight", "spotlight", "callout"]),
+  x: z.number(),
+  y: z.number(),
+  w: z.number(),
+  h: z.number(),
+  holdMs: z.number(),
+  text: z.string().optional(),
+  placement: z.string().optional(),
+  dimTo: z.number().optional(),
+  padding: z.number().optional(),
+  style: AttentionStyleSchema.optional(),
+});
+export type AttentionEvent = z.infer<typeof AttentionEventSchema>;
+
+/** A key press to show as a chip (already prettified, e.g. "⌘ K", "Enter"). */
+export const KeyEventSchema = z.object({ tMs: z.number(), keys: z.string() });
+export type KeyEvent = z.infer<typeof KeyEventSchema>;
+
+/** A region blurred at compose time over [startMs, endMs] — viewport CSS px. */
+export const RedactSpanSchema = z.object({
+  startMs: z.number(),
+  endMs: z.number(),
+  x: z.number(),
+  y: z.number(),
+  w: z.number(),
+  h: z.number(),
+  blur: z.number(),
+});
+export type RedactSpan = z.infer<typeof RedactSpanSchema>;
+
 export const TimelineSceneSchema = z.object({
   id: z.string(),
   startMs: z.number(),
@@ -738,6 +882,9 @@ export const TimelineSceneSchema = z.object({
   stillEvents: z.array(StillEventSchema).default([]),
   cursorSamples: z.array(CursorSampleSchema).default([]),
   actions: z.array(TimelineActionSchema).default([]),
+  attentionEvents: z.array(AttentionEventSchema).default([]),
+  keyEvents: z.array(KeyEventSchema).default([]),
+  redactSpans: z.array(RedactSpanSchema).default([]),
 });
 export type TimelineScene = z.infer<typeof TimelineSceneSchema>;
 
@@ -801,6 +948,16 @@ export const ComposeReportSchema = z.object({
   zoom: z.object({ focusTotal: z.number(), focusDropped: z.number() }),
   cursorPoints: z.number(),
   captions: z.object({ cues: z.number(), passes: z.number() }),
+  /** Attention overlays drawn (highlight/spotlight/callout), key chips, click rings, redact spans. */
+  attention: z
+    .object({
+      events: z.number(),
+      keys: z.number(),
+      clicks: z.number(),
+      redactSpans: z.number(),
+      captionsFlipped: z.number(),
+    })
+    .optional(),
   hold: z.string(),
   warnings: z.array(ComposeWarningSchema),
 });

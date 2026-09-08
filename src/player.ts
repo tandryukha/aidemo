@@ -17,6 +17,10 @@ import type {
   ProbeActionOutcome,
   ProbeGoldenScene,
   TimelineAction,
+  AttentionEvent,
+  KeyEvent,
+  RedactSpan,
+  Redact,
 } from "./types.js";
 import {
   easeInOutCubic,
@@ -99,6 +103,47 @@ interface SceneCapture {
   stillEvents: StillEvent[];
   cursorSamples: CursorSample[];
   actions: TimelineAction[];
+  attentionEvents: AttentionEvent[];
+  keyEvents: KeyEvent[];
+  redactSpans: RedactSpan[];
+}
+
+/** Record-time dwell for an attention beat (the hold itself is compose-time). */
+const ATTENTION_DWELL_MAX_MS = 800;
+const ATTENTION_HOLD_DEFAULT_MS = 1600;
+const CALLOUT_HOLD_DEFAULT_MS = 2000;
+/** Max matches per redact selector measured after each action. */
+const REDACT_MAX_MATCHES = 8;
+
+/** Pretty keystroke label for the chip: "Meta+K" → "⌘ K", "Enter" → "Enter". */
+export function prettyKeys(key: string): string {
+  const map: Record<string, string> = {
+    meta: "⌘",
+    cmd: "⌘",
+    command: "⌘",
+    control: "Ctrl",
+    ctrl: "Ctrl",
+    shift: "⇧",
+    alt: "⌥",
+    option: "⌥",
+    enter: "Enter",
+    return: "Enter",
+    escape: "Esc",
+    backspace: "⌫",
+    delete: "Del",
+    tab: "Tab",
+    space: "Space",
+    arrowup: "↑",
+    arrowdown: "↓",
+    arrowleft: "←",
+    arrowright: "→",
+    pageup: "PgUp",
+    pagedown: "PgDn",
+  };
+  return key
+    .split("+")
+    .map((k) => map[k.toLowerCase()] ?? (k.length === 1 ? k.toUpperCase() : k))
+    .join(" ");
 }
 
 /** Ops `retry` applies to: interactions whose failure is usually transient. */
@@ -110,6 +155,9 @@ const RETRYABLE_OPS = new Set([
   "focus",
   "moveTo",
   "assert",
+  "highlight",
+  "spotlight",
+  "callout",
 ]);
 const RETRY_GAP_MS = 400;
 
@@ -253,7 +301,20 @@ export async function runStoryboard(
       stillEvents: [],
       cursorSamples: [],
       actions: [],
+      attentionEvents: [],
+      keyEvents: [],
+      redactSpans: [],
     };
+    // Per-scene `hide` (top-level hides are injected by the recorder's init
+    // script so they survive navigations); applied now, removed at scene end.
+    if (scene.hide?.length) await setSceneHide(page, scene.hide);
+    const redactList: Redact[] = [...(storyboard.redact ?? []), ...(scene.redact ?? [])];
+    const redactOpen = new Map<string, RedactSpan>();
+    const measureRedact = async (): Promise<void> => {
+      if (!redactList.length) return;
+      await measureRedactions(page, storyboard, redactList, redactOpen, capture, now);
+    };
+    await measureRedact();
     // Cursor path sampler — only records when the storyboard opts into the
     // compose-time cursor overlay, so a plain take's timeline stays unchanged.
     const sample: CursorSampler | undefined = opts.captureCursorPath
@@ -362,6 +423,7 @@ export async function runStoryboard(
       }
       if (recWarnings.length) rec.warnings = recWarnings;
       capture.actions.push(rec);
+      await measureRedact();
       if (outcome) {
         // Optional actions skip the found-enrichment: whether their target
         // resolves is environment-dependent, and the golden projection must
@@ -373,6 +435,13 @@ export async function runStoryboard(
       }
     }
     if (opts.probe) opts.probe.push({ id: scene.id, actions: probeOutcomes });
+    // Close every open redact span at the scene boundary and drop the scene hide.
+    for (const span of redactOpen.values()) {
+      span.endMs = now();
+      capture.redactSpans.push(span);
+    }
+    redactOpen.clear();
+    if (scene.hide?.length) await setSceneHide(page, []);
 
     const tlScene: TimelineScene = {
       id: scene.id,
@@ -383,6 +452,9 @@ export async function runStoryboard(
       stillEvents: capture.stillEvents,
       cursorSamples: capture.cursorSamples,
       actions: capture.actions,
+      attentionEvents: capture.attentionEvents,
+      keyEvents: capture.keyEvents,
+      redactSpans: capture.redactSpans,
     };
     scenes.push(tlScene);
     opts.onSceneComplete?.(tlScene, si, total);
@@ -847,6 +919,9 @@ const INTERACTION_OPS = new Set([
   "scrollTo",
   "focus",
   "moveTo",
+  "highlight",
+  "spotlight",
+  "callout",
 ]);
 const OPTIONAL_PROBE_MS = 3000;
 
@@ -1050,9 +1125,43 @@ async function runAction(
     }
 
     case "press":
+      if (action.keystrokes ?? storyboard.keystrokes) {
+        capture.keyEvents.push({ tMs: Date.now() - t0, keys: prettyKeys(action.key) });
+      }
       await page.keyboard.press(action.key);
       await sleep(200);
       return;
+
+    case "highlight":
+    case "spotlight":
+    case "callout": {
+      const loc = await resolveTargetLocator(page, storyboard, action.target);
+      const rect = await rectOf(page, loc);
+      const holdMs =
+        action.holdMs ??
+        (action.op === "callout" ? CALLOUT_HOLD_DEFAULT_MS : ATTENTION_HOLD_DEFAULT_MS);
+      const ev: AttentionEvent = {
+        tMs: Date.now() - t0,
+        kind: action.op,
+        x: rect.x,
+        y: rect.y,
+        w: rect.w,
+        h: rect.h,
+        holdMs,
+      };
+      if (action.style) ev.style = action.style;
+      if (action.op === "callout") {
+        ev.text = action.text;
+        if (action.placement) ev.placement = action.placement;
+      }
+      if (action.op === "spotlight") {
+        if (action.dimTo != null) ev.dimTo = action.dimTo;
+        if (action.padding != null) ev.padding = action.padding;
+      }
+      capture.attentionEvents.push(ev);
+      await sleep(Math.min(holdMs, ATTENTION_DWELL_MAX_MS));
+      return;
+    }
 
     case "hover": {
       const loc = await resolveTargetLocator(page, storyboard, action.target);
@@ -1293,6 +1402,9 @@ function initProbeOutcome(
     case "scrollTo":
     case "waitFor":
     case "focus":
+    case "highlight":
+    case "spotlight":
+    case "callout":
       o.target = describeProbeTarget(storyboard, action.target);
       break;
     case "moveTo":
@@ -1583,6 +1695,112 @@ async function boxOf(page: Page, loc: Locator): Promise<{ cx: number; cy: number
   }
   if (!box) throw new Error("Element has no bounding box (not visible?)");
   return { cx: box.x + box.width / 2, cy: box.y + box.height / 2 };
+}
+
+/** Full viewport rect of an element (after boxOf's bring-into-view nudge). */
+async function rectOf(
+  page: Page,
+  loc: Locator
+): Promise<{ x: number; y: number; w: number; h: number }> {
+  await boxOf(page, loc);
+  const box = await loc.boundingBox();
+  if (!box) throw new Error("Element has no bounding box (not visible?)");
+  return {
+    x: Math.round(box.x),
+    y: Math.round(box.y),
+    w: Math.round(box.width),
+    h: Math.round(box.height),
+  };
+}
+
+/** CSS used for `hide` selectors (record-time, the one non-compose exception). */
+export function hideCss(selectors: string[]): string {
+  return selectors.length
+    ? `${selectors.join(",")}{visibility:hidden !important;}`
+    : "";
+}
+
+/** Install / replace the per-scene hide stylesheet in the main frame. */
+async function setSceneHide(page: Page, selectors: string[]): Promise<void> {
+  const css = hideCss(selectors);
+  await page
+    .evaluate((text) => {
+      const id = "__aidemo_scene_hide";
+      let el = document.getElementById(id);
+      if (!text) {
+        el?.remove();
+        return;
+      }
+      if (!el) {
+        el = document.createElement("style");
+        el.id = id;
+        document.documentElement.appendChild(el);
+      }
+      el.textContent = text;
+    }, css)
+    .catch(() => {});
+}
+
+/**
+ * Re-measure every redact selector and update the open spans: a box that
+ * moved or vanished closes its span; a new/moved box opens one. Cheap (one
+ * boundingBox per match), runs after every action.
+ */
+async function measureRedactions(
+  page: Page,
+  storyboard: Storyboard,
+  list: Redact[],
+  open: Map<string, RedactSpan>,
+  capture: SceneCapture,
+  now: () => number
+): Promise<void> {
+  const seen = new Set<string>();
+  const t = now();
+  for (const r of list) {
+    let boxes: Array<{ x: number; y: number; width: number; height: number } | null> = [];
+    try {
+      const loc = await resolveTargetLocator(page, storyboard, {
+        selector: r.selector,
+        ...(r.frame ? { frame: r.frame } : {}),
+      });
+      const n = Math.min(await loc.count().catch(() => 0), REDACT_MAX_MATCHES);
+      for (let i = 0; i < n; i++) {
+        boxes.push(await loc.nth(i).boundingBox().catch(() => null));
+      }
+    } catch {
+      boxes = [];
+    }
+    boxes.forEach((b, i) => {
+      if (!b || b.width < 1 || b.height < 1) return;
+      const key = `${r.frame ?? ""}>>${r.selector}#${i}`;
+      seen.add(key);
+      const rect = {
+        x: Math.round(b.x),
+        y: Math.round(b.y),
+        w: Math.round(b.width),
+        h: Math.round(b.height),
+      };
+      const cur = open.get(key);
+      const same =
+        cur &&
+        Math.abs(cur.x - rect.x) <= 2 &&
+        Math.abs(cur.y - rect.y) <= 2 &&
+        Math.abs(cur.w - rect.w) <= 2 &&
+        Math.abs(cur.h - rect.h) <= 2;
+      if (same) return;
+      if (cur) {
+        cur.endMs = t;
+        capture.redactSpans.push(cur);
+      }
+      open.set(key, { startMs: t, endMs: t, ...rect, blur: r.blur ?? 14 });
+    });
+  }
+  for (const [key, span] of open) {
+    if (seen.has(key)) continue;
+    span.endMs = t;
+    capture.redactSpans.push(span);
+    open.delete(key);
+  }
 }
 
 /** Eased cursor glide via many small mouse.move steps. */

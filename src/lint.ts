@@ -137,6 +137,11 @@ export function estimateActionMs(a: Action): number {
       return IDLE_CAP_MS; // idle-marked → trimmed to the cap
     case "waitForChange":
       return a.idle ? IDLE_CAP_MS : 900;
+    case "highlight":
+    case "spotlight":
+    case "callout":
+      // Record-time dwell only; the overlay hold itself is compose-time.
+      return Math.min(a.holdMs ?? (a.op === "callout" ? 2000 : 1600), 800) + 150;
     case "moveTo":
       return 450; // glide + 150 ms settle
     case "assert":
@@ -437,6 +442,15 @@ export function lintStoryboard(
   });
 
   // --- storyboard-level rules ---
+
+  if (sb.attention?.clicks && !sb.cursor) {
+    push({
+      severity: "info",
+      code: "clicks-without-cursor",
+      message: "`attention.clicks` draws click rings only with the compose-time cursor — no `cursor` block, so no rings",
+      fix: "add a `cursor: {}` block (the take is then recorded cursor-free and the cursor is overlaid at compose)",
+    });
+  }
   if (sb.zoom && sb.zoom.enabled !== false) {
     const capped = clampScaleForWidth(sb.zoom.scale, sb.video.width);
     if (capped < sb.zoom.scale) {

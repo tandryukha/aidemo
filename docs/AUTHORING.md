@@ -155,7 +155,8 @@ The precise contract is the JSON Schema from `get_storyboard_schema`
 Top level: `title`, `language?`, `knownTerms?`, `targetLengthSeconds?`, `video{width,height}`
 (default 1280x720), `frames{ name: iframeSelector }`,
 `voice{voiceId,instructions,speed,pronounce?}` (default, scenes may override), `music?`,
-`zoom?`, `intro?`, `outro?`, `transition?`, `hold?`, `output?`, `setup?`, `scenes[]`.
+`zoom?`, `intro?`, `outro?`, `transition?`, `hold?`, `output?`, `setup?`,
+`attention?`, `keystrokes?`, `captions?`, `redact?`, `hide?`, `scenes[]`.
 
 `setup?` prepares the take before the first action — for cookie-gated or
 fixture-rotating sites, so you never hand-write a Playwright seed script:
@@ -224,11 +225,24 @@ Cinematic keys (all opt-in; omit for the plain look):
   master loudness** (`loudness`), e.g. a vertical social clip (see below).
 - `motionBlur: {frames?=3}` — **subtle motion blur** on fast motion (cursor,
   scroll, zoom pan); static UI stays sharp (see below).
-- `cursor: {hidden?, hideScenes?, scale?}` — **compose-time cursor control**:
-  hide or resize the cursor post-hoc instead of baking it (see below).
+- `cursor: {hidden?, hideScenes?, scale?, style?, color?}` — **compose-time
+  cursor control**: hide, resize or restyle (`"arrow"` | `"dot"`) the cursor
+  post-hoc instead of baking it (see below).
+- `attention: {color?, clicks?}` — accent color for highlight/spotlight/callout
+  overlays; `clicks:true` draws a click ring wherever a click lands (needs the
+  `cursor` block). See *Attention*.
+- `keystrokes: true` — show a keystroke chip ("⌘ K", "Enter") on every `press`
+  (per-action `keystrokes` overrides). See *Attention*.
+- `captions: {position?="bottom"|"top"}` — caption strip placement; scenes may
+  override with their own `captions`. Compose also auto-flips a cue to the top
+  while an overlay occupies the bottom band. See *Attention*.
+- `redact: [{selector, frame?, blur?}]` — **blur regions at compose time**
+  (prices, emails, tokens); scenes may add their own `redact`. See *Attention*.
+- `hide: [selector, …]` — hide elements at **record** time (teasers, cookie
+  bars, ad slots); scenes may add their own `hide`. See *Attention*.
 
 Each scene: `id`, `narration`, `voice?`, `music?`, `zoom?` (false to disable),
-`actions[]`.
+`captions?`, `redact?`, `hide?`, `actions[]`.
 
 ## Transitions, output sizing & loudness
 
@@ -294,6 +308,71 @@ Override or disable via `loudness`:
 
 Targets are the ffmpeg `loudnorm` `I` (LUFS), `TP` (dBTP), and `LRA` (LU). The
 pass runs last over the muxed audio and pins the rate back to 44.1 kHz.
+
+## Attention: highlight, spotlight, callout, keystrokes, redact, hide
+
+The attention layer is how a demo says *look here* without a voice-over
+"as you can see". Everything except `hide` is **compose-time**: the player
+measures the element's box during the take and logs a timeline marker; compose
+rasterizes the mark (headless-Chrome PNG, baseline `overlay`) and draws it
+**under the cursor and before the zoom**, so it rides the camera like page
+content. Restyle, retime or remove a mark → recompose, never re-record. Every
+key is opt-in; a storyboard without them renders exactly as before.
+
+**Beats (actions):**
+- `{op:"highlight", target, holdMs?=1600, style?}` — an outline around the
+  element. `style: {color?, thickness?=3, padding?=6, shape?="box"|"ring"}`.
+- `{op:"spotlight", target, holdMs?=1600, dimTo?=0.55, padding?=10, style?}` —
+  dims the whole frame except the element (with a thin accent edge).
+- `{op:"callout", target, text, placement?="auto"|"top"|"bottom"|"left"|"right",
+  holdMs?=2000, style?}` — a short label (≤80 chars) pinned to the element
+  with an arrow. `auto` picks below, then above, then right.
+
+Each beat **dwells** at record time for `min(holdMs, 800)` ms so the eye
+registers it before the next action; the overlay itself stays for `holdMs` of
+*content* time (clipped to the scene). Pair a beat with the narration that
+names the thing: `highlight` the field right before you `type` into it,
+`spotlight` the result the narration explains, `callout` the one number that
+matters. Don't stack more than one beat per sentence.
+
+**Keystroke chips.** `keystrokes: true` (top level) or `keystrokes: true` on a
+`press` shows a chip bottom-right ("⌘ K", "Enter", "Esc", "⇧ Tab") for ~0.9 s
+after the key goes down. Shortcuts-driven products (command palettes, editors)
+read far better with it; typing (`type`) never shows chips — the text on
+screen is the feedback.
+
+**Click rings.** `attention: {clicks: true}` with a `cursor` block draws a
+three-step ring where every click lands (the compose-time twin of the baked
+cursor's ripple). `attention.color` sets the accent for rings and beats
+(default `#ff5a5f`).
+
+**Cursor style.** `cursor: {style:"dot", color?, scale?}` draws a soft dot
+instead of the arrow — the screen-recorder look; the dot is centered on the
+recorded point, the arrow's tip is.
+
+**Captions placement.** `captions: {position:"top"}` (top level or per scene)
+moves the strip to the top edge. Without a per-scene override, compose
+**auto-flips** any cue whose window overlaps a highlight/spotlight/callout
+box or a keystroke chip sitting in the bottom band, so a mark and a caption
+never collide (`report.json` → `attention.captionsFlipped`).
+
+**Redact (compose-time blur).** `redact: [{selector, frame?, blur?=14}]` at
+the top level and/or per scene. After every action the player re-measures
+each selector (all matches, up to 8) and logs a span per box; compose crops,
+blurs and overlays each span back — prices, emails, API keys, customer names
+never ship, and the blur strength is a recompose. Boxes that move (scrolls,
+re-layouts) start a new span at the next action; a region that moves *during*
+a scroll is blurred at its post-scroll position, so put the scroll before the
+data appears or blur a container rather than a cell.
+
+**Hide (record-time).** `hide: ["footer", ".promo-banner"]` at the top level
+(injected before any page script, survives navigations) and/or per scene
+(applied at scene start, removed at scene end) sets `visibility:hidden` on
+the matches — for teasers, chat widgets, cookie bars, and ad slots that would
+photobomb the take. This is the **one** record-time exception to
+compose-time polish: hiding is cheap to redo, and a hidden element cannot be
+un-hidden by a recompose, so keep the list to things you'd never want in any
+cut. Lint-check with a probe: hidden elements still take their layout space.
 
 ## Motion blur & cursor
 

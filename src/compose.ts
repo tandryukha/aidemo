@@ -24,6 +24,20 @@ import {
   type HideWindow,
 } from "./cursor-overlay.js";
 import {
+  renderAttentionPngs,
+  renderKeyChipPngs,
+  renderClickRingPngs,
+  buildRedactFilter,
+  REDACT_BATCH,
+  KEY_CHIP_MS,
+  DEFAULT_ACCENT,
+  type OverlayItem,
+  type PlacedAttention,
+  type PlacedKey,
+  type PlacedClick,
+  type PlacedRedact,
+} from "./attention.js";
+import {
   runFfmpeg,
   probeDurationMs,
   probeFlatTailMs,
@@ -108,6 +122,18 @@ export async function compose(
   const cursorPts: CursorPoint[] = [];
   const hideWindows: HideWindow[] = [];
   let cursorSampleCount = 0;
+  // Attention layer accumulators (all opt-in; empty for a plain storyboard).
+  const accent = storyboard.attention?.color ?? DEFAULT_ACCENT;
+  const attentionPlaced: PlacedAttention[] = [];
+  const keysPlaced: PlacedKey[] = [];
+  const clicksPlaced: PlacedClick[] = [];
+  const redactPlaced: PlacedRedact[] = [];
+  const clickRings = !!(storyboard.attention?.clicks && cursorCfg);
+  /** Per-scene caption placement windows (content ms, before the intro shift). */
+  const captionWindows: Array<{ a: number; b: number; position: "top" | "bottom" }> = [];
+  // Dot cursors are centered on the point; the arrow PNG's tip is its top-left.
+  const dotOffset =
+    cursorCfg?.style === "dot" ? Math.round(16 * pxScale * (cursorCfg.scale ?? 1)) : 0;
 
   const sceneVideos: string[] = [];
   const sceneTotal = timeline.scenes.length;
@@ -211,8 +237,8 @@ export async function compose(
         const local = offsetInKeeps(keeps, rawT) * factor;
         cursorPts.push({
           t: (outCursorMs + Math.min(local, stretchedMs)) / 1000,
-          x: s.x * pxScale,
-          y: s.y * pxScale,
+          x: s.x * pxScale - dotOffset,
+          y: s.y * pxScale - dotOffset,
         });
       }
       cursorSampleCount += (tl.cursorSamples ?? []).length;
@@ -220,6 +246,42 @@ export async function compose(
         const sceneEnd = outCursorMs + stretchedMs + (holdMs > 40 ? holdMs : 0);
         hideWindows.push({ a: sceneStart / 1000, b: sceneEnd / 1000 });
       }
+    }
+
+    // Attention beats, key chips, click rings and redact spans: same raw →
+    // content-time remap; holds are content-time and clipped to the scene.
+    {
+      const sceneStart = outCursorMs;
+      const sceneEnd = outCursorMs + stretchedMs + (holdMs > 40 ? holdMs : 0);
+      const toContent = (rawMs: number): number =>
+        sceneStart + Math.min(offsetInKeeps(keeps, rawMs + timeline.leadInMs) * factor, stretchedMs);
+      for (const ev of tl.attentionEvents ?? []) {
+        const a = toContent(ev.tMs);
+        const b = Math.min(sceneEnd, a + ev.holdMs);
+        if (b - a < 80) continue;
+        attentionPlaced.push({ ...ev, a: a / 1000, b: b / 1000 });
+      }
+      for (const k of tl.keyEvents ?? []) {
+        const a = toContent(k.tMs);
+        const b = Math.min(sceneEnd, a + KEY_CHIP_MS);
+        if (b - a < 80) continue;
+        keysPlaced.push({ keys: k.keys, a: a / 1000, b: b / 1000 });
+      }
+      if (clickRings) {
+        for (const f of tl.focusEvents ?? []) {
+          if (f.kind !== "click") continue;
+          clicksPlaced.push({ x: f.x, y: f.y, t: toContent(f.tMs) / 1000 });
+        }
+      }
+      for (const r of tl.redactSpans ?? []) {
+        const a = toContent(r.startMs);
+        // A span open at the scene end covers the hold too.
+        const b = r.endMs >= tl.endMs - 5 ? sceneEnd : toContent(r.endMs);
+        if (b - a < 40) continue;
+        redactPlaced.push({ ...r, a: a / 1000, b: b / 1000 });
+      }
+      const pos = sceneById.get(tl.id)?.captions?.position;
+      if (pos) captionWindows.push({ a: sceneStart, b: sceneEnd, position: pos });
     }
 
     outCursorMs += stretchedMs + (holdMs > 40 ? holdMs : 0);
@@ -333,6 +395,66 @@ export async function compose(
     );
   }
 
+  // Redaction first: blur boxes ride every later pass (cursor, zoom, blur).
+  if (redactPlaced.length) {
+    let src = content;
+    let passes = 0;
+    for (let i = 0; i < redactPlaced.length; i += REDACT_BATCH) {
+      const batch = redactPlaced.slice(i, i + REDACT_BATCH);
+      const filter = buildRedactFilter(batch, outW, outH, pxScale);
+      if (!filter) continue;
+      const out = resolve(tmp, `content-redact-${passes}.mp4`);
+      await runFfmpeg([
+        "-i",
+        src,
+        "-filter_complex",
+        filter,
+        "-map",
+        "[vout]",
+        "-an",
+        "-r",
+        String(FPS),
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "20",
+        "-pix_fmt",
+        "yuv420p",
+        out,
+      ]);
+      src = out;
+      passes++;
+    }
+    content = src;
+    log(`redact: ${redactPlaced.length} span(s) blurred in ${passes} pass(es)`);
+  }
+
+  // Attention overlays (highlight / spotlight / callout / click rings) go on
+  // BEFORE the cursor and the zoom, so they ride the camera like page content.
+  let attentionItems: OverlayItem[] = [];
+  if (attentionPlaced.length || clicksPlaced.length) {
+    attentionItems = [
+      ...(await renderAttentionPngs(
+        attentionPlaced,
+        resolve(tmp, "attention"),
+        storyboard.video.width,
+        storyboard.video.height,
+        pxScale,
+        accent
+      )),
+      ...(await renderClickRingPngs(clicksPlaced, resolve(tmp, "attention"), pxScale, accent)),
+    ];
+    const r = await overlayPngBatches(content, attentionItems, tmp, "attention");
+    content = r.video;
+    log(
+      `attention: ${attentionPlaced.length} beat(s)` +
+        (clicksPlaced.length ? `, ${clicksPlaced.length} click ring(s)` : "") +
+        ` in ${r.passes} pass(es)`
+    );
+  }
+
   // Compose-time cursor overlay (opt-in `cursor` block). Draw the recorded
   // cursor path onto the (cursor-free) content BEFORE the zoom pass, so the
   // cursor zooms and pans with the frame exactly like a baked one would.
@@ -355,7 +477,12 @@ export async function compose(
       if (filter) {
         const cScale = cursorCfg.scale ?? 1;
         const png = resolve(tmp, "cursor.png");
-        await renderCursorPng(png, Math.round(32 * pxScale * cScale));
+        await renderCursorPng(
+          png,
+          Math.round(32 * pxScale * cScale),
+          cursorCfg.style ?? "arrow",
+          cursorCfg.color
+        );
         const withCursor = resolve(tmp, "content-cursor.mp4");
         await runFfmpeg([
           "-i",
@@ -474,6 +601,21 @@ export async function compose(
     log(`motion blur: tmix ${frames} frames`);
   }
 
+  // Keystroke chips are screen-fixed UI: after the zoom/blur, before cards.
+  let keyItems: OverlayItem[] = [];
+  if (keysPlaced.length) {
+    keyItems = await renderKeyChipPngs(
+      keysPlaced,
+      resolve(tmp, "attention"),
+      storyboard.video.width,
+      storyboard.video.height,
+      pxScale
+    );
+    const r = await overlayPngBatches(content, keyItems, tmp, "keys");
+    content = r.video;
+    log(`keystrokes: ${keysPlaced.length} chip(s) in ${r.passes} pass(es)`);
+  }
+
   // Intro/outro title cards. Music runs under them; narration and captions
   // shift right by the intro's length.
   const segments: string[] = [];
@@ -499,13 +641,23 @@ export async function compose(
       ? content
       : await concatSegments(segments, resolve(tmp, "video.mp4"), tmp, "full", true);
 
+  // Caption band collisions: any attention box / key chip that reaches into
+  // the bottom strip flips the caption to the top for the cues it overlaps.
+  const bandTop = outH - Math.round((CAPTION_BOTTOM_GAP + 80) * pxScale);
+  const collisions = [...attentionItems, ...keyItems]
+    .filter((it) => {
+      // Spotlights are full-frame PNGs; use the hole instead of the canvas.
+      return it.y + pngHeightHint(it, attentionPlaced, pxScale) > bandTop;
+    })
+    .map((it) => ({ a: it.a * 1000, b: it.b * 1000 }));
   const captionsResult = await burnCaptions(
     project,
     storyboard,
     fullVideo,
     tmp,
     introMs,
-    pxScale
+    pxScale,
+    { defaultPosition: storyboard.captions?.position ?? "bottom", windows: captionWindows, collisions }
   );
   const captioned = captionsResult.video;
   // Optional final resize/reframe (opt-in). Applied last, over the whole
@@ -532,6 +684,17 @@ export async function compose(
     cursorPoints: cursorPts.length,
     captions: { cues: captionsResult.cues, passes: captionsResult.passes },
     hold: hold.mode,
+    ...(attentionPlaced.length || keysPlaced.length || clicksPlaced.length || redactPlaced.length
+      ? {
+          attention: {
+            events: attentionPlaced.length,
+            keys: keysPlaced.length,
+            clicks: clicksPlaced.length,
+            redactSpans: redactPlaced.length,
+            captionsFlipped: captionsResult.flipped,
+          },
+        }
+      : {}),
     warnings,
   };
   await writeJson(project.reportPath, report);
@@ -979,68 +1142,45 @@ const CAPTION_BOTTOM_GAP = 96;
  */
 const CAPTION_BATCH = 32;
 
-async function burnCaptions(
-  project: Project,
-  storyboard: Storyboard,
-  silentVideo: string,
+/**
+ * Overlay many time-gated PNGs onto `src` in passes of ≤ CAPTION_BATCH. Each
+ * item is one extra input plus one overlay link; ffmpeg fails to configure a
+ * graph somewhere past ~90 of them (issue #36), so long lists are burned in
+ * several re-encoding passes. Shared by captions, attention beats, key chips.
+ */
+async function overlayPngBatches(
+  src: string,
+  items: OverlayItem[],
   tmp: string,
-  introMs: number,
-  pxScale: number
-): Promise<{ video: string; cues: number; passes: number }> {
-  const none = { video: silentVideo, cues: 0, passes: 0 };
-  if (!(await exists(project.captionsCuesPath))) return none;
-  const cues = (await readJson<Cue[]>(project.captionsCuesPath)) ?? [];
-  if (cues.length === 0) return none;
-
-  log(`rendering ${cues.length} caption image(s)`);
-  const rendered = await renderCaptionPngs(
-    cues,
-    resolve(tmp, "captions"),
-    storyboard.video.width,
-    pxScale
-  );
-
-  // One ffmpeg pass per BATCH of cues, not one chain for all of them. Each cue
-  // is an extra input plus an extra overlay link, and past roughly 90 of them
-  // ffmpeg gives up wiring the filter network ("Failed to configure output
-  // pad" / "Failed to inject frame into filter network") — a 3.5-minute
-  // narration is ~95 cues, so long demos hit it (issue #36). Batching keeps
-  // every graph small at the cost of one re-encode per extra pass.
-  const gap = Math.round(CAPTION_BOTTOM_GAP * pxScale);
-  const batches: typeof rendered[] = [];
-  for (let i = 0; i < rendered.length; i += CAPTION_BATCH) {
-    batches.push(rendered.slice(i, i + CAPTION_BATCH));
+  label: string
+): Promise<{ video: string; passes: number }> {
+  if (items.length === 0) return { video: src, passes: 0 };
+  const batches: OverlayItem[][] = [];
+  for (let i = 0; i < items.length; i += CAPTION_BATCH) {
+    batches.push(items.slice(i, i + CAPTION_BATCH));
   }
   if (batches.length > 1) {
-    log(`caption overlay: ${batches.length} pass(es) of <= ${CAPTION_BATCH} cue(s)`);
+    log(`${label} overlay: ${batches.length} pass(es) of <= ${CAPTION_BATCH} item(s)`);
   }
-
-  let src = silentVideo;
+  let cur = src;
   let out = src;
   for (let b = 0; b < batches.length; b++) {
     const batch = batches[b];
-    const args: string[] = ["-i", src];
-    for (const r of batch) args.push("-i", r.png);
-
-    // Chain one overlay per cue, each enabled only during its time window.
-    // Cue times are narration-relative; the intro card shifts them right.
+    const args: string[] = ["-i", cur];
+    for (const it of batch) args.push("-i", it.png);
     const chain: string[] = [];
     let prev = "0:v";
-    batch.forEach((r, i) => {
+    batch.forEach((it, i) => {
       const inp = `${i + 1}:v`;
-      const label = i === batch.length - 1 ? "vout" : `o${i}`;
-      const a = ((r.startMs + introMs) / 1000).toFixed(3);
-      const e = ((r.endMs + introMs) / 1000).toFixed(3);
+      const lbl = i === batch.length - 1 ? "vout" : `o${i}`;
       // Escape the enable-expression commas so ffmpeg doesn't read them as
-      // filter separators. Lift the strip clear of the app's bottom input bar
-      // (the ChatGPT composer) so captions never sit on top of the prompt.
+      // filter separators.
       chain.push(
-        `[${prev}][${inp}]overlay=0:H-h-${gap}:enable=between(t\\,${a}\\,${e})[${label}]`
+        `[${prev}][${inp}]overlay=${it.x}:${it.y}:enable=between(t\\,${it.a.toFixed(3)}\\,${it.b.toFixed(3)})[${lbl}]`
       );
-      prev = label;
+      prev = lbl;
     });
-
-    out = resolve(tmp, `captioned-${b}.mp4`);
+    out = resolve(tmp, `${label}-${b}.mp4`);
     await runFfmpeg([
       ...args,
       "-filter_complex",
@@ -1058,9 +1198,83 @@ async function burnCaptions(
       "yuv420p",
       out,
     ]);
-    src = out;
+    cur = out;
   }
-  return { video: out, cues: cues.length, passes: batches.length };
+  return { video: out, passes: batches.length };
+}
+
+/** Height of an overlay PNG for the caption-collision check (spotlight → its hole). */
+function pngHeightHint(it: OverlayItem, placed: PlacedAttention[], pxScale: number): number {
+  if (it.x === 0 && it.y === 0) {
+    const ev = placed.find((p) => p.kind === "spotlight" && p.a === it.a && p.b === it.b);
+    if (ev) return Math.round((ev.y + ev.h + (ev.padding ?? 10)) * pxScale);
+    return 0;
+  }
+  return it.png.includes("/key-") ? 60 * pxScale : 48 * pxScale;
+}
+
+interface CaptionPlacement {
+  defaultPosition: "top" | "bottom";
+  /** Content-time windows (ms, before the intro shift) with a fixed position. */
+  windows: Array<{ a: number; b: number; position: "top" | "bottom" }>;
+  /** Content-time windows (ms) during which the bottom band is occupied. */
+  collisions: Array<{ a: number; b: number }>;
+}
+
+async function burnCaptions(
+  project: Project,
+  storyboard: Storyboard,
+  silentVideo: string,
+  tmp: string,
+  introMs: number,
+  pxScale: number,
+  placement: CaptionPlacement = { defaultPosition: "bottom", windows: [], collisions: [] }
+): Promise<{ video: string; cues: number; passes: number; flipped: number }> {
+  const none = { video: silentVideo, cues: 0, passes: 0, flipped: 0 };
+  if (!(await exists(project.captionsCuesPath))) return none;
+  const cues = (await readJson<Cue[]>(project.captionsCuesPath)) ?? [];
+  if (cues.length === 0) return none;
+
+  log(`rendering ${cues.length} caption image(s)`);
+  const rendered = await renderCaptionPngs(
+    cues,
+    resolve(tmp, "captions"),
+    storyboard.video.width,
+    pxScale
+  );
+
+  // Cue times are narration-relative; the intro card shifts them right. The
+  // strip sits `gap` above the bottom edge (clear of an app's bottom input
+  // bar) — or, per scene / on a collision with an attention overlay, at the
+  // top: the PNG is a bottom-anchored strip, so "top" flips it vertically.
+  const gap = Math.round(CAPTION_BOTTOM_GAP * pxScale);
+  const { height: outH } = await probeVideoDims(silentVideo);
+  let flipped = 0;
+  const overlap = (a: number, b: number, w: { a: number; b: number }) => a < w.b && b > w.a;
+  const items: OverlayItem[] = rendered.map((r) => {
+    let pos = placement.defaultPosition;
+    const win = placement.windows.find((w) => r.startMs >= w.a && r.startMs < w.b);
+    if (win) pos = win.position;
+    else if (pos === "bottom" && placement.collisions.some((c) => overlap(r.startMs, r.endMs, c))) {
+      pos = "top";
+      flipped++;
+    }
+    const stripH = Math.round(r.height * pxScale);
+    // The strip PNG is bottom-anchored (pill bottom ≈ 22 px above the strip's
+    // edge). For "top", slide the strip up so the pill's bottom lands ~gap+70
+    // px from the top edge — a one- or two-line pill stays fully in frame.
+    const topY = gap + Math.round(70 * pxScale) - (stripH - Math.round(22 * pxScale));
+    return {
+      png: r.png,
+      x: 0,
+      y: pos === "top" ? topY : outH - stripH - gap,
+      a: (r.startMs + introMs) / 1000,
+      b: (r.endMs + introMs) / 1000,
+    };
+  });
+  if (flipped) log(`captions: ${flipped} cue(s) moved to the top (overlay in the bottom band)`);
+  const r = await overlayPngBatches(silentVideo, items, tmp, "captioned");
+  return { video: r.video, cues: cues.length, passes: r.passes, flipped };
 }
 
 /**
