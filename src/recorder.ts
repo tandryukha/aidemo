@@ -5,6 +5,7 @@ import type {
   Timeline,
   TimelineScene,
   ProbeGoldenScene,
+  SeedCookie,
 } from "./types.js";
 import { Project } from "./project.js";
 import { cursorInitScript } from "./cursor.js";
@@ -27,6 +28,7 @@ import {
 } from "./capture.js";
 import { ensureProfileUnlocked } from "./login.js";
 import { resolveProfile } from "./profile.js";
+import { applySeeds, collectSeeds, runPreflight } from "./setup.js";
 import { ensureDir, exists, writeJson, log, ok, step } from "./util.js";
 import { probeDurationMs } from "./ffmpeg.js";
 import { dirname, join } from "node:path";
@@ -43,6 +45,24 @@ export interface RecordOptions {
    * silently records the wrong story (see src/profile.ts).
    */
   fresh?: boolean;
+  /**
+   * Playwright storageState JSON to seed (cookies + per-origin localStorage)
+   * before the first action — on top of the storyboard's `setup.storageState`.
+   */
+  storageState?: string;
+  /** Cookies to seed before the first action (on top of `setup.cookies`). */
+  cookies?: SeedCookie[];
+  /**
+   * The profile is seeded on purpose (a login, a cookie gate): silence the
+   * carried-over-state warning. Implied by seeds and by `setup.expectState`.
+   */
+  profileSeeded?: boolean;
+  /**
+   * Re-read the storyboard after a `setup.preflight` hook ran — the hook may
+   * have patched it (e.g. a selector for today's fixture). Call sites pass the
+   * same loader they used, so params/relaxed semantics are preserved.
+   */
+  reloadStoryboard?: () => Promise<Storyboard>;
   /** Show the browser window. Default true (channel chrome needs a display). */
   headed?: boolean;
   /**
@@ -71,9 +91,10 @@ export interface RecordOptions {
  */
 export async function record(
   project: Project,
-  storyboard: Storyboard,
+  storyboardIn: Storyboard,
   options: RecordOptions = {}
 ): Promise<Timeline> {
+  let storyboard = storyboardIn;
   step(`Recording "${storyboard.title}"`);
   await project.ensureDirs();
   await ensureDir(dirname(project.rawVideoPath));
@@ -95,10 +116,31 @@ export async function record(
   // (a live lock stalls Playwright and then dies with a raw ProcessSingleton
   // error); clean up a stale lock from a crashed Chrome.
   await ensureProfileUnlocked(profileDir);
+  log(`profile: ${profileDir}${options.fresh ? " (fresh)" : ""}`);
+
+  // Preflight hook (issue #44): runs before Chrome launches, with the resolved
+  // profile in its env. It may rewrite the storyboard (a rotating fixture), so
+  // re-read it afterwards when the caller gave us a loader.
+  if (storyboard.setup?.preflight) {
+    await runPreflight(storyboard.setup.preflight, {
+      demoDir: project.dir,
+      storyboardPath: project.storyboardPath,
+      profileDir,
+    });
+    if (options.reloadStoryboard) storyboard = await options.reloadStoryboard();
+  }
+  const seeds = await collectSeeds(project.dir, storyboard, {
+    storageState: options.storageState,
+    cookies: options.cookies,
+  });
+  // A deliberately seeded profile is the point, not the trap the warning
+  // names — acknowledge it via --profile-seeded / setup.expectState / seeds.
+  const seededOnPurpose =
+    !!options.profileSeeded || !!storyboard.setup?.expectState || !!seeds;
+  if (profileWarning && !seededOnPurpose) log(`  ! ${profileWarning}`);
+
   const { width, height } = storyboard.video;
   const videoDir = dirname(project.rawVideoPath);
-  log(`profile: ${profileDir}${options.fresh ? " (fresh)" : ""}`);
-  if (profileWarning) log(`  ! ${profileWarning}`);
   log(`viewport: ${width}x${height}`);
   if (external) log(`capture mode: ${mode}`);
 
@@ -189,6 +231,9 @@ export async function record(
 
   // Start from a clean blank so the recording's lead-in isn't the new-tab page.
   await page.goto("about:blank");
+  // Seed cookies / localStorage (issue #44). Any origin visits this needs land
+  // in the lead-in, which compose trims.
+  if (seeds) await applySeeds(context, page, seeds);
 
   let capture: CaptureProvider | null = null;
   let geo: ViewportGeometry | null = null;

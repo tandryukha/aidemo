@@ -1,4 +1,4 @@
-import type { Page, Locator, Frame } from "playwright";
+import type { Page, Locator, Frame, Request, Response } from "playwright";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import type {
@@ -13,6 +13,7 @@ import type {
   StillEvent,
   CursorSample,
   EasingPreset,
+  WaitState,
   ProbeActionOutcome,
   ProbeGoldenScene,
 } from "./types.js";
@@ -101,6 +102,111 @@ interface SceneCapture {
 /** Records a cursor position into the current scene (compose-cursor mode only). */
 type CursorSampler = (x: number, y: number) => void;
 
+/** A failed network exchange seen during the take (issue #44). */
+export interface FailedRequest {
+  /** Timeline offset (ms since t0) when the response/failure arrived. */
+  tMs: number;
+  method: string;
+  url: string;
+  /** HTTP status, or null when the request never got a response. */
+  status: number | null;
+  /** Playwright's failure text for a request that never got a response. */
+  error?: string;
+  resourceType: string;
+  /** First bytes of an xhr/fetch error body — often the actual reason. */
+  body?: string;
+}
+
+const NET_WATCH_CAP = 300;
+const NET_BODY_MAX = 300;
+
+/**
+ * Passive watch for HTTP ≥400 responses and failed requests across the page
+ * (all frames). The engine has no other visibility into app-side writes: a
+ * backend 500 on a check-in click looks exactly like a missed click in the
+ * screenshot (issue #44), so a failing action's window is dumped into
+ * logs/fail-*.json. Ring-buffered; never throws.
+ */
+class NetworkWatch {
+  private entries: FailedRequest[] = [];
+  private readonly onResponse: (res: Response) => void;
+  private readonly onFailed: (req: Request) => void;
+
+  constructor(
+    private readonly page: Page,
+    private readonly t0: number
+  ) {
+    this.onResponse = (res: Response) => {
+      if (res.status() < 400) return;
+      const req = res.request();
+      const entry: FailedRequest = {
+        tMs: Date.now() - t0,
+        method: req.method(),
+        url: truncateUrl(res.url(), 200),
+        status: res.status(),
+        resourceType: req.resourceType(),
+      };
+      this.push(entry);
+      if (/^(xhr|fetch)$/.test(entry.resourceType)) {
+        res
+          .text()
+          .then((b) => {
+            const snippet = b.replace(/\s+/g, " ").trim().slice(0, NET_BODY_MAX);
+            if (snippet) entry.body = snippet;
+          })
+          .catch(() => {});
+      }
+    };
+    this.onFailed = (req: Request) => {
+      const err = req.failure()?.errorText ?? "failed";
+      // Navigations cancel in-flight requests; that's not an app failure.
+      if (/ERR_ABORTED/.test(err)) return;
+      this.push({
+        tMs: Date.now() - t0,
+        method: req.method(),
+        url: truncateUrl(req.url(), 200),
+        status: null,
+        error: err,
+        resourceType: req.resourceType(),
+      });
+    };
+  }
+
+  private push(e: FailedRequest): void {
+    this.entries.push(e);
+    if (this.entries.length > NET_WATCH_CAP) this.entries.shift();
+  }
+
+  start(): void {
+    this.page.on("response", this.onResponse);
+    this.page.on("requestfailed", this.onFailed);
+  }
+
+  stop(): void {
+    this.page.off("response", this.onResponse);
+    this.page.off("requestfailed", this.onFailed);
+  }
+
+  /** Failures that arrived at or after `tMs` (a failing action's window). */
+  since(tMs: number): FailedRequest[] {
+    return this.entries.filter((e) => e.tMs >= tMs);
+  }
+}
+
+/** One-line-per-entry summary for the log (≤ `max` lines). */
+function describeFailedRequests(list: FailedRequest[], max = 5): string[] {
+  const lines = list
+    .slice(-max)
+    .map(
+      (e) =>
+        `    ${e.status ?? "ERR"} ${e.method} ${e.url}` +
+        (e.error ? ` — ${e.error}` : "") +
+        (e.body ? ` — ${JSON.stringify(e.body.slice(0, 120))}` : "")
+    );
+  if (list.length > max) lines.unshift(`    … ${list.length - max} earlier`);
+  return lines;
+}
+
 export async function runStoryboard(
   page: Page,
   storyboard: Storyboard,
@@ -115,7 +221,11 @@ export async function runStoryboard(
 
   const now = () => Date.now() - opts.t0;
   const scenes: TimelineScene[] = [];
+  const net = new NetworkWatch(page, opts.t0);
+  net.start();
+  let prevActionStartMs = 0;
 
+  try {
   const total = storyboard.scenes.length;
   for (let si = 0; si < total; si++) {
     const scene = storyboard.scenes[si];
@@ -145,6 +255,11 @@ export async function runStoryboard(
         throw new CanceledError(`canceled during scene ${scene.id}`);
       const action = scene.actions[i];
       const outcome = opts.probe ? initProbeOutcome(storyboard, action) : null;
+      // Failed-request window for diagnostics: from the PREVIOUS action's
+      // start — the failing action is usually the wait after the click whose
+      // XHR actually failed (issue #44).
+      const netWindowMs = prevActionStartMs;
+      prevActionStartMs = now();
       try {
         if (await optionalTargetAbsent(page, storyboard, action)) {
           log(`  ⚠ optional ${action.op} skipped — target not present`);
@@ -168,12 +283,19 @@ export async function runStoryboard(
           log(
             `  ✗ probe: ${action.op} failed — ${firstLine(err)}`
           );
+          const failed = net.since(netWindowMs);
+          if (failed.length) {
+            log(`    ${failed.length} failed request(s) since the previous action:`);
+            for (const l of describeFailedRequests(failed)) log(l);
+          }
         } else {
           // Name the failing scene/action, screenshot the page, and dump the
           // widget frames present — so a phantom click or a platform
           // interruption is diagnosable from the log instead of by
           // hand-extracting webm frames.
-          await failAction(page, storyboard, scene, i, action, opts, err);
+          await failAction(page, storyboard, scene, i, action, opts, err, {
+            failedRequests: net.since(netWindowMs),
+          });
         }
       }
       if (outcome) {
@@ -199,6 +321,9 @@ export async function runStoryboard(
     };
     scenes.push(tlScene);
     opts.onSceneComplete?.(tlScene, si, total);
+  }
+  } finally {
+    net.stop();
   }
 
   // leadInMs is filled in by the recorder (it knows the video start).
@@ -430,25 +555,35 @@ async function resolveTargetLocator(
   return frame.locator(selector).first();
 }
 
+/** Human-readable target for error messages: `frame >> selector [last]`. */
+function describeTarget(storyboard: Storyboard, target: Target): string {
+  return describeProbeTarget(storyboard, target);
+}
+
 /**
- * Wait until `target` resolves to a visible element, re-resolving each poll so
- * a nested widget frame that appears (and fills) mid-wait is picked up. Returns
- * the elapsed wait; throws on timeout.
+ * Wait until `target` resolves to an element in `state` ("visible" by default,
+ * or merely "attached" for zero-size mount points), re-resolving each poll so
+ * a nested widget frame that appears (and fills) mid-wait is picked up.
+ * Throws on timeout — naming the TOTAL budget waited, not Playwright's last
+ * ~2.5 s poll chunk (which read as "Timeout 1945ms exceeded" against a 30 s
+ * storyboard budget and sent people hunting a bug that didn't exist, #44).
  */
 async function waitForTargetVisible(
   page: Page,
   storyboard: Storyboard,
   target: Target,
-  timeoutMs: number
+  timeoutMs: number,
+  state: WaitState = "visible"
 ): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
+  const started = Date.now();
+  const deadline = started + timeoutMs;
   let lastErr: unknown;
   for (;;) {
     try {
       const loc = await resolveTargetLocator(page, storyboard, target);
       const remaining = deadline - Date.now();
       await loc.waitFor({
-        state: "visible",
+        state,
         timeout: Math.max(400, Math.min(2500, remaining)),
       });
       return;
@@ -456,11 +591,56 @@ async function waitForTargetVisible(
       lastErr = err;
     }
     if (Date.now() >= deadline) {
-      throw lastErr instanceof Error
-        ? lastErr
-        : new Error(`waitForTargetVisible timed out for ${JSON.stringify(target)}`);
+      const waited = Date.now() - started;
+      const reason = lastErr instanceof Error ? firstLine(lastErr) : String(lastErr);
+      const hint = /Timeout \d+ms exceeded/.test(reason)
+        ? "" // Playwright's chunk timeout — nothing more to say than the budget
+        : ` (last error: ${reason})`;
+      throw new Error(
+        `waitFor: "${describeTarget(storyboard, target)}" not ${state} after ` +
+          `${waited}ms (budget ${timeoutMs}ms)${hint}` +
+          (state === "visible"
+            ? ` — if the element is a zero-size mount point that fills later, use state: "attached"`
+            : "")
+      );
     }
     await sleep(300);
+  }
+}
+
+/**
+ * Wait until the scroll position has been still for `settleMs` (bounded at
+ * 3 s total) — an honest "scroll finished" for smooth-scrolling pages, where a
+ * fixed pause is a race. `sampleAt` reads a position signature; the default is
+ * the main document's scroll offset.
+ */
+async function waitScrollSettled(
+  page: Page,
+  settleMs: number,
+  loc?: Locator
+): Promise<void> {
+  const quiet = Math.max(50, settleMs);
+  const deadline = Date.now() + Math.max(quiet, 3000);
+  const sampleAt = async (): Promise<string> => {
+    if (loc) {
+      const box = await loc.boundingBox().catch(() => null);
+      if (box) return `${Math.round(box.x)},${Math.round(box.y)}`;
+    }
+    return page
+      .evaluate(() => `${Math.round(scrollX)},${Math.round(scrollY)}`)
+      .catch(() => "");
+  };
+  let last = await sampleAt();
+  let stillSince = Date.now();
+  while (Date.now() < deadline) {
+    await sleep(50);
+    const cur = await sampleAt();
+    if (cur !== last) {
+      last = cur;
+      stillSince = Date.now();
+    } else if (Date.now() - stillSince >= quiet) {
+      return;
+    }
   }
 }
 
@@ -609,11 +789,13 @@ async function optionalTargetAbsent(
   storyboard: Storyboard,
   action: Action
 ): Promise<boolean> {
-  if (!action.optional || !INTERACTION_OPS.has(action.op) || !("target" in action)) {
+  const target = (action as { target?: Target }).target;
+  if (!action.optional || !INTERACTION_OPS.has(action.op) || !target) {
     return false;
   }
+  const state = (action as { state?: WaitState }).state ?? "visible";
   try {
-    await waitForTargetVisible(page, storyboard, action.target, OPTIONAL_PROBE_MS);
+    await waitForTargetVisible(page, storyboard, target, OPTIONAL_PROBE_MS, state);
     return false;
   } catch {
     return true;
@@ -724,7 +906,13 @@ async function runAction(
     }
 
     case "scrollTo": {
+      const state = action.state ?? "visible";
       const loc = await resolveTargetLocator(page, storyboard, action.target);
+      if (state === "attached") {
+        // A zero-size mount point has no visibility to wait for; require it
+        // to be in the DOM, then scroll by geometry alone (issue #44).
+        await waitForTargetVisible(page, storyboard, action.target, 15000, "attached");
+      }
       // Top-page targets get the cinematic eased scroll; targets inside a
       // frame keep the reliable scrollIntoViewIfNeeded (wheel deltas would go
       // to whatever scroller is under the cursor, not necessarily the frame).
@@ -735,13 +923,74 @@ async function runAction(
           if (Math.abs(dy) > 30) await easedWheel(page, dy, action);
         }
       }
-      await loc.scrollIntoViewIfNeeded();
-      await sleep(300);
+      if (state === "attached") {
+        // scrollIntoViewIfNeeded needs a visible element; a plain
+        // scrollIntoView on the node works for an empty one.
+        await loc
+          .evaluate((el) => el.scrollIntoView({ block: "center" }))
+          .catch(() => {});
+      } else {
+        await loc.scrollIntoViewIfNeeded();
+      }
+      if (action.settleMs != null) {
+        await waitScrollSettled(page, action.settleMs, loc);
+      } else {
+        await sleep(300);
+      }
       return;
     }
 
     case "scrollBy": {
-      await easedWheel(page, action.dy, action);
+      let dy = action.dy;
+      let loc: Locator | undefined;
+      if (action.target) {
+        // Target-scoped scroll (issue #43): wheel OVER the element, and never
+        // more than its own scroller has room for — a bottomed-out inner
+        // panel otherwise chains the wheel to the page and the whole app
+        // slides off-screen mid-take with nothing failing.
+        loc = await resolveTargetLocator(page, storyboard, action.target);
+        await waitForTargetVisible(page, storyboard, action.target, 15000, "attached");
+        const box = await loc.boundingBox().catch(() => null);
+        if (box) {
+          const vp = page.viewportSize() ?? opts.video;
+          const cx = Math.min(Math.max(box.x + box.width / 2, 2), vp.width - 2);
+          const cy = Math.min(Math.max(box.y + box.height / 2, 2), vp.height - 2);
+          await moveMouseTo(page, mouse, cx, cy, sample);
+        }
+        // NOTE: no inner named functions inside evaluate callbacks — tsx's
+        // esbuild keepNames wraps them in a `__name` helper that doesn't
+        // exist in the page (ReferenceError, swallowed → no clamp).
+        const room = await loc
+          .evaluate((el, want) => {
+            let n: Element | null = el;
+            while (
+              n &&
+              !(
+                /(auto|scroll|overlay)/.test(getComputedStyle(n).overflowY) &&
+                n.scrollHeight > n.clientHeight + 1
+              )
+            ) {
+              n = n.parentElement;
+            }
+            const sc = n ?? document.scrollingElement ?? document.documentElement;
+            return want > 0
+              ? sc.scrollHeight - sc.clientHeight - sc.scrollTop
+              : sc.scrollTop;
+          }, dy)
+          .catch((err: Error) => {
+            log(`  ! scrollBy: could not measure target scroller (${firstLine(err)}); unclamped`);
+            return Math.abs(dy);
+          });
+        if (Math.abs(dy) > room) {
+          log(
+            `  scrollBy clamped ${dy} → ${Math.sign(dy) * Math.round(room)}px ` +
+              `(target's scroller has no more room)`
+          );
+          dy = Math.sign(dy) * room;
+        }
+      }
+      if (Math.abs(dy) >= 1) await easedWheel(page, dy, action);
+      if (action.settleMs != null) await waitScrollSettled(page, action.settleMs, loc);
       return;
     }
 
@@ -750,7 +999,8 @@ async function runAction(
         page,
         storyboard,
         action.target,
-        action.timeoutMs ?? 15000
+        action.timeoutMs ?? 15000,
+        action.state ?? "visible"
       );
       return;
     }
@@ -842,6 +1092,7 @@ function initProbeOutcome(
       break;
     case "scrollBy":
       o.dy = action.dy;
+      if (action.target) o.target = describeProbeTarget(storyboard, action.target);
       break;
     case "waitForReply":
       o.target = action.selector ?? ASSISTANT_MESSAGE_SELECTOR;
@@ -882,8 +1133,9 @@ async function enrichProbeOutcome(
     );
     return;
   }
-  if ("target" in action) {
-    o.found = await targetResolves(page, storyboard, action.target);
+  const target = (action as { target?: Target }).target;
+  if (target) {
+    o.found = await targetResolves(page, storyboard, target);
   }
 }
 
@@ -985,15 +1237,22 @@ async function failAction(
   index: number,
   action: Action,
   opts: PlayerOptions,
-  err: unknown
+  err: unknown,
+  extra: { failedRequests: FailedRequest[] }
 ): Promise<never> {
   const prefix = `scene ${scene.id}, action #${index + 1} (${action.op})`;
   const base = err instanceof Error ? err.message : String(err);
   let diag = "";
   if (opts.logsDir) {
-    diag = await dumpDiagnostics(page, storyboard, scene.id, index, action, opts.logsDir).catch(
-      () => ""
-    );
+    diag = await dumpDiagnostics(
+      page,
+      storyboard,
+      scene.id,
+      index,
+      action,
+      opts.logsDir,
+      extra.failedRequests
+    ).catch(() => "");
   }
   throw new Error(`${prefix}: ${base}${diag ? `\n${diag}` : ""}`);
 }
@@ -1004,7 +1263,8 @@ async function dumpDiagnostics(
   sceneId: string,
   index: number,
   action: Action,
-  logsDir: string
+  logsDir: string,
+  failedRequests: FailedRequest[] = []
 ): Promise<string> {
   await ensureDir(logsDir);
   const stem = join(logsDir, `fail-${sceneId}-${index + 1}`);
@@ -1015,7 +1275,7 @@ async function dumpDiagnostics(
 
   // Selector diagnostics for targeted actions: how many widget frames (and the
   // main frame) currently match the selector we were after.
-  const target = "target" in action ? (action.target as Target) : undefined;
+  const target = (action as { target?: Target }).target;
   const selector = target?.named ? NAMED_SELECTORS[target.named] : target?.selector;
   const roots = widgetRootFrames(page);
   lines.push(`  widget frames present: ${roots.length}`);
@@ -1030,6 +1290,18 @@ async function dumpDiagnostics(
     lines.push(`    main frame: ${mainC} match(es) for "${selector}"`);
   }
 
+  // App-side failures in this action's window (issue #44): a backend 500 on
+  // the click's XHR is invisible in a screenshot and reads as a click miss.
+  if (failedRequests.length) {
+    lines.push(
+      `  failed requests since the previous action: ${failedRequests.length} ` +
+        `(an app-side write that failed reads as a click miss on screen)`
+    );
+    lines.push(...describeFailedRequests(failedRequests));
+  } else {
+    lines.push(`  failed requests since the previous action: none`);
+  }
+
   const detail = {
     sceneId,
     actionIndex: index + 1,
@@ -1038,6 +1310,7 @@ async function dumpDiagnostics(
     url: page.url(),
     widgetFrames: frameCounts,
     allFrames: page.frames().map((f) => truncateUrl(f.url())),
+    failedRequests,
   };
   await fs.writeFile(`${stem}.json`, JSON.stringify(detail, null, 2)).catch(() => {});
   lines.push(`  detail → ${stem}.json`);

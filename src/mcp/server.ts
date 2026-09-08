@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { ENGINE_ROOT, engineVersion, captionsAutoOffline } from "../config.js";
 import { Project, parseStoryboard } from "../project.js";
-import { StoryboardSchema } from "../types.js";
+import { StoryboardSchema, SeedCookieSchema, type SeedCookie, type Storyboard } from "../types.js";
 import { generateVoice } from "../voice.js";
 import { record, type RecordOptions } from "../recorder.js";
 import {
@@ -21,6 +21,7 @@ import { compose } from "../compose.js";
 import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
+import { extractFrames } from "../frames.js";
 import { localizeStoryboard } from "../i18n.js";
 import { scaffoldDemo, doctorReport, buildFeedback, fileFeedback } from "../distribute.js";
 import { readJson, log, CanceledError, type SceneProgress } from "../util.js";
@@ -158,6 +159,28 @@ const RECORD_INPUT_SHAPE = {
         "wrong story. Not for logged-in demos (a fresh profile has no login)."
     ),
   capture: z.enum(["playwright", "native", "obs"]).optional(),
+  storageState: z
+    .string()
+    .optional()
+    .describe(
+      "absolute path to a Playwright storageState JSON (cookies + per-origin " +
+        "localStorage) to seed into the profile before the first action — for " +
+        "cookie-gated sites. Also available as storyboard setup.storageState."
+    ),
+  cookies: z
+    .array(SeedCookieSchema)
+    .optional()
+    .describe(
+      "cookies to seed before the first action (name, value, domain[, path, " +
+        "secure, httpOnly, sameSite, expires]). Also storyboard setup.cookies."
+    ),
+  profileSeeded: z
+    .boolean()
+    .optional()
+    .describe(
+      "the profile is seeded on purpose (login / cookie gate): silence the " +
+        "carried-over-state warning. Implied by storageState/cookies."
+    ),
   params: PARAMS_INPUT,
 };
 
@@ -645,12 +668,20 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       profile?: string;
       fresh?: boolean;
       capture?: "playwright" | "native" | "obs";
+      storageState?: string;
+      cookies?: SeedCookie[];
+      profileSeeded?: boolean;
     },
-    job: Job
+    job: Job,
+    reloadStoryboard?: () => Promise<Storyboard>
   ): RecordOptions {
     return {
       profileDir: args.profile,
       fresh: args.fresh,
+      storageState: args.storageState,
+      cookies: args.cookies,
+      profileSeeded: args.profileSeeded,
+      reloadStoryboard,
       headed: !args.headless,
       capture: args.capture,
       signal: job.controller.signal,
@@ -703,14 +734,16 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     },
     (project, args) => async (job) =>
       jobs.runStage(job, "probe", async () => {
-        const storyboard = await project.loadStoryboard({
-          relaxed: true,
-          params: args.params,
-        });
+        const load = () =>
+          project.loadStoryboard({
+            relaxed: true,
+            params: args.params,
+          });
+        const storyboard = await load();
         const goldenMode = !!(args.golden || args.updateGolden);
         const probeScenes: ProbeGoldenScene[] = [];
         const timeline = await record(project, storyboard, {
-          ...recordOpts(args, job),
+          ...recordOpts(args, job, load),
           ...(goldenMode ? { probe: probeScenes } : {}),
         });
         const base = {
@@ -764,8 +797,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     RECORD_INPUT_SHAPE,
     (project, args) => async (job) =>
       jobs.runStage(job, "record", async () => {
-        const storyboard = await project.loadStoryboard({ params: args.params });
-        const timeline = await record(project, storyboard, recordOpts(args, job));
+        const load = () => project.loadStoryboard({ params: args.params });
+        const storyboard = await load();
+        const timeline = await record(project, storyboard, recordOpts(args, job, load));
         return {
           rawVideo: await project.resolveRawVideo(),
           timeline: project.timelinePath,
@@ -787,7 +821,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     (project, args) => async (job) =>
       jobs.runStage(job, "render", async () => {
         const signal = job.controller.signal;
-        const storyboard = await project.loadStoryboard({ params: args.params });
+        const load = () => project.loadStoryboard({ params: args.params });
+        const storyboard = await load();
         // Language variant (if any): voice/captions/compose run on a lang-scoped
         // project + localized storyboard; the take is recorded ONCE on the base.
         const lp = langProject(project, args.lang);
@@ -803,7 +838,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         );
         throwIfAborted(signal);
         await jobs.runSubStage(job, "record", () =>
-          record(project, storyboard, recordOpts(args, job))
+          record(project, storyboard, recordOpts(args, job, load))
         );
         throwIfAborted(signal);
         await jobs.runSubStage(job, "captions", async () => {
@@ -957,6 +992,38 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       jobs.runStage(job, "stills", async () => ({
         stills: await extractStills(project, { outDir: args.out }),
       }))
+  );
+
+  registerJob(
+    "frames",
+    "Dump evenly spaced PNG frames from the final video (or the raw take) into " +
+      "output/frames/ for review — look at them instead of hand-running " +
+      "`ffmpeg -ss`. Needs only the video (no key).",
+    {
+      dir: DIR_INPUT,
+      everySec: z.number().optional().describe("seconds between frames (default 3)"),
+      source: z
+        .enum(["final", "raw"])
+        .optional()
+        .describe("final = output/final-demo.mp4 (default); raw = the latest take"),
+      width: z.number().optional().describe("frame width in px, aspect kept (default 640)"),
+      out: z.string().optional().describe("output directory (default <dir>/output/frames)"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "frames", async () => {
+        const res = await extractFrames(project, {
+          everySec: args.everySec,
+          source: args.source,
+          width: args.width,
+          outDir: args.out,
+        });
+        return {
+          source: res.source,
+          durationMs: res.durationMs,
+          everySec: res.everySec,
+          frames: res.files,
+        };
+      })
   );
 
   server.registerResource(

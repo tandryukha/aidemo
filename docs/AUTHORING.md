@@ -24,7 +24,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 |---|---|---|
 | Read this guide | `get_authoring_guide` | `aidemo guide` |
 | Storyboard JSON Schema | `get_storyboard_schema` | — (see below) |
-| Validate a storyboard | `validate_storyboard` | (validated on every run) |
+| Validate a storyboard | `validate_storyboard` | `aidemo validate <dir>` (or `--file <path>`; `--json`) |
 | Scaffold a demo | `init_demo` | `aidemo init <name>` |
 | Environment check | `doctor` | `aidemo doctor` |
 | Dry-run the flow | `probe` (job) | `aidemo probe <dir>` |
@@ -32,6 +32,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | One stage | `voice` / `record` / `captions` / `compose` (jobs) | `aidemo voice\|record\|captions\|compose <dir>` |
 | README GIF | `gif` (job) | `aidemo gif <dir>` |
 | Named stills (screenshot mode) | `stills` (job) | `aidemo stills <dir>` |
+| Frames for review | `frames` (job) | `aidemo frames <dir> [--every 3] [--source raw]` |
 | Job progress / result | `job_status`, `job_list`, `job_cancel` | (CLI runs block in the foreground) |
 
 **The job model (MCP).** Pipeline operations touch TTS/STT, a real Chrome, or
@@ -47,9 +48,9 @@ instead.
 **Always pass absolute demo directories** to MCP tools — the server's working
 directory is not necessarily your repo (Codex registers servers globally).
 
-**Validate early.** Run `validate_storyboard` after every storyboard edit
-(cheap, structured errors) instead of discovering schema issues inside a
-render job.
+**Validate early.** Run `validate_storyboard` (CLI: `aidemo validate <dir>`,
+non-zero exit on issues) after every storyboard edit — cheap, structured
+errors — instead of discovering schema issues inside a render job.
 
 ## Pipeline (what the engine does)
 
@@ -131,7 +132,29 @@ The precise contract is the JSON Schema from `get_storyboard_schema`
 Top level: `title`, `language?`, `knownTerms?`, `targetLengthSeconds?`, `video{width,height}`
 (default 1280x720), `frames{ name: iframeSelector }`,
 `voice{voiceId,instructions,speed}` (default, scenes may override), `music?`,
-`zoom?`, `intro?`, `outro?`, `transition?`, `output?`, `scenes[]`.
+`zoom?`, `intro?`, `outro?`, `transition?`, `output?`, `setup?`, `scenes[]`.
+
+`setup?` prepares the take before the first action — for cookie-gated or
+fixture-rotating sites, so you never hand-write a Playwright seed script:
+- `storageState`: path (relative to the demo dir) to a Playwright storageState
+  JSON (`{cookies:[…], origins:[{origin, localStorage:[{name,value}]}]}`, e.g.
+  saved by `context.storageState({path})`). Its cookies are added to the
+  profile and each origin's localStorage entries set before the storyboard
+  runs. CLI/MCP: `--storage-state <file>` / `storageState`.
+- `cookies: [{name, value, domain, path?, secure?, httpOnly?, sameSite?,
+  expires?}]` — add cookies directly. CLI: `--cookie "name=value;domain=host"`
+  (repeatable, DevTools-style attributes; MCP: `cookies`).
+- `preflight`: a shell command run from the demo dir before **every** take
+  (record/probe/render), after the profile is resolved and before Chrome
+  launches — re-seed a fixture, or patch this storyboard for whichever variant
+  the app serves today (the storyboard is **re-read after the hook**). Env:
+  `AIDEMO_DEMO_DIR`, `AIDEMO_STORYBOARD`, `AIDEMO_PROFILE`. Non-zero exit
+  aborts the take with the hook's output.
+- `expectState: true` — the profile is seeded on purpose; silence the
+  carried-over-state warning (implied by `storageState`/`cookies`; CLI/MCP:
+  `--profile-seeded` / `profileSeeded`).
+Seeding composes with `--fresh`: the wipe happens first, then the seeds go in
+— a clean identity that still carries exactly the cookie the gate needs.
 
 `language?` is a BCP-47/ISO-639-1 code (e.g. `"et"`) describing what language
 the base `narration` is already written in — set it for a monolingual
@@ -267,17 +290,30 @@ A `target` is `{selector}` or `{frame,selector}` or `{named:"composer"}`:
 - `{op:"type", target, text, humanize?}` — human-cadence typing
 - `{op:"press", key}` — e.g. "Enter"
 - `{op:"click", target}` · `{op:"hover", target}`
-- `{op:"scrollTo", target, easing?, durationMs?}` · `{op:"scrollBy", dy,
-  easing?, durationMs?}` — easing presets: `"smooth"` (default) | `"snappy"` |
-  `"glide"` | `"linear"`
+- `{op:"scrollTo", target, easing?, durationMs?, state?, settleMs?}` ·
+  `{op:"scrollBy", dy, target?, easing?, durationMs?, settleMs?}` — easing
+  presets: `"smooth"` (default) | `"snappy"` | `"glide"` | `"linear"`.
+  `scrollBy` with a `target` is **scoped to that element's own scroller**: the
+  wheel is dispatched over it and `dy` is clamped to the room its nearest
+  scrollable ancestor has left, so a bottomed-out inner panel never chains the
+  wheel to the page and slides the whole app off-screen (the log shows the
+  clamp). `settleMs` waits until the scroll position has been still for that
+  long (≤3 s) instead of a fixed pause — use it on smooth-scrolling pages
+  before a click. `scrollTo … state:"attached"` accepts a zero-size mount
+  point (see `waitFor`).
 - `{op:"focus", target, scale?, holdMs?}` — deliberate zoom beat on an element
   without clicking it (needs top-level `zoom` enabled)
 - `{op:"still", name}` — **screenshot mode**: mark a named still at this beat.
   A pure timeline marker (no screenshot at record time); `aidemo stills` /
   `render` extract `output/stills/<name>.png` from the clean take. See *Stills /
   screenshot mode* below.
-- `{op:"waitFor", target, timeoutMs?}` — normal wait (fires instantly if the
-  selector already matches — no good for in-place changes)
+- `{op:"waitFor", target, timeoutMs?, state?}` — normal wait (fires instantly
+  if the selector already matches — no good for in-place changes). Default
+  waits for **visible**; `state:"attached"` only requires the element to be in
+  the DOM — for a lazily-filled empty `<div>` (0 px tall until something
+  mounts into it on scroll), which is never "visible" and would time out. A
+  timeout names the total budget waited (`not visible after 30000ms (budget
+  30000ms)`), not Playwright's last poll chunk.
 - `{op:"waitForWidget", target, textMatches?, label?, timeoutMs?}` — **records
   the wait as idle** so compose trims/speeds it. Use for every ChatGPT
   "thinking" wait for a brand-**new** widget. When a prompt could render
@@ -434,7 +470,10 @@ what the narration says, with nothing failing and nothing to see in review.
   from a clean browser identity. Not for logged-in demos — a fresh profile has
   no login.
 - Otherwise `record` warns when the profile already holds state for the
-  storyboard's first `goto` origin.
+  storyboard's first `goto` origin. When that state is deliberate (a login, a
+  cookie gate you seeded), acknowledge it with `--profile-seeded` /
+  `setup.expectState: true` — seeding via `setup.storageState`/`cookies`
+  implies it — so the log stays readable.
 - **`aidemo profile path`** prints the shared profile's location (handy when
   the engine came from Homebrew or an npx cache); **`aidemo profile reset`**
   wipes it.
@@ -633,8 +672,9 @@ renders relative to its own dir, keep any local asset paths (e.g. a music
 
 ## Verify before declaring done
 
-Play (or frame-extract) `output/final-demo.mp4`: cursor glides and clicks
-pulse, narration matches on-screen actions, captions are readable and in sync,
+Play (or frame-extract — `aidemo frames <dir>` / the `frames` job)
+`output/final-demo.mp4`: cursor glides and clicks pulse, narration matches
+on-screen actions, captions are readable and in sync,
 no dead air, and the key moment (e.g. checkout confirmed) is actually visible
 on screen. If the demo is headed for a README, run the `gif` job — GIFs
 autoplay on GitHub; MP4s don't.
@@ -649,6 +689,14 @@ CLI. If nothing came up, skip this.
 - Every run tees its output to `<demo>/logs/<command>.log`; a failed take also
   leaves `logs/fail-<scene>-<n>.{png,json}`. `job_status` surfaces all of these
   paths on failure.
+- The fail JSON (and the error text) carries **`failedRequests`**: every
+  HTTP ≥400 response and network failure since the previous action, with
+  method, URL, status and the first bytes of an xhr/fetch error body. A click
+  that "did nothing" because the backend answered 500 looks like a click miss
+  in the screenshot; this is where the reason shows up.
+- **`aidemo frames <dir> --every 3`** (MCP `frames`) dumps evenly spaced PNGs
+  from `output/final-demo.mp4` (or `--source raw` for the latest take) into
+  `output/frames/` — look at them instead of hand-running `ffmpeg -ss`.
 - `AIDEMO_KEEP_TMP=1` preserves `.compose-tmp/` intermediates when debugging
   compose.
 - `doctor` checks Node, ffmpeg, Chrome, the TTS/STT endpoint (and flags

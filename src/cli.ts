@@ -9,8 +9,11 @@ import {
   chromeProfileDir,
 } from "./config.js";
 import { resetProfile } from "./profile.js";
-import { Project } from "./project.js";
+import { Project, parseStoryboard } from "./project.js";
 import { record } from "./recorder.js";
+import { parseCookieFlag } from "./setup.js";
+import { extractFrames } from "./frames.js";
+import { readJson } from "./util.js";
 import {
   buildProbeGolden,
   diffGolden,
@@ -251,6 +254,30 @@ const LANGS_OPT_DESC =
  * `[undefined]` when neither is given — the default single-language render,
  * byte-for-byte unchanged (undefined = the base storyboard, unsuffixed paths).
  */
+const STORAGE_STATE_OPT_DESC =
+  "seed a Playwright storageState JSON (cookies + localStorage) into the profile before the take";
+const COOKIE_OPT_DESC =
+  'seed a cookie before the take: "name=value;domain=host[;path=/;secure;httpOnly;sameSite=Lax]" (repeatable)';
+const PROFILE_SEEDED_OPT_DESC =
+  "the profile is seeded on purpose (login / cookie gate): silence the carried-over-state warning";
+
+/** Profile-seeding flags shared by record/probe/render → RecordOptions fields. */
+function seedOpts(opts: {
+  storageState?: string;
+  cookie?: string[];
+  profileSeeded?: boolean;
+}): {
+  storageState?: string;
+  cookies?: ReturnType<typeof parseCookieFlag>[];
+  profileSeeded?: boolean;
+} {
+  return {
+    storageState: opts.storageState,
+    cookies: opts.cookie?.length ? opts.cookie.map(parseCookieFlag) : undefined,
+    profileSeeded: opts.profileSeeded,
+  };
+}
+
 function langsFrom(opts: { lang?: string; langs?: string }): Array<string | undefined> {
   const list = [
     ...(opts.langs ? opts.langs.split(",") : []),
@@ -312,6 +339,107 @@ program
   });
 
 program
+  .command("validate")
+  .argument("[dir]", "demo project directory (validates generated/storyboard.json)")
+  .option("--file <path>", "validate this storyboard file instead of <dir>/generated/storyboard.json")
+  .option("--relaxed", "narration optional (probe semantics)", false)
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option("--json", "print the structured result as JSON", false)
+  .description(
+    "validate a storyboard against the engine schema without running anything " +
+      "(the CLI twin of the MCP validate_storyboard tool; non-zero exit on issues)"
+  )
+  .action(
+    async (
+      dir: string | undefined,
+      opts: { file?: string; relaxed?: boolean; param?: string[]; json?: boolean }
+    ) => {
+      if (!dir && !opts.file) {
+        throw new Error("pass a demo dir or --file <storyboard.json>");
+      }
+      const path = opts.file ? resolve(opts.file) : new Project(dir!).storyboardPath;
+      let raw: unknown;
+      try {
+        raw = await readJson<unknown>(path);
+      } catch (err) {
+        const result = {
+          valid: false,
+          storyboardPath: path,
+          issues: [{ path: "", message: (err as Error).message, code: "unreadable" }],
+          warnings: [] as string[],
+        };
+        if (opts.json) console.log(JSON.stringify(result, null, 2));
+        else fail(`${path}: ${(err as Error).message}`);
+        process.exitCode = 1;
+        return;
+      }
+      const params = parseParams(opts.param);
+      const parsed = parseStoryboard(raw, {
+        relaxed: opts.relaxed,
+        params,
+        strict: params != null,
+      });
+      const result = parsed.ok
+        ? {
+            valid: true,
+            storyboardPath: path,
+            title: parsed.storyboard.title,
+            sceneCount: parsed.storyboard.scenes.length,
+            issues: [] as Array<{ path: string; message: string; code: string }>,
+            warnings: parsed.warnings,
+          }
+        : { valid: false, storyboardPath: path, issues: parsed.issues, warnings: [] as string[] };
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else if (result.valid) {
+        step("Storyboard valid");
+        ok(`${path} — "${result.title}", ${result.sceneCount} scene(s)`);
+        for (const w of result.warnings) log(w);
+      } else {
+        fail(`${path}: ${result.issues.length} issue(s)`);
+        for (const i of result.issues) log(`  - ${i.path || "<root>"}: ${i.message}`);
+      }
+      if (!result.valid) process.exitCode = 1;
+    }
+  );
+
+program
+  .command("frames")
+  .argument("<dir>", "demo project directory")
+  .option("--every <sec>", "seconds between frames (default 3)", "3")
+  .option("--source <which>", "final (output/final-demo.mp4, default) | raw (latest take)", "final")
+  .option("--width <px>", "frame width in px, aspect kept (default 640)", "640")
+  .option("--out <dir>", "output directory (default <dir>/output/frames)")
+  .description(
+    "dump evenly spaced PNG frames from the final video (or the raw take) for review"
+  )
+  .action(
+    async (
+      dir: string,
+      opts: { every: string; source: string; width: string; out?: string }
+    ) => {
+      const everySec = Number(opts.every);
+      if (!(everySec > 0)) throw new Error(`--every must be a positive number of seconds`);
+      if (opts.source !== "final" && opts.source !== "raw") {
+        throw new Error(`--source must be "final" or "raw"`);
+      }
+      const project = new Project(dir);
+      const res = await extractFrames(project, {
+        everySec,
+        source: opts.source,
+        width: parsePositiveInt("--width", opts.width),
+        outDir: opts.out ? resolve(opts.out) : undefined,
+      });
+      step("Frames");
+      ok(
+        `${res.files.length} frame(s) every ${res.everySec}s from ${res.source} ` +
+          `(${(res.durationMs / 1000).toFixed(1)}s)`
+      );
+      for (const f of res.files) log(`  ${f}`);
+    }
+  );
+
+program
   .command("record")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
@@ -320,6 +448,9 @@ program
     "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
     false
   )
+  .option("--storage-state <file>", STORAGE_STATE_OPT_DESC)
+  .option("--cookie <spec>", COOKIE_OPT_DESC, collectKv, [])
+  .option("--profile-seeded", PROFILE_SEEDED_OPT_DESC, false)
   .option("--headless", "run headless (not recommended for real Chrome)", false)
   .option(
     "--capture <mode>",
@@ -333,6 +464,9 @@ program
       opts: {
         profile?: string;
         fresh?: boolean;
+        storageState?: string;
+        cookie?: string[];
+        profileSeeded?: boolean;
         headless?: boolean;
         capture?: string;
         param?: string[];
@@ -340,10 +474,13 @@ program
     ) => {
       const project = new Project(dir);
       await beginCommand(project, "record");
-      const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
+      const load = () => project.loadStoryboard({ params: parseParams(opts.param) });
+      const storyboard = await load();
       await record(project, storyboard, {
         profileDir: opts.profile,
         fresh: opts.fresh,
+        ...seedOpts(opts),
+        reloadStoryboard: load,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
       });
@@ -359,6 +496,9 @@ program
     "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
     false
   )
+  .option("--storage-state <file>", STORAGE_STATE_OPT_DESC)
+  .option("--cookie <spec>", COOKIE_OPT_DESC, collectKv, [])
+  .option("--profile-seeded", PROFILE_SEEDED_OPT_DESC, false)
   .option("--headless", "run headless (not recommended for real Chrome)", false)
   .option(
     "--capture <mode>",
@@ -384,6 +524,9 @@ program
       opts: {
         profile?: string;
         fresh?: boolean;
+        storageState?: string;
+        cookie?: string[];
+        profileSeeded?: boolean;
         headless?: boolean;
         capture?: string;
         param?: string[];
@@ -394,15 +537,19 @@ program
       const project = new Project(dir);
       await beginCommand(project, "probe");
       // Relaxed: narration is optional — a probe just exercises the flow.
-      const storyboard = await project.loadStoryboard({
-        relaxed: true,
-        params: parseParams(opts.param),
-      });
+      const load = () =>
+        project.loadStoryboard({
+          relaxed: true,
+          params: parseParams(opts.param),
+        });
+      const storyboard = await load();
       const goldenMode = !!(opts.golden || opts.updateGolden);
       const probeScenes: ProbeGoldenScene[] = [];
       await record(project, storyboard, {
         profileDir: opts.profile,
         fresh: opts.fresh,
+        ...seedOpts(opts),
+        reloadStoryboard: load,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
         ...(goldenMode ? { probe: probeScenes } : {}),
@@ -644,6 +791,9 @@ program
     "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
     false
   )
+  .option("--storage-state <file>", STORAGE_STATE_OPT_DESC)
+  .option("--cookie <spec>", COOKIE_OPT_DESC, collectKv, [])
+  .option("--profile-seeded", PROFILE_SEEDED_OPT_DESC, false)
   .option("--headless", "run headless", false)
   .option(
     "--capture <mode>",
@@ -666,6 +816,9 @@ program
       opts: {
         profile?: string;
         fresh?: boolean;
+        storageState?: string;
+        cookie?: string[];
+        profileSeeded?: boolean;
         headless?: boolean;
         capture?: string;
         forceVoice?: boolean;
@@ -687,7 +840,8 @@ program
         const results = await renderVariants(dir, variants, {
           record: {
             profileDir: opts.profile,
-        fresh: opts.fresh,
+            fresh: opts.fresh,
+            ...seedOpts(opts),
             headed: !opts.headless,
             capture: parseCapture(opts.capture),
           },
@@ -710,7 +864,8 @@ program
         }
       };
 
-      const storyboard = await base.loadStoryboard({ params: parseParams(opts.param) });
+      const load = () => base.loadStoryboard({ params: parseParams(opts.param) });
+      const storyboard = await load();
       const langs = langsFrom(opts);
       const multi = !(langs.length === 1 && langs[0] === undefined);
 
@@ -724,7 +879,9 @@ program
         await stageLog(base, "record", () =>
           record(base, storyboard, {
             profileDir: opts.profile,
-        fresh: opts.fresh,
+            fresh: opts.fresh,
+            ...seedOpts(opts),
+            reloadStoryboard: load,
             headed: !opts.headless,
             capture: parseCapture(opts.capture),
           })
@@ -748,7 +905,9 @@ program
       await stageLog(base, "record", () =>
         record(base, storyboard, {
           profileDir: opts.profile,
-        fresh: opts.fresh,
+          fresh: opts.fresh,
+          ...seedOpts(opts),
+          reloadStoryboard: load,
           headed: !opts.headless,
           capture: parseCapture(opts.capture),
         })

@@ -25,7 +25,8 @@ export type JobKind =
   | "captions"
   | "compose"
   | "gif"
-  | "stills";
+  | "stills"
+  | "frames";
 
 export type JobStatus = "running" | "succeeded" | "failed" | "canceled";
 

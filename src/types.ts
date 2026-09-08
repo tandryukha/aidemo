@@ -66,6 +66,14 @@ const BaseAction = {
 export const EasingPresetSchema = z.enum(["smooth", "snappy", "glide", "linear"]);
 export type EasingPreset = z.infer<typeof EasingPresetSchema>;
 
+/**
+ * Element state a wait/scroll resolves on. "visible" (default) is Playwright's
+ * non-empty-box visibility; "attached" only requires the element to be in the
+ * DOM — the escape hatch for zero-height lazy mount points.
+ */
+export const WaitStateSchema = z.enum(["visible", "attached"]);
+export type WaitState = z.infer<typeof WaitStateSchema>;
+
 export const ActionSchema = z.discriminatedUnion("op", [
   z.object({ ...BaseAction, op: z.literal("goto"), url: z.string() }),
   z.object({
@@ -95,22 +103,51 @@ export const ActionSchema = z.discriminatedUnion("op", [
     easing: EasingPresetSchema.optional(),
     /** Override the preset's duration, ms. */
     durationMs: z.number().optional(),
+    /**
+     * Which element state to wait for before scrolling. Default "visible".
+     * "attached" accepts a zero-size mount point (a lazily-filled empty <div>
+     * that only renders once scrolled into view) — such an element is in the
+     * DOM but never "visible", so the default would time out (issue #44).
+     */
+    state: WaitStateSchema.optional(),
+    /**
+     * After the scroll, wait until the scroll position has been still for this
+     * many ms (bounded at 3 s) — an honest "scroll finished" instead of a fixed
+     * pause against smooth-scroll settle races. Omit for the old fixed settle.
+     */
+    settleMs: z.number().optional(),
   }),
   z.object({
     ...BaseAction,
     op: z.literal("scrollBy"),
     /** CSS pixels to scroll; positive = down. */
     dy: z.number(),
+    /**
+     * Scope the scroll to this element's own scroller: the wheel is dispatched
+     * over the element, and `dy` is clamped to the room its nearest scrollable
+     * ancestor actually has — so a bottomed-out inner panel never chains the
+     * wheel to the page and slides the whole app off-screen (issue #43). Omit
+     * to scroll whatever is under the cursor (the page, usually).
+     */
+    target: TargetSchema.optional(),
     /** Scroll feel preset. Default "smooth". */
     easing: EasingPresetSchema.optional(),
     /** Override the preset's duration, ms. */
     durationMs: z.number().optional(),
+    /** Wait until the scroll position has been still for this many ms (see scrollTo). */
+    settleMs: z.number().optional(),
   }),
   z.object({
     ...BaseAction,
     op: z.literal("waitFor"),
     target: TargetSchema,
     timeoutMs: z.number().optional(),
+    /**
+     * Element state to wait for. Default "visible". "attached" = present in
+     * the DOM even if zero-size/hidden — for lazily-filled mount points that
+     * only become visible once something renders into them (issue #44).
+     */
+    state: WaitStateSchema.optional(),
   }),
   /**
    * Wait for an IN-PLACE mutation of an existing element — the gap that neither
@@ -429,6 +466,64 @@ export const OutputSchema = z
   });
 export type Output = z.infer<typeof OutputSchema>;
 
+/**
+ * One cookie to seed into the recording profile before the take. Mirrors
+ * Playwright's cookie shape; `domain` + `path` (or `url`) place it.
+ */
+export const SeedCookieSchema = z.object({
+  name: z.string(),
+  value: z.string(),
+  /** Cookie domain, e.g. ".example.com" or "app.example.com". */
+  domain: z.string().optional(),
+  /** Cookie path. Default "/". */
+  path: z.string().optional(),
+  /** Alternative to domain+path: the URL the cookie belongs to. */
+  url: z.string().optional(),
+  /** Unix time in seconds; omit for a session cookie. */
+  expires: z.number().optional(),
+  httpOnly: z.boolean().optional(),
+  secure: z.boolean().optional(),
+  sameSite: z.enum(["Strict", "Lax", "None"]).optional(),
+});
+export type SeedCookie = z.infer<typeof SeedCookieSchema>;
+
+/**
+ * How the take is prepared BEFORE the first action — the answer to "the
+ * feature is behind a cookie gate / a preview token / a rotating fixture"
+ * without a hand-written Playwright seed script (issue #44). Everything here
+ * is opt-in; a storyboard without `setup` records exactly as before.
+ */
+export const SetupSchema = z.object({
+  /**
+   * Path (relative to the demo dir, or absolute) to a Playwright storageState
+   * JSON (`{cookies:[…], origins:[{origin, localStorage:[{name,value}]}]}`),
+   * e.g. one saved by `context.storageState({path})`. Its cookies are added
+   * to the recording profile and each origin's localStorage entries are set
+   * before the storyboard runs. CLI: `--storage-state <file>`.
+   */
+  storageState: z.string().optional(),
+  /** Cookies to add before the take. CLI: `--cookie name=value;domain=host` (repeatable). */
+  cookies: z.array(SeedCookieSchema).optional(),
+  /**
+   * Shell command run from the demo dir before EVERY take (record/probe/render),
+   * after the profile is resolved and before Chrome launches — e.g. a script
+   * that re-seeds a fixture, or patches the storyboard for whichever variant
+   * the app will serve today. Env: AIDEMO_DEMO_DIR, AIDEMO_STORYBOARD (the
+   * storyboard path — re-read after the hook, so edits are honored),
+   * AIDEMO_PROFILE (the Chrome user-data dir the take will use). A non-zero
+   * exit aborts the take.
+   */
+  preflight: z.string().optional(),
+  /**
+   * Acknowledge that the recording profile is deliberately seeded (a login,
+   * a cookie gate) and silence the carried-over-state warning for this
+   * storyboard. Implied when storageState/cookies are given. CLI:
+   * `--profile-seeded`.
+   */
+  expectState: z.boolean().optional(),
+});
+export type Setup = z.infer<typeof SetupSchema>;
+
 export const StoryboardSchema = z.object({
   title: z.string(),
   /**
@@ -484,6 +579,8 @@ export const StoryboardSchema = z.object({
   motionBlur: MotionBlurSchema.optional(),
   /** Compose-time cursor control (hide/resize post-hoc). Omit to bake the cursor. */
   cursor: CursorConfigSchema.optional(),
+  /** Pre-take preparation: cookies / storageState seeding, a preflight hook. Opt-in. */
+  setup: SetupSchema.optional(),
   scenes: z.array(SceneSchema).min(1),
 });
 export type Storyboard = z.infer<typeof StoryboardSchema>;

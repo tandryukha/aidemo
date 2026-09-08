@@ -178,16 +178,21 @@ aidemo init <name>            # scaffold demos/<name>/ with a starter storyboard
 aidemo voice   <dir>          # per-scene TTS → narration.mp3 + voice.json
 aidemo record  <dir>          # drive Chrome → raw video + timeline.json
 aidemo probe   <dir>          # record-only dry run (verify selectors), no key needed
+aidemo validate <dir>         # schema-check the storyboard, no browser (non-zero exit on issues)
 aidemo captions <dir>         # Whisper → captions.{srt,vtt,cues.json} (--offline for no network)
 aidemo compose <dir>          # trim + sync + zoom + cards + caption + mux → final-demo.mp4
 aidemo gif     <dir>          # final-demo.mp4 → README-ready GIF (autoplays on GitHub)
+aidemo frames  <dir>          # evenly spaced PNGs from the video for review (--source raw)
 aidemo render  <dir>          # voice → record → captions → compose
 aidemo guide                  # print the canonical authoring guide
 aidemo doctor                 # check Node, ffmpeg, Chrome, voice endpoint
 ```
 
 Add `--headless` for CI/fixtures; omit it for real sites that need your
-logged-in session. `--profile <dir>` picks the Chrome user-data dir;
+logged-in session. `--profile <dir>` picks the Chrome user-data dir; `--fresh`
+records on a wiped one; `--storage-state <file>` / `--cookie "name=value;domain=host"`
+seed a cookie-gated site before the first action (or declare `setup` in the
+storyboard, which can also run a `preflight` script before every take);
 `--capture native|obs` switches to high-fidelity screen capture. `voice`/`render`
 **skip TTS for unchanged scenes**, and `record` **salvages a failed take** (keeps
 the footage + drops a screenshot/frame-dump in `logs/`).
