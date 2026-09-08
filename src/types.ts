@@ -384,7 +384,7 @@ export const RedactSchema = z.object({
 });
 export type Redact = z.infer<typeof RedactSchema>;
 
-/** Caption strip placement. */
+/** Caption strip placement + look. */
 export const CaptionsConfigSchema = z.object({
   /**
    * "bottom" (default) or "top". With "auto-flip" (the default behaviour when
@@ -392,6 +392,16 @@ export const CaptionsConfigSchema = z.object({
    * highlight/spotlight/callout box or a keystroke chip would collide with it.
    */
   position: z.enum(["bottom", "top"]).optional(),
+  /** "pill" (default, centered rounded box), "bar" (full-width band), "none" (no captions burned). */
+  style: z.enum(["pill", "bar", "none"]).optional(),
+  /** CSS font-family. Default: the brand font, else the system sans. */
+  font: z.string().optional(),
+  /** Font size, px at the logical width. Default 30. */
+  size: z.number().min(14).max(72).optional(),
+  /** Text color. Default #fff. */
+  color: z.string().optional(),
+  /** Pill/bar background (CSS). Default rgba(12,14,22,.66). */
+  background: z.string().optional(),
 });
 export type CaptionsConfig = z.infer<typeof CaptionsConfigSchema>;
 
@@ -404,8 +414,57 @@ export const AttentionConfigSchema = z.object({
 });
 export type AttentionConfig = z.infer<typeof AttentionConfigSchema>;
 
+/**
+ * Produced-look frame around the content: padding, background, rounded
+ * corners, drop shadow, optional browser chrome. Compose-time; captions and
+ * cards render at the framed canvas size. Omit for the raw recording frame.
+ */
+export const FrameSchema = z.object({
+  /** Padding around the video, px at the logical size. Default 48. */
+  padding: z.number().min(0).max(400).optional(),
+  /** CSS background (color or gradient). Default: dark gradient tinted by brand.accent. */
+  background: z.string().optional(),
+  /** Corner radius of the video window, px. Default 14. */
+  radius: z.number().min(0).max(80).optional(),
+  /** Drop shadow under the window. Default true. */
+  shadow: z.boolean().optional(),
+  /** Window chrome above the video: "none" (default), "browser", "mac" (traffic lights). */
+  chrome: z.enum(["none", "browser", "mac"]).optional(),
+  /** Text in the chrome's address pill (url wins over title). */
+  title: z.string().optional(),
+  url: z.string().optional(),
+});
+export type Frame = z.infer<typeof FrameSchema>;
+
+/** Brand kit applied across cards, frame, captions, callouts and a watermark. */
+export const BrandSchema = z.object({
+  /** Logo image path (png/svg/jpg), relative to the demo dir or absolute. Used as the watermark. */
+  logo: z.string().optional(),
+  /** Accent color: card rule, frame tint, default attention color. */
+  accent: z.string().optional(),
+  /** CSS font-family for cards, captions, callouts, chrome. */
+  font: z.string().optional(),
+  /** Watermark placement for `logo`. */
+  watermark: z
+    .object({
+      position: z
+        .enum(["top-left", "top-right", "bottom-left", "bottom-right"])
+        .optional(),
+      /** 0–1. Default 0.85. */
+      opacity: z.number().min(0).max(1).optional(),
+      /** Logo width as a fraction of the frame width. Default 0.11. */
+      scale: z.number().min(0.03).max(0.5).optional(),
+      /** Set false to keep the logo out of the video (cards only). */
+      enabled: z.boolean().optional(),
+    })
+    .optional(),
+});
+export type Brand = z.infer<typeof BrandSchema>;
+
 export const SceneSchema = z.object({
   id: z.string(),
+  /** Chapter title for this beat (`output.chapters`); defaults to the scene id. */
+  title: z.string().optional(),
   /** Spoken narration for this beat. Also the caption source of truth. */
   narration: z.string(),
   /**
@@ -586,8 +645,27 @@ export type Loudness = z.infer<typeof LoudnessSchema>;
  * `loudness` (independent of resize) tunes the master level; omit it entirely
  * for the automatic default (loudnorm when there's music, none otherwise).
  */
+/** Named output presets — fill width/height/fit when they are not set explicitly. */
+export const OutputPresetSchema = z.enum(["youtube", "short", "readme-gif", "x"]);
+export type OutputPreset = z.infer<typeof OutputPresetSchema>;
+export const OUTPUT_PRESETS: Record<
+  OutputPreset,
+  { width: number; height: number; fit: "contain" | "cover" }
+> = {
+  youtube: { width: 1920, height: 1080, fit: "contain" },
+  short: { width: 1080, height: 1920, fit: "contain" },
+  "readme-gif": { width: 960, height: 540, fit: "contain" },
+  x: { width: 1280, height: 720, fit: "contain" },
+};
+
 export const OutputSchema = z
   .object({
+    /** Preset sizing (see OUTPUT_PRESETS); explicit width/height/fit win. */
+    preset: OutputPresetSchema.optional(),
+    /** Write MP4 chapter markers, one per scene (scene `title` or id). Default false. */
+    chapters: z.boolean().optional(),
+    /** Also extract output/poster.png (first content frame after the intro). Default false. */
+    poster: z.boolean().optional(),
     width: z.number().optional(),
     height: z.number().optional(),
     /**
@@ -752,6 +830,10 @@ export const StoryboardSchema = z.object({
   hold: HoldSchema.optional(),
   /** Defaults for highlight/spotlight/callout overlays + click rings. Opt-in. */
   attention: AttentionConfigSchema.optional(),
+  /** Produced-look frame: padding/background/radius/shadow/chrome. Opt-in. */
+  frame: FrameSchema.optional(),
+  /** Brand kit: logo watermark, accent, font. Opt-in. */
+  brand: BrandSchema.optional(),
   /** Show a keystroke chip on every `press` (per-action `keystrokes` overrides). Opt-in. */
   keystrokes: z.boolean().optional(),
   /** Caption strip placement (bottom | top). Opt-in; per-scene `captions` overrides. */
@@ -959,6 +1041,8 @@ export const ComposeReportSchema = z.object({
     })
     .optional(),
   hold: z.string(),
+  /** output/poster.png when `output.poster` is set. */
+  poster: z.string().optional(),
   warnings: z.array(ComposeWarningSchema),
 });
 export type ComposeReport = z.infer<typeof ComposeReportSchema>;

@@ -31,7 +31,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | Always-fresh embed snippets | `node bin/aidemo.mjs embed <dir>` — stable raw-GitHub URLs for READMEs/PRs |
 | CI render (consumers) | `uses: tandryukha/aidemo@stable` (composite action, `action.yml`) — see `docs/CI.md` |
 | MCP server (agent interface) | `node bin/aidemo.mjs mcp` — stdio; smoke test: `npm run mcp-smoke` (needs Chrome) |
-| Print authoring guide | `node bin/aidemo.mjs guide` |
+| Print authoring guide | `node bin/aidemo.mjs guide` (`--topic core\|schema\|attention\|polish\|…`, `--list`) |
 | Environment check | `node bin/aidemo.mjs doctor` |
 
 `render`, `voice`, and `captions` need `OPENAI_API_KEY` in `.env` (or
@@ -51,7 +51,9 @@ src/                  pipeline stages: voice, recorder/player/cursor (record),
                       captions/caption-render, compose/zoom/cards/music/ffmpeg
                       (compose writes output/report.json), attention (highlight/
                       spotlight/callout/keystroke/click-ring PNGs + redact blur
-                      filter), lint (browser-free pacing forecast + pitfalls),
+                      filter), frame (produced-look canvas PNG), guide
+                      (topic slices of AUTHORING.md), lint (browser-free
+                      pacing forecast + pitfalls),
                       stills (screenshot mode), frames (review PNGs), setup
                       (cookie/storageState seeding + preflight hook),
                       i18n (multi-language),

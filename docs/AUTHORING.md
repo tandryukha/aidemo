@@ -5,8 +5,9 @@ producing a demo video with aidemo. It is served by the engine itself, so it
 always matches the engine that will render:
 
 - **MCP** (preferred for agents): call the `get_authoring_guide` tool on the
-  `aidemo` MCP server — it returns this document.
-- **CLI**: `aidemo guide` prints it.
+  `aidemo` MCP server — it returns this document (pass `topic` — `core`,
+  `schema`, `attention`, `polish`, `chatgpt-apps`, `debug`… — for one slice).
+- **CLI**: `aidemo guide` prints it (`--topic core` / `--list` for a slice).
 
 You are the **demo director**: turn a feature + loose directions into a
 polished 30–60s narrated, captioned browser-demo MP4. You author the
@@ -156,7 +157,8 @@ Top level: `title`, `language?`, `knownTerms?`, `targetLengthSeconds?`, `video{w
 (default 1280x720), `frames{ name: iframeSelector }`,
 `voice{voiceId,instructions,speed,pronounce?}` (default, scenes may override), `music?`,
 `zoom?`, `intro?`, `outro?`, `transition?`, `hold?`, `output?`, `setup?`,
-`attention?`, `keystrokes?`, `captions?`, `redact?`, `hide?`, `scenes[]`.
+`attention?`, `keystrokes?`, `captions?`, `redact?`, `hide?`, `frame?`,
+`brand?`, `scenes[]`.
 
 `setup?` prepares the take before the first action — for cookie-gated or
 fixture-rotating sites, so you never hand-write a Playwright seed script:
@@ -233,16 +235,27 @@ Cinematic keys (all opt-in; omit for the plain look):
   `cursor` block). See *Attention*.
 - `keystrokes: true` — show a keystroke chip ("⌘ K", "Enter") on every `press`
   (per-action `keystrokes` overrides). See *Attention*.
-- `captions: {position?="bottom"|"top"}` — caption strip placement; scenes may
-  override with their own `captions`. Compose also auto-flips a cue to the top
-  while an overlay occupies the bottom band. See *Attention*.
+- `captions: {position?="bottom"|"top", style?="pill"|"bar"|"none", font?,
+  size?, color?, background?}` — caption strip placement and look; scenes may
+  override `position` with their own `captions`. Compose also auto-flips a cue
+  to the top while an overlay occupies the bottom band. See *Attention* and
+  *Produced look*.
 - `redact: [{selector, frame?, blur?}]` — **blur regions at compose time**
   (prices, emails, tokens); scenes may add their own `redact`. See *Attention*.
 - `hide: [selector, …]` — hide elements at **record** time (teasers, cookie
   bars, ad slots); scenes may add their own `hide`. See *Attention*.
+- `frame: {padding?, background?, radius?, shadow?, chrome?="none"|"browser"|"mac",
+  title?, url?}` — pad the video onto a styled canvas with a rounded, shadowed
+  window and optional browser chrome. See *Produced look*.
+- `brand: {logo?, accent?, font?, watermark?}` — brand kit: accent for cards /
+  frame tint / attention overlays, font for cards + captions + callouts +
+  chrome, logo on cards and as a watermark. See *Produced look*.
+- `output: {preset?, chapters?, poster?, width?, height?, fit?, loudness?}` —
+  presets `youtube|short|readme-gif|x`, MP4 chapter markers from scene
+  `title`s, `output/poster.png`. See *Produced look* and *Transitions*.
 
-Each scene: `id`, `narration`, `voice?`, `music?`, `zoom?` (false to disable),
-`captions?`, `redact?`, `hide?`, `actions[]`.
+Each scene: `id`, `title?` (chapter name), `narration`, `voice?`, `music?`,
+`zoom?` (false to disable), `captions?`, `redact?`, `hide?`, `actions[]`.
 
 ## Transitions, output sizing & loudness
 
@@ -373,6 +386,72 @@ photobomb the take. This is the **one** record-time exception to
 compose-time polish: hiding is cheap to redo, and a hidden element cannot be
 un-hidden by a recompose, so keep the list to things you'd never want in any
 cut. Lint-check with a probe: hidden elements still take their layout space.
+
+## Produced look: frame, brand, caption styles, presets, chapters, poster
+
+Everything here is compose-time and opt-in — a storyboard without these keys
+renders exactly as before, and every tweak is a recompose. Frame and cards
+are headless-Chrome-rasterized PNGs over core `pad`/`overlay` filters, so the
+look is portable across ffmpeg builds. Read the report (`output/report.json`)
+and `aidemo frames` after the first render with a frame: the canvas is bigger
+than the recording, so check that captions and chips sit where you expect.
+
+**`frame`** — the "Screen Studio" look: the recording becomes a rounded,
+shadowed window on a styled canvas, with captions in the padding band below.
+```json
+"frame": { "chrome": "mac", "url": "app.example.com", "padding": 56, "radius": 14 }
+```
+- `padding` (default 48, logical px) grows the canvas on every side; the
+  canvas is `(width + 2·padding) × (height + 2·padding [+ 40 chrome])`. With
+  `output.preset`/`width`/`height` set, the padding grows on one axis so the
+  canvas already has the target aspect — the resize is a pure scale, never
+  letterbox bars around the frame.
+- `background`: any CSS color/gradient. Default: a dark gradient tinted with
+  `brand.accent` when set.
+- `radius` (default 14), `shadow` (default true).
+- `chrome`: `"browser"` (neutral dots + address pill) or `"mac"` (traffic
+  lights). `url` (wins) or `title` fills the pill; omit both for an empty bar.
+- Zoom, cursor, attention overlays and redaction all happen **before** the
+  frame, so they ride inside the window; captions, keystroke chips, cards and
+  the watermark render at the canvas size.
+
+**`brand`** — one place for identity, applied everywhere it should show:
+```json
+"brand": { "logo": "brand/logo.png", "accent": "#3b82f6", "font": "Inter, sans-serif",
+           "watermark": { "position": "bottom-right", "opacity": 0.85, "scale": 0.11 } }
+```
+- `accent` → intro/outro rule color (unless the card sets its own), the frame
+  gradient tint, and the default attention color (`attention.color` wins).
+- `font` → cards, captions (`captions.font` wins), callouts, frame chrome. Use
+  a family that exists on the render machine; the fallback is the system sans.
+- `logo` (png/svg/jpg, relative to the demo dir): drawn above the rule on
+  intro/outro cards and, unless `watermark.enabled:false`, as a watermark over
+  the content at `position` with `opacity` (0–1) and `scale` (fraction of the
+  frame width, default 0.11). A missing file is a compose warning
+  (`brand-logo-missing`), not a failure.
+
+**Caption styles** (`captions`, top level): `style` is `"pill"` (default —
+centered rounded box), `"bar"` (full-width band flush with the frame edge; the
+usual choice under a `frame`), or `"none"` (no captions burned — the
+SRT/VTT files are still written, for players and platforms that render their
+own). `font`, `size` (default 30, logical px), `color`, `background` (any
+CSS) restyle the strip; `position` still flips per scene / automatically.
+
+**Output presets** (`output.preset`) fill `width`/`height`/`fit` when you
+don't set them explicitly: `youtube` 1920×1080, `short` 1080×1920,
+`readme-gif` 960×540, `x` 1280×720 — all `fit:"contain"` (letterbox, never
+crop). Explicit `width`/`height`/`fit` win over the preset.
+
+**Chapters** (`output.chapters: true`): the MP4 gets one chapter marker per
+scene at its content start (after the intro card), named from the scene's
+`title` (or its `id`). YouTube, QuickTime, VLC and mpv show them as a
+navigable table of contents. Give every scene a short `title` when you turn
+this on.
+
+**Poster** (`output.poster: true`): also writes `output/poster.png`
+(`poster.<lang>.png` for language variants) — the first content frame after
+the intro card, for READMEs, social cards and `<video poster>`. The path is
+in `report.json` as `poster`.
 
 ## Motion blur & cursor
 

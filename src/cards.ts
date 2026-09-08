@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import type { Card } from "./types.js";
+import type { Brand, Card } from "./types.js";
 
 /**
  * Rasterizes an intro/outro title card to a PNG with headless Chrome — same
@@ -13,7 +13,9 @@ export async function renderCardPng(
   outPath: string,
   logicalW: number,
   logicalH: number,
-  scale: number
+  scale: number,
+  brand?: Brand,
+  logoDataUri?: string
 ): Promise<void> {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const context = await browser.newContext({
@@ -22,7 +24,7 @@ export async function renderCardPng(
   });
   const page = await context.newPage();
   try {
-    await page.setContent(html(card, logicalW), { waitUntil: "load" });
+    await page.setContent(html(card, logicalW, brand, logoDataUri), { waitUntil: "load" });
     await page.screenshot({ path: outPath });
   } finally {
     await browser.close();
@@ -36,21 +38,27 @@ function esc(text: string): string {
     .replace(/>/g, "&gt;");
 }
 
-function html(card: Card, logicalW: number): string {
+function html(card: Card, logicalW: number, brand?: Brand, logoDataUri?: string): string {
   const background =
     card.background ??
     "radial-gradient(120% 140% at 20% 0%, #182036 0%, #0b0d16 55%, #07080f 100%)";
-  const accent = card.accent ?? "#6c8cff";
+  const accent = card.accent ?? brand?.accent ?? "#6c8cff";
+  const font = brand?.font ?? '-apple-system,"Helvetica Neue",Arial,sans-serif';
   const titleSize = Math.round(logicalW / 17);
   const subSize = Math.round(logicalW / 40);
   const subtitle = card.subtitle
     ? `<div class="sub">${esc(card.subtitle)}</div>`
     : "";
+  const logo = logoDataUri
+    ? `<img class="logo" src="${logoDataUri}" alt="">`
+    : "";
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     html,body{margin:0;padding:0;width:100%;height:100%;}
     body{background:${background};display:flex;align-items:center;justify-content:center;}
+    .logo{display:block;margin:0 auto ${Math.round(subSize * 1.4)}px;
+      max-width:${Math.round(logicalW * 0.18)}px;max-height:${Math.round(logicalW * 0.08)}px;}
     .box{max-width:78%;text-align:center;
-      font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;
+      font-family:${font};
       -webkit-font-smoothing:antialiased;}
     .rule{width:${Math.round(logicalW / 22)}px;height:5px;border-radius:3px;
       background:${accent};margin:0 auto ${Math.round(subSize * 1.2)}px;}
@@ -60,6 +68,7 @@ function html(card: Card, logicalW: number): string {
     .sub{margin-top:${Math.round(subSize * 0.9)}px;font-size:${subSize}px;
       line-height:1.4;font-weight:450;color:rgba(226,231,244,.72);}
   </style></head><body><div class="box">
+    ${logo}
     <div class="rule"></div>
     <div class="title">${esc(card.title)}</div>
     ${subtitle}

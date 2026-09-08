@@ -13,6 +13,7 @@ import { Project, parseStoryboard } from "./project.js";
 import { record } from "./recorder.js";
 import { parseCookieFlag } from "./setup.js";
 import { extractFrames } from "./frames.js";
+import { GUIDE_TOPIC_NAMES, guideHeadings, readGuide, sliceGuide } from "./guide.js";
 import { lintStoryboard, logLint } from "./lint.js";
 import { readJson } from "./util.js";
 import {
@@ -137,11 +138,37 @@ program
 program
   .command("guide")
   .description("print the agent-neutral authoring guide (docs/AUTHORING.md)")
-  .action(async () => {
+  .option(
+    "--topic <name>",
+    `print one slice: ${GUIDE_TOPIC_NAMES.join(", ")} — or an H2 heading prefix`
+  )
+  .option("--list", "list topics and section headings")
+  .action(async (opts: { topic?: string; list?: boolean }) => {
     // Deliberate stdout (not the stderr logger): the guide is the output.
-    process.stdout.write(
-      await readFile(resolve(ENGINE_ROOT, "docs/AUTHORING.md"), "utf8")
-    );
+    const md = await readGuide();
+    if (opts.list) {
+      process.stdout.write(
+        `topics: ${GUIDE_TOPIC_NAMES.join(", ")}\n\nsections:\n` +
+          guideHeadings(md)
+            .map((h) => `  ${h}`)
+            .join("\n") +
+          "\n"
+      );
+      return;
+    }
+    if (!opts.topic) {
+      process.stdout.write(md);
+      return;
+    }
+    const slice = sliceGuide(md, opts.topic);
+    if (slice == null) {
+      fail(
+        `unknown guide topic "${opts.topic}" — topics: ${GUIDE_TOPIC_NAMES.join(", ")}; ` +
+          `sections: ${guideHeadings(md).join(" · ")}`
+      );
+      process.exit(1);
+    }
+    process.stdout.write(slice);
   });
 
 /** Read all of stdin as UTF-8 (for `--body-file -`). */

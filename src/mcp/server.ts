@@ -22,6 +22,7 @@ import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
 import { extractFrames } from "../frames.js";
+import { GUIDE_TOPIC_NAMES, guideHeadings, guidePath as guideFilePath, sliceGuide } from "../guide.js";
 import { lintStoryboard, logLint } from "../lint.js";
 import { localizeStoryboard } from "../i18n.js";
 import { scaffoldDemo, doctorReport, buildFeedback, fileFeedback } from "../distribute.js";
@@ -222,7 +223,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       .catch(() => {});
   };
 
-  const guidePath = resolve(ENGINE_ROOT, "docs", "AUTHORING.md");
+  const guidePath = guideFilePath();
 
   server.registerTool(
     "get_authoring_guide",
@@ -231,16 +232,51 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       description:
         "The canonical guide to authoring demos: storyboard schema, action " +
         "vocabulary, demo-director principles, ChatGPT-app recording facts. " +
-        "Call this FIRST before authoring or editing a storyboard.",
-      inputSchema: {},
-      outputSchema: { guide: z.string(), engineVersion: z.string() },
+        "Call this FIRST before authoring or editing a storyboard. Pass " +
+        `\`topic\` (${GUIDE_TOPIC_NAMES.join(" | ")}, or any H2 heading prefix) ` +
+        "for one slice instead of the whole ~1000-line guide; start with " +
+        "`core`, then fetch `attention`/`polish`/`chatgpt-apps` as needed.",
+      inputSchema: {
+        topic: z
+          .string()
+          .optional()
+          .describe(
+            `Slice: ${GUIDE_TOPIC_NAMES.join(", ")} — or an H2 heading prefix. Omit for the full guide.`
+          ),
+      },
+      outputSchema: {
+        guide: z.string(),
+        engineVersion: z.string(),
+        topic: z.string().optional(),
+        topics: z.array(z.string()),
+        sections: z.array(z.string()),
+      },
       annotations: { readOnlyHint: true },
     },
-    async () =>
-      jsonResult({
-        guide: await readFile(guidePath, "utf8"),
+    async ({ topic }) => {
+      const md = await readFile(guidePath, "utf8");
+      const sections = guideHeadings(md);
+      if (!topic) {
+        return jsonResult({ guide: md, engineVersion: engineVersion(), topics: GUIDE_TOPIC_NAMES, sections });
+      }
+      const slice = sliceGuide(md, topic);
+      if (slice == null) {
+        return errorResult({
+          message:
+            `Unknown guide topic "${topic}". Topics: ${GUIDE_TOPIC_NAMES.join(", ")}; ` +
+            `or an H2 heading prefix: ${sections.join(" · ")}`,
+          topics: GUIDE_TOPIC_NAMES,
+          sections,
+        });
+      }
+      return jsonResult({
+        guide: slice,
         engineVersion: engineVersion(),
-      })
+        topic,
+        topics: GUIDE_TOPIC_NAMES,
+        sections,
+      });
+    }
   );
 
   server.registerTool(

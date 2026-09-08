@@ -37,6 +37,8 @@ import {
   type PlacedClick,
   type PlacedRedact,
 } from "./attention.js";
+import { renderFramePng } from "./frame.js";
+import { OUTPUT_PRESETS, type CaptionsConfig } from "./types.js";
 import {
   runFfmpeg,
   probeDurationMs,
@@ -123,7 +125,7 @@ export async function compose(
   const hideWindows: HideWindow[] = [];
   let cursorSampleCount = 0;
   // Attention layer accumulators (all opt-in; empty for a plain storyboard).
-  const accent = storyboard.attention?.color ?? DEFAULT_ACCENT;
+  const accent = storyboard.attention?.color ?? storyboard.brand?.accent ?? DEFAULT_ACCENT;
   const attentionPlaced: PlacedAttention[] = [];
   const keysPlaced: PlacedKey[] = [];
   const clicksPlaced: PlacedClick[] = [];
@@ -616,19 +618,118 @@ export async function compose(
     log(`keystrokes: ${keysPlaced.length} chip(s) in ${r.passes} pass(es)`);
   }
 
+  // Produced-look frame (opt-in `frame` block): pad the content onto a canvas
+  // and overlay the rasterized frame PNG (background, shadow, chrome, rounded
+  // hole). Everything after this — cards, watermark, captions — renders at
+  // the canvas size, so captions land in the padding band.
+  let canvasW = outW;
+  let canvasH = outH;
+  const outCfg = resolveOutputSizing(storyboard.output);
+  if (storyboard.frame) {
+    const framePng = resolve(tmp, "frame.png");
+    const layout = await renderFramePng(
+      storyboard.frame,
+      storyboard.brand,
+      framePng,
+      storyboard.video.width,
+      storyboard.video.height,
+      pxScale,
+      outCfg.width != null && outCfg.height != null ? outCfg.width / outCfg.height : undefined
+    );
+    const framed = resolve(tmp, "content-framed.mp4");
+    await runFfmpeg([
+      "-i",
+      content,
+      "-i",
+      framePng,
+      "-filter_complex",
+      `[0:v]pad=${layout.canvasW}:${layout.canvasH}:${layout.offsetX}:${layout.offsetY}:color=${layout.padColor}[p];` +
+        `[p][1:v]overlay=0:0:format=auto[vout]`,
+      "-map",
+      "[vout]",
+      "-an",
+      "-r",
+      String(FPS),
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "20",
+      "-pix_fmt",
+      "yuv420p",
+      framed,
+    ]);
+    content = framed;
+    canvasW = layout.canvasW;
+    canvasH = layout.canvasH;
+    log(
+      `frame: ${layout.canvasW}x${layout.canvasH} canvas (padding ${storyboard.frame.padding ?? 48}` +
+        `${storyboard.frame.chrome && storyboard.frame.chrome !== "none" ? `, ${storyboard.frame.chrome} chrome` : ""})`
+    );
+  }
+  const logicalW = canvasW / pxScale;
+  const logicalH = canvasH / pxScale;
+
+  // Brand watermark (opt-in `brand.logo`): scaled logo in a corner over the
+  // content (not the cards — the cards carry the logo in their layout).
+  const logoPath = storyboard.brand?.logo
+    ? resolve(project.dir, storyboard.brand.logo)
+    : null;
+  if (logoPath && storyboard.brand?.watermark?.enabled !== false) {
+    if (!(await exists(logoPath))) {
+      warn("brand-logo-missing", `brand.logo not found at ${logoPath} — watermark and card logo skipped`);
+    } else {
+      const wm = storyboard.brand?.watermark ?? {};
+      const wmW = Math.round(canvasW * (wm.scale ?? 0.11));
+      const margin = Math.round(24 * pxScale);
+      const pos = wm.position ?? "bottom-right";
+      const x = pos.endsWith("left") ? margin : canvasW - wmW - margin;
+      const yExpr = pos.startsWith("top") ? `${margin}` : `${canvasH}-h-${margin}`;
+      const marked = resolve(tmp, "content-marked.mp4");
+      await runFfmpeg([
+        "-i",
+        content,
+        "-i",
+        logoPath,
+        "-filter_complex",
+        `[1:v]scale=${wmW}:-1:flags=lanczos,format=rgba,colorchannelmixer=aa=${(wm.opacity ?? 0.85).toFixed(2)}[lg];` +
+          `[0:v][lg]overlay=${x}:${yExpr}[vout]`,
+        "-map",
+        "[vout]",
+        "-an",
+        "-r",
+        String(FPS),
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "20",
+        "-pix_fmt",
+        "yuv420p",
+        marked,
+      ]);
+      content = marked;
+      log(`watermark: ${storyboard.brand?.logo} at ${pos}`);
+    }
+  }
+  const logoDataUri =
+    logoPath && (await exists(logoPath)) ? await fileToDataUri(logoPath) : undefined;
+
   // Intro/outro title cards. Music runs under them; narration and captions
   // shift right by the intro's length.
   const segments: string[] = [];
   const introMs = storyboard.intro ? storyboard.intro.durationMs : 0;
   if (storyboard.intro) {
     segments.push(
-      await cardSegment(storyboard.intro, "intro", tmp, storyboard, outW, outH, pxScale)
+      await cardSegment(storyboard.intro, "intro", tmp, storyboard, logicalW, logicalH, pxScale, logoDataUri)
     );
   }
   segments.push(content);
   if (storyboard.outro) {
     segments.push(
-      await cardSegment(storyboard.outro, "outro", tmp, storyboard, outW, outH, pxScale)
+      await cardSegment(storyboard.outro, "outro", tmp, storyboard, logicalW, logicalH, pxScale, logoDataUri)
     );
   }
   // Re-encode when assembling cards: the card segments carry mp4 edit lists
@@ -643,7 +744,7 @@ export async function compose(
 
   // Caption band collisions: any attention box / key chip that reaches into
   // the bottom strip flips the caption to the top for the cues it overlaps.
-  const bandTop = outH - Math.round((CAPTION_BOTTOM_GAP + 80) * pxScale);
+  const bandTop = canvasH - Math.round((CAPTION_BOTTOM_GAP + 80) * pxScale);
   const collisions = [...attentionItems, ...keyItems]
     .filter((it) => {
       // Spotlights are full-frame PNGs; use the hole instead of the canvas.
@@ -657,7 +758,13 @@ export async function compose(
     tmp,
     introMs,
     pxScale,
-    { defaultPosition: storyboard.captions?.position ?? "bottom", windows: captionWindows, collisions }
+    {
+      defaultPosition: storyboard.captions?.position ?? "bottom",
+      windows: captionWindows,
+      collisions,
+      look: { ...(storyboard.captions ?? {}), font: storyboard.captions?.font ?? storyboard.brand?.font },
+      logicalWidth: logicalW,
+    }
   );
   const captioned = captionsResult.video;
   // Optional final resize/reframe (opt-in). Applied last, over the whole
@@ -666,11 +773,42 @@ export async function compose(
   // `output` may carry only a `loudness` override (no width/height) — resize
   // just when both dimensions are set.
   const finalVideo =
-    storyboard.output?.width != null && storyboard.output?.height != null
-      ? await resizeOutput(captioned, storyboard.output, tmp)
+    outCfg.width != null && outCfg.height != null
+      ? await resizeOutput(captioned, outCfg, tmp)
       : captioned;
-  await muxAudio(project, storyboard, finalVideo, introMs);
+  const chapters = storyboard.output?.chapters
+    ? await writeChapters(tmp, [
+        ...(storyboard.intro
+          ? [{ id: "intro", title: storyboard.intro.title, durationMs: introMs }]
+          : []),
+        ...sceneReports.map((r) => ({
+          id: r.id,
+          title: sceneById.get(r.id)?.title ?? r.id,
+          durationMs: r.targetMs,
+        })),
+        ...(storyboard.outro
+          ? [{ id: "outro", title: storyboard.outro.title, durationMs: storyboard.outro.durationMs }]
+          : []),
+      ])
+    : null;
+  await muxAudio(project, storyboard, finalVideo, introMs, chapters);
   ok(`final video → ${project.outputPath}`);
+  let poster: string | undefined;
+  if (storyboard.output?.poster) {
+    poster = project.posterPath;
+    await runFfmpeg([
+      "-ss",
+      ((introMs + 500) / 1000).toFixed(3),
+      "-i",
+      project.outputPath,
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      poster,
+    ]);
+    log(`poster → ${poster}`);
+  }
   // AIDEMO_KEEP_TMP=1 keeps .compose-tmp for debugging intermediates.
   if (!process.env.AIDEMO_KEEP_TMP) {
     await fs.rm(tmp, { recursive: true, force: true });
@@ -684,6 +822,7 @@ export async function compose(
     cursorPoints: cursorPts.length,
     captions: { cues: captionsResult.cues, passes: captionsResult.passes },
     hold: hold.mode,
+    ...(poster ? { poster } : {}),
     ...(attentionPlaced.length || keysPlaced.length || clicksPlaced.length || redactPlaced.length
       ? {
           attention: {
@@ -976,18 +1115,23 @@ async function cardSegment(
   name: string,
   tmp: string,
   storyboard: Storyboard,
-  outW: number,
-  outH: number,
-  pxScale: number
+  logicalW: number,
+  logicalH: number,
+  pxScale: number,
+  logoDataUri?: string
 ): Promise<string> {
   const png = resolve(tmp, `${name}.png`);
   await renderCardPng(
     card,
     png,
-    storyboard.video.width,
-    storyboard.video.height,
-    pxScale
+    Math.round(logicalW),
+    Math.round(logicalH),
+    pxScale,
+    storyboard.brand,
+    logoDataUri
   );
+  const outW = Math.round(logicalW * pxScale) & ~1;
+  const outH = Math.round(logicalH * pxScale) & ~1;
   const durSec = card.durationMs / 1000;
   const fadeSec = Math.min(card.fadeMs / 1000, durSec / 3);
   const out = resolve(tmp, `${name}.mp4`);
@@ -1215,6 +1359,10 @@ function pngHeightHint(it: OverlayItem, placed: PlacedAttention[], pxScale: numb
 
 interface CaptionPlacement {
   defaultPosition: "top" | "bottom";
+  /** Caption look (style/font/size/color/background), brand font already merged. */
+  look?: CaptionsConfig & { font?: string };
+  /** Logical (CSS px) width of the frame the strip must span. */
+  logicalWidth?: number;
   /** Content-time windows (ms, before the intro shift) with a fixed position. */
   windows: Array<{ a: number; b: number; position: "top" | "bottom" }>;
   /** Content-time windows (ms) during which the bottom band is occupied. */
@@ -1231,6 +1379,10 @@ async function burnCaptions(
   placement: CaptionPlacement = { defaultPosition: "bottom", windows: [], collisions: [] }
 ): Promise<{ video: string; cues: number; passes: number; flipped: number }> {
   const none = { video: silentVideo, cues: 0, passes: 0, flipped: 0 };
+  if (placement.look?.style === "none") {
+    log("captions: style none — not burned (SRT/VTT files still written)");
+    return none;
+  }
   if (!(await exists(project.captionsCuesPath))) return none;
   const cues = (await readJson<Cue[]>(project.captionsCuesPath)) ?? [];
   if (cues.length === 0) return none;
@@ -1239,15 +1391,18 @@ async function burnCaptions(
   const rendered = await renderCaptionPngs(
     cues,
     resolve(tmp, "captions"),
-    storyboard.video.width,
-    pxScale
+    Math.round(placement.logicalWidth ?? storyboard.video.width),
+    pxScale,
+    placement.look ?? {}
   );
 
   // Cue times are narration-relative; the intro card shifts them right. The
   // strip sits `gap` above the bottom edge (clear of an app's bottom input
   // bar) — or, per scene / on a collision with an attention overlay, at the
   // top: the PNG is a bottom-anchored strip, so "top" flips it vertically.
-  const gap = Math.round(CAPTION_BOTTOM_GAP * pxScale);
+  // A "bar" strip is flush with the frame edge (no gap, no pill offset).
+  const bar = placement.look?.style === "bar";
+  const gap = bar ? 0 : Math.round(CAPTION_BOTTOM_GAP * pxScale);
   const { height: outH } = await probeVideoDims(silentVideo);
   let flipped = 0;
   const overlap = (a: number, b: number, w: { a: number; b: number }) => a < w.b && b > w.a;
@@ -1263,7 +1418,9 @@ async function burnCaptions(
     // The strip PNG is bottom-anchored (pill bottom ≈ 22 px above the strip's
     // edge). For "top", slide the strip up so the pill's bottom lands ~gap+70
     // px from the top edge — a one- or two-line pill stays fully in frame.
-    const topY = gap + Math.round(70 * pxScale) - (stripH - Math.round(22 * pxScale));
+    const topY = bar
+      ? -(stripH - Math.round(62 * pxScale))
+      : gap + Math.round(70 * pxScale) - (stripH - Math.round(22 * pxScale));
     return {
       png: r.png,
       x: 0,
@@ -1286,11 +1443,51 @@ async function burnCaptions(
  * fixed -22dB bed). The bed is trimmed to the video, faded out at the end,
  * and the narration is delayed past the intro card.
  */
+/** Output sizing with a preset's defaults filled in (explicit keys win). */
+function resolveOutputSizing(output: Output | undefined): Output {
+  if (!output) return { fit: "contain" };
+  const p = output.preset ? OUTPUT_PRESETS[output.preset] : null;
+  return {
+    ...output,
+    width: output.width ?? p?.width,
+    height: output.height ?? p?.height,
+    fit: output.width != null ? output.fit : (p?.fit ?? output.fit),
+  };
+}
+
+/** Write an ffmetadata file with one chapter per scene (content time + intro). */
+async function writeChapters(
+  tmp: string,
+  scenes: Array<{ id: string; title: string; durationMs: number }>
+): Promise<string> {
+  const lines = [";FFMETADATA1"];
+  let t = 0;
+  for (const s of scenes) {
+    const a = Math.round(t);
+    const b = Math.round(t + s.durationMs);
+    lines.push("[CHAPTER]", "TIMEBASE=1/1000", `START=${a}`, `END=${b}`, `title=${s.title.replace(/[\\=;#\n]/g, " ")}`);
+    t += s.durationMs;
+  }
+  const path = resolve(tmp, "chapters.ffmeta");
+  await fs.writeFile(path, lines.join("\n") + "\n");
+  log(`chapters: ${scenes.length} marker(s)`);
+  return path;
+}
+
+async function fileToDataUri(path: string): Promise<string> {
+  const ext = path.toLowerCase().split(".").pop() ?? "png";
+  const mime =
+    ext === "svg" ? "image/svg+xml" : ext === "jpg" || ext === "jpeg" ? "image/jpeg" : "image/png";
+  const buf = await fs.readFile(path);
+  return `data:${mime};base64,${buf.toString("base64")}`;
+}
+
 async function muxAudio(
   project: Project,
   storyboard: Storyboard,
   video: string,
-  introMs: number
+  introMs: number,
+  chaptersPath: string | null = null
 ): Promise<void> {
   let musicPath = await resolveMusic(project, storyboard);
   const videoMs = await probeDurationMs(video);
@@ -1310,9 +1507,15 @@ async function muxAudio(
     }
   }
 
-  // Inputs, fixed order: 0=video, 1=narration, 2=music (if any).
+  // Inputs, fixed order: 0=video, 1=narration, 2=music (if any), then the
+  // chapters metadata file (mapped by index, never a stream).
   const args: string[] = ["-i", video, "-i", project.narrationPath];
   if (musicPath) args.push("-stream_loop", String(musicLoops), "-i", musicPath);
+  let chaptersIdx = -1;
+  if (chaptersPath) {
+    chaptersIdx = musicPath ? 3 : 2;
+    args.push("-i", chaptersPath);
+  }
 
   const delay = introMs > 0 ? `,adelay=${Math.round(introMs)}:all=1` : "";
   const filters: string[] = [];
@@ -1383,6 +1586,7 @@ async function muxAudio(
 
   args.push("-filter_complex", filters.join(";"));
   args.push("-map", "0:v", "-map", "[aout]");
+  if (chaptersIdx >= 0) args.push("-map_metadata", String(chaptersIdx));
   args.push(
     "-c:v",
     "copy",
