@@ -1,4 +1,5 @@
 import type { Page, Locator, Frame, Request, Response } from "playwright";
+import { scanInteractive, rankCandidates, type DriftCandidate } from "./inspect.js";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import type {
@@ -1626,6 +1627,47 @@ async function dumpDiagnostics(
     lines.push(`  failed requests since the previous action: none`);
   }
 
+  // Drift suggestions: when the selector matched nothing, scan the page (and
+  // the widget frames) for the elements that look most like what it asked
+  // for, so the fix is one edit away instead of a round of guessing.
+  let drift: DriftCandidate[] = [];
+  let driftFile: string | null = null;
+  const nothingMatched =
+    !!selector && frameCounts.every((c) => c.matches <= 0) &&
+    ((await page.locator(selector).count().catch(() => 0)) === 0);
+  if (nothingMatched) {
+    const scanned: DriftCandidate[] = [];
+    const targets: Array<Page | Frame> = [page, ...roots];
+    for (const t of targets) {
+      const res = await scanInteractive(t, 120).catch(() => null);
+      if (!res) continue;
+      const frameTag = t === page ? undefined : truncateUrl((t as Frame).url());
+      scanned.push(
+        ...rankCandidates(selector!, res.elements, 8).map((c) =>
+          frameTag ? { ...c, frame: frameTag } : c
+        )
+      );
+    }
+    drift = scanned.sort((a, b) => b.score - a.score).slice(0, 8);
+    driftFile = join(logsDir, `drift-${sceneId}-${index + 1}.json`);
+    await fs
+      .writeFile(
+        driftFile,
+        JSON.stringify({ sceneId, actionIndex: index + 1, selector, url: page.url(), candidates: drift }, null, 2)
+      )
+      .catch(() => {});
+    if (drift.length) {
+      lines.push(`  nearest elements to "${selector}" (drift suggestions → ${driftFile}):`);
+      for (const c of drift.slice(0, 3)) {
+        lines.push(
+          `    ${c.role} "${c.name.slice(0, 40)}"${c.frame ? ` [frame ${c.frame}]` : ""} → ${c.selector || "(no unique selector)"}  (score ${c.score})`
+        );
+      }
+    } else {
+      lines.push(`  no similar interactive element on the page (drift file → ${driftFile}) — is this the right screen / state?`);
+    }
+  }
+
   const detail = {
     sceneId,
     actionIndex: index + 1,
@@ -1635,6 +1677,7 @@ async function dumpDiagnostics(
     widgetFrames: frameCounts,
     allFrames: page.frames().map((f) => truncateUrl(f.url())),
     failedRequests,
+    ...(driftFile ? { driftFile, driftCandidates: drift } : {}),
   };
   await fs.writeFile(`${stem}.json`, JSON.stringify(detail, null, 2)).catch(() => {});
   lines.push(`  detail → ${stem}.json`);

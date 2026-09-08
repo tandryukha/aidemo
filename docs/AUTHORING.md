@@ -29,6 +29,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | Lint / pacing forecast (no browser) | `lint_storyboard` | `aidemo lint <dir>` (`--file`, `--lang`, `--json`, `--strict`) |
 | Scaffold a demo | `init_demo` | `aidemo init <name>` |
 | Environment check | `doctor` | `aidemo doctor` |
+| Discover selectors on a page | `inspect` (job) | `aidemo inspect <url> [--dir <dir>] [--frame name=sel]` |
 | Dry-run the flow | `probe` (job) | `aidemo probe <dir>` |
 | Full pipeline | `render` (job) | `aidemo render <dir>` |
 | One stage | `voice` / `record` / `captions` / `compose` (jobs) | `aidemo voice\|record\|captions\|compose <dir>` |
@@ -53,6 +54,19 @@ directory is not necessarily your repo (Codex registers servers globally).
 **Validate early.** Run `validate_storyboard` (CLI: `aidemo validate <dir>`,
 non-zero exit on issues) after every storyboard edit — cheap, structured
 errors — instead of discovering schema issues inside a render job.
+
+**Inspect before you write a target.** `inspect {dir, url}` (CLI: `aidemo
+inspect <url> --dir <dir>`) opens the page in the recording profile (so a
+logged-in app shows its real UI), waits for it to settle, and returns every
+visible interactive element — role, name, whether it's in the viewport — with
+a ranked list of selectors that are **unique on that page right now**
+(`[data-testid=…]` → `#id` → `[aria-label=…]` → `button:has-text("…")` →
+`input[name=…]`/`[placeholder=…]` → `tag.class` → a short structural path),
+plus the headings and any iframes (for the `frames` block; pass `frames` to
+scan inside them). Use it instead of reading source or guessing: copy the
+first selector of the element you mean. It writes `logs/inspect-<ts>.json`
+and a screenshot next to it. Elements below the fold are listed too (marked
+`↓` on the CLI); a `scrollTo` on them works as usual.
 
 **Lint before you spend a take.** `lint_storyboard` (CLI: `aidemo lint <dir>`)
 is a browser-free preflight that predicts what compose will do to each scene:
@@ -939,6 +953,14 @@ renders relative to its own dir, keep any local asset paths (e.g. a music
 `track`) absolute.
 
 ## Verify before declaring done
+
+**A selector that matched nothing** fails the take with drift suggestions:
+the failure log (and `logs/fail-<scene>-<n>.json`, `driftCandidates`) lists
+the interactive elements that most resemble what the selector asked for —
+by testid / id / text similarity — each with a unique selector to paste, and
+`logs/drift-<scene>-<n>.json` holds the full ranked list. If nothing similar
+is on the page, you are on the wrong screen or state (a gate, a stale
+profile, a navigation that didn't land): check the screenshot first.
 
 Start with **`output/report.json`** (written by every compose; the `render` /
 `compose` job results carry `report` and `warnings`): per scene it records

@@ -13,9 +13,10 @@ import { Project, parseStoryboard } from "./project.js";
 import { record } from "./recorder.js";
 import { parseCookieFlag } from "./setup.js";
 import { extractFrames } from "./frames.js";
+import { inspectPage } from "./inspect.js";
 import { GUIDE_TOPIC_NAMES, guideHeadings, readGuide, sliceGuide } from "./guide.js";
 import { lintStoryboard, logLint } from "./lint.js";
-import { readJson } from "./util.js";
+import { readJson, writeJson } from "./util.js";
 import {
   buildProbeGolden,
   diffGolden,
@@ -492,6 +493,80 @@ program
       const errors = result.issues.filter((i) => i.severity === "error").length;
       const warns = result.issues.filter((i) => i.severity === "warn").length;
       if (errors > 0 || (opts.strict && warns > 0)) process.exitCode = 1;
+    }
+  );
+
+program
+  .command("inspect")
+  .argument("<url>", "page to inspect (absolute URL)")
+  .option("--dir <dir>", "demo directory to write logs/inspect-*.json + screenshot into")
+  .option("--profile <dir>", "Chrome user-data dir (default: the recording profile)")
+  .option("--headed", "show the browser (default headless)", false)
+  .option("--limit <n>", "max elements (default 80)", "80")
+  .option("--viewport <WxH>", "viewport (default 1280x720)")
+  .option("--frame <name=selector>", "also scan this iframe (repeatable)", collectKv, [])
+  .option("--json", "print the full JSON result", false)
+  .description(
+    "list the page's visible interactive elements with unique selectors (no selector guessing)"
+  )
+  .action(
+    async (
+      url: string,
+      opts: {
+        dir?: string;
+        profile?: string;
+        headed?: boolean;
+        limit: string;
+        viewport?: string;
+        frame: string[];
+        json?: boolean;
+      }
+    ) => {
+      const vp = opts.viewport?.match(/^(\d+)x(\d+)$/);
+      const frames: Record<string, string> = {};
+      for (const kv of opts.frame) {
+        const i = kv.indexOf("=");
+        if (i > 0) frames[kv.slice(0, i)] = kv.slice(i + 1);
+      }
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const project = opts.dir ? new Project(opts.dir) : null;
+      if (project) await ensureDir(project.p("logs"));
+      const res = await inspectPage({
+        url,
+        headless: !opts.headed,
+        profileDir: opts.profile,
+        limit: Number(opts.limit) || 80,
+        ...(vp ? { viewport: { width: Number(vp[1]), height: Number(vp[2]) } } : {}),
+        frames,
+        ...(project ? { screenshotPath: project.p("logs", `inspect-${stamp}.png`) } : {}),
+      });
+      if (project) {
+        const file = project.p("logs", `inspect-${stamp}.json`);
+        await writeJson(file, res);
+        log(`inspect → ${file}`);
+      }
+      if (opts.json) {
+        process.stdout.write(JSON.stringify(res, null, 2) + "\n");
+        return;
+      }
+      process.stdout.write(`${res.title || "(untitled)"} — ${res.finalUrl}\n`);
+      if (res.headings.length) {
+        process.stdout.write(
+          res.headings.map((h) => `  ${"#".repeat(h.level)} ${h.text}`).join("\n") + "\n"
+        );
+      }
+      if (res.iframes.length) {
+        process.stdout.write(
+          `iframes: ${res.iframes.map((f) => `${f.name} (${f.selector})`).join(", ")}\n`
+        );
+      }
+      process.stdout.write(`${res.elements.length} interactive element(s)${res.truncated ? " (truncated — raise --limit)" : ""}:\n`);
+      const pad = (t: string, n: number) => (t.length > n ? t.slice(0, n - 1) + "…" : t.padEnd(n));
+      for (const el of res.elements) {
+        process.stdout.write(
+          `  ${pad(el.role, 9)} ${pad(el.name || "(no name)", 34)} ${el.inViewport ? " " : "↓"} ${el.frame ? `[${el.frame}] ` : ""}${el.selector || "(no unique selector)"}\n`
+        );
+      }
     }
   );
 

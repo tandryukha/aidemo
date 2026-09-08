@@ -20,6 +20,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | Fixture server | `node examples/local-demo/serve.mjs` (port 8787) |
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
+| Selector discovery | `node bin/aidemo.mjs inspect <url> --dir <demo>` — unique selectors per visible element (MCP `inspect` job); the same scan writes `logs/drift-*.json` suggestions when a take's selector matches nothing |
 | Validate a storyboard (no browser) | `node bin/aidemo.mjs validate <dir>` (`--file <path>`, `--json`; non-zero exit on issues) |
 | Lint / pacing forecast (no browser) | `node bin/aidemo.mjs lint <dir>` (`--lang`, `--json`, `--strict`) — also auto-runs in probe/record/render; measured counterpart is `output/report.json` from compose |
 | Frames for review | `node bin/aidemo.mjs frames <dir> --every 3` (`--source raw` for the take) |
@@ -51,7 +52,8 @@ src/                  pipeline stages: voice, recorder/player/cursor (record),
                       captions/caption-render, compose/zoom/cards/music/ffmpeg
                       (compose writes output/report.json), attention (highlight/
                       spotlight/callout/keystroke/click-ring PNGs + redact blur
-                      filter), anchors ({{@word}} markers → piecewise
+                      filter), inspect (page scan → unique selectors; drift
+                      ranking for failed selectors), anchors ({{@word}} markers → piecewise
                       retime), frame (produced-look canvas PNG), guide
                       (topic slices of AUTHORING.md), lint (browser-free
                       pacing forecast + pitfalls),

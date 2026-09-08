@@ -22,11 +22,12 @@ import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
 import { extractFrames } from "../frames.js";
+import { inspectPage } from "../inspect.js";
 import { GUIDE_TOPIC_NAMES, guideHeadings, guidePath as guideFilePath, sliceGuide } from "../guide.js";
 import { lintStoryboard, logLint } from "../lint.js";
 import { localizeStoryboard } from "../i18n.js";
 import { scaffoldDemo, doctorReport, buildFeedback, fileFeedback } from "../distribute.js";
-import { readJson, log, CanceledError, type SceneProgress } from "../util.js";
+import { readJson, writeJson, log, CanceledError, type SceneProgress } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
 
 /**
@@ -1153,6 +1154,49 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           everySec: res.everySec,
           frames: res.files,
         };
+      })
+  );
+
+  registerJob(
+    "inspect",
+    "Open a URL in the recording profile (logged-in state included) and list " +
+      "every visible interactive element with UNIQUE selectors ranked " +
+      "data-testid → id → aria-label → role/text → name/placeholder → class → " +
+      "path, plus headings and iframes. Use it BEFORE writing targets — no " +
+      "selector guessing, no wasted probe. Writes logs/inspect-<n>.json and a " +
+      "screenshot in the demo dir.",
+    {
+      dir: DIR_INPUT,
+      url: z.string().describe("page to inspect (absolute URL)"),
+      headless: z.boolean().optional().describe("default true"),
+      profile: z.string().optional().describe("Chrome user-data dir (default: the recording profile)"),
+      limit: z.number().int().min(5).max(400).optional().describe("max elements (default 80)"),
+      viewport: z
+        .object({ width: z.number().int(), height: z.number().int() })
+        .optional()
+        .describe("default 1280x720 (use the storyboard's video size)"),
+      frames: z
+        .record(z.string(), z.string())
+        .optional()
+        .describe("iframe selectors to scan too, as in the storyboard `frames` block"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "inspect", async () => {
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const png = project.p("logs", `inspect-${stamp}.png`);
+        const res = await inspectPage({
+          url: args.url,
+          headless: args.headless !== false,
+          profileDir: args.profile,
+          limit: args.limit,
+          viewport: args.viewport,
+          frames: args.frames,
+          screenshotPath: png,
+        });
+        const file = project.p("logs", `inspect-${stamp}.json`);
+        await writeJson(file, res);
+        log(`inspect: ${res.elements.length} element(s), ${res.headings.length} heading(s) → ${file}`);
+        return { ...res, file };
       })
   );
 
