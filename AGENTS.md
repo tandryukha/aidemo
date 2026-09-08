@@ -76,7 +76,8 @@ docs/AUTHORING.md     canonical authoring guide — served by the engine
                       (MCP get_authoring_guide / `aidemo guide`)
 action.yml            composite GitHub Action (uses: tandryukha/aidemo@stable)
 docs/CI.md            CI render recipe; docs/EMBEDS.md always-fresh embeds
-docs/plans/           deferred designs (e.g. public-mcp.md); docs/recipes/ how-tos
+docs/plans/           deferred designs (public-mcp.md) + roadmap-leftovers-2026-09.md
+                      (open items after v0.14.0); docs/recipes/ how-tos
 examples/workflows/   copy-paste consumer CI workflow templates
 .claude/skills/       record-demo (thin adapter → AUTHORING.md) + dev skills
 .claude-plugin/       marketplace.json — Claude Code plugin marketplace catalog
