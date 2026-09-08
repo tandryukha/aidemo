@@ -198,7 +198,9 @@ fixture-rotating sites, so you never hand-write a Playwright seed script:
   (repeatable, DevTools-style attributes; MCP: `cookies`).
 - `preflight`: a shell command run from the demo dir before **every** take
   (record/probe/render), after the profile is resolved and before Chrome
-  launches — re-seed a fixture, or patch this storyboard for whichever variant
+  launches — "resolved" means the path is computed (and already wiped when
+  `--fresh`), with no browser holding it, so the hook may safely delete,
+  re-create and seed that directory — re-seed a fixture, or patch this storyboard for whichever variant
   the app serves today (the storyboard is **re-read after the hook**). Env:
   `AIDEMO_DEMO_DIR`, `AIDEMO_STORYBOARD`, `AIDEMO_PROFILE`. Non-zero exit
   aborts the take with the hook's output.
@@ -543,8 +545,9 @@ scene at its content start (after the intro card), named from the scene's
 navigable table of contents. Give every scene a short `title` when you turn
 this on.
 
-**Walkthrough** (`output.walkthrough: true`, or `aidemo walkthrough <dir>` /
-the `walkthrough` job any time after a render): one take → several
+**Walkthrough** (`output.walkthrough: true` — honoured by `render` *and* by a
+standalone `compose` — or `aidemo walkthrough <dir>` / the `walkthrough` job any
+time after a render): one take → several
 artifacts in `output/walkthrough/`: `index.html` (one card per scene with
 its payoff frame, title, narration and a jump-to-time button over the video;
 ← / → keys step through, Enter plays from a step), `guide.md` (the same as a
@@ -937,7 +940,15 @@ Always set `"last": true` on widget targets (newest widget for this turn).
   scene refuses with "resume from `<id>` or earlier". A resume must also keep
   the same capture mode and viewport as the take it continues — compose refuses
   a timeline whose raw files differ in size rather than misplacing every
-  overlay on the reused scenes. The same flag is the cheap way to re-shoot
+  overlay on the reused scenes.
+- **Flows you cannot replay**: when the demo *earns* one-shot state (a balance
+  goes 10 → 20, an invite is consumed, a coupon burns), `--from-scene` is not a
+  speed optimisation — it is the only correct retry. A full re-record replays
+  actions against an app that has already moved on, so it either fails or
+  records the wrong numbers; resuming keeps the earned footage and picks up at
+  the scene that broke. Pair it with `setup.expectState: true` so the
+  carried-over-state warning stays quiet on the seeded profile.
+  The same flag is the cheap way to re-shoot
   a tail you changed after an approved take.
 
 `init_demo` / `aidemo init` scaffolds a storyboard already using all of the

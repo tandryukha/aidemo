@@ -86,6 +86,32 @@ on npm). The `release.yml` npm step is a no-op while `NPM_PUBLISH` is unset.
 `mcp-publisher login github` → `mcp-publisher publish`. Bump `version` in
 `server.json` on each release you want listed.
 
+## Homebrew tap
+
+The tap lives in its own repo, **`tandryukha/homebrew-aidemo`**, and its formula
+(`Formula/aidemo.rb`) points at the **npm** tarball — so a tap bump is only
+possible once npm publishing is on (`NPM_PUBLISH=true`).
+
+`release.yml` bumps the formula's `url` + `sha256` automatically after the npm
+publish, but only when the repo secret **`HOMEBREW_TAP_TOKEN`** exists — a
+fine-grained PAT scoped to `tandryukha/homebrew-aidemo` with
+`Contents: read and write`. Without it the step logs a warning and the tap
+stays behind (this is how the tap sat on 0.8.0 through v0.14.0 — issue #45).
+
+**One-time:** create the PAT → repo → Settings → Secrets and variables →
+Actions → Secrets → `HOMEBREW_TAP_TOKEN`.
+
+**Verify after a release:** `npm view @tandryukha/aidemo version` and
+`grep sha256 -B1 Formula/aidemo.rb` in the tap should both read the new version.
+Manual fallback, if the step was skipped:
+
+```bash
+v=X.Y.Z
+url="https://registry.npmjs.org/@tandryukha/aidemo/-/aidemo-$v.tgz"
+sha=$(curl -fsSL "$url" | shasum -a 256 | cut -d' ' -f1)
+# edit Formula/aidemo.rb url + sha256, commit, push
+```
+
 ## Caveat: npm caches moving tags
 
 `npx ...#stable` resolves the `stable` ref to a commit each run, but npm caches

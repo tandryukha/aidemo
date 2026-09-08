@@ -965,6 +965,10 @@ program
         const sb = lang ? localizeStoryboard(storyboard, lang) : storyboard;
         await compose(project, sb);
         if (opts.gif) await exportGif(project);
+        // `output.walkthrough` is a pure post-process on the final video, so
+        // honour it here too (issue #45): a pipeline that drives the stages
+        // itself got chapters + poster and a silently ignored flag.
+        if (sb.output?.walkthrough) await exportWalkthrough(project, sb);
       }
     }
   );

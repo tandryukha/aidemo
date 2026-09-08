@@ -466,14 +466,24 @@ export function lintStoryboard(
           fix: "keep wait budgets ≤ 30 s unless the app is genuinely that slow",
         });
       }
-      if (a.optional && /^wait/.test(a.op)) {
+      // Only worth a note when the wait is *long*: an optional wait with a
+      // short budget is a legitimate "probe for this, move on" (issue #45 —
+      // the note used to fire for every optional wait, so taking its own
+      // advice could never clear it).
+      const optWaitMs =
+        a.op === "waitFor" || a.op === "waitForWidget" || a.op === "waitForChange"
+          ? a.timeoutMs
+          : undefined;
+      if (a.optional && /^wait/.test(a.op) && (optWaitMs == null || optWaitMs > 5000)) {
         push({
           severity: "info",
           code: "optional-wait",
           scene: scene.id,
           action: ai,
-          message: `optional ${a.op} still burns its full timeout as recorded (non-idle) time when the target never appears`,
-          fix: "give it a short timeoutMs, or make the interaction optional instead",
+          message: `optional ${a.op}${
+            optWaitMs == null ? " (default timeout)" : ` timeoutMs ${optWaitMs}`
+          } still burns its full timeout as recorded (non-idle) time when the target never appears`,
+          fix: "give it a timeoutMs of 5000 or less — an optional wait should be a quick probe",
         });
       }
     });

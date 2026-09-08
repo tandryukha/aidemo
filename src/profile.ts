@@ -120,7 +120,8 @@ export async function resolveProfile(
         `profile already holds cookies/localStorage for ${origin} — a first-run ` +
         `gate, onboarding step or one-shot flow may be skipped, and the take ` +
         `would look fine while showing the wrong story. Re-run with --fresh ` +
-        `for a clean identity.`,
+        `for a clean identity — or, if the profile is seeded on purpose, ` +
+        `set setup.expectState: true (CLI --profile-seeded) to silence this.`,
     };
   }
   return { dir };

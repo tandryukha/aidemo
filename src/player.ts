@@ -1705,6 +1705,16 @@ async function failAction(
 ): Promise<never> {
   const prefix = `scene ${scene.id}, action #${index + 1} (${action.op})`;
   const base = err instanceof Error ? err.message : String(err);
+  // Lead with the app's own refusal when the action provoked a 4xx/5xx (issue
+  // #45): the selector headline blames the selector, and on a rate-limited or
+  // auth-gated flow the selector was fine — the write just failed. The
+  // original message stays, one line down, in parentheses.
+  const refusal = extra.failedRequests.filter((r) => (r.status ?? 0) >= 400).slice(-1)[0];
+  const headline = refusal
+    ? `the app refused a request this action triggered\n` +
+      describeFailedRequests([refusal]).join("\n").trim().replace(/^/, "  ") +
+      `\n  (${base})`
+    : base;
   let diag = "";
   if (opts.logsDir) {
     diag = await dumpDiagnostics(
@@ -1717,7 +1727,7 @@ async function failAction(
       extra.failedRequests
     ).catch(() => "");
   }
-  throw new Error(`${prefix}: ${base}${diag ? `\n${diag}` : ""}`);
+  throw new Error(`${prefix}: ${headline}${diag ? `\n${diag}` : ""}`);
 }
 
 async function dumpDiagnostics(
