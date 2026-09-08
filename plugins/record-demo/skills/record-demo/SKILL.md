@@ -26,8 +26,9 @@ fetch it first, then follow it:
    and follow the guide. Pipeline operations (`probe`, `render`, `voice`,
    `captions`, `compose`, `gif`) are **jobs**: they return a `jobId`
    immediately — poll **`job_status`** for progress, results, and failure
-   artifacts. Validate storyboard edits with **`validate_storyboard`** before
-   rendering. Pass **absolute** demo directories.
+   artifacts. Validate storyboard edits with **`validate_storyboard`** and
+   **`lint_storyboard`** (pacing forecast: which scenes will freeze or be
+   cut) before rendering; read `output/report.json` after. Pass **absolute** demo directories.
 2. **Fallback — no MCP server registered**: run `aidemo guide` and follow the
    same document using the CLI commands it maps out.
 3. **After verifying the final video** (per the guide's "Verify before

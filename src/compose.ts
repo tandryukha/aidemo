@@ -1,8 +1,18 @@
 import { promises as fs } from "node:fs";
 import { resolve, isAbsolute } from "node:path";
 import { Project } from "./project.js";
-import type { Storyboard, Timeline, IdleSpan, Card, Output, Loudness } from "./types.js";
-import { TimelineSchema, VoiceManifestSchema, LoudnessSchema } from "./types.js";
+import type {
+  Storyboard,
+  Timeline,
+  IdleSpan,
+  Card,
+  Output,
+  Loudness,
+  ComposeReport,
+  ComposeSceneReport,
+  ComposeWarning,
+} from "./types.js";
+import { TimelineSchema, VoiceManifestSchema, LoudnessSchema, HoldSchema } from "./types.js";
 import type { Cue } from "./captions.js";
 import { renderCaptionPngs } from "./caption-render.js";
 import { renderCardPng } from "./cards.js";
@@ -22,6 +32,7 @@ import {
 import {
   ensureDir,
   readJson,
+  writeJson,
   exists,
   log,
   ok,
@@ -48,14 +59,26 @@ export async function compose(
   project: Project,
   storyboard: Storyboard,
   opts: SceneProgress = {}
-): Promise<void> {
+): Promise<ComposeReport> {
   step("Composing final video (ffmpeg)");
 
   const timeline = TimelineSchema.parse(await readJson(project.timelinePath));
   const voice = VoiceManifestSchema.parse(
     await readJson(project.voiceManifestPath)
   );
-  await warnStaleCaptions(project);
+  // Structured twin of the log lines below — see ComposeReportSchema.
+  const warnings: ComposeWarning[] = [];
+  const sceneReports: ComposeSceneReport[] = [];
+  const warn = (code: string, message: string, scene?: string): void => {
+    warnings.push({ code, message, ...(scene ? { scene } : {}) });
+  };
+  const hold = HoldSchema.parse(storyboard.hold ?? {});
+  if (await warnStaleCaptions(project)) {
+    warn(
+      "stale-captions",
+      `narration.mp3 is newer than the caption files — re-run: aidemo captions ${project.dir}`
+    );
+  }
   const tmp = project.composeTmpDir;
   await fs.rm(tmp, { recursive: true, force: true });
   await ensureDir(tmp);
@@ -95,6 +118,7 @@ export async function compose(
     const targetMs = narrMs + voice.gapMs;
     if (targetMs <= 0) {
       log(`scene ${tl.id}: no narration, skipping`);
+      warn("scene-no-narration", `scene ${tl.id} has no narration audio and was skipped`, tl.id);
       opts.onSceneComplete?.(tl.id, i, sceneTotal);
       continue;
     }
@@ -136,6 +160,14 @@ export async function compose(
       stretchedMs = targetMs;
     }
     const holdMs = Math.max(0, targetMs - stretchedMs);
+    const holding = holdMs > 40;
+    // `hold.backoffMs` takes the held frame from slightly before the segment
+    // end (a mid-flight hover, a half-painted transition); the hold grows by
+    // the same amount so the scene still fills its narration slot exactly.
+    const backoffMs = holding
+      ? Math.min(hold.backoffMs, Math.max(0, stretchedMs - 500))
+      : 0;
+    const driftHold = holding && hold.mode === "drift";
     let vf = "";
     if (blankTrimMs > 0) {
       vf += `trim=duration=${(srcMs / 1000).toFixed(3)},setpts=PTS-STARTPTS,`;
@@ -144,14 +176,19 @@ export async function compose(
     if (overrunTrimMs > 0) {
       vf += `,trim=duration=${(targetMs / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
     }
-    if (holdMs > 40) {
-      vf += `,tpad=stop_mode=clone:stop_duration=${(holdMs / 1000).toFixed(3)}`;
+    if (backoffMs > 0) {
+      vf += `,trim=duration=${((stretchedMs - backoffMs) / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
+    }
+    if (holding && !driftHold) {
+      vf += `,tpad=stop_mode=clone:stop_duration=${((holdMs + backoffMs) / 1000).toFixed(3)}`;
     }
 
     // Map this scene's focus events into final-video time for the zoom pass:
     // raw time → offset inside the kept spans → stretched → + scene offset.
+    let sceneFocus = 0;
     if (zoomCfg && sceneById.get(tl.id)?.zoom !== false) {
       for (const ev of tl.focusEvents ?? []) {
+        sceneFocus++;
         const rawT = ev.tMs + timeline.leadInMs;
         const local = offsetInKeeps(keeps, rawT) * factor;
         zoomEvents.push({
@@ -187,7 +224,7 @@ export async function compose(
 
     outCursorMs += stretchedMs + (holdMs > 40 ? holdMs : 0);
 
-    const scenePath = resolve(tmp, `scene-${i}.mp4`);
+    let scenePath = resolve(tmp, `scene-${i}.mp4`);
     await runFfmpeg([
       "-i",
       rawSegPath,
@@ -206,13 +243,68 @@ export async function compose(
       "yuv420p",
       scenePath,
     ]);
+    if (driftHold) {
+      scenePath = await appendDriftHold(
+        scenePath,
+        holdMs + backoffMs,
+        hold.driftScale,
+        outW,
+        outH,
+        tmp,
+        i
+      );
+    }
     sceneVideos.push(scenePath);
+    const holdPct = holding ? holdMs / targetMs : 0;
     log(
       `scene ${tl.id}: ${srcMs}ms -> ${targetMs}ms ` +
-        `(x${factor.toFixed(2)}${holdMs > 40 ? ` + ${Math.round(holdMs)}ms hold` : ""}${
+        `(x${factor.toFixed(2)}${
+          holding
+            ? ` + ${Math.round(holdMs)}ms ${hold.mode === "drift" ? "drift " : ""}hold` +
+              (backoffMs > 0 ? ` (backoff ${backoffMs}ms)` : "")
+            : ""
+        }${
           overrunTrimMs > 0 ? ` - ${Math.round(overrunTrimMs)}ms tail trim` : ""
         }${blankTrimMs > 0 ? ` - ${Math.round(blankTrimMs)}ms blank tail` : ""}, ${keeps.length} span(s))`
     );
+    sceneReports.push({
+      id: tl.id,
+      srcMs: Math.round(srcMs),
+      targetMs: Math.round(targetMs),
+      factor: Number(factor.toFixed(3)),
+      holdMs: Math.round(holding ? holdMs : 0),
+      holdPct: Number(holdPct.toFixed(3)),
+      tailTrimMs: Math.round(overrunTrimMs),
+      blankTrimMs: Math.round(blankTrimMs),
+      spans: keeps.length,
+      focusEvents: sceneFocus,
+    });
+    if (holdPct > FREEZE_WARN_PCT) {
+      warn(
+        "scene-freeze",
+        `scene ${tl.id}: ${Math.round(holdPct * 100)}% of its ${(targetMs / 1000).toFixed(1)}s ` +
+          `is a held frame (${(srcMs / 1000).toFixed(1)}s of action for ` +
+          `${(targetMs / 1000).toFixed(1)}s of narration) — add on-screen action ` +
+          `(hover/scroll/focus beats, a pause) or shorten the narration`,
+        tl.id
+      );
+    }
+    if (overrunTrimMs > 0) {
+      warn(
+        "overrun-trim",
+        `scene ${tl.id}: ${Math.round(overrunTrimMs)}ms of recorded action was cut from ` +
+          `the tail — the action outran the narration even at 2x; mark waits idle or ` +
+          `lengthen the narration`,
+        tl.id
+      );
+    }
+    if (blankTrimMs > 0) {
+      warn(
+        "blank-tail",
+        `scene ${tl.id}: dropped a ${Math.round(blankTrimMs)}ms solid-color tail before holding`,
+        tl.id
+      );
+    }
     opts.onSceneComplete?.(tl.id, i, sceneTotal);
   }
 
@@ -251,6 +343,10 @@ export async function compose(
         "⚠ cursor: storyboard opts into the compose-time cursor, but this take " +
           "has no recorded cursor path — re-run `record`/`render` with the cursor " +
           "block present (the current recording may still show a baked cursor)."
+      );
+      warn(
+        "cursor-missing",
+        "cursor block present but the take has no recorded cursor path — re-record with the block"
       );
     } else if (cursorCfg.hidden) {
       log("cursor: hidden (no overlay drawn)");
@@ -294,6 +390,7 @@ export async function compose(
   }
 
   // Auto-zoom pass over the content (never over the cards or captions).
+  let focusDropped = 0;
   if (zoomCfg && zoomEvents.length > 0) {
     const contentMs = await probeDurationMs(content);
     const filter = buildZoomFilter(
@@ -304,12 +401,19 @@ export async function compose(
       contentMs,
       FPS,
       storyboard.video.width,
-      (dropped, total) =>
+      (dropped, total) => {
+        focusDropped = dropped;
         log(
           `  ! auto-zoom: ${dropped} of ${total} focus point(s) dropped to fit ` +
             `ffmpeg's expression budget — the rest are spread evenly. Set ` +
             `"zoom": false on scenes that don't need the camera to choose which.`
-        )
+        );
+        warn(
+          "focus-dropped",
+          `auto-zoom dropped ${dropped} of ${total} focus point(s) to fit ffmpeg's ` +
+            `expression budget — set "zoom": false on scenes that don't need the camera`
+        );
+      }
     );
     if (filter) {
       const capped = clampScaleForWidth(zoomCfg.scale, storyboard.video.width);
@@ -395,7 +499,7 @@ export async function compose(
       ? content
       : await concatSegments(segments, resolve(tmp, "video.mp4"), tmp, "full", true);
 
-  const captioned = await burnCaptions(
+  const captionsResult = await burnCaptions(
     project,
     storyboard,
     fullVideo,
@@ -403,6 +507,7 @@ export async function compose(
     introMs,
     pxScale
   );
+  const captioned = captionsResult.video;
   // Optional final resize/reframe (opt-in). Applied last, over the whole
   // composed frame (cards + captions included), so a 1280x720 take can render
   // as a vertical social clip. Audio is muxed after, so mux stays -c:v copy.
@@ -418,6 +523,105 @@ export async function compose(
   if (!process.env.AIDEMO_KEEP_TMP) {
     await fs.rm(tmp, { recursive: true, force: true });
   }
+
+  const report: ComposeReport = {
+    output: project.outputPath,
+    durationMs: await probeDurationMs(project.outputPath).catch(() => 0),
+    scenes: sceneReports,
+    zoom: { focusTotal: zoomEvents.length, focusDropped },
+    cursorPoints: cursorPts.length,
+    captions: { cues: captionsResult.cues, passes: captionsResult.passes },
+    hold: hold.mode,
+    warnings,
+  };
+  await writeJson(project.reportPath, report);
+  const frozen = sceneReports.filter((s) => s.holdPct > FREEZE_WARN_PCT).length;
+  log(
+    `report → ${project.reportPath}` +
+      (frozen ? ` (${frozen} of ${sceneReports.length} scene(s) mostly held)` : "")
+  );
+  if (warnings.length) {
+    log(`⚠ ${warnings.length} compose warning(s):`);
+    for (const w of warnings) log(`  - [${w.code}] ${w.message}`);
+  }
+  return report;
+}
+
+/** Share of a scene that may be a held frame before compose flags it. */
+const FREEZE_WARN_PCT = 0.4;
+
+/**
+ * Hold mode "drift": instead of cloning the scene's last frame for `holdMs`,
+ * push in on it very slowly (1 → driftScale over the hold), so a long
+ * narration over a static page reads as a deliberate dwell, not a stall.
+ * The frame is pulled from the encoded scene's tail, rendered as a zoompan
+ * still (pre-upscaled 2x so integer-pixel crops don't shimmer — the same rule
+ * the auto-zoom pass follows), and re-encoded onto the scene. One tiny
+ * expression, so the zoom budget is untouched; `zoompan`/`scale` are core.
+ */
+async function appendDriftHold(
+  scenePath: string,
+  holdMs: number,
+  driftScale: number,
+  outW: number,
+  outH: number,
+  tmp: string,
+  sceneIdx: number
+): Promise<string> {
+  const durMs = await probeDurationMs(scenePath);
+  const framePng = resolve(tmp, `scene-${sceneIdx}-hold.png`);
+  await runFfmpeg([
+    "-ss",
+    (Math.max(0, durMs - 60) / 1000).toFixed(3),
+    "-i",
+    scenePath,
+    "-frames:v",
+    "1",
+    "-update",
+    "1",
+    framePng,
+  ]);
+  const holdSec = holdMs / 1000;
+  const frames = Math.max(1, Math.round(holdSec * FPS));
+  const holdMp4 = resolve(tmp, `scene-${sceneIdx}-hold.mp4`);
+  // Ease the creep (ease-out quad) so it starts moving right away and settles.
+  const z = `'1+(${driftScale.toFixed(4)}-1)*(1-pow(1-min(on/${frames}\,1)\,2))'`;
+  await runFfmpeg([
+    "-loop",
+    "1",
+    "-framerate",
+    String(FPS),
+    "-i",
+    framePng,
+    "-t",
+    holdSec.toFixed(3),
+    "-vf",
+    `scale=iw*2:ih*2:flags=lanczos,` +
+      `zoompan=z=${z}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=${outW}x${outH}:fps=${FPS},` +
+      `setsar=1`,
+    "-r",
+    String(FPS),
+    "-an",
+    "-c:v",
+    "libx264",
+    "-preset",
+    "veryfast",
+    "-crf",
+    "20",
+    "-pix_fmt",
+    "yuv420p",
+    holdMp4,
+  ]);
+  // The PNG-sourced hold carries an edit list; re-encode the join so the pts
+  // start clean at 0 (a stream-copy concat would leak negative timestamps
+  // into the overlay passes — see AGENTS.md).
+  return concatSegments(
+    [scenePath, holdMp4],
+    resolve(tmp, `scene-${sceneIdx}-held.mp4`),
+    tmp,
+    `scene-${sceneIdx}-held`,
+    true
+  );
 }
 
 /**
@@ -427,7 +631,7 @@ export async function compose(
  * needs an API key so compose can't regenerate them itself; warn loudly and
  * name the fix instead.
  */
-async function warnStaleCaptions(project: Project): Promise<void> {
+async function warnStaleCaptions(project: Project): Promise<boolean> {
   try {
     const [cap, narr] = await Promise.all([
       fs.stat(project.captionsCuesPath),
@@ -439,10 +643,12 @@ async function warnStaleCaptions(project: Project): Promise<void> {
           `the burned captions will not match the audio. ` +
           `Fix: aidemo captions ${project.dir}` + ` (then re-run compose).`
       );
+      return true;
     }
   } catch {
     /* captions or narration absent — burnCaptions handles missing captions */
   }
+  return false;
 }
 
 /**
@@ -780,10 +986,11 @@ async function burnCaptions(
   tmp: string,
   introMs: number,
   pxScale: number
-): Promise<string> {
-  if (!(await exists(project.captionsCuesPath))) return silentVideo;
+): Promise<{ video: string; cues: number; passes: number }> {
+  const none = { video: silentVideo, cues: 0, passes: 0 };
+  if (!(await exists(project.captionsCuesPath))) return none;
   const cues = (await readJson<Cue[]>(project.captionsCuesPath)) ?? [];
-  if (cues.length === 0) return silentVideo;
+  if (cues.length === 0) return none;
 
   log(`rendering ${cues.length} caption image(s)`);
   const rendered = await renderCaptionPngs(
@@ -853,7 +1060,7 @@ async function burnCaptions(
     ]);
     src = out;
   }
-  return out;
+  return { video: out, cues: cues.length, passes: batches.length };
 }
 
 /**

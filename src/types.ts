@@ -466,6 +466,27 @@ export const OutputSchema = z
   });
 export type Output = z.infer<typeof OutputSchema>;
 
+
+/**
+ * What compose does when a scene's narration outlasts its recorded action
+ * (after the ≤1.6x slow-down): the remainder is a HOLD on the last frame.
+ * Default "freeze" clones that frame (byte-for-byte the pre-`hold` behavior).
+ * "drift" instead pushes in very slowly on it (a Ken-Burns-style creep of
+ * `driftScale` over the hold), so a 10 s hold reads as a deliberate dwell
+ * rather than a stalled video — the fix for narration-heavy demos where half
+ * the runtime was a frozen frame (issue #40). `backoffMs` takes the held frame
+ * from slightly BEFORE the segment's end, dodging a half-painted transition or
+ * a hover state caught mid-flight. Opt-in: omit the key for the old behavior.
+ */
+export const HoldSchema = z.object({
+  mode: z.enum(["freeze", "drift"]).default("freeze"),
+  /** Drift mode: zoom level reached at the end of the hold. Default 1.06. */
+  driftScale: z.number().min(1).max(1.5).default(1.06),
+  /** Take the held frame this many ms before the segment end. Default 0. */
+  backoffMs: z.number().min(0).max(2000).default(0),
+});
+export type HoldConfig = z.infer<typeof HoldSchema>;
+
 /**
  * One cookie to seed into the recording profile before the take. Mirrors
  * Playwright's cookie shape; `domain` + `path` (or `url`) place it.
@@ -581,6 +602,8 @@ export const StoryboardSchema = z.object({
   cursor: CursorConfigSchema.optional(),
   /** Pre-take preparation: cookies / storageState seeding, a preflight hook. Opt-in. */
   setup: SetupSchema.optional(),
+  /** How compose fills narration that outlasts a scene's action (freeze | drift). Opt-in. */
+  hold: HoldSchema.optional(),
   scenes: z.array(SceneSchema).min(1),
 });
 export type Storyboard = z.infer<typeof StoryboardSchema>;
@@ -658,6 +681,60 @@ export const TimelineSchema = z.object({
   scenes: z.array(TimelineSceneSchema),
 });
 export type Timeline = z.infer<typeof TimelineSchema>;
+
+
+// ---------------------------------------------------------------------------
+// Compose report — written to output/report.json by every compose. The
+// structured twin of the compose log: per-scene retime facts (how much was
+// stretched, held, trimmed) plus machine-readable warnings, so an agent can
+// judge a take without regex-mining logTail (issue #40's 28-scene log
+// overflowed the 40-line tail; the freeze-hold dominance was invisible).
+// ---------------------------------------------------------------------------
+
+export const ComposeWarningSchema = z.object({
+  /** Stable code: scene-freeze | overrun-trim | blank-tail | stale-captions |
+   *  focus-dropped | cursor-missing | scene-no-narration */
+  code: z.string(),
+  scene: z.string().optional(),
+  message: z.string(),
+});
+export type ComposeWarning = z.infer<typeof ComposeWarningSchema>;
+
+export const ComposeSceneReportSchema = z.object({
+  id: z.string(),
+  /** Recorded (kept, non-idle) ms feeding this scene. */
+  srcMs: z.number(),
+  /** Narration + gap ms the scene had to fill. */
+  targetMs: z.number(),
+  /** Time-stretch factor applied (0.5 … 1.6). */
+  factor: z.number(),
+  /** Ms of hold (frozen / drifting last frame) appended after the stretch. */
+  holdMs: z.number(),
+  /** holdMs / targetMs — the share of the scene that is a held frame. */
+  holdPct: z.number(),
+  /** Ms of recorded action cut from the tail because it overran the narration. */
+  tailTrimMs: z.number(),
+  /** Ms of solid-color tail dropped before holding (white pre-paint). */
+  blankTrimMs: z.number(),
+  /** Kept spans the scene was cut from (idle spans trimmed between them). */
+  spans: z.number(),
+  /** Focus points (zoom) this scene contributed. */
+  focusEvents: z.number(),
+});
+export type ComposeSceneReport = z.infer<typeof ComposeSceneReportSchema>;
+
+export const ComposeReportSchema = z.object({
+  output: z.string(),
+  /** Final video length, ms. */
+  durationMs: z.number(),
+  scenes: z.array(ComposeSceneReportSchema),
+  zoom: z.object({ focusTotal: z.number(), focusDropped: z.number() }),
+  cursorPoints: z.number(),
+  captions: z.object({ cues: z.number(), passes: z.number() }),
+  hold: z.string(),
+  warnings: z.array(ComposeWarningSchema),
+});
+export type ComposeReport = z.infer<typeof ComposeReportSchema>;
 
 // ---------------------------------------------------------------------------
 // Voice manifest — emitted by the voice step. compose uses per-scene durations

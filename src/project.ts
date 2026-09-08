@@ -119,6 +119,10 @@ export class Project {
   get gifPath() {
     return this.p("output", this.lang ? `final-demo.${this.lang}.gif` : "final-demo.gif");
   }
+  /** Structured compose report (per-scene retime facts + warnings). */
+  get reportPath() {
+    return this.p("output", this.lang ? `report.${this.lang}.json` : "report.json");
+  }
   /** Directory for screenshot-mode stills (one PNG per named `still` marker). */
   get stillsDir() {
     return this.p("output", "stills");

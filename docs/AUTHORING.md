@@ -25,6 +25,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | Read this guide | `get_authoring_guide` | `aidemo guide` |
 | Storyboard JSON Schema | `get_storyboard_schema` | — (see below) |
 | Validate a storyboard | `validate_storyboard` | `aidemo validate <dir>` (or `--file <path>`; `--json`) |
+| Lint / pacing forecast (no browser) | `lint_storyboard` | `aidemo lint <dir>` (`--file`, `--lang`, `--json`, `--strict`) |
 | Scaffold a demo | `init_demo` | `aidemo init <name>` |
 | Environment check | `doctor` | `aidemo doctor` |
 | Dry-run the flow | `probe` (job) | `aidemo probe <dir>` |
@@ -51,6 +52,21 @@ directory is not necessarily your repo (Codex registers servers globally).
 **Validate early.** Run `validate_storyboard` (CLI: `aidemo validate <dir>`,
 non-zero exit on issues) after every storyboard edit — cheap, structured
 errors — instead of discovering schema issues inside a render job.
+
+**Lint before you spend a take.** `lint_storyboard` (CLI: `aidemo lint <dir>`)
+is a browser-free preflight that predicts what compose will do to each scene:
+it estimates the action time from the ops (a `type` at human speed, a scroll's
+easing, a `pause`, a `goto`) and compares it with the narration's word count at
+the language's speaking rate. A scene whose actions finish long before the
+voice does will be **held on a frozen frame** (`[scene-freeze]`, with the
+predicted hold %); one whose actions run far past the voice will be **sped up
+to the x1.6 ceiling and cut** (`[overrun-cut]`). It also flags the classic
+selector/wait pitfalls (`type`+`Enter` with no wait behind it, `:text-is` on a
+nested label, `focus` with no `zoom` block, an anchored `waitForChange` regex,
+a scene that opens with a navigation click, `music.cue` no-ops). `validate`
+prints the same findings; probe/record/render run it automatically (non-fatal)
+so the forecast is in the log next to the take. The same numbers come back
+**measured** in `output/report.json` after compose (see "Verify").
 
 ## Pipeline (what the engine does)
 
@@ -79,7 +95,10 @@ network.
    `storyboard.frames`. A probe that hits a bad selector leaves a screenshot +
    frame dump in `logs/` (surfaced as `failureArtifacts` in `job_status`).
 4. **Write the storyboard** (schema + principles below), then
-   `validate_storyboard`.
+   `validate_storyboard` and `lint_storyboard` — fix every `[scene-freeze]` /
+   `[overrun-cut]` the lint predicts *before* paying for voice: add on-screen
+   beats (hover, scroll, focus, a `pause`) to a scene that is all narration, or
+   trim the narration of a scene that is all action.
 5. **Render**: run the `render` job (headed for real ChatGPT: keep
    `headless: false` / drop `--headless`). Then inspect `output/final-demo.mp4`
    — extract a few frames with ffmpeg and look at them.
@@ -132,7 +151,7 @@ The precise contract is the JSON Schema from `get_storyboard_schema`
 Top level: `title`, `language?`, `knownTerms?`, `targetLengthSeconds?`, `video{width,height}`
 (default 1280x720), `frames{ name: iframeSelector }`,
 `voice{voiceId,instructions,speed}` (default, scenes may override), `music?`,
-`zoom?`, `intro?`, `outro?`, `transition?`, `output?`, `setup?`, `scenes[]`.
+`zoom?`, `intro?`, `outro?`, `transition?`, `hold?`, `output?`, `setup?`, `scenes[]`.
 
 `setup?` prepares the take before the first action — for cookie-gated or
 fixture-rotating sites, so you never hand-write a Playwright seed script:
@@ -192,6 +211,10 @@ Cinematic keys (all opt-in; omit for the plain look):
   `output.loudness` (see below).
 - `transition: {type:"crossfade", durationMs?=400}` — **cross-dissolve every
   scene boundary** instead of hard-cutting (see below).
+- `hold: {mode?="freeze"|"drift", driftScale?=1.06, backoffMs?=0}` — what a
+  scene shows while the narration outlasts its actions: a frozen frame
+  (default) or a **slow Ken-Burns drift** so it never reads as a stall (see
+  below).
 - `output: {width?, height?, fit?="contain", background?, loudness?}` — **render
   at a different size/aspect** (`width`+`height`, set together) and/or **set the
   master loudness** (`loudness`), e.g. a vertical social clip (see below).
@@ -219,6 +242,20 @@ are identical to the hard-cut version — only the cuts become dissolves. Cost: 
 scene join is re-encoded (the default hard-cut path is a lossless stream-copy
 concat). Needs ≥2 scenes; a shorter `durationMs` (250–400) reads as a snappy
 dissolve, longer (600+) as a slow cinematic fade.
+
+**`hold: {mode?, driftScale?, backoffMs?}`** — controls the **hold** compose
+adds when a scene's narration runs longer than its (already x1.6-slowed)
+recording. By default the last frame is frozen for the remainder
+(`mode:"freeze"`, byte-identical to earlier versions). `mode:"drift"` replaces
+the freeze with a slow, eased push-in on that frame (`driftScale`, 1–1.5,
+default 1.06 ≈ 6% over the hold) — motion that reads as intentional rather
+than a stalled screen. `backoffMs` (0–2000) takes the held frame from that
+many ms *before* the scene's end instead of the very last frame, so a hold
+never lands on a half-drawn transition, a spinner, or a white flash at the
+tail of a navigation. Only scenes that actually hold are affected; a scene
+whose actions fill the narration is untouched, and a scene with no hold is
+byte-identical. The compose log and `output/report.json` list every scene's
+hold length and percentage; the lint predicts them before the take.
 
 **`output: {width, height, fit?, background?}`** — reframes the finished video
 (cards and captions already baked in) to a target size, applied as the last
@@ -672,7 +709,18 @@ renders relative to its own dir, keep any local asset paths (e.g. a music
 
 ## Verify before declaring done
 
-Play (or frame-extract — `aidemo frames <dir>` / the `frames` job)
+Start with **`output/report.json`** (written by every compose; the `render` /
+`compose` job results carry `report` and `warnings`): per scene it records
+the recorded length, the narration target, the retime `factor` applied, and
+`holdMs`/`holdPct` (how much of the scene is a held frame), plus the tail and
+blank-frame trims, focus events kept vs dropped, and `warnings[]` —
+`scene-freeze` (a scene is >40% held frame), `overrun-trim` (actions ran past
+the narration even at the x1.6 ceiling and were cut), `blank-tail`,
+`stale-captions`, `focus-dropped`, `cursor-missing`. A held scene is a
+storyboard problem, not a compose problem: give it on-screen beats or shorten
+its narration, then re-run `voice` + `compose`.
+
+Then play (or frame-extract — `aidemo frames <dir>` / the `frames` job)
 `output/final-demo.mp4`: cursor glides and clicks pulse, narration matches
 on-screen actions, captions are readable and in sync,
 no dead air, and the key moment (e.g. checkout confirmed) is actually visible
@@ -694,6 +742,10 @@ CLI. If nothing came up, skip this.
   method, URL, status and the first bytes of an xhr/fetch error body. A click
   that "did nothing" because the backend answered 500 looks like a click miss
   in the screenshot; this is where the reason shows up.
+- **`output/report.json`** (every compose) says *why* a scene looks slow or
+  cut: per-scene retime factor, hold %, trims, and the `warnings[]` list; the
+  compose log prints the same warnings. `aidemo lint <dir>` predicts them
+  without a browser.
 - **`aidemo frames <dir> --every 3`** (MCP `frames`) dumps evenly spaced PNGs
   from `output/final-demo.mp4` (or `--source raw` for the latest take) into
   `output/frames/` — look at them instead of hand-running `ffmpeg -ss`.

@@ -13,6 +13,7 @@ import { Project, parseStoryboard } from "./project.js";
 import { record } from "./recorder.js";
 import { parseCookieFlag } from "./setup.js";
 import { extractFrames } from "./frames.js";
+import { lintStoryboard, logLint } from "./lint.js";
 import { readJson } from "./util.js";
 import {
   buildProbeGolden,
@@ -389,17 +390,81 @@ program
             warnings: parsed.warnings,
           }
         : { valid: false, storyboardPath: path, issues: parsed.issues, warnings: [] as string[] };
+      const lint = parsed.ok ? lintStoryboard(parsed.storyboard) : null;
       if (opts.json) {
-        console.log(JSON.stringify(result, null, 2));
+        console.log(JSON.stringify({ ...result, lint: lint?.issues ?? [] }, null, 2));
       } else if (result.valid) {
         step("Storyboard valid");
         ok(`${path} — "${result.title}", ${result.sceneCount} scene(s)`);
         for (const w of result.warnings) log(w);
+        if (lint) logLint(lint, log);
       } else {
         fail(`${path}: ${result.issues.length} issue(s)`);
         for (const i of result.issues) log(`  - ${i.path || "<root>"}: ${i.message}`);
       }
       if (!result.valid) process.exitCode = 1;
+    }
+  );
+
+program
+  .command("lint")
+  .argument("[dir]", "demo project directory (lints generated/storyboard.json)")
+  .option("--file <path>", "lint this storyboard file instead of <dir>/generated/storyboard.json")
+  .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
+  .option("--lang <code>", "lint the narrations[code] translation + that language's pace")
+  .option("--json", "print the structured result as JSON", false)
+  .option("--strict", "non-zero exit on warnings too (default: errors only)", false)
+  .description(
+    "preflight a storyboard without a browser: pacing forecast (which scenes " +
+      "compose will freeze or cut), selector/wait pitfalls, no-op keys"
+  )
+  .action(
+    async (
+      dir: string | undefined,
+      opts: { file?: string; param?: string[]; lang?: string; json?: boolean; strict?: boolean }
+    ) => {
+      if (!dir && !opts.file) {
+        throw new Error("pass a demo dir or --file <storyboard.json>");
+      }
+      const path = opts.file ? resolve(opts.file) : new Project(dir!).storyboardPath;
+      const params = parseParams(opts.param);
+      const parsed = parseStoryboard(await readJson<unknown>(path), {
+        relaxed: true,
+        params,
+        strict: params != null,
+      });
+      if (!parsed.ok) {
+        fail(`${path}: ${parsed.issues.length} schema issue(s) — run validate first`);
+        for (const i of parsed.issues) log(`  - ${i.path || "<root>"}: ${i.message}`);
+        process.exitCode = 1;
+        return;
+      }
+      const result = lintStoryboard(parsed.storyboard, { lang: opts.lang });
+      if (opts.json) {
+        console.log(JSON.stringify({ storyboardPath: path, ...result }, null, 2));
+      } else {
+        step(`Lint "${parsed.storyboard.title}"`);
+        log(
+          `  ${"scene".padEnd(12)}${"words".padStart(6)}${"narr".padStart(7)}${"action".padStart(8)}${"hold%".padStart(7)}`
+        );
+        for (const e of result.estimate) {
+          log(
+            `  ${e.id.padEnd(12)}${String(e.words).padStart(6)}` +
+              `${(e.narrationMs / 1000).toFixed(1).padStart(6)}s` +
+              `${(e.actionMs / 1000).toFixed(1).padStart(7)}s` +
+              `${e.holdPct > 0 ? `${Math.round(e.holdPct * 100)}%`.padStart(7) : "".padStart(7)}` +
+              (e.overrunMs > 0 ? `  cut ≈${(e.overrunMs / 1000).toFixed(1)}s` : "")
+          );
+        }
+        if (result.issues.length === 0) {
+          ok(`no issues — predicted narration ≈${(result.narrationTotalMs / 1000).toFixed(0)}s`);
+        } else {
+          logLint(result, log);
+        }
+      }
+      const errors = result.issues.filter((i) => i.severity === "error").length;
+      const warns = result.issues.filter((i) => i.severity === "warn").length;
+      if (errors > 0 || (opts.strict && warns > 0)) process.exitCode = 1;
     }
   );
 
@@ -476,6 +541,7 @@ program
       await beginCommand(project, "record");
       const load = () => project.loadStoryboard({ params: parseParams(opts.param) });
       const storyboard = await load();
+      logLint(lintStoryboard(storyboard), log);
       await record(project, storyboard, {
         profileDir: opts.profile,
         fresh: opts.fresh,
@@ -543,6 +609,7 @@ program
           params: parseParams(opts.param),
         });
       const storyboard = await load();
+      logLint(lintStoryboard(storyboard), log);
       const goldenMode = !!(opts.golden || opts.updateGolden);
       const probeScenes: ProbeGoldenScene[] = [];
       await record(project, storyboard, {
@@ -868,6 +935,8 @@ program
       const storyboard = await load();
       const langs = langsFrom(opts);
       const multi = !(langs.length === 1 && langs[0] === undefined);
+      // Browser-free preflight: pacing forecast + pitfalls, before TTS is paid for.
+      for (const lang of langs) logLint(lintStoryboard(storyboard, { lang }), log);
 
       if (!multi) {
         // Default single-language pipeline — voice → record → captions → compose.

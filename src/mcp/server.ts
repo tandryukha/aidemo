@@ -22,6 +22,7 @@ import { exportGif } from "../gif.js";
 import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
 import { extractFrames } from "../frames.js";
+import { lintStoryboard, logLint } from "../lint.js";
 import { localizeStoryboard } from "../i18n.js";
 import { scaffoldDemo, doctorReport, buildFeedback, fileFeedback } from "../distribute.js";
 import { readJson, log, CanceledError, type SceneProgress } from "../util.js";
@@ -117,6 +118,16 @@ const DIR_INPUT = z
  * placeholders resolve to these values (else the declared default) across all
  * stages of the run.
  */
+/** Output shape of one lint finding (src/lint.ts LintIssue). */
+const LINT_ISSUE_SHAPE = z.object({
+  severity: z.enum(["error", "warn", "info"]),
+  code: z.string(),
+  scene: z.string().optional(),
+  action: z.number().optional(),
+  message: z.string(),
+  fix: z.string().optional(),
+});
+
 const PARAMS_INPUT = z
   .record(z.string(), z.string())
   .optional()
@@ -274,6 +285,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           z.object({ path: z.string(), message: z.string(), code: z.string() })
         ),
         warnings: z.array(z.string()),
+        lint: z.array(LINT_ISSUE_SHAPE).optional(),
       },
       annotations: { readOnlyHint: true },
     },
@@ -332,7 +344,78 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         sceneCount: parsed.storyboard.scenes.length,
         issues: [],
         warnings: parsed.warnings,
+        lint: lintStoryboard(parsed.storyboard).issues,
       });
+    }
+  );
+
+  server.registerTool(
+    "lint_storyboard",
+    {
+      title: "Lint a storyboard (preflight, no browser)",
+      description:
+        "Browser-free preflight over a storyboard: a per-scene pacing forecast " +
+        "(which scenes compose will mostly freeze-hold or cut because the " +
+        "narration and the recorded action don't match), selector/wait " +
+        "pitfalls (type+Enter with no wait, :text-is on nested labels, focus " +
+        "without a zoom block, anchored waitForChange regexes), and no-op keys. " +
+        "Run it after every storyboard edit, before probe/render. Pass exactly " +
+        "one of dir / path / json. lang lints a narrations[lang] translation at " +
+        "that language's speaking rate.",
+      inputSchema: {
+        dir: z.string().optional().describe("demo dir → generated/storyboard.json"),
+        path: z.string().optional().describe("path to a storyboard .json file"),
+        json: z.string().optional().describe("storyboard JSON as a string"),
+        lang: z.string().optional(),
+        params: PARAMS_INPUT,
+      },
+      outputSchema: {
+        issues: z.array(LINT_ISSUE_SHAPE),
+        estimate: z.array(
+          z.object({
+            id: z.string(),
+            words: z.number(),
+            narrationMs: z.number(),
+            actionMs: z.number(),
+            holdPct: z.number(),
+            overrunMs: z.number(),
+          })
+        ),
+        narrationTotalMs: z.number(),
+        wordsPerSec: z.number(),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async (args) => {
+      const sources = [args.dir, args.path, args.json].filter((s) => s != null).length;
+      if (sources !== 1) {
+        return errorResult({ message: "pass exactly one of: dir, path, json" });
+      }
+      let raw: unknown;
+      try {
+        raw =
+          args.json != null
+            ? JSON.parse(args.json)
+            : await readJson<unknown>(
+                args.path != null
+                  ? resolve(args.path)
+                  : new Project(args.dir as string).storyboardPath
+              );
+      } catch (err) {
+        return errorResult({ message: (err as Error).message });
+      }
+      const parsed = parseStoryboard(raw, {
+        relaxed: true,
+        params: args.params,
+        strict: args.params != null,
+      });
+      if (!parsed.ok) {
+        return errorResult({
+          message: "storyboard fails schema validation — run validate_storyboard",
+          issues: parsed.issues,
+        });
+      }
+      return jsonResult({ ...lintStoryboard(parsed.storyboard, { lang: args.lang }) });
     }
   );
 
@@ -740,6 +823,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
             params: args.params,
           });
         const storyboard = await load();
+        logLint(lintStoryboard(storyboard), log);
         const goldenMode = !!(args.golden || args.updateGolden);
         const probeScenes: ProbeGoldenScene[] = [];
         const timeline = await record(project, storyboard, {
@@ -799,6 +883,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       jobs.runStage(job, "record", async () => {
         const load = () => project.loadStoryboard({ params: args.params });
         const storyboard = await load();
+        logLint(lintStoryboard(storyboard), log);
         const timeline = await record(project, storyboard, recordOpts(args, job, load));
         return {
           rawVideo: await project.resolveRawVideo(),
@@ -827,6 +912,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         // project + localized storyboard; the take is recorded ONCE on the base.
         const lp = langProject(project, args.lang);
         const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
+        logLint(lintStoryboard(storyboard, { lang: args.lang }), log);
         // Each sub-stage below is wrapped in runSubStage: it refreshes its OWN
         // stable logs/<stage>.log (not just logs/render.log) and updates
         // job.stage/currentScene/scenesTotal/scenesDone — same fields a
@@ -850,7 +936,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           }
         });
         throwIfAborted(signal);
-        await jobs.runSubStage(job, "compose", () => compose(lp, sb, sceneProgress(job)));
+        const report = await jobs.runSubStage(job, "compose", () =>
+          compose(lp, sb, sceneProgress(job))
+        );
         let gifPath: string | undefined;
         if (args.gif) {
           gifPath = await jobs.runSubStage(job, "gif", () => exportGif(lp));
@@ -867,6 +955,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           ...(stills && stills.length ? { stills } : {}),
           timeline: lp.timelinePath,
           captionsSrt: lp.captionsSrtPath,
+          report: lp.reportPath,
+          durationMs: report.durationMs,
+          warnings: report.warnings,
         };
       })
   );
@@ -947,12 +1038,15 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         const lp = langProject(project, args.lang);
         const storyboard = await project.loadStoryboard({ params: args.params });
         const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
-        await compose(lp, sb, sceneProgress(job));
+        const report = await compose(lp, sb, sceneProgress(job));
         let gifPath: string | undefined;
         if (args.gif) gifPath = await exportGif(lp);
         return {
           output: lp.outputPath,
           ...(gifPath ? { gif: gifPath } : {}),
+          report: lp.reportPath,
+          durationMs: report.durationMs,
+          warnings: report.warnings,
         };
       })
   );

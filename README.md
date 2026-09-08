@@ -179,6 +179,7 @@ aidemo voice   <dir>          # per-scene TTS → narration.mp3 + voice.json
 aidemo record  <dir>          # drive Chrome → raw video + timeline.json
 aidemo probe   <dir>          # record-only dry run (verify selectors), no key needed
 aidemo validate <dir>         # schema-check the storyboard, no browser (non-zero exit on issues)
+aidemo lint    <dir>          # predict freezes/cuts + selector pitfalls before spending a take
 aidemo captions <dir>         # Whisper → captions.{srt,vtt,cues.json} (--offline for no network)
 aidemo compose <dir>          # trim + sync + zoom + cards + caption + mux → final-demo.mp4
 aidemo gif     <dir>          # final-demo.mp4 → README-ready GIF (autoplays on GitHub)

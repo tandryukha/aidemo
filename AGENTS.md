@@ -21,6 +21,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
 | Validate a storyboard (no browser) | `node bin/aidemo.mjs validate <dir>` (`--file <path>`, `--json`; non-zero exit on issues) |
+| Lint / pacing forecast (no browser) | `node bin/aidemo.mjs lint <dir>` (`--lang`, `--json`, `--strict`) — also auto-runs in probe/record/render; measured counterpart is `output/report.json` from compose |
 | Frames for review | `node bin/aidemo.mjs frames <dir> --every 3` (`--source raw` for the take) |
 | One pipeline stage | `node bin/aidemo.mjs voice\|record\|captions\|compose <dir>` |
 | Screenshot stills | `node bin/aidemo.mjs stills <dir>` — extract named PNGs from an existing take (also auto-runs in `render` when the storyboard has `still` markers) |
@@ -47,7 +48,9 @@ TTS/STT endpoint or the local provider).
 bin/aidemo.mjs        CLI entry (launches tsx → src/cli.ts)
 src/types.ts          storyboard schema (zod) — the contract everything shares
 src/                  pipeline stages: voice, recorder/player/cursor (record),
-                      captions/caption-render, compose/zoom/cards/music/ffmpeg,
+                      captions/caption-render, compose/zoom/cards/music/ffmpeg
+                      (compose writes output/report.json), lint (browser-free
+                      pacing forecast + pitfalls),
                       stills (screenshot mode), frames (review PNGs), setup
                       (cookie/storageState seeding + preflight hook),
                       i18n (multi-language),
