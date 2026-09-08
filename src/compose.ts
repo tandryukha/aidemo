@@ -1,5 +1,5 @@
 import { promises as fs } from "node:fs";
-import { resolve, isAbsolute } from "node:path";
+import { resolve, isAbsolute, relative } from "node:path";
 import { Project } from "./project.js";
 import type {
   Storyboard,
@@ -12,7 +12,13 @@ import type {
   ComposeSceneReport,
   ComposeWarning,
 } from "./types.js";
-import { TimelineSchema, VoiceManifestSchema, LoudnessSchema, HoldSchema } from "./types.js";
+import {
+  TimelineSchema,
+  VoiceManifestSchema,
+  LoudnessSchema,
+  HoldSchema,
+  AutoIdleSchema,
+} from "./types.js";
 import { sceneWordsFor, type Cue } from "./captions.js";
 import { wordStartMs } from "./anchors.js";
 import { renderCaptionPngs } from "./caption-render.js";
@@ -45,6 +51,8 @@ import {
   probeDurationMs,
   probeFlatTailMs,
   probeVideoDims,
+  probeFreezeSpans,
+  type FreezeSpan,
 } from "./ffmpeg.js";
 import {
   ensureDir,
@@ -108,6 +116,41 @@ export async function compose(
   const { width: outW, height: outH } = await probeVideoDims(rawVideo);
   const pxScale = outW / storyboard.video.width;
 
+  // --- autoIdle / multi-source plumbing -------------------------------------
+  // A resumed take splices scenes from more than one raw file; every source
+  // must share the main take's pixel size or all the overlay math (captions,
+  // zoom, cursor — all scaled by pxScale) silently misaligns on those scenes.
+  const dimsChecked = new Set<string>([rawVideo]);
+  const assertSourceDims = async (file: string): Promise<void> => {
+    if (dimsChecked.has(file)) return;
+    dimsChecked.add(file);
+    const d = await probeVideoDims(file);
+    if (d.width !== outW || d.height !== outH) {
+      throw new Error(
+        `resumed take mixes recordings of different sizes: ${relative(project.dir, file)} is ` +
+          `${d.width}x${d.height}, the current take is ${outW}x${outH} — re-record the whole demo ` +
+          `(a resume must use the same capture mode and viewport as the take it continues)`
+      );
+    }
+  };
+  const autoIdleCfg = AutoIdleSchema.parse(
+    typeof storyboard.autoIdle === "object" ? storyboard.autoIdle : {}
+  );
+  const autoIdleOn =
+    storyboard.autoIdle === true ||
+    (typeof storyboard.autoIdle === "object" && storyboard.autoIdle.enabled !== false);
+  const autoIdleFor = (scene: { autoIdle?: boolean } | undefined): boolean =>
+    scene?.autoIdle ?? autoIdleOn;
+  const freezeCache = new Map<string, Promise<FreezeSpan[]>>();
+  const freezeSpansFor = (file: string): Promise<FreezeSpan[]> => {
+    let p = freezeCache.get(file);
+    if (!p) {
+      p = probeFreezeSpans(file, autoIdleCfg.minMs ?? 1500, autoIdleCfg.noise ?? 0.003);
+      freezeCache.set(file, p);
+    }
+    return p;
+  };
+
   // Map scene id -> narration duration; compose target = narration + gap.
   const voiceById = new Map(voice.scenes.map((s) => [s.id, s.durationMs]));
   const sceneById = new Map(storyboard.scenes.map((s) => [s.id, s]));
@@ -156,7 +199,20 @@ export async function compose(
     // A resumed take's reused scenes live in an earlier raw file with its own lead-in.
     const leadInMs = tl.leadInMs ?? timeline.leadInMs;
     const sceneRaw = tl.source ? resolve(project.dir, tl.source) : rawVideo;
-    const keeps = keepIntervals(tl, leadInMs);
+    await assertSourceDims(sceneRaw);
+    // `autoIdle`: motionless spans of the raw take count as idle too, so dead
+    // air the storyboard never annotated gets the same cap as a `waitFor`.
+    const autoSpans = autoIdleFor(sceneById.get(tl.id))
+      ? sceneAutoIdle(await freezeSpansFor(sceneRaw), tl, leadInMs)
+      : [];
+    if (autoSpans.length) {
+      const dead = autoSpans.reduce((a, sp) => a + (sp.endMs - sp.startMs), 0);
+      log(`scene ${tl.id}: autoIdle found ${autoSpans.length} motionless span(s), ${dead}ms`);
+    }
+    const keeps = keepIntervals(
+      autoSpans.length ? { ...tl, idleSpans: mergeIdle([...tl.idleSpans, ...autoSpans]) } : tl,
+      leadInMs
+    );
     const rawSegPath = resolve(tmp, `scene-${i}-raw.mp4`);
     await extractAndConcat(sceneRaw, keeps, rawSegPath, tmp, i);
 
@@ -452,6 +508,7 @@ export async function compose(
       holdPct: Number(holdPct.toFixed(3)),
       tailTrimMs: Math.round(overrunTrimMs),
       blankTrimMs: Math.round(blankTrimMs),
+      autoIdleMs: Math.round(autoSpans.reduce((a, sp) => a + (sp.endMs - sp.startMs), 0)),
       spans: keeps.length,
       focusEvents: sceneFocus,
       ...(anchorReport.length ? { anchors: anchorReport } : {}),
@@ -1275,6 +1332,42 @@ async function cardSegment(
     out,
   ]);
   log(`${name} card: "${card.title}" (${card.durationMs}ms)`);
+  return out;
+}
+
+/** Union of overlapping/adjacent idle spans (auto + annotated), sorted. */
+function mergeIdle(spans: IdleSpan[]): IdleSpan[] {
+  const sorted = [...spans].sort((a, b) => a.startMs - b.startMs);
+  const out: IdleSpan[] = [];
+  for (const s of sorted) {
+    const last = out[out.length - 1];
+    if (last && s.startMs <= last.endMs) last.endMs = Math.max(last.endMs, s.endMs);
+    else out.push({ ...s });
+  }
+  return out;
+}
+
+/**
+ * Motionless spans of the raw file (video time) → idle spans for one scene
+ * (timeline time, the same base the player writes). Spans are clipped to the
+ * scene, and the first/last 300 ms are left alone: the frame right after a
+ * click and the one the scene ends on are the beats a viewer reads, and
+ * trimming into them makes cuts feel clipped.
+ */
+function sceneAutoIdle(
+  freezes: FreezeSpan[],
+  tl: Timeline["scenes"][number],
+  leadInMs: number
+): IdleSpan[] {
+  const EDGE_MS = 300;
+  const lo = tl.startMs + leadInMs + EDGE_MS;
+  const hi = tl.endMs + leadInMs - EDGE_MS;
+  const out: IdleSpan[] = [];
+  for (const f of freezes) {
+    const a = Math.max(f.startMs, lo);
+    const b = Math.min(f.endMs, hi);
+    if (b - a > 200) out.push({ startMs: a - leadInMs, endMs: b - leadInMs, label: "auto-idle" });
+  }
   return out;
 }
 

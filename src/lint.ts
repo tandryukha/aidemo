@@ -92,6 +92,9 @@ const IDLE_CAP_MS = 400;
 /** Hold share past which compose itself warns (`scene-freeze`). */
 const FREEZE_WARN_PCT = 0.4;
 
+/** Default `autoIdle.minMs` — the forecast's view of what counts as dead air. */
+const AUTO_IDLE_MIN_MS = 1500;
+
 const EASING_MS: Record<string, number> = {
   smooth: 850,
   snappy: 450,
@@ -104,8 +107,12 @@ export function countWords(text: string): number {
   return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
-/** Predicted recorded ms one action contributes AFTER compose trims idle. */
-export function estimateActionMs(a: Action): number {
+/**
+ * Predicted recorded ms one action contributes AFTER compose trims idle.
+ * `autoIdle` (compose-time idle detection) also collapses motionless waits the
+ * storyboard never marked — a long `pause` is the one the forecast can see.
+ */
+export function estimateActionMs(a: Action, autoIdle = false): number {
   switch (a.op) {
     case "goto":
       return 1400; // domcontentloaded + 600 ms settle + typical paint
@@ -125,7 +132,9 @@ export function estimateActionMs(a: Action): number {
     case "scrollBy":
       return (a.durationMs ?? EASING_MS[a.easing ?? "smooth"]) + (a.settleMs ?? 250);
     case "pause":
-      return a.ms;
+      // Nothing moves during a pause, so autoIdle trims it to the same cap an
+      // annotated wait gets — but only past the detector's own threshold.
+      return autoIdle && a.ms >= AUTO_IDLE_MIN_MS ? IDLE_CAP_MS : a.ms;
     case "focus":
       return 150; // the zoom hold is compose-time and adds NO record time
     case "still":
@@ -202,7 +211,11 @@ export function lintStoryboard(
     if (narrationMs > 0) narrationTotalMs += narrationMs + GAP_MS;
 
     let actionMs = 0;
-    for (const a of scene.actions) actionMs += estimateActionMs(a);
+    const sceneAutoIdle =
+      scene.autoIdle ??
+      (sb.autoIdle === true ||
+        (typeof sb.autoIdle === "object" && sb.autoIdle.enabled !== false));
+    for (const a of scene.actions) actionMs += estimateActionMs(a, sceneAutoIdle);
 
     // --- pacing: what compose will have to do with this scene ---
     let holdPct = 0;

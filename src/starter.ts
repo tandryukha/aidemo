@@ -163,6 +163,31 @@ function jsonText(text: string): string {
   return text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+/**
+ * A selector that reaches exactly this heading. `:has-text()` is a substring
+ * match, so a long heading is trimmed at a word boundary (shorter = less
+ * brittle against a line break or a trailing badge); a page that repeats the
+ * same heading text gets an explicit `nth=` so probe doesn't hit Playwright's
+ * strict-mode "resolved to N elements".
+ */
+function headingSelector(
+  h: { level: number; text: string },
+  all: Array<{ level: number; text: string }>
+): string {
+  let text = h.text;
+  if (text.length > 40) {
+    const cut = text.slice(0, 40);
+    const sp = cut.lastIndexOf(" ");
+    text = (sp > 16 ? cut.slice(0, sp) : cut).trim();
+  }
+  const sel = `h${h.level}:has-text("${jsonText(text)}")`;
+  // Count what that selector would also match: same level, containing the text.
+  const matches = all.filter((o) => o.level === h.level && o.text.includes(text));
+  if (matches.length < 2) return sel;
+  const idx = Math.max(0, matches.findIndex((o) => o.text === h.text));
+  return `${sel} >> nth=${idx}`;
+}
+
 /** Headings worth a scene: h1/h2 (h3 when there are too few), deduped, ≤ 4. */
 function sceneHeadings(res: InspectResult): Array<{ level: number; text: string }> {
   const clean = res.headings
@@ -195,6 +220,10 @@ function candidateElements(res: InspectResult, max = 8): InspectElement[] {
 }
 
 export function storyboardFromInspect(name: string, res: InspectResult): string {
+  const allHeadings = res.headings.map((h) => ({
+    level: h.level,
+    text: h.text.replace(/\s+/g, " ").trim(),
+  }));
   const headings = sceneHeadings(res);
   const cands = candidateElements(res);
   const search = cands.find((e) => e.role === "textbox" || e.role === "searchbox");
@@ -231,7 +260,7 @@ export function storyboardFromInspect(name: string, res: InspectResult): string 
       actions: [
         {
           op: "scrollTo",
-          target: { selector: `h${h.level}:has-text("${jsonText(h.text)}")` },
+          target: { selector: headingSelector(h, allHeadings) },
           easing: "smooth",
         },
         { op: "pause", ms: 1400 },
@@ -239,6 +268,24 @@ export function storyboardFromInspect(name: string, res: InspectResult): string 
       ...(i === 0 ? {} : {}),
     });
   });
+
+  // Heading-less page (a single-page app that paints its own layout): there is
+  // nothing to name a section by, so walk the page instead — two viewport-sized
+  // scroll beats give the agent a real skeleton to rewrite, rather than a
+  // one-scene draft that hides how long the page is.
+  if (headings.length === 0) {
+    const step = Math.round(res.viewport.height * 0.8);
+    for (const [i, label] of ["what's on the page", "further down the page"].entries()) {
+      scenes.push({
+        id: `s${scenes.length + 1}-scroll-${i + 1}`,
+        narration: `<narrate ${label} — no headings on this page, so name the section yourself>`,
+        actions: [
+          { op: "scrollBy", dy: step, easing: "smooth" },
+          { op: "pause", ms: 1400 },
+        ],
+      });
+    }
+  }
 
   if (cta) {
     scenes.push({
@@ -262,7 +309,10 @@ export function storyboardFromInspect(name: string, res: InspectResult): string 
     _README:
       `Draft from \`inspect ${res.url}\` — headings became scenes, unique selectors became beats. ` +
       "Write the narration (one idea per scene, ~2.5 words/s), turn the candidate hover into the real click + an assert, " +
-      "drop scenes that don't serve the story, then `aidemo probe`. `_candidates` lists more selectors seen on the page.",
+      "drop scenes that don't serve the story, then `aidemo probe`. `_candidates` lists more selectors seen on the page." +
+      (headings.length === 0
+        ? " No headings were found (single-page app?) — the scroll scenes are placeholders; point them at real elements with `scrollTo`."
+        : ""),
     title,
     targetLengthSeconds: 45,
     video: { width: res.viewport.width, height: res.viewport.height },

@@ -45,7 +45,24 @@ const FPS = 30;
  * when this still matches, so a resumed demo never splices stale footage.
  */
 export function sceneHash(storyboard: Storyboard, scene: Scene): string {
-  const ident = {
+  return hashIdent({
+    ...legacyIdent(storyboard, scene),
+    // A param change that alters typed text already shows up in `actions`
+    // (params resolve at load time), but one that only moves `setup` — a
+    // different cookie, a different storageState, another preflight — used to
+    // slip through and splice footage of a differently-prepared app.
+    setup: storyboard.setup ?? null,
+    params: storyboard.params ?? null,
+  });
+}
+
+/** The pre-`setup`/`params` identity — only to recognize takes recorded before it. */
+export function legacySceneHash(storyboard: Storyboard, scene: Scene): string {
+  return hashIdent(legacyIdent(storyboard, scene));
+}
+
+function legacyIdent(storyboard: Storyboard, scene: Scene): Record<string, unknown> {
+  return {
     id: scene.id,
     actions: scene.actions,
     hide: [...(storyboard.hide ?? []), ...(scene.hide ?? [])],
@@ -53,6 +70,9 @@ export function sceneHash(storyboard: Storyboard, scene: Scene): string {
     video: storyboard.video,
     cursor: !!storyboard.cursor,
   };
+}
+
+function hashIdent(ident: unknown): string {
   return createHash("sha256").update(JSON.stringify(ident)).digest("hex").slice(0, 16);
 }
 
@@ -209,9 +229,18 @@ export async function record(
           );
         }
         if (ps.hash !== sceneHash(storyboard, sc)) {
-          throw new Error(
-            `--from-scene: scene "${sc.id}" changed since the previous take (actions, hide, redact, viewport or cursor mode) — resume from "${sc.id}" or earlier`
-          );
+          if (ps.hash === legacySceneHash(storyboard, sc)) {
+            // Recorded before `setup`/`params` were part of the identity: the
+            // action-spec still matches, so reuse the footage, but say plainly
+            // what can no longer be checked.
+            log(
+              `resume: scene "${sc.id}" predates setup/params hashing — its actions match, but a changed \`setup\` (cookies, storageState, preflight) would not be caught; re-record if the app is prepared differently now`
+            );
+          } else {
+            throw new Error(
+              `--from-scene: scene "${sc.id}" changed since the previous take (actions, hide, redact, viewport, cursor mode, setup or params) — resume from "${sc.id}" or earlier`
+            );
+          }
         }
       }
       const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);

@@ -643,7 +643,11 @@ program
   .command("frames")
   .argument("<dir>", "demo project directory")
   .option("--every <sec>", "seconds between frames (default 3)", "3")
-  .option("--source <which>", "final (output/final-demo.mp4, default) | raw (latest take)", "final")
+  .option(
+    "--source <which>",
+    "final (output/final-demo.mp4, default) | raw (latest raw file) | take (the whole take, across a resume's raw files)",
+    "final"
+  )
   .option("--width <px>", "frame width in px, aspect kept (default 640)", "640")
   .option("--out <dir>", "output directory (default <dir>/output/frames)")
   .description(
@@ -656,13 +660,13 @@ program
     ) => {
       const everySec = Number(opts.every);
       if (!(everySec > 0)) throw new Error(`--every must be a positive number of seconds`);
-      if (opts.source !== "final" && opts.source !== "raw") {
-        throw new Error(`--source must be "final" or "raw"`);
+      if (!["final", "raw", "take"].includes(opts.source)) {
+        throw new Error(`--source must be "final", "raw" or "take"`);
       }
       const project = new Project(dir);
       const res = await extractFrames(project, {
         everySec,
-        source: opts.source,
+        source: opts.source as "final" | "raw" | "take",
         width: parsePositiveInt("--width", opts.width),
         outDir: opts.out ? resolve(opts.out) : undefined,
       });

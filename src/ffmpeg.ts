@@ -170,3 +170,70 @@ export function probeFlatTailMs(
     });
   });
 }
+
+/** A motionless span found by `freezedetect`, in ms from the file's start. */
+export interface FreezeSpan {
+  startMs: number;
+  endMs: number;
+}
+
+/**
+ * Spans of `file` where nothing on screen moves for at least `minMs`
+ * (ffmpeg `freezedetect`). Used by compose's `autoIdle` to trim dead air the
+ * storyboard never annotated — a slow XHR, a fixed `pause`, a video the page
+ * hasn't started yet.
+ *
+ * Best-effort like `probeFlatTailMs`: any probe failure resolves to `[]`, so a
+ * missing filter or an odd container is a no-op, never a failed compose.
+ */
+export function probeFreezeSpans(
+  file: string,
+  minMs = 1500,
+  noise = 0.003
+): Promise<FreezeSpan[]> {
+  const d = Math.max(0.1, minMs / 1000);
+  return new Promise((resolvePromise) => {
+    const proc = spawn(
+      "ffmpeg",
+      [
+        "-hide_banner",
+        "-nostats",
+        "-i",
+        file,
+        "-vf",
+        `freezedetect=n=${noise}:d=${d.toFixed(3)},metadata=print:file=-`,
+        "-an",
+        "-f",
+        "null",
+        "-",
+      ],
+      { stdio: ["ignore", "pipe", "ignore"] }
+    );
+    let out = "";
+    proc.stdout.on("data", (d2) => (out += d2.toString()));
+    proc.on("error", () => resolvePromise([]));
+    proc.on("close", () => {
+      // freezedetect emits, per detected span:
+      //   lavfi.freezedetect.freeze_start=12.34
+      //   lavfi.freezedetect.freeze_duration=2.5
+      //   lavfi.freezedetect.freeze_end=14.84
+      // A span still frozen at EOF has a start with no end.
+      const spans: FreezeSpan[] = [];
+      let start: number | null = null;
+      for (const line of out.split("\n")) {
+        const s = /freeze_start=\s*([\d.]+)/.exec(line);
+        if (s) {
+          start = parseFloat(s[1]);
+          continue;
+        }
+        const e = /freeze_end=\s*([\d.]+)/.exec(line);
+        if (e && start != null) {
+          spans.push({ startMs: Math.round(start * 1000), endMs: Math.round(parseFloat(e[1]) * 1000) });
+          start = null;
+        }
+      }
+      if (start != null) spans.push({ startMs: Math.round(start * 1000), endMs: Number.MAX_SAFE_INTEGER });
+      resolvePromise(spans.filter((s) => s.endMs > s.startMs));
+    });
+  });
+}

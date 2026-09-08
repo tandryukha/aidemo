@@ -22,6 +22,8 @@ export interface FrameLayout {
 }
 
 const CHROME_H = 40;
+/** Default `safeTop` strip: an iPhone status bar's worth of bezel. */
+const SAFE_TOP = 46;
 /** Device bezel thickness (logical px) for phone chrome. */
 const BEZEL = 14;
 const DEFAULT_BG =
@@ -29,6 +31,17 @@ const DEFAULT_BG =
 
 export function isDeviceChrome(chrome: Frame["chrome"]): boolean {
   return chrome === "iphone" || chrome === "android";
+}
+
+/**
+ * Status-bar strip reserved above the video for device chrome, logical px.
+ * Without it the island / punch-hole is drawn OVER the recording's top pixels
+ * (fine for a page that starts with whitespace, wrong for an app that paints a
+ * header there); with it the camera cut-out sits on bezel instead.
+ */
+function safeTopPx(frame: Frame): number {
+  if (!isDeviceChrome(frame.chrome) || frame.safeTop == null || frame.safeTop === false) return 0;
+  return frame.safeTop === true ? SAFE_TOP : Math.round(frame.safeTop);
 }
 
 function esc(text: string): string {
@@ -47,23 +60,26 @@ export function frameLayout(
   // A bezel needs room; the default padding already has it.
   const pad = Math.max(frame.padding ?? 48, device ? BEZEL + 8 : 0);
   const chromeH = frame.chrome && frame.chrome !== "none" && !device ? CHROME_H : 0;
+  // The bar and the device status strip are mutually exclusive (one is browser
+  // chrome, the other device chrome) — both push the video down the same way.
+  const topInset = chromeH + safeTopPx(frame);
   const even = (n: number) => Math.round(n) & ~1;
   // Logical canvas; when the output has a target aspect (preset or explicit
   // size) grow the padding on one axis so the canvas already matches it and
   // the final resize is a pure scale — no letterbox bars around a frame.
   let W = videoW + 2 * pad;
-  let H = videoH + 2 * pad + chromeH;
+  let H = videoH + 2 * pad + topInset;
   if (aspect && aspect > 0) {
     if (W / H < aspect) W = H * aspect;
     else H = W / aspect;
   }
   const padX = (W - videoW) / 2;
-  const padY = (H - videoH - chromeH) / 2;
+  const padY = (H - videoH - topInset) / 2;
   return {
     canvasW: even(W * pxScale),
     canvasH: even(H * pxScale),
     offsetX: Math.round(padX * pxScale),
-    offsetY: Math.round((padY + chromeH) * pxScale),
+    offsetY: Math.round((padY + topInset) * pxScale),
     padColor: "#0e1322",
   };
 }
@@ -86,6 +102,8 @@ export async function renderFramePng(
   const device = isDeviceChrome(chrome);
   const radius = frame.radius ?? (device ? 40 : 14);
   const chromeH = chrome !== "none" && !device ? CHROME_H : 0;
+  const strip = safeTopPx(frame);
+  const topInset = chromeH + strip;
   const accent = brand?.accent ?? "#6c8cff";
   const background =
     frame.background ??
@@ -98,10 +116,14 @@ export async function renderFramePng(
   // Hole = the video rect; the chrome bar sits directly above it, sharing the
   // window's rounded top corners (the video keeps the rounded bottom ones).
   const winX = Math.round(layout.offsetX / pxScale);
-  const winY = Math.round(layout.offsetY / pxScale) - chromeH;
+  const winY = Math.round(layout.offsetY / pxScale) - topInset;
   const winW = videoW;
-  const winH = videoH + chromeH;
-  const holeY = winY + chromeH;
+  const winH = videoH + topInset;
+  const holeY = winY + topInset;
+  // A browser bar owns the window's top corners, so the video below it is
+  // square there. A device status strip is screen, not chrome: keep the corners
+  // rounded — the sliver outside them is bezel-black, exactly like the real
+  // rounded display corner.
   const rTop = chromeH ? 0 : radius;
   // SVG mask (alpha): opaque everywhere except the rounded video rect.
   const hole =
@@ -128,9 +150,11 @@ export async function renderFramePng(
       `.bezel{position:absolute;left:${bx}px;top:${by}px;width:${winW + 2 * BEZEL}px;height:${winH + 2 * BEZEL}px;` +
       `border-radius:${radius + BEZEL}px;background:#0b0b0d;border:2px solid #2b2d33;box-shadow:${shadow};}` +
       `.cam{position:absolute;background:#000;}` +
+      // With a safe strip the cut-out is centered IN the strip (over bezel);
+      // without one it keeps its old place, drawn over the video's top pixels.
       (chrome === "iphone"
-        ? `.island{left:${winX + winW / 2 - 55}px;top:${winY + 12}px;width:110px;height:32px;border-radius:16px;}`
-        : `.hole{left:${winX + winW / 2 - 7}px;top:${winY + 14}px;width:14px;height:14px;border-radius:50%;}`);
+        ? `.island{left:${winX + winW / 2 - 55}px;top:${strip ? winY + Math.max(2, (strip - 32) / 2) : winY + 12}px;width:110px;height:32px;border-radius:16px;}`
+        : `.hole{left:${winX + winW / 2 - 7}px;top:${strip ? winY + Math.max(2, (strip - 14) / 2) : winY + 14}px;width:14px;height:14px;border-radius:50%;}`);
     deviceHtml = `<div class="cam ${chrome === "iphone" ? "island" : "hole"}"></div>`;
   }
   if (chromeH) {
@@ -150,7 +174,7 @@ export async function renderFramePng(
     .canvas{position:absolute;inset:0;background:${background};
       -webkit-mask-image:${maskUrl};mask-image:${maskUrl};}
     .win{position:absolute;left:${winX}px;top:${winY}px;width:${winW}px;height:${winH}px;
-      border-radius:${radius}px;box-shadow:${device ? "none" : shadow};background:#0b0e18;}
+      border-radius:${radius}px;box-shadow:${device ? "none" : shadow};background:${device ? "#0b0b0d" : "#0b0e18"};}
     ${deviceCss}
     .bar{position:absolute;left:${winX}px;top:${winY}px;width:${winW}px;height:${chromeH}px;
       border-radius:${radius}px ${radius}px 0 0;background:#1a1f2e;

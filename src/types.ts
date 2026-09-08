@@ -482,6 +482,13 @@ export const FrameSchema = z.object({
    * punch-hole camera). Device chrome adds no bar; `radius` defaults to 40.
    */
   chrome: z.enum(["none", "browser", "mac", "iphone", "android"]).optional(),
+  /**
+   * Device chrome only: reserve a status-bar strip of bezel ABOVE the video
+   * (px at the logical size) instead of drawing the island / punch-hole over
+   * the recording's top pixels. `true` = 46 px (an iPhone status bar). Use it
+   * when the app paints something at the very top that must stay visible.
+   */
+  safeTop: z.union([z.boolean(), z.number().min(0).max(120)]).optional(),
   /** Text in the chrome's address pill (url wins over title). */
   title: z.string().optional(),
   url: z.string().optional(),
@@ -513,6 +520,20 @@ export const BrandSchema = z.object({
 });
 export type Brand = z.infer<typeof BrandSchema>;
 
+/** Tuning for compose-time idle detection (`autoIdle`). */
+export const AutoIdleSchema = z.object({
+  enabled: z.boolean().optional(),
+  /** Shortest motionless span that counts as idle, ms. Default 1500. */
+  minMs: z.number().min(400).max(20000).optional(),
+  /**
+   * Per-pixel noise floor below which two frames count as identical (ffmpeg
+   * `freezedetect` noise, 0..1). Default 0.003 — tolerant of encoder dither,
+   * tight enough that a blinking caret still reads as motion.
+   */
+  noise: z.number().min(0).max(0.2).optional(),
+});
+export type AutoIdle = z.infer<typeof AutoIdleSchema>;
+
 export const SceneSchema = z.object({
   id: z.string(),
   /** Chapter title for this beat (`output.chapters`); defaults to the scene id. */
@@ -540,6 +561,8 @@ export const SceneSchema = z.object({
   music: MusicCueSchema.optional(),
   /** Set false to suppress auto-zoom for this scene's clicks/typing. */
   zoom: z.boolean().optional(),
+  /** Override the top-level `autoIdle` for this scene (true enables, false disables). */
+  autoIdle: z.boolean().optional(),
   /** Caption placement for this scene (overrides top-level `captions.position`). */
   captions: CaptionsConfigSchema.optional(),
   /** Blur these regions while this scene records (adds to top-level `redact`). */
@@ -894,6 +917,14 @@ export const StoryboardSchema = z.object({
   setup: SetupSchema.optional(),
   /** How compose fills narration that outlasts a scene's action (freeze | drift). Opt-in. */
   hold: HoldSchema.optional(),
+  /**
+   * Trim un-annotated dead air: compose scans the take for spans where nothing
+   * on screen moves and treats them as idle (capped like `waitFor*` idle is),
+   * so a slow XHR or a long `pause` stops inflating the scene. Opt-in — omit
+   * for the old behavior, where only annotated waits count as idle. Pass an
+   * object to tune the threshold; per-scene `autoIdle` overrides it.
+   */
+  autoIdle: z.union([z.boolean(), AutoIdleSchema]).optional(),
   /** Defaults for highlight/spotlight/callout overlays + click rings. Opt-in. */
   attention: AttentionConfigSchema.optional(),
   /** Produced-look frame: padding/background/radius/shadow/chrome. Opt-in. */
@@ -1092,6 +1123,8 @@ export const ComposeSceneReportSchema = z.object({
   tailTrimMs: z.number(),
   /** Ms of solid-color tail dropped before holding (white pre-paint). */
   blankTrimMs: z.number(),
+  /** Ms of motionless footage `autoIdle` marked trimmable in this scene (0 when off). */
+  autoIdleMs: z.number().default(0),
   /** Kept spans the scene was cut from (idle spans trimmed between them). */
   spans: z.number(),
   /** Focus points (zoom) this scene contributed. */

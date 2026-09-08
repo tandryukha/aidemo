@@ -36,7 +36,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | One stage | `voice` / `record` / `captions` / `compose` (jobs) | `aidemo voice\|record\|captions\|compose <dir>` |
 | README GIF | `gif` (job) | `aidemo gif <dir>` |
 | Named stills (screenshot mode) | `stills` (job) | `aidemo stills <dir>` |
-| Frames for review | `frames` (job) | `aidemo frames <dir> [--every 3] [--source raw]` |
+| Frames for review | `frames` (job) | `aidemo frames <dir> [--every 3] [--source raw\|take]` |
 | Walkthrough export (HTML + Markdown + frames + captions) | `walkthrough` (job) | `aidemo walkthrough <dir> [--lang] [--width]` |
 | Job progress / result | `job_status`, `job_list`, `job_cancel` | (CLI runs block in the foreground) |
 
@@ -109,8 +109,11 @@ network.
    draft uses its **real** headings as scenes and its **real** unique selectors
    as beats (search box → `type`, first CTA → a `hover` you turn into the
    click), with everything else it saw in `_candidates` and `input/brief.md`.
-   No LLM runs — you still write the narration and choose the flow; you just
-   never start from `#search` placeholders.
+   Repeated heading text gets an explicit `nth=`, and a page with no headings
+   at all (a single-page app that paints its own layout) drafts scroll beats
+   instead, so the skeleton still shows how long the page is. No LLM runs — you
+   still write the narration and choose the flow; you just never start from
+   `#search` placeholders.
 3. **Confirm selectors for a new/changed flow.** Don't guess. The cheapest way
    is a **probe** — a record-only dry run (narration optional) that drives the
    real flow in ~90 s without spending TTS or a full take, so you can verify
@@ -268,18 +271,29 @@ Cinematic keys (all opt-in; omit for the plain look):
 - `hide: [selector, …]` — hide elements at **record** time (teasers, cookie
   bars, ad slots); scenes may add their own `hide`. See *Attention*.
 - `frame: {padding?, background?, radius?, shadow?, chrome?="none"|"browser"|"mac",
-  title?, url?}` — pad the video onto a styled canvas with a rounded, shadowed
-  window and optional browser chrome. See *Produced look*.
+  safeTop?, title?, url?}` — pad the video onto a styled canvas with a rounded,
+  shadowed window and optional browser chrome. See *Produced look*.
 - `brand: {logo?, accent?, font?, watermark?}` — brand kit: accent for cards /
   frame tint / attention overlays, font for cards + captions + callouts +
   chrome, logo on cards and as a watermark. See *Produced look*.
+- `autoIdle: true | {enabled?, minMs?=1500, noise?=0.003}` — **trim dead air
+  compose was never told about**: it scans the take for spans where nothing on
+  screen moves and caps them like an annotated wait, so a slow XHR or a long
+  `pause` stops inflating the scene. Opt-in; per-scene `autoIdle` overrides it
+  (`false` protects a scene that is deliberately still). Detected spans show up
+  as `autoIdleMs` per scene in `output/report.json`. Annotating the wait
+  (`waitForChange {idle:true}`, `waitForWidget`) is still better — it says WHY
+  the pause exists and lint can forecast it; `autoIdle` is the safety net for
+  waits you can't annotate. It only ever caps still footage, so a scene that is
+  deliberately motionless (a held product shot) wants `autoIdle: false`.
 - `output: {preset?, chapters?, poster?, walkthrough?, width?, height?, fit?,
   loudness?}` — presets `youtube|short|readme-gif|x`, MP4 chapter markers
   from scene `title`s, `output/poster.png`, the walkthrough bundle. See
   *Produced look* and *Transitions*.
 
 Each scene: `id`, `title?` (chapter name), `narration`, `voice?`, `music?`,
-`zoom?` (false to disable), `captions?`, `redact?`, `hide?`, `actions[]`.
+`zoom?` (false to disable), `autoIdle?` (overrides the top-level setting),
+`captions?`, `redact?`, `hide?`, `actions[]`.
 Narration may carry `{{@name}}` anchor markers (see *Narration-anchored
 beats*); the engine strips them at load and keeps the word index on the
 scene as `anchors` (don't author that field).
@@ -919,8 +933,11 @@ Always set `"last": true` on widget targets (newest widget for this turn).
   --from-scene s7`, also on `render`) keeps the earlier scenes' footage and
   timeline, replays their actions at speed only to rebuild the app state, and
   records from `s7` on. Reuse is guarded by a per-scene hash of the actions
-  (+ hide/redact/viewport/cursor mode): an edited earlier scene refuses with
-  "resume from `<id>` or earlier". The same flag is the cheap way to re-shoot
+  (+ hide/redact/viewport/cursor mode/`setup`/`params`): an edited earlier
+  scene refuses with "resume from `<id>` or earlier". A resume must also keep
+  the same capture mode and viewport as the take it continues — compose refuses
+  a timeline whose raw files differ in size rather than misplacing every
+  overlay on the reused scenes. The same flag is the cheap way to re-shoot
   a tail you changed after an approved take.
 
 `init_demo` / `aidemo init` scaffolds a storyboard already using all of the
@@ -1015,7 +1032,8 @@ Start with **`output/report.json`** (written by every compose; the `render` /
 `compose` job results carry `report` and `warnings`): per scene it records
 the recorded length, the narration target, the retime `factor` applied, and
 `holdMs`/`holdPct` (how much of the scene is a held frame), plus the tail and
-blank-frame trims, focus events kept vs dropped, and `warnings[]` —
+blank-frame trims, `autoIdleMs` (motionless footage `autoIdle` capped, 0 when
+off), focus events kept vs dropped, and `warnings[]` —
 `scene-freeze` (a scene is >40% held frame), `overrun-trim` (actions ran past
 the narration even at the x1.6 ceiling and were cut), `blank-tail`,
 `stale-captions`, `focus-dropped`, `cursor-missing`, `anchor-unreachable`
@@ -1057,12 +1075,16 @@ CLI. If nothing came up, skip this.
   compose log prints the same warnings. `aidemo lint <dir>` predicts them
   without a browser.
 - **`aidemo frames <dir> --every 3`** (MCP `frames`) dumps evenly spaced PNGs
-  from `output/final-demo.mp4` (or `--source raw` for the latest take) into
-  `output/frames/` — look at them instead of hand-running `ffmpeg -ss`.
+  from `output/final-demo.mp4` into `output/frames/` — look at them instead of
+  hand-running `ffmpeg -ss`. `--source raw` samples the latest raw file;
+  `--source take` samples the whole recorded take by walking `timeline.json`,
+  so a resumed take's earlier scenes are included and each frame is named with
+  the scene it came from.
 - **Resumed takes** (`--from-scene`): `timeline.json` scenes reused from an
   earlier take carry `source` (their raw file, `recordings/raw.keep-*`) and
   `leadInMs`; `recordings/raw.*` holds only the new tail. `frames --source
-  raw` therefore shows the new part only — review the composed video instead.
+  raw` therefore shows the new part only — use `--source take` (or review the
+  composed video) to see the whole thing.
 - `AIDEMO_KEEP_TMP=1` preserves `.compose-tmp/` intermediates when debugging
   compose.
 - `doctor` checks Node, ffmpeg, Chrome, the TTS/STT endpoint (and flags
@@ -1080,16 +1102,22 @@ selectors: `import_trace {file, name}` / `aidemo import-trace <file> --name
 - the run's own actions become beats — `goto`, `fill`→`type`, `click`,
   `hover`, `press`, `selectOption`→`select`, `setInputFiles`→`upload`,
   `waitForSelector`→`waitForWidget`, `dragAndDrop`→`drag`, `expect(...)
-  .toBeVisible/toHaveText/toHaveURL`→`assert`; calls that failed in the trace
-  are dropped;
+  .toBeVisible/toHaveText/toHaveURL/toBeChecked/toHaveAttribute`→`assert`
+  (the last two fold the condition into the selector as `>> :scope:checked` /
+  `>> :scope[href="…"]`); `toHaveScreenshot` is dropped with a note — it
+  asserts pixels, not a story beat; calls that failed in the trace are dropped;
 - `getByRole/getByTestId/getByText/getByPlaceholder` and `internal:` engines
   become plain storyboard selectors (`role=button[name="Add to basket"i]`,
-  `[data-testid="x"]`, `text=…`); `frameLocator` chains become a `frames`
-  entry + `target.frame`; `.first()/.nth()/.last()` become `nth`/`last`;
+  `[data-testid="x"]`, `text=…`); `getByLabel` stays an `internal:label="…"i`
+  selector, which `page.locator` resolves to the labelled control;
+  `frameLocator` chains become a `frames` entry + `target.frame`;
+  `.first()/.nth()/.last()` become `nth`/`last`; in a test file a locator
+  parked in a `const` is followed to its use;
 - scenes are cut at each `goto` and before a click whose payoff is an explicit
   wait or assertion; narration is `<narrate: …>` placeholders; `_notes` lists
-  every approximation (a `getByLabel` turned into a text match, an upload
-  whose file you must copy into `input/`).
+  every approximation (a statement the line-based test parser could not read —
+  a page-object helper, say — or an upload whose file you must copy into
+  `input/`).
 
 Then write the narration, merge or split scenes to one beat each, and
 `probe`. Nothing is inferred by a model — the storyboard is the test, retold.

@@ -102,11 +102,12 @@ function publicPart(part: string): { sel: string; note?: string } {
   if ((m = /^internal:has-text=(.*)$/.exec(t))) {
     return { sel: `:has-text("${unquote(m[1])}")` };
   }
-  if ((m = /^internal:label=(.*)$/.exec(t))) {
-    return {
-      sel: `text=${unquote(m[1])}`,
-      note: `getByLabel("${unquote(m[1])}") became a text match — point it at the input itself if the label isn't clickable`,
-    };
+  if (/^internal:label=/.test(t)) {
+    // Playwright resolves `internal:label=` in a plain locator string and it
+    // lands on the labelled CONTROL (verified against page.locator), which is
+    // what getByLabel means — keep it verbatim rather than degrading it to a
+    // text match on the label element.
+    return { sel: t };
   }
   if ((m = /^internal:attr=\[([^=]+)="((?:[^"\\]|\\.)*)"[is]?\]$/.exec(t))) {
     return { sel: `[${m[1]}="${m[2]}"]` };
@@ -142,8 +143,13 @@ export function normalizeSelector(raw: string): NormalizedTarget {
     if (note) notes.push(note);
   }
   // A `:has-text()` part chains onto the previous CSS part; other parts join
-  // with Playwright's `>>` which page.locator understands.
-  out.selector = keep.reduce((acc, s) => (s.startsWith(":") ? acc + s : acc ? `${acc} >> ${s}` : s), "");
+  // with Playwright's `>>` which page.locator understands. A `:scope…` part is
+  // a filter on the located element, not a suffix — it keeps its own `>>`.
+  out.selector = keep.reduce(
+    (acc, s) =>
+      s.startsWith(":") && !s.startsWith(":scope") ? acc + s : acc ? `${acc} >> ${s}` : s,
+    ""
+  );
   if (frameParts?.length) out.frameSelector = frameParts.join(" >> ");
   if (notes.length) out.note = notes.join("; ");
   return out;
@@ -271,6 +277,10 @@ function stepsFromTrace(entries: Map<string, Buffer>, notes: string[]): Step[] {
 /** Tolerant line-based parse of a Playwright test file (page.* chains). */
 export function stepsFromTest(src: string, notes: string[]): Step[] {
   const steps: Step[] = [];
+  // `const cart = page.getByTestId("cart")` … `await cart.click()`. Locators
+  // parked in a const are the common shape of a readable spec; without this
+  // every use of one was skipped with a note.
+  const aliases = new Map<string, string>();
   const str = `(?:'((?:[^'\\\\]|\\\\.)*)'|"((?:[^"\\\\]|\\\\.)*)"|\`((?:[^\`\\\\]|\\\\.)*)\`)`;
   const S = (m: RegExpMatchArray, i: number) => m[i] ?? m[i + 1] ?? m[i + 2] ?? "";
   // Collapse statements onto one line.
@@ -282,9 +292,11 @@ export function stepsFromTest(src: string, notes: string[]): Step[] {
       steps.push({ method: "goto", url: S(m, 1) });
       continue;
     }
-    if (!/\b(page|frame|locator|expect)\b/.test(st)) continue;
+    const head = /^(?:await\s+)?(?:const\s+[A-Za-z_$][\w$]*\s*=\s*)?(?:expect\(\s*)?([A-Za-z_$][\w$]*)\b/.exec(st);
+    const aliased = head && aliases.get(head[1]);
+    if (!aliased && !/\b(page|frame|locator|expect)\b/.test(st)) continue;
     // Locator chain → selector.
-    let selector: string | undefined;
+    let selector: string | undefined = aliased || undefined;
     let frameSel: string | undefined;
     let nth: string | undefined;
     const chain = [...st.matchAll(new RegExp(`\\.(getByRole|getByTestId|getByText|getByLabel|getByPlaceholder|getByTitle|getByAltText|locator|frameLocator|first|last|nth)\\(\\s*(?:${str}|(\\d+))?\\s*(?:,\\s*\\{([^}]*)\\})?\\s*\\)`, "g"))];
@@ -307,8 +319,8 @@ export function stepsFromTest(src: string, notes: string[]): Step[] {
           part = exact ? `text="${arg}"` : `text=${arg}`;
           break;
         case "getByLabel":
-          part = `text=${arg}`;
-          notes.push(`getByLabel("${arg}") became a text match — point it at the input if needed`);
+          // Same engine the trace importer emits: resolves to the control.
+          part = `internal:label="${arg.replace(/"/g, '\\"')}"${exact ? "s" : "i"}`;
           break;
         case "getByPlaceholder":
           part = `[placeholder="${arg}"]`;
@@ -339,7 +351,7 @@ export function stepsFromTest(src: string, notes: string[]): Step[] {
     }
     if (nth != null && selector) selector += ` >> nth=${nth}`;
     if (frameSel && selector) selector = `${frameSel} >> internal:control=enter-frame >> ${selector}`;
-    const term = st.match(new RegExp(`\\.(click|dblclick|check|uncheck|fill|type|pressSequentially|press|hover|selectOption|setInputFiles|waitFor|scrollIntoViewIfNeeded|dragTo|toBeVisible|toHaveText|toContainText|toHaveURL|toHaveValue|toBeEnabled|toHaveCount)\\(\\s*(?:${str}|/((?:[^/\\\\]|\\\\.)+)/[a-z]*)?`));
+    const term = st.match(new RegExp(`\\.(click|dblclick|check|uncheck|fill|type|pressSequentially|press|hover|selectOption|setInputFiles|waitFor|scrollIntoViewIfNeeded|dragTo|toBeVisible|toHaveText|toContainText|toHaveURL|toHaveValue|toBeEnabled|toHaveCount|toBeChecked|toHaveAttribute|toHaveScreenshot)\\(\\s*(?:${str}|/((?:[^/\\\\]|\\\\.)+)/[a-z]*)?`));
     if (!term) {
       if (/page\.waitForTimeout\((\d+)/.test(st)) {
         steps.push({ method: "pause", ms: Number(/page\.waitForTimeout\((\d+)/.exec(st)![1]) });
@@ -347,7 +359,11 @@ export function stepsFromTest(src: string, notes: string[]): Step[] {
       else if (/\bpage\.keyboard\.press\(/.test(st)) {
         const k = st.match(new RegExp(`keyboard\\.press\\(\\s*${str}`));
         if (k) steps.push({ method: "press", key: S(k, 1) });
-      } else if (selector) notes.push(`skipped: ${st.slice(0, 80)}`);
+      } else if (selector) {
+        const decl = /^const\s+([A-Za-z_$][\w$]*)\s*=/.exec(st);
+        if (decl) aliases.set(decl[1], selector);
+        else notes.push(`skipped: ${st.slice(0, 80)}`);
+      }
       continue;
     }
     const regexArg = term[5];
@@ -395,6 +411,33 @@ export function stepsFromTest(src: string, notes: string[]): Step[] {
       case "toBeEnabled":
       case "toHaveCount":
         if (selector) steps.push({ method: "assert", selector });
+        break;
+      case "toBeChecked":
+        // The storyboard's `assert` proves an element is THERE, so push the
+        // checked-ness into the selector itself (`:scope` filters the located
+        // element rather than its descendants).
+        if (selector) steps.push({ method: "assert", selector: `${selector} >> :scope:checked` });
+        break;
+      case "toHaveAttribute": {
+        if (!selector) break;
+        const attrs = [...st.matchAll(new RegExp(`toHaveAttribute\\(\\s*${str}\\s*(?:,\\s*${str})?`, "g"))][0];
+        const attr = attrs ? S(attrs, 1) : "";
+        const val = attrs ? S(attrs, 4) : "";
+        if (attr && val && !regexArg) {
+          steps.push({
+            method: "assert",
+            selector: `${selector} >> :scope[${attr}="${val.replace(/"/g, '\\"')}"]`,
+          });
+        } else if (attr) {
+          steps.push({ method: "assert", selector: `${selector} >> :scope[${attr}]` });
+        }
+        break;
+      }
+      case "toHaveScreenshot":
+        // A pixel baseline has no place in a demo; the beat it guarded does.
+        notes.push(
+          `toHaveScreenshot() dropped — it asserts pixels, not a story beat; add a \`still\` marker there if you want the frame`
+        );
         break;
       case "toHaveText":
       case "toContainText":

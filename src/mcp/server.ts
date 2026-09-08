@@ -1219,9 +1219,12 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       dir: DIR_INPUT,
       everySec: z.number().optional().describe("seconds between frames (default 3)"),
       source: z
-        .enum(["final", "raw"])
+        .enum(["final", "raw", "take"])
         .optional()
-        .describe("final = output/final-demo.mp4 (default); raw = the latest take"),
+        .describe(
+          "final = output/final-demo.mp4 (default); raw = the latest raw file; " +
+            "take = the whole recorded take, across the raw files a resumed take is spliced from"
+        ),
       width: z.number().optional().describe("frame width in px, aspect kept (default 640)"),
       out: z.string().optional().describe("output directory (default <dir>/output/frames)"),
     },

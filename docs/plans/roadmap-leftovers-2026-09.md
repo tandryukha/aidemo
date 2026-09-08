@@ -1,67 +1,64 @@
-# Roadmap leftovers (after v0.14.0) — pick-up list for the next session
+# Roadmap leftovers (after v0.14.0) — pick-up list
 
 _Written 2026-09-08 at the end of the "agent-grade demos" roadmap build
 (v0.11 see&lint → v0.12 attention → v0.13 produced → v0.14 self-healing +
-import). Everything in the roadmap shipped except the items below. Each entry
-says what it is, why it was left, and where to start._
+import). **Updated 2026-09-08**: the whole "Engine work" section shipped (see
+*Done* below). What is left needs either a human decision (distribution) or a
+scheduling decision (horizon)._
 
-## Engine work
+## Done (2026-09-08)
 
-### B3 · `autoIdle` — record-time idle detection (deferred, M)
-**What:** opt-in `autoIdle: true` (top-level or per scene) marks any span with
-no visible pixel change longer than ~1.5 s as trimmable idle, so un-annotated
-waits (`pause`, slow XHRs without `waitForWidget`) stop inflating scenes.
-**Why deferred:** the obvious implementation (periodic `page.screenshot` or a
-second CDP screencast while Playwright's own screencast records the take)
-risks stuttering the recording. Needs a design pass first.
-**Start here:** `src/player.ts` scene loop (idleSpans are pushed by
-`waitFor*`), `src/recorder.ts` (where a side sampler would live). Candidate
-designs: (a) hash `page.screenshot({type:"jpeg", quality:20, scale:"css"})`
-at ~3 fps in a side loop, only between actions, and stop it around
-type/scroll; (b) post-hoc: after the take, run ffmpeg `freezedetect` on
-`recordings/raw.webm` per scene and write `idleSpans` from the frozen spans
-(zero record-time cost, compose-time only — probably the better fit for the
-"polish is compose-time" invariant). Verify with the stream-md5 baseline on a
-storyboard without the flag.
+- **B3 · `autoIdle`** — shipped as a **compose-time** feature, the post-hoc
+  option from the original design: `probeFreezeSpans()` runs ffmpeg
+  `freezedetect` on the take (`src/ffmpeg.ts`), compose folds the motionless
+  spans into the scene's `idleSpans` and caps them exactly like an annotated
+  wait. Zero record-time cost, so the recording can't stutter — and it honors
+  "polish is compose-time, not record-time". Opt-in `autoIdle: true |
+  {enabled?, minMs?=1500, noise?=0.003}`, per-scene `autoIdle` overrides,
+  `autoIdleMs` per scene in `output/report.json`, and `lint` discounts a long
+  `pause` when it's on. Verified: with the flag off, the fixture's video+audio
+  stream md5s are byte-identical to the pre-change render.
+- **Resume hardening** — the scene hash now covers `setup` and `params` (a take
+  recorded before this still resumes, with a log line saying what can't be
+  checked); compose refuses a resumed timeline whose raw files differ in pixel
+  size, which is the way an external-capture (retina `raw.mp4`) take resumed by
+  a built-in `raw.webm` one would otherwise misplace every overlay.
+- **`frames --source take`** — walks `timeline.json` and samples the whole
+  recorded take across the raw files a resume splices, naming each frame with
+  its scene (`take-00-09-s2.png`). `--source raw` keeps its old meaning.
+- **import-trace** — `getByLabel` now stays `internal:label="…"i` (verified:
+  `page.locator` resolves it to the labelled control, so no more text-match
+  approximation); `toBeChecked` and `toHaveAttribute` become asserts that fold
+  the condition into the selector (`>> :scope:checked`, `>> :scope[href="…"]`);
+  `toHaveScreenshot` is dropped with a note; the test-file parser follows a
+  locator parked in a `const` to its use.
+- **`init --from-url`** — heading selectors are trimmed at a word boundary and
+  get an explicit `nth=` when the page repeats a heading; a page with no
+  headings drafts scroll beats instead of a search-or-CTA-only draft.
+- **Device frames** — `frame.safeTop` (`true` = 46 px, or a number) reserves a
+  status-bar strip of bezel above the video so the island / punch-hole stops
+  covering the app's own top pixels.
 
-### Multi-tab stories (out of scope by design)
-`click.followPopup` closes a new tab and follows its URL in the recorded tab;
-there is no `newTab`/`switchTab` because Playwright's `recordVideo` writes one
-file per page. If real multi-tab demos are ever needed: record each page's
-webm, splice by timeline in compose (each `TimelineScene` already carries
-`source` + `leadInMs` from the resume work — the plumbing exists).
+Still deliberately open in that area:
 
-### Resume edge cases to harden (`record --from-scene`)
-- External capture (`--capture native|obs`) resume is untested; the keep-file
-  logic takes `resolveRawVideo()` so it should work, but verify the lead-in
-  math with `raw.mp4`.
-- `frames --source raw` shows only the new tail of a resumed take (documented);
-  a nicer `frames --source take` could stitch by `source`.
-- A resumed take's scene hash ignores `setup`/`params` — a param change that
-  alters typed text IS caught (actions differ), a change only in `setup`
-  cookies is not.
-
-### import-trace follow-ups
-- `getByLabel` becomes a `text=` match (noted in `_notes`); a real mapping
-  needs `label=` support in `resolveTargetLocator`, or `internal:label=` pass-
-  through (Playwright accepts it — test whether the storyboard should just keep
-  it).
-- Test-file parser is line/regex based: multi-line chained locators and
-  page-object helpers are skipped with a note. A proper TS parse (typescript is
-  already a devDependency) would cover them.
-- `expect(...).toHaveScreenshot`, `toHaveAttribute`, `toBeChecked` are ignored.
-
-### `init --from-url` follow-ups
-- Scenes from headings use `h2:has-text("…")` — long headings are truncated
-  in the id but not in the selector; a page with duplicate headings yields a
-  non-unique target (lint won't catch it; probe will).
-- No scroll/section detection for single-page apps with no headings — falls
-  back to a search-or-CTA-only draft.
-
-### Device frames
-- `iphone`/`android` chrome draws the island/punch-hole OVER the video's top
-  ~46 px. A `safeTop` option (pad the video down instead) would keep an
-  app's status bar visible. Also no landscape/tablet variants.
+- **Landscape / tablet device chrome.** The bezel geometry is aspect-agnostic
+  already, but the camera cut-out is hard-centered on the top edge — a landscape
+  phone or an iPad would need its own placement (and, for a tablet, a thinner
+  bezel with no island).
+- **A real TS parse for test files.** The parser is still line/regex based, so
+  a page-object helper (`await loginPage.submit()`) is still skipped with a
+  note. `typescript` is a devDependency, and the npm package ships prod deps
+  only — using it at runtime means promoting it, which is a bigger call than
+  the remaining coverage is worth.
+- **Multi-tab stories (out of scope by design).** `click.followPopup` closes a
+  new tab and follows its URL in the recorded tab; there is no
+  `newTab`/`switchTab` because Playwright's `recordVideo` writes one file per
+  page. If real multi-tab demos are ever needed: record each page's webm and
+  splice by timeline in compose (each `TimelineScene` already carries `source`
+  + `leadInMs` from the resume work — the plumbing exists).
+- **`init --from-url` on heading-less SPAs** now drafts scroll beats, but still
+  does no section detection — the beats are placeholders the agent points at
+  real elements.
 
 ## Distribution (needs a human decision)
 
