@@ -1,7 +1,14 @@
 import { Command } from "commander";
 import { resolve, dirname } from "node:path";
 import { readFile } from "node:fs/promises";
-import { loadEnv, engineVersion, ENGINE_ROOT, captionsAutoOffline } from "./config.js";
+import {
+  loadEnv,
+  engineVersion,
+  ENGINE_ROOT,
+  captionsAutoOffline,
+  chromeProfileDir,
+} from "./config.js";
+import { resetProfile } from "./profile.js";
 import { Project } from "./project.js";
 import { record } from "./recorder.js";
 import {
@@ -29,6 +36,7 @@ import {
   setLogFile,
   closeLogFile,
   teeStageLog,
+  exists,
 } from "./util.js";
 import {
   scaffoldDemo,
@@ -132,15 +140,49 @@ program
     );
   });
 
+/** Read all of stdin as UTF-8 (for `--body-file -`). */
+async function readStdin(): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(Buffer.from(chunk));
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 program
   .command("feedback")
   .argument("[dir]", "demo project directory (adds storyboard + log context)")
+  .option("--title <text>", "issue title (default: \"Demo feedback: <dir>\")")
+  .option("--body <text>", "issue body; environment + log context is appended")
+  .option("--body-file <file>", "read the body from a file, or \"-\" for stdin")
   .option("--web", "open a prefilled New Issue page instead of filing directly", false)
   .option("--dry-run", "print the issue title/body without filing", false)
   .description("file demo-recording feedback as a GitHub issue on the engine repo")
-  .action(async (dir: string | undefined, opts: { web?: boolean; dryRun?: boolean }) => {
-    await feedback(dir, { web: opts.web, dryRun: opts.dryRun });
-  });
+  .action(
+    async (
+      dir: string | undefined,
+      opts: {
+        title?: string;
+        body?: string;
+        bodyFile?: string;
+        web?: boolean;
+        dryRun?: boolean;
+      }
+    ) => {
+      // Non-interactive body so an agent (or a script) can file without the
+      // placeholder template — the reason issue #38 was filed with `gh` by hand.
+      let body = opts.body;
+      if (opts.bodyFile) {
+        body = await (opts.bodyFile === "-"
+          ? readStdin()
+          : readFile(opts.bodyFile, "utf8"));
+      }
+      await feedback(dir, {
+        web: opts.web,
+        dryRun: opts.dryRun,
+        title: opts.title,
+        description: body,
+      });
+    }
+  );
 
 program
   .command("doctor")
@@ -244,9 +286,40 @@ program
   });
 
 program
+  .command("profile")
+  .argument("[action]", "path (default) | reset", "path")
+  .option("--profile <dir>", "operate on this Chrome user-data dir instead of the default")
+  .description(
+    "show or wipe the recording Chrome profile (a profile carrying state for " +
+      "the app can silently record the wrong story)"
+  )
+  .action(async (action: string, opts: { profile?: string }) => {
+    const dir = opts.profile ?? chromeProfileDir();
+    if (action === "reset") {
+      await resetProfile(dir);
+      step("Profile reset");
+      ok(`wiped → ${dir}`);
+      ok("the next take starts from a clean browser identity (you'll need to log in again)");
+      return;
+    }
+    if (action !== "path") {
+      throw new Error(`unknown profile action "${action}" — use: path | reset`);
+    }
+    step("Recording profile");
+    ok(dir);
+    ok(`exists: ${(await exists(dir)) ? "yes" : "no"}`);
+    ok("wipe it with: aidemo profile reset  (or record/probe with --fresh)");
+  });
+
+program
   .command("record")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
+  .option(
+    "--fresh",
+    "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
+    false
+  )
   .option("--headless", "run headless (not recommended for real Chrome)", false)
   .option(
     "--capture <mode>",
@@ -257,13 +330,20 @@ program
   .action(
     async (
       dir: string,
-      opts: { profile?: string; headless?: boolean; capture?: string; param?: string[] }
+      opts: {
+        profile?: string;
+        fresh?: boolean;
+        headless?: boolean;
+        capture?: string;
+        param?: string[];
+      }
     ) => {
       const project = new Project(dir);
       await beginCommand(project, "record");
       const storyboard = await project.loadStoryboard({ params: parseParams(opts.param) });
       await record(project, storyboard, {
         profileDir: opts.profile,
+        fresh: opts.fresh,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
       });
@@ -274,6 +354,11 @@ program
   .command("probe")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
+  .option(
+    "--fresh",
+    "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
+    false
+  )
   .option("--headless", "run headless (not recommended for real Chrome)", false)
   .option(
     "--capture <mode>",
@@ -298,6 +383,7 @@ program
       dir: string,
       opts: {
         profile?: string;
+        fresh?: boolean;
         headless?: boolean;
         capture?: string;
         param?: string[];
@@ -316,6 +402,7 @@ program
       const probeScenes: ProbeGoldenScene[] = [];
       await record(project, storyboard, {
         profileDir: opts.profile,
+        fresh: opts.fresh,
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
         ...(goldenMode ? { probe: probeScenes } : {}),
@@ -552,6 +639,11 @@ program
   .command("render")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
+  .option(
+    "--fresh",
+    "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
+    false
+  )
   .option("--headless", "run headless", false)
   .option(
     "--capture <mode>",
@@ -573,6 +665,7 @@ program
       dir: string,
       opts: {
         profile?: string;
+        fresh?: boolean;
         headless?: boolean;
         capture?: string;
         forceVoice?: boolean;
@@ -594,6 +687,7 @@ program
         const results = await renderVariants(dir, variants, {
           record: {
             profileDir: opts.profile,
+        fresh: opts.fresh,
             headed: !opts.headless,
             capture: parseCapture(opts.capture),
           },
@@ -630,6 +724,7 @@ program
         await stageLog(base, "record", () =>
           record(base, storyboard, {
             profileDir: opts.profile,
+        fresh: opts.fresh,
             headed: !opts.headless,
             capture: parseCapture(opts.capture),
           })
@@ -653,6 +748,7 @@ program
       await stageLog(base, "record", () =>
         record(base, storyboard, {
           profileDir: opts.profile,
+        fresh: opts.fresh,
           headed: !opts.headless,
           capture: parseCapture(opts.capture),
         })

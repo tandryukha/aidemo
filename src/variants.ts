@@ -60,7 +60,7 @@ export async function loadVariants(path: string): Promise<Variant[]> {
 
 export interface RenderVariantsOptions {
   /** Chrome record options shared by every variant. */
-  record?: Pick<RecordOptions, "profileDir" | "headed" | "capture">;
+  record?: Pick<RecordOptions, "profileDir" | "fresh" | "headed" | "capture">;
   /** Re-synthesize narration even if unchanged. */
   forceVoice?: boolean;
 }

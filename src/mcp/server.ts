@@ -148,6 +148,15 @@ const RECORD_INPUT_SHAPE = {
     .string()
     .optional()
     .describe("Chrome user-data dir (logged-in profile)"),
+  fresh: z
+    .boolean()
+    .optional()
+    .describe(
+      "run against a WIPED throwaway profile — use for any demo whose story " +
+        "starts at a first-run gate, onboarding, an empty state or a one-shot " +
+        "flow, since carried-over cookies/localStorage silently record the " +
+        "wrong story. Not for logged-in demos (a fresh profile has no login)."
+    ),
   capture: z.enum(["playwright", "native", "obs"]).optional(),
   params: PARAMS_INPUT,
 };
@@ -631,11 +640,17 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
 
   /** Record options wired to a job's progress fields + abort signal. */
   function recordOpts(
-    args: { headless?: boolean; profile?: string; capture?: "playwright" | "native" | "obs" },
+    args: {
+      headless?: boolean;
+      profile?: string;
+      fresh?: boolean;
+      capture?: "playwright" | "native" | "obs";
+    },
     job: Job
   ): RecordOptions {
     return {
       profileDir: args.profile,
+      fresh: args.fresh,
       headed: !args.headless,
       capture: args.capture,
       signal: job.controller.signal,

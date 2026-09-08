@@ -444,6 +444,15 @@ export const StoryboardSchema = z.object({
    */
   language: z.string().optional(),
   /**
+   * Product names, brands and jargon that Whisper reliably mis-hears — the
+   * transcript is what gets burned in, so "fitness.ee" coming back as
+   * "fitness topam" ships as a caption (issue #38). Listed here they are sent
+   * at the FRONT of the STT prompt, inside the window Whisper actually biases
+   * on, even when the script itself is long. Cheaper than `captions --offline`,
+   * which fixes spelling but gives up real word timings.
+   */
+  knownTerms: z.array(z.string()).optional(),
+  /**
    * Declared template parameters: name → default value. Enables `{{name}}`
    * placeholders in any storyboard string (narration, action url, `type` text,
    * card title/subtitle, waitFor* textMatches, voice instructions, …). At load

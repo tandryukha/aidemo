@@ -128,7 +128,7 @@ network.
 The precise contract is the JSON Schema from `get_storyboard_schema`
 (generated from the engine's own zod schema, `src/types.ts`).
 
-Top level: `title`, `language?`, `targetLengthSeconds?`, `video{width,height}`
+Top level: `title`, `language?`, `knownTerms?`, `targetLengthSeconds?`, `video{width,height}`
 (default 1280x720), `frames{ name: iframeSelector }`,
 `voice{voiceId,instructions,speed}` (default, scenes may override), `music?`,
 `zoom?`, `intro?`, `outro?`, `transition?`, `output?`, `scenes[]`.
@@ -140,11 +140,20 @@ render switch: it only feeds the `captions` STT language hint (see below).
 Distinct from `--lang`, which *selects* a scene's `narrations[code]`
 translation (Multi-language renders, below).
 
+`knownTerms?: string[]` is a glossary of product names, brands and jargon
+Whisper reliably mis-hears (`["fitness.ee", "aidemo", "MaxFit"]`). They are
+sent at the *front* of the STT prompt — Whisper only biases on roughly its
+first 224 tokens, so a term buried in a long script never reaches it. Cheaper
+than `captions --offline`, which fixes spelling but gives up real word timing.
+
 Cinematic keys (all opt-in; omit for the plain look):
 - `zoom: {scale?=1.55, easeMs?=600, holdMs?=1700}` — **auto-zoom on focus**:
   every click/typed prompt zooms in on the interaction point at compose time,
   holds, eases out; near-consecutive focus points pan instead of bouncing.
-  Set `"zoom": false` on a scene to opt just that scene out.
+  Set `"zoom": false` on a scene to opt just that scene out. On narrow
+  (mobile) viewports `scale` is capped so a zoom always leaves ≥360 logical px
+  of the page in frame — a desktop-tuned 1.35x otherwise crops a 430px take's
+  headline off the edge. Compose logs the cap when it applies.
 - `intro` / `outro: {title, subtitle?, durationMs?=2600, background?, accent?,
   fadeMs?=350}` — typographic title cards; narration/captions shift
   automatically and music runs under the cards.
@@ -415,6 +424,21 @@ Confirmed by recording a real production shopping app (2026-07-06). The engine
 already handles the frame/timing/stealth cases below; you mostly need to author
 correctly.
 
+**Profile state is the silent failure.** The recording profile persists cookies
+and localStorage between takes — including anything a `probe` just did. A demo
+whose story starts at a first-run gate, an onboarding step, an empty state or a
+one-shot flow will *skip that beat* on the next take and record the opposite of
+what the narration says, with nothing failing and nothing to see in review.
+- Record such demos with **`--fresh`** (`record`/`probe`/`render`): the take
+  runs against a wiped throwaway profile in the demo dir, so every run starts
+  from a clean browser identity. Not for logged-in demos — a fresh profile has
+  no login.
+- Otherwise `record` warns when the profile already holds state for the
+  storyboard's first `goto` origin.
+- **`aidemo profile path`** prints the shared profile's location (handy when
+  the engine came from Homebrew or an npx cache); **`aidemo profile reset`**
+  wipes it.
+
 **Login & profile (the crux).**
 - Use a dedicated Chrome profile logged into ChatGPT with the app's dev
   connector enabled (`AIDEMO_CHROME_PROFILE` or the `profile` option). Run
@@ -673,8 +697,8 @@ Estonian "uus kuub" came back "Scoop", "AI-treener" came back "EI treener").
 To keep the transcript honest, the request is biased with what the engine
 already knows about the script:
 
-- **Prompt bias (always on).** The storyboard's narration text (in scene
-  order) is sent as Whisper's `prompt`, nudging the transcript to converge on
+- **Prompt bias (always on).** Any top-level `knownTerms` glossary, then the
+  storyboard's narration text (in scene order), is sent as Whisper's `prompt`, nudging the transcript to converge on
   the actual scripted words/spelling instead of guessing from audio phonetics
   alone — while still keeping real word-level timing from the audio. This
   changes STT output for every non-trivial demo (strictly for the better:
@@ -689,7 +713,8 @@ already knows about the script:
   monolingual non-English demo) without editing the storyboard.
 
 **Non-English narration:** prompt bias + a language hint fix the common case,
-but Whisper can still misspell unusual or compound words. If burned-in
+but Whisper can still misspell unusual or compound words. Add the offenders to
+top-level `knownTerms` first — that keeps real word timings. If burned-in
 captions still look wrong, **`aidemo captions <dir> --offline` is the
 guaranteed-correct fallback** — cues are derived directly from the storyboard
 script (correct spelling by construction, since there's no transcription at

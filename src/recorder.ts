@@ -10,7 +10,6 @@ import { Project } from "./project.js";
 import { cursorInitScript } from "./cursor.js";
 import { runStoryboard } from "./player.js";
 import {
-  chromeProfileDir,
   defaultCaptureMode,
   captureDevice,
   obsUrl,
@@ -27,6 +26,7 @@ import {
   verifyCaptureMatchesPage,
 } from "./capture.js";
 import { ensureProfileUnlocked } from "./login.js";
+import { resolveProfile } from "./profile.js";
 import { ensureDir, exists, writeJson, log, ok, step } from "./util.js";
 import { probeDurationMs } from "./ffmpeg.js";
 import { dirname, join } from "node:path";
@@ -36,6 +36,13 @@ const FPS = 30;
 export interface RecordOptions {
   /** Chrome user-data dir (logged-in profile). Defaults to config profile. */
   profileDir?: string;
+  /**
+   * Run against a WIPED throwaway profile (`<demo>/.chrome-profile-fresh`)
+   * instead of the shared one. Use for any storyboard that shows a first-run
+   * gate, onboarding, an empty state or a one-shot flow — carried-over state
+   * silently records the wrong story (see src/profile.ts).
+   */
+  fresh?: boolean;
   /** Show the browser window. Default true (channel chrome needs a display). */
   headed?: boolean;
   /**
@@ -79,14 +86,19 @@ export async function record(
     );
   }
 
-  const profileDir = options.profileDir ?? chromeProfileDir();
+  const { dir: profileDir, warning: profileWarning } = await resolveProfile(
+    project.dir,
+    storyboard,
+    { profileDir: options.profileDir, fresh: options.fresh }
+  );
   // Fail fast with the actual fix when Chrome is still running on the profile
   // (a live lock stalls Playwright and then dies with a raw ProcessSingleton
   // error); clean up a stale lock from a crashed Chrome.
   await ensureProfileUnlocked(profileDir);
   const { width, height } = storyboard.video;
   const videoDir = dirname(project.rawVideoPath);
-  log(`profile: ${profileDir}`);
+  log(`profile: ${profileDir}${options.fresh ? " (fresh)" : ""}`);
+  if (profileWarning) log(`  ! ${profileWarning}`);
   log(`viewport: ${width}x${height}`);
   if (external) log(`capture mode: ${mode}`);
 

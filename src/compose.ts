@@ -7,13 +7,18 @@ import type { Cue } from "./captions.js";
 import { renderCaptionPngs } from "./caption-render.js";
 import { renderCardPng } from "./cards.js";
 import { renderCursorPng } from "./cursor.js";
-import { buildZoomFilter, type ZoomEvent } from "./zoom.js";
+import { buildZoomFilter, clampScaleForWidth, type ZoomEvent } from "./zoom.js";
 import {
   buildCursorFilter,
   type CursorPoint,
   type HideWindow,
 } from "./cursor-overlay.js";
-import { runFfmpeg, probeDurationMs, probeVideoDims } from "./ffmpeg.js";
+import {
+  runFfmpeg,
+  probeDurationMs,
+  probeFlatTailMs,
+  probeVideoDims,
+} from "./ffmpeg.js";
 import {
   ensureDir,
   readJson,
@@ -94,11 +99,24 @@ export async function compose(
       continue;
     }
 
+    let blankTrimMs = 0;
     const keeps = keepIntervals(tl, timeline.leadInMs);
     const rawSegPath = resolve(tmp, `scene-${i}-raw.mp4`);
     await extractAndConcat(rawVideo, keeps, rawSegPath, tmp, i);
 
-    const srcMs = await probeDurationMs(rawSegPath);
+    let srcMs = await probeDurationMs(rawSegPath);
+    // A scene that ends right before a `goto` can trail off into the browser's
+    // white pre-paint. Freeze-holding THAT frame paints seconds of solid white
+    // (issue #36), so drop a flat tail before deciding how long to hold —
+    // but only when we would actually hold, and never the whole segment.
+    if (srcMs > 0 && targetMs > srcMs + 400) {
+      const flatMs = await probeFlatTailMs(rawSegPath, srcMs);
+      const trimTo = srcMs - flatMs;
+      if (flatMs > 200 && trimTo > 500) {
+        blankTrimMs = flatMs;
+        srcMs = trimTo;
+      }
+    }
     // Retime the segment toward the narration length, but only within
     // [MIN_FACTOR, MAX_STRETCH]. If narration still needs more time, hold
     // (freeze) the last frame for the remainder — natural for a static page,
@@ -118,7 +136,11 @@ export async function compose(
       stretchedMs = targetMs;
     }
     const holdMs = Math.max(0, targetMs - stretchedMs);
-    let vf = `setpts=${factor.toFixed(6)}*PTS`;
+    let vf = "";
+    if (blankTrimMs > 0) {
+      vf += `trim=duration=${(srcMs / 1000).toFixed(3)},setpts=PTS-STARTPTS,`;
+    }
+    vf += `setpts=${factor.toFixed(6)}*PTS`;
     if (overrunTrimMs > 0) {
       vf += `,trim=duration=${(targetMs / 1000).toFixed(3)},setpts=PTS-STARTPTS`;
     }
@@ -189,7 +211,7 @@ export async function compose(
       `scene ${tl.id}: ${srcMs}ms -> ${targetMs}ms ` +
         `(x${factor.toFixed(2)}${holdMs > 40 ? ` + ${Math.round(holdMs)}ms hold` : ""}${
           overrunTrimMs > 0 ? ` - ${Math.round(overrunTrimMs)}ms tail trim` : ""
-        }, ${keeps.length} span(s))`
+        }${blankTrimMs > 0 ? ` - ${Math.round(blankTrimMs)}ms blank tail` : ""}, ${keeps.length} span(s))`
     );
     opts.onSceneComplete?.(tl.id, i, sceneTotal);
   }
@@ -274,9 +296,30 @@ export async function compose(
   // Auto-zoom pass over the content (never over the cards or captions).
   if (zoomCfg && zoomEvents.length > 0) {
     const contentMs = await probeDurationMs(content);
-    const filter = buildZoomFilter(zoomEvents, zoomCfg, outW, outH, contentMs, FPS);
+    const filter = buildZoomFilter(
+      zoomEvents,
+      zoomCfg,
+      outW,
+      outH,
+      contentMs,
+      FPS,
+      storyboard.video.width,
+      (dropped, total) =>
+        log(
+          `  ! auto-zoom: ${dropped} of ${total} focus point(s) dropped to fit ` +
+            `ffmpeg's expression budget — the rest are spread evenly. Set ` +
+            `"zoom": false on scenes that don't need the camera to choose which.`
+        )
+    );
     if (filter) {
-      log(`auto-zoom: ${zoomEvents.length} focus event(s)`);
+      const capped = clampScaleForWidth(zoomCfg.scale, storyboard.video.width);
+      log(
+        `auto-zoom: ${zoomEvents.length} focus event(s)` +
+          (capped < zoomCfg.scale
+            ? ` (scale ${zoomCfg.scale} capped to ${capped.toFixed(2)} for a ` +
+              `${storyboard.video.width}px-wide viewport)`
+            : "")
+      );
       const zoomed = resolve(tmp, "content-zoomed.mp4");
       await runFfmpeg([
         "-i",
@@ -723,6 +766,13 @@ async function extractAndConcat(
  */
 const CAPTION_BOTTOM_GAP = 96;
 
+/**
+ * Max caption cues overlaid in a single ffmpeg pass. Each cue costs one input
+ * and one filter link; ffmpeg fails to configure the graph somewhere past ~90
+ * (issue #36), so long narrations are burned in several passes.
+ */
+const CAPTION_BATCH = 32;
+
 async function burnCaptions(
   project: Project,
   storyboard: Storyboard,
@@ -743,46 +793,66 @@ async function burnCaptions(
     pxScale
   );
 
-  const args: string[] = ["-i", silentVideo];
-  for (const r of rendered) args.push("-i", r.png);
-
-  // Chain one overlay per cue, each enabled only during its time window.
-  // Cue times are narration-relative; the intro card shifts them right.
+  // One ffmpeg pass per BATCH of cues, not one chain for all of them. Each cue
+  // is an extra input plus an extra overlay link, and past roughly 90 of them
+  // ffmpeg gives up wiring the filter network ("Failed to configure output
+  // pad" / "Failed to inject frame into filter network") — a 3.5-minute
+  // narration is ~95 cues, so long demos hit it (issue #36). Batching keeps
+  // every graph small at the cost of one re-encode per extra pass.
   const gap = Math.round(CAPTION_BOTTOM_GAP * pxScale);
-  const chain: string[] = [];
-  let prev = "0:v";
-  rendered.forEach((r, i) => {
-    const inp = `${i + 1}:v`;
-    const out = i === rendered.length - 1 ? "vout" : `o${i}`;
-    const a = ((r.startMs + introMs) / 1000).toFixed(3);
-    const b = ((r.endMs + introMs) / 1000).toFixed(3);
-    // Escape the enable-expression commas so ffmpeg doesn't read them as filter
-    // separators. Lift the strip clear of the app's bottom input bar (the
-    // ChatGPT composer) so captions never sit on top of the prompt being typed.
-    chain.push(
-      `[${prev}][${inp}]overlay=0:H-h-${gap}:enable=between(t\\,${a}\\,${b})[${out}]`
-    );
-    prev = out;
-  });
+  const batches: typeof rendered[] = [];
+  for (let i = 0; i < rendered.length; i += CAPTION_BATCH) {
+    batches.push(rendered.slice(i, i + CAPTION_BATCH));
+  }
+  if (batches.length > 1) {
+    log(`caption overlay: ${batches.length} pass(es) of <= ${CAPTION_BATCH} cue(s)`);
+  }
 
-  const out = resolve(tmp, "captioned.mp4");
-  await runFfmpeg([
-    ...args,
-    "-filter_complex",
-    chain.join(";"),
-    "-map",
-    "[vout]",
-    "-an",
-    "-c:v",
-    "libx264",
-    "-preset",
-    "veryfast",
-    "-crf",
-    "20",
-    "-pix_fmt",
-    "yuv420p",
-    out,
-  ]);
+  let src = silentVideo;
+  let out = src;
+  for (let b = 0; b < batches.length; b++) {
+    const batch = batches[b];
+    const args: string[] = ["-i", src];
+    for (const r of batch) args.push("-i", r.png);
+
+    // Chain one overlay per cue, each enabled only during its time window.
+    // Cue times are narration-relative; the intro card shifts them right.
+    const chain: string[] = [];
+    let prev = "0:v";
+    batch.forEach((r, i) => {
+      const inp = `${i + 1}:v`;
+      const label = i === batch.length - 1 ? "vout" : `o${i}`;
+      const a = ((r.startMs + introMs) / 1000).toFixed(3);
+      const e = ((r.endMs + introMs) / 1000).toFixed(3);
+      // Escape the enable-expression commas so ffmpeg doesn't read them as
+      // filter separators. Lift the strip clear of the app's bottom input bar
+      // (the ChatGPT composer) so captions never sit on top of the prompt.
+      chain.push(
+        `[${prev}][${inp}]overlay=0:H-h-${gap}:enable=between(t\\,${a}\\,${e})[${label}]`
+      );
+      prev = label;
+    });
+
+    out = resolve(tmp, `captioned-${b}.mp4`);
+    await runFfmpeg([
+      ...args,
+      "-filter_complex",
+      chain.join(";"),
+      "-map",
+      "[vout]",
+      "-an",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "20",
+      "-pix_fmt",
+      "yuv420p",
+      out,
+    ]);
+    src = out;
+  }
   return out;
 }
 

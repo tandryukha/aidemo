@@ -493,10 +493,18 @@ export async function fileFeedback(
  */
 export async function feedback(
   dir: string | undefined,
-  opts: { web?: boolean; dryRun?: boolean } = {}
+  opts: {
+    web?: boolean;
+    dryRun?: boolean;
+    title?: string;
+    description?: string;
+  } = {}
 ): Promise<void> {
   const demoDir = dir ? targetOf(dir) : null;
-  const ctx = await buildFeedback(demoDir);
+  const ctx = await buildFeedback(demoDir, {
+    title: opts.title,
+    description: opts.description,
+  });
 
   if (opts.dryRun) {
     step(`feedback (dry run) → ${UPSTREAM_REPO}`);

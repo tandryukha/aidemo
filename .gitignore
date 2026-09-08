@@ -8,6 +8,8 @@ dist/
 # Dedicated Chrome profile handed to Playwright (contains your logged-in session)
 chrome-profile/
 **/chrome-profile/
+# throwaway profiles from `record --fresh`
+**/.chrome-profile-fresh/
 
 # Private working area — real product demos are not part of the public repo
 # (use `aidemo init <name>` to scaffold your own under demos/)

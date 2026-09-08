@@ -1,4 +1,5 @@
 import type { ZoomConfig } from "./types.js";
+import { type Key, piecewiseExpr } from "./expr.js";
 
 /**
  * Screen-Studio-style auto-zoom, rendered at compose time with ffmpeg's
@@ -12,8 +13,36 @@ import type { ZoomConfig } from "./types.js";
  * and in again — the camera stays zoomed and *pans* between them.
  *
  * Everything is emitted as piecewise smoothstep ffmpeg expressions over output
- * time (`on/fps`), one channel each for zoom, center-x and center-y.
+ * time (`on/fps`), one channel each for zoom, center-x and center-y — as a FLAT
+ * gated sum, and simplified to a key budget, because a long take's worth of
+ * focus points overflows ffmpeg's expression parser otherwise (see expr.ts).
  */
+
+/**
+ * Per-channel key budget. zoom/x/y are three INDEPENDENT expressions, so this
+ * is per channel; it is deliberately well under ffmpeg's ~100-term AST cliff
+ * because each term references the time expression three times.
+ */
+const KEY_BUDGET = 56;
+
+/**
+ * Smallest slice of the page, in LOGICAL (storyboard) pixels, that a zoom is
+ * allowed to leave visible horizontally. A scale tuned on a 1440px desktop
+ * viewport crops a 430px mobile take to ribbons — 1.35x cost the question
+ * headline its left edge on every click (issue #38). Anything at or below this
+ * width stops zooming further in.
+ */
+const MIN_VISIBLE_LOGICAL_WIDTH = 360;
+
+/**
+ * Cap `scale` so a zoom never leaves less than MIN_VISIBLE_LOGICAL_WIDTH of the
+ * page in frame. Returns the configured scale unchanged on desktop-width takes.
+ */
+export function clampScaleForWidth(scale: number, logicalWidth: number): number {
+  if (logicalWidth <= 0) return scale;
+  const max = Math.max(1.05, logicalWidth / MIN_VISIBLE_LOGICAL_WIDTH);
+  return Math.min(scale, max);
+}
 
 /** A focus point in FINAL video time, coordinates in output-video pixels. */
 export interface ZoomEvent {
@@ -24,44 +53,11 @@ export interface ZoomEvent {
   holdMs?: number;
 }
 
-interface Key {
-  t: number; // seconds
-  v: number;
-}
-
 /** Append a keyframe, nudging time forward to keep the channel monotonic. */
 function pushKey(keys: Key[], t: number, v: number): void {
   const last = keys[keys.length - 1];
   if (last && t <= last.t) t = last.t + 0.02;
   keys.push({ t, v });
-}
-
-const num = (n: number): string => {
-  const s = n.toFixed(4).replace(/\.?0+$/, "");
-  return s === "" || s === "-" ? "0" : s;
-};
-
-/**
- * Piecewise expression over `T` (a time expression in seconds): holds the
- * first value before the first key, smoothsteps between keys, holds the last
- * value after the last key.
- */
-function piecewise(keys: Key[], T: string): string {
-  let expr = num(keys[keys.length - 1].v);
-  for (let i = keys.length - 2; i >= 0; i--) {
-    const a = keys[i];
-    const b = keys[i + 1];
-    let seg: string;
-    if (a.v === b.v || b.t - a.t < 1e-6) {
-      seg = num(a.v);
-    } else {
-      const p = `((${T}-${num(a.t)})/${num(b.t - a.t)})`;
-      seg = `(${num(a.v)}+(${num(b.v - a.v)})*${p}*${p}*(3-2*${p}))`;
-    }
-    expr = `if(lt(${T},${num(b.t)}),${seg},${expr})`;
-  }
-  // Guard the span before the first key (p would be negative in seg 0).
-  return `if(lt(${T},${num(keys[0].t)}),${num(keys[0].v)},${expr})`;
 }
 
 /**
@@ -148,6 +144,42 @@ export function planZoom(
 }
 
 /**
+ * Plan the zoom, thinning focus events until every channel fits KEY_BUDGET.
+ *
+ * A long take can carry forty-plus focus points, and each one costs a handful
+ * of keys per channel — more than ffmpeg's expression evaluator will take
+ * (see expr.ts). Simplifying the CURVE is the wrong lever here: the zoom
+ * channel is a train of bounces, and smoothing it enough to fit flattens the
+ * zoom out of existence. Dropping whole focus points keeps every surviving
+ * beat at full amplitude, evenly spread across the demo — the same trade the
+ * author would make by hand, and it is logged so it is not a surprise.
+ */
+function planWithinBudget(
+  events: ZoomEvent[],
+  cfg: ZoomConfig,
+  outW: number,
+  outH: number,
+  durMs: number
+): { plan: ReturnType<typeof planZoom>; dropped: number } {
+  let use = events;
+  for (let i = 0; i < 24; i++) {
+    const plan = planZoom(use, cfg, outW, outH, durMs);
+    if (!plan) return { plan, dropped: 0 };
+    const worst = Math.max(plan.z.length, plan.cx.length, plan.cy.length);
+    if (worst <= KEY_BUDGET || use.length <= 2) {
+      return { plan, dropped: events.length - use.length };
+    }
+    // Thin proportionally to the overshoot, keeping an even spread.
+    const keep = Math.max(2, Math.floor((use.length * KEY_BUDGET) / worst));
+    const step = use.length / keep;
+    const next: ZoomEvent[] = [];
+    for (let k = 0; k < keep; k++) next.push(use[Math.floor(k * step)]);
+    use = next;
+  }
+  return { plan: planZoom(use, cfg, outW, outH, durMs), dropped: events.length - use.length };
+}
+
+/**
  * Full `-vf` filter string applying the auto-zoom to a CFR video of
  * outW x outH at `fps`, or null when there is nothing to zoom. For SD-ish
  * sources the frame is upscaled 2x first so zoompan's integer-pixel crop
@@ -159,18 +191,32 @@ export function buildZoomFilter(
   outW: number,
   outH: number,
   durMs: number,
-  fps: number
+  fps: number,
+  /** Storyboard (logical) viewport width, for the narrow-viewport scale cap. */
+  logicalWidth = outW,
+  /** Called when focus events had to be thinned to fit the key budget. */
+  onThin?: (dropped: number, total: number) => void
 ): string | null {
-  const plan = planZoom(events, cfg, outW, outH, durMs);
+  const capped: ZoomConfig = {
+    ...cfg,
+    scale: clampScaleForWidth(cfg.scale, logicalWidth),
+  };
+  const clamped = events.map((e) =>
+    e.scale == null
+      ? e
+      : { ...e, scale: clampScaleForWidth(e.scale, logicalWidth) }
+  );
+  const { plan, dropped } = planWithinBudget(clamped, capped, outW, outH, durMs);
   if (!plan) return null;
+  if (dropped > 0) onThin?.(dropped, clamped.length);
 
   const up = outW < 1600 ? 2 : 1;
   const T = `on/${fps}`;
-  const zExpr = piecewise(plan.z, T);
   const scaleKeys = (keys: Key[]): Key[] =>
     keys.map((k) => ({ t: k.t, v: k.v * up }));
-  const cxExpr = piecewise(scaleKeys(plan.cx), T);
-  const cyExpr = piecewise(scaleKeys(plan.cy), T);
+  const zExpr = piecewiseExpr(plan.z, T, "smooth");
+  const cxExpr = piecewiseExpr(scaleKeys(plan.cx), T, "smooth");
+  const cyExpr = piecewiseExpr(scaleKeys(plan.cy), T, "smooth");
 
   const xExpr = `clip(${cxExpr}-(iw/zoom)/2,0,iw-iw/zoom)`;
   const yExpr = `clip(${cyExpr}-(ih/zoom)/2,0,ih-ih/zoom)`;

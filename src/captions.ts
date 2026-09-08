@@ -158,17 +158,26 @@ export async function generateCaptions(
 }
 
 /**
- * Whisper prompt bias: the known narration script, in scene order, so the
- * transcript converges on the correctly-spelled words instead of guessing
- * from audio phonetics alone. Capped to MAX_PROMPT_CHARS (see above).
+ * Whisper prompt bias: any `knownTerms` glossary first (product names and
+ * jargon Whisper mis-hears — it only biases on roughly its first 224 tokens,
+ * so the terms must lead), then the known narration script in scene order, so
+ * the transcript converges on correctly-spelled words instead of guessing from
+ * audio phonetics alone. Capped to MAX_PROMPT_CHARS (see above).
  */
 function buildSttPrompt(storyboard: Storyboard): string | undefined {
+  const terms = (storyboard.knownTerms ?? [])
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const glossary = terms.length ? `${terms.join(", ")}. ` : "";
   const text = storyboard.scenes
     .map((s) => s.narration.trim())
     .filter(Boolean)
     .join(" ");
-  if (!text) return undefined;
-  return text.length > MAX_PROMPT_CHARS ? text.slice(0, MAX_PROMPT_CHARS) : text;
+  const prompt = glossary + text;
+  if (!prompt.trim()) return undefined;
+  return prompt.length > MAX_PROMPT_CHARS
+    ? prompt.slice(0, MAX_PROMPT_CHARS)
+    : prompt;
 }
 
 /**
