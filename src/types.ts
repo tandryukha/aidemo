@@ -680,6 +680,12 @@ export const OutputSchema = z
     chapters: z.boolean().optional(),
     /** Also extract output/poster.png (first content frame after the intro). Default false. */
     poster: z.boolean().optional(),
+    /**
+     * Also export output/walkthrough/ (index.html + guide.md + per-scene
+     * frames + captions) after every render. Default false; `aidemo
+     * walkthrough <dir>` / the `walkthrough` job export on demand.
+     */
+    walkthrough: z.boolean().optional(),
     width: z.number().optional(),
     height: z.number().optional(),
     /**

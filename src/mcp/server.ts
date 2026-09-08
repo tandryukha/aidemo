@@ -23,6 +23,7 @@ import { buildEmbed } from "../embed.js";
 import { extractStills, storyboardHasStills } from "../stills.js";
 import { extractFrames } from "../frames.js";
 import { inspectPage } from "../inspect.js";
+import { exportWalkthrough } from "../walkthrough.js";
 import { GUIDE_TOPIC_NAMES, guideHeadings, guidePath as guideFilePath, sliceGuide } from "../guide.js";
 import { lintStoryboard, logLint } from "../lint.js";
 import { localizeStoryboard } from "../i18n.js";
@@ -986,10 +987,17 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         if (storyboardHasStills(storyboard)) {
           stills = await jobs.runSubStage(job, "stills", () => extractStills(project));
         }
+        let walkthrough: string | undefined;
+        if (storyboard.output?.walkthrough) {
+          walkthrough = (
+            await jobs.runSubStage(job, "walkthrough", () => exportWalkthrough(lp, sb))
+          ).index;
+        }
         return {
           output: lp.outputPath,
           ...(gifPath ? { gif: gifPath } : {}),
           ...(stills && stills.length ? { stills } : {}),
+          ...(walkthrough ? { walkthrough } : {}),
           timeline: lp.timelinePath,
           captionsSrt: lp.captionsSrtPath,
           report: lp.reportPath,
@@ -1153,6 +1161,34 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           durationMs: res.durationMs,
           everySec: res.everySec,
           frames: res.files,
+        };
+      })
+  );
+
+  registerJob(
+    "walkthrough",
+    "Export output/walkthrough/ from the final video: index.html (one card per " +
+      "scene — payoff frame, title, narration, jump-to-time; ← → keyboard nav), " +
+      "guide.md (README/SOP-ready), per-scene PNGs, SRT/VTT and a JSON manifest. " +
+      "Needs only the rendered video + report.json (no key, no browser).",
+    {
+      dir: DIR_INPUT,
+      lang: z.string().optional().describe("language variant (final-demo.<lang>.mp4)"),
+      width: z.number().optional().describe("frame width in px (default 960)"),
+      out: z.string().optional().describe("output directory (default <dir>/output/walkthrough)"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "walkthrough", async () => {
+        const lp = args.lang ? new Project(project.dir, args.lang) : project;
+        const storyboard = await project.loadStoryboard({ relaxed: true });
+        const sb = args.lang ? localizeStoryboard(storyboard, args.lang) : storyboard;
+        const res = await exportWalkthrough(lp, sb, { width: args.width, outDir: args.out });
+        return {
+          dir: res.dir,
+          index: res.index,
+          guide: res.guide,
+          manifest: res.manifest,
+          scenes: res.scenes.length,
         };
       })
   );

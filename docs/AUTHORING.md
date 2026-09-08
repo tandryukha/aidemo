@@ -36,6 +36,7 @@ Every operation exists on both surfaces. Agents should prefer the MCP server
 | README GIF | `gif` (job) | `aidemo gif <dir>` |
 | Named stills (screenshot mode) | `stills` (job) | `aidemo stills <dir>` |
 | Frames for review | `frames` (job) | `aidemo frames <dir> [--every 3] [--source raw]` |
+| Walkthrough export (HTML + Markdown + frames + captions) | `walkthrough` (job) | `aidemo walkthrough <dir> [--lang] [--width]` |
 | Job progress / result | `job_status`, `job_list`, `job_cancel` | (CLI runs block in the foreground) |
 
 **The job model (MCP).** Pipeline operations touch TTS/STT, a real Chrome, or
@@ -264,9 +265,10 @@ Cinematic keys (all opt-in; omit for the plain look):
 - `brand: {logo?, accent?, font?, watermark?}` — brand kit: accent for cards /
   frame tint / attention overlays, font for cards + captions + callouts +
   chrome, logo on cards and as a watermark. See *Produced look*.
-- `output: {preset?, chapters?, poster?, width?, height?, fit?, loudness?}` —
-  presets `youtube|short|readme-gif|x`, MP4 chapter markers from scene
-  `title`s, `output/poster.png`. See *Produced look* and *Transitions*.
+- `output: {preset?, chapters?, poster?, walkthrough?, width?, height?, fit?,
+  loudness?}` — presets `youtube|short|readme-gif|x`, MP4 chapter markers
+  from scene `title`s, `output/poster.png`, the walkthrough bundle. See
+  *Produced look* and *Transitions*.
 
 Each scene: `id`, `title?` (chapter name), `narration`, `voice?`, `music?`,
 `zoom?` (false to disable), `captions?`, `redact?`, `hide?`, `actions[]`.
@@ -512,6 +514,16 @@ scene at its content start (after the intro card), named from the scene's
 `title` (or its `id`). YouTube, QuickTime, VLC and mpv show them as a
 navigable table of contents. Give every scene a short `title` when you turn
 this on.
+
+**Walkthrough** (`output.walkthrough: true`, or `aidemo walkthrough <dir>` /
+the `walkthrough` job any time after a render): one take → several
+artifacts in `output/walkthrough/`: `index.html` (one card per scene with
+its payoff frame, title, narration and a jump-to-time button over the video;
+← / → keys step through, Enter plays from a step), `guide.md` (the same as a
+README/SOP section: heading + frame + narration per scene), `scene-NN-<id>.png`
+frames, the SRT/VTT captions, and `walkthrough.json`. Frames come from the
+**final** video, so they carry zoom, cursor, overlays and the frame. Scene
+`title`s name the steps (falling back to ids).
 
 **Poster** (`output.poster: true`): also writes `output/poster.png`
 (`poster.<lang>.png` for language variants) — the first content frame after

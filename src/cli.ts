@@ -30,6 +30,7 @@ import { compose } from "./compose.js";
 import { exportGif } from "./gif.js";
 import { buildEmbed, formatEmbed } from "./embed.js";
 import { extractStills, storyboardHasStills } from "./stills.js";
+import { exportWalkthrough } from "./walkthrough.js";
 import { localizeStoryboard, missingNarrations } from "./i18n.js";
 import { synthesizeMusicBed } from "./music.js";
 import { loadVariants, renderVariants } from "./variants.js";
@@ -495,6 +496,28 @@ program
       if (errors > 0 || (opts.strict && warns > 0)) process.exitCode = 1;
     }
   );
+
+program
+  .command("walkthrough")
+  .argument("<dir>", "demo project directory")
+  .option("--lang <code>", "language variant (final-demo.<lang>.mp4)")
+  .option("--width <px>", "frame width in px (default 960)", "960")
+  .option("--out <dir>", "output directory (default <dir>/output/walkthrough)")
+  .description(
+    "export output/walkthrough/: index.html + guide.md + per-scene frames + captions from the final video"
+  )
+  .action(async (dir: string, opts: { lang?: string; width: string; out?: string }) => {
+    const base = new Project(dir);
+    const project = opts.lang ? new Project(dir, opts.lang) : base;
+    await beginCommand(project, "walkthrough");
+    const storyboard = await base.loadStoryboard({ relaxed: true });
+    const sb = opts.lang ? localizeStoryboard(storyboard, opts.lang) : storyboard;
+    const res = await exportWalkthrough(project, sb, {
+      width: Number(opts.width) || 960,
+      outDir: opts.out,
+    });
+    ok(`walkthrough → ${res.index} (${res.scenes.length} scene(s); guide.md alongside)`);
+  });
 
 program
   .command("inspect")
@@ -1064,6 +1087,9 @@ program
         // re-extract, not a re-record).
         if (storyboardHasStills(storyboard)) {
           await stageLog(base, "stills", () => extractStills(base));
+        }
+        if (storyboard.output?.walkthrough) {
+          await stageLog(base, "walkthrough", () => exportWalkthrough(base, storyboard));
         }
         step("Done");
         ok(`▶ open ${base.outputPath}`);

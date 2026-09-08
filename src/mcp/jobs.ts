@@ -27,7 +27,8 @@ export type JobKind =
   | "gif"
   | "stills"
   | "frames"
-  | "inspect";
+  | "inspect"
+  | "walkthrough";
 
 export type JobStatus = "running" | "succeeded" | "failed" | "canceled";
 

@@ -24,6 +24,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | Validate a storyboard (no browser) | `node bin/aidemo.mjs validate <dir>` (`--file <path>`, `--json`; non-zero exit on issues) |
 | Lint / pacing forecast (no browser) | `node bin/aidemo.mjs lint <dir>` (`--lang`, `--json`, `--strict`) — also auto-runs in probe/record/render; measured counterpart is `output/report.json` from compose |
 | Frames for review | `node bin/aidemo.mjs frames <dir> --every 3` (`--source raw` for the take) |
+| Walkthrough bundle | `node bin/aidemo.mjs walkthrough <dir>` — output/walkthrough/ (index.html, guide.md, frames, captions) from the final video (also auto in `render` with `output.walkthrough`) |
 | One pipeline stage | `node bin/aidemo.mjs voice\|record\|captions\|compose <dir>` |
 | Screenshot stills | `node bin/aidemo.mjs stills <dir>` — extract named PNGs from an existing take (also auto-runs in `render` when the storyboard has `still` markers) |
 | Golden regression check | `node bin/aidemo.mjs probe <dir> --update-golden` (write baseline) / `--golden` (CI guard, non-zero exit on drift) |
@@ -57,7 +58,8 @@ src/                  pipeline stages: voice, recorder/player/cursor (record),
                       retime), frame (produced-look canvas PNG), guide
                       (topic slices of AUTHORING.md), lint (browser-free
                       pacing forecast + pitfalls),
-                      stills (screenshot mode), frames (review PNGs), setup
+                      stills (screenshot mode), frames (review PNGs),
+                      walkthrough (HTML/Markdown bundle from the final video), setup
                       (cookie/storageState seeding + preflight hook),
                       i18n (multi-language),
                       params/variants (personalized renders), golden (probe
