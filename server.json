@@ -6,12 +6,12 @@
     "url": "https://github.com/tandryukha/aidemo",
     "source": "github"
   },
-  "version": "0.14.0",
+  "version": "0.14.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@tandryukha/aidemo",
-      "version": "0.14.0",
+      "version": "0.14.1",
       "transport": { "type": "stdio" },
       "runtimeHint": "npx",
       "packageArguments": [
