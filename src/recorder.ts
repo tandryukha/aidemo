@@ -391,6 +391,7 @@ export async function record(
   }
 
   const t0 = Date.now();
+  let salvageTailMs = 0;
   const logsDir = project.p("logs");
   const doneScenes: TimelineScene[] = [];
   let timeline: Timeline;
@@ -446,6 +447,12 @@ export async function record(
     recordErr = err;
     const lastEnd = doneScenes.length ? doneScenes[doneScenes.length - 1].endMs : 0;
     timeline = { totalMs: lastEnd, leadInMs: 0, scenes: [...reused, ...doneScenes] };
+    // The take kept recording through the FAILED scene (its goto, waits and
+    // the assert/timeout that broke it). That footage sits AFTER the last
+    // completed scene, so it must not be mistaken for front lead-in at
+    // finalize: otherwise every reused scene of a later `--from-scene` resume
+    // is read that many ms too late and plays ahead of its narration.
+    salvageTailMs = Math.max(0, Date.now() - t0 - lastEnd);
     if (capture && !capFile) {
       const stopAt = Date.now();
       capFile = await capture.stop().catch(() => null);
@@ -521,10 +528,10 @@ export async function record(
     // The front lead-in (about:blank + launch) = actual video length minus the
     // measured content span. This is more reliable than timing the launch.
     const videoMs = await probeDurationMs(project.rawVideoPath);
-    timeline.leadInMs = Math.max(0, videoMs - timeline.totalMs);
+    timeline.leadInMs = Math.max(0, videoMs - timeline.totalMs - salvageTailMs);
     await writeJson(project.timelinePath, timeline);
     log(
-      `video ${videoMs}ms, content ${timeline.totalMs}ms → lead-in ${timeline.leadInMs}ms`
+      `video ${videoMs}ms, content ${timeline.totalMs}ms${salvageTailMs ? `, failed-scene tail ${salvageTailMs}ms` : ""} → lead-in ${timeline.leadInMs}ms`
     );
     ok(`recording → ${project.rawVideoPath}`);
     finalized = true;
