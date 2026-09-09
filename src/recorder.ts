@@ -132,6 +132,8 @@ export interface RecordOptions {
    * to rebuild app state; recording starts at this scene.
    */
   fromScene?: string;
+  /** With `fromScene`: skip the reused scenes' actions instead of replaying them (state-earning flows). */
+  noReplay?: boolean;
 }
 
 /**
@@ -406,6 +408,7 @@ export async function record(
       captureCursorPath: composeCursor,
       baseDir: project.dir,
       replayUntil: fromIndex || undefined,
+      skipReplay: !!options.noReplay,
       onSceneStart: options.onSceneStart,
       onSceneReplayed: (id, i, total) => {
         // Progress-wise a replayed scene is "done": its footage already exists.

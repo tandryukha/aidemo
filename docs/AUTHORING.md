@@ -948,6 +948,14 @@ Always set `"last": true` on widget targets (newest widget for this turn).
   records the wrong numbers; resuming keeps the earned footage and picks up at
   the scene that broke. Pair it with `setup.expectState: true` so the
   carried-over-state warning stays quiet on the seeded profile.
+  **But a plain resume still *replays* the earlier scenes' actions** to rebuild
+  state — on a state-earning flow that replay itself fails (the first scene
+  waits for a "stranger" element the profile no longer shows). Add
+  `--no-replay` (`record`/`render`, `{noReplay: true}`) to skip the replayed
+  scenes' actions entirely and trust the profile as it stands; the scene you
+  resume from must then open with its own `goto`. This is also how you record
+  one storyboard across two real days (day 0 today, day 1 after the app's
+  date rolls over) on one profile.
   The same flag is the cheap way to re-shoot
   a tail you changed after an approved take.
 

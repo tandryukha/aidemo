@@ -314,6 +314,8 @@ function parseParams(pairs?: string[]): Record<string, string> | undefined {
   return out;
 }
 
+const NO_REPLAY_OPT_DESC =
+  "with --from-scene: do not replay the reused scenes' actions — the profile already holds the state (balances earned, a day rolled forward); the resumed scene must open with its own goto";
 const FROM_SCENE_OPT_DESC =
   "resume: keep the previous take's scenes before this id (verified unchanged) and record from it";
 const PARAM_OPT_DESC =
@@ -698,6 +700,7 @@ program
   )
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .option("--from-scene <id>", FROM_SCENE_OPT_DESC)
+  .option("--no-replay", NO_REPLAY_OPT_DESC)
   .description("drive the storyboard in Chrome and record raw video + timeline.json")
   .action(
     async (
@@ -712,6 +715,7 @@ program
         capture?: string;
         param?: string[];
         fromScene?: string;
+        replay?: boolean;
       }
     ) => {
       const project = new Project(dir);
@@ -727,6 +731,7 @@ program
         headed: !opts.headless,
         capture: parseCapture(opts.capture),
         fromScene: opts.fromScene,
+        noReplay: opts.replay === false,
       });
     }
   );
@@ -1063,6 +1068,7 @@ program
   .option("--lang <code>", LANG_OPT_DESC)
   .option("--langs <codes>", `${LANGS_OPT_DESC} — records ONCE, then renders each`)
   .option("--from-scene <id>", FROM_SCENE_OPT_DESC)
+  .option("--no-replay", NO_REPLAY_OPT_DESC)
   .description("run the full pipeline: voice → record → captions → compose")
   .action(
     async (
@@ -1083,6 +1089,7 @@ program
         lang?: string;
         langs?: string;
         fromScene?: string;
+        replay?: boolean;
       }
     ) => {
       applyTtsFlag(opts.tts);
@@ -1142,6 +1149,7 @@ program
             headed: !opts.headless,
             capture: parseCapture(opts.capture),
             fromScene: opts.fromScene,
+            noReplay: opts.replay === false,
           })
         );
         await stageLog(base, "captions", () => captionsFor(base, storyboard));
@@ -1172,6 +1180,7 @@ program
           headed: !opts.headless,
           capture: parseCapture(opts.capture),
           fromScene: opts.fromScene,
+          noReplay: opts.replay === false,
         })
       );
       if (storyboardHasStills(storyboard)) {

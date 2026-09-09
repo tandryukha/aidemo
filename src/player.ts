@@ -83,6 +83,14 @@ export interface PlayerOptions {
    * previous take's footage for them).
    */
   replayUntil?: number;
+  /**
+   * With `replayUntil`: do NOT run the replayed scenes' actions at all — the
+   * app state is whatever the profile already holds. For flows that EARN
+   * one-shot state (a balance moved, a check-in was taken, a day was rolled
+   * forward by hand) a replay would fail or double-consume; the resumed scene
+   * must then open with its own `goto`.
+   */
+  skipReplay?: boolean;
   /** Called after a replayed (not recorded) scene finished. */
   onSceneReplayed?: (sceneId: string, index: number, total: number) => void;
   /** Demo directory — `upload` file paths resolve against it (default: cwd). */
@@ -349,6 +357,12 @@ export async function runStoryboard(
         (capture.fast ? " (replay only — footage reused from the previous take)" : "")
     );
     opts.onSceneStart?.(scene.id, si, total);
+    if (capture.fast && opts.skipReplay) {
+      log(`  --no-replay: actions skipped, app state left as the profile holds it`);
+      if (scene.hide?.length) await setSceneHide(page, []);
+      opts.onSceneReplayed?.(scene.id, si, total);
+      continue;
+    }
     const probeOutcomes: ProbeActionOutcome[] = [];
 
     for (let i = 0; i < scene.actions.length; i++) {
