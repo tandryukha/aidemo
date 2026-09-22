@@ -4,7 +4,8 @@
 # tools/list) needs neither, so this image stays lean and just starts the server
 # and answers — which is all directory checks (e.g. Glama) require. Installs the
 # engine from the moving `stable` git ref at build time.
-FROM node:22-slim
+# Pinned by digest (Scorecard Pinned-Dependencies); bump tag+digest together.
+FROM node:22-slim@sha256:48e4b67d85f87bd551df43704e24d252f56cc5f8e9718841aace50f19948f0f9
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
     NPM_CONFIG_UPDATE_NOTIFIER=false \

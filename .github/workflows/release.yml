@@ -8,13 +8,17 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Least privilege: the workflow itself needs nothing; the one job that tags,
+# releases and publishes asks for exactly what it uses.
 permissions:
-  contents: write
-  id-token: write # npm provenance / OIDC trusted publishing
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the tag, move `stable`, publish the Release
+      id-token: write # npm provenance / OIDC trusted publishing
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

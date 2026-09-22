@@ -30,7 +30,15 @@ export function isUnsafeRegexSource(pattern: string): string | null {
  * field so the author can see which matcher to fix.
  */
 export function compileUserRegex(pattern: string, flags: string, where: string): RegExp {
+  if (typeof pattern !== "string" || pattern === "")
+    throw new Error(`${where}: regex must be a non-empty string`);
   const unsafe = isUnsafeRegexSource(pattern);
   if (unsafe) throw new Error(`${where}: unsafe regex — ${unsafe}`);
-  return new RegExp(pattern, flags);
+  try {
+    return new RegExp(pattern, flags);
+  } catch (e) {
+    // A raw SyntaxError names neither the field nor the storyboard, which is
+    // the only thing the author can act on.
+    throw new Error(`${where}: invalid regex ${JSON.stringify(pattern)} — ${(e as Error).message}`);
+  }
 }

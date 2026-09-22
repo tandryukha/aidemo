@@ -1,6 +1,7 @@
 import type { Page, Locator, Frame, Request, Response, Dialog } from "playwright";
 import { scanInteractive, rankCandidates, type DriftCandidate } from "./inspect.js";
 import { compileUserRegex } from "./safe-regex.js";
+import { redactUrl, redactSecrets } from "./redact.js";
 import { promises as fs } from "node:fs";
 import { basename, isAbsolute, join, resolve } from "node:path";
 import { existsSync } from "node:fs";
@@ -242,39 +243,51 @@ class NetworkWatch {
     private readonly page: Page,
     private readonly t0: number
   ) {
+    // A listener that throws surfaces as an unhandled rejection on the page
+    // and can abort a take, so each one is wrapped: diagnostics are strictly
+    // best-effort and must never take the recording down with them.
     this.onResponse = (res: Response) => {
-      if (res.status() < 400) return;
-      const req = res.request();
-      const entry: FailedRequest = {
-        tMs: Date.now() - t0,
-        method: req.method(),
-        url: truncateUrl(res.url(), 200),
-        status: res.status(),
-        resourceType: req.resourceType(),
-      };
-      this.push(entry);
-      if (/^(xhr|fetch)$/.test(entry.resourceType)) {
-        res
-          .text()
-          .then((b) => {
-            const snippet = b.replace(/\s+/g, " ").trim().slice(0, NET_BODY_MAX);
-            if (snippet) entry.body = snippet;
-          })
-          .catch(() => {});
+      try {
+        if (res.status() < 400) return;
+        const req = res.request();
+        const entry: FailedRequest = {
+          tMs: Date.now() - t0,
+          method: req.method(),
+          url: redactUrl(res.url(), 200),
+          status: res.status(),
+          resourceType: req.resourceType(),
+        };
+        this.push(entry);
+        if (/^(xhr|fetch)$/.test(entry.resourceType)) {
+          res
+            .text()
+            .then((b) => {
+              const snippet = redactSecrets(b.replace(/\s+/g, " ").trim()).slice(0, NET_BODY_MAX);
+              if (snippet) entry.body = snippet;
+            })
+            // The body is gone once the page navigates; that's expected.
+            .catch(() => {});
+        }
+      } catch {
+        /* diagnostics only — a broken response record is not a take failure */
       }
     };
     this.onFailed = (req: Request) => {
-      const err = req.failure()?.errorText ?? "failed";
-      // Navigations cancel in-flight requests; that's not an app failure.
-      if (/ERR_ABORTED/.test(err)) return;
-      this.push({
-        tMs: Date.now() - t0,
-        method: req.method(),
-        url: truncateUrl(req.url(), 200),
-        status: null,
-        error: err,
-        resourceType: req.resourceType(),
-      });
+      try {
+        const err = req.failure()?.errorText ?? "failed";
+        // Navigations cancel in-flight requests; that's not an app failure.
+        if (/ERR_ABORTED/.test(err)) return;
+        this.push({
+          tMs: Date.now() - t0,
+          method: req.method(),
+          url: redactUrl(req.url(), 200),
+          status: null,
+          error: err,
+          resourceType: req.resourceType(),
+        });
+      } catch {
+        /* diagnostics only */
+      }
     };
   }
 
@@ -1900,7 +1913,9 @@ async function waitForChange(
 // ---------------------------------------------------------------------------
 
 function truncateUrl(url: string, n = 90): string {
-  return url.length > n ? url.slice(0, n) + "…" : url;
+  // Same masking as the network watch: every URL that reaches a log or a
+  // fail-*.json goes through redaction, not just the ones from failed requests.
+  return redactUrl(url, n);
 }
 
 /** Never returns — enriches the error with scene/action context + diagnostics. */
