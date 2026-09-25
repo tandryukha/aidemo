@@ -8,6 +8,9 @@ dist/
 # Dedicated Chrome profile handed to Playwright (contains your logged-in session)
 chrome-profile/
 **/chrome-profile/
+# Named local browser profiles also contain authenticated session data.
+chrome-profile-*/
+**/chrome-profile-*/
 # throwaway profiles from `record --fresh`
 **/.chrome-profile-fresh/
 

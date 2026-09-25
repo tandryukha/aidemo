@@ -3,30 +3,864 @@
     {
       "url": "https://aidemo.top/",
       "date": "2026-07-20",
-      "indexed": false
+      "indexed": true,
+      "last_checked": "2026-07-22",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-07-22"
     },
     {
       "url": "https://aidemo.top/blog/",
       "date": "2026-07-20",
-      "indexed": false
+      "indexed": true,
+      "last_checked": "2026-07-22",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-07-22"
     },
     {
       "url": "https://aidemo.top/blog/topics/ai-demo-tools/",
       "date": "2026-07-20",
-      "indexed": false
+      "indexed": true,
+      "last_checked": "2026-07-22",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-07-22"
     },
     {
       "url": "https://aidemo.top/blog/topics/demo-automation/",
       "date": "2026-07-20",
-      "indexed": false
+      "indexed": true,
+      "last_checked": "2026-07-23",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-07-23"
     },
     {
       "url": "https://aidemo.top/blog/topics/demo-videos/",
       "date": "2026-07-20",
+      "indexed": false,
+      "last_checked": "2026-07-23",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Page is not indexed: URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/demos-as-code/",
+      "date": "2026-07-22",
+      "indexed": true,
+      "last_checked": "2026-07-23",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-07-23"
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/screen-recording/",
+      "date": "2026-07-22",
+      "indexed": true,
+      "last_checked": "2026-07-25",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-07-25"
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/video-docs/",
+      "date": "2026-07-22",
+      "indexed": false,
+      "last_checked": "2026-07-25",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/topics/video-marketing/",
+      "date": "2026-07-22",
+      "indexed": false,
+      "last_checked": "2026-07-25",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/editorial-policy/",
+      "date": "2026-07-22",
+      "indexed": true,
+      "last_checked": "2026-07-27",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-07-27"
+    },
+    {
+      "url": "https://aidemo.top/blog/accessible-tutorial-videos/",
+      "date": "2026-07-23",
+      "indexed": false,
+      "last_checked": "2026-07-27",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/agent-friendly-app-instrumentation/",
+      "date": "2026-07-23",
+      "indexed": true,
+      "last_checked": "2026-07-27",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-07-27"
+    },
+    {
+      "url": "https://aidemo.top/blog/ai-demo-video-generators/",
+      "date": "2026-07-23",
+      "indexed": false,
+      "last_checked": "2026-08-16",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/ai-documentation-tools/",
+      "date": "2026-07-23",
+      "indexed": true,
+      "last_checked": "2026-08-16",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-08-16"
+    },
+    {
+      "url": "https://aidemo.top/blog/ai-voiceover-for-demo-videos/",
+      "date": "2026-07-23",
+      "indexed": false,
+      "last_checked": "2026-08-16",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/api-documentation-videos/",
+      "date": "2026-07-25",
+      "indexed": false,
+      "last_checked": "2026-08-17",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - not indexed, URL unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/app-preview-video/",
+      "date": "2026-07-25",
+      "indexed": false,
+      "last_checked": "2026-08-17",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/app-store-screenshot-automation/",
+      "date": "2026-07-25",
+      "indexed": true,
+      "last_checked": "2026-08-17",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-08-17"
+    },
+    {
+      "url": "https://aidemo.top/blog/arcade-vs-navattic-vs-storylane/",
+      "date": "2026-07-25",
+      "indexed": true,
+      "last_checked": "2026-08-24",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-08-24"
+    },
+    {
+      "url": "https://aidemo.top/blog/automated-product-demo-videos/",
+      "date": "2026-07-25",
+      "indexed": false,
+      "last_checked": "2026-08-24",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/automating-product-screenshots/",
+      "date": "2026-08-16",
+      "indexed": true,
+      "last_checked": "2026-08-24",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-08-24"
+    },
+    {
+      "url": "https://aidemo.top/blog/autoplay-video-on-website/",
+      "date": "2026-08-16",
+      "indexed": false,
+      "last_checked": "2026-08-25",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/b2b-demo-video/",
+      "date": "2026-08-16",
+      "indexed": false,
+      "last_checked": "2026-08-25",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/best-frame-rate-for-screen-recording/",
+      "date": "2026-08-16",
+      "indexed": true,
+      "last_checked": "2026-08-25",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-08-25"
+    },
+    {
+      "url": "https://aidemo.top/blog/best-resolution-for-screen-recording/",
+      "date": "2026-08-16",
+      "indexed": true,
+      "last_checked": "2026-08-27",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-08-27"
+    },
+    {
+      "url": "https://aidemo.top/blog/best-video-format-for-screen-recording/",
+      "date": "2026-08-17",
+      "indexed": false,
+      "last_checked": "2026-08-27",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/camtasia-alternatives/",
+      "date": "2026-08-17",
+      "indexed": true,
+      "last_checked": "2026-08-27",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-08-27"
+    },
+    {
+      "url": "https://aidemo.top/blog/cap-vs-screen-studio/",
+      "date": "2026-08-17",
+      "indexed": true,
+      "last_checked": "2026-08-28",
+      "check_attempts": 1,
+      "last_status": "URL is on Google / Page is indexed",
+      "indexed_date": "2026-08-28"
+    },
+    {
+      "url": "https://aidemo.top/blog/coding-agents-that-make-demo-videos/",
+      "date": "2026-08-17",
+      "indexed": false,
+      "last_checked": "2026-08-28",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google / Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-environments-and-seed-data/",
+      "date": "2026-08-17",
+      "indexed": true,
+      "last_checked": "2026-08-28",
+      "check_attempts": 1,
+      "last_status": "URL is on Google / Page is indexed",
+      "indexed_date": "2026-08-28"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-background-music/",
+      "date": "2026-08-24",
+      "indexed": false,
+      "last_checked": "2026-08-29",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-call-to-action/",
+      "date": "2026-08-24",
+      "indexed": false,
+      "last_checked": "2026-08-29",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-captions/",
+      "date": "2026-08-24",
+      "indexed": false,
+      "last_checked": "2026-08-29",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-cost/",
+      "date": "2026-08-24",
+      "indexed": false,
+      "last_checked": "2026-08-30",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-hook/",
+      "date": "2026-08-25",
+      "indexed": false,
+      "last_checked": "2026-08-30",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-metrics/",
+      "date": "2026-08-25",
+      "indexed": false,
+      "last_checked": "2026-08-30",
+      "check_attempts": 1,
+      "last_status": "URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-mistakes/",
+      "date": "2026-08-25",
+      "indexed": false,
+      "last_checked": "2026-08-31",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-on-landing-page/",
+      "date": "2026-08-25",
+      "indexed": false,
+      "last_checked": "2026-09-01",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-script-template/",
+      "date": "2026-08-27",
+      "indexed": false,
+      "last_checked": "2026-09-01",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-software-pricing/",
+      "date": "2026-08-27",
+      "indexed": false,
+      "last_checked": "2026-09-01",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-video-thumbnail/",
+      "date": "2026-08-27",
+      "indexed": false,
+      "last_checked": "2026-09-03",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google: URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demo-videos-in-ci/",
+      "date": "2026-08-27",
+      "indexed": false,
+      "last_checked": "2026-09-03",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google: URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/demos-as-code/",
+      "date": "2026-08-27",
+      "indexed": true,
+      "last_checked": "2026-09-03",
+      "check_attempts": 1,
+      "last_status": "URL is on Google: Page is indexed",
+      "indexed_date": "2026-09-03"
+    },
+    {
+      "url": "https://aidemo.top/blog/descript-alternatives-for-demo-editing/",
+      "date": "2026-08-28",
+      "indexed": true,
+      "last_checked": "2026-09-04",
+      "check_attempts": 1,
+      "last_status": "URL is on Google / Page is indexed",
+      "indexed_date": "2026-09-04"
+    },
+    {
+      "url": "https://aidemo.top/blog/detecting-ui-drift/",
+      "date": "2026-08-28",
+      "indexed": true,
+      "last_checked": "2026-09-04",
+      "check_attempts": 1,
+      "last_status": "URL is on Google / Page is indexed",
+      "indexed_date": "2026-09-04"
+    },
+    {
+      "url": "https://aidemo.top/blog/deterministic-browser-automation-for-video/",
+      "date": "2026-08-28",
+      "indexed": false,
+      "last_checked": "2026-09-04",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google: Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/developer-education-screencasts/",
+      "date": "2026-08-28",
+      "indexed": true,
+      "last_checked": "2026-09-05",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-09-05"
+    },
+    {
+      "url": "https://aidemo.top/blog/docs-that-test-themselves/",
+      "date": "2026-08-28",
+      "indexed": true,
+      "last_checked": "2026-09-05",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-09-05"
+    },
+    {
+      "url": "https://aidemo.top/blog/does-video-increase-conversion/",
+      "date": "2026-08-29",
+      "indexed": false,
+      "last_checked": "2026-09-05",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/embed-video-on-website/",
+      "date": "2026-08-29",
+      "indexed": false,
+      "last_checked": "2026-09-06",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/embedding-videos-in-docs-sites/",
+      "date": "2026-08-29",
+      "indexed": false,
+      "last_checked": "2026-09-06",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/feature-announcement-video/",
+      "date": "2026-08-29",
+      "indexed": false,
+      "last_checked": "2026-09-06",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/free-demo-video-software/",
+      "date": "2026-08-29",
+      "indexed": false,
+      "last_checked": "2026-09-07",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Page is not indexed: URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/gifs-in-documentation/",
+      "date": "2026-08-30",
+      "indexed": true,
+      "last_checked": "2026-09-07",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-07"
+    },
+    {
+      "url": "https://aidemo.top/blog/headless-screen-recording/",
+      "date": "2026-08-30",
+      "indexed": true,
+      "last_checked": "2026-09-07",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-07"
+    },
+    {
+      "url": "https://aidemo.top/blog/hide-notifications-while-recording/",
+      "date": "2026-08-30",
+      "indexed": true,
+      "last_checked": "2026-09-08",
+      "check_attempts": 1,
+      "last_status": "URL is on Google",
+      "indexed_date": "2026-09-08"
+    },
+    {
+      "url": "https://aidemo.top/blog/how-long-should-a-demo-video-be/",
+      "date": "2026-08-30",
+      "indexed": false,
+      "last_checked": "2026-09-08",
+      "check_attempts": 1,
+      "last_status": "Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/how-to-make-a-product-demo-video/",
+      "date": "2026-08-30",
+      "indexed": false,
+      "last_checked": "2026-09-08",
+      "check_attempts": 1,
+      "last_status": "URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/how-to-record-your-screen-in-high-quality/",
+      "date": "2026-09-01",
+      "indexed": true,
+      "last_checked": "2026-09-09",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-09"
+    },
+    {
+      "url": "https://aidemo.top/blog/interactive-demo-vs-video-demo/",
+      "date": "2026-09-01",
+      "indexed": false,
+      "last_checked": "2026-09-09",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered, currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/keeping-tutorial-libraries-current/",
+      "date": "2026-09-01",
+      "indexed": true,
+      "last_checked": "2026-09-09",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-09"
+    },
+    {
+      "url": "https://aidemo.top/blog/linkedin-video-for-b2b-software/",
+      "date": "2026-09-01",
+      "indexed": false,
+      "last_checked": "2026-09-10",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/loom-alternatives-for-product-demos/",
+      "date": "2026-09-01",
+      "indexed": true,
+      "last_checked": "2026-09-10",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-10"
+    },
+    {
+      "url": "https://aidemo.top/blog/mcp-servers-for-media-generation/",
+      "date": "2026-09-03",
+      "indexed": true,
+      "last_checked": "2026-09-10",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-10"
+    },
+    {
+      "url": "https://aidemo.top/blog/measuring-documentation-video-effectiveness/",
+      "date": "2026-09-03",
+      "indexed": false,
+      "last_checked": "2026-09-12",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/microvideos-in-documentation/",
+      "date": "2026-09-03",
+      "indexed": false,
+      "last_checked": "2026-09-12",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/multi-language-product-demo-videos/",
+      "date": "2026-09-03",
+      "indexed": false,
+      "last_checked": "2026-09-12",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/nightly-demo-builds/",
+      "date": "2026-09-03",
+      "indexed": true,
+      "last_checked": "2026-09-13",
+      "check_attempts": 1,
+      "last_status": "URL is on Google / Page is indexed",
+      "indexed_date": "2026-09-13"
+    },
+    {
+      "url": "https://aidemo.top/blog/obs-for-product-demos/",
+      "date": "2026-09-04",
+      "indexed": true,
+      "last_checked": "2026-09-13",
+      "check_attempts": 1,
+      "last_status": "URL is on Google / Page is indexed",
+      "indexed_date": "2026-09-13"
+    },
+    {
+      "url": "https://aidemo.top/blog/onboarding-walkthrough-videos/",
+      "date": "2026-09-04",
+      "indexed": false,
+      "last_checked": "2026-09-13",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google / Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/open-source-demo-video-tools/",
+      "date": "2026-09-04",
+      "indexed": false,
+      "last_checked": "2026-09-14",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - not indexed, URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/personalized-demo-videos-at-scale/",
+      "date": "2026-09-04",
+      "indexed": false,
+      "last_checked": "2026-09-14",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - not indexed, URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/product-demo-storytelling/",
+      "date": "2026-09-04",
+      "indexed": true,
+      "last_checked": "2026-09-14",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - page is indexed",
+      "indexed_date": "2026-09-14"
+    },
+    {
+      "url": "https://aidemo.top/blog/product-hunt-launch-video/",
+      "date": "2026-09-05",
+      "indexed": false,
+      "last_checked": "2026-09-15",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Discovered - currently not indexed"
+    },
+    {
+      "url": "https://aidemo.top/blog/product-launch-video/",
+      "date": "2026-09-05",
+      "indexed": false,
+      "last_checked": "2026-09-15",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/product-onboarding-video/",
+      "date": "2026-09-05",
+      "indexed": false,
+      "last_checked": "2026-09-15",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/product-walkthrough-video/",
+      "date": "2026-09-05",
+      "indexed": false,
+      "last_checked": "2026-09-22",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/professional-screen-recordings/",
+      "date": "2026-09-05",
+      "indexed": true,
+      "last_checked": "2026-09-22",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-22"
+    },
+    {
+      "url": "https://aidemo.top/blog/readme-gifs-that-update-themselves/",
+      "date": "2026-09-06",
+      "indexed": true,
+      "last_checked": "2026-09-22",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-22"
+    },
+    {
+      "url": "https://aidemo.top/blog/realistic-demo-data-generation/",
+      "date": "2026-09-06",
+      "indexed": true,
+      "last_checked": "2026-09-23",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-23"
+    },
+    {
+      "url": "https://aidemo.top/blog/record-a-browser-tab/",
+      "date": "2026-09-06",
+      "indexed": true,
+      "last_checked": "2026-09-23",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-23"
+    },
+    {
+      "url": "https://aidemo.top/blog/record-a-terminal-session/",
+      "date": "2026-09-06",
+      "indexed": true,
+      "last_checked": "2026-09-23",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-23"
+    },
+    {
+      "url": "https://aidemo.top/blog/record-screen-on-linux/",
+      "date": "2026-09-06",
+      "indexed": true,
+      "last_checked": "2026-09-24",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-24"
+    },
+    {
+      "url": "https://aidemo.top/blog/record-screen-with-audio/",
+      "date": "2026-09-07",
+      "indexed": true,
+      "last_checked": "2026-09-24",
+      "check_attempts": 1,
+      "last_status": "URL is on Google - Page is indexed",
+      "indexed_date": "2026-09-24"
+    },
+    {
+      "url": "https://aidemo.top/blog/release-notes-videos/",
+      "date": "2026-09-07",
+      "indexed": false,
+      "last_checked": "2026-09-24",
+      "check_attempts": 1,
+      "last_status": "URL is not on Google - Page is not indexed: URL is unknown to Google"
+    },
+    {
+      "url": "https://aidemo.top/blog/reproducible-demo-renders/",
+      "date": "2026-09-07",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/reviewing-video-diffs-in-pull-requests/",
+      "date": "2026-09-07",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/saas-demo-video-examples/",
+      "date": "2026-09-08",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/sales-demo-video/",
+      "date": "2026-09-08",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/screen-recording-aspect-ratio/",
+      "date": "2026-09-08",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/screen-recording-with-webcam/",
+      "date": "2026-09-08",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/screen-recording-without-cursor/",
+      "date": "2026-09-08",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/screen-studio-alternatives/",
+      "date": "2026-09-09",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/selectors-that-survive-redesigns/",
+      "date": "2026-09-09",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/social-cuts-for-product-launch/",
+      "date": "2026-09-09",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/storyboard-design-patterns/",
+      "date": "2026-09-09",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/support-videos-knowledge-base/",
+      "date": "2026-09-09",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/synthesia-alternatives-for-software-demos/",
+      "date": "2026-09-10",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/testing-demos-like-code/",
+      "date": "2026-09-10",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/versioned-demos-per-release/",
+      "date": "2026-09-10",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/versioning-media-assets-in-git/",
+      "date": "2026-09-10",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/video-as-code-tools/",
+      "date": "2026-09-10",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/video-documentation/",
+      "date": "2026-09-12",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/video-in-email-marketing/",
+      "date": "2026-09-12",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/video-marketing-for-software/",
+      "date": "2026-09-22",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/video-seo-for-product-pages/",
+      "date": "2026-09-22",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/video-vs-written-documentation/",
+      "date": "2026-09-22",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/visual-regression-testing-for-marketing-assets/",
+      "date": "2026-09-22",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/visual-regression-testing-tools/",
+      "date": "2026-09-22",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/where-to-use-your-demo-video/",
+      "date": "2026-09-23",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/why-product-demos-go-stale/",
+      "date": "2026-09-23",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/blog/youtube-marketing-for-dev-tools/",
+      "date": "2026-09-23",
+      "indexed": false
+    },
+    {
+      "url": "https://aidemo.top/AUTHORING.md",
+      "date": "2026-09-23",
       "indexed": false
     }
   ],
-  "last_run": "2026-07-20",
-  "total_submitted": 5,
-  "total_indexed": 0
+  "last_run": "2026-09-24",
+  "total_submitted": 113,
+  "total_indexed": 39
 }
