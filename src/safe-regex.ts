@@ -1,3 +1,5 @@
+import { RE2JS } from "re2js";
+
 /**
  * Storyboard-supplied regex patterns (`assert.textMatches`, `assert.url`, and
  * the `textMatches` option the player threads through) are compiled at replay
@@ -29,13 +31,16 @@ export function isUnsafeRegexSource(pattern: string): string | null {
  * Compile a storyboard-supplied pattern, or throw with `where` naming the
  * field so the author can see which matcher to fix.
  */
-export function compileUserRegex(pattern: string, flags: string, where: string): RegExp {
+export function compileUserRegex(pattern: string, flags: string, where: string): RE2JS {
   if (typeof pattern !== "string" || pattern === "")
     throw new Error(`${where}: regex must be a non-empty string`);
   const unsafe = isUnsafeRegexSource(pattern);
   if (unsafe) throw new Error(`${where}: unsafe regex — ${unsafe}`);
   try {
-    return new RegExp(pattern, flags);
+    // RE2JS guarantees linear-time matching for storyboard supplied patterns.
+    // The replay path only uses `test`, so its API is interchangeable here.
+    if (flags && flags !== "i") throw new Error(`unsupported regex flags ${flags}`);
+    return RE2JS.compile(pattern, flags === "i" ? RE2JS.CASE_INSENSITIVE : 0);
   } catch (e) {
     // A raw SyntaxError names neither the field nor the storyboard, which is
     // the only thing the author can act on.

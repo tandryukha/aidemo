@@ -70,6 +70,12 @@ scan inside them). Use it instead of reading source or guessing: copy the
 first selector of the element you mean. It writes `logs/inspect-<ts>.json`
 and a screenshot next to it. Elements below the fold are listed too (marked
 `↓` on the CLI); a `scrollTo` on them works as usual.
+The result includes `target.status` (`available` or `blocked`). Common
+security-verification and login pages return `blocked` with a reason: their
+selectors describe the interstitial, not the requested product. Inspection
+still writes its JSON and screenshot for diagnosis; `init --from-url` stops
+instead of drafting scenes from a blocked page. Open the page with an
+authenticated profile or use supported setup seeding, then inspect again.
 
 `inspect` runs the storyboard's **`setup`** block by default — preflight hook,
 `storageState`, cookies — so a gated app scans as the logged-in user instead of
@@ -763,7 +769,7 @@ for UI that re-renders under the cursor) and `anchor?` (land this action on a
   out of the way before a reveal, or point at what the narration names.
 - `{op:"assert", target?, textMatches?, url?, timeoutMs?=5000}` — **prove the
   payoff happened**: polls until `target` is visible (and its text matches
-  `textMatches`, JS regex, no inline flags — use `[Cc]onfirmed`) and/or the
+  `textMatches`, RE2-compatible regex, no inline flags — use `[Cc]onfirmed`) and/or the
   page URL matches `url`; otherwise **fails the take with a named error**
   (`assert failed after 5000ms: text "…" does not match /…/`). Put one after
   the moment the demo exists to show (order confirmed, item added) so a
@@ -1318,6 +1324,15 @@ all) using each scene's measured duration from `voice.json`; only the timing
 *within* a scene is approximate (words spread proportional to length, not
 measured speech rhythm). `captions` logs a one-line reminder of this whenever
 the resolved language isn't English.
+
+The STT caption step compares each scene's recognized words with its known
+script and warns when at least 20% differ. Review those captions before
+publishing. `aidemo captions <dir> --align-script` uses the script's spelling
+and punctuation while retaining the measured STT word times; words missing
+from the transcript are placed between their nearest timed neighbours. This
+is useful for misheard names and inflected words. If the spoken narration
+actually differs from the script, correct the script or use the original STT
+captions instead.
 
 **Cue segmentation.** Cues are broken at sentence ends first, then at clause
 punctuation, then before a conjunction, and only then on length — so a cue

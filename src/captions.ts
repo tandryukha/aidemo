@@ -96,6 +96,8 @@ const MAX_PROMPT_CHARS = 900;
 export interface CaptionsSttOptions extends SceneProgress {
   /** ISO-639-1/BCP-47 language hint for Whisper, overriding --lang / storyboard.language. */
   language?: string;
+  /** Use storyboard spelling/punctuation while retaining STT word timing. */
+  alignScript?: boolean;
 }
 
 /**
@@ -168,6 +170,7 @@ export async function generateCaptions(
     config,
     prompt,
     language,
+    ...(opts.alignScript ? { alignScript: true } : {}),
   });
   const prior = await readCaptionsManifest(project);
   if (prior && prior.mode === "stt" && prior.inputHash === inputHash) {
@@ -197,13 +200,32 @@ export async function generateCaptions(
   if (words.length === 0) {
     log("no word timestamps returned; captions may be empty");
   }
-  const cues = groupWords(words, sceneEnds, seg);
+  const sceneWords = splitWordsByScene(words, ids, sceneEnds, config.gapMs);
+  let captionWords = words;
+  if (storyboard && sceneEnds.length === storyboard.scenes.length) {
+    const aligned: Word[] = [];
+    let sceneStartMs = 0;
+    for (let i = 0; i < storyboard.scenes.length; i++) {
+      const scene = storyboard.scenes[i];
+      const timed = sceneWords[i]?.words ?? [];
+      const result = alignCaptionWords(scene.narration, timed, sceneEnds[i] - sceneStartMs);
+      if (result.driftPct >= 20) {
+        log(`⚠ caption drift in scene ${scene.id}: ${result.driftPct}% of script words differ from STT; ${opts.alignScript ? "script text aligned to STT timing — review against the audio" : "review captions or use --align-script"}`);
+      }
+      for (const w of result.words) aligned.push({ ...w, start: w.start + sceneStartMs / 1000, end: w.end + sceneStartMs / 1000 });
+      sceneStartMs = sceneEnds[i] + config.gapMs;
+    }
+    if (opts.alignScript) captionWords = aligned;
+  } else if (opts.alignScript) {
+    throw new Error("--align-script requires a storyboard and matching voice scene timings");
+  }
+  const cues = groupWords(captionWords, sceneEnds, seg);
   await writeCaptionFiles(project, cues);
   await writeCaptionsManifest(project, {
     mode: "stt",
     inputHash,
     config,
-    scenes: splitWordsByScene(words, ids, sceneEnds, config.gapMs),
+    scenes: opts.alignScript ? splitWordsByScene(captionWords, ids, sceneEnds, config.gapMs) : sceneWords,
     cues,
   });
   reportDone();
@@ -243,6 +265,62 @@ function splitWordsByScene(
     startMs = endMs + gapMs;
   }
   return out;
+}
+
+/** Align written words to measured STT timestamps. Inserted script words share
+ * the space between their nearest timed neighbours; STT-only words are dropped. */
+export function alignCaptionWords(
+  narration: string,
+  spoken: Word[],
+  durationMs: number
+): { words: Word[]; driftPct: number } {
+  const script = narration.split(/\s+/).filter(Boolean);
+  if (!script.length) return { words: [], driftPct: spoken.length ? 100 : 0 };
+  if (!spoken.length) return { words: deriveSceneWords(narration, durationMs), driftPct: 100 };
+  const norm = (s: string) => s.normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  const n = script.length, m = spoken.length;
+  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = 0; i <= n; i++) dp[i][0] = i;
+  for (let j = 0; j <= m; j++) dp[0][j] = j;
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+    dp[i][j] = Math.min(
+      dp[i - 1][j - 1] + (norm(script[i - 1]) === norm(spoken[j - 1].word) ? 0 : 1),
+      dp[i - 1][j] + 1,
+      dp[i][j - 1] + 1
+    );
+  }
+  const matched: Array<number | undefined> = Array(n).fill(undefined);
+  let i = n, j = m;
+  while (i && j) {
+    const cost = norm(script[i - 1]) === norm(spoken[j - 1].word) ? 0 : 1;
+    if (dp[i][j] === dp[i - 1][j - 1] + cost) {
+      matched[--i] = --j;
+    } else if (dp[i][j] === dp[i - 1][j] + 1) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+  const duration = Math.max(0, durationMs / 1000);
+  const words: Word[] = script.map((word, k) => {
+    const at = matched[k];
+    return at === undefined ? { word, start: 0, end: 0 } : {
+      word, start: Math.max(0, spoken[at].start), end: Math.min(duration, spoken[at].end),
+    };
+  });
+  for (let k = 0; k < n;) {
+    if (matched[k] !== undefined) { k++; continue; }
+    const first = k;
+    while (k < n && matched[k] === undefined) k++;
+    const start = first ? words[first - 1].end : 0;
+    const end = k < n ? words[k].start : duration;
+    const span = Math.max(0, end - start);
+    for (let t = first; t < k; t++) {
+      words[t].start = start + span * (t - first) / (k - first);
+      words[t].end = start + span * (t - first + 1) / (k - first);
+    }
+  }
+  return { words, driftPct: Math.round(100 * dp[n][m] / Math.max(n, m)) };
 }
 
 /** Scene-relative words for a scene; script-timed fallback when the manifest has none. */
