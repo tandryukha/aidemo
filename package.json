@@ -1,6 +1,6 @@
 {
   "name": "@tandryukha/aidemo",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "license": "MIT",
   "description": "AI Demo Engine — turn a storyboard into a narrated, captioned product demo video",
   "type": "module",
