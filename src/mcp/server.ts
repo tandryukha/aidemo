@@ -1131,6 +1131,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         .boolean()
         .optional()
         .describe("approximate captions from the script — no network/STT"),
+      alignScript: z.boolean().optional().describe("use script spelling and punctuation with STT word timing"),
       params: PARAMS_INPUT,
       lang: LANG_INPUT,
     },
@@ -1142,7 +1143,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         if (args.offline) {
           await generateCaptionsOffline(lp, sb, sceneProgress(job));
         } else {
-          await generateCaptions(lp, sb, sceneProgress(job));
+          await generateCaptions(lp, sb, { ...sceneProgress(job), alignScript: args.alignScript });
         }
         return {
           srt: lp.captionsSrtPath,
@@ -1375,6 +1376,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         });
         const file = project.p("logs", `inspect-${stamp}.json`);
         await writeJson(file, res);
+        if (res.target.status === "blocked") log(`inspect blocked: ${res.target.reason}`);
         log(`inspect: ${res.elements.length} element(s), ${res.headings.length} heading(s) → ${file}`);
         return { ...res, file };
       })

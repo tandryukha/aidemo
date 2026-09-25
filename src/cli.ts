@@ -664,6 +664,9 @@ program
         process.stdout.write(JSON.stringify(res, null, 2) + "\n");
         return;
       }
+      if (res.target.status === "blocked") {
+        process.stdout.write(`⚠ inspect blocked: ${res.target.reason}\n`);
+      }
       process.stdout.write(`${res.title || "(untitled)"} — ${res.finalUrl}\n`);
       if (res.headings.length) {
         process.stdout.write(
@@ -967,6 +970,7 @@ program
   .option("--param <kv>", PARAM_OPT_DESC, collectKv, [])
   .option("--lang <code>", LANG_OPT_DESC)
   .option("--langs <codes>", LANGS_OPT_DESC)
+  .option("--align-script", "restore storyboard spelling and punctuation using STT word timing", false)
   .option(
     "--stt-lang <code>",
     "override the Whisper STT language hint (ISO-639-1, e.g. et) — defaults to " +
@@ -982,6 +986,7 @@ program
         lang?: string;
         langs?: string;
         sttLang?: string;
+        alignScript?: boolean;
       }
     ) => {
       const langs = langsFrom(opts);
@@ -998,7 +1003,7 @@ program
         if (opts.offline) {
           await generateCaptionsOffline(project, sb);
         } else {
-          await generateCaptions(project, sb, { language: opts.sttLang });
+          await generateCaptions(project, sb, { language: opts.sttLang, alignScript: opts.alignScript });
         }
       }
     }

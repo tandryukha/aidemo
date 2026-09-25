@@ -266,6 +266,9 @@ export async function scaffoldDemo(
       screenshotPath: project.p("logs", "inspect-init.png"),
     });
     await fs.writeFile(project.p("logs", "inspect-init.json"), JSON.stringify(res, null, 2));
+    if (res.target.status === "blocked") {
+      throw new Error(`Cannot draft from ${opts.fromUrl}: ${res.target.reason}. See logs/inspect-init.json and inspect-init.png.`);
+    }
     await fs.writeFile(project.p("input", "brief.md"), briefFromInspect(name, res));
     await fs.writeFile(project.storyboardPath, storyboardFromInspect(name, res));
     ok(

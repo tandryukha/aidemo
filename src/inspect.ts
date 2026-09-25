@@ -36,6 +36,8 @@ export interface InspectElement {
 }
 
 export interface InspectResult {
+  /** Whether the requested product UI was actually available to inspect. */
+  target: { status: "available" | "blocked"; reason?: string };
   url: string;
   finalUrl: string;
   title: string;
@@ -174,16 +176,34 @@ const SCAN_JS = String.raw`(() => {
     src: (f.getAttribute("src") || "").slice(0, 200),
     selector: f.id && stableId(f.id) ? "#" + cssEsc(f.id) : (f.getAttribute("name") ? 'iframe[name="' + q(f.getAttribute("name")) + '"]' : "iframe:nth-of-type(" + (i + 1) + ")"),
   }));
-  return { title: document.title, elements: items, headings, iframes, truncated: all.length > LIMIT && items.length >= LIMIT, total: all.length };
+  return { title: document.title, bodyText: (document.body?.innerText || "").slice(0, 1200), elements: items, headings, iframes, truncated: all.length > LIMIT && items.length >= LIMIT, total: all.length };
 })()`;
 
 interface ScanResult {
   title: string;
+  bodyText: string;
   elements: InspectElement[];
   headings: Array<{ level: number; text: string }>;
   iframes: Array<{ name: string; src: string; selector: string }>;
   truncated: boolean;
   total: number;
+}
+
+/** Conservative signal: report a challenge without guessing how to solve it. */
+export function inspectTargetStatus(scan: Pick<ScanResult, "title" | "headings" | "bodyText">): InspectResult["target"] {
+  const title = scan.title.trim().toLowerCase();
+  const headings = scan.headings.map((h) => h.text.toLowerCase()).join(" ");
+  const body = scan.bodyText.toLowerCase();
+  if (/^(just a moment|attention required|security verification|checking your browser)/i.test(title) ||
+      /performing security verification|verify (you are|that you are) human|checking your browser/i.test(headings) ||
+      (/security verification|verify you are human/i.test(body) && /challenge|cloudflare|captcha/i.test(body))) {
+    return { status: "blocked", reason: "security verification page; the requested product UI was not inspected" };
+  }
+  if (/^(sign in|log in|login|authentication required)$/i.test(scan.title.trim()) &&
+      /sign in|log in|email|password/i.test(body)) {
+    return { status: "blocked", reason: "login page; the requested product UI was not inspected" };
+  }
+  return { status: "available" };
 }
 
 /** Scan one frame for visible interactive elements (see SCAN_JS). */
@@ -233,6 +253,7 @@ export async function inspectPage(opts: InspectOptions): Promise<InspectResult> 
       screenshot = opts.screenshotPath;
     }
     return {
+      target: inspectTargetStatus(main),
       url: opts.url,
       finalUrl: page.url(),
       title: main.title,
