@@ -1,5 +1,5 @@
 {
-  "engine": { "minVersion": "0.2.0" },
+  "engine": { "minVersion": "0.4.0" },
   "site": {
     "origin": "https://aidemo.top",
     "base": "/blog",
@@ -56,6 +56,7 @@
   "citations": {
     "policy": "resolve",
     "maxUnknown": 0,
+    "contact": { "tool": "aidemo-blog", "email": "tandryukha@gmail.com" },
     "resolverUA": "Mozilla/5.0 (compatible; AidemoBlogValidator/1.0; +https://aidemo.top)"
   },
   "images": {
@@ -74,5 +75,6 @@
   },
   "wave": { "namespace": "aidemo", "articlesPerWave": 5, "cadencePerDay": 5 },
   "cta": { "banner": "templates/banner.html" },
-  "publish": { "adapter": "static", "outDir": "dist", "robots": false }
+  "publish": { "adapter": "static", "outDir": "dist", "robots": false },
+  "lifecycle": { "enabled": true, "gsc": { "siteUrl": "sc-domain:aidemo.top" } }
 }

@@ -87,7 +87,7 @@ Feedback: <N> engine issues filed (<links>) / 0 with reason
      here. Start empty; append as aidemo accumulates scars. -->
 
 - **Migration COMPLETED 2026-07-20** — waves now run entirely on the engine
-  (`#stable` v0.2.0) via THIS skill. The old local `blog/scripts/*` +
+  (engine v0.4.0) via THIS skill. The old local `blog/scripts/*` +
   `ops/lane-prompt.md` + the pre-engine `blog-wave` skill/workflows were
   deleted (git history preserves them). `validate` is 102/102 and the engine
   bake is byte-identical to `docs/blog` (422 files). See `blog/README.md`
@@ -115,4 +115,13 @@ Feedback: <N> engine issues filed (<links>) / 0 with reason
   (`ps aux | grep sdxl_backend` before rendering).
 - `git commit -s` (DCO) is required in this repo; blog commits are
   pathspec-only, straight to main.
+- **Lifecycle / GSC (2026-09-29).** `lifecycle.enabled: true`, `gsc.siteUrl:
+  sc-domain:aidemo.top`; the service account has Restricted read. The key is NEVER
+  in git: `export GSC_CREDENTIALS=$HOME/dropshipping-irondust/secrets/google-service-account.json`
+  before `blog-engine gsc sync`. Raw pulls (`blog/data/gsc/`) are gitignored;
+  proposals/reports in `blog/data/lifecycle/` are committed. PROPOSE-ONLY: `gsc
+  sync -> score -> disposition --dry-run -> human review`; never `disposition
+  apply` without the owner or during a Google update rollout. Note: a lifecycle
+  `noindex/301/410` changes baked output, and `docs/blog/` is the live deploy, so
+  any apply must be followed by a reviewed re-bake. See `blog/LIFECYCLE-READINESS.md`.
 <!-- consumer:end -->

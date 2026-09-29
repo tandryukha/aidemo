@@ -1,0 +1,1037 @@
+{
+  "asOf": "2026-09-28",
+  "window": {
+    "start": "2026-07-01",
+    "end": "2026-09-28"
+  },
+  "weights": {
+    "primaryClicks": 5,
+    "otherClicks": 1,
+    "conversions": 10,
+    "impressions": 0.0005,
+    "fit": 1
+  },
+  "primaryCountry": null,
+  "scores": [
+    {
+      "slug": "cap-vs-screen-studio",
+      "clicks": 0,
+      "impressions": 142,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.071
+    },
+    {
+      "slug": "demo-environments-and-seed-data",
+      "clicks": 0,
+      "impressions": 123,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0615
+    },
+    {
+      "slug": "camtasia-alternatives",
+      "clicks": 0,
+      "impressions": 120,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.06
+    },
+    {
+      "slug": "automating-product-screenshots",
+      "clicks": 0,
+      "impressions": 107,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0535
+    },
+    {
+      "slug": "best-frame-rate-for-screen-recording",
+      "clicks": 0,
+      "impressions": 97,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0485
+    },
+    {
+      "slug": "arcade-vs-navattic-vs-storylane",
+      "clicks": 0,
+      "impressions": 56,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.028
+    },
+    {
+      "slug": "app-store-screenshot-automation",
+      "clicks": 0,
+      "impressions": 55,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0275
+    },
+    {
+      "slug": "best-resolution-for-screen-recording",
+      "clicks": 0,
+      "impressions": 50,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.025
+    },
+    {
+      "slug": "headless-screen-recording",
+      "clicks": 0,
+      "impressions": 46,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.023
+    },
+    {
+      "slug": "synthesia-alternatives-for-software-demos",
+      "clicks": 0,
+      "impressions": 37,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0185
+    },
+    {
+      "slug": "ai-documentation-tools",
+      "clicks": 0,
+      "impressions": 35,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0175
+    },
+    {
+      "slug": "record-a-terminal-session",
+      "clicks": 0,
+      "impressions": 28,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.014
+    },
+    {
+      "slug": "agent-friendly-app-instrumentation",
+      "clicks": 0,
+      "impressions": 27,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0135
+    },
+    {
+      "slug": "descript-alternatives-for-demo-editing",
+      "clicks": 0,
+      "impressions": 21,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0105
+    },
+    {
+      "slug": "product-demo-storytelling",
+      "clicks": 0,
+      "impressions": 20,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.01
+    },
+    {
+      "slug": "demos-as-code",
+      "clicks": 0,
+      "impressions": 16,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.008
+    },
+    {
+      "slug": "gifs-in-documentation",
+      "clicks": 0,
+      "impressions": 16,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.008
+    },
+    {
+      "slug": "screen-studio-alternatives",
+      "clicks": 0,
+      "impressions": 15,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0075
+    },
+    {
+      "slug": "mcp-servers-for-media-generation",
+      "clicks": 0,
+      "impressions": 13,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0065
+    },
+    {
+      "slug": "record-screen-on-linux",
+      "clicks": 0,
+      "impressions": 13,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0065
+    },
+    {
+      "slug": "docs-that-test-themselves",
+      "clicks": 0,
+      "impressions": 12,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.006
+    },
+    {
+      "slug": "reproducible-demo-renders",
+      "clicks": 0,
+      "impressions": 11,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0055
+    },
+    {
+      "slug": "professional-screen-recordings",
+      "clicks": 0,
+      "impressions": 10,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.005
+    },
+    {
+      "slug": "detecting-ui-drift",
+      "clicks": 0,
+      "impressions": 9,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0045
+    },
+    {
+      "slug": "developer-education-screencasts",
+      "clicks": 0,
+      "impressions": 9,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0045
+    },
+    {
+      "slug": "screen-recording-without-cursor",
+      "clicks": 0,
+      "impressions": 9,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0045
+    },
+    {
+      "slug": "hide-notifications-while-recording",
+      "clicks": 0,
+      "impressions": 8,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.004
+    },
+    {
+      "slug": "loom-alternatives-for-product-demos",
+      "clicks": 0,
+      "impressions": 8,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.004
+    },
+    {
+      "slug": "obs-for-product-demos",
+      "clicks": 0,
+      "impressions": 8,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.004
+    },
+    {
+      "slug": "how-to-record-your-screen-in-high-quality",
+      "clicks": 0,
+      "impressions": 7,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0035
+    },
+    {
+      "slug": "nightly-demo-builds",
+      "clicks": 0,
+      "impressions": 6,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.003
+    },
+    {
+      "slug": "testing-demos-like-code",
+      "clicks": 0,
+      "impressions": 6,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.003
+    },
+    {
+      "slug": "selectors-that-survive-redesigns",
+      "clicks": 0,
+      "impressions": 5,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0025
+    },
+    {
+      "slug": "storyboard-design-patterns",
+      "clicks": 0,
+      "impressions": 5,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0025
+    },
+    {
+      "slug": "keeping-tutorial-libraries-current",
+      "clicks": 0,
+      "impressions": 4,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.002
+    },
+    {
+      "slug": "readme-gifs-that-update-themselves",
+      "clicks": 0,
+      "impressions": 3,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0015
+    },
+    {
+      "slug": "versioning-media-assets-in-git",
+      "clicks": 0,
+      "impressions": 3,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0015
+    },
+    {
+      "slug": "versioned-demos-per-release",
+      "clicks": 0,
+      "impressions": 2,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.001
+    },
+    {
+      "slug": "visual-regression-testing-tools",
+      "clicks": 0,
+      "impressions": 2,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.001
+    },
+    {
+      "slug": "social-cuts-for-product-launch",
+      "clicks": 0,
+      "impressions": 1,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0005
+    },
+    {
+      "slug": "visual-regression-testing-for-marketing-assets",
+      "clicks": 0,
+      "impressions": 1,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0.0005
+    },
+    {
+      "slug": "accessible-tutorial-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "ai-demo-video-generators",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "ai-voiceover-for-demo-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "api-documentation-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "app-preview-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "automated-product-demo-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "autoplay-video-on-website",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "b2b-demo-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "best-video-format-for-screen-recording",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "coding-agents-that-make-demo-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-background-music",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-call-to-action",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-captions",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-cost",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-hook",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-metrics",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-mistakes",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-on-landing-page",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-script-template",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-software-pricing",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-video-thumbnail",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "demo-videos-in-ci",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "deterministic-browser-automation-for-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "does-video-increase-conversion",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "embed-video-on-website",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "embedding-videos-in-docs-sites",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "feature-announcement-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "free-demo-video-software",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "how-long-should-a-demo-video-be",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "how-to-make-a-product-demo-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "interactive-demo-vs-video-demo",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "linkedin-video-for-b2b-software",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "measuring-documentation-video-effectiveness",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "microvideos-in-documentation",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "multi-language-product-demo-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "onboarding-walkthrough-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "open-source-demo-video-tools",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "personalized-demo-videos-at-scale",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "product-hunt-launch-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "product-launch-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "product-onboarding-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "product-walkthrough-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "realistic-demo-data-generation",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "record-a-browser-tab",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "record-screen-with-audio",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "release-notes-videos",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "reviewing-video-diffs-in-pull-requests",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "saas-demo-video-examples",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "sales-demo-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "screen-recording-aspect-ratio",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "screen-recording-with-webcam",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "support-videos-knowledge-base",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "video-as-code-tools",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "video-documentation",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "video-in-email-marketing",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "video-marketing-for-software",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "video-seo-for-product-pages",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "video-vs-written-documentation",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "where-to-use-your-demo-video",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "why-product-demos-go-stale",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    },
+    {
+      "slug": "youtube-marketing-for-dev-tools",
+      "clicks": 0,
+      "impressions": 0,
+      "primaryClicks": 0,
+      "otherClicks": 0,
+      "conversions": 0,
+      "fit": 0,
+      "score": 0
+    }
+  ]
+}
