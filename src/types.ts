@@ -842,8 +842,10 @@ export const OutputSchema = z
     /**
      * Drop the browser's blank pre-paint at the very start of the video, so
      * the demo opens on the product instead of on ~0.5 s of white under the
-     * first caption (issue #47). At most `blankOpenCapMs` of the leading flat
-     * span is kept. Default false (unchanged opening).
+     * first caption (issue #47). At most `blankOpenCapMs` of the leading blank
+     * span is kept. Blank = empty (one colour, no text/outlines), not merely
+     * static: a motionless terminal or page is never trimmed (issue #78).
+     * Default false (unchanged opening).
      */
     trimLeadingBlank: z.boolean().optional(),
     /** With `trimLeadingBlank`: leading blank kept, ms. Default 100. */

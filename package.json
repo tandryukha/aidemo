@@ -28,6 +28,7 @@
     "build": "tsc --noEmit",
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
+    "test:blank-open": "tsx --test test/blank-open.mjs",
     "mcp-env-test": "node test/mcp-env.mjs",
     "guard-openai-key": "tsx scripts/guard-openai-key.ts",
     "sync:plugin-skill": "cp .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md",
