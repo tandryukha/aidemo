@@ -165,8 +165,9 @@ Voice/captions need `OPENAI_API_KEY` in `.env` — **or** `AIDEMO_TTS_PROVIDER=l
 [docs/LOCAL_MODELS.md](docs/LOCAL_MODELS.md). No Playwright browser download is
 needed — the engine uses your system Chrome (`channel: "chrome"`; see
 [Setup](#setup) to use a different browser). The one Playwright download is
-its ~2 MB ffmpeg helper, which records the take: `aidemo doctor` checks for it
-and prints the exact install command (`npx playwright install ffmpeg`).
+its ~2 MB ffmpeg helper, which encodes the take: the first take installs it
+automatically (`AIDEMO_NO_AUTO_INSTALL=1` to manage it yourself with
+`npx playwright install ffmpeg`).
 
 [![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)
 
@@ -253,9 +254,9 @@ Codex).
 
 ## Setup
 
-Prereqs: **Node 22+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`, and
-Playwright's ~2 MB ffmpeg helper that records the take (one per Playwright
-version; `aidemo doctor` prints the exact install command).
+Prereqs: **Node 22+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`. The
+first take also fetches Playwright's ~2 MB ffmpeg helper, which encodes the
+recording (once per Playwright version; `AIDEMO_NO_AUTO_INSTALL=1` opts out).
 Developed and tested on macOS; Linux works for the default (Playwright) capture
 and `--capture obs`. Run `aidemo doctor` to check your setup.
 
@@ -298,9 +299,11 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
   `postinstall`/`preinstall`).
 - **Network is user-initiated only:** `api.openai.com` (only `voice`/`captions`,
   your key — or a local server via `OPENAI_BASE_URL`), `api.elevenlabs.io` (opt-in),
-  `huggingface.co` (download-only, once, for `AIDEMO_TTS_PROVIDER=local`), and
+  `huggingface.co` (download-only, once, for `AIDEMO_TTS_PROVIDER=local`),
+  `cdn.playwright.dev` (download-only, once per Playwright version: the ~2 MB
+  ffmpeg helper that encodes the take; off with `AIDEMO_NO_AUTO_INSTALL=1`), and
   `github.com` (your own `gh`, for `aidemo feedback`). Recording/composing are
-  fully local. The MCP server is **stdio-only** — no listener.
+  otherwise fully local. The MCP server is **stdio-only** — no listener.
 - **Small, auditable surface:** ~20 source files, 7 runtime deps, MIT. Pin an
   immutable ref if you're wary of the moving `#stable` tag:
   `npx -y github:tandryukha/aidemo#v0.14.0` (any released tag).

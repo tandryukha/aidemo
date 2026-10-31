@@ -557,7 +557,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "Check prereqs: node, ffmpeg, Chrome (or the AIDEMO_CHROME_CHANNEL / " +
         "AIDEMO_CHROME_EXECUTABLE browser in use), TTS/STT endpoint (flags " +
         "LLM-only servers like Ollama), API key, playwright + its ffmpeg " +
-        "helper (records the take; missing = every take fails), installed skill.",
+        "helper (records the take; installed on the first take unless " +
+        "AIDEMO_NO_AUTO_INSTALL=1), installed skill.",
       inputSchema: {
         dir: z.string().optional().describe("repo to check for an installed skill"),
       },
@@ -593,6 +594,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
             path: z.string(),
             revision: z.string(),
             install: z.string().describe("exact command to install it"),
+            autoInstall: z
+              .boolean()
+              .describe("the first take installs it (off with AIDEMO_NO_AUTO_INSTALL=1)"),
           })
           .nullable()
           .describe("Playwright's ffmpeg helper the built-in capture records with"),

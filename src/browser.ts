@@ -8,11 +8,13 @@
  * the options are exactly the engine's historical `{ channel: "chrome", ... }`.
  */
 import { chromium, type Browser, type BrowserContext, type LaunchOptions } from "playwright";
-import { readFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { BrowserSetupError, chromeLaunchOptions, type ChromeLaunchTarget } from "./config.js";
+import { log, ok } from "./util.js";
 
 type PersistentOptions = NonNullable<Parameters<typeof chromium.launchPersistentContext>[1]>;
 
@@ -34,7 +36,13 @@ const FFMPEG_HELPER_EXE: Partial<Record<NodeJS.Platform, string>> = {
  * ms-playwright cache dir). `install` is the exact command for THIS engine's
  * Playwright. null when the location can't be determined.
  */
-export function recorderFfmpeg(): { path: string; revision: string; install: string } | null {
+export function recorderFfmpeg(): {
+  path: string;
+  revision: string;
+  /** This engine's playwright/cli.js — runs Playwright's own installer. */
+  cli: string;
+  install: string;
+} | null {
   try {
     const exe = FFMPEG_HELPER_EXE[process.platform];
     if (!exe) return null;
@@ -58,6 +66,7 @@ export function recorderFfmpeg(): { path: string; revision: string; install: str
     return {
       path: join(registry, `ffmpeg-${revision}`, exe),
       revision,
+      cli,
       install: `node "${cli}" install ffmpeg`,
     };
   } catch {
@@ -69,6 +78,72 @@ function defaultPlaywrightCacheDir(): string {
   if (process.platform === "darwin") return join(homedir(), "Library", "Caches");
   if (process.platform === "win32") return process.env.LOCALAPPDATA || join(homedir(), "AppData", "Local");
   return process.env.XDG_CACHE_HOME || join(homedir(), ".cache");
+}
+
+/** AIDEMO_NO_AUTO_INSTALL=1: never download the helper (air-gapped / managed caches). */
+export const recorderAutoInstall = (): boolean =>
+  !/^(1|true|yes)$/i.test(process.env.AIDEMO_NO_AUTO_INSTALL?.trim() ?? "");
+
+/**
+ * Before a built-in capture launches, make sure Playwright's ffmpeg helper is
+ * there, installing it with Playwright's own installer when it is not, so a
+ * fresh install records out of the box (the GitHub Action runs the same step).
+ * ~2 MB from Playwright's CDN, once per helper revision.
+ * PLAYWRIGHT_SKIP_BROWSER_GC=1 keeps the installer from pruning browsers other
+ * Playwright projects on the machine installed. With AIDEMO_NO_AUTO_INSTALL=1,
+ * an unknown layout or an already-installed helper this is a no-op (a missing
+ * helper then fails the launch with explainLaunchError's install command).
+ */
+export async function ensureRecorderFfmpeg(): Promise<void> {
+  const helper = recorderFfmpeg();
+  if (!helper || existsSync(helper.path) || !recorderAutoInstall()) return;
+  log(
+    `installing Playwright's ffmpeg helper (revision ${helper.revision}, ~2 MB, once per ` +
+      `Playwright version; it encodes the take — AIDEMO_NO_AUTO_INSTALL=1 skips this)`
+  );
+  let output = "";
+  const keep = (d: Buffer | string): void => {
+    output = (output + d.toString()).slice(-4000);
+  };
+  const code = await new Promise<number | null>((done) => {
+    const child = spawn(process.execPath, [helper.cli, "install", "ffmpeg"], {
+      env: { ...process.env, PLAYWRIGHT_SKIP_BROWSER_GC: "1" },
+      // Off stdout: under `aidemo mcp`, stdout is the JSON-RPC channel.
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    child.stdout.on("data", keep);
+    child.stderr.on("data", keep);
+    const timer = setTimeout(() => child.kill(), 5 * 60_000);
+    child.on("error", (err) => {
+      keep(String(err));
+      clearTimeout(timer);
+      done(null);
+    });
+    child.on("close", (c) => {
+      clearTimeout(timer);
+      done(c);
+    });
+  });
+  if (code !== 0 || !existsSync(helper.path)) {
+    // The installer prints the cause as "Error: …" between stack frames and an
+    // error-object dump; surface that line, not the frames.
+    const lines = output
+      .replace(/\u001b\[[0-9;]*m/g, "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith("at ") && !/^[{}]$/.test(l));
+    // Root cause first ("connect ECONNREFUSED …", "server returned code 403"),
+    // then the installer's own summary line.
+    const errors = [...new Set(lines.filter((l) => /error/i.test(l)))];
+    const why = (errors.length ? errors.slice(0, 2) : lines.slice(-1))
+      .map((l) => l.slice(0, 200))
+      .join(" — ");
+    throw new BrowserSetupError(
+      `could not install Playwright's ffmpeg helper (revision ${helper.revision}), which the ` +
+        `take is recorded with${why ? `: ${why}` : ""}. Install it yourself: ${helper.install}`
+    );
+  }
+  ok(`Playwright ffmpeg helper installed (revision ${helper.revision})`);
 }
 
 /** A launch that failed on Playwright's missing ffmpeg helper, not on the browser. */

@@ -25,7 +25,12 @@ import {
   chromeLaunchOptions,
   type ChromeLaunchTarget,
 } from "./config.js";
-import { describeChromeTarget, probeConfiguredBrowser, recorderFfmpeg } from "./browser.js";
+import {
+  describeChromeTarget,
+  probeConfiguredBrowser,
+  recorderAutoInstall,
+  recorderFfmpeg,
+} from "./browser.js";
 import { localTtsStatus } from "./voice-local.js";
 import { Project } from "./project.js";
 import { STARTER_BRIEF, STARTER_STORYBOARD, briefFromInspect, storyboardFromInspect } from "./starter.js";
@@ -661,10 +666,17 @@ export interface DoctorReport {
   playwright: boolean;
   /**
    * Playwright's ffmpeg helper for THIS engine's Playwright — the encoder the
-   * built-in capture records every take with (see recorderFfmpeg). null when
-   * its location can't be determined.
+   * built-in capture records every take with (see recorderFfmpeg). Missing is
+   * only fatal with `autoInstall` off: the first take installs it otherwise.
+   * null when its location can't be determined.
    */
-  recorderFfmpeg: { found: boolean; path: string; revision: string; install: string } | null;
+  recorderFfmpeg: {
+    found: boolean;
+    path: string;
+    revision: string;
+    install: string;
+    autoInstall: boolean;
+  } | null;
   skill: {
     target: string;
     installed: { version: string; stableAvailable: string | null } | null;
@@ -737,7 +749,15 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
         : {}),
     },
     playwright: playwrightOk,
-    recorderFfmpeg: helper ? { found: await exists(helper.path), ...helper } : null,
+    recorderFfmpeg: helper
+      ? {
+          found: await exists(helper.path),
+          path: helper.path,
+          revision: helper.revision,
+          install: helper.install,
+          autoInstall: recorderAutoInstall(),
+        }
+      : null,
     skill: {
       target,
       installed: manifest
@@ -755,7 +775,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
       report.ffmpeg &&
       report.browser.found &&
       report.playwright &&
-      (report.recorderFfmpeg?.found ?? true) &&
+      (report.recorderFfmpeg ? report.recorderFfmpeg.found || report.recorderFfmpeg.autoInstall : true) &&
       // Local TTS needs no key: voice is in-process, captions auto-fall-back
       // to the offline derivation in `render`.
       (report.apiKey !== "missing" || report.tts.provider === "local") &&
@@ -822,13 +842,18 @@ export async function doctor(dir: string | undefined): Promise<void> {
   );
   if (r.playwright) ok(`playwright: resolvable`);
   else fail(`playwright: not installed`);
-  if (r.recorderFfmpeg?.found) {
-    ok(`playwright ffmpeg helper: revision ${r.recorderFfmpeg.revision} (records the take)`);
-  } else if (r.recorderFfmpeg) {
+  const helper = r.recorderFfmpeg;
+  if (helper?.found) {
+    ok(`playwright ffmpeg helper: revision ${helper.revision} (records the take)`);
+  } else if (helper?.autoInstall) {
+    log(
+      `playwright ffmpeg helper: revision ${helper.revision} not installed yet — the first ` +
+        `take installs it (~2 MB from Playwright's CDN); or now: ${helper.install}`
+    );
+  } else if (helper) {
     fail(
-      `playwright ffmpeg helper: revision ${r.recorderFfmpeg.revision} NOT FOUND at ` +
-        `${r.recorderFfmpeg.path} — every take fails without it (~2 MB, once per ` +
-        `Playwright version): ${r.recorderFfmpeg.install}`
+      `playwright ffmpeg helper: revision ${helper.revision} NOT FOUND at ${helper.path} and ` +
+        `AIDEMO_NO_AUTO_INSTALL is set — every take fails without it: ${helper.install}`
     );
   }
 

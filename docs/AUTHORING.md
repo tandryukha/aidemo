@@ -1256,9 +1256,14 @@ CLI. If nothing came up, skip this.
   …) is set; the executable wins. Use `chromium` when a managed Chrome closes
   the automated session after a few seconds ("Target page, context or browser
   has been closed").
-- `doctor` checks Node, ffmpeg, the browser in use, the TTS/STT endpoint
-  (and flags LLM-only servers like Ollama, which have no audio endpoints — point
-  `OPENAI_BASE_URL` at a speech server such as speaches instead).
+- `doctor` checks Node (22+), ffmpeg, the browser in use, Playwright's ffmpeg
+  helper, the TTS/STT endpoint (and flags LLM-only servers like Ollama, which
+  have no audio endpoints — point `OPENAI_BASE_URL` at a speech server such as
+  speaches instead).
+- The first take installs Playwright's ~2 MB ffmpeg helper (it encodes the
+  recording; once per Playwright version) and logs `installing Playwright's
+  ffmpeg helper`. If that download is blocked, the error names the manual
+  command; `AIDEMO_NO_AUTO_INSTALL=1` turns the download off.
 
 ## Import from Playwright (trace or test file)
 

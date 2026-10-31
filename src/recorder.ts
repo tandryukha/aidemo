@@ -1,4 +1,4 @@
-import { describeChromeTarget, launchChromePersistent } from "./browser.js";
+import { describeChromeTarget, ensureRecorderFfmpeg, launchChromePersistent } from "./browser.js";
 import { promises as fs } from "node:fs";
 import {
   TimelineSchema,
@@ -315,6 +315,10 @@ export async function record(
   }
   const screenCapPath = join(videoDir, "capture.mkv");
   await fs.rm(screenCapPath, { force: true });
+
+  // The built-in capture encodes the take with Playwright's ffmpeg helper,
+  // which a fresh install (or a Playwright upgrade) may not have yet.
+  if (!external) await ensureRecorderFfmpeg();
 
   let context;
   try {
