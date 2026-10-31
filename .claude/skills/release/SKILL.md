@@ -31,11 +31,21 @@ surface only failures + final status.
    For engine changes since the last tag, run the `verify` skill (fixture e2e)
    before releasing.
 
-2. **Bump** (version lives in one place — package.json):
+2. **Bump** (the version lives in package.json; plugin.json and server.json
+   mirror it) and write the **release commit body = the release notes**:
    ```bash
    npm version patch --no-git-tag-version    # or minor / major
-   git commit -asm "release: v$(node -p "require('./package.json').version")"
+   v=$(node -p "require('./package.json').version")
+   sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$v\"/" plugins/record-demo/.claude-plugin/plugin.json server.json
+   git commit -asF - <<MSG
+   release: v$v
+
+   - feat: what users get, one bullet per change (#issue)
+   - fix: …
+   MSG
    ```
+   release.yml prepends that body (trailers stripped) to GitHub's generated PR
+   list — a direct push has no PRs, so without it the notes are empty.
 
 3. **Push** — this is the ship step: once CI sees the version bump on main,
    the release goes out. Make sure the user actually wants a release cut (a
@@ -56,8 +66,11 @@ surface only failures + final status.
    v=vX.Y.Z
    git tag -a "$v" -m "$v" && git push origin "$v"
    git tag -f stable && git push -f origin stable
-   gh release create "$v" --generate-notes
+   gh release create "$v" --notes "$(git log -1 --format=%b "$v")" --generate-notes
    ```
+
+6. **Fix notes after the fact** — Actions → release → Run workflow with
+   `notes_tag: vX.Y.Z` re-renders that release's notes from its commit.
 
 ## Gotchas
 

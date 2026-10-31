@@ -7,6 +7,13 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      notes_tag:
+        description: >-
+          Rewrite the GitHub Release notes of an existing tag (e.g. v0.17.0)
+          from its release commit, instead of cutting a release
+        required: false
+        default: ""
 
 # Least privilege: the workflow itself needs nothing; the one job that tags,
 # releases and publishes asks for exactly what it uses.
@@ -15,6 +22,7 @@ permissions:
 
 jobs:
   release:
+    if: github.event_name != 'workflow_dispatch' || inputs.notes_tag == ''
     runs-on: ubuntu-latest
     permissions:
       contents: write # create the tag, move `stable`, publish the Release
@@ -65,9 +73,16 @@ jobs:
           git tag -f stable
           git push -f origin stable
 
-          # GitHub Release (create once).
+          # GitHub Release (create once). Notes = the release commit's body
+          # (the human summary of what shipped; direct pushes have no PRs for
+          # --generate-notes to list), trailers stripped, prepended to the
+          # generated PR list + compare link.
           if ! gh release view "$v" >/dev/null 2>&1; then
-            gh release create "$v" --title "$v" --generate-notes
+            summary="$(git log -1 --format=%b HEAD \
+              | grep -viE '^(Co-Authored-By|Claude-Session|Signed-off-by):' || true)"
+            notes=()
+            if [ -n "$summary" ]; then notes=(--notes "$summary"); fi
+            gh release create "$v" --title "$v" "${notes[@]}" --generate-notes
           fi
 
       # npm publish — dormant until you opt in by setting repo variable
@@ -91,3 +106,36 @@ jobs:
       # formula from npm on a daily schedule with its own GITHUB_TOKEN — no
       # cross-repo PAT here. To pull it forward right after a release:
       #   gh workflow run bump.yml -R tandryukha/homebrew-aidemo
+
+  # Manual: rewrite an existing release's notes from its release commit (the
+  # same summary + generated PR list a new release gets). Run from the Actions
+  # tab with notes_tag=vX.Y.Z.
+  notes:
+    if: github.event_name == 'workflow_dispatch' && inputs.notes_tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # edit the Release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Rewrite release notes from the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.notes_tag }}
+        run: |
+          set -euo pipefail
+          case "$TAG" in v[0-9]*) ;; *) echo "::error::notes_tag must be a vX.Y.Z tag"; exit 1 ;; esac
+          git rev-parse -q --verify "refs/tags/$TAG" >/dev/null \
+            || { echo "::error::no tag $TAG"; exit 1; }
+          summary="$(git log -1 --format=%b "$TAG^{commit}" \
+            | grep -viE '^(Co-Authored-By|Claude-Session|Signed-off-by):' || true)"
+          # Previous version tag, for the generated PR list + compare link.
+          prev="$(git tag -l 'v*' --sort=-v:refname | grep -A1 -xF "$TAG" | sed -n 2p)"
+          generated="$(gh api -X POST "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" ${prev:+-f previous_tag_name="$prev"} --jq .body)"
+          { [ -n "$summary" ] && printf '%s\n\n' "$summary"; printf '%s\n' "$generated"; } > notes.md
+          gh release edit "$TAG" --notes-file notes.md
+          echo "::notice::rewrote the $TAG release notes ($(wc -l < notes.md) lines)"

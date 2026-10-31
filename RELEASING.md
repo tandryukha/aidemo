@@ -21,11 +21,24 @@ and, **only when `package.json` version changed**, creates the `vX.Y.Z` tag, mov
 `stable` onto it, and publishes a GitHub Release.
 
 ```bash
-npm version patch --no-git-tag-version   # or minor / major — bumps package.json only
-git commit -am "release: vX.Y.Z"
+npm version patch --no-git-tag-version   # or minor / major — package.json + lock
+v=$(node -p "require('./package.json').version")
+sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$v\"/" plugins/record-demo/.claude-plugin/plugin.json server.json
+git commit -asF - <<MSG
+release: v$v
+
+- feat: what users get, one bullet per change (#issue)
+- fix: …
+MSG
 git push origin main
 # → the `release` workflow cuts the tag + moves stable + creates the Release.
 ```
+
+**The release commit's body is the release notes.** The workflow prepends it
+(trailers like `Signed-off-by:` stripped) to GitHub's generated PR list, so a
+release pushed straight to `main` — with no PRs to list — still says what
+shipped. Write it for users. To re-render an existing release's notes from its tag's
+commit, run **Actions → release → Run workflow** with `notes_tag: vX.Y.Z`.
 
 (`npm version patch` without `--no-git-tag-version` also works — it commits and
 tags locally; `git push origin main --follow-tags` then pushes both, and CI is
@@ -43,7 +56,7 @@ you mean to ship.
 v=vX.Y.Z
 git tag -a "$v" -m "$v" && git push origin "$v"
 git tag -f stable && git push -f origin stable
-gh release create "$v" --generate-notes
+gh release create "$v" --notes "$(git log -1 --format=%b "$v")" --generate-notes
 ```
 
 If the workflow fails on permissions, enable
