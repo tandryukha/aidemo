@@ -42,14 +42,14 @@
     "@modelcontextprotocol/server": "2.4.0",
     "commander": "^15.0.0",
     "openai": "^7.47.0",
-    "playwright": "^1.55.1",
+    "playwright": "^1.64.1",
     "re2js": "2.9.1",
-    "tsx": "^4.23.1",
+    "tsx": "^4.23.15",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.4.0",
-    "@types/node": "^22.20.1",
-    "typescript": "^5.6.0"
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
   }
 }
