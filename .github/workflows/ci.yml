@@ -1,7 +1,8 @@
 name: ci
 
 # PR gate + main build status: typecheck + gitleaks secret scan + unit tests +
-# dependency review. External PRs run only after maintainer approval (Actions setting).
+# MCP image check + dependency review. External PRs run only after maintainer
+# approval (Actions setting).
 # Never uses secrets; the workflow token is read-only. The push trigger keeps
 # the README build badge truthful for main.
 on:
@@ -66,6 +67,19 @@ jobs:
       - run: npm ci
 
       - run: npm test
+
+  # The MCP-server image that directories (e.g. Glama) build from the
+  # Dockerfile: build it and run the MCP handshake inside. The image installs
+  # the latest npm release, so this guards the Dockerfile and its base image;
+  # this commit's stdio entry is covered by npm test (test/mcp-stdio.mjs).
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - run: docker build -t aidemo-mcp .
+
+      - run: node test/mcp-image.mjs aidemo-mcp
 
   dependency-review:
     if: github.event_name == 'pull_request'

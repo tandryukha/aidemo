@@ -145,8 +145,9 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
   link to either from tracked files.
 - Commit style: short imperative subject (`fix: compose hangs on unbounded
   apad`); every commit signed off (`git commit -s` — DCO, required to merge).
-- CI is typecheck + gitleaks + unit tests (`npm test`, Node 22 and 24) +
-  dependency review. PRs must not add install
+- CI is typecheck (latest `@types/node`, then the Node 22.12 floor's types) +
+  gitleaks + unit tests (`npm test`, Node 22, 24 and 26) + an MCP handshake in
+  the Docker image + dependency review. PRs must not add install
   scripts, new network endpoints, or unpinned GitHub Actions.
 - Canonical repo: `github.com/tandryukha/aidemo`. Consumers run the engine via
   `npx -y github:tandryukha/aidemo#stable` (git ref, the primary channel) or
