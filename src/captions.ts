@@ -707,7 +707,7 @@ export function cueStats(cues: Cue[], minCueMs = DEFAULT_SEG.minCueMs): {
   return { short, midClause, midClausePct: Math.round((midClause / breaks) * 100) };
 }
 
-function toSrt(cues: Cue[]): string {
+export function toSrt(cues: Cue[]): string {
   return (
     cues
       .map(
@@ -718,7 +718,7 @@ function toSrt(cues: Cue[]): string {
   );
 }
 
-function toVtt(cues: Cue[]): string {
+export function toVtt(cues: Cue[]): string {
   const vt = (ms: number) => srtTime(ms).replace(",", ".");
   return (
     "WEBVTT\n\n" +

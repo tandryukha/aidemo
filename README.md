@@ -103,8 +103,10 @@ storyboard.json
    → compose   trim idle · sync · auto-zoom · cards · caption · mux → output/final-demo.mp4
 ```
 
-**4 · What you get** — `output/final-demo.mp4`, plus a README-ready GIF
-(`aidemo gif`) and named stills (`aidemo stills`) from the same take. UI changed?
+**4 · What you get** — `output/final-demo.mp4` with `final-demo.srt`/`.vtt`
+captions beside it (timed to the video; `captions.track` also embeds them as a
+subtitle track viewers can toggle), plus a README-ready GIF (`aidemo gif`) and
+named stills (`aidemo stills`) from the same take. UI changed?
 Re-run against the same storyboard — no re-recording by hand.
 
 The design goal: demos that look **human-made and snappy**, not like an AI
@@ -282,7 +284,7 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
   generated/  storyboard.json  timeline.json  captions.{srt,vtt,cues.json}
   recordings/ raw.webm (or raw.mp4 for native/OBS capture)
   audio/      scene-*.mp3  narration.mp3  voice.json
-  output/     final-demo.mp4
+  output/     final-demo.mp4  final-demo.{srt,vtt} (captions timed to the video)
   logs/       <command>.log  fail-<scene>-<n>.{png,json} (on a failed action)
 ```
 

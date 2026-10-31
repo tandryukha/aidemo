@@ -532,6 +532,27 @@ export function lintStoryboard(
       fix: "add a `cursor: {}` block (the take is then recorded cursor-free and the cursor is overlaid at compose)",
     });
   }
+  if (sb.captions?.track && sb.captions.style !== "none") {
+    push({
+      severity: "info",
+      code: "caption-track-burned",
+      message:
+        "`captions.track` embeds a soft subtitle track while the captions are also burned in — " +
+        "a viewer who turns the track on sees every caption twice",
+      fix: 'set `captions.style: "none"` for toggleable captions only, or drop `track` to keep just the burned strip',
+    });
+  }
+  for (const scene of sb.scenes) {
+    if (scene.captions?.track != null) {
+      push({
+        severity: "info",
+        code: "caption-track-scene",
+        scene: scene.id,
+        message: "`captions.track` is storyboard-level only — a scene's `captions` just moves the strip",
+        fix: "move `track` to the top-level `captions` block",
+      });
+    }
+  }
   if (sb.zoom && sb.zoom.enabled !== false) {
     const capped = clampScaleForWidth(sb.zoom.scale, sb.video.width);
     if (capped < sb.zoom.scale) {

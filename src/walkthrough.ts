@@ -12,6 +12,8 @@ import { resolve, isAbsolute, basename } from "node:path";
 import { Project } from "./project.js";
 import { ComposeReportSchema, type Storyboard } from "./types.js";
 import { runFfmpeg } from "./ffmpeg.js";
+import { toSrt, toVtt } from "./captions.js";
+import { finalVideoCues } from "./caption-track.js";
 import { ensureDir, exists, readJson, writeJson, log, step } from "./util.js";
 
 export interface WalkthroughOptions {
@@ -112,17 +114,16 @@ export async function exportWalkthrough(
     log(`scene ${r.id}: ${mmss(startMs)} → ${image}`);
   }
 
-  // Captions travel with the walkthrough (players and LMSs want the files).
+  // Captions travel with the walkthrough (players and LMSs want the files),
+  // timed to the video they accompany — generated/captions.* start at the
+  // first narrated word, i.e. early by the intro card (issue #89).
   const captions: { srt?: string; vtt?: string } = {};
-  for (const [key, src] of [
-    ["srt", project.captionsSrtPath],
-    ["vtt", project.captionsVttPath],
-  ] as const) {
-    if (await exists(src)) {
-      const dst = resolve(dir, basename(src));
-      await fs.copyFile(src, dst);
-      captions[key] = dst;
-    }
+  const cues = await finalVideoCues(project, introMs);
+  if (cues) {
+    captions.srt = resolve(dir, basename(project.captionsSrtPath));
+    captions.vtt = resolve(dir, basename(project.captionsVttPath));
+    await fs.writeFile(captions.srt, toSrt(cues));
+    await fs.writeFile(captions.vtt, toVtt(cues));
   }
 
   const videoRel = `../${basename(video)}`;

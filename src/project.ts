@@ -12,7 +12,7 @@ import { ensureDir, exists, readJson, writeJson, log } from "./util.js";
  *     generated/storyboard.json  timeline.json  captions.srt  captions.vtt
  *     recordings/raw.webm
  *     audio/scene-*.mp3  narration.mp3  voice.json
- *     output/final-demo.mp4
+ *     output/final-demo.mp4  final-demo.srt  final-demo.vtt
  *     logs/
  */
 export class Project {
@@ -116,6 +116,17 @@ export class Project {
   }
   get outputPath() {
     return this.p("output", this.lang ? `final-demo.${this.lang}.mp4` : "final-demo.mp4");
+  }
+  /**
+   * Caption sidecars named after the video (final-demo[.<lang>].srt/.vtt), so
+   * a player that loads captions by file name finds them. Timed to the FINAL
+   * video — unlike generated/captions.*, which start at the first narrated word.
+   */
+  get outputSrtPath() {
+    return this.outputPath.replace(/\.mp4$/, ".srt");
+  }
+  get outputVttPath() {
+    return this.outputPath.replace(/\.mp4$/, ".vtt");
   }
   get gifPath() {
     return this.p("output", this.lang ? `final-demo.${this.lang}.gif` : "final-demo.gif");

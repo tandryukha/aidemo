@@ -104,7 +104,8 @@ so the forecast is in the log next to the take. The same numbers come back
 `storyboard.json` → **voice** (TTS per scene) → **record** (drives Chrome,
 injected animated cursor, video + timeline) → **captions** (Whisper word
 timing) → **compose** (trim idle "thinking" spans, sync each scene's video to
-its narration length, overlay captions, mux audio) → `output/final-demo.mp4`.
+its narration length, overlay captions, mux audio) → `output/final-demo.mp4`,
+with `final-demo.srt`/`.vtt` captions beside it, timed to the video.
 
 No LLM runs during capture — the recording is a deterministic replay of your
 fixed action-spec. Voice and captions call an OpenAI-compatible endpoint
@@ -285,10 +286,11 @@ Cinematic keys (all opt-in; omit for the plain look):
   (per-action `keystrokes` overrides). See *Attention*.
 - `captions: {position?="bottom"|"top", style?="pill"|"bar"|"none", font?,
   size?, color?, background?, maxWords?, maxCueMs?, minCueMs?, maxLines?,
-  maxCharsPerLine?}` — caption strip placement and look; scenes may
-  override `position` with their own `captions`. Compose also auto-flips a cue
-  to the top while an overlay occupies the bottom band. See *Attention* and
-  *Produced look*.
+  maxCharsPerLine?, track?=false}` — caption strip placement and look; scenes
+  may override `position` with their own `captions`. Compose also auto-flips a
+  cue to the top while an overlay occupies the bottom band. `track: true`
+  (top level only) also embeds the captions as a soft subtitle track. See
+  *Attention* and *Produced look*.
 - `redact: [{selector, frame?, blur?}]` — **blur regions at compose time**
   (prices, emails, tokens); scenes may add their own `redact`. See *Attention*.
 - `hide: [selector, …]` — hide elements at **record** time (teasers, cookie
@@ -583,10 +585,27 @@ shadowed window on a styled canvas, with captions in the padding band below.
 
 **Caption styles** (`captions`, top level): `style` is `"pill"` (default —
 centered rounded box), `"bar"` (full-width band flush with the frame edge; the
-usual choice under a `frame`), or `"none"` (no captions burned — the
-SRT/VTT files are still written, for players and platforms that render their
-own). `font`, `size` (default 30, logical px), `color`, `background` (any
-CSS) restyle the strip; `position` still flips per scene / automatically.
+usual choice under a `frame`), or `"none"` (no captions burned — use the
+sidecar files or the subtitle track below instead). `font`, `size` (default
+30, logical px), `color`, `background` (any CSS) restyle the strip;
+`position` still flips per scene / automatically.
+
+**Caption files and subtitle track.** Every compose writes
+`output/final-demo.srt` and `output/final-demo.vtt` (`final-demo.<lang>.*`
+for language renders) beside the video, **timed to the final video**: every
+cue is shifted by the intro card's length, exactly like the burned strip and
+the narration. That's what a player or host (YouTube, Loom, Confluence, an
+LMS) wants when it loads captions by file name. `generated/captions.*` stay
+narration-relative (t=0 is the first narrated word) for the engine's own
+use, so don't ship those next to a video that has an intro card. With
+`captions.track: true` compose also muxes the same cues into the MP4 as a
+`mov_text` subtitle track, tagged with the narration language (`--lang`, else
+the storyboard's `language`, else English) and **off until the viewer turns
+it on**. Re-composing replaces the track rather than adding another. For
+captions a viewer can toggle instead of burned ones, combine
+`style: "none"` with `track: true`; with burned captions as well, a viewer
+who turns the track on sees them twice (lint note `caption-track-burned`).
+`report.json` → `captions.srt` / `.vtt` / `.track` record what was written.
 
 **Output presets** (`output.preset`) fill `width`/`height`/`fit` when you
 don't set them explicitly: `youtube` 1920×1080, `short` 1080×1920,
@@ -606,7 +625,8 @@ artifacts in `output/walkthrough/`: `index.html` (one card per scene with
 its payoff frame, title, narration and a jump-to-time button over the video;
 ← / → keys step through, Enter plays from a step), `guide.md` (the same as a
 README/SOP section: heading + frame + narration per scene), `scene-NN-<id>.png`
-frames, the SRT/VTT captions, and `walkthrough.json`. Frames come from the
+frames, the SRT/VTT captions (timed to the video, like the sidecars), and
+`walkthrough.json`. Frames come from the
 **final** video, so they carry zoom, cursor, overlays and the frame. Scene
 `title`s name the steps (falling back to ids).
 
@@ -1162,7 +1182,11 @@ off), focus events kept vs dropped, and `warnings[]` —
 the narration even at the x1.6 ceiling and were cut), `blank-tail`,
 `stale-captions`, `focus-dropped`, `cursor-missing`, `anchor-unreachable`
 (an anchored action could not reach its word within the retime limits; the
-scene's `anchors[]` shows `targetMs` / `landedMs` / `offMs`). A held scene
+scene's `anchors[]` shows `targetMs` / `landedMs` / `offMs`),
+`caption-track-empty` (`captions.track` with no caption cues: run `captions`
+first) and `caption-track-failed` (the ffmpeg build could not mux the
+subtitle track; the video ships without it and the sidecars still carry the
+captions). A held scene
 is a storyboard problem, not a compose problem: give it on-screen beats or
 shorten its narration, then re-run `voice` + `compose`.
 

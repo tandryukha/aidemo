@@ -1126,6 +1126,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           ...(walkthrough ? { walkthrough } : {}),
           timeline: lp.timelinePath,
           captionsSrt: lp.captionsSrtPath,
+          // Sidecars timed to the final video (+ the embedded track's language).
+          captions: report.captions,
           report: lp.reportPath,
           durationMs: report.durationMs,
           // warningCount lets an orchestrating agent gate on the render
@@ -1202,7 +1204,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
 
   registerJob(
     "compose",
-    "Trim, sync, mux and caption into output/final-demo.mp4.",
+    "Trim, sync, mux and caption into output/final-demo.mp4 (+ final-demo.srt/.vtt timed to it).",
     {
       dir: DIR_INPUT,
       gif: z.boolean().optional().describe("also export output/final-demo.gif"),
@@ -1220,6 +1222,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         return {
           output: lp.outputPath,
           ...(gifPath ? { gif: gifPath } : {}),
+          // Sidecars timed to the final video (+ the embedded track's language).
+          captions: report.captions,
           report: lp.reportPath,
           durationMs: report.durationMs,
           // warningCount lets an orchestrating agent gate on the render

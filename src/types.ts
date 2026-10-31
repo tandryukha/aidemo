@@ -503,6 +503,15 @@ export const CaptionsConfigSchema = z.object({
   maxLines: z.number().int().min(1).max(3).optional(),
   /** Characters per line used to size a cue. Default 38. */
   maxCharsPerLine: z.number().int().min(16).max(80).optional(),
+  /**
+   * Also embed the captions in the MP4 as a soft subtitle track (mov_text,
+   * tagged with the narration language) that players leave OFF until the
+   * viewer turns it on (issue #89). Storyboard level only. Pair it with
+   * `style: "none"` for toggleable captions instead of burned ones. Compose
+   * always writes the same cues beside the video as final-demo.srt/.vtt;
+   * this adds the in-file track. Default false.
+   */
+  track: z.boolean().optional(),
 });
 export type CaptionsConfig = z.infer<typeof CaptionsConfigSchema>;
 
@@ -1236,7 +1245,8 @@ export type Timeline = z.infer<typeof TimelineSchema>;
 
 export const ComposeWarningSchema = z.object({
   /** Stable code: scene-freeze | overrun-trim | blank-tail | stale-captions |
-   *  focus-dropped | cursor-missing | scene-no-narration */
+   *  focus-dropped | cursor-missing | scene-no-narration | caption-track-empty |
+   *  caption-track-failed */
   code: z.string(),
   scene: z.string().optional(),
   message: z.string(),
@@ -1287,7 +1297,16 @@ export const ComposeReportSchema = z.object({
   scenes: z.array(ComposeSceneReportSchema),
   zoom: z.object({ focusTotal: z.number(), focusDropped: z.number() }),
   cursorPoints: z.number(),
-  captions: z.object({ cues: z.number(), passes: z.number() }),
+  captions: z.object({
+    /** Cues burned into the picture (0 with `style: "none"`). */
+    cues: z.number(),
+    passes: z.number(),
+    /** Sidecars timed to the final video (intro card included), when there are cues. */
+    srt: z.string().optional(),
+    vtt: z.string().optional(),
+    /** ISO 639-2 language of the embedded subtitle track (`captions.track`). */
+    track: z.string().optional(),
+  }),
   /** Attention overlays drawn (highlight/spotlight/callout), key chips, click rings, redact spans. */
   attention: z
     .object({

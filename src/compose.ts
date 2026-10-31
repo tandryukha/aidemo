@@ -19,7 +19,14 @@ import {
   HoldSchema,
   AutoIdleSchema,
 } from "./types.js";
-import { sceneWordsFor, type Cue } from "./captions.js";
+import { sceneWordsFor, toSrt, type Cue } from "./captions.js";
+import {
+  disableSubtitleTracks,
+  finalVideoCues,
+  mp4Language,
+  writeCaptionSidecars,
+} from "./caption-track.js";
+import { resolveNarrationLanguage } from "./i18n.js";
 import { wordStartMs } from "./anchors.js";
 import { renderCaptionPngs } from "./caption-render.js";
 import { renderCardPng } from "./cards.js";
@@ -1099,8 +1106,60 @@ export async function compose(
           : []),
       ])
     : null;
-  await muxAudio(project, storyboard, finalVideo, introMs, chapters);
+  // Captions timed to the FINAL video (issue #89): the cues the strip burns,
+  // shifted by the intro card exactly like the overlay and the narration's
+  // adelay. Always written beside the MP4; `captions.track` also embeds them.
+  const videoCues = await finalVideoCues(project, introMs);
+  let subtitle: SubtitleTrack | null = null;
+  if (storyboard.captions?.track) {
+    if (videoCues) {
+      subtitle = {
+        path: resolve(tmp, "track.srt"),
+        language: mp4Language(resolveNarrationLanguage(storyboard, project.lang) ?? "en"),
+      };
+      await fs.writeFile(subtitle.path, toSrt(videoCues));
+    } else {
+      warn(
+        "caption-track-empty",
+        `captions.track is set but there are no caption cues — run: aidemo captions ${project.dir}`
+      );
+    }
+  }
+  try {
+    await muxAudio(project, storyboard, finalVideo, introMs, chapters, subtitle);
+  } catch (err) {
+    if (!subtitle) throw err;
+    // An ffmpeg build without the srt demuxer / mov_text encoder: keep the
+    // video, drop the track — the sidecars below still carry the captions.
+    // runFfmpeg's message is "ffmpeg exited N" + the stderr tail; ffmpeg
+    // names the root cause on the first stderr line.
+    const [exit, ...stderr] = String((err as Error).message ?? err).split("\n");
+    const why = stderr.map((l) => l.trim()).find(Boolean);
+    warn(
+      "caption-track-failed",
+      `could not embed the subtitle track, so the video has none (the .srt/.vtt sidecars ` +
+        `still carry the captions): ${exit}${why ? ` — ${why.slice(0, 200)}` : ""}`
+    );
+    subtitle = null;
+    await muxAudio(project, storyboard, finalVideo, introMs, chapters);
+  }
+  if (subtitle) {
+    const { tracks } = await disableSubtitleTracks(project.outputPath);
+    if (tracks === 0) {
+      warn("caption-track-failed", "the muxed MP4 carries no subtitle track");
+      subtitle = null;
+    } else {
+      log(`subtitle track: ${subtitle.language} (mov_text, off until the viewer turns it on)`);
+    }
+  }
   ok(`final video → ${project.outputPath}`);
+  const sidecars = await writeCaptionSidecars(project, videoCues);
+  if (sidecars) {
+    ok(
+      `captions → ${relative(project.dir, sidecars.srt)} + .vtt (timed to the video` +
+        `${introMs ? `: cues +${introMs}ms for the intro card` : ""})`
+    );
+  }
   // Blank-open warning + poster (issue #47; measured after scene assembly,
   // above). The poster used to be taken at a fixed offset, which on a demo
   // that opens with a `goto` is exactly the white load frame; pick the first
@@ -1166,7 +1225,12 @@ export async function compose(
     scenes: sceneReports,
     zoom: { focusTotal: zoomEvents.length, focusDropped },
     cursorPoints: cursorPts.length,
-    captions: { cues: captionsResult.cues, passes: captionsResult.passes },
+    captions: {
+      cues: captionsResult.cues,
+      passes: captionsResult.passes,
+      ...(sidecars ? { srt: sidecars.srt, vtt: sidecars.vtt } : {}),
+      ...(subtitle ? { track: subtitle.language } : {}),
+    },
     hold: hold.mode,
     ...(poster ? { poster } : {}),
     blankOpenMs: Math.round(blankOpenMs),
@@ -1902,7 +1966,7 @@ async function burnCaptions(
 ): Promise<{ video: string; cues: number; passes: number; flipped: number }> {
   const none = { video: silentVideo, cues: 0, passes: 0, flipped: 0 };
   if (placement.look?.style === "none") {
-    log("captions: style none — not burned (SRT/VTT files still written)");
+    log("captions: style none — not burned (the .srt/.vtt beside the video carry them)");
     return none;
   }
   if (!(await exists(project.captionsCuesPath))) return none;
@@ -2007,12 +2071,20 @@ async function fileToDataUri(path: string): Promise<string> {
   return `data:${mime};base64,${buf.toString("base64")}`;
 }
 
+/** An SRT (already on the final video's clock) to embed as a soft subtitle track. */
+interface SubtitleTrack {
+  path: string;
+  /** ISO 639-2 code for the track's language tag. */
+  language: string;
+}
+
 async function muxAudio(
   project: Project,
   storyboard: Storyboard,
   video: string,
   introMs: number,
-  chaptersPath: string | null = null
+  chaptersPath: string | null = null,
+  subtitle: SubtitleTrack | null = null
 ): Promise<void> {
   let musicPath = await resolveMusic(project, storyboard);
   const videoMs = await probeDurationMs(video);
@@ -2040,6 +2112,12 @@ async function muxAudio(
   if (chaptersPath) {
     chaptersIdx = musicPath ? 3 : 2;
     args.push("-i", chaptersPath);
+  }
+  // Subtitle SRT last, so every index above is unchanged without one.
+  let subtitleIdx = -1;
+  if (subtitle) {
+    subtitleIdx = 2 + (musicPath ? 1 : 0) + (chaptersPath ? 1 : 0);
+    args.push("-i", subtitle.path);
   }
 
   const delay = introMs > 0 ? `,adelay=${Math.round(introMs)}:all=1` : "";
@@ -2111,6 +2189,7 @@ async function muxAudio(
 
   args.push("-filter_complex", filters.join(";"));
   args.push("-map", "0:v", "-map", "[aout]");
+  if (subtitle) args.push("-map", `${subtitleIdx}:s`);
   if (chaptersIdx >= 0) args.push("-map_metadata", String(chaptersIdx));
   args.push(
     "-c:v",
@@ -2118,7 +2197,21 @@ async function muxAudio(
     "-c:a",
     "aac",
     "-b:a",
-    "192k",
+    "192k"
+  );
+  if (subtitle) {
+    // mov_text is the MP4 text-subtitle codec; not default — and compose then
+    // clears the tkhd enabled flag ffmpeg sets anyway (disableSubtitleTracks).
+    args.push(
+      "-c:s",
+      "mov_text",
+      "-metadata:s:s:0",
+      `language=${subtitle.language}`,
+      "-disposition:s:0",
+      "0"
+    );
+  }
+  args.push(
     // moov atom up front so the MP4 streams/scrubs in a browser tab or a PR
     // preview before it has fully downloaded (frames identical; container only).
     "-movflags",
