@@ -673,6 +673,11 @@ export interface DoctorReport {
   ok: boolean;
 }
 
+/** Oldest supported Node major (bin/aidemo.mjs fails fast below it; package.json "engines"). */
+const MIN_NODE_MAJOR = 22;
+const nodeSupported = (version: string): boolean =>
+  Number(version.replace(/^v/, "").split(".")[0]) >= MIN_NODE_MAJOR;
+
 /** Build the structured preflight report (used by CLI doctor + MCP doctor). */
 export async function doctorReport(dir: string | undefined): Promise<DoctorReport> {
   const base = openAiBaseUrl();
@@ -746,7 +751,8 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
     ok: false,
   };
   report.ok = Boolean(
-    report.ffmpeg &&
+    nodeSupported(report.node) &&
+      report.ffmpeg &&
       report.browser.found &&
       report.playwright &&
       (report.recorderFfmpeg?.found ?? true) &&
@@ -767,7 +773,8 @@ export async function doctor(dir: string | undefined): Promise<void> {
   const line = (label: string, val: string | null) =>
     val ? ok(`${label}: ${val}`) : fail(`${label}: NOT FOUND`);
 
-  line("node", r.node);
+  if (nodeSupported(r.node)) ok(`node: ${r.node}`);
+  else fail(`node: ${r.node} — aidemo needs Node ${MIN_NODE_MAJOR}+ (Node 20 is end-of-life)`);
   line("ffmpeg", r.ffmpeg);
   if (r.browser.source === "default") {
     line("chrome", r.chrome);

@@ -154,7 +154,7 @@ A bundled fixture store (search → results → cart → checkout) that renders 
 finished demo with zero external dependencies:
 
 ```bash
-npm install                                # Node 20+, system Chrome, ffmpeg on PATH
+npm install                                # Node 22+, system Chrome, ffmpeg on PATH
 node examples/local-demo/serve.mjs         # terminal 1: fixture on :8787
 node bin/aidemo.mjs render examples/local-demo --headless   # terminal 2
 open examples/local-demo/output/final-demo.mp4   # xdg-open on Linux, start on Windows
@@ -253,7 +253,7 @@ Codex).
 
 ## Setup
 
-Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`, and
+Prereqs: **Node 22+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`, and
 Playwright's ~2 MB ffmpeg helper that records the take (one per Playwright
 version; `aidemo doctor` prints the exact install command).
 Developed and tested on macOS; Linux works for the default (Playwright) capture

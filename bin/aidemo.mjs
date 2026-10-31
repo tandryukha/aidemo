@@ -6,6 +6,20 @@ import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
+// Fail fast on an unsupported Node with the fix, instead of an arbitrary crash
+// deep inside a dependency (openai 7 needs Node 22). Node 20 reached
+// end-of-life on 2026-04-30. Keep in sync with package.json "engines".
+const MIN_NODE_MAJOR = 22;
+const nodeMajor = Number(process.versions.node.split(".")[0]);
+if (nodeMajor < MIN_NODE_MAJOR) {
+  console.error(
+    `aidemo: Node.js ${MIN_NODE_MAJOR}+ is required (found ${process.version}). ` +
+      `Install Node ${MIN_NODE_MAJOR} LTS or newer (nvm install ${MIN_NODE_MAJOR}; in CI, ` +
+      `actions/setup-node with node-version: ${MIN_NODE_MAJOR}) and re-run.`
+  );
+  process.exit(1);
+}
+
 const here = dirname(fileURLToPath(import.meta.url));
 const cli = resolve(here, "..", "src", "cli.ts");
 const require = createRequire(import.meta.url);

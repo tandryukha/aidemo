@@ -9,8 +9,8 @@ branding:
 
 # This is a COMPOSITE action — it runs on the calling job's runner, so that
 # runner must provide the engine's prerequisites:
-#   * Node.js 20+ and npm on PATH (ubuntu-latest ships this; or run
-#     actions/setup-node before this action for a pinned version)
+#   * Node.js 22+ and npm on PATH (the action sets up Node 22 itself when the
+#     runner's Node is older; run actions/setup-node first to pin another)
 #   * Google Chrome / Chromium (recorder uses `channel: "chrome"`)
 #   * ffmpeg + ffprobe on PATH
 # ubuntu-latest ships Chrome but NOT ffmpeg — add a step to install it before
@@ -89,6 +89,27 @@ outputs:
 runs:
   using: composite
   steps:
+    # The engine needs Node 22+ (openai 7; Node 20 is end-of-life). Set it up
+    # only when the runner's Node is older, so a job that pinned a newer Node
+    # with its own setup-node step keeps it.
+    - name: Check Node.js version
+      id: node
+      shell: bash
+      run: |
+        major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+        if [ "$major" -ge 22 ]; then
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::Node $(node --version 2>/dev/null || echo 'not found') is older than 22 — setting up Node 22 for aidemo"
+        fi
+
+    - name: Set up Node.js 22
+      if: steps.node.outputs.ok != 'true'
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: 22
+
     - name: Resolve aidemo engine
       id: engine
       shell: bash

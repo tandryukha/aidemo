@@ -89,8 +89,9 @@ library is just `demos: content/onboarding/*` — no per-demo boilerplate.
 
 The Action is **composite** — it runs on your job's runner, which must provide:
 
-- **Node.js 20+** and npm on PATH. `ubuntu-latest` ships this; the templates also
-  run `actions/setup-node` to pin a version.
+- **Node.js 22+** and npm on PATH. The Action sets up Node 22 itself when the
+  runner's Node is older; the templates also run `actions/setup-node` to pin a
+  version.
 - **Google Chrome / Chromium** — the recorder launches Chrome via Playwright's
   `channel: "chrome"` (it does **not** download a Playwright browser).
   `ubuntu-latest` ships Chrome. Runners without Chrome can set

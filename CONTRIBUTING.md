@@ -6,7 +6,7 @@ practical stuff; for what the project is and how it works, start with the
 
 ## Dev setup
 
-Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`.
+Prereqs: **Node 22+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`.
 
 ```bash
 git clone https://github.com/tandryukha/aidemo.git
