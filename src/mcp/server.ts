@@ -1,5 +1,5 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { McpServer } from "@modelcontextprotocol/server";
+import { serveStdio, StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { z } from "zod";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -83,10 +83,11 @@ function storyboardJsonSchema(): Record<string, unknown> {
 
 /**
  * Tool input schemas advertise `additionalProperties: false` on every object,
- * as they did before the zod 4 migration: the MCP SDK converts zod 4 schemas
- * with io:"input", which leaves objects open. Metadata only — zod still
- * strips unknown arguments at runtime, exactly as before. (An empty input
- * stays a raw `{}`, which the SDK lists as it always has.)
+ * as they did before the zod 4 migration: the MCP SDK converts zod schemas
+ * through zod's Standard JSON Schema with io:"input", which leaves objects
+ * open. Metadata only — zod still strips unknown arguments at runtime,
+ * exactly as before. (A tool without arguments registers no input schema;
+ * the SDK lists it as an empty object.)
  */
 function closedInput<Shape extends z.ZodRawShape>(shape: Shape) {
   for (const field of Object.values(shape)) closeObjects(field);
@@ -280,28 +281,19 @@ function throwIfAborted(signal: AbortSignal): void {
   if (signal.aborted) throw new CanceledError("canceled between stages");
 }
 
-export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
-  const jobs = new JobManager();
+/**
+ * One MCP server instance over the process-wide job manager. Under stdio the
+ * SDK may build more than one instance per process (a discarded
+ * `server/discover` probe, then the connection's instance), so job state lives
+ * in the shared `jobs`, never in an instance. Progress reaches clients through
+ * job_status polling; engine logging goes to stderr and the job's log file
+ * (MCP logging notifications are deprecated as of protocol 2026-07-28).
+ */
+export function buildMcpServer(jobs: JobManager = new JobManager()): { server: McpServer; jobs: JobManager } {
   const server = new McpServer(
     { name: "aidemo", version: engineVersion() },
-    { instructions: INSTRUCTIONS, capabilities: { logging: {} } }
+    { instructions: INSTRUCTIONS }
   );
-
-  // Best-effort log forwarding (throttled); job_status polling is the source
-  // of truth — many clients don't surface logging notifications.
-  const lastSent = new Map<string, number>();
-  jobs.onLine = (job, chunk) => {
-    const now = Date.now();
-    if (now - (lastSent.get(job.jobId) ?? 0) < 1000) return;
-    lastSent.set(job.jobId, now);
-    void server
-      .sendLoggingMessage({
-        level: "info",
-        logger: "aidemo",
-        data: { jobId: job.jobId, stage: job.stage, line: chunk.trim() },
-      })
-      .catch(() => {});
-  };
 
   const guidePath = guideFilePath();
 
@@ -324,13 +316,13 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
             `Slice: ${GUIDE_TOPIC_NAMES.join(", ")} — or an H2 heading prefix. Omit for the full guide.`
           ),
       }),
-      outputSchema: {
+      outputSchema: z.object({
         guide: z.string(),
         engineVersion: z.string(),
         topic: z.string().optional(),
         topics: z.array(z.string()),
         sections: z.array(z.string()),
-      },
+      }),
       annotations: { readOnlyHint: true },
     },
     async ({ topic }) => {
@@ -366,8 +358,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       description:
         "JSON Schema for storyboard.json, generated from the engine's own " +
         "zod schema — the exact contract the engine validates against.",
-      inputSchema: {},
-      outputSchema: { schema: z.record(z.string(), z.unknown()) },
+      outputSchema: z.object({ schema: z.record(z.string(), z.unknown()) }),
       annotations: { readOnlyHint: true },
     },
     async () =>
@@ -392,7 +383,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         relaxed: z.boolean().optional(),
         params: PARAMS_INPUT,
       }),
-      outputSchema: {
+      outputSchema: z.object({
         valid: z.boolean(),
         storyboardPath: z.string().optional(),
         title: z.string().optional(),
@@ -402,7 +393,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         ),
         warnings: z.array(z.string()),
         lint: z.array(LINT_ISSUE_SHAPE).optional(),
-      },
+      }),
       annotations: { readOnlyHint: true },
     },
     async (args) => {
@@ -485,7 +476,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         lang: z.string().optional(),
         params: PARAMS_INPUT,
       }),
-      outputSchema: {
+      outputSchema: z.object({
         issues: z.array(LINT_ISSUE_SHAPE),
         estimate: z.array(
           z.object({
@@ -499,7 +490,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         ),
         narrationTotalMs: z.number(),
         wordsPerSec: z.number(),
-      },
+      }),
       annotations: { readOnlyHint: true },
     },
     async (args) => {
@@ -557,11 +548,11 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           .optional()
           .describe("fromUrl: viewport (default 1280x720)"),
       }),
-      outputSchema: {
+      outputSchema: z.object({
         demoDir: z.string(),
         storyboardPath: z.string(),
         briefPath: z.string(),
-      },
+      }),
     },
     async (args) => {
       // fromUrl launches Chrome: honour the target repo's .env (#77).
@@ -599,7 +590,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       inputSchema: closedInput({
         dir: z.string().optional().describe("repo to check for an installed skill"),
       }),
-      outputSchema: {
+      outputSchema: z.object({
         engineVersion: z.string(),
         node: z.string(),
         ffmpeg: z.string().nullable(),
@@ -647,7 +638,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
             .nullable(),
         }),
         ok: z.boolean(),
-      },
+      }),
       annotations: { readOnlyHint: true },
     },
     async (args) => {
@@ -681,7 +672,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           .optional()
           .describe("still-frame basename under stills/ (default: poster)"),
       }),
-      outputSchema: {
+      outputSchema: z.object({
         owner: z.string(),
         repo: z.string(),
         demo: z.string(),
@@ -705,7 +696,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           present: z.boolean(),
           template: z.string(),
         }),
-      },
+      }),
       annotations: { readOnlyHint: true },
     },
     async (args) => {
@@ -758,14 +749,14 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           .optional()
           .describe("assemble the title/body but don't file anything — preview only"),
       }),
-      outputSchema: {
+      outputSchema: z.object({
         filed: z.boolean(),
         title: z.string(),
         body: z.string(),
         url: z.string().optional(),
         localPath: z.string().optional(),
         message: z.string(),
-      },
+      }),
     },
     async (args) => {
       const demoDir = args.dir ? resolve(args.dir) : null;
@@ -793,7 +784,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         jobId: z.string(),
         tailLines: z.number().optional().describe("log lines to return (default 40)"),
       }),
-      outputSchema: JOB_STATUS_SHAPE,
+      outputSchema: z.object(JOB_STATUS_SHAPE),
       annotations: { readOnlyHint: true },
     },
     async (args) => {
@@ -814,8 +805,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     {
       title: "List jobs",
       description: "All jobs this server session, newest last.",
-      inputSchema: {},
-      outputSchema: {
+      outputSchema: z.object({
         jobs: z.array(
           z.object({
             jobId: z.string(),
@@ -827,7 +817,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
             endedAt: z.string().nullable(),
           })
         ),
-      },
+      }),
       annotations: { readOnlyHint: true },
     },
     async () =>
@@ -853,7 +843,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "mid-record cancel salvages the partial timeline + footage. The job " +
         "settles asynchronously — poll job_status for the final state.",
       inputSchema: closedInput({ jobId: z.string() }),
-      outputSchema: JOB_STATUS_SHAPE,
+      outputSchema: z.object(JOB_STATUS_SHAPE),
     },
     async (args) => {
       const job = jobs.cancel(args.jobId);
@@ -879,7 +869,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           `${description} Returns a jobId immediately — poll job_status. ` +
           `Rejects if another job is running.`,
         inputSchema: closedInput(inputShape),
-        outputSchema: JOB_START_SHAPE,
+        outputSchema: z.object(JOB_START_SHAPE),
       },
       (async (args: z.infer<z.ZodObject<Shape>>) => {
         const project = new Project((args as { dir: string }).dir);
@@ -1063,13 +1053,13 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         dir: z.string().optional().describe("repo to scaffold into (default: server cwd)"),
         force: z.boolean().optional(),
       }),
-      outputSchema: {
+      outputSchema: z.object({
         demoDir: z.string(),
         storyboardPath: z.string(),
         steps: z.number(),
         scenes: z.number(),
         notes: z.array(z.string()),
-      },
+      }),
     },
     async (args) => {
       try {
@@ -1526,9 +1516,30 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
   return { server, jobs };
 }
 
-/** Run the stdio server until the client disconnects. Never resolves. */
+/**
+ * The process's stdio wire, reporting when the connection ends. serveStdio
+ * owns the wire and closes it when the connection is over (stdin EOF, a
+ * broken stdout, an oversized message, or the connection's server closing);
+ * discarding a `server/discover` probe instance never closes it.
+ */
+class ProcessStdioTransport extends StdioServerTransport {
+  constructor(private readonly onEnd: () => void) {
+    super();
+  }
+
+  override async close(): Promise<void> {
+    await super.close();
+    this.onEnd();
+  }
+}
+
+/**
+ * Run the stdio server until the client disconnects. Never resolves.
+ * serveStdio answers both protocol eras: a 2025-era client (`initialize`
+ * handshake, what deployed clients speak) and a 2026-07-28 client.
+ */
 export async function runMcpServer(): Promise<void> {
-  const { server, jobs } = buildMcpServer();
+  const jobs = new JobManager();
   let shuttingDown = false;
   const shutdown = () => {
     if (shuttingDown) return;
@@ -1551,8 +1562,9 @@ export async function runMcpServer(): Promise<void> {
   };
   process.stdin.on("end", shutdown);
   process.stdin.on("close", shutdown);
-  server.server.onclose = shutdown;
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  serveStdio(() => buildMcpServer(jobs).server, {
+    transport: new ProcessStdioTransport(shutdown),
+    onerror: (err) => log(`mcp: ${err.message}`),
+  });
   await new Promise(() => {}); // lives until shutdown() exits the process
 }

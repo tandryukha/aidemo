@@ -50,9 +50,9 @@ choice below defaults to **scale-to-zero** so idle cost is ~$0.
 - **Transport — the MCP control plane.**
   [Streamable HTTP](https://modelcontextprotocol.io) is the MCP spec's
   remote-server transport. The engine's one MCP dependency,
-  `@modelcontextprotocol/sdk`, already bundles the HTTP-transport helpers —
-  today's stdio-only server just never constructs them (see README → Security
-  & trust). The hosted service is where they'd finally get used. This service
+  `@modelcontextprotocol/server` (MCP SDK v2), already ships the HTTP serving
+  entry (`createMcpHandler`) — today's stdio-only server just never
+  constructs it (see README → Security & trust). The hosted service is where they'd finally get used. This service
   is **not** a mode of the stdio server described in AGENTS.md/README —
   per the open-core boundary this repo already draws (engine/CLI/skill/Action
   = open, in this repo; a hosted cloud layer = a separate service), it lives

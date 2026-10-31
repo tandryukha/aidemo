@@ -87,9 +87,6 @@ export class JobManager {
   private jobs = new Map<string, Job>();
   private activeId: string | null = null;
 
-  /** Best-effort per-line forwarding (e.g. MCP logging notifications). */
-  onLine?: (job: Job, cleanChunk: string) => void;
-
   /** Start a job or throw JobBusyError if one is already running. */
   startJob(
     kind: JobKind,
@@ -284,6 +281,5 @@ export class JobManager {
     if (job.ring.length > RING_MAX) {
       job.ring.splice(0, job.ring.length - RING_MAX);
     }
-    this.onLine?.(job, chunk);
   }
 }

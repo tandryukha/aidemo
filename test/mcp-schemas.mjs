@@ -8,8 +8,7 @@ import assert from "node:assert/strict";
 import { dirname, join, resolve } from "node:path";
 import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { buildMcpServer } from "../src/mcp/server.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

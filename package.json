@@ -31,7 +31,7 @@
     "build": "tsc --noEmit",
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
-    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/runtime-setup.mjs test/mcp-schemas.mjs",
+    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs",
     "test:blank-open": "tsx --test test/blank-open.mjs",
     "mcp-env-test": "node test/mcp-env.mjs",
     "guard-openai-key": "tsx scripts/guard-openai-key.ts",
@@ -39,7 +39,7 @@
     "check:plugin-skill": "diff -q .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.32.2",
+    "@modelcontextprotocol/server": "2.4.0",
     "commander": "^15.0.0",
     "openai": "^7.47.0",
     "playwright": "^1.55.1",
@@ -48,6 +48,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
     "@types/node": "^22.20.1",
     "typescript": "^5.6.0"
   }
