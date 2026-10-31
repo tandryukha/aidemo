@@ -81,6 +81,43 @@ function storyboardJsonSchema(): Record<string, unknown> {
   }) as Record<string, unknown>;
 }
 
+/**
+ * Tool input schemas advertise `additionalProperties: false` on every object,
+ * as they did before the zod 4 migration: the MCP SDK converts zod 4 schemas
+ * with io:"input", which leaves objects open. Metadata only — zod still
+ * strips unknown arguments at runtime, exactly as before. (An empty input
+ * stays a raw `{}`, which the SDK lists as it always has.)
+ */
+function closedInput<Shape extends z.ZodRawShape>(shape: Shape) {
+  for (const field of Object.values(shape)) closeObjects(field);
+  return z.object(shape).meta({ additionalProperties: false });
+}
+
+/** Mark every object schema reachable from `schema` closed (keeps existing metadata). */
+function closeObjects(schema: z.core.$ZodType, seen = new Set<unknown>()): void {
+  if (seen.has(schema)) return;
+  seen.add(schema);
+  const def = schema._zod.def as {
+    type: string;
+    shape?: Record<string, z.core.$ZodType>;
+    innerType?: z.core.$ZodType;
+    element?: z.core.$ZodType;
+    options?: z.core.$ZodType[];
+    valueType?: z.core.$ZodType;
+  };
+  if (def.type === "object") {
+    z.globalRegistry.add(schema, { ...z.globalRegistry.get(schema), additionalProperties: false });
+  }
+  const children = [
+    ...Object.values(def.shape ?? {}),
+    ...(def.options ?? []),
+    def.innerType,
+    def.element,
+    def.valueType,
+  ];
+  for (const child of children) if (child) closeObjects(child, seen);
+}
+
 type ToolResult = {
   content: Array<{ type: "text"; text: string }>;
   structuredContent?: Record<string, unknown>;
@@ -279,14 +316,14 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         `\`topic\` (${GUIDE_TOPIC_NAMES.join(" | ")}, or any H2 heading prefix) ` +
         "for one slice instead of the whole ~1000-line guide; start with " +
         "`core`, then fetch `attention`/`polish`/`chatgpt-apps` as needed.",
-      inputSchema: {
+      inputSchema: closedInput({
         topic: z
           .string()
           .optional()
           .describe(
             `Slice: ${GUIDE_TOPIC_NAMES.join(", ")} — or an H2 heading prefix. Omit for the full guide.`
           ),
-      },
+      }),
       outputSchema: {
         guide: z.string(),
         engineVersion: z.string(),
@@ -348,13 +385,13 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "anything. Pass exactly one of: dir (uses generated/storyboard.json), " +
         "path (a storyboard file), or json (storyboard JSON as a string). " +
         "relaxed makes narration optional (probe semantics).",
-      inputSchema: {
+      inputSchema: closedInput({
         dir: z.string().optional().describe("demo dir → generated/storyboard.json"),
         path: z.string().optional().describe("path to a storyboard .json file"),
         json: z.string().optional().describe("storyboard JSON as a string"),
         relaxed: z.boolean().optional(),
         params: PARAMS_INPUT,
-      },
+      }),
       outputSchema: {
         valid: z.boolean(),
         storyboardPath: z.string().optional(),
@@ -441,13 +478,13 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "Run it after every storyboard edit, before probe/render. Pass exactly " +
         "one of dir / path / json. lang lints a narrations[lang] translation at " +
         "that language's speaking rate.",
-      inputSchema: {
+      inputSchema: closedInput({
         dir: z.string().optional().describe("demo dir → generated/storyboard.json"),
         path: z.string().optional().describe("path to a storyboard .json file"),
         json: z.string().optional().describe("storyboard JSON as a string"),
         lang: z.string().optional(),
         params: PARAMS_INPUT,
-      },
+      }),
       outputSchema: {
         issues: z.array(LINT_ISSUE_SHAPE),
         estimate: z.array(
@@ -508,7 +545,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "With fromUrl the page is inspected first (no LLM): its headings become " +
         "scenes and its unique selectors become the beats + a `_candidates` list — " +
         "you then write the narration and turn the candidate hover into the real click.",
-      inputSchema: {
+      inputSchema: closedInput({
         name: z.string().describe("demo name (creates demos/<name>/)"),
         dir: z.string().optional(),
         force: z.boolean().optional(),
@@ -519,7 +556,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           .object({ width: z.number(), height: z.number() })
           .optional()
           .describe("fromUrl: viewport (default 1280x720)"),
-      },
+      }),
       outputSchema: {
         demoDir: z.string(),
         storyboardPath: z.string(),
@@ -559,9 +596,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "LLM-only servers like Ollama), API key, playwright + its ffmpeg " +
         "helper (records the take; installed on the first take unless " +
         "AIDEMO_NO_AUTO_INSTALL=1), installed skill.",
-      inputSchema: {
+      inputSchema: closedInput({
         dir: z.string().optional().describe("repo to check for an installed skill"),
-      },
+      }),
       outputSchema: {
         engineVersion: z.string(),
         node: z.string(),
@@ -633,7 +670,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "Owner/repo come from the repo's origin remote; the demo name from the " +
         "directory basename. Pair with the demo-publish workflow so CI keeps " +
         "the URLs fresh. See docs/EMBEDS.md.",
-      inputSchema: {
+      inputSchema: closedInput({
         dir: DIR_INPUT,
         repo: z
           .string()
@@ -643,7 +680,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           .string()
           .optional()
           .describe("still-frame basename under stills/ (default: poster)"),
-      },
+      }),
       outputSchema: {
         owner: z.string(),
         repo: z.string(),
@@ -698,7 +735,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "network call. Call this whenever something felt broken, surprising, " +
         "or needed a workaround; skip it if the session was clean. Set dryRun " +
         "to preview the assembled title/body without filing anything.",
-      inputSchema: {
+      inputSchema: closedInput({
         title: z.string().describe("short issue title"),
         body: z
           .string()
@@ -719,7 +756,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           .boolean()
           .optional()
           .describe("assemble the title/body but don't file anything — preview only"),
-      },
+      }),
       outputSchema: {
         filed: z.boolean(),
         title: z.string(),
@@ -751,10 +788,10 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "compose), log tail, and final result or error (with failure-artifact " +
         "paths and, on a genuine failure, a feedbackHint pointing at the " +
         "feedback tool) of a pipeline job.",
-      inputSchema: {
+      inputSchema: closedInput({
         jobId: z.string(),
         tailLines: z.number().optional().describe("log lines to return (default 40)"),
-      },
+      }),
       outputSchema: JOB_STATUS_SHAPE,
       annotations: { readOnlyHint: true },
     },
@@ -814,7 +851,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "Best-effort cancel (checked between actions/scenes/stages). A " +
         "mid-record cancel salvages the partial timeline + footage. The job " +
         "settles asynchronously — poll job_status for the final state.",
-      inputSchema: { jobId: z.string() },
+      inputSchema: closedInput({ jobId: z.string() }),
       outputSchema: JOB_STATUS_SHAPE,
     },
     async (args) => {
@@ -840,7 +877,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         description:
           `${description} Returns a jobId immediately — poll job_status. ` +
           `Rejects if another job is running.`,
-        inputSchema: inputShape,
+        inputSchema: closedInput(inputShape),
         outputSchema: JOB_START_SHAPE,
       },
       (async (args: z.infer<z.ZodObject<Shape>>) => {
@@ -1019,12 +1056,12 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "and selectors become scenes (cut at navigations and async payoffs), narration " +
         "is left as placeholders, and `_notes` lists what was approximated. No LLM, " +
         "no browser. Then write the narration and probe.",
-      inputSchema: {
+      inputSchema: closedInput({
         file: z.string().describe("absolute path to trace.zip or the test file"),
         name: z.string().describe("demo name (creates demos/<name>/)"),
         dir: z.string().optional().describe("repo to scaffold into (default: server cwd)"),
         force: z.boolean().optional(),
-      },
+      }),
       outputSchema: {
         demoDir: z.string(),
         storyboardPath: z.string(),
