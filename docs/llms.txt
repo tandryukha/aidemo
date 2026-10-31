@@ -12,7 +12,9 @@
 > plan + declarative browser action-spec), then a deterministic player drives a
 > real Chrome — no LLM in the loop during capture — records it, generates a
 > realistic voiceover (OpenAI TTS), aligns word-level captions (Whisper), trims
-> dead time, auto-zooms on interactions, and exports a shareable MP4. Runs
+> dead time, auto-zooms on interactions, and exports a shareable MP4 with
+> SRT/VTT caption files timed to it (optionally also a soft subtitle track
+> viewers can toggle). Runs
 > locally — fully offline with the built-in in-process voice
 > (AIDEMO_TTS_PROVIDER=local, no API key, no server) or any OpenAI-compatible
 > local server — and works against localhost and auth-walled apps using your

@@ -3,8 +3,8 @@
 _Written 2026-09-08 at the end of the "agent-grade demos" roadmap build
 (v0.11 see&lint → v0.12 attention → v0.13 produced → v0.14 self-healing +
 import). **Updated 2026-09-08**: the whole "Engine work" section shipped (see
-*Done* below). What is left needs either a human decision (distribution) or a
-scheduling decision (horizon)._
+*Done* below). Distribution has since gone live (see below); what is left is
+a scheduling decision (horizon)._
 
 ## Done (2026-09-08)
 
@@ -60,16 +60,14 @@ Still deliberately open in that area:
   does no section detection — the beats are placeholders the agent points at
   real elements.
 
-## Distribution (needs a human decision)
+## Distribution
 
-- **npm publish is dormant**: repo variable `NPM_PUBLISH` is unset, so
-  `@tandryukha/aidemo` on npm and the Homebrew formula
-  (`tandryukha/homebrew-aidemo`, `Formula/aidemo.rb`) are still **0.8.0**
-  while GitHub/`stable`/the Claude plugin are 0.14.0. Setting
-  `NPM_PUBLISH=true` before the next `release: vX.Y.Z` commit republishes;
-  then bump the Homebrew formula url + sha256 (see
-  `docs/plans/homebrew.md`). The README's `npx -y @tandryukha/aidemo` line
-  installs the old engine until then.
+- **npm publishing is live** (updated 2026-10-31): `NPM_PUBLISH` is set, and
+  every `release: vX.Y.Z` push publishes `@tandryukha/aidemo` from
+  `release.yml` with OIDC provenance (0.17.0, 0.17.1 and 0.18.0 went out that
+  way). The Homebrew tap (`tandryukha/homebrew-aidemo`) carries its own
+  `bump.yml`, which reads the latest npm version daily and rewrites the
+  formula's url + sha256 — no manual formula bumps.
 - Skills channel is live (`npx skills add tandryukha/aidemo` installs only
   record-demo; dev skills carry `metadata.internal: true`). Consider listing
   on skills.sh's directory once traffic warrants.
@@ -86,11 +84,12 @@ Still deliberately open in that area:
 
 ## How to verify any of the above (unchanged recipe)
 
-`npm run typecheck` · `npm run check:plugin-skill` · fixture server
+`npm run typecheck` · `npm test` · `npm run check:plugin-skill` · fixture server
 `node examples/local-demo/serve.mjs` · `node bin/aidemo.mjs probe
 examples/local-demo --headless --golden` · `npm run mcp-smoke` · stream md5 of
 an unchanged storyboard before/after (`ffmpeg -i out.mp4 -map 0:v -c copy -f
 md5 -`) · full e2e `OPENAI_API_KEY= AIDEMO_TTS_PROVIDER=local node
 bin/aidemo.mjs render <dir> --headless`. Schema change ⇒ `docs/AUTHORING.md`
 in the same commit; release ⇒ bump `package.json`, `plugins/record-demo/
-.claude-plugin/plugin.json`, `server.json`, commit `release: vX.Y.Z`, push.
+.claude-plugin/plugin.json`, `server.json`, commit `release: vX.Y.Z` with the
+release notes as the body (see RELEASING.md), push.

@@ -304,9 +304,9 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
   ffmpeg helper that encodes the take; off with `AIDEMO_NO_AUTO_INSTALL=1`), and
   `github.com` (your own `gh`, for `aidemo feedback`). Recording/composing are
   otherwise fully local. The MCP server is **stdio-only** — no listener.
-- **Small, auditable surface:** ~20 source files, 7 runtime deps, MIT. Pin an
+- **Small, auditable surface:** ~50 source files, 7 runtime deps, MIT. Pin an
   immutable ref if you're wary of the moving `#stable` tag:
-  `npx -y github:tandryukha/aidemo#v0.14.0` (any released tag).
+  `npx -y github:tandryukha/aidemo#v0.18.0` (any released tag).
 - Full detail: [docs/LOCAL_MODELS.md](docs/LOCAL_MODELS.md#what-leaves-the-machine)
   · report vulnerabilities privately per [SECURITY.md](SECURITY.md).
 
