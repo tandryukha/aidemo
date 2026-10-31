@@ -10,7 +10,8 @@
  * fix a selector from the failure artifact instead of guessing.
  */
 
-import { chromium, type Frame, type Page } from "playwright";
+import type { Frame, Page } from "playwright";
+import { launchChromePersistent } from "./browser.js";
 import { chromeProfileDir } from "./config.js";
 import { ensureProfileUnlocked } from "./login.js";
 import { applySeeds, type Seeds } from "./setup.js";
@@ -219,8 +220,7 @@ export async function inspectPage(opts: InspectOptions): Promise<InspectResult> 
   const profileDir = opts.profileDir ?? chromeProfileDir();
   await ensureProfileUnlocked(profileDir);
   const viewport = opts.viewport ?? { width: 1280, height: 720 };
-  const context = await chromium.launchPersistentContext(profileDir, {
-    channel: "chrome",
+  const context = await launchChromePersistent(profileDir, {
     headless: opts.headless !== false,
     args: ["--disable-blink-features=AutomationControlled"],
     viewport,

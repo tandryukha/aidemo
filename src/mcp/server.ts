@@ -531,7 +531,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     {
       title: "Environment preflight",
       description:
-        "Check prereqs: node, ffmpeg, Chrome, TTS/STT endpoint (flags " +
+        "Check prereqs: node, ffmpeg, Chrome (or the AIDEMO_CHROME_CHANNEL / " +
+        "AIDEMO_CHROME_EXECUTABLE browser in use), TTS/STT endpoint (flags " +
         "LLM-only servers like Ollama), API key, playwright, installed skill.",
       inputSchema: {
         dir: z.string().optional().describe("repo to check for an installed skill"),
@@ -541,6 +542,15 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         node: z.string(),
         ffmpeg: z.string().nullable(),
         chrome: z.string().nullable(),
+        browser: z.object({
+          source: z.enum(["default", "channel", "executable"]),
+          channel: z.string().optional(),
+          executablePath: z.string().optional(),
+          description: z.string(),
+          found: z.boolean(),
+          version: z.string().optional(),
+          error: z.string().optional(),
+        }),
         gh: z.string().nullable(),
         endpoint: z.object({
           url: z.string(),
