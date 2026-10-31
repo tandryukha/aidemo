@@ -214,6 +214,10 @@ Codex).
 - **Pipeline tools run as jobs** — `probe`/`record`/`render`/`voice`/`captions`/
   `compose`/`gif` return a `jobId` immediately; `job_status` reports stage,
   per-scene progress, and (on failure) the screenshot/frame-dump paths.
+- **`.env` works like the CLI** — the server loads its cwd's and the engine's
+  `.env` at startup, and since MCP clients often start it outside your repo, each
+  tool given a demo dir also applies that repo's `.env` (nearest one walking up
+  from the demo dir to the repo root). `doctor {dir}` shows the result.
 
 ## Why it's built this way
 
