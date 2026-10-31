@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 26 # active LTS; its bundled npm 11 publishes via OIDC
 
       - name: Detect version change
         id: ver
@@ -98,7 +98,11 @@ jobs:
           if npm view "$name@$v" version >/dev/null 2>&1; then
             echo "::notice::$name@$v already on npm — skipping publish"; exit 0
           fi
-          npm install -g npm@latest >/dev/null 2>&1   # OIDC trusted publishing needs npm >= 11.5.1
+          # OIDC trusted publishing needs npm >= 11.5.1: the npm bundled with the
+          # Node set up above has it (no unpinned npm@latest in the release path).
+          node -e 'const [a, b, c] = process.argv[1].split(".").map(Number);
+            process.exit(a > 11 || (a === 11 && (b > 5 || (b === 5 && c >= 1))) ? 0 : 1)' "$(npm --version)" \
+            || { echo "::error::npm $(npm --version) is too old for OIDC trusted publishing (needs >= 11.5.1)"; exit 1; }
           npm publish --provenance --access public
           echo "::notice::published $name@$v to npm"
 

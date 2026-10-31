@@ -90,8 +90,8 @@ runs:
   using: composite
   steps:
     # The engine needs Node 22.12+ (openai 7, commander 15; Node 20 is
-    # end-of-life). Set it up only when the runner's Node is older, so a job
-    # that pinned a newer Node with its own setup-node step keeps it.
+    # end-of-life). Only when the runner's Node is older, set up the active LTS
+    # (26), so a job that pinned a newer Node with its own setup-node keeps it.
     - name: Check Node.js version
       id: node
       shell: bash
@@ -101,14 +101,14 @@ runs:
           echo "ok=true" >> "$GITHUB_OUTPUT"
         else
           echo "ok=false" >> "$GITHUB_OUTPUT"
-          echo "::notice::Node $(node --version 2>/dev/null || echo 'not found') is older than 22.12 — setting up Node 22 for aidemo"
+          echo "::notice::Node $(node --version 2>/dev/null || echo 'not found') is older than 22.12 — setting up Node 26 for aidemo"
         fi
 
-    - name: Set up Node.js 22
+    - name: Set up Node.js 26
       if: steps.node.outputs.ok != 'true'
       uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
-        node-version: 22
+        node-version: 26
 
     - name: Resolve aidemo engine
       id: engine
