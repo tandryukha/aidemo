@@ -29,12 +29,13 @@
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
     "test:blank-open": "tsx --test test/blank-open.mjs",
+    "mcp-env-test": "node test/mcp-env.mjs",
     "guard-openai-key": "tsx scripts/guard-openai-key.ts",
     "sync:plugin-skill": "cp .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md",
     "check:plugin-skill": "diff -q .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.30.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "commander": "^12.1.0",
     "openai": "^4.67.0",
     "playwright": "^1.55.1",

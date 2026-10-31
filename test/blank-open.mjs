@@ -13,7 +13,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
-import { chromium } from "playwright";
+import { launchChrome } from "../src/browser.ts";
 import { probeFlatLeadMs, probeFlatTailMs } from "../src/ffmpeg.ts";
 import { CURSOR_ARROW_PATH } from "../src/cursor.ts";
 
@@ -74,7 +74,7 @@ before(async () => {
   dir = mkdtempSync(join(tmpdir(), "aidemo-blank-open-"));
   let browser;
   try {
-    browser = await chromium.launch({ channel: "chrome", headless: true });
+    browser = await launchChrome({ headless: true });
   } catch (e) {
     chromeError = e;
     return;

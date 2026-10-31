@@ -93,7 +93,9 @@ The Action is **composite** — it runs on your job's runner, which must provide
   run `actions/setup-node` to pin a version.
 - **Google Chrome / Chromium** — the recorder launches Chrome via Playwright's
   `channel: "chrome"` (it does **not** download a Playwright browser).
-  `ubuntu-latest` ships Chrome.
+  `ubuntu-latest` ships Chrome. Runners without Chrome can set
+  `AIDEMO_CHROME_CHANNEL=chromium` after `npx playwright install chromium`, or
+  `AIDEMO_CHROME_EXECUTABLE=/path/to/chrome`.
 - **ffmpeg + ffprobe** on PATH. `ubuntu-latest` does **not** ship ffmpeg, so add
   a step before the Action: `sudo apt-get update && sudo apt-get install -y
   ffmpeg` (every template in `examples/workflows/` does this).

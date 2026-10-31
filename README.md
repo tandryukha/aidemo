@@ -161,7 +161,8 @@ open examples/local-demo/output/final-demo.mp4   # xdg-open on Linux, start on W
 Voice/captions need `OPENAI_API_KEY` in `.env` — **or** `AIDEMO_TTS_PROVIDER=local`
 (no key, offline), **or** `OPENAI_BASE_URL` at a local server. See
 [docs/LOCAL_MODELS.md](docs/LOCAL_MODELS.md). No Playwright browser download is
-needed — the engine uses your system Chrome (`channel: "chrome"`).
+needed — the engine uses your system Chrome (`channel: "chrome"`; see
+[Setup](#setup) to use a different browser).
 
 [![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)
 
@@ -214,6 +215,10 @@ Codex).
 - **Pipeline tools run as jobs** — `probe`/`record`/`render`/`voice`/`captions`/
   `compose`/`gif` return a `jobId` immediately; `job_status` reports stage,
   per-scene progress, and (on failure) the screenshot/frame-dump paths.
+- **`.env` works like the CLI** — the server loads its cwd's and the engine's
+  `.env` at startup, and since MCP clients often start it outside your repo, each
+  tool given a demo dir also applies that repo's `.env` (nearest one walking up
+  from the demo dir to the repo root). `doctor {dir}` shows the result.
 
 ## Why it's built this way
 
@@ -252,6 +257,22 @@ and `--capture obs`. Run `aidemo doctor` to check your setup.
 npm install
 cp .env.example .env      # add OPENAI_API_KEY, or use AIDEMO_TTS_PROVIDER=local (no key)
 ```
+
+**Choosing the browser.** Every launch (recording, `inspect`, caption/card
+rasterizing) uses system Google Chrome by default. Two env vars (shell or
+`.env`) override that, highest precedence first:
+
+- `AIDEMO_CHROME_EXECUTABLE=/path/to/chrome` — an explicit Chromium-based binary.
+- `AIDEMO_CHROME_CHANNEL=<channel>` — a Playwright channel: `chrome` (default),
+  `chrome-beta`, `chrome-dev`, `chrome-canary`, `msedge`, `msedge-beta`,
+  `msedge-dev`, `msedge-canary`, or `chromium`. `chromium` (Chrome for Testing)
+  is the fix when an enterprise-managed Chrome closes automated sessions after
+  a few seconds ("Target page, context or browser has been closed"); it needs a
+  one-time `npx playwright install chromium`.
+
+`aidemo doctor` reports which browser will be used and whether it was found.
+`aidemo login` opens the same browser, so the profile you log into matches the
+one you record with.
 
 ## Project layout (per demo)
 

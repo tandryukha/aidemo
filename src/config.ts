@@ -66,7 +66,9 @@ async function readEnvFile(envPath: string): Promise<Record<string, string>> {
  * instead. See scripts/guard-openai-key.ts, which fails the build if this
  * skip-if-already-set shape ever comes back. Ambient only wins here when
  * NEITHER .env file defines the key at all (e.g. a deliberate one-off invocation
- * like `OPENAI_API_KEY=sk-... aidemo record ...`). Called once at CLI startup.
+ * like `OPENAI_API_KEY=sk-... aidemo record ...`). Called once at CLI startup —
+ * which includes `aidemo mcp`; MCP tools then layer the demo's project .env on
+ * top via applyProjectEnv(), since the server's cwd is rarely the project.
  */
 export async function loadEnv(): Promise<void> {
   const cwdEnv = resolve(process.cwd(), ".env");
@@ -77,6 +79,71 @@ export async function loadEnv(): Promise<void> {
   for (const [key, val] of Object.entries(merged)) {
     process.env[key] = val;
   }
+}
+
+/**
+ * The `.env` a CLI user of this demo dir would have loaded: the nearest
+ * `.env` walking up from `dir`, stopping at the enclosing repo root (the
+ * first ancestor holding `.git`) — i.e. the cwd/.env of someone running
+ * `aidemo <cmd> demos/<name>` from their repo. null when there is none.
+ */
+async function findProjectEnv(dir: string): Promise<string | null> {
+  let cur = resolve(dir);
+  for (;;) {
+    const candidate = resolve(cur, ".env");
+    try {
+      await fs.access(candidate);
+      return candidate;
+    } catch {
+      // keep walking
+    }
+    try {
+      await fs.access(resolve(cur, ".git"));
+      return null; // repo root reached without a .env
+    } catch {
+      // not a repo root
+    }
+    const parent = resolve(cur, "..");
+    if (parent === cur) return null;
+    cur = parent;
+  }
+}
+
+/** Keys a project .env overrode → their value before the first override (undefined = unset). */
+const projectEnvSaved = new Map<string, string | undefined>();
+let projectEnvFile: string | null = null;
+
+/**
+ * MCP counterpart of loadEnv()'s cwd/.env layer (issue #77). loadEnv() runs
+ * once at startup for `aidemo mcp` too, but an MCP client usually spawns the
+ * server with a cwd that is NOT the consumer's repo (and an npx engine root
+ * has no .env), so the project's .env was never seen. Tools that take a demo
+ * dir call this to apply that project's .env (see findProjectEnv) with the
+ * same precedence as the CLI's cwd/.env: it overrides the engine .env and the
+ * ambient environment. Switching to another project first restores every key
+ * the previous project's .env set, so values never leak between repos.
+ * Logs only to stderr (stdout is the JSON-RPC channel). Returns the file applied.
+ */
+export async function applyProjectEnv(dir: string): Promise<string | null> {
+  const envFile = await findProjectEnv(dir);
+  const values = envFile ? await readEnvFile(envFile) : {};
+  for (const [key, prev] of projectEnvSaved) {
+    if (key in values) continue;
+    if (prev === undefined) delete process.env[key];
+    else process.env[key] = prev;
+    projectEnvSaved.delete(key);
+  }
+  for (const [key, val] of Object.entries(values)) {
+    if (!projectEnvSaved.has(key)) projectEnvSaved.set(key, process.env[key]);
+    process.env[key] = val;
+  }
+  if (envFile !== projectEnvFile) {
+    process.stderr.write(
+      envFile ? `  env: loaded ${envFile}\n` : `  env: no project .env for ${resolve(dir)}\n`
+    );
+    projectEnvFile = envFile;
+  }
+  return envFile;
 }
 
 /**
@@ -220,3 +287,55 @@ export const obsPassword = () => process.env.AIDEMO_OBS_PASSWORD;
  */
 export const nativeCropUnsafe = () =>
   process.env.AIDEMO_NATIVE_CROP_UNSAFE === "1";
+
+/** Playwright browser channels the engine accepts for AIDEMO_CHROME_CHANNEL. */
+export const CHROME_CHANNELS = [
+  "chrome",
+  "chrome-beta",
+  "chrome-dev",
+  "chrome-canary",
+  "msedge",
+  "msedge-beta",
+  "msedge-dev",
+  "msedge-canary",
+  "chromium",
+] as const;
+export type ChromeChannel = (typeof CHROME_CHANNELS)[number];
+
+/**
+ * A browser-selection problem (bad AIDEMO_CHROME_CHANNEL, browser not
+ * installed) — already actionable, so callers rethrow it without adding
+ * unrelated hints (e.g. the recorder's profile-lock advice).
+ */
+export class BrowserSetupError extends Error {
+  override name = "BrowserSetupError";
+}
+
+/** Which browser binary every Playwright launch uses — spread into launch options. */
+export type ChromeLaunchTarget = { channel: ChromeChannel } | { executablePath: string };
+
+/**
+ * The browser every launch site uses (issue #80). Precedence:
+ *   1. AIDEMO_CHROME_EXECUTABLE — explicit binary path (`{ executablePath }`)
+ *   2. AIDEMO_CHROME_CHANNEL    — a Playwright channel (`{ channel }`), e.g.
+ *      `chromium` (Chrome for Testing — for managed Chrome that kills automated
+ *      sessions; needs `npx playwright install chromium`)
+ *   3. default `{ channel: "chrome" }` — system Google Chrome, exactly the
+ *      engine's historical launch options.
+ * Throws on an unknown channel name. Re-read on every call (env is live).
+ */
+export function chromeLaunchOptions(): ChromeLaunchTarget {
+  const exe = process.env.AIDEMO_CHROME_EXECUTABLE?.trim();
+  if (exe) return { executablePath: exe };
+  const raw = process.env.AIDEMO_CHROME_CHANNEL?.trim();
+  if (!raw) return { channel: "chrome" };
+  const channel = raw.toLowerCase();
+  if (!(CHROME_CHANNELS as readonly string[]).includes(channel)) {
+    throw new BrowserSetupError(
+      `AIDEMO_CHROME_CHANNEL="${raw}" is not a supported browser channel. ` +
+        `Use one of: ${CHROME_CHANNELS.join(", ")} — or set AIDEMO_CHROME_EXECUTABLE ` +
+        `to a Chromium-based browser binary instead.`
+    );
+  }
+  return { channel: channel as ChromeChannel };
+}

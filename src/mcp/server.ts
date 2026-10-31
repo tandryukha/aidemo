@@ -4,7 +4,13 @@ import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { ENGINE_ROOT, engineVersion, captionsAutoOffline, chromeProfileDir } from "../config.js";
+import {
+  ENGINE_ROOT,
+  engineVersion,
+  captionsAutoOffline,
+  chromeProfileDir,
+  applyProjectEnv,
+} from "../config.js";
 import { Project, parseStoryboard } from "../project.js";
 import { StoryboardSchema, SeedCookieSchema, type SeedCookie, type Storyboard } from "../types.js";
 import { generateVoice } from "../voice.js";
@@ -498,6 +504,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       },
     },
     async (args) => {
+      // fromUrl launches Chrome: honour the target repo's .env (#77).
+      if (args.dir && !jobs.running()) await applyProjectEnv(args.dir);
       const demoDir = await scaffoldDemo(
         args.dir ? resolve(args.dir) : process.cwd(),
         args.name,
@@ -523,7 +531,8 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
     {
       title: "Environment preflight",
       description:
-        "Check prereqs: node, ffmpeg, Chrome, TTS/STT endpoint (flags " +
+        "Check prereqs: node, ffmpeg, Chrome (or the AIDEMO_CHROME_CHANNEL / " +
+        "AIDEMO_CHROME_EXECUTABLE browser in use), TTS/STT endpoint (flags " +
         "LLM-only servers like Ollama), API key, playwright, installed skill.",
       inputSchema: {
         dir: z.string().optional().describe("repo to check for an installed skill"),
@@ -533,6 +542,15 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         node: z.string(),
         ffmpeg: z.string().nullable(),
         chrome: z.string().nullable(),
+        browser: z.object({
+          source: z.enum(["default", "channel", "executable"]),
+          channel: z.string().optional(),
+          executablePath: z.string().optional(),
+          description: z.string(),
+          found: z.boolean(),
+          version: z.string().optional(),
+          error: z.string().optional(),
+        }),
         gh: z.string().nullable(),
         endpoint: z.object({
           url: z.string(),
@@ -558,10 +576,13 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       },
       annotations: { readOnlyHint: true },
     },
-    async (args) =>
-      jsonResult(
+    async (args) => {
+      // Report the env the pipeline would actually run with for this repo (#77).
+      if (args.dir && !jobs.running()) await applyProjectEnv(args.dir);
+      return jsonResult(
         (await doctorReport(args.dir)) as unknown as Record<string, unknown>
-      )
+      );
+    }
   );
 
   server.registerTool(
@@ -788,6 +809,9 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
       (async (args: z.infer<z.ZodObject<Shape>>) => {
         const project = new Project((args as { dir: string }).dir);
         await project.ensureDirs();
+        // The demo's own .env, as the CLI run from its repo would see it
+        // (#77). Never swapped under a running job — startJob rejects anyway.
+        if (!jobs.running()) await applyProjectEnv(project.dir);
         try {
           const job = jobs.startJob(kind, project, makeRunner(project, args));
           return jsonResult({
