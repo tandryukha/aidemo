@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: weekly
     ignore:
-      # Majors (zod 4, openai 6, commander 15, ...) are deliberate migrations,
+      # Majors (openai 7, commander 15, ...) are deliberate migrations,
       # not auto-bumps — typecheck alone can't validate runtime behavior.
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]

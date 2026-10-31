@@ -1,7 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
@@ -58,6 +57,30 @@ tool (title + body — environment/log context is auto-attached) before you
 finish; skip if nothing came up. A failed job_status result also carries a
 feedbackHint pointing back here.`;
 
+/**
+ * JSON Schema for storyboard.json, generated from the engine's zod schema.
+ * Input semantics (a field with a default is optional — what an author
+ * writes), draft-07, every sub-schema inlined, and unknown keys rejected
+ * (`additionalProperties: false`): zod drops unknown keys silently, so the
+ * schema says they are not part of the contract. Same contract the
+ * zod-to-json-schema export had before the zod 4 migration.
+ */
+function storyboardJsonSchema(): Record<string, unknown> {
+  return z.toJSONSchema(StoryboardSchema, {
+    target: "draft-7",
+    io: "input",
+    unrepresentable: "any",
+    override: (ctx) => {
+      if (
+        ctx.zodSchema._zod.def.type === "object" &&
+        ctx.jsonSchema.additionalProperties === undefined
+      ) {
+        ctx.jsonSchema.additionalProperties = false;
+      }
+    },
+  }) as Record<string, unknown>;
+}
+
 type ToolResult = {
   content: Array<{ type: "text"; text: string }>;
   structuredContent?: Record<string, unknown>;
@@ -100,7 +123,7 @@ const JOB_STATUS_SHAPE = {
   endedAt: z.string().nullable(),
   logFile: z.string(),
   logTail: z.array(z.string()),
-  result: z.record(z.unknown()).optional(),
+  result: z.record(z.string(), z.unknown()).optional(),
   error: z
     .object({
       message: z.string(),
@@ -307,12 +330,12 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         "JSON Schema for storyboard.json, generated from the engine's own " +
         "zod schema — the exact contract the engine validates against.",
       inputSchema: {},
-      outputSchema: { schema: z.record(z.unknown()) },
+      outputSchema: { schema: z.record(z.string(), z.unknown()) },
       annotations: { readOnlyHint: true },
     },
     async () =>
       jsonResult({
-        schema: zodToJsonSchema(StoryboardSchema, { $refStrategy: "none" }),
+        schema: storyboardJsonSchema(),
       })
   );
 
@@ -1438,11 +1461,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
         {
           uri: uri.href,
           mimeType: "application/json",
-          text: JSON.stringify(
-            zodToJsonSchema(StoryboardSchema, { $refStrategy: "none" }),
-            null,
-            2
-          ),
+          text: JSON.stringify(storyboardJsonSchema(), null, 2),
         },
       ],
     })
