@@ -220,3 +220,55 @@ export const obsPassword = () => process.env.AIDEMO_OBS_PASSWORD;
  */
 export const nativeCropUnsafe = () =>
   process.env.AIDEMO_NATIVE_CROP_UNSAFE === "1";
+
+/** Playwright browser channels the engine accepts for AIDEMO_CHROME_CHANNEL. */
+export const CHROME_CHANNELS = [
+  "chrome",
+  "chrome-beta",
+  "chrome-dev",
+  "chrome-canary",
+  "msedge",
+  "msedge-beta",
+  "msedge-dev",
+  "msedge-canary",
+  "chromium",
+] as const;
+export type ChromeChannel = (typeof CHROME_CHANNELS)[number];
+
+/**
+ * A browser-selection problem (bad AIDEMO_CHROME_CHANNEL, browser not
+ * installed) — already actionable, so callers rethrow it without adding
+ * unrelated hints (e.g. the recorder's profile-lock advice).
+ */
+export class BrowserSetupError extends Error {
+  override name = "BrowserSetupError";
+}
+
+/** Which browser binary every Playwright launch uses — spread into launch options. */
+export type ChromeLaunchTarget = { channel: ChromeChannel } | { executablePath: string };
+
+/**
+ * The browser every launch site uses (issue #80). Precedence:
+ *   1. AIDEMO_CHROME_EXECUTABLE — explicit binary path (`{ executablePath }`)
+ *   2. AIDEMO_CHROME_CHANNEL    — a Playwright channel (`{ channel }`), e.g.
+ *      `chromium` (Chrome for Testing — for managed Chrome that kills automated
+ *      sessions; needs `npx playwright install chromium`)
+ *   3. default `{ channel: "chrome" }` — system Google Chrome, exactly the
+ *      engine's historical launch options.
+ * Throws on an unknown channel name. Re-read on every call (env is live).
+ */
+export function chromeLaunchOptions(): ChromeLaunchTarget {
+  const exe = process.env.AIDEMO_CHROME_EXECUTABLE?.trim();
+  if (exe) return { executablePath: exe };
+  const raw = process.env.AIDEMO_CHROME_CHANNEL?.trim();
+  if (!raw) return { channel: "chrome" };
+  const channel = raw.toLowerCase();
+  if (!(CHROME_CHANNELS as readonly string[]).includes(channel)) {
+    throw new BrowserSetupError(
+      `AIDEMO_CHROME_CHANNEL="${raw}" is not a supported browser channel. ` +
+        `Use one of: ${CHROME_CHANNELS.join(", ")} — or set AIDEMO_CHROME_EXECUTABLE ` +
+        `to a Chromium-based browser binary instead.`
+    );
+  }
+  return { channel: channel as ChromeChannel };
+}

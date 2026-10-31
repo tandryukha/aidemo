@@ -17,7 +17,15 @@ import { resolve, dirname, basename } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { platform, release } from "node:os";
-import { ENGINE_ROOT, engineVersion, openAiBaseUrl, ttsProvider } from "./config.js";
+import {
+  ENGINE_ROOT,
+  engineVersion,
+  openAiBaseUrl,
+  ttsProvider,
+  chromeLaunchOptions,
+  type ChromeLaunchTarget,
+} from "./config.js";
+import { describeChromeTarget, probeConfiguredBrowser } from "./browser.js";
 import { localTtsStatus } from "./voice-local.js";
 import { Project } from "./project.js";
 import { STARTER_BRIEF, STARTER_STORYBOARD, briefFromInspect, storyboardFromInspect } from "./starter.js";
@@ -371,6 +379,43 @@ async function probeChrome(): Promise<string | null> {
   return null;
 }
 
+/** Resolve + probe the browser every launch uses (see chromeLaunchOptions). */
+async function probeBrowserTarget(chrome: string | null): Promise<DoctorReport["browser"]> {
+  let target: ChromeLaunchTarget;
+  try {
+    target = chromeLaunchOptions();
+  } catch (err) {
+    return {
+      source: "channel",
+      channel: process.env.AIDEMO_CHROME_CHANNEL,
+      description: `channel ${process.env.AIDEMO_CHROME_CHANNEL} (AIDEMO_CHROME_CHANNEL)`,
+      found: false,
+      error: (err as Error).message,
+    };
+  }
+  const description = describeChromeTarget(target);
+  const isDefault = "channel" in target && !process.env.AIDEMO_CHROME_CHANNEL?.trim();
+  if (isDefault) {
+    // Unchanged default: system Chrome, detected without launching it.
+    return {
+      source: "default",
+      channel: "chrome",
+      description,
+      found: Boolean(chrome),
+      ...(chrome ? { version: chrome } : { error: "Google Chrome not found" }),
+    };
+  }
+  const probe = await probeConfiguredBrowser();
+  return {
+    ...("executablePath" in target
+      ? { source: "executable" as const, executablePath: target.executablePath }
+      : { source: "channel" as const, channel: target.channel }),
+    description,
+    found: "version" in probe,
+    ...("version" in probe ? { version: probe.version } : { error: probe.error }),
+  };
+}
+
 /** Tail the most recent logs/*.log under a demo dir (best-effort). */
 async function recentLogTail(demoDir: string, lines = 40): Promise<string | null> {
   const logsDir = resolve(demoDir, "logs");
@@ -579,7 +624,24 @@ export interface DoctorReport {
   engineVersion: string;
   node: string;
   ffmpeg: string | null;
+  /** System Google Chrome (version or path) — what the default channel launches. */
   chrome: string | null;
+  /**
+   * The browser every launch will actually use (issue #80):
+   * AIDEMO_CHROME_EXECUTABLE > AIDEMO_CHROME_CHANNEL > default channel chrome.
+   */
+  browser: {
+    source: "default" | "channel" | "executable";
+    channel?: string;
+    executablePath?: string;
+    /** e.g. "channel chromium (AIDEMO_CHROME_CHANNEL)". */
+    description: string;
+    found: boolean;
+    /** Version / path when found. */
+    version?: string;
+    /** Actionable reason when not found (or the env var is invalid). */
+    error?: string;
+  };
   gh: string | null;
   endpoint: { url: string; custom: boolean; warning?: string };
   apiKey: "set" | "not-required" | "missing";
@@ -630,11 +692,14 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
   const manifest = await readManifest(target);
   const latest = engineVersion();
   const localTts = ttsProvider() === "local" ? await localTtsStatus() : null;
+  const chrome = await probeChrome();
+  const browser = await probeBrowserTarget(chrome);
   const report: DoctorReport = {
     engineVersion: latest,
     node: process.version,
     ffmpeg: await probeCmd("ffmpeg", ["-version"]),
-    chrome: await probeChrome(),
+    chrome,
+    browser,
     gh: await probeCmd("gh", ["--version"]),
     endpoint: {
       url: base ?? "https://api.openai.com/v1",
@@ -674,7 +739,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
   };
   report.ok = Boolean(
     report.ffmpeg &&
-      report.chrome &&
+      report.browser.found &&
       report.playwright &&
       // Local TTS needs no key: voice is in-process, captions auto-fall-back
       // to the offline derivation in `render`.
@@ -695,7 +760,14 @@ export async function doctor(dir: string | undefined): Promise<void> {
 
   line("node", r.node);
   line("ffmpeg", r.ffmpeg);
-  line("chrome", r.chrome);
+  if (r.browser.source === "default") {
+    line("chrome", r.chrome);
+    ok(`browser: ${r.browser.description}`);
+  } else {
+    if (r.browser.found) ok(`browser: ${r.browser.description} — ${r.browser.version}`);
+    else fail(`browser: ${r.browser.description} — ${r.browser.error ?? "NOT FOUND"}`);
+    log(`system chrome (unused): ${r.chrome ?? "not found"}`);
+  }
   line("gh (feedback)", r.gh);
   ok(
     `voice/captions endpoint: ${r.endpoint.custom ? `${r.endpoint.url} (custom)` : "api.openai.com (default)"}`

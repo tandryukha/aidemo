@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+import { describeChromeTarget, launchChromePersistent } from "./browser.js";
 import { promises as fs } from "node:fs";
 import {
   TimelineSchema,
@@ -18,6 +18,8 @@ import {
   captureDevice,
   obsUrl,
   obsPassword,
+  BrowserSetupError,
+  chromeLaunchOptions,
 } from "./config.js";
 import {
   type CaptureMode,
@@ -169,6 +171,11 @@ export async function record(
   // error); clean up a stale lock from a crashed Chrome.
   await ensureProfileUnlocked(profileDir);
   log(`profile: ${profileDir}${options.fresh ? " (fresh)" : ""}`);
+  // Non-default browser (issue #80): resolve it now — a bad
+  // AIDEMO_CHROME_CHANNEL fails here, before any preflight hook runs.
+  if (process.env.AIDEMO_CHROME_EXECUTABLE?.trim() || process.env.AIDEMO_CHROME_CHANNEL?.trim()) {
+    log(`browser: ${describeChromeTarget(chromeLaunchOptions())}`);
+  }
 
   // Preflight hook (issue #44): runs before Chrome launches, with the resolved
   // profile in its env. It may rewrite the storyboard (a rotating fixture), so
@@ -311,8 +318,7 @@ export async function record(
 
   let context;
   try {
-    context = await chromium.launchPersistentContext(profileDir, {
-      channel: "chrome",
+    context = await launchChromePersistent(profileDir, {
       headless: options.headed === false,
       // Hide the automation fingerprint (navigator.webdriver=false) so
       // Cloudflare on chatgpt.com doesn't throw a "Verify you are human"
@@ -345,6 +351,8 @@ export async function record(
           }),
     });
   } catch (err) {
+    // Wrong/missing browser (issue #80) is already actionable on its own.
+    if (err instanceof BrowserSetupError) throw err;
     throw new Error(
       `Failed to launch Chrome with profile ${profileDir}.\n` +
         `If Chrome is already open on this profile, quit it first (Playwright ` +

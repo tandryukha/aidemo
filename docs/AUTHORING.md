@@ -1217,8 +1217,14 @@ CLI. If nothing came up, skip this.
   composed video) to see the whole thing.
 - `AIDEMO_KEEP_TMP=1` preserves `.compose-tmp/` intermediates when debugging
   compose.
-- `doctor` checks Node, ffmpeg, Chrome, the TTS/STT endpoint (and flags
-  LLM-only servers like Ollama, which have no audio endpoints — point
+- Browser: every launch uses system Chrome unless `AIDEMO_CHROME_EXECUTABLE`
+  (explicit binary) or `AIDEMO_CHROME_CHANNEL` (`chromium` — Chrome for
+  Testing, after `npx playwright install chromium` — `chrome-beta`, `msedge`,
+  …) is set; the executable wins. Use `chromium` when a managed Chrome closes
+  the automated session after a few seconds ("Target page, context or browser
+  has been closed").
+- `doctor` checks Node, ffmpeg, the browser in use, the TTS/STT endpoint
+  (and flags LLM-only servers like Ollama, which have no audio endpoints — point
   `OPENAI_BASE_URL` at a speech server such as speaches instead).
 
 ## Import from Playwright (trace or test file)

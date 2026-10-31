@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { chromeProfileDir } from "./config.js";
+import { manualLaunchBinary } from "./browser.js";
 import { ensureDir, log, ok, step, sleep } from "./util.js";
 
 /**
@@ -98,13 +99,16 @@ export async function login(profileDir?: string, opts: LoginOptions = {}): Promi
       "--no-default-browser-check",
       url,
     ];
-    if (process.platform === "darwin") {
+    // AIDEMO_CHROME_EXECUTABLE / AIDEMO_CHROME_CHANNEL=chromium: log in with
+    // the SAME browser the recorder will launch (issue #80).
+    const configured = manualLaunchBinary();
+    if (process.platform === "darwin" && !configured) {
       spawn("open", ["-na", "Google Chrome", "--args", ...args], {
         stdio: "ignore",
         detached: true,
       }).unref();
     } else {
-      const bin = process.env.CHROME_BIN || "google-chrome";
+      const bin = configured || process.env.CHROME_BIN || "google-chrome";
       const child = spawn(bin, args, { stdio: "ignore", detached: true });
       child.on("error", () => {
         log(`could not launch "${bin}" (set CHROME_BIN) — open Chrome yourself with:`);
