@@ -50,6 +50,7 @@ jobs:
           done
 
       - name: Render fixture via the local action
+        id: render
         uses: ./
         with:
           demos: examples/local-demo
@@ -58,10 +59,30 @@ jobs:
           gif: "true"
           engine-path: "." # exercise THIS checkout's engine, not github:stable
 
+      # The action's outputs list what it rendered: media (mp4 + gif) and the
+      # caption files compose writes next to the video.
+      - name: Check the action outputs
+        env:
+          MEDIA: ${{ steps.render.outputs.media }}
+          CAPTIONS: ${{ steps.render.outputs.captions }}
+        run: |
+          set -euo pipefail
+          printf 'media:\n%s\ncaptions:\n%s\n' "$MEDIA" "$CAPTIONS"
+          for f in examples/local-demo/output/final-demo.mp4 examples/local-demo/output/final-demo.gif; do
+            grep -qxF "$f" <<<"$MEDIA" || { echo "::error::media output lacks $f"; exit 1; }
+          done
+          for f in examples/local-demo/output/final-demo.srt examples/local-demo/output/final-demo.vtt; do
+            grep -qxF "$f" <<<"$CAPTIONS" || { echo "::error::captions output lacks $f"; exit 1; }
+            test -s "$f" || { echo "::error::$f is empty"; exit 1; }
+          done
+          head -1 examples/local-demo/output/final-demo.vtt | grep -qx 'WEBVTT'
+
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: final-demo
           path: |
             examples/local-demo/output/final-demo.mp4
             examples/local-demo/output/final-demo.gif
+            examples/local-demo/output/final-demo.srt
+            examples/local-demo/output/final-demo.vtt
           if-no-files-found: error

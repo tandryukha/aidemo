@@ -82,6 +82,11 @@ outputs:
   media:
     description: Newline-separated list of rendered media files (mp4/gif).
     value: ${{ steps.render.outputs.media }}
+  captions:
+    description: >-
+      Newline-separated list of caption files written next to the rendered
+      videos (final-demo.srt / final-demo.vtt, timed to the final video).
+    value: ${{ steps.render.outputs.captions }}
   engine-bin:
     description: Absolute path to the aidemo CLI entry the action ran.
     value: ${{ steps.engine.outputs.bin }}
@@ -218,6 +223,7 @@ runs:
         esac
 
         media=()
+        captions=()
         count=0
         # DEMOS is space/newline separated; unquoted expansion applies globbing.
         for pattern in $DEMOS; do
@@ -231,6 +237,8 @@ runs:
             echo "::endgroup::"
             if [ -f "$dir/output/final-demo.mp4" ]; then media+=("$dir/output/final-demo.mp4"); fi
             if [ -f "$dir/output/final-demo.gif" ]; then media+=("$dir/output/final-demo.gif"); fi
+            if [ -f "$dir/output/final-demo.srt" ]; then captions+=("$dir/output/final-demo.srt"); fi
+            if [ -f "$dir/output/final-demo.vtt" ]; then captions+=("$dir/output/final-demo.vtt"); fi
           done
           if [ "$matched" = "0" ]; then
             echo "::warning::no demo directory matched '$pattern'"
@@ -243,6 +251,9 @@ runs:
         {
           echo "media<<__AIDEMO_EOF__"
           printf '%s\n' "${media[@]:-}"
+          echo "__AIDEMO_EOF__"
+          echo "captions<<__AIDEMO_EOF__"
+          printf '%s\n' "${captions[@]:-}"
           echo "__AIDEMO_EOF__"
         } >> "$GITHUB_OUTPUT"
         echo "rendered $count demo(s)"

@@ -79,8 +79,9 @@ Prefer a ready-made file? Copy one of the [templates](../examples/workflows/).
 | `openai-api-key` | *(empty)* | Only for `tts: openai`. Pass a secret; never hard-code. |
 | `working-directory` | `.` | Where the demo paths are resolved from. |
 
-Outputs: `media` (newline-separated list of rendered files) and `engine-bin`
-(the CLI entry the action ran).
+Outputs: `media` (newline-separated list of rendered files: mp4/gif),
+`captions` (the `final-demo.srt` / `final-demo.vtt` files compose writes next
+to each video, timed to it) and `engine-bin` (the CLI entry the action ran).
 
 The action loops over every dir in `demos`, so re-rendering a whole onboarding
 library is just `demos: content/onboarding/*` — no per-demo boilerplate.
