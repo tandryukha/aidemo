@@ -80,7 +80,7 @@ Key facts:
   against any OpenAI-compatible local server (speaches, Kokoro-FastAPI,
   LocalAI) via OPENAI_BASE_URL; recording via Playwright + system Chrome;
   final compose via ffmpeg. All rendering is local.
-- Requirements: Node 22+, Google Chrome, ffmpeg/ffprobe, and an OpenAI API key
+- Requirements: Node 22.12+, Google Chrome, ffmpeg/ffprobe, and an OpenAI API key
   — or none: AIDEMO_TTS_PROVIDER=local (built-in in-process voice) or an
   OpenAI-compatible local server via OPENAI_BASE_URL make the render fully
   offline and key-free. Developed on macOS; Linux expected to work (default

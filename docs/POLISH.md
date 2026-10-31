@@ -50,7 +50,7 @@ resolution-aware, so captions/cards/zoom render at 2x on a 2x capture.
   `AIDEMO_CAPTURE_DEVICE` (default "Capture screen 0"; list with
   `ffmpeg -f avfoundation -list_devices true -i ""`).
 - `--capture obs`: OBS Studio via obs-websocket v5 (`AIDEMO_OBS_URL`,
-  `AIDEMO_OBS_PASSWORD`; needs Node 22+). Set the OBS scene to a **Display
+  `AIDEMO_OBS_PASSWORD`). Set the OBS scene to a **Display
   Capture of the primary screen**; start/stop is automated.
 
 Both need a **headed** browser (they record the actual screen — keep the window

@@ -8,7 +8,7 @@
     "aidemo": "bin/aidemo.mjs"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "publishConfig": {
     "access": "public"
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
-    "commander": "^12.1.0",
+    "commander": "^15.0.0",
     "openai": "^7.47.0",
     "playwright": "^1.55.1",
     "re2js": "2.9.1",

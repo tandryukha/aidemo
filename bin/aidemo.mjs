@@ -7,15 +7,16 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 // Fail fast on an unsupported Node with the fix, instead of an arbitrary crash
-// deep inside a dependency (openai 7 needs Node 22). Node 20 reached
-// end-of-life on 2026-04-30. Keep in sync with package.json "engines".
-const MIN_NODE_MAJOR = 22;
-const nodeMajor = Number(process.versions.node.split(".")[0]);
-if (nodeMajor < MIN_NODE_MAJOR) {
+// deep inside a dependency (openai 7 needs Node 22, commander 15 22.12). Node
+// 20 reached end-of-life on 2026-04-30. Keep in sync with package.json
+// "engines" and the doctor check (src/distribute.ts).
+const MIN_NODE = [22, 12];
+const [nodeMajor, nodeMinor] = process.versions.node.split(".").map(Number);
+if (nodeMajor < MIN_NODE[0] || (nodeMajor === MIN_NODE[0] && nodeMinor < MIN_NODE[1])) {
   console.error(
-    `aidemo: Node.js ${MIN_NODE_MAJOR}+ is required (found ${process.version}). ` +
-      `Install Node ${MIN_NODE_MAJOR} LTS or newer (nvm install ${MIN_NODE_MAJOR}; in CI, ` +
-      `actions/setup-node with node-version: ${MIN_NODE_MAJOR}) and re-run.`
+    `aidemo: Node.js ${MIN_NODE.join(".")}+ is required (found ${process.version}). ` +
+      `Install Node ${MIN_NODE[0]} LTS or newer (nvm install ${MIN_NODE[0]}; in CI, ` +
+      `actions/setup-node with node-version: ${MIN_NODE[0]}) and re-run.`
   );
   process.exit(1);
 }

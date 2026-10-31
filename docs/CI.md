@@ -89,7 +89,7 @@ library is just `demos: content/onboarding/*` — no per-demo boilerplate.
 
 The Action is **composite** — it runs on your job's runner, which must provide:
 
-- **Node.js 22+** and npm on PATH. The Action sets up Node 22 itself when the
+- **Node.js 22.12+** and npm on PATH. The Action sets up Node 22 itself when the
   runner's Node is older; the templates also run `actions/setup-node` to pin a
   version.
 - **Google Chrome / Chromium** — the recorder launches Chrome via Playwright's

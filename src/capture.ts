@@ -348,7 +348,7 @@ interface ObsPending {
 }
 
 /**
- * Minimal obs-websocket v5 client on Node's global WebSocket (Node 22+).
+ * Minimal obs-websocket v5 client on Node's global WebSocket.
  * Assumes the current OBS scene captures the FULL primary display (Display
  * Capture) — the recorder crops to the viewport afterwards, same as native.
  */
@@ -366,11 +366,6 @@ export class ObsCapture implements CaptureProvider {
   }
 
   async start(): Promise<void> {
-    if (typeof WebSocket === "undefined") {
-      throw new Error(
-        "OBS capture needs Node 22+ (built-in WebSocket). Use --capture native instead."
-      );
-    }
     await this.connect();
     await this.request("StartRecord", {});
     await sleep(500); // let OBS write its first frames

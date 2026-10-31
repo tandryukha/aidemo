@@ -15,7 +15,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 
 | Task | Command |
 |---|---|
-| Install | `npm install` — Node 22+, system Chrome, ffmpeg+ffprobe on PATH (no Playwright browser download; Playwright's ~2 MB take-recording ffmpeg helper installs itself on the first take — `AIDEMO_NO_AUTO_INSTALL=1` opts out; `doctor` reports it) |
+| Install | `npm install` — Node 22.12+, system Chrome, ffmpeg+ffprobe on PATH (no Playwright browser download; Playwright's ~2 MB take-recording ffmpeg helper installs itself on the first take — `AIDEMO_NO_AUTO_INSTALL=1` opts out; `doctor` reports it) |
 | Type check | `npm run typecheck` |
 | Fixture server | `node examples/local-demo/serve.mjs` (port 8787) |
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
