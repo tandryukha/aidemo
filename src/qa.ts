@@ -14,10 +14,12 @@
 
 import { spawn } from "node:child_process";
 import { relative } from "node:path";
+import { stat } from "node:fs/promises";
 import type { Project } from "./project.js";
 import {
   probeDurationMs,
   probeFlatLeadMs,
+  probeVideoDims,
 } from "./ffmpeg.js";
 import { ComposeReportSchema, type Storyboard } from "./types.js";
 import { exists, log, ok, readJson } from "./util.js";
@@ -105,6 +107,24 @@ function imageYavg(file: string): Promise<number | null> {
   });
 }
 
+/**
+ * `blankOpenMs` from the compose report that belongs to `video` (written at or
+ * after it), or null when there is no such report.
+ */
+async function reportedBlankOpenMs(project: Project, video: string): Promise<number | null> {
+  if (!(await exists(project.reportPath))) return null;
+  try {
+    const [rs, vs] = await Promise.all([stat(project.reportPath), stat(video)]);
+    if (rs.mtimeMs < vs.mtimeMs) return null;
+    const report = ComposeReportSchema.safeParse(await readJson(project.reportPath));
+    return report.success && typeof report.data.blankOpenMs === "number"
+      ? report.data.blankOpenMs
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Host of a URL-ish string, or null. */
 function hostOf(url: string): string | null {
   try {
@@ -137,8 +157,17 @@ export async function runQa(project: Project, storyboard: Storyboard): Promise<Q
   }
 
   // 2. The opening frames: a demo that starts on the browser's white pre-paint.
+  // Prefer compose's own measurement (report.json `blankOpenMs`): it is taken
+  // on the page footage before captions are burned in, and the finished MP4
+  // can't tell a caption pill over a blank page from sparse real content
+  // (issue #78). Fall back to probing the MP4 when there's no report for it.
   const introMs = storyboard.intro?.durationMs ?? 0;
-  const blankMs = await probeFlatLeadMs(video, 4000, introMs).catch(() => 0);
+  let blankMs = await reportedBlankOpenMs(project, video);
+  if (blankMs == null) {
+    const dims = await probeVideoDims(video).catch(() => null);
+    const pxScale = dims ? dims.width / storyboard.video.width : 1;
+    blankMs = await probeFlatLeadMs(video, 4000, introMs, pxScale).catch(() => 0);
+  }
   if (blankMs > 250) {
     add(
       "blank-open",

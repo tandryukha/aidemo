@@ -619,11 +619,20 @@ millisecond instead, when you want a specific moment.
 
 **Blank opening** (`output.trimLeadingBlank: true`): a take that starts on a
 page still painting opens on white/blank frames. With this on, compose trims
-the flat lead of the first scene (capped by `output.blankOpenCapMs`, default
-1200) and re-aligns the scene's cursor, zoom and anchors to the trim. Compose
-always *measures* the opening either way and reports it as `blankOpenMs` plus
-a `blank-open` warning past ~400 ms; `aidemo lint` forecasts the same pitfall
+the blank lead of the first scene down to `output.blankOpenCapMs` (default
+100 ms kept) and re-aligns the scene's cursor, zoom and anchors to the trim.
+Compose always *measures* the opening either way — on the page footage,
+before captions and overlays — and reports it as `blankOpenMs` plus a
+`blank-open` warning past ~250 ms; `aidemo lint` forecasts the same pitfall
 from a first scene that opens with a `goto` and no wait.
+
+"Blank" means *empty*, not *static*: one colour covering the frame **and** no
+text or outlines beyond a cursor-sized mark. A white pre-paint or a solid
+splash (any colour, black included) is blank; a motionless page that shows
+something — a dark terminal with a prompt line, a login box on a big solid
+background — is content, so it is never trimmed or warned about. The same
+test guards the freeze-hold tail trim (`blank-tail`). A frame showing only a
+cursor, a lone `$` or a small spinner still reads as blank.
 
 ## Capture resolution (`video.deviceScaleFactor`)
 

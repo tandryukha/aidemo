@@ -236,7 +236,7 @@ export async function compose(
     let leadTrimMs = 0;
     if (i === 0 && storyboard.output?.trimLeadingBlank && srcMs > 1000) {
       const cap = storyboard.output.blankOpenCapMs ?? 100;
-      const flatLead = await probeFlatLeadMs(rawSegPath);
+      const flatLead = await probeFlatLeadMs(rawSegPath, 4000, 0, pxScale);
       if (flatLead > cap + 80) {
         leadTrimMs = Math.min(flatLead - cap, srcMs - 500);
         srcMs -= leadTrimMs;
@@ -251,7 +251,7 @@ export async function compose(
     // (issue #36), so drop a flat tail before deciding how long to hold —
     // but only when we would actually hold, and never the whole segment.
     if (srcMs > 0 && targetMs > srcMs + 400) {
-      const flatMs = await probeFlatTailMs(rawSegPath, srcMs);
+      const flatMs = await probeFlatTailMs(rawSegPath, srcMs, 4000, pxScale);
       const trimTo = srcMs - flatMs;
       if (flatMs > 200 && trimTo > 500) {
         blankTrimMs = flatMs;
@@ -667,6 +667,13 @@ export async function compose(
       "scenes"
     );
   }
+
+  // Blank-open measurement (issues #47, #78), taken HERE — on the assembled
+  // scenes, before redaction, attention, compose-time cursor, zoom, frame and
+  // captions — because the final MP4 can't tell a blank page from content: a
+  // caption pill over a white pre-paint has as much text as a terminal prompt.
+  // Same timeline as the final video minus the intro card.
+  const blankOpenMs = await probeFlatLeadMs(content, 4000, 0, pxScale).catch(() => 0);
 
   // Redaction first: blur boxes ride every later pass (cursor, zoom, blur).
   if (redactPlaced.length) {
@@ -1094,10 +1101,10 @@ export async function compose(
     : null;
   await muxAudio(project, storyboard, finalVideo, introMs, chapters);
   ok(`final video → ${project.outputPath}`);
-  // Blank-open measurement + poster (issue #47). The poster used to be taken
-  // at a fixed offset, which on a demo that opens with a `goto` is exactly the
-  // white load frame; pick the first frame that actually shows content instead.
-  const blankOpenMs = await probeFlatLeadMs(project.outputPath, 4000, introMs).catch(() => 0);
+  // Blank-open warning + poster (issue #47; measured after scene assembly,
+  // above). The poster used to be taken at a fixed offset, which on a demo
+  // that opens with a `goto` is exactly the white load frame; pick the first
+  // frame that actually shows content instead.
   if (blankOpenMs > 250) {
     warn(
       "blank-open",
