@@ -12,10 +12,12 @@
  * hits the network beyond the local `git` invocation, and never renders.
  */
 import { execFile } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
 import { resolve, isAbsolute, basename } from "node:path";
 import { exists } from "./util.js";
 import { UPSTREAM_REPO } from "./distribute.js";
+import { htmlTrackLanguage } from "./caption-track.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -49,6 +51,8 @@ export interface EmbedResult {
     still: string;
     /** GitHub Pages MP4 (correct video/mp4 MIME for <video>) — needs Pages on the branch. */
     pagesMp4: string;
+    /** GitHub Pages WebVTT captions, timed to the video — the <video> embed's <track>. */
+    pagesVtt: string;
     /** GitHub Pages project-site base. */
     pagesBase: string;
   };
@@ -140,12 +144,25 @@ export async function buildEmbed(
   // GitHub Pages project-site host is the lowercased owner login.
   const pagesBase = `https://${owner.toLowerCase()}.github.io/${repo}`;
   const pagesMp4 = `${pagesBase}/media/${demo}/latest.mp4`;
+  const pagesVtt = `${pagesBase}/media/${demo}/latest.vtt`;
+  // Track language = the storyboard's narration language (best-effort read).
+  let language: string | undefined;
+  try {
+    const sb = JSON.parse(await readFile(resolve(demoDir, "generated", "storyboard.json"), "utf8"));
+    if (typeof sb?.language === "string") language = sb.language;
+  } catch {
+    // no storyboard here (or unreadable) — English
+  }
+  const { srclang, label } = htmlTrackLanguage(language);
 
   const markdownGif = `![${demo} demo](${gif})`;
   const markdownStill = `![${demo}](${stillUrl})`;
+  // crossorigin: the page embedding this is on another origin than Pages, and
+  // a cross-origin <track> only loads in CORS mode (Pages sends ACAO: *).
   const htmlVideo =
-    `<video controls muted loop playsinline width="960" poster="${stillUrl}">\n` +
+    `<video controls muted loop playsinline width="960" crossorigin="anonymous" poster="${stillUrl}">\n` +
     `  <source src="${pagesMp4}" type="video/mp4" />\n` +
+    `  <track kind="captions" src="${pagesVtt}" srclang="${srclang}" label="${label}" />\n` +
     `  <a href="${gif}">▶ Watch the ${demo} demo</a>\n` +
     `</video>`;
 
@@ -158,7 +175,7 @@ export async function buildEmbed(
     demo,
     branch: DEMO_MEDIA_BRANCH,
     still,
-    urls: { gif, mp4, still: stillUrl, pagesMp4, pagesBase },
+    urls: { gif, mp4, still: stillUrl, pagesMp4, pagesVtt, pagesBase },
     snippets: { markdownGif, markdownStill, htmlVideo },
     workflow: {
       path: PUBLISH_WORKFLOW_REL,

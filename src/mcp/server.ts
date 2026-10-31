@@ -692,6 +692,7 @@ export function buildMcpServer(): { server: McpServer; jobs: JobManager } {
           mp4: z.string(),
           still: z.string(),
           pagesMp4: z.string(),
+          pagesVtt: z.string().describe("captions for the <video> embed's <track>"),
           pagesBase: z.string(),
         }),
         snippets: z.object({

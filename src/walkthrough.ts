@@ -13,7 +13,8 @@ import { Project } from "./project.js";
 import { ComposeReportSchema, type Storyboard } from "./types.js";
 import { runFfmpeg } from "./ffmpeg.js";
 import { toSrt, toVtt } from "./captions.js";
-import { finalVideoCues } from "./caption-track.js";
+import { finalVideoCues, htmlTrackLanguage } from "./caption-track.js";
+import { resolveNarrationLanguage } from "./i18n.js";
 import { ensureDir, exists, readJson, writeJson, log, step } from "./util.js";
 
 export interface WalkthroughOptions {
@@ -150,7 +151,15 @@ export async function exportWalkthrough(
   );
 
   const index = resolve(dir, "index.html");
-  await fs.writeFile(index, renderHtml(title, videoRel, scenes, report.durationMs));
+  // The page's player offers the shipped VTT as a captions track (off until
+  // the viewer turns it on, like the MP4's own subtitle track).
+  const track = captions.vtt
+    ? {
+        src: basename(captions.vtt),
+        ...htmlTrackLanguage(resolveNarrationLanguage(storyboard, project.lang)),
+      }
+    : undefined;
+  await fs.writeFile(index, renderHtml(title, videoRel, scenes, report.durationMs, track));
   const manifest = resolve(dir, "walkthrough.json");
   await writeJson(manifest, {
     title,
@@ -167,7 +176,8 @@ function renderHtml(
   title: string,
   videoRel: string,
   scenes: WalkthroughScene[],
-  durationMs: number
+  durationMs: number,
+  track?: { src: string; srclang: string; label: string }
 ): string {
   const cards = scenes
     .map(
@@ -215,7 +225,11 @@ function renderHtml(
   <h1>${esc(title)}</h1>
   <div class="hint">${scenes.length} steps · ${mmss(durationMs)} · ← → to move between steps, Enter to play from a step</div>
 </header>
-<video id="v" src="${esc(videoRel)}" controls preload="metadata"></video>
+<video id="v" src="${esc(videoRel)}" controls preload="metadata">${
+    track
+      ? `<track kind="captions" src="${esc(track.src)}" srclang="${esc(track.srclang)}" label="${esc(track.label)}">`
+      : ""
+  }</video>
 <main>${cards}
 </main>
 <script>

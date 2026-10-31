@@ -13,6 +13,7 @@ consuming repo, at stable paths:
 ```
 media/<demo>/latest.mp4
 media/<demo>/latest.gif
+media/<demo>/latest.vtt          # captions, timed to latest.mp4 (also latest.srt)
 media/<demo>/stills/<name>.png   # e.g. stills/poster.png
 ```
 
@@ -30,6 +31,7 @@ fresh orphan commit).
 | GIF   | `https://raw.githubusercontent.com/<owner>/<repo>/demo-media/media/<demo>/latest.gif` |
 | Still | `https://raw.githubusercontent.com/<owner>/<repo>/demo-media/media/<demo>/stills/poster.png` |
 | MP4   | `https://raw.githubusercontent.com/<owner>/<repo>/demo-media/media/<demo>/latest.mp4` |
+| Captions | `https://<owner>.github.io/<repo>/media/<demo>/latest.vtt` (Pages; also `latest.srt`) |
 
 Generate the exact snippets for your repo (no network, no render):
 
@@ -63,12 +65,22 @@ everywhere Markdown images do. A still image works the same way with `image/png`
 ### Docs sites / blogs → HTML `<video>`
 
 ```html
-<video controls muted loop playsinline width="960"
+<video controls muted loop playsinline width="960" crossorigin="anonymous"
        poster="https://raw.githubusercontent.com/<owner>/<repo>/demo-media/media/<demo>/stills/poster.png">
   <source src="https://<owner>.github.io/<repo>/media/<demo>/latest.mp4" type="video/mp4" />
+  <track kind="captions" src="https://<owner>.github.io/<repo>/media/<demo>/latest.vtt"
+         srclang="en" label="English" />
   <a href="https://raw.githubusercontent.com/<owner>/<repo>/demo-media/media/<demo>/latest.gif">▶ Watch the demo</a>
 </video>
 ```
+
+The `<track>` offers the captions (timed to the final video, intro card
+included) behind the player's CC button — off until the viewer turns it on.
+It matters most for demos rendered with `captions.style: "none"`, whose video
+has no burned-in captions. `crossorigin="anonymous"` is what lets a page on
+another origin load the track (GitHub Pages sends `Access-Control-Allow-Origin:
+*`); `aidemo embed` fills in `srclang`/`label` from the storyboard's
+`language`.
 
 **Why the Pages URL for the `<source>`, not raw?** `raw.githubusercontent.com`
 serves `.mp4` as **`Content-Type: application/octet-stream`** with
@@ -123,8 +135,8 @@ into your repo at `.github/workflows/demo-publish.yml`. It:
 
 1. renders the demo with the aidemo composite action (`uses: tandryukha/aidemo@stable`),
    using the **local TTS provider + offline captions** — zero key, zero spend;
-2. copies `output/final-demo.{mp4,gif}` to the stable layout and extracts a
-   `stills/poster.png` with ffmpeg (preinstalled on the runner);
+2. copies `output/final-demo.{mp4,gif,vtt,srt}` to the stable layout and
+   extracts a `stills/poster.png` with ffmpeg (preinstalled on the runner);
 3. force-pushes a **single-commit** `demo-media` branch via git plumbing
    (`write-tree` / `commit-tree` / `push --force`) — no third-party actions
    beyond a SHA-pinned `actions/checkout`, and only `permissions: contents: write`.

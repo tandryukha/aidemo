@@ -82,6 +82,12 @@ jobs:
           cp -f "$SRC/final-demo.mp4" "$PUB/media/$DEMO_NAME/latest.mp4"
           [ -f "$SRC/final-demo.gif" ] \
             && cp -f "$SRC/final-demo.gif" "$PUB/media/$DEMO_NAME/latest.gif"
+          # Captions timed to the video — the HTML embed's <track> loads latest.vtt.
+          for ext in vtt srt; do
+            if [ -f "$SRC/final-demo.$ext" ]; then
+              cp -f "$SRC/final-demo.$ext" "$PUB/media/$DEMO_NAME/latest.$ext"
+            fi
+          done
           # Best-effort poster still (ffmpeg installed in the step above).
           ffmpeg -y -loglevel error -i "$SRC/final-demo.mp4" -frames:v 1 -q:v 3 \
             "$PUB/media/$DEMO_NAME/stills/poster.png" || true
@@ -101,4 +107,4 @@ jobs:
           TREE="$(git write-tree)"
           COMMIT="$(git commit-tree "$TREE" -m "publish demo media ($DEMO_NAME) [skip ci]")"
           git push --force origin "$COMMIT:refs/heads/$BRANCH"
-          echo "published → media/$DEMO_NAME/{latest.mp4,latest.gif,stills/poster.png}"
+          echo "published → media/$DEMO_NAME/{latest.mp4,latest.gif,latest.vtt,latest.srt,stills/poster.png}"

@@ -75,6 +75,21 @@ export function mp4Language(tag: string | undefined): string {
   return ISO639_2T[primary] ?? "und";
 }
 
+/**
+ * `srclang` + human label for an HTML `<track>` of captions in `tag` (a BCP-47
+ * code: "en", "en-GB", "de"), e.g. { srclang: "en-GB", label: "British English" }.
+ */
+export function htmlTrackLanguage(tag: string | undefined): { srclang: string; label: string } {
+  const srclang = tag?.trim() || "en";
+  let label = srclang;
+  try {
+    label = new Intl.DisplayNames(["en"], { type: "language" }).of(srclang) ?? srclang;
+  } catch {
+    // not a valid BCP-47 tag — keep the raw code as the label
+  }
+  return { srclang, label };
+}
+
 /** Track handler types that carry subtitles/captions in ISO-BMFF / QuickTime. */
 const SUBTITLE_HANDLERS = new Set(["sbtl", "text", "subt"]);
 

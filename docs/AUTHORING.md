@@ -625,8 +625,8 @@ artifacts in `output/walkthrough/`: `index.html` (one card per scene with
 its payoff frame, title, narration and a jump-to-time button over the video;
 ← / → keys step through, Enter plays from a step), `guide.md` (the same as a
 README/SOP section: heading + frame + narration per scene), `scene-NN-<id>.png`
-frames, the SRT/VTT captions (timed to the video, like the sidecars), and
-`walkthrough.json`. Frames come from the
+frames, the SRT/VTT captions (timed to the video, like the sidecars; the
+page's player offers them as a captions track), and `walkthrough.json`. Frames come from the
 **final** video, so they carry zoom, cursor, overlays and the frame. Scene
 `title`s name the steps (falling back to ids).
 
