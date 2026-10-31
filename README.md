@@ -164,7 +164,9 @@ Voice/captions need `OPENAI_API_KEY` in `.env` — **or** `AIDEMO_TTS_PROVIDER=l
 (no key, offline), **or** `OPENAI_BASE_URL` at a local server. See
 [docs/LOCAL_MODELS.md](docs/LOCAL_MODELS.md). No Playwright browser download is
 needed — the engine uses your system Chrome (`channel: "chrome"`; see
-[Setup](#setup) to use a different browser).
+[Setup](#setup) to use a different browser). The one Playwright download is
+its ~2 MB ffmpeg helper, which records the take: `aidemo doctor` checks for it
+and prints the exact install command (`npx playwright install ffmpeg`).
 
 [![Quickstart output — the bundled fixture rendered end-to-end](docs/quickstart.gif)](https://github.com/tandryukha/aidemo/releases/download/v0.3.0/quickstart-demo.mp4)
 
@@ -251,7 +253,9 @@ Codex).
 
 ## Setup
 
-Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`.
+Prereqs: **Node 20+**, **Google Chrome**, **ffmpeg + ffprobe** on `PATH`, and
+Playwright's ~2 MB ffmpeg helper that records the take (one per Playwright
+version; `aidemo doctor` prints the exact install command).
 Developed and tested on macOS; Linux works for the default (Playwright) capture
 and `--capture obs`. Run `aidemo doctor` to check your setup.
 

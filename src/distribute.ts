@@ -25,7 +25,7 @@ import {
   chromeLaunchOptions,
   type ChromeLaunchTarget,
 } from "./config.js";
-import { describeChromeTarget, probeConfiguredBrowser } from "./browser.js";
+import { describeChromeTarget, probeConfiguredBrowser, recorderFfmpeg } from "./browser.js";
 import { localTtsStatus } from "./voice-local.js";
 import { Project } from "./project.js";
 import { STARTER_BRIEF, STARTER_STORYBOARD, briefFromInspect, storyboardFromInspect } from "./starter.js";
@@ -659,6 +659,12 @@ export interface DoctorReport {
     };
   };
   playwright: boolean;
+  /**
+   * Playwright's ffmpeg helper for THIS engine's Playwright — the encoder the
+   * built-in capture records every take with (see recorderFfmpeg). null when
+   * its location can't be determined.
+   */
+  recorderFfmpeg: { found: boolean; path: string; revision: string; install: string } | null;
   skill: {
     target: string;
     installed: { version: string; stableAvailable: string | null } | null;
@@ -694,6 +700,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
   const localTts = ttsProvider() === "local" ? await localTtsStatus() : null;
   const chrome = await probeChrome();
   const browser = await probeBrowserTarget(chrome);
+  const helper = recorderFfmpeg();
   const report: DoctorReport = {
     engineVersion: latest,
     node: process.version,
@@ -725,6 +732,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
         : {}),
     },
     playwright: playwrightOk,
+    recorderFfmpeg: helper ? { found: await exists(helper.path), ...helper } : null,
     skill: {
       target,
       installed: manifest
@@ -741,6 +749,7 @@ export async function doctorReport(dir: string | undefined): Promise<DoctorRepor
     report.ffmpeg &&
       report.browser.found &&
       report.playwright &&
+      (report.recorderFfmpeg?.found ?? true) &&
       // Local TTS needs no key: voice is in-process, captions auto-fall-back
       // to the offline derivation in `render`.
       (report.apiKey !== "missing" || report.tts.provider === "local") &&
@@ -806,6 +815,15 @@ export async function doctor(dir: string | undefined): Promise<void> {
   );
   if (r.playwright) ok(`playwright: resolvable`);
   else fail(`playwright: not installed`);
+  if (r.recorderFfmpeg?.found) {
+    ok(`playwright ffmpeg helper: revision ${r.recorderFfmpeg.revision} (records the take)`);
+  } else if (r.recorderFfmpeg) {
+    fail(
+      `playwright ffmpeg helper: revision ${r.recorderFfmpeg.revision} NOT FOUND at ` +
+        `${r.recorderFfmpeg.path} — every take fails without it (~2 MB, once per ` +
+        `Playwright version): ${r.recorderFfmpeg.install}`
+    );
+  }
 
   if (r.skill.installed) {
     ok(

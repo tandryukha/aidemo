@@ -19,6 +19,9 @@ cp .env.example .env      # add your OWN OPENAI_API_KEY (used for TTS + Whisper
 ```
 
 No Playwright browser download is needed — the engine drives your system Chrome.
+The default capture does need Playwright's ~2 MB ffmpeg helper (it encodes the
+take; no npm install fetches it): `npx playwright install ffmpeg`.
+`node bin/aidemo.mjs doctor` checks it.
 
 ## Run the smoke test
 

@@ -101,8 +101,9 @@ The Action is **composite** — it runs on your job's runner, which must provide
   ffmpeg` (every template in `examples/workflows/` does this).
 
 The Action runs `aidemo doctor` as an informational preflight so you can see the
-detected Chrome/ffmpeg/voice-provider in the logs. Self-hosted or minimal runners
-must install Chrome + ffmpeg themselves.
+detected Chrome/ffmpeg/voice-provider in the logs. It also installs Playwright's
+~2 MB ffmpeg helper (the encoder the take is recorded with) before that check.
+Self-hosted or minimal runners must install Chrome + ffmpeg themselves.
 
 ## How local voice resolves in CI (the mechanism)
 
