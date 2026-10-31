@@ -85,6 +85,10 @@ const transport = new StdioClientTransport({
   command: "node",
   args: ["bin/aidemo.mjs", "mcp"],
   cwd: ROOT,
+  // The full environment, as an MCP client like Claude Code passes it. The
+  // SDK's default keeps only HOME/PATH/…, which drops PLAYWRIGHT_BROWSERS_PATH
+  // and proxy/CA settings and fails the probe on machines that rely on them.
+  env: { ...process.env },
   stderr: "inherit",
 });
 const client = new Client({ name: "mcp-smoke", version: "0.0.0" });

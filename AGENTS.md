@@ -17,6 +17,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 |---|---|
 | Install | `npm install` — Node 22.12+, system Chrome, ffmpeg+ffprobe on PATH (no Playwright browser download; Playwright's ~2 MB take-recording ffmpeg helper installs itself on the first take — `AIDEMO_NO_AUTO_INSTALL=1` opts out; `doctor` reports it) |
 | Type check | `npm run typecheck` |
+| Unit tests (no Chrome/ffmpeg; also CI) | `npm test` — `npm run test:blank-open` needs Chrome + ffmpeg |
 | Fixture server | `node examples/local-demo/serve.mjs` (port 8787) |
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
@@ -144,7 +145,8 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
   link to either from tracked files.
 - Commit style: short imperative subject (`fix: compose hangs on unbounded
   apad`); every commit signed off (`git commit -s` — DCO, required to merge).
-- CI is typecheck + gitleaks + dependency review. PRs must not add install
+- CI is typecheck + gitleaks + unit tests (`npm test`, Node 22 and 24) +
+  dependency review. PRs must not add install
   scripts, new network endpoints, or unpinned GitHub Actions.
 - Canonical repo: `github.com/tandryukha/aidemo`. Consumers run the engine via
   `npx -y github:tandryukha/aidemo#stable` (git ref, the primary channel) or

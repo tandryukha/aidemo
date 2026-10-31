@@ -34,7 +34,8 @@ node bin/aidemo.mjs render examples/local-demo --headless   # terminal 2
 open examples/local-demo/output/final-demo.mp4
 ```
 
-Also run the type check: `npm run typecheck`.
+Also run the type check and the unit tests: `npm run typecheck && npm test`
+(the unit tests need neither Chrome nor ffmpeg).
 
 If your change touches one pipeline stage, you can iterate on just that stage —
 each CLI step (`voice`, `record`, `captions`, `compose`) is independently
@@ -66,7 +67,7 @@ schema.
   context-rich issue from your session.
 - **Pull requests:** keep them focused; describe the storyboard/flow you tested
   against. If behavior changes, update README/SKILL.md in the same PR.
-- **CI on external PRs:** typecheck, secret scan, and dependency review run
+- **CI on external PRs:** typecheck, unit tests, secret scan, and dependency review run
   after a maintainer approves the workflow run. PRs must not add install
   scripts, new network endpoints, or unpinned GitHub Actions.
 - **Commit style:** short, imperative subject lines (`fix: compose hangs on
