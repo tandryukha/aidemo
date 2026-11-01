@@ -306,7 +306,7 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
   otherwise fully local. The MCP server is **stdio-only** — no listener.
 - **Small, auditable surface:** ~50 source files, 7 runtime deps (11 packages
   installed in all), MIT. Pin an immutable ref if you're wary of the moving
-  `#stable` tag: `npx -y github:tandryukha/aidemo#v0.20.0` (any released tag).
+  `#stable` tag: `npx -y github:tandryukha/aidemo#v0.20.1` (any released tag).
 - Full detail: [docs/LOCAL_MODELS.md](docs/LOCAL_MODELS.md#what-leaves-the-machine)
   · report vulnerabilities privately per [SECURITY.md](SECURITY.md).
 
