@@ -51,5 +51,8 @@
     "@modelcontextprotocol/client": "2.4.0",
     "@types/node": "^26.6.6",
     "typescript": "^7.0.2"
+  },
+  "overrides": {
+    "sharp": "^0.35.5"
   }
 }

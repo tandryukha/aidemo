@@ -63,8 +63,8 @@ inputs:
     description: >-
       Use an already-checked-out engine at this path instead of installing from
       GitHub. Its dependencies must already be installed (e.g. `npm ci`), and for
-      tts=local kokoro-js must be resolvable from it. Mainly for the engine's own
-      self-test; leave empty for consumer use.
+      tts=local kokoro-js must be resolvable from it or from working-directory.
+      Mainly for the engine's own self-test; leave empty for consumer use.
     required: false
     default: ""
   openai-api-key:
@@ -142,15 +142,25 @@ runs:
           # the engine drives system Chrome, so Playwright needs no browser download).
           home="${RUNNER_TEMP}/aidemo-engine"
           mkdir -p "$home"
-          ( cd "$home" && npm init -y >/dev/null 2>&1 || true )
+          # kokoro-js -> @huggingface/transformers 3.x pins sharp 0.34, whose
+          # bundled libvips/libheif/librsvg carry high-severity advisories
+          # (GHSA-f88m-g3jw-g9cj, GHSA-rgj7-g3m4-5g8c, GHSA-wq5f-xc86-pv6w).
+          # Speech never touches sharp; override it to the patched line anyway.
+          printf '%s\n' '{"name":"aidemo-engine","private":true,"overrides":{"sharp":"^0.35.5"}}' > "$home/package.json"
           pkgs=("github:tandryukha/aidemo#${ENGINE_REF}")
           if [ "$TTS" = "local" ]; then pkgs+=("kokoro-js"); fi
           echo "installing: ${pkgs[*]}"
           npm i --prefix "$home" --no-save --ignore-scripts --no-audit --no-fund "${pkgs[@]}"
           engine_root="$home"
-          bin="$home/node_modules/aidemo/bin/aidemo.mjs"
-          if [ ! -f "$bin" ]; then
-            echo "::error::engine install produced no bin at $bin"; exit 1
+          # npm installs the engine under its package name, @tandryukha/aidemo
+          # (the unscoped path covers engine refs from before the rename).
+          bin=""
+          for cand in "$home/node_modules/@tandryukha/aidemo/bin/aidemo.mjs" \
+                      "$home/node_modules/aidemo/bin/aidemo.mjs"; do
+            if [ -f "$cand" ]; then bin="$cand"; break; fi
+          done
+          if [ -z "$bin" ]; then
+            echo "::error::engine install produced no bin at $home/node_modules/@tandryukha/aidemo/bin/aidemo.mjs"; exit 1
           fi
           echo "installed engine -> $bin"
         fi

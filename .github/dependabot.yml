@@ -11,6 +11,16 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
+  # demo-render's local-voice install (kokoro-js, pinned by this lockfile;
+  # sharp is overridden past its advisories in package.json there).
+  - package-ecosystem: npm
+    directory: "/.github/local-voice"
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

@@ -122,8 +122,11 @@ npm i --prefix "$RUNNER_TEMP/aidemo-engine" --no-save --ignore-scripts \
 `kokoro-js` lands as a **sibling** of the engine in the same `node_modules`, so
 the engine resolves it by normal Node module lookup. `--ignore-scripts` keeps the
 install script-free (the engine drives system Chrome, so Playwright needs no
-browser download; Kokoro still runs). You don't have to think about any of this
-— it's what the Action does for you.
+browser download; Kokoro still runs). The prefix's `package.json` overrides
+`sharp` to `^0.35.5`: kokoro-js's `@huggingface/transformers` 3.x pins sharp
+0.34, whose bundled image libraries carry high-severity advisories (speech never
+uses sharp). You don't have to think about any of this — it's what the Action
+does for you.
 
 ## Caching the model
 

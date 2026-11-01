@@ -1,0 +1,11 @@
+{
+  "name": "aidemo-local-voice",
+  "private": true,
+  "description": "kokoro-js for the demo-render self-test, installed with `npm ci` from this lockfile. The engine finds it through the working directory, as it finds a consumer repo's own kokoro-js. sharp is overridden: kokoro-js -> @huggingface/transformers 3.x pins sharp 0.34, whose bundled libvips/libheif/librsvg carry high-severity advisories fixed in sharp 0.35.5.",
+  "dependencies": {
+    "kokoro-js": "^1.2.1"
+  },
+  "overrides": {
+    "sharp": "^0.35.5"
+  }
+}

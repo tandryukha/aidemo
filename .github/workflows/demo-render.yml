@@ -1,7 +1,14 @@
 name: demo-render
 
 # Self-test for the aidemo Action: render the bundled fixture (examples/local-demo)
-# through the LOCAL action (uses: ./) with local Kokoro voice and no API keys.
+# through the LOCAL action (uses: ./) with local Kokoro voice and no API keys, in
+# both of the action's modes:
+#   render-fixture   engine-path: this checkout's engine; kokoro-js comes from the
+#                    pinned .github/local-voice lockfile and is found through the
+#                    working directory, as a consumer repo's own install is.
+#   render-consumer  the consumer path: the action itself installs the engine
+#                    (this commit, from GitHub) plus kokoro-js, exactly as
+#                    `uses: tandryukha/aidemo@stable` does for consumers.
 # Manual trigger only. ubuntu-latest ships Chrome but NOT ffmpeg, so we install
 # it below; the first run also downloads the ~90 MB Kokoro model (cached after).
 on:
@@ -28,10 +35,12 @@ jobs:
       - run: npm ci
 
       # Local-voice dependency, deliberately kept out of package.json (~400 MB of
-      # onnxruntime). --ignore-scripts keeps the engine's install script-free; the
-      # engine's own `import("kokoro-js")` resolves this from the repo node_modules.
+      # onnxruntime): installed from .github/local-voice's lockfile (pinned by
+      # hash; sharp overridden past its advisories), script-free. The action runs
+      # from that directory, so the engine finds kokoro-js through its working
+      # directory.
       - name: Install local-voice dependency
-        run: npm i --no-save --ignore-scripts kokoro-js
+        run: npm ci --prefix .github/local-voice --ignore-scripts --no-audit --no-fund
 
       # Cache the Kokoro model dir so re-runs skip the huggingface.co download.
       # transformers.js caches under $HF_HOME (default ~/.cache/huggingface).
@@ -53,27 +62,30 @@ jobs:
         id: render
         uses: ./
         with:
-          demos: examples/local-demo
+          working-directory: .github/local-voice # kokoro-js resolves from here
+          demos: ../../examples/local-demo
           command: render
           tts: local
           gif: "true"
-          engine-path: "." # exercise THIS checkout's engine, not github:stable
+          engine-path: ../.. # exercise THIS checkout's engine, not github:stable
 
-      # The action's outputs list what it rendered: media (mp4 + gif) and the
-      # caption files compose writes next to the video.
+      # The action's outputs list what it rendered, relative to its
+      # working-directory: media (mp4 + gif) and the caption files compose
+      # writes next to the video.
       - name: Check the action outputs
         env:
           MEDIA: ${{ steps.render.outputs.media }}
           CAPTIONS: ${{ steps.render.outputs.captions }}
+          REPORTED: ../../examples/local-demo/output
         run: |
           set -euo pipefail
           printf 'media:\n%s\ncaptions:\n%s\n' "$MEDIA" "$CAPTIONS"
-          for f in examples/local-demo/output/final-demo.mp4 examples/local-demo/output/final-demo.gif; do
-            grep -qxF "$f" <<<"$MEDIA" || { echo "::error::media output lacks $f"; exit 1; }
+          for f in final-demo.mp4 final-demo.gif; do
+            grep -qxF "$REPORTED/$f" <<<"$MEDIA" || { echo "::error::media output lacks $REPORTED/$f"; exit 1; }
           done
-          for f in examples/local-demo/output/final-demo.srt examples/local-demo/output/final-demo.vtt; do
-            grep -qxF "$f" <<<"$CAPTIONS" || { echo "::error::captions output lacks $f"; exit 1; }
-            test -s "$f" || { echo "::error::$f is empty"; exit 1; }
+          for f in final-demo.srt final-demo.vtt; do
+            grep -qxF "$REPORTED/$f" <<<"$CAPTIONS" || { echo "::error::captions output lacks $REPORTED/$f"; exit 1; }
+            test -s "examples/local-demo/output/$f" || { echo "::error::$f is empty"; exit 1; }
           done
           head -1 examples/local-demo/output/final-demo.vtt | grep -qx 'WEBVTT'
 
@@ -86,3 +98,61 @@ jobs:
             examples/local-demo/output/final-demo.srt
             examples/local-demo/output/final-demo.vtt
           if-no-files-found: error
+
+  render-consumer:
+    runs-on: ubuntu-latest
+    steps:
+      # Only for the action itself and the fixture: the engine is installed by
+      # the action, from GitHub.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/huggingface
+          key: kokoro-${{ runner.os }}-q8
+
+      - name: Start fixture server
+        run: |
+          node examples/local-demo/serve.mjs &
+          for _ in $(seq 1 20); do
+            curl -sf http://localhost:8787/ >/dev/null && break
+            sleep 0.5
+          done
+
+      # No setup-node and no npm install, like a consumer's workflow: the action
+      # sets up Node when the runner's is too old and installs the engine (this
+      # commit) plus kokoro-js into a throwaway prefix.
+      - name: Render fixture via the action, consumer mode
+        id: render
+        uses: ./
+        with:
+          demos: examples/local-demo
+          command: render
+          tts: local
+          engine-ref: ${{ github.sha }}
+
+      - name: Check the action outputs and the consumer install
+        env:
+          MEDIA: ${{ steps.render.outputs.media }}
+          CAPTIONS: ${{ steps.render.outputs.captions }}
+          BIN: ${{ steps.render.outputs.engine-bin }}
+        run: |
+          set -euo pipefail
+          printf 'engine: %s\nmedia:\n%s\ncaptions:\n%s\n' "$BIN" "$MEDIA" "$CAPTIONS"
+          case "$BIN" in
+            */node_modules/@tandryukha/aidemo/bin/aidemo.mjs) ;;
+            *) echo "::error::unexpected engine bin: $BIN"; exit 1 ;;
+          esac
+          grep -qxF examples/local-demo/output/final-demo.mp4 <<<"$MEDIA" || { echo "::error::media output lacks the mp4"; exit 1; }
+          for f in final-demo.srt final-demo.vtt; do
+            grep -qxF "examples/local-demo/output/$f" <<<"$CAPTIONS" || { echo "::error::captions output lacks $f"; exit 1; }
+          done
+          # The consumer install overrides sharp past its advisories.
+          sharp=$(node -p 'require(process.argv[1] + "/node_modules/sharp/package.json").version' "$RUNNER_TEMP/aidemo-engine")
+          echo "sharp $sharp"
+          node -e 'const [a, b, c] = process.argv[1].split(".").map(Number);
+            process.exit(a > 0 || b > 35 || (b === 35 && c >= 5) ? 0 : 1)' "$sharp" \
+            || { echo "::error::sharp $sharp is below the patched 0.35.5"; exit 1; }

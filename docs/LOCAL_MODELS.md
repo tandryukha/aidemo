@@ -22,6 +22,17 @@ npm install kokoro-js     # opt-in, deliberately not bundled (~400 MB installed
 AIDEMO_TTS_PROVIDER=local aidemo render <dir> --headless
 ```
 
+kokoro-js pulls in `@huggingface/transformers` 3.x, which pins `sharp` 0.34 —
+an image library speech never uses, but whose bundled libvips/libheif/librsvg
+carry high-severity advisories (GHSA-f88m-g3jw-g9cj, GHSA-rgj7-g3m4-5g8c,
+GHSA-wq5f-xc86-pv6w), so `npm audit` flags the install. Override it to the
+patched line in the `package.json` you install kokoro-js into (the GitHub
+Action and this repo already do):
+
+```json
+"overrides": { "sharp": "^0.35.5" }
+```
+
 The first `voice` run downloads the model once from huggingface.co (~90 MB at
 the default `q8` quantization; `AIDEMO_TTS_MODEL_DTYPE=fp32` gets the ~330 MB
 best-quality build) into `~/.cache/huggingface/transformersjs` (`HF_HOME`
