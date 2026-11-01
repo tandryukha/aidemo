@@ -31,7 +31,7 @@
     "build": "tsc --noEmit",
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
-    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs",
+    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/issue-93.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs",
     "test:blank-open": "tsx --test test/blank-open.mjs",
     "mcp-env-test": "node test/mcp-env.mjs",
     "guard-openai-key": "tsx scripts/guard-openai-key.ts",

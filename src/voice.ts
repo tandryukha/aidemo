@@ -11,6 +11,7 @@ import {
   ttsProvider,
   kokoroDtype,
   requireElevenLabsKey,
+  KOKORO_VOICE,
   ELEVENLABS_MODEL,
   ELEVENLABS_VOICE,
   explainAudioEndpointError,
@@ -183,10 +184,46 @@ export function applyPronounce(text: string, map?: Record<string, string>): stri
   return out;
 }
 
+const DEFAULT_TTS_MODEL = "gpt-4o-mini-tts";
+const DEFAULT_ELEVENLABS_MODEL = "eleven_multilingual_v2";
+const DEFAULT_ELEVENLABS_VOICE = "21m00Tcm4TlvDq8ikWAM";
+const DEFAULT_KOKORO_VOICE = "af_heart";
+
+/**
+ * The provider part of a scene's audio identity: everything outside the
+ * storyboard that changes what the narration sounds like — the TTS endpoint
+ * and model (OpenAI-compatible), the model and fallback voice (ElevenLabs),
+ * the quantization and fallback voice (local). Each knob is appended only
+ * when it differs from its default, so the default setup keeps the exact keys
+ * (and therefore hashes) older engines wrote: "openai", "elevenlabs",
+ * "local:q8". Switching servers or models re-voices instead of silently
+ * mixing two voices in one take (issue #93).
+ */
+export function audioIdentityKey(
+  providerName: "openai" | "elevenlabs" | "local" = ttsProvider()
+): string {
+  const parts: string[] = [];
+  if (providerName === "openai") {
+    const base = openAiBaseUrl();
+    if (base) parts.push(`@${base.replace(/\/+$/, "")}`);
+    if (TTS_MODEL() !== DEFAULT_TTS_MODEL) parts.push(`model=${TTS_MODEL()}`);
+    return parts.length ? `openai ${parts.join(" ")}` : "openai";
+  }
+  if (providerName === "elevenlabs") {
+    if (ELEVENLABS_MODEL() !== DEFAULT_ELEVENLABS_MODEL)
+      parts.push(`model=${ELEVENLABS_MODEL()}`);
+    if (ELEVENLABS_VOICE() !== DEFAULT_ELEVENLABS_VOICE)
+      parts.push(`voice=${ELEVENLABS_VOICE()}`);
+    return parts.length ? `elevenlabs ${parts.join(" ")}` : "elevenlabs";
+  }
+  if (KOKORO_VOICE() !== DEFAULT_KOKORO_VOICE) parts.push(`voice=${KOKORO_VOICE()}`);
+  const key = `local:${kokoroDtype()}`;
+  return parts.length ? `${key} ${parts.join(" ")}` : key;
+}
+
 /**
  * Identity of a scene's audio = its narration + the resolved voice plan (+ the
- * TTS provider when non-default; for the local provider that includes the
- * model quantization; + the language code for a multi-language render). The
+ * TTS provider identity when non-default — see audioIdentityKey; + the language code for a multi-language render). The
  * provider and lang are folded in only when non-default so every pre-existing
  * manifest hash stays valid — but switching providers (or requantizing the
  * local model, or rendering a different language) still invalidates instead of
@@ -194,7 +231,7 @@ export function applyPronounce(text: string, map?: Record<string, string>): stri
  * audio/<lang>/ dir, so caches can't physically collide; hashing the lang is
  * belt-and-suspenders for two languages that happen to share narration text.)
  */
-function voiceHash(
+export function voiceHash(
   text: string,
   plan: VoicePlan,
   provider: string,
@@ -254,9 +291,7 @@ export async function generateVoice(
   opts: VoiceOptions = {}
 ): Promise<VoiceManifest> {
   const providerName = ttsProvider();
-  // The audio identity key: local audio also changes with the quantization.
-  const providerKey =
-    providerName === "local" ? `local:${kokoroDtype()}` : providerName;
+  const providerKey = audioIdentityKey(providerName);
   if (providerName === "openai") assertVoiceIdsMatchProvider(storyboard);
   if (providerName === "local") warnLocalLangCoverage(project.lang);
   const base = openAiBaseUrl();

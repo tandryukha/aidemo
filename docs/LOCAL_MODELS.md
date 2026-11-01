@@ -61,6 +61,12 @@ With a custom base URL set, **no `OPENAI_API_KEY` is needed**. `aidemo doctor`
 reports which endpoint is in effect and warns if it's an LLM-only server that
 can't serve these calls (it pings only the endpoint you configured).
 
+Switching servers or models between runs re-voices every scene: the endpoint,
+`AIDEMO_TTS_MODEL` (and the ElevenLabs/Kokoro model and default-voice knobs) are
+part of each scene's narration cache key whenever they differ from the defaults,
+so a take never mixes two voices. Narration voiced with the default OpenAI
+setup stays cached across upgrades.
+
 **Prefer ElevenLabs voices?** Swap just the TTS half with
 `AIDEMO_TTS_PROVIDER=elevenlabs` + `ELEVENLABS_API_KEY` — captions keep using
 the OpenAI-compatible endpoint above. Your storyboard's `voiceId` is then an
