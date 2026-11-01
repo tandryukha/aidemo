@@ -49,7 +49,9 @@ export interface JobError {
 export const FEEDBACK_HINT =
   "if this looks like an engine defect, file it now while the context is " +
   "fresh: the MCP `feedback` tool (title, body, dir) or `aidemo feedback " +
-  "<dir>` on the CLI.";
+  "<dir>` on the CLI. To keep going meanwhile, get_authoring_guide " +
+  "{topic: \"troubleshooting\"} lists the escape hatches (per-stage flags, " +
+  "env overrides, pinning an older engine, running a patched local checkout).";
 
 export interface Job {
   jobId: string;

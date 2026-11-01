@@ -327,7 +327,9 @@ ElevenLabs and **in-process local voice** providers, and the **Claude Code plugi
 
 Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, the
 smoke test, and the DCO sign-off requirement. Recording-session feedback has a fast
-path: `aidemo feedback demos/<name>` pre-fills a structured issue.
+path: `aidemo feedback demos/<name>` pre-fills a structured issue. Blocked in the
+meantime? `aidemo guide --topic troubleshooting` covers the local workarounds
+(per-stage re-runs, pinning a release, running a patched checkout).
 
 ## License
 

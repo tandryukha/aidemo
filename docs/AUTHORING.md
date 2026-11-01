@@ -1265,6 +1265,60 @@ CLI. If nothing came up, skip this.
   ffmpeg helper`. If that download is blocked, the error names the manual
   command; `AIDEMO_NO_AUTO_INSTALL=1` turns the download off.
 
+## Troubleshooting: keep going, then report it
+
+Hit a blocker? Work around it locally first, then file it — the engine is
+built so neither has to wait for the other. A failed CLI command prints both
+pointers; a failed MCP job carries them in `feedbackHint`.
+
+**1. Re-run just the broken stage.** Every stage is idempotent and cached, so a
+retry costs only the part that failed:
+
+| Symptom | Escape hatch |
+|---|---|
+| Stale or wrong narration (voice changed, cache reused audio it shouldn't) | `aidemo voice <dir> --force` (all scenes) or `--scene <id>` (one); `render --force-voice` |
+| One scene's take broke late in a long flow | `aidemo record <dir> --from-scene <id>` — reuses earlier scenes, records from `<id>` |
+| A flaky optional step stalls the take | mark that action `"optional": true` (skipped and logged instead of failing) |
+| Selector drifted | `aidemo inspect <url> --dir <dir>`; the failed take's `logs/drift-*.json` ranks replacements |
+| Captions STT fails / no key / wrong endpoint | `aidemo captions <dir> --offline` (script-timed, no network) |
+| Compose looks wrong but the take is fine | fix the storyboard's polish fields and `aidemo compose <dir>` — never a re-record |
+| Managed Chrome closes the automated session | `AIDEMO_CHROME_CHANNEL=chromium` (or `AIDEMO_CHROME_EXECUTABLE=<path>`) |
+| Playwright's ffmpeg helper download blocked | `AIDEMO_NO_AUTO_INSTALL=1` + the manual command the error prints |
+| TTS endpoint down / no key | `AIDEMO_TTS_PROVIDER=local` (`npm install kokoro-js`), or `OPENAI_BASE_URL` → a local speech server |
+
+**2. Pin the engine.** A regression in the moving `stable` tag? Run the
+previous release instead: `npx -y github:tandryukha/aidemo#v0.20.0 <cmd>` (any
+`vX.Y.Z` tag; `--prefer-online` if npm serves a cached copy). For the MCP
+server, put the same spec in your `.mcp.json` `args` in place of `#stable`.
+
+**3. Run a patched engine.** When the fix is a few lines, apply it yourself
+and keep working while the upstream PR is in review:
+
+```bash
+git clone https://github.com/tandryukha/aidemo && cd aidemo && npm ci
+# edit src/…, then use the checkout directly:
+node /path/to/aidemo/bin/aidemo.mjs render /path/to/demos/<name>
+```
+
+For the MCP server: `"command": "node", "args": ["/path/to/aidemo/bin/aidemo.mjs", "mcp"]`.
+Or push the patch to a fork and use `npx -y github:<you>/aidemo#<branch>` — no
+local checkout needed on other machines or in CI (`uses: <you>/aidemo@<branch>`).
+
+**4. Report it** (takes a minute, attaches the context for you):
+
+```bash
+aidemo feedback demos/<name> --title "voice cache reused audio after switching endpoints" \
+  --body "Expected … got … Workaround: voice --force"
+```
+
+The MCP `feedback` tool does the same. Both attach engine version, OS, Node,
+ffmpeg and the latest log tail; `--dry-run` previews, `--web` opens a prefilled
+page instead of filing, and without `gh` the issue is saved to
+`docs/feedback-<date>.md` with a prefilled github.com link. Say which
+workaround unblocked you — it is the fastest path to a fix, and to a pull
+request if you already have one. Set `AIDEMO_NO_HINTS=1` to silence the
+failure footer in CI logs.
+
 ## Import from Playwright (trace or test file)
 
 When the product already has an e2e test for the flow, don't re-derive the

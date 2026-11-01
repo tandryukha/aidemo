@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Blocked? Workarounds first
+    url: https://github.com/tandryukha/aidemo/blob/main/docs/AUTHORING.md#troubleshooting-keep-going-then-report-it
+    about: Per-stage re-runs, env overrides, pinning a release, running a patched engine — keep working while the issue is open.
   - name: record-demo skill docs
     url: https://github.com/tandryukha/aidemo/blob/main/.claude/skills/record-demo/SKILL.md
     about: How to author a storyboard and drive the aidemo engine.

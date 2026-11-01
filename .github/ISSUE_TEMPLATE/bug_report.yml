@@ -9,6 +9,11 @@ body:
         If this came out of a **record-demo session** (broken selector, bad
         timing, storyboard trouble), use the *Demo recording feedback* template
         instead — or let `aidemo feedback demos/<name>` pre-fill it for you.
+
+        Blocked right now? `aidemo guide --topic troubleshooting` lists the
+        escape hatches: per-stage re-runs, env overrides, pinning an older
+        release (`npx -y github:tandryukha/aidemo#vX.Y.Z`) and running a
+        patched local checkout while the fix lands.
   - type: textarea
     id: what
     attributes:
@@ -32,6 +37,12 @@ body:
       render: text
     validations:
       required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround (if you found one)
+      description: What unblocked you — a flag, an env var, an older release, a local patch? A diff is welcome; so is a pull request.
+      render: text
   - type: dropdown
     id: platform
     attributes:

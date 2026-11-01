@@ -33,7 +33,13 @@ export const GUIDE_TOPICS = {
   stills: ["Stills"],
   variants: ["Parameterized storyboards", "Multi-language renders"],
   captions: ["Captions:", "Multi-language renders"],
-  debug: ["Verify before declaring done", "Debugging", "Demo as regression test"],
+  debug: [
+    "Verify before declaring done",
+    "Debugging",
+    "Troubleshooting",
+    "Demo as regression test",
+  ],
+  troubleshooting: ["Troubleshooting"],
   ci: ["Demo as regression test", "Interfaces"],
 } as const;
 

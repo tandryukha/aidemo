@@ -1331,6 +1331,22 @@ try {
   await closeLogFile();
 } catch (err) {
   fail((err as Error).message);
+  blockerHint();
   await closeLogFile();
   process.exit(1);
+}
+
+/**
+ * After a failed command: how to keep going today and how to report it. Skipped
+ * for plain usage errors (commander exits on its own before reaching here) and
+ * when AIDEMO_NO_HINTS is set (CI logs, scripted callers).
+ */
+function blockerHint(): void {
+  if (process.env.AIDEMO_NO_HINTS) return;
+  const dir = process.argv[3];
+  const target = dir && !dir.startsWith("-") ? dir : "<demo-dir>";
+  log(
+    `blocked? workarounds: aidemo guide --topic troubleshooting · report it ` +
+      `(latest log + environment attached): aidemo feedback ${target} --title "<what broke>"`
+  );
 }
