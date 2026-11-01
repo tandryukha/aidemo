@@ -88,6 +88,9 @@ blog/                 SEO blog source: article JSON + blog.config.json →
                       aidemo.top/blog); writer contract via `blog-engine guide
                       AUTHORING`, map in data/topics.json
 examples/local-demo/  self-contained fixture + storyboard — the smoke test
+.github/local-voice/ kokoro-js for demo-render, pinned by its lockfile (sharp
+                      overridden); .github/node-floor/ the Node 22.12 floor's
+                      @types/node for CI's second typecheck
 test/mcp-smoke.mjs    MCP-surface smoke test (local, needs Chrome)
 demos/                untracked local working area
 docs/                 public docs + README media (docs/internal/ is gitignored, private)
@@ -147,7 +150,10 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
   apad`); every commit signed off (`git commit -s` — DCO, required to merge).
 - CI is typecheck (latest `@types/node`, then the Node 22.12 floor's types) +
   gitleaks + unit tests (`npm test`, Node 22, 24 and 26) + an MCP handshake in
-  the Docker image + dependency review. PRs must not add install
+  the Docker image (built from the checkout) + dependency review. The
+  workflows' own npm installs and the Dockerfile are `npm ci` from a lockfile
+  (OpenSSF Scorecard Pinned-Dependencies); only the Action's consumer mode
+  installs by ref, by design. PRs must not add install
   scripts, new network endpoints, or unpinned GitHub Actions.
 - Canonical repo: `github.com/tandryukha/aidemo`. Consumers run the engine via
   `npx -y github:tandryukha/aidemo#stable` (git ref, the primary channel) or

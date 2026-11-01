@@ -1,0 +1,10 @@
+# Allowlist: the Docker build context is only what the image copies — the
+# files the engine reads at runtime (package.json "files") and the lockfile.
+# Keeps .env, demos/, recordings and node_modules out of the build.
+*
+!package.json
+!package-lock.json
+!bin/
+!src/
+!docs/AUTHORING.md
+!.claude/skills/record-demo/SKILL.md

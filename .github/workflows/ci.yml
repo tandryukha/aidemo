@@ -34,13 +34,20 @@ jobs:
 
       # devDependencies carry the latest @types/node; the engine supports Node
       # down to package.json "engines". Typecheck again against that floor's
-      # own types, so an API newer than the floor can't slip in.
+      # own types: .github/node-floor pins them by lockfile and points typeRoots
+      # at them, so an API newer than the floor can't slip in.
       - name: Typecheck against the supported Node floor's types
         run: |
-          floor=$(node -p 'require("./package.json").engines.node.replace(/^>=\s*/, "")')
-          npm i --no-save --ignore-scripts --no-audit --no-fund "@types/node@~$floor"
-          node -p '"@types/node " + require("@types/node/package.json").version'
-          npm run typecheck
+          node -e 'const mm = (v) => v.replace(/^>=\s*/, "").split(".").slice(0, 2).join(".");
+            const floor = mm(require("./package.json").engines.node);
+            const types = mm(require("./.github/node-floor/package.json").devDependencies["@types/node"]);
+            if (floor !== types) {
+              console.error(`::error::.github/node-floor pins @types/node ${types}, but engines.node starts at ${floor}`);
+              process.exit(1);
+            }
+            console.log(`Node floor ${floor}: @types/node ${types}`);'
+          npm ci --prefix .github/node-floor --ignore-scripts --no-audit --no-fund
+          npx tsc --noEmit -p .github/node-floor/tsconfig.json
 
       - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
@@ -69,9 +76,9 @@ jobs:
       - run: npm test
 
   # The MCP-server image that directories (e.g. Glama) build from the
-  # Dockerfile: build it and run the MCP handshake inside. The image installs
-  # the latest npm release, so this guards the Dockerfile and its base image;
-  # this commit's stdio entry is covered by npm test (test/mcp-stdio.mjs).
+  # Dockerfile: build it from this checkout (npm ci from the lockfile) and run
+  # the MCP handshake inside, so the Dockerfile, its base image and this
+  # commit's engine are checked together.
   docker:
     runs-on: ubuntu-latest
     steps:

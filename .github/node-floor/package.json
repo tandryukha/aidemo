@@ -1,0 +1,8 @@
+{
+  "name": "aidemo-node-floor-types",
+  "private": true,
+  "description": "@types/node for the oldest Node the engine supports (package.json engines), pinned by this lockfile. CI typechecks src/ against it with tsconfig.json here, so an API newer than the floor can't slip in behind the latest typings.",
+  "devDependencies": {
+    "@types/node": "22.12.0"
+  }
+}
