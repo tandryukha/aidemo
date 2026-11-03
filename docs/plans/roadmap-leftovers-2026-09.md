@@ -68,10 +68,15 @@ Still deliberately open in that area:
   way). The Homebrew tap (`tandryukha/homebrew-aidemo`) carries its own
   `bump.yml`, which reads the latest npm version daily and rewrites the
   formula's url + sha256 — no manual formula bumps.
+- **The fixes for #94 and #95 and the MCP Registry step are on main, unreleased
+  (2026-11-03):** npm, `stable` and the Registry listing (0.15.2) move on the next
+  version bump, which also runs the new Registry step for the first time. Check
+  that step's result; its OIDC login hasn't run in CI yet.
 - **The daily GSC indexing job has advanced nothing since 2026-10-28:** Claude in
   Chrome is not connected when it runs (`~/Library/Logs/aidemo/seo-indexing.log`),
   so `last_run` stays there. Reconnecting the extension resumes it; the ledger
-  was committed through 2026-10-28.
+  was committed through 2026-10-28. The job doesn't commit it, and neither do its
+  BurnWeek and MaxFit counterparts, so the file goes dirty between manual commits.
 - Skills channel is live (`npx skills add tandryukha/aidemo` installs only
   record-demo; dev skills carry `metadata.internal: true`). Consider listing
   on skills.sh's directory once traffic warrants.
