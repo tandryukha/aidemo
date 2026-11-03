@@ -68,10 +68,6 @@ Still deliberately open in that area:
   way). The Homebrew tap (`tandryukha/homebrew-aidemo`) carries its own
   `bump.yml`, which reads the latest npm version daily and rewrites the
   formula's url + sha256 — no manual formula bumps.
-- **The MCP Registry listing is behind (checked 2026-11-03):** it serves 0.15.2
-  while npm and `server.json` are 0.20.2, because `release.yml` does not publish
-  there. To catch up, from a checkout of main: `mcp-publisher login github &&
-  mcp-publisher publish`.
 - **The daily GSC indexing job has advanced nothing since 2026-10-28:** Claude in
   Chrome is not connected when it runs (`~/Library/Logs/aidemo/seo-indexing.log`),
   so `last_run` stays there. Reconnecting the extension resumes it; the ledger

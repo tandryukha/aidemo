@@ -83,7 +83,8 @@ AGENTS.md). Verify the tarball anytime with `npm pack --dry-run`.
 2. **First publish, manually** from a clean checkout:
    `npm login` → `npm publish --access public`. Verify:
    `npx -y @tandryukha/aidemo@latest --version` → `0.8.0`, and
-   `npx -y @tandryukha/aidemo@latest guide | head`.
+   `npx -y @tandryukha/aidemo@latest guide | head` (both from outside this
+   checkout).
 3. **Configure OIDC trusted publishing** on npmjs for the package
    (npmjs.com → the package → Settings → Trusted Publishers → GitHub Actions →
    repo `tandryukha/aidemo`, workflow `release.yml`). No token secret needed.
@@ -94,10 +95,20 @@ AGENTS.md). Verify the tarball anytime with `npm pack --dry-run`.
 (with provenance) alongside the tag/release — idempotent (skips a version already
 on npm). The `release.yml` npm step is a no-op while `NPM_PUBLISH` is unset.
 
-**MCP registry** (once npm is live): publish `server.json`
-(`io.github.tandryukha/aidemo`) with the `mcp-publisher` CLI:
-`mcp-publisher login github` → `mcp-publisher publish`. Bump `version` in
-`server.json` on each release you want listed.
+**MCP registry:** `release.yml` publishes `server.json`
+(`io.github.tandryukha/aidemo`) right after npm, with `mcp-publisher login
+github-oidc` (no secret; the namespace matches this repo's owner). It stays
+behind `NPM_PUBLISH`, skips a version already listed, and fails if `server.json`
+doesn't match `package.json`. Manual fallback: `mcp-publisher login github` →
+`mcp-publisher publish`. To upgrade `mcp-publisher`, change the version and
+sha256 pinned in the workflow together.
+
+**Checking a published version:** run `npx @tandryukha/aidemo@X.Y.Z` from
+outside this checkout. Inside it, npm treats the checkout as that package when
+the version matches, installs nothing, and runs whatever `aidemo` is on `PATH`:
+a stale global prints its own older version, and with none you get "command not
+found". Consumer projects aren't affected. In the checkout use
+`node bin/aidemo.mjs`.
 
 ## Homebrew tap
 
@@ -118,7 +129,9 @@ gh workflow run bump.yml -R tandryukha/homebrew-aidemo
 ```
 
 **Verify after a release:** `npm view @tandryukha/aidemo version` and
-`grep sha256 -B1 Formula/aidemo.rb` in the tap should both read the new version.
+`grep sha256 -B1 Formula/aidemo.rb` in the tap should both read the new version,
+and `curl -s https://registry.modelcontextprotocol.io/v0.1/servers/io.github.tandryukha%2Faidemo/versions/latest`
+should list it.
 Manual fallback, if the step was skipped:
 
 ```bash

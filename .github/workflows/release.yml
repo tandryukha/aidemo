@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # create the tag, move `stable`, publish the Release
-      id-token: write # npm provenance / OIDC trusted publishing
+      id-token: write # npm provenance / OIDC trusted publishing / MCP Registry login
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -105,6 +105,40 @@ jobs:
             || { echo "::error::npm $(npm --version) is too old for OIDC trusted publishing (needs >= 11.5.1)"; exit 1; }
           npm publish --provenance --access public
           echo "::notice::published $name@$v to npm"
+
+      # MCP Registry: GitHub OIDC login (the id-token permission above), no
+      # secret. After npm because the registry checks the published package's
+      # mcpName. Idempotent — skips a version already listed. mcp-publisher is
+      # pinned by version + sha256; bump both deliberately, never releases/latest.
+      - name: Publish to the MCP Registry (OIDC)
+        if: steps.ver.outputs.changed == 'true' && vars.NPM_PUBLISH == 'true'
+        env:
+          MCP_PUBLISHER_VERSION: v1.8.7
+          MCP_PUBLISHER_SHA256: 00b21004149a4ce66f0782508ae4a2bce67d1bea395a8da0bd8028159fb59579
+        run: |
+          set -euo pipefail
+          v="${{ steps.ver.outputs.new }}"
+          listed="$(node -p "require('./server.json').version")"
+          if [ "$listed" != "$v" ]; then
+            echo "::error::server.json says $listed, package.json says $v"; exit 1
+          fi
+          url="https://registry.modelcontextprotocol.io/v0.1/servers/io.github.tandryukha%2Faidemo/versions/$v"
+          if curl --silent --fail --output /dev/null "$url"; then
+            echo "::notice::$v already on the MCP Registry — skipping publish"; exit 0
+          fi
+          name=$(node -p "require('./package.json').name")
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
+            npm view "$name@$v" version >/dev/null 2>&1 && break
+            sleep 6
+          done
+          archive=mcp-publisher_linux_amd64.tar.gz
+          curl --fail --location --silent --show-error --output "$archive" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/$MCP_PUBLISHER_VERSION/$archive"
+          echo "$MCP_PUBLISHER_SHA256  $archive" | sha256sum --check --status
+          tar xzf "$archive" mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+          echo "::notice::published io.github.tandryukha/aidemo $v to the MCP Registry"
 
       # Homebrew tap: the tap repo (tandryukha/homebrew-aidemo) bumps its own
       # formula from npm on a daily schedule with its own GITHUB_TOKEN — no

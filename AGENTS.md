@@ -18,6 +18,7 @@ real Chrome, injected cursor, timeline) → `captions` (Whisper word timing) →
 | Install | `npm install` — Node 22.12+, system Chrome, ffmpeg+ffprobe on PATH (no Playwright browser download; Playwright's ~2 MB take-recording ffmpeg helper installs itself on the first take — `AIDEMO_NO_AUTO_INSTALL=1` opts out; `doctor` reports it) |
 | Type check | `npm run typecheck` |
 | Unit tests (no Chrome/ffmpeg; also CI) | `npm test` — `npm run test:blank-open` needs Chrome + ffmpeg |
+| Lead-in vs real frames (needs Chrome + ffmpeg) | `npm run test:lead-in` |
 | Fixture server | `node examples/local-demo/serve.mjs` (port 8787) |
 | E2E smoke test | `node bin/aidemo.mjs render examples/local-demo --headless` |
 | Dry-run actions only | `node bin/aidemo.mjs probe examples/local-demo --headless` |
@@ -138,6 +139,12 @@ docs/                 public docs + README media (docs/internal/ is gitignored, 
   **compare renders by stream, not by file hash**: `ffmpeg -i out.mp4 -map 0:v
   -c copy -f md5 -` (and `-map 0:a`) must match the pre-change render for an
   unchanged storyboard; the container bytes legitimately differ.
+- A built-in take's length says nothing about its lead-in: the file runs well
+  past the last scene. Playwright stamps a closing copy of the last frame at
+  "now" (at least 1 s after it) and ffmpeg holds it for as long as the gap before
+  it, so a page idle for 4.5 s at the end stays on screen ~9 s in the file, while
+  `context.close()` takes only ~0.2 s. `builtinLeadInMs` uses the recorder's `creation_time` stamp;
+  `npm run test:lead-in` measures scenes against their first frames (#94).
 - Debugging compose: `AIDEMO_KEEP_TMP=1` preserves `.compose-tmp/`
   intermediates. Logs land in `<demo>/logs/<command>.log`; a failed take also
   leaves `logs/fail-*.png/json`.
