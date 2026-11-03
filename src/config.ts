@@ -247,6 +247,19 @@ export const ELEVENLABS_VOICE = () =>
   process.env.AIDEMO_ELEVENLABS_VOICE || "21m00Tcm4TlvDq8ikWAM";
 
 /**
+ * The voice a provider speaks a plan with. "marin" is the schema default (an
+ * OpenAI voice name), so ElevenLabs and the local provider replace it with their
+ * own default; anything else the author chose deliberately and passes verbatim.
+ */
+export const resolveVoiceId = (
+  provider: "openai" | "elevenlabs" | "local",
+  voiceId: string
+): string => {
+  if (provider === "openai" || voiceId !== "marin") return voiceId;
+  return provider === "elevenlabs" ? ELEVENLABS_VOICE() : KOKORO_VOICE();
+};
+
+/**
  * LLM-only servers (Ollama, plain llama.cpp/vLLM) speak the OpenAI chat
  * protocol but 404 the audio routes — the only routes this engine calls.
  * Rethrow that specific failure with what's wrong and what to run instead.

@@ -1503,6 +1503,10 @@ translation is allowed.
 | Captions | `generated/captions.{srt,vtt,cues.json}` | `generated/captions.de.{srt,vtt,cues.json}` |
 | Final video | `output/final-demo.mp4` | `output/final-demo.de.mp4` |
 
+Each scene in `voice.json` records the `provider` and `voice` that spoke it,
+after provider defaults, so a take's manifest shows how it was voiced. Manifests
+from older engines lack both until the scene is re-voiced or reused.
+
 The **shared** take — `recordings/raw.*`, `generated/timeline.json`,
 `generated/storyboard.json` — is not namespaced (that's what one recording feeds
 every language). Running without `--lang` is byte-for-byte the old behavior.

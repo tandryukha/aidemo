@@ -14,6 +14,7 @@ import {
   KOKORO_VOICE,
   ELEVENLABS_MODEL,
   ELEVENLABS_VOICE,
+  resolveVoiceId,
   explainAudioEndpointError,
 } from "./config.js";
 import { LocalVoiceProvider } from "./voice-local.js";
@@ -85,9 +86,7 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
         "⚠ voice.instructions is a gpt-4o-mini-tts steering prompt — ElevenLabs ignores it"
       );
     }
-    // "marin" is the schema default (an OpenAI voice name); anything else the
-    // author chose deliberately and is passed to ElevenLabs verbatim.
-    const voiceId = plan.voiceId === "marin" ? ELEVENLABS_VOICE() : plan.voiceId;
+    const voiceId = resolveVoiceId("elevenlabs", plan.voiceId);
     const body: Record<string, unknown> = { text, model_id: ELEVENLABS_MODEL() };
     if (plan.speed && plan.speed !== 1) {
       // Storyboards allow 0.5–2; ElevenLabs accepts 0.7–1.2.
@@ -338,6 +337,7 @@ export async function generateVoice(
       const outPath = project.sceneAudioPath(scene.id);
       const plan = planFor(storyboard, scene.voice);
       const hash = voiceHash(scene.narration, plan, providerKey, project.lang);
+      const voice = resolveVoiceId(providerName, plan.voiceId);
       const prev = priorById.get(scene.id);
       const scoped = opts.only != null; // --scene mode
       const targeted = scoped && scene.id === opts.only;
@@ -350,12 +350,15 @@ export async function generateVoice(
           prev?.durationMs && prev.durationMs > 0
             ? prev.durationMs
             : await probeDurationMs(outPath).catch(() => 0);
-        // In --scene mode keep whatever hash was recorded; otherwise it matched.
+        // In --scene mode keep whatever was recorded: this audio may come from
+        // an earlier provider or voice. Otherwise the hash matched, so it's ours.
         manifest.scenes.push({
           id: scene.id,
           file: outPath,
           durationMs,
           hash: scoped ? prev?.hash : hash,
+          provider: scoped ? prev?.provider : providerName,
+          voice: scoped ? prev?.voice : voice,
         });
         log(`scene ${scene.id}: unchanged, reusing narration`);
         reused++;
@@ -366,14 +369,21 @@ export async function generateVoice(
       log(
         `scene ${scene.id}: "${scene.narration.slice(0, 48)}${
           scene.narration.length > 48 ? "…" : ""
-        }" (${plan.voiceId})`
+        }" (${voice})`
       );
       const spoken = applyPronounce(scene.narration, plan.pronounce);
       if (spoken !== scene.narration) log(`  pronounce → "${spoken.slice(0, 64)}…"`);
       const audio = await provider().synthesize({ text: spoken, plan });
       await fs.writeFile(outPath, audio);
       const durationMs = await probeDurationMs(outPath);
-      manifest.scenes.push({ id: scene.id, file: outPath, durationMs, hash });
+      manifest.scenes.push({
+        id: scene.id,
+        file: outPath,
+        durationMs,
+        hash,
+        provider: providerName,
+        voice,
+      });
       made++;
       opts.onSceneComplete?.(scene.id, i, sceneTotal);
     }

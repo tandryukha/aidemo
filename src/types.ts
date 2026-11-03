@@ -1345,6 +1345,10 @@ export const VoiceManifestSchema = z.object({
        * manifests written before hashing existed.
        */
       hash: z.string().optional(),
+      /** TTS provider that spoke this clip. Absent in older manifests. */
+      provider: z.string().optional(),
+      /** Voice it spoke with, after provider defaults. Absent in older manifests. */
+      voice: z.string().optional(),
     })
   ),
 });

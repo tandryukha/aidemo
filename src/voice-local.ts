@@ -8,8 +8,8 @@ import type { VoicePlan } from "./types.js";
 import type { VoiceProvider } from "./voice.js";
 import {
   KOKORO_MODEL_ID,
-  KOKORO_VOICE,
   kokoroDtype,
+  resolveVoiceId,
   ttsModelCacheDir,
 } from "./config.js";
 import { runFfmpeg } from "./ffmpeg.js";
@@ -181,11 +181,10 @@ export class LocalVoiceProvider implements VoiceProvider {
         "⚠ voice.instructions is a gpt-4o-mini-tts steering prompt — the local Kokoro provider ignores it"
       );
     }
-    // "marin" is the schema default (an OpenAI voice name); anything else the
-    // author chose deliberately and must be a Kokoro voice id. Validate here,
-    // not in kokoro-js — its own validation console.tables to stdout, which
-    // the MCP server reserves for JSON-RPC.
-    const voiceId = plan.voiceId === "marin" ? KOKORO_VOICE() : plan.voiceId;
+    // An author's voice must be a Kokoro voice id. Validate here, not in
+    // kokoro-js — its own validation console.tables to stdout, which the MCP
+    // server reserves for JSON-RPC.
+    const voiceId = resolveVoiceId("local", plan.voiceId);
     const voices =
       staticVoices((await this.modules()).KokoroTTS) ?? (await this.load()).voices;
     if (!(voiceId in voices)) {
