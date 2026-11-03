@@ -31,7 +31,7 @@
     "build": "tsc --noEmit",
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
-    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/issue-93.mjs test/issue-94.mjs test/issue-95.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs",
+    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/issue-93.mjs test/issue-94.mjs test/issue-95.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs test/release-wait.mjs",
     "test:blank-open": "tsx --test test/blank-open.mjs",
     "test:lead-in": "tsx --test test/lead-in.mjs",
     "mcp-env-test": "node test/mcp-env.mjs",

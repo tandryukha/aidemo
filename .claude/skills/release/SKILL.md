@@ -82,6 +82,9 @@ surface only failures + final status.
 - Inside this checkout `npx @tandryukha/aidemo@<this version>` installs nothing
   and runs the `aidemo` on `PATH`, so a stale Homebrew install prints its own
   version. That's not a bad release: check from another directory.
+- The release job can sit for minutes after npm publishes: the MCP Registry step
+  waits up to 20 min for npm to serve the version. A timeout there is safe to fix
+  with `gh run rerun <id> --failed`.
 - Workflow permission failures → Settings → Actions → General → Workflow
   permissions → Read and write.
 - Consumers on `npx ...#stable` may keep resolving the old commit from the npm

@@ -99,7 +99,10 @@ on npm). The `release.yml` npm step is a no-op while `NPM_PUBLISH` is unset.
 (`io.github.tandryukha/aidemo`) right after npm, with `mcp-publisher login
 github-oidc` (no secret; the namespace matches this repo's owner). It stays
 behind `NPM_PUBLISH`, skips a version already listed, and fails if `server.json`
-doesn't match `package.json`. Manual fallback: `mcp-publisher login github` →
+doesn't match `package.json`. npm can take minutes to serve a new version (6 min
+for 0.20.3) and the registry answers 400 until it does, so the step polls
+`scripts/wait-for-npm-version.sh` for up to 20 min, then fails with an error. If
+it does, re-run the failed job: the earlier steps skip what's already done. Manual fallback: `mcp-publisher login github` →
 `mcp-publisher publish`. To upgrade `mcp-publisher`, change the version and
 sha256 pinned in the workflow together.
 
