@@ -55,6 +55,27 @@ export function probeVideoDims(
   });
 }
 
+/**
+ * The container's creation_time as epoch ms, or null when it has none. Playwright
+ * stamps its recordings with the moment the recorder started.
+ */
+export function probeCreationTimeMs(file: string): Promise<number | null> {
+  return new Promise((resolve) => {
+    const proc = spawn("ffprobe", ["-v", "quiet", "-print_format", "json", "-show_format", file]);
+    let out = "";
+    proc.stdout.on("data", (d) => (out += d.toString()));
+    proc.on("error", () => resolve(null));
+    proc.on("close", () => {
+      try {
+        const ms = Date.parse(JSON.parse(out).format?.tags?.creation_time ?? "");
+        resolve(Number.isNaN(ms) ? null : ms);
+      } catch {
+        resolve(null);
+      }
+    });
+  });
+}
+
 /** Probe a media file's duration in milliseconds. */
 export function probeDurationMs(file: string): Promise<number> {
   return new Promise((resolve, reject) => {

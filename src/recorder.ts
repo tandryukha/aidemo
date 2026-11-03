@@ -35,7 +35,7 @@ import { ensureProfileUnlocked } from "./login.js";
 import { resolveProfile } from "./profile.js";
 import { applySeeds, collectSeeds, runPreflight } from "./setup.js";
 import { ensureDir, exists, readJson, writeJson, log, ok, step } from "./util.js";
-import { probeDurationMs } from "./ffmpeg.js";
+import { probeCreationTimeMs, probeDurationMs } from "./ffmpeg.js";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 
@@ -136,6 +136,32 @@ export interface RecordOptions {
   fromScene?: string;
   /** With `fromScene`: skip the reused scenes' actions instead of replaying them (state-earning flows). */
   noReplay?: boolean;
+}
+
+/**
+ * The built-in capture's front lead-in (launch + about:blank before t0): where
+ * the take's t0 falls in raw.webm.
+ *
+ * Video length minus content only gives this if the footage past the last scene
+ * is known, and it isn't. Playwright stamps a closing copy of the last frame at
+ * "now" (at least 1 s after it), then ffmpeg holds that copy for as long as the
+ * gap before it, so the tail reaches about twice the time since the last paint:
+ * seconds on any page that sits still at the end. Counted as lead-in, that places
+ * every scene late and compose shows its footage ahead of the narration (issue
+ * #94). The recorder's start stamp doesn't depend on the tail. It overshoots only
+ * by the wait for the first frame, video time zero; the length-based figure also
+ * only overshoots, so the smaller of the two is the closer one.
+ */
+export function builtinLeadInMs(take: {
+  videoMs: number;
+  totalMs: number;
+  tailMs: number;
+  t0: number;
+  recorderStartMs: number | null;
+}): number {
+  const byLength = take.videoMs - take.totalMs - take.tailMs;
+  const byStamp = take.recorderStartMs == null ? byLength : take.t0 - take.recorderStartMs;
+  return Math.max(0, Math.min(byLength, byStamp));
 }
 
 /**
@@ -514,8 +540,8 @@ export async function record(
     // last scene's end is TAIL, not front lead-in: attributing it to the
     // lead-in shifts every scene's window later by that much, so a reused
     // scene's window ran on into the next scene's navigation (issue #55).
-    builtinTailMs = Math.max(0, Date.now() - (t0 + timeline!.totalMs));
     await context.close();
+    builtinTailMs = Math.max(0, Date.now() - (t0 + timeline!.totalMs));
   }
 
   let finalized = false;
@@ -579,14 +605,18 @@ export async function record(
     }
     await fs.rename(join(videoDir, mainVideo), project.rawVideoPath);
 
-    // The front lead-in (about:blank + launch) = actual video length minus the
-    // measured content span. This is more reliable than timing the launch.
-    const videoMs = await probeDurationMs(project.rawVideoPath);
     // salvageTailMs (the failed scene's footage) is part of builtinTailMs —
     // both are measured from the last COMPLETED scene's end — so take the
     // larger of the two rather than subtracting twice.
+    const videoMs = await probeDurationMs(project.rawVideoPath);
     const tail = Math.max(builtinTailMs, salvageTailMs);
-    timeline.leadInMs = Math.max(0, videoMs - timeline.totalMs - tail);
+    timeline.leadInMs = builtinLeadInMs({
+      videoMs,
+      totalMs: timeline.totalMs,
+      tailMs: tail,
+      t0,
+      recorderStartMs: await probeCreationTimeMs(project.rawVideoPath),
+    });
     await writeJson(project.timelinePath, timeline);
     log(
       `video ${videoMs}ms, content ${timeline.totalMs}ms, tail ${tail}ms${salvageTailMs ? ` (failed-scene footage ${salvageTailMs}ms)` : ""} → lead-in ${timeline.leadInMs}ms`
