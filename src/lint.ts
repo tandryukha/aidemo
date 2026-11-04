@@ -13,6 +13,7 @@
  * be 60 % frozen frame before TTS is paid for.
  */
 
+import { countWords } from "./text.js";
 import { OUTPUT_PRESETS, type Storyboard, type Scene, type Action } from "./types.js";
 import { clampScaleForWidth } from "./zoom.js";
 import { compileUserRegex } from "./safe-regex.js";
@@ -103,10 +104,9 @@ const EASING_MS: Record<string, number> = {
   linear: 700,
 };
 
-export function countWords(text: string): number {
-  const trimmed = text.trim();
-  return trimmed ? trimmed.split(/\s+/).length : 0;
-}
+/** Pacing word count — whitespace words, with Han/kana prose priced per
+ *  character (src/text.ts, issue #96). */
+export { countWords };
 
 /**
  * Predicted recorded ms one action contributes AFTER compose trims idle.

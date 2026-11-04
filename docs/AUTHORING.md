@@ -166,6 +166,9 @@ network.
   the storyboard declares `targetLengthSeconds`, `voice` compares the real
   narration length against it and warns with a per-scene words/sec table when
   it's over budget.
+  Chinese and Japanese have no spaces between words, so `lint` and `voice`
+  count two Han/kana characters as one word (English labels inside the prose
+  still count one each): plan at ≈4-5 characters/sec for Mandarin.
 - **Match narration to the action.** The engine time-stretches each scene's
   video to its narration and freeze-holds a static page for any remainder — so
   a scene that's mostly a pause should have shorter narration, and a busy scene
@@ -238,6 +241,10 @@ Whisper reliably mis-hears (`["fitness.ee", "aidemo", "MaxFit"]`). They are
 sent at the *front* of the STT prompt — Whisper only biases on roughly its
 first 224 tokens, so a term buried in a long script never reaches it. Cheaper
 than `captions --offline`, which fixes spelling but gives up real word timing.
+A multi-word term is also kept on one caption cue — a break never falls
+between "Messaging" and "API". Chinese/Japanese captions (offline or STT)
+are split into dictionary words, break at 。，、 like English breaks at
+punctuation, and are joined without spaces between Han/kana characters.
 
 Cinematic keys (all opt-in; omit for the plain look):
 - `zoom: {scale?=1.55, easeMs?=600, holdMs?=1700}` — **auto-zoom on focus**:

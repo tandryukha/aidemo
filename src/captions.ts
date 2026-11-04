@@ -25,6 +25,7 @@ import {
   log,
   type SceneProgress,
 } from "./util.js";
+import { hasCjk, splitCjkToken, joinPieces, displayWidth, cjkWordUnits } from "./text.js";
 
 export interface Cue {
   index: number;
@@ -33,7 +34,7 @@ export interface Cue {
   text: string;
 }
 
-interface Word {
+export interface Word {
   word: string;
   start: number; // seconds
   end: number; // seconds
@@ -171,6 +172,7 @@ export async function generateCaptions(
     prompt,
     language,
     ...(opts.alignScript ? { alignScript: true } : {}),
+    ...segmentationIdentity(storyboard),
   });
   const prior = await readCaptionsManifest(project);
   if (prior && prior.mode === "stt" && prior.inputHash === inputHash) {
@@ -219,7 +221,7 @@ export async function generateCaptions(
   } else if (opts.alignScript) {
     throw new Error("--align-script requires a storyboard and matching voice scene timings");
   }
-  const cues = groupWords(captionWords, sceneEnds, seg);
+  const cues = groupWords(captionWords, sceneEnds, seg, storyboard?.knownTerms);
   await writeCaptionFiles(project, cues);
   await writeCaptionsManifest(project, {
     mode: "stt",
@@ -400,7 +402,7 @@ export async function generateCaptionsOffline(
 
   const prior = await readCaptionsManifest(project);
   const priorOffline = prior && prior.mode === "offline" ? prior : null;
-  const inputHash = hashOf({ mode: "offline", config, meta });
+  const inputHash = hashOf({ mode: "offline", config, meta, ...segmentationIdentity(storyboard) });
   const total = meta.length;
 
   // Fast path: every scene identical → reuse the stored cues verbatim, no
@@ -458,7 +460,7 @@ export async function generateCaptionsOffline(
     cursor += voice.gapMs;
   }
 
-  const cues = groupWords(words, sceneEnds, seg);
+  const cues = groupWords(words, sceneEnds, seg, storyboard.knownTerms);
   await writeCaptionFiles(project, cues);
   await writeCaptionsManifest(project, {
     mode: "offline",
@@ -585,20 +587,94 @@ async function sceneIdsFor(project: Project): Promise<string[]> {
 /** Text of a run of words, with punctuation re-attached. */
 function cueText(ws: Word[]): string {
   // trim each word: faster-whisper servers pad words with leading spaces
-  return ws
-    .map((w) => w.word.trim())
-    .join(" ")
-    .replace(/\s+([,.!?;:])/g, "$1")
-    .trim();
+  const pieces = ws.map((w) => w.word.trim());
+  const joined = pieces.some(hasCjk) ? joinPieces(pieces) : pieces.join(" ");
+  return joined.replace(/\s+([,.!?;:])/g, "$1").trim();
+}
+
+/** `maxWords` units of a run: one per word, but CJK pieces priced like the
+ *  pacing count (two Han/kana characters a word) — a segmenter piece is
+ *  often a single character, so counting pieces would cut CJK cues short. */
+function wordUnits(ws: Word[]): number {
+  if (!ws.some((w) => hasCjk(w.word))) return ws.length;
+  return ws.reduce((a, w) => a + (hasCjk(w.word) ? cjkWordUnits(w.word) : 1), 0);
 }
 
 /** A word that ends a clause (punctuation) — the best place to break. */
 function endsClause(w: Word): boolean {
-  return /[,;:—–]$/.test(w.word.trim());
+  return /[,;:—–，、；：]$/.test(w.word.trim());
 }
 
 function endsSentence(w: Word): boolean {
-  return /[.!?]["'”’)]?$/.test(w.word.trim());
+  return /[.!?。！？]["'”’)」』）]?$/.test(w.word.trim());
+}
+
+/**
+ * Caption-sized pieces for unspaced (Chinese/Japanese) text (issue #96): a
+ * whitespace token holding a whole CJK clause is split into dictionary words,
+ * its time shared out by length, so cues can break at 。，、 instead of only at
+ * the English labels between clauses. Words without CJK pass through as-is,
+ * so space-delimited captions are unchanged.
+ */
+function expandCjkWords(words: Word[]): Word[] {
+  if (!words.some((w) => hasCjk(w.word))) return words;
+  const out: Word[] = [];
+  for (const w of words) {
+    const pieces = splitCjkToken(w.word.trim());
+    if (pieces.length < 2) {
+      out.push(w);
+      continue;
+    }
+    const total = pieces.reduce((a, p) => a + p.length, 0) || 1;
+    let at = w.start;
+    for (const p of pieces) {
+      const dur = ((w.end - w.start) * p.length) / total;
+      out.push({ word: p, start: at, end: at + dur });
+      at += dur;
+    }
+  }
+  return out;
+}
+
+/**
+ * Cache identity for the CJK/knownTerms segmentation rules (issue #96). Empty
+ * for storyboards they cannot affect, so those keep their existing cache keys;
+ * the rest re-segment once instead of reusing cues cut by the old rules.
+ */
+function segmentationIdentity(storyboard: Storyboard | undefined): Record<string, unknown> {
+  if (!storyboard) return {};
+  const terms = (storyboard.knownTerms ?? []).filter((t) => /\s/.test(t.trim()) || hasCjk(t));
+  const cjk = storyboard.scenes.some((s) => hasCjk(s.narration ?? ""));
+  if (!terms.length && !cjk) return {};
+  return { segmentation: 2, ...(terms.length ? { knownTerms: terms } : {}) };
+}
+
+const normTerm = (s: string): string =>
+  s.normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+
+/**
+ * Words that must not end a cue because a multi-word `knownTerms` entry
+ * continues into the next word ("Messaging | API" — issue #96). Terms are
+ * tokenized the same way caption words are, so a CJK term split by the
+ * segmenter is protected too.
+ */
+function gluedWords(words: Word[], terms: string[] | undefined): Set<Word> {
+  const glued = new Set<Word>();
+  if (!terms?.length) return glued;
+  const parts = terms
+    .map((t) => t.split(/\s+/).flatMap(splitCjkToken).map(normTerm).filter(Boolean))
+    .filter((p) => p.length > 1);
+  if (!parts.length) return glued;
+  const norm = words.map((w) => normTerm(w.word));
+  for (let i = 0; i < words.length; i++) {
+    for (const p of parts) {
+      if (i + p.length > words.length) continue;
+      if (p.every((x, k) => norm[i + k] === x)) {
+        for (let k = 0; k < p.length - 1; k++) glued.add(words[i + k]);
+      }
+    }
+  }
+  return glued;
 }
 
 /**
@@ -607,11 +683,11 @@ function endsSentence(w: Word): boolean {
  * pure length. Never leaves a 2–3 word tail dangling when the previous
  * boundary can absorb it.
  */
-function splitRun(ws: Word[], cfg: SegConfig): Word[][] {
+function splitRun(ws: Word[], cfg: SegConfig, glued: Set<Word> = new Set()): Word[][] {
   const capChars = cfg.maxLines * cfg.maxCharsPerLine;
   const fits = (run: Word[]): boolean =>
-    run.length <= cfg.maxWords &&
-    cueText(run).length <= capChars &&
+    wordUnits(run) <= cfg.maxWords &&
+    displayWidth(cueText(run)) <= capChars &&
     (run[run.length - 1].end - run[0].start) * 1000 <= cfg.maxCueMs;
   if (ws.length === 0) return [];
   if (fits(ws)) return [ws];
@@ -629,21 +705,38 @@ function splitRun(ws: Word[], cfg: SegConfig): Word[][] {
   if (cut === end) {
     for (let i = end - 1; i >= floor; i--) {
       const next = ws[i + 1];
-      if (next && CONJUNCTIONS.has(next.word.trim().toLowerCase().replace(/[^\p{L}]/gu, ""))) {
+      if (next && !glued.has(ws[i]) && CONJUNCTIONS.has(next.word.trim().toLowerCase().replace(/[^\p{L}]/gu, ""))) {
         cut = i + 1;
         break;
       }
     }
   }
-  return [ws.slice(0, cut), ...splitRun(ws.slice(cut), cfg)];
+  // Unspaced CJK text has no word boundaries a reader can recover from, so a
+  // clause break anywhere in the run beats a length cut mid-phrase.
+  if (cut === end && ws.some((w) => hasCjk(w.word))) {
+    for (let i = floor; i >= 1; i--) {
+      if (endsSentence(ws[i - 1]) || endsClause(ws[i - 1])) {
+        cut = i;
+        break;
+      }
+    }
+  }
+  // A pure-length cut never lands inside a known term; walk back to the
+  // term's start (or keep the cut when the term alone overfills the cue).
+  if (glued.has(ws[cut - 1])) {
+    let k = cut - 1;
+    while (k >= 1 && glued.has(ws[k - 1])) k--;
+    if (k >= 1) cut = k;
+  }
+  return [ws.slice(0, cut), ...splitRun(ws.slice(cut), cfg, glued)];
 }
 
 /** Merge a too-short cue into the neighbour it still fits in. */
 function mergeShort(runs: Word[][], cfg: SegConfig): Word[][] {
   const capChars = cfg.maxLines * cfg.maxCharsPerLine;
   const room = (a: Word[], b: Word[]): boolean =>
-    a.length + b.length <= cfg.maxWords &&
-    cueText([...a, ...b]).length <= capChars &&
+    wordUnits([...a, ...b]) <= cfg.maxWords &&
+    displayWidth(cueText([...a, ...b])) <= capChars &&
     (b[b.length - 1].end - a[0].start) * 1000 <= cfg.maxCueMs;
   const out: Word[][] = [];
   for (const run of runs) {
@@ -658,7 +751,14 @@ function mergeShort(runs: Word[][], cfg: SegConfig): Word[][] {
   return out;
 }
 
-function groupWords(words: Word[], sceneEnds: number[], cfg: SegConfig = DEFAULT_SEG): Cue[] {
+export function groupWords(
+  timed: Word[],
+  sceneEnds: number[],
+  cfg: SegConfig = DEFAULT_SEG,
+  knownTerms?: string[]
+): Cue[] {
+  const words = expandCjkWords(timed);
+  const glued = gluedWords(words, knownTerms);
   // Scene boundaries and sentence ends are hard breaks; inside those runs the
   // split is clause-aware.
   const runs: Word[][] = [];
@@ -678,7 +778,7 @@ function groupWords(words: Word[], sceneEnds: number[], cfg: SegConfig = DEFAULT
     if (endsSentence(w)) cut();
   }
   cut();
-  const split = runs.flatMap((r) => splitRun(r, cfg));
+  const split = runs.flatMap((r) => splitRun(r, cfg, glued));
   return mergeShort(split, cfg).map((ws, i) => ({
     index: i + 1,
     startMs: Math.round(ws[0].start * 1000),

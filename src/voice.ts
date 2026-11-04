@@ -19,6 +19,7 @@ import {
 } from "./config.js";
 import { LocalVoiceProvider } from "./voice-local.js";
 import { runFfmpeg, probeDurationMs } from "./ffmpeg.js";
+import { countWords } from "./text.js";
 import {
   ensureDir,
   writeJson,
@@ -412,12 +413,6 @@ export async function generateVoice(
   }
 }
 
-/** Whitespace word count — language-agnostic for the space-delimited scripts
- *  storyboards are authored in (including Estonian, Finnish, German, …). */
-function countWords(text: string): number {
-  const trimmed = text.trim();
-  return trimmed ? trimmed.split(/\s+/).length : 0;
-}
 
 /**
  * `targetLengthSeconds` is an authoring budget nothing else in the pipeline
