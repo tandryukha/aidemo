@@ -309,25 +309,25 @@
       "url": "https://aidemo.top/blog/demo-video-mistakes/",
       "date": "2026-08-25",
       "indexed": false,
-      "last_checked": "2026-08-31",
-      "check_attempts": 1,
-      "last_status": "Discovered - currently not indexed"
+      "last_checked": "2026-11-04",
+      "check_attempts": 2,
+      "last_status": "URL is not on Google: Discovered - currently not indexed"
     },
     {
       "url": "https://aidemo.top/blog/demo-video-on-landing-page/",
       "date": "2026-08-25",
       "indexed": false,
-      "last_checked": "2026-09-01",
-      "check_attempts": 1,
-      "last_status": "URL is not on Google - unknown to Google"
+      "last_checked": "2026-11-04",
+      "check_attempts": 2,
+      "last_status": "URL is not on Google: Discovered - currently not indexed (indexing requested)"
     },
     {
       "url": "https://aidemo.top/blog/demo-video-script-template/",
       "date": "2026-08-27",
       "indexed": false,
-      "last_checked": "2026-09-01",
-      "check_attempts": 1,
-      "last_status": "Discovered - currently not indexed"
+      "last_checked": "2026-11-04",
+      "check_attempts": 2,
+      "last_status": "URL is not on Google: URL is unknown to Google (no referring sitemaps detected)"
     },
     {
       "url": "https://aidemo.top/blog/demo-video-software-pricing/",
@@ -958,7 +958,7 @@
       "last_status": "URL is not on Google: Crawled - currently not indexed"
     }
   ],
-  "last_run": "2026-10-28",
+  "last_run": "2026-11-04",
   "total_submitted": 113,
   "total_indexed": 53
 }
