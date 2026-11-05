@@ -1,9 +1,13 @@
 name: scorecard
 
 # OpenSSF Scorecard: publishes results to the Scorecard API for the README
-# badge. Only works once the repo is public — trigger via workflow_dispatch
-# after flipping.
+# badge. The API serves the result for main's current HEAD commit only — a
+# result for an older commit is invisible to the badge, which then reads
+# "invalid repo path". So run on every push to main, not just weekly.
 on:
+  push:
+    branches: [main]
+  branch_protection_rule:
   schedule:
     - cron: '30 2 * * 1'
   workflow_dispatch:
