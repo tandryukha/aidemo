@@ -63,7 +63,9 @@ test("keeps polling through 404s and server errors", async () => {
 
 test("times out with a clear error instead of falling through", async () => {
   const r = await registry([404]);
-  const { code, out } = await run(PKG, { NPM_REGISTRY_URL: r.url, NPM_WAIT_SECONDS: "1" });
+  // bash's SECONDS counts wall-clock second boundaries, so a limit of 1 can
+  // expire right after the first poll; 2 guarantees at least a second of polling.
+  const { code, out } = await run(PKG, { NPM_REGISTRY_URL: r.url, NPM_WAIT_SECONDS: "2" });
   await r.close();
   assert.equal(code, 1);
   assert.match(out, /::error::npm still doesn't serve @tandryukha\/aidemo@1\.2\.3/);
