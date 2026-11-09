@@ -1,6 +1,6 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, promises as fs } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { exec, execBuffer } from "./exec.js";
 import { readImageHeader } from "../store/validate.js";
@@ -91,7 +91,7 @@ async function haveIdb(): Promise<boolean> {
   }
 }
 
-class IosSimulator implements Device {
+export class IosSimulator implements Device {
   readonly platform = "ios" as const;
   constructor(
     readonly id: string,
@@ -100,9 +100,16 @@ class IosSimulator implements Device {
   ) {}
 
   async screenSize() {
-    const buf = await execBuffer("xcrun", ["simctl", "io", this.id, "screenshot", "--type=png", "-"], { timeoutMs: 30000 });
-    const h = readImageHeader(buf);
-    return { width: h.width, height: h.height };
+    // `simctl io screenshot -` writes a FILE named "-" in the cwd (not stdout), so go through a temp file.
+    const dir = await fs.mkdtemp(join(tmpdir(), "aidemo-size-"));
+    try {
+      const file = join(dir, "screen.png");
+      await this.screenshot(file);
+      const h = readImageHeader(await fs.readFile(file));
+      return { width: h.width, height: h.height };
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
   }
 
   async startRecording(file: string): Promise<Recording> {

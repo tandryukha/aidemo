@@ -44,6 +44,8 @@ before(async () => {
       scenes: [
         { id: "a", clip: "clips/a.mp4", caption: "Say it. *It's logged.*", tailHoldMs: 600, localized: { ru: { caption: "Скажите — и готово." } } },
         { id: "b", clip: "clips/b.mp4", caption: "Every number one tap to fix.", holds: [{ fromMs: 2000, toMs: 4000 }] },
+        // screenshot-only: recorded (imported) but never in the video — the durations below stay the same
+        { id: "shot", clip: "clips/b.mp4", inVideo: false },
       ],
       video: { presets: ["app-store-preview", "play-promo-landscape"] },
       endCard: { appName: "Fixture", icon: "clips/icon.png", line: "Free on the App Store" },
@@ -64,7 +66,7 @@ test("imported clips → App Preview + Play promo that pass the store specs", { 
   const project = new Project(dir);
   await project.ensureDirs();
   const tl = await nativeRecord(project);
-  assert.deepEqual(tl.scenes.map((s) => s.id), ["a", "b"]);
+  assert.deepEqual(tl.scenes.map((s) => s.id), ["a", "b", "shot"]);
   const results = await storeVideo(project);
   assert.equal(results.length, 2);
   for (const r of results) {

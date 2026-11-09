@@ -331,9 +331,16 @@ export interface FreezeSpan {
 export function probeFreezeSpans(
   file: string,
   minMs = 1500,
-  noise = 0.003
+  noise = 0.003,
+  /**
+   * Measure only this region (e.g. where the device video sits on a store
+   * canvas). freezedetect's noise is relative to the whole frame, so a moving
+   * device that covers a small part of a static canvas reads as frozen.
+   */
+  region?: { x: number; y: number; w: number; h: number }
 ): Promise<FreezeSpan[]> {
   const d = Math.max(0.1, minMs / 1000);
+  const crop = region ? `crop=${Math.round(region.w)}:${Math.round(region.h)}:${Math.round(region.x)}:${Math.round(region.y)},` : "";
   return new Promise((resolvePromise) => {
     const proc = spawn(
       "ffmpeg",
@@ -343,7 +350,7 @@ export function probeFreezeSpans(
         "-i",
         file,
         "-vf",
-        `freezedetect=n=${noise}:d=${d.toFixed(3)},metadata=print:file=-`,
+        `${crop}freezedetect=n=${noise}:d=${d.toFixed(3)},metadata=print:file=-`,
         "-an",
         "-f",
         "null",

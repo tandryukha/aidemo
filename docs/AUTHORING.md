@@ -1614,6 +1614,9 @@ replays it. Polish is edit-time: changing a caption, ramp, hold or preset is a
   re-records just that scene. Make each scene self-contained with its `setup`.
 - `still` saves a full-resolution device screenshot after the flow
   (`recordings/native/stills/<name>.png`) — the best source for screenshots.
+- `inVideo: false` makes a **screenshot-only scene**: it is recorded (for its
+  `still` or a `fromScene` frame) but left out of `store-video`, so the
+  screenshot set can show screens the 15–30 s video has no time for.
 - **Marks.** Maestro's per-command start/duration (its debug output) is put on
   the clip's clock in `generated/native-timeline.json`. Give a flow step a
   `label:` and the edit can address it:

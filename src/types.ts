@@ -1578,6 +1578,11 @@ export const StoreSceneSchema = z
     tailHoldMs: z.number().min(0).max(5000).optional(),
     /** After the flow, grab a full-resolution device screenshot to `recordings/native/stills/<name>.png`. */
     still: z.string().regex(/^[A-Za-z0-9_-]+$/).optional(),
+    /**
+     * `false`: a screenshot-only scene — recorded for its `still` (or a `fromScene` frame) and left out of
+     * the store video. Default true.
+     */
+    inVideo: z.boolean().optional(),
   })
   .refine((s) => [s.flow, s.steps, s.clip].filter((x) => x != null).length === 1, {
     message: "a scene needs exactly one of `flow`, `steps` or `clip`",

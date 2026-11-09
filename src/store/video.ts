@@ -63,6 +63,13 @@ export function defaultTrim(
   return { startMs: Math.max(0, first - lead), endMs: Math.min(durationMs, Math.max(last + tail, first + 500)) };
 }
 
+/** The scenes the edit uses, in order: everything except screenshot-only scenes (`inVideo: false`). */
+export function videoScenes(store: StoreProject): StoreProject["scenes"] {
+  const scenes = store.scenes.filter((s) => s.inVideo !== false);
+  if (!scenes.length) throw new Error("every scene has inVideo: false — the video needs at least one scene");
+  return scenes;
+}
+
 interface PlannedScene {
   id: string;
   clip: string;
@@ -79,7 +86,7 @@ async function planAll(project: Project, store: StoreProject, timeline: NativeTi
     defaultRampRate: v.rampRate ?? 4,
   };
   const out: PlannedScene[] = [];
-  for (const scene of store.scenes) {
+  for (const scene of videoScenes(store)) {
     const rec = timeline.scenes.find((s) => s.id === scene.id);
     if (!rec) throw new Error(`scene "${scene.id}" has no clip — run \`aidemo native-record <dir>\` (or --only ${scene.id})`);
     const hash = await sceneHash(project, store, scene);
@@ -118,7 +125,7 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
 
   step("planning the edit");
   const planned = await planAll(project, store, timeline);
-  const captions = store.scenes.map((s) => localized(s.caption, s.localized, "caption", lang));
+  const captions = videoScenes(store).map((s) => localized(s.caption, s.localized, "caption", lang));
   if (!captions[0]) log("⚠ the first scene has no caption — store autoplay is muted, the first frame should carry the message");
 
   const brand = await brandCss(store.brand, (p) => resolveIn(project, p));
@@ -141,10 +148,12 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
       const allowed: Span[] = [];
       const sceneReport: Array<{ id: string; startMs: number; outMs: number; segments: ScenePlan["segments"] }> = [];
       let t = 0;
+      let region: Span2D | undefined;
       for (const [i, sc] of planned.entries()) {
         opts.onSceneStart?.(sc.id, i, planned.length);
         const plan = fit.plans[i];
         const layout = videoLayout(preset.width, preset.height, sc.dims.width, sc.dims.height, v.layout ?? "auto", v.captionPosition ?? "top");
+        region = unionRect(region, clipRect(layout.video, preset.width, preset.height));
         const overlay = paths.tmp(`${preset.id}-${sc.id}-over.png`);
         await raster.render(videoOverlayHtml(brand, layout, captions[i]), preset.width, preset.height, overlay, { transparent: true });
         const out = paths.tmp(`${preset.id}-${sc.id}.mp4`);
@@ -181,7 +190,7 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
       await encodeFinal(sceneFiles, file, preset);
       const report = await validateStoreVideoFile(file, preset);
       const fileMs = await probeDurationMs(file).catch(() => t);
-      const finalFreezes = clampSpans(await probeFreezeSpans(file, maxStillMs + 120), fileMs);
+      const finalFreezes = clampSpans(await probeFreezeSpans(file, maxStillMs + 120, undefined, region), fileMs);
       const bad = stillViolations(finalFreezes, allowed, maxStillMs);
       if (bad.length)
         report.errors.push(
@@ -223,6 +232,19 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
     if (!process.env.AIDEMO_KEEP_TMP) await fs.rm(paths.tmpDir, { recursive: true, force: true });
   }
   return results;
+}
+
+type Span2D = { x: number; y: number; w: number; h: number };
+/** The part of `r` that is on a W×H canvas (even sizes, as ffmpeg's crop wants for yuv420p). */
+export function clipRect(r: Span2D, W: number, H: number): Span2D {
+  const x = Math.max(0, r.x), y = Math.max(0, r.y);
+  const w = Math.min(W, r.x + r.w) - x, h = Math.min(H, r.y + r.h) - y;
+  return { x, y, w: Math.max(2, Math.floor(w / 2) * 2), h: Math.max(2, Math.floor(h / 2) * 2) };
+}
+export function unionRect(a: Span2D | undefined, b: Span2D): Span2D {
+  if (!a) return b;
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+  return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
 }
 
 /** Build the ffmpeg filter for one scene: CFR → segments at their rates → tail hold → canvas → overlay. */

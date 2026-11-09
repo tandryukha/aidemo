@@ -9,9 +9,9 @@ import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
 import { toClipMarks } from "../src/native/record.ts";
-import { adbInputText, parseAdbDevices, parseSimctlDevices, parseWmSize, pickSimulator } from "../src/native/device.ts";
+import { adbInputText, IosSimulator, parseAdbDevices, parseSimctlDevices, parseWmSize, pickSimulator } from "../src/native/device.ts";
 import { markup, shotLayout, videoLayout } from "../src/store/render-html.ts";
-import { defaultTrim, sceneFilter } from "../src/store/video.ts";
+import { clipRect, defaultTrim, sceneFilter, unionRect, videoScenes } from "../src/store/video.ts";
 import { StoreProjectSchema } from "../src/types.ts";
 
 /** Output-time still spans of a plan, given input still spans. */
@@ -236,4 +236,56 @@ test("a still frozen through EOF (the end card) is covered once clamped to the f
   // a real dead stretch before the end card still fails
   const dead = clampSpans([{ startMs: 12000, endMs: Number.MAX_SAFE_INTEGER }], fileMs);
   assert.equal(stillViolations(dead, [endCard], 700).length, 1);
+});
+
+test("inVideo: false keeps a screenshot-only scene out of the edit", () => {
+  const store = StoreProjectSchema.parse({
+    title: "t",
+    device: { platform: "ios" },
+    scenes: [
+      { id: "voice", clip: "a.mp4", caption: "Say it." },
+      { id: "plan", clip: "b.mp4", inVideo: false, still: "04-plan" },
+      { id: "fix", clip: "c.mp4" },
+    ],
+  });
+  assert.deepEqual(videoScenes(store).map((s) => s.id), ["voice", "fix"]);
+  const none = StoreProjectSchema.parse({ title: "t", device: { platform: "ios" }, scenes: [{ id: "x", clip: "a.mp4", inVideo: false }] });
+  assert.throws(() => videoScenes(none), /at least one scene/);
+});
+
+test("the final still check measures only the device region on the canvas", () => {
+  // fill: the device overflows the canvas → clipped to the canvas, even sizes
+  assert.deepEqual(clipRect({ x: -3, y: -40, w: 893, h: 2000 }, 886, 1920), { x: 0, y: 0, w: 886, h: 1920 });
+  // side layout: a small device on a big landscape canvas stays its own rect
+  assert.deepEqual(clipRect({ x: 1100, y: 40, w: 461, h: 1001 }, 1920, 1080), { x: 1100, y: 40, w: 460, h: 1000 });
+  assert.deepEqual(unionRect(undefined, { x: 1, y: 2, w: 3, h: 4 }), { x: 1, y: 2, w: 3, h: 4 });
+  assert.deepEqual(unionRect({ x: 0, y: 0, w: 10, h: 10 }, { x: 5, y: 5, w: 10, h: 10 }), { x: 0, y: 0, w: 15, h: 15 });
+});
+
+test("iOS screenSize reads a screenshot FILE (simctl writes a file named '-', never stdout)", async () => {
+  const { mkdtempSync, writeFileSync, chmodSync, existsSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const bin = mkdtempSync(join(tmpdir(), "aidemo-fake-xcrun-"));
+  // 1320x2868 PNG header (signature + IHDR); the fake xcrun writes it to its last argument.
+  const png = Buffer.alloc(33);
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52]).copy(png, 0);
+  png.writeUInt32BE(1320, 16);
+  png.writeUInt32BE(2868, 20);
+  writeFileSync(join(bin, "frame.png"), png);
+  writeFileSync(join(bin, "xcrun"), `#!/bin/sh\nfor a; do last="$a"; done\n[ "$last" = "-" ] && exit 3\ncp "${join(bin, "frame.png")}" "$last"\n`);
+  chmodSync(join(bin, "xcrun"), 0o755);
+  const path = process.env.PATH;
+  const cwd = process.cwd();
+  process.env.PATH = `${bin}:${path}`;
+  try {
+    process.chdir(bin);
+    const size = await new IosSimulator("SIM", "iPhone", false).screenSize();
+    assert.deepEqual(size, { width: 1320, height: 2868 });
+    assert.equal(existsSync(join(bin, "-")), false);
+  } finally {
+    process.chdir(cwd);
+    process.env.PATH = path;
+    rmSync(bin, { recursive: true, force: true });
+  }
 });
