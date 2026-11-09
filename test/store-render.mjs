@@ -103,3 +103,37 @@ test("screenshot sets + feature graphic at exact store sizes, opaque", { timeout
     if (s.preset !== "play-feature-graphic") assert.ok(s.screenFraction >= 0.7, `${s.preset} ${s.screenFraction}`);
   }
 });
+
+test("a failing scene keeps the scenes recorded before it in the timeline (then --only merges)", { timeout: 120000 }, async () => {
+  const pdir = await mkdtemp(join(tmpdir(), "aidemo-native-"));
+  try {
+    await mkdir(join(pdir, "generated"), { recursive: true });
+    await writeFile(join(pdir, "generated", "store.json"), JSON.stringify({
+      title: "Partial run", device: { platform: "ios" }, video: { presets: ["app-store-preview"] },
+      scenes: [
+        { id: "one", steps: [{ op: "wait", ms: 1 }] },
+        { id: "two", steps: [{ op: "wait", ms: 2 }] },
+      ],
+    }));
+    let failTwo = true;
+    const fake = {
+      platform: "ios", id: "FAKE", name: "Fake", bootedByUs: false,
+      screenSize: async () => ({ width: 660, height: 1434 }),
+      startRecording: async (file) => ({ startedAtMs: Date.now(), stop: async () => { await writeFile(file, await readFile(join(dir, "clips", "b.mp4"))); return file; } }),
+      screenshot: async () => {},
+      runStep: async (st) => { if (st.ms === 2 && failTwo) throw new Error("flow failed"); },
+      prepare: async () => async () => {},
+      release: async () => {},
+    };
+    const project = new Project(pdir);
+    await project.ensureDirs();
+    await assert.rejects(nativeRecord(project, { device: fake }), /flow failed/);
+    const partial = JSON.parse(await readFile(join(pdir, "generated", "native-timeline.json"), "utf8"));
+    assert.deepEqual(partial.scenes.map((s) => s.id), ["one"]);
+    failTwo = false;
+    const tl = await nativeRecord(project, { device: fake, only: ["two"] });
+    assert.deepEqual(tl.scenes.map((s) => s.id), ["one", "two"]);
+  } finally {
+    await rm(pdir, { recursive: true, force: true });
+  }
+});

@@ -27,6 +27,8 @@ export interface NativeRecordOptions {
   only?: string[];
   boot?: boolean;
   deviceId?: string;
+  /** An already-open device (tests; an embedding host) instead of `openDevice`. */
+  device?: Device;
   signal?: AbortSignal;
   onSceneStart?: (id: string, index: number, total: number) => void;
   onSceneComplete?: (id: string, index: number, total: number) => void;
@@ -70,10 +72,24 @@ export async function nativeRecord(project: Project, opts: NativeRecordOptions =
   let deviceInfo = previous?.device;
   let restore: (() => Promise<void>) | null = null;
   const env = (scene?: StoreScene) => ({ ...(store.env ?? {}), ...(scene?.env ?? {}) });
+  // Written after every recorded scene, not only at the end: a later scene that fails must not lose the clips
+  // already made (a `--only` re-record of the failed scene then merges onto them).
+  const writeTimeline = async (): Promise<NativeTimeline> => {
+    const scenes = store.scenes.map((s) => byId.get(s.id)).filter((x): x is NativeTimeline["scenes"][number] => !!x);
+    const timeline: NativeTimeline = {
+      version: 1,
+      platform: store.device.platform,
+      device: deviceInfo ?? { id: "imported", name: "imported clips", width: 0, height: 0 },
+      recordedAt: new Date().toISOString(),
+      scenes,
+    };
+    await writeJson(paths.timeline, timeline);
+    return timeline;
+  };
 
   try {
     if (toRecord.length) {
-      device = await openDevice(store.device.platform, opts.deviceId ?? store.device.id, { boot: opts.boot });
+      device = opts.device ?? (await openDevice(store.device.platform, opts.deviceId ?? store.device.id, { boot: opts.boot }));
       const size = await device.screenSize();
       deviceInfo = { id: device.id, name: device.name, ...size };
       step(`native-record on ${device.platform} ${device.name} (${size.width}x${size.height})`);
@@ -145,6 +161,7 @@ export async function nativeRecord(project: Project, opts: NativeRecordOptions =
         marks,
         ...(scene.still ? { still: paths.still(scene.still) } : {}),
       });
+      await writeTimeline();
       ok(`${scene.id}: ${(durationMs / 1000).toFixed(1)} s, ${marks.length} marks`);
       opts.onSceneComplete?.(scene.id, index, toRecord.length);
     }
@@ -164,17 +181,9 @@ export async function nativeRecord(project: Project, opts: NativeRecordOptions =
       marks: [],
     });
   }
-  const scenes = store.scenes.map((s) => byId.get(s.id)).filter((x): x is NativeTimeline["scenes"][number] => !!x);
   const missing = store.scenes.filter((s) => !byId.has(s.id)).map((s) => s.id);
   if (missing.length) log(`⚠ scenes not recorded yet: ${missing.join(", ")}`);
-  const timeline: NativeTimeline = {
-    version: 1,
-    platform: store.device.platform,
-    device: deviceInfo ?? { id: "imported", name: "imported clips", width: 0, height: 0 },
-    recordedAt: new Date().toISOString(),
-    scenes,
-  };
-  await writeJson(paths.timeline, timeline);
+  const timeline = await writeTimeline();
   ok(`native timeline → ${paths.timeline}`);
   return timeline;
 }
