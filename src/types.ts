@@ -1568,7 +1568,19 @@ export const StoreSceneSchema = z
     localized: LocalizedTextSchema.optional(),
     /** Cut the clip to this raw-clip window before editing. */
     trim: z
-      .object({ startMs: z.number().min(0).optional(), endMs: z.number().min(0).optional() })
+      .object({
+        startMs: z.number().min(0).optional(),
+        endMs: z.number().min(0).optional(),
+        /**
+         * End the clip `afterMs` after a recorded Maestro step (its LAST match) ends — a cut that
+         * survives re-recording, unlike `endMs`. E.g. end on the result, before the flow tidies up.
+         */
+        endAfter: z
+          .object({ label: z.string().optional(), command: z.string().optional(), afterMs: z.number().min(0).max(5000).optional() })
+          .refine((e) => !!e.label || !!e.command, { message: "trim.endAfter needs `label` or `command`" })
+          .optional(),
+      })
+      .refine((t) => !(t.endAfter && t.endMs != null), { message: "trim: use `endMs` or `endAfter`, not both" })
       .optional(),
     /** Speed ramps for known dead time (typing, waiting). */
     ramps: z.array(StoreRampSchema).optional(),
@@ -1700,6 +1712,12 @@ export const StoreProjectSchema = z.object({
       captionPosition: z.enum(["top", "bottom"]).optional(),
       /** Out-of-range duration: fail (default) or uniformly speed non-hold time up to fit. */
       durationFit: z.enum(["fail", "speed"]).optional(),
+      /**
+       * The project's own duration window, inside the store's (e.g. 15–20 s for a preview the
+       * store would take up to 30 s). Fitting and validation use the narrower window.
+       */
+      minSec: z.number().min(1).optional(),
+      maxSec: z.number().min(1).optional(),
       /** Poster frame time in the final video. Default 0 (the first frame carries the message). */
       posterAtMs: z.number().min(0).optional(),
     })

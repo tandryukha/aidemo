@@ -1661,7 +1661,15 @@ Store autoplay is **muted**, and search shows only the first seconds — so:
 6. **Duration**: the store window is enforced. Too short is always an error
    (the engine never pads with stills — add a scene or lengthen a hold); too
    long is an error unless `video.durationFit: "speed"` (all non-hold time
-   speeds up by one factor; the factor is in the report).
+   speeds up by one factor; the factor is in the report). `video.minSec` /
+   `video.maxSec` narrow the store's window for your project (e.g. a 15–20 s
+   cut of a 30 s slot); fitting and the final validation both use the
+   narrower window.
+7. **Cutting a scene**: by default a clip runs from just before the first
+   recorded step to 600 ms after the last. `trim.endAfter: {label | command,
+   afterMs?}` ends it `afterMs` after the last matching step instead — e.g. on
+   the result card, before the flow taps Log and tidies up — and, unlike raw
+   `trim.startMs/endMs`, it still cuts in the right place after a re-record.
 
 | Preset | Size | Rules enforced |
 |---|---|---|

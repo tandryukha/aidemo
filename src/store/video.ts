@@ -4,7 +4,7 @@ import { probeDurationMs, probeFreezeSpans, probeVideoDims, runFfmpeg } from "..
 import type { NativeTimeline, StoreProject, StoreVideoPresetId } from "../types.js";
 import { ensureDir, log, ok, step, writeJson } from "../util.js";
 import { sceneHash } from "../native/record.js";
-import { clampSpans, fitPlans, planScene, resolveHolds, resolveRamps, stillViolations, type ScenePlan, type Span } from "./plan.js";
+import { clampSpans, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations, type ScenePlan, type Span } from "./plan.js";
 import { posterTimeCode, storeVideoPreset, type StoreVideoPreset } from "./presets.js";
 import { loadNativeTimeline, loadStoreProject, localized, resolveIn, storePaths } from "./project.js";
 import {
@@ -93,9 +93,7 @@ async function planAll(project: Project, store: StoreProject, timeline: NativeTi
     if (hash !== rec.hash)
       log(`⚠ scene "${scene.id}": its flow/env changed since it was recorded — re-record with --only ${scene.id}`);
     const durationMs = rec.durationMs || (await probeDurationMs(rec.clip));
-    const trim = scene.trim
-      ? { startMs: scene.trim.startMs ?? 0, endMs: scene.trim.endMs ?? durationMs }
-      : defaultTrim(durationMs, rec.marks);
+    const trim = resolveTrim(scene, rec.marks, durationMs, defaultTrim(durationMs, rec.marks));
     const freezes = await probeFreezeSpans(rec.clip, options.maxStillMs);
     const plan = planScene({
       durationMs,
@@ -135,7 +133,9 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
   await fs.rm(paths.tmpDir, { recursive: true, force: true });
   await ensureDir(paths.tmpDir);
   try {
-    for (const preset of presets) {
+    for (const storePreset of presets) {
+      // The project may ask for a tighter window than the store allows (e.g. 15–20 s of a 30 s slot).
+      const preset = { ...storePreset, ...durationWindow(storePreset, { minSec: v.minSec, maxSec: v.maxSec }) };
       const fit = fitPlans(
         planned.map((p) => p.plan),
         endMs,

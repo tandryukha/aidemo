@@ -89,6 +89,45 @@ export function resolveHolds(scene: StoreScene, marks: NativeMark[]): Span[] {
   );
 }
 
+/**
+ * The raw-clip window a scene is cut to. No `trim`: from just before the first recorded step to
+ * shortly after the last (`fallback`). `startMs`/`endMs` are raw clip ms (legacy: either one alone
+ * leaves the other side uncut). `endAfter` ends `afterMs` after the last step matching its
+ * label/command, so the cut follows the flow across re-records.
+ */
+export function resolveTrim(
+  scene: StoreScene,
+  marks: NativeMark[],
+  durationMs: number,
+  fallback: { startMs: number; endMs: number }
+): { startMs: number; endMs: number } {
+  const t = scene.trim;
+  if (!t) return fallback;
+  const legacy = t.startMs != null || t.endMs != null;
+  const startMs = t.startMs ?? (legacy ? 0 : fallback.startMs);
+  let endMs = t.endMs ?? (legacy && !t.endAfter ? durationMs : fallback.endMs);
+  if (t.endAfter) {
+    const hits = spansFor(t.endAfter, marks, "trim.endAfter", scene.id);
+    endMs = Math.min(durationMs, Math.max(...hits.map((h) => h.endMs)) + (t.endAfter.afterMs ?? 0));
+  }
+  if (endMs <= startMs) throw new Error(`scene "${scene.id}": trim window ${startMs}–${endMs} ms is empty`);
+  return { startMs, endMs };
+}
+
+/** The store's duration window narrowed by the project's `video.minSec`/`maxSec`. */
+export function durationWindow(
+  preset: { minSec?: number; maxSec?: number },
+  project: { minSec?: number; maxSec?: number } = {}
+): { minSec?: number; maxSec?: number } {
+  const pick = (a: number | undefined, b: number | undefined, f: (x: number, y: number) => number) =>
+    a == null ? b : b == null ? a : f(a, b);
+  const minSec = pick(preset.minSec, project.minSec, Math.max);
+  const maxSec = pick(preset.maxSec, project.maxSec, Math.min);
+  if (minSec != null && maxSec != null && minSec > maxSec)
+    throw new Error(`video duration window is empty: at least ${minSec} s and at most ${maxSec} s`);
+  return { minSec, maxSec };
+}
+
 function clip(s: Span, a: number, b: number): Span | null {
   const startMs = Math.max(a, s.startMs);
   const endMs = Math.min(b, s.endMs);

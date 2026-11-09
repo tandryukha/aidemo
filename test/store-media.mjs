@@ -4,7 +4,7 @@
 //   npx tsx --test test/store-media.mjs      (part of `npm test`)
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { clampSpans, DEFAULT_PLAN_OPTIONS, fitPlans, planScene, resolveHolds, resolveRamps, stillViolations } from "../src/store/plan.ts";
+import { clampSpans, DEFAULT_PLAN_OPTIONS, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
 import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/validate.ts";
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
@@ -288,4 +288,43 @@ test("iOS screenSize reads a screenshot FILE (simctl writes a file named '-', ne
     process.env.PATH = path;
     rmSync(bin, { recursive: true, force: true });
   }
+});
+
+test("trim.endAfter ends the clip after the last matching step, so the cut survives a re-record", () => {
+  const marks = [
+    { command: "tapOn", label: "read", startMs: 1000, endMs: 1400 },
+    { command: "waitForAnimationToEnd", label: "card", startMs: 3000, endMs: 3600 },
+    { command: "tapOn", startMs: 3700, endMs: 3900 },
+  ];
+  const fallback = defaultTrim(9000, marks);
+  const scene = (trim) => StoreProjectSchema.parse({ title: "t", device: { platform: "ios" }, scenes: [{ id: "s", flow: "f.yaml", trim }] }).scenes[0];
+  assert.deepEqual(resolveTrim(scene(undefined), marks, 9000, fallback), fallback);
+  // endAfter keeps the default lead-in and ends 700 ms after "card", whatever the recording's length
+  assert.deepEqual(resolveTrim(scene({ endAfter: { label: "card", afterMs: 700 } }), marks, 9000, fallback), {
+    startMs: fallback.startMs,
+    endMs: 4300,
+  });
+  assert.equal(resolveTrim(scene({ endAfter: { label: "card", afterMs: 4000 } }), marks, 6000, fallback).endMs, 6000);
+  // legacy raw-ms trims keep their meaning
+  assert.deepEqual(resolveTrim(scene({ endMs: 5000 }), marks, 9000, fallback), { startMs: 0, endMs: 5000 });
+  assert.deepEqual(resolveTrim(scene({ startMs: 800 }), marks, 9000, fallback), { startMs: 800, endMs: 9000 });
+  assert.throws(() => resolveTrim(scene({ endAfter: { label: "nope" } }), marks, 9000, fallback), /matches no recorded Maestro command/);
+  assert.throws(() => scene({ endMs: 1, endAfter: { label: "card" } }), /not both/);
+  assert.throws(() => scene({ endAfter: { afterMs: 5 } }), /needs `label` or `command`/);
+});
+
+test("video.minSec/maxSec narrow the store's window for fitting and validation", () => {
+  const preview = STORE_VIDEO_PRESETS["app-store-preview"];
+  assert.deepEqual(durationWindow(preview, { minSec: 15, maxSec: 20 }), { minSec: 15, maxSec: 20 });
+  // the store's own limits always win when they are stricter
+  assert.deepEqual(durationWindow(preview, { minSec: 5, maxSec: 45 }), { minSec: preview.minSec, maxSec: preview.maxSec });
+  assert.deepEqual(durationWindow(preview), { minSec: preview.minSec, maxSec: preview.maxSec });
+  assert.throws(() => durationWindow(preview, { minSec: 25, maxSec: 20 }), /window is empty/);
+  // a 21.2 s edit is fine for the store but sped into a 20 s project window
+  const plan = planScene({ durationMs: 19200, freezes: [], ramps: [], holds: [{ startMs: 0, endMs: 3000 }] });
+  const w = durationWindow(preview, { maxSec: 20 });
+  assert.equal(fitPlans([plan], 2000, { maxMs: preview.maxSec * 1000 }, "speed").speedFactor, 1);
+  const fit = fitPlans([plan], 2000, { maxMs: w.maxSec * 1000 }, "speed");
+  assert.ok(fit.speedFactor > 1 && fit.totalMs <= 20000, `${fit.totalMs}`);
+  assert.ok(StoreProjectSchema.parse({ title: "t", device: { platform: "ios" }, scenes: [{ id: "s", flow: "f" }], video: { minSec: 15, maxSec: 20 } }).video.maxSec === 20);
 });
