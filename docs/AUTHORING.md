@@ -1691,8 +1691,12 @@ Store autoplay is **muted**, and search shows only the first seconds — so:
    rate `video.rampRate` 2.5, capped at `video.maxRate` 3). A still that *is*
    the point (a camera lens on the meal, a scan landing) is not dead time:
    give it a hold, or freeze detection will squeeze it into a flash. `holds`, `tailHoldMs` and the end card are the only
-   places a frame may stand still. The final file is re-checked; a violation
-   fails the run with its time range.
+   places a frame may stand still. Two motionless stretches split by a
+   one-frame blip are merged only when both sides show the same screen (an
+   instant cut to a new screen keeps its own still). The final file is
+   re-checked the way a viewer sees it: a still the clip probe missed is mapped
+   back to its source span, squeezed, and the edit is rendered again (at most
+   twice); one that survives fails the run with its time range.
 2. **Captions from text**, burned in (Chrome-rasterized; `*word*` = accent
    colour). A locale is a text swap: `localized.<lang>.caption` + `--lang`
    writes `<preset>.<lang>.mp4` from the **same clips**. Give the first scene a

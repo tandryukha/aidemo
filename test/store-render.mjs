@@ -12,8 +12,8 @@ import { after, before, test } from "node:test";
 import { Project } from "../src/project.ts";
 import { runFfmpeg } from "../src/ffmpeg.ts";
 import { nativeRecord } from "../src/native/record.ts";
-import { probeSourceStills, sceneFilter, storeVideo } from "../src/store/video.ts";
-import { mergeTouching, planScene } from "../src/store/plan.ts";
+import { mergeSameScreen, sceneFilter, storeVideo } from "../src/store/video.ts";
+import { planScene } from "../src/store/plan.ts";
 import { videoLayout } from "../src/store/render-html.ts";
 import { probeDurationMs, probeFreezeSpans } from "../src/ffmpeg.ts";
 import { storeScreenshots } from "../src/store/screenshots.ts";
@@ -196,25 +196,25 @@ test("a scene with many sped-up segments renders exactly as long as its plan", {
   assert.ok(Math.abs(got - plan.outMs) <= 40, `rendered ${got} ms, plan ${plan.outMs} ms`);
 });
 
-test("a still split by a one-frame blip into pieces shorter than maxStillMs is still found in the source", { timeout: 120000 }, async () => {
-  // 1 s motion · 0.6 s still · one different frame · 0.6 s still · 1 s motion. The viewer sees one 1.2 s
-  // still; probing at maxStillMs (700 ms) found nothing, so the edit played it at 1× and failed.
-  const clip = join(dir, "clips", "blip.mp4");
-  await runFfmpeg([
-    "-f", "lavfi", "-i", "testsrc2=s=320x640:r=30:d=1",
-    "-f", "lavfi", "-i", "color=c=0x808080:s=320x640:r=30:d=0.6",
-    "-f", "lavfi", "-i", "color=c=0x8c8c8c:s=320x640:r=30:d=0.0333",
-    "-f", "lavfi", "-i", "color=c=0x808080:s=320x640:r=30:d=0.6",
-    "-f", "lavfi", "-i", "testsrc2=s=320x640:r=30:d=1",
-    "-filter_complex", "[0:v][1:v][2:v][3:v][4:v]concat=n=5:v=1:a=0,format=yuv420p[v]",
-    "-map", "[v]", "-c:v", "libx264", "-preset", "ultrafast", clip,
-  ]);
-  const coarse = (await probeFreezeSpans(clip, 700)).filter((f) => f.startMs < 2300 && f.endMs > 900);
-  assert.deepEqual(coarse, [], "the coarse probe misses both halves (the bug)");
-  const stills = mergeTouching(await probeSourceStills(clip), 40).filter((f) => f.endMs - f.startMs > 700);
-  assert.equal(stills.length, 1, JSON.stringify(stills));
-  assert.ok(stills[0].startMs <= 1050 && stills[0].endMs >= 2150, JSON.stringify(stills));
-  const durationMs = await probeDurationMs(clip);
-  const plan = planScene({ durationMs, trim: { startMs: 0, endMs: durationMs }, freezes: await probeSourceStills(clip), ramps: [], holds: [] });
-  assert.ok(plan.segments.some((s) => s.kind === "still" && s.fromMs <= 1100 && s.toMs >= 2100), JSON.stringify(plan.segments));
+test("touching stills merge only when they show the same screen (a blip), never across an instant cut", { timeout: 120000 }, async () => {
+  const make = async (name, second) => {
+    const clip = join(dir, "clips", name);
+    await runFfmpeg([
+      "-f", "lavfi", "-i", "testsrc2=s=320x640:r=30:d=1",
+      "-f", "lavfi", "-i", "color=c=0x808080:s=320x640:r=30:d=0.9",
+      "-f", "lavfi", "-i", "color=c=0x8c8c8c:s=320x640:r=30:d=0.0333",
+      "-f", "lavfi", "-i", `color=c=${second}:s=320x640:r=30:d=0.9`,
+      "-f", "lavfi", "-i", "testsrc2=s=320x640:r=30:d=1",
+      "-filter_complex", "[0:v][1:v][2:v][3:v][4:v]concat=n=5:v=1:a=0,format=yuv420p[v]",
+      "-map", "[v]", "-c:v", "libx264", "-preset", "ultrafast", clip,
+    ]);
+    const raw = (await probeFreezeSpans(clip, 700)).filter((f) => f.endMs > 900 && f.startMs < 3000);
+    return { raw, merged: await mergeSameScreen(clip, raw) };
+  };
+  const blip = await make("blip.mp4", "0x808080");
+  assert.equal(blip.raw.length, 2, `freezedetect splits the still at the blip: ${JSON.stringify(blip.raw)}`);
+  assert.equal(blip.merged.length, 1, JSON.stringify(blip.merged));
+  const cut = await make("cut.mp4", "0x2050c0");
+  assert.equal(cut.raw.length, 2, JSON.stringify(cut.raw));
+  assert.equal(cut.merged.length, 2, `a new screen keeps its own still: ${JSON.stringify(cut.merged)}`);
 });

@@ -4,14 +4,14 @@
 //   npx tsx --test test/store-media.mjs      (part of `npm test`)
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { clampSpans, mergeTouching, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
+import { clampSpans, sourceSpanAt, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
 import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/validate.ts";
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
 import { toClipMarks } from "../src/native/record.ts";
 import { adbInputText, IosSimulator, parseAdbDevices, parseSimctlDevices, parseWmSize, pickSimulator } from "../src/native/device.ts";
 import { markup, shotLayout, videoLayout, videoOverlayHtml } from "../src/store/render-html.ts";
-import { clipRect, defaultTrim, sceneFilter, unionRect, videoScenes } from "../src/store/video.ts";
+import { clipRect, defaultTrim, repairStills, sceneFilter, unionRect, videoScenes } from "../src/store/video.ts";
 import { StoreProjectSchema } from "../src/types.ts";
 
 /** Output-time still spans of a plan, given input still spans. */
@@ -248,14 +248,39 @@ test("scene filter goes CFR before trimming and chains every segment", () => {
   assert.match(f, /overlay=0:0/);
 });
 
-test("touching freeze spans are one still: kept once, never two halves that add up past maxStillMs", () => {
-  // The Android photo scene: the shutter ring blinked at 28.63 s, splitting one motionless screen in two.
+test("a still the final check finds is mapped back to its source and squeezed on the next render", () => {
+  // The Android photo scene: a shutter ring blinked at 28.63 s and split one motionless screen in two.
+  // Planned as two stills, each kept 500 ms: the viewer sees one ~1 s still (the final check fails).
   const freezes = [{ startMs: 26184, endMs: 28628 }, { startMs: 28628, endMs: 33173 }];
-  assert.deepEqual(mergeTouching(freezes, 40), [{ startMs: 26184, endMs: 33173 }]);
-  assert.equal(mergeTouching([{ startMs: 0, endMs: 1000 }, { startMs: 1100, endMs: 2000 }], 40).length, 2, "real motion between stills is kept");
-  const plan = planScene({ durationMs: 34000, trim: { startMs: 26000, endMs: 34000 }, freezes, ramps: [], holds: [] });
-  const outStill = outStills(plan, [{ startMs: 26184, endMs: 33173 }]);
-  assert.equal(stillViolations(outStill, plan.holdsOut, DEFAULT_PLAN_OPTIONS.maxStillMs, 0).length, 0);
+  const input = { durationMs: 34000, trim: { startMs: 26000, endMs: 34000 }, freezes, ramps: [], holds: [] };
+  const plan = planScene(input);
+  const before = outStills(plan, [{ startMs: 26184, endMs: 33173 }]);
+  const bad = stillViolations(before, plan.holdsOut, DEFAULT_PLAN_OPTIONS.maxStillMs, 0);
+  assert.equal(bad.length, 1, "two halves of one still add up past maxStillMs");
+  const src = sourceSpanAt(plan.segments, bad[0].startMs, bad[0].endMs);
+  assert.ok(src.startMs <= 26200 && src.endMs >= 33150, JSON.stringify(src));
+  const planned = [{ id: "photo", plan, input }];
+  assert.deepEqual(repairStills(planned, [{ id: "photo", startMs: 0, outMs: plan.outMs, segments: plan.segments }], bad), ["photo"]);
+  const after = outStills(planned[0].plan, [{ startMs: 26184, endMs: 33173 }]);
+  assert.equal(stillViolations(after, planned[0].plan.holdsOut, DEFAULT_PLAN_OPTIONS.maxStillMs, 0).length, 0);
+  let t = 0;
+  let inStill = null;
+  for (const seg of planned[0].plan.segments) {
+    const d = (seg.toMs - seg.fromMs) / seg.rate;
+    if (seg.kind === "still" && seg.fromMs <= 27000 && seg.toMs >= 32000) inStill = { startMs: t + 50, endMs: t + d - 50 };
+    t += d;
+  }
+  assert.ok(inStill, JSON.stringify(planned[0].plan.segments));
+  const r2 = [{ id: "photo", startMs: 0, outMs: planned[0].plan.outMs, segments: planned[0].plan.segments }];
+  assert.deepEqual(repairStills(planned, r2, [inStill]), [], "a span already covered is not added again");
+});
+
+test("touching stills are not merged by the planner: an instant screen change keeps both screens", () => {
+  // Receipt still, instant cut, Today still: each screen gets its own stillKeepMs on screen.
+  const plan = planScene({ durationMs: 6000, freezes: [{ startMs: 0, endMs: 3000 }, { startMs: 3000, endMs: 6000 }], ramps: [], holds: [] });
+  // (Equal-rate neighbours render as one segment; what matters is each screen's time on screen.)
+  const outMs = plan.segments.reduce((a, s) => a + (s.toMs - s.fromMs) / s.rate, 0);
+  assert.ok(Math.abs(outMs - 2 * DEFAULT_PLAN_OPTIONS.stillKeepMs) < 1, JSON.stringify(plan.segments));
 });
 
 test("scene filter gives every segment an exact frame count from the plan's output clock", () => {

@@ -1,10 +1,11 @@
+import { spawn } from "node:child_process";
 import { promises as fs } from "node:fs";
 import type { Project } from "../project.js";
 import { probeDurationMs, probeFreezeSpans, probeVideoDims, runFfmpeg } from "../ffmpeg.js";
 import type { NativeTimeline, StoreProject, StoreVideoPresetId } from "../types.js";
 import { ensureDir, log, ok, step, writeJson } from "../util.js";
 import { sceneHash } from "../native/record.js";
-import { clampSpans, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations, type ScenePlan, type Span, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs } from "./plan.js";
+import { clampSpans, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, sourceSpanAt, stillViolations, type PlanInput, type ScenePlan, type Span, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs } from "./plan.js";
 import { posterTimeCode, storeVideoPreset, type StoreVideoPreset } from "./presets.js";
 import { loadNativeTimeline, loadStoreProject, localized, resolveIn, storePaths } from "./project.js";
 import {
@@ -71,27 +72,70 @@ export function videoScenes(store: StoreProject): StoreProject["scenes"] {
 }
 
 /**
- * Still spans of a recorded clip, as the planner needs them. freezedetect only reports a freeze that
- * lasts its `d`, so probing at maxStillMs dropped still pieces shorter than that: two 0.6 s halves
- * split by a one-frame blip (a button dimming, a spinner tick) came back as "motion" and played at 1×
- * next to a squeezed still, and the final video failed the still rule (Android photo scene,
- * 2026-11-09). Probe at 100 ms and let `planScene` merge touching pieces and keep only stills longer
- * than maxStillMs.
+ * Touching freeze spans (gap ≤ one frame) that show the same screen are one still to a viewer:
+ * freezedetect splits a motionless screen at a one-frame blip (a shutter ring, a pulsing dot), and
+ * ramped as two stills each half kept stillKeepMs, so the store video showed one still past
+ * maxStillMs (the BurnWeek Android photo scene, 2026-11-09). An instant cut to another screen also
+ * touches, so the two sides are compared first: only the same screen is merged; a new screen keeps
+ * its own time on screen.
  */
-export async function probeSourceStills(clip: string): Promise<Span[]> {
-  return (await probeFreezeSpans(clip, SOURCE_STILL_PROBE_MS)).map((f) => ({ startMs: f.startMs, endMs: f.endMs }));
+export async function mergeSameScreen(clip: string, spans: Span[], gapMs = TOUCH_GAP_MS): Promise<Span[]> {
+  const out: Array<Span & { midMs: number }> = [];
+  for (const f of [...spans].sort((x, y) => x.startMs - y.startMs)) {
+    const midMs = (f.startMs + f.endMs) / 2;
+    const last = out[out.length - 1];
+    if (last && f.startMs - last.endMs <= gapMs && (await frameDiff(clip, last.midMs, midMs)) <= SAME_SCREEN_MAX_DIFF) {
+      last.endMs = Math.max(last.endMs, f.endMs);
+      continue;
+    }
+    out.push({ startMs: f.startMs, endMs: f.endMs, midMs });
+  }
+  return out.map(({ startMs, endMs }) => ({ startMs, endMs }));
 }
-const SOURCE_STILL_PROBE_MS = 100;
+const TOUCH_GAP_MS = 40;
+/**
+ * Mean absolute luma difference (0–255) between two frames at store-preview scale, at or under which
+ * they are the same screen. A one-frame blip or a dimmed button measures about 1; a screen change, a new
+ * line of text or a moved sheet measures 5 and up (measured on the BurnWeek Android clips).
+ */
+const SAME_SCREEN_MAX_DIFF = 1.5;
+
+/** Mean absolute luma difference (0–255) of the frames at aMs and bMs, compared 270 px wide. Infinity on a probe failure (never merge on doubt). */
+export async function frameDiff(clip: string, aMs: number, bMs: number): Promise<number> {
+  const side = (i: number) => `[${i}:v]scale=270:-2,format=gray,trim=end_frame=1,setpts=PTS-STARTPTS[f${i}]`;
+  return new Promise((resolvePromise) => {
+    const proc = spawn(
+      "ffmpeg",
+      [
+        "-hide_banner", "-nostats",
+        "-ss", (aMs / 1000).toFixed(3), "-i", clip,
+        "-ss", (bMs / 1000).toFixed(3), "-i", clip,
+        "-filter_complex", `${side(0)};${side(1)};[f0][f1]blend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-`,
+        "-frames:v", "1", "-f", "null", "-",
+      ],
+      { stdio: ["ignore", "pipe", "ignore"] }
+    );
+    let out = "";
+    proc.stdout.on("data", (d) => (out += d.toString()));
+    proc.on("error", () => resolvePromise(Infinity));
+    proc.on("close", () => {
+      const m = /YAVG=([\d.]+)/.exec(out);
+      resolvePromise(m ? parseFloat(m[1]) : Infinity);
+    });
+  });
+}
 
 interface PlannedScene {
   id: string;
   clip: string;
   plan: ScenePlan;
+  /** What `plan` was made from, so a still the final check finds can be added and the scene re-planned. */
+  input: PlanInput;
   caption?: string;
   dims: { width: number; height: number };
 }
 
-async function planAll(project: Project, store: StoreProject, timeline: NativeTimeline): Promise<PlannedScene[]> {
+export async function planAll(project: Project, store: StoreProject, timeline: NativeTimeline): Promise<PlannedScene[]> {
   const v = store.video ?? {};
   const options = {
     maxStillMs: v.maxStillMs ?? 700,
@@ -109,8 +153,8 @@ async function planAll(project: Project, store: StoreProject, timeline: NativeTi
       log(`⚠ scene "${scene.id}": its flow/env changed since it was recorded — re-record with --only ${scene.id}`);
     const durationMs = rec.durationMs || (await probeDurationMs(rec.clip));
     const trim = resolveTrim(scene, rec.marks, durationMs, defaultTrim(durationMs, rec.marks));
-    const freezes = await probeSourceStills(rec.clip);
-    const plan = planScene({
+    const freezes = await mergeSameScreen(rec.clip, await probeFreezeSpans(rec.clip, options.maxStillMs));
+    const input: PlanInput = {
       durationMs,
       trim,
       freezes: freezes.map((f) => ({ startMs: f.startMs, endMs: Math.min(f.endMs, durationMs) })),
@@ -118,8 +162,8 @@ async function planAll(project: Project, store: StoreProject, timeline: NativeTi
       holds: resolveHolds(scene, rec.marks),
       tailHoldMs: scene.tailHoldMs,
       options,
-    });
-    out.push({ id: scene.id, clip: rec.clip, plan, caption: scene.caption, dims: await probeVideoDims(rec.clip) });
+    };
+    out.push({ id: scene.id, clip: rec.clip, plan: planScene(input), input, caption: scene.caption, dims: await probeVideoDims(rec.clip) });
   }
   return out;
 }
@@ -151,6 +195,10 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
     for (const storePreset of presets) {
       // The project may ask for a tighter window than the store allows (e.g. 15–20 s of a 30 s slot).
       const preset = { ...storePreset, ...durationWindow(storePreset, { minSec: v.minSec, maxSec: v.maxSec }) };
+      // Render, then check the result the way a viewer sees it. A still the source probe could not see
+      // (split by a blip, or pieces under freezedetect's d beside a squeezed still) is mapped back to its
+      // source span, added to that scene's stills and the edit is rendered again (at most twice).
+      for (let attempt = 0; ; attempt++) {
       const fit = fitPlans(
         planned.map((p) => p.plan),
         endMs,
@@ -217,6 +265,13 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
       const fileMs = await probeDurationMs(file).catch(() => t);
       const finalFreezes = clampSpans(await probeFreezeSpans(file, maxStillMs + 120, undefined, region), fileMs);
       const bad = stillViolations(finalFreezes, allowed, maxStillMs);
+      if (bad.length && attempt < MAX_STILL_REPAIRS) {
+        const repaired = repairStills(planned, sceneReport, bad);
+        if (repaired.length) {
+          log(`still the source probe missed (${bad.map((b) => `${(b.startMs / 1000).toFixed(2)}–${(b.endMs / 1000).toFixed(2)} s`).join(", ")}): squeezing it in ${repaired.join(", ")} and rendering again`);
+          continue;
+        }
+      }
       if (bad.length)
         report.errors.push(
           ...bad.map(
@@ -251,12 +306,42 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
       if (report.errors.length) throw new StoreSpecError(report);
       ok(`${preset.id} → ${file} (${(durationMs / 1000).toFixed(2)} s, poster ${posterTimeCode(posterAt, preset.fps)})`);
       results.push({ preset: preset.id, file, poster, posterTimeCode: posterTimeCode(posterAt, preset.fps), durationMs, report, reportFile });
+      break;
+      }
     }
   } finally {
     await raster.close();
     if (!process.env.AIDEMO_KEEP_TMP) await fs.rm(paths.tmpDir, { recursive: true, force: true });
   }
   return results;
+}
+
+const MAX_STILL_REPAIRS = 2;
+
+/**
+ * Add each still the final check found (output ms) to the stills of the scene(s) it falls in, as the
+ * source span behind it, and re-plan those scenes. Returns the ids of the scenes it changed.
+ */
+export function repairStills(
+  planned: Array<{ id: string; plan: ScenePlan; input: PlanInput }>,
+  sceneReport: Array<{ id: string; startMs: number; outMs: number; segments: ScenePlan["segments"] }>,
+  bad: Span[]
+): string[] {
+  const changed = new Set<string>();
+  for (const b of bad) {
+    for (const [i, r] of sceneReport.entries()) {
+      const u0 = Math.max(b.startMs, r.startMs) - r.startMs;
+      const u1 = Math.min(b.endMs, r.startMs + r.outMs) - r.startMs;
+      if (u1 <= u0 || !planned[i]) continue;
+      // The rendered plan (after any duration fit), not the scene's unfitted one.
+      const src = sourceSpanAt(r.segments, u0, u1);
+      if (!src || planned[i].input.freezes.some((f) => f.startMs <= src.startMs && f.endMs >= src.endMs)) continue;
+      planned[i].input = { ...planned[i].input, freezes: [...planned[i].input.freezes, src] };
+      planned[i].plan = planScene(planned[i].input);
+      changed.add(planned[i].id);
+    }
+  }
+  return [...changed];
 }
 
 type Span2D = { x: number; y: number; w: number; h: number };

@@ -36,8 +36,6 @@ export interface ScenePlan {
 export interface PlanOptions {
   maxStillMs: number;
   stillKeepMs: number;
-  /** Freeze spans this close (about one frame) are merged into one still before ramping. */
-  mergeGapMs: number;
   defaultRampRate: number;
   /** Viewer pacing: every hold lasts at least this long (a result must be readable). */
   minHoldMs: number;
@@ -55,7 +53,6 @@ export interface PlanOptions {
 export const DEFAULT_PLAN_OPTIONS: PlanOptions = {
   maxStillMs: 700,
   stillKeepMs: 500,
-  mergeGapMs: 40,
   defaultRampRate: 2.5,
   minHoldMs: 1500,
   maxRate: 3,
@@ -193,6 +190,8 @@ function uncoveredMs(s: Span, holds: Span[]): number {
   return s.endMs - s.startMs - covered;
 }
 
+export type PlanInput = Parameters<typeof planScene>[0];
+
 export function planScene(input: {
   durationMs: number;
   trim?: { startMs?: number; endMs?: number };
@@ -227,7 +226,7 @@ export function planScene(input: {
     .filter((x): x is RateSpan => !!x);
   // A still is only a problem past maxStillMs of NON-hold time; it is ramped
   // so it lasts stillKeepMs on screen (0 = cut out).
-  const stills = mergeTouching(input.freezes, o.mergeGapMs)
+  const stills = input.freezes
     .map((f) => clip(f, a, b))
     .filter((x): x is Span => !!x)
     .map((f) => ({ ...f, nonHold: uncoveredMs(f, holds) }))
@@ -360,22 +359,31 @@ export function clampSpans(spans: Span[], endMs: number): Span[] {
     .filter((f) => f.endMs > f.startMs);
 }
 
-/**
- * Freeze spans that touch (gap ≤ gapMs, about a frame) are one still to the viewer: freezedetect
- * splits a motionless screen at a sub-noise blip (a shutter ring, a pulsing dot) that the scaled
- * store canvas no longer shows. Ramped separately, two such halves each kept stillKeepMs and
- * rendered as one still past maxStillMs (the Android photo scene, 2026-11-09).
- */
-export function mergeTouching(spans: Span[], gapMs: number): Span[] {
-  const out: Span[] = [];
-  for (const f of [...spans].sort((x, y) => x.startMs - y.startMs)) {
-    const last = out[out.length - 1];
-    if (last && f.startMs - last.endMs <= gapMs) last.endMs = Math.max(last.endMs, f.endMs);
-    else out.push({ startMs: f.startMs, endMs: f.endMs });
-  }
-  return out;
-}
 
 export function stillViolations(freezes: Span[], allowed: Span[], maxStillMs: number, tolMs = 120): Span[] {
   return freezes.filter((f) => uncoveredMs(f, allowed) > maxStillMs + tolMs);
+}
+
+/**
+ * The source span of a scene clip that plays during output time [u0, u1) of that scene (ms from the
+ * scene's first output frame). Used to repair a still the final check found: the viewer saw no change
+ * across that output stretch, so the source behind it is one still, whatever freezedetect made of the
+ * clip (a still split by a blip, or pieces shorter than its `d` beside a squeezed still).
+ */
+export function sourceSpanAt(segments: Segment[], u0: number, u1: number): Span | null {
+  let t = 0;
+  let from: number | null = null;
+  let to: number | null = null;
+  for (const s of segments) {
+    const d = (s.toMs - s.fromMs) / s.rate;
+    const o0 = t;
+    const o1 = t + d;
+    t = o1;
+    if (o1 <= u0 || o0 >= u1) continue;
+    const a = s.fromMs + (Math.max(u0, o0) - o0) * s.rate;
+    const b = s.fromMs + (Math.min(u1, o1) - o0) * s.rate;
+    from = from == null ? a : Math.min(from, a);
+    to = to == null ? b : Math.max(to, b);
+  }
+  return from != null && to != null && to > from ? { startMs: Math.round(from), endMs: Math.round(to) } : null;
 }
