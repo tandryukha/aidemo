@@ -38,7 +38,18 @@ fetch it first, then follow it:
    `output/report.json` after. Pass **absolute** demo directories.
 2. **Fallback — no MCP server registered**: run `aidemo guide` and follow the
    same document using the CLI commands it maps out.
-3. **After verifying the final video** (per the guide's "Verify before
+3. **Watch it as a viewer before you call it done.** Play it at 1x, muted,
+   as a stranger on a phone would see it, and answer the checklist in the guide's
+   "Watch it as a viewer first". A valid report is not a watchable video. The
+   usual misses are the ones a viewer notices at once:
+   - too many scenes for the runtime (aim for 5–6 s per captioned scene, and
+     drop scenes rather than speeding up);
+   - results and captions gone before they can be read;
+   - the key moment flashing past;
+   - captions sitting on the app's own text.
+
+   Put what you watched in your report. Never hand a cut over unwatched.
+4. **After verifying the final video** (per the guide's "Verify before
    declaring done"): if you hit any engine bug, surprise, or workaround this
    session, file it now — the MCP **`feedback`** tool (`title` + `body`;
    environment/log context is auto-attached) or `aidemo feedback <dir>` on the
@@ -70,5 +81,5 @@ render time.)
   — rewrites this file and bumps `.claude/skills/record-demo/installed.json`.
   Installed as a Claude Code plugin instead? Update it with `/plugin` (the
   marketplace flow), not `aidemo skill update`.
-- **Send feedback upstream**: see step 3 above.
+- **Send feedback upstream**: see step 4 above.
 - **Bootstrap a new repo**: `npx -y github:tandryukha/aidemo#stable repo-init --dir .`

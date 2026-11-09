@@ -37,9 +37,36 @@ export interface PlanOptions {
   maxStillMs: number;
   stillKeepMs: number;
   defaultRampRate: number;
+  /** Viewer pacing: every hold lasts at least this long (a result must be readable). */
+  minHoldMs: number;
+  /** Viewer pacing: no ramp (and no duration fit) plays motion faster than this. */
+  maxRate: number;
 }
 
-export const DEFAULT_PLAN_OPTIONS: PlanOptions = { maxStillMs: 700, stillKeepMs: 250, defaultRampRate: 4 };
+/**
+ * Defaults are set for a VIEWER, not for the shortest file: a result stays on screen
+ * long enough to read (1.5 s), a meaningful still (a camera lens, a settled screen)
+ * keeps half a second instead of flashing, and motion never runs past 3x. A store
+ * video that cannot fit its window under these rules has too much in it: drop a
+ * scene, do not speed it up.
+ */
+export const DEFAULT_PLAN_OPTIONS: PlanOptions = {
+  maxStillMs: 700,
+  stillKeepMs: 500,
+  defaultRampRate: 2.5,
+  minHoldMs: 1500,
+  maxRate: 3,
+};
+
+/**
+ * The shortest a captioned scene may run on screen: the caption must be read AND the
+ * action seen. 1.2 s to find the text + 0.3 s per word, never under 3 s.
+ */
+export function minCaptionedSceneMs(caption: string | undefined): number {
+  if (!caption) return 0;
+  const words = caption.replace(/[*_]/g, " ").split(/\s+/).filter(Boolean).length;
+  return Math.max(3000, 1200 + 300 * words);
+}
 
 /** One output frame at 30 fps; shorter pieces are dropped. */
 const MIN_OUT_MS = 1000 / 30;
@@ -176,11 +203,14 @@ export function planScene(input: {
   const a = Math.max(0, input.trim?.startMs ?? 0);
   const b = Math.min(input.durationMs, input.trim?.endMs ?? input.durationMs);
   if (b - a < MIN_OUT_MS) throw new Error(`scene window ${a}–${b} ms is empty`);
-  const holds = input.holds.map((h) => clip(h, a, b)).filter((x): x is Span => !!x);
+  const holds = input.holds
+    .map((h) => ({ startMs: h.startMs, endMs: Math.max(h.endMs, h.startMs + o.minHoldMs) }))
+    .map((h) => clip(h, a, b))
+    .filter((x): x is Span => !!x);
   const ramps = input.ramps
     .map((r) => {
       const c = clip(r, a, b);
-      return c ? { ...c, rate: r.rate } : null;
+      return c ? { ...c, rate: Math.min(r.rate, o.maxRate) } : null;
     })
     .filter((x): x is RateSpan => !!x);
   // A still is only a problem past maxStillMs of NON-hold time; it is ramped
@@ -262,7 +292,8 @@ export function fitPlans(
   plans: ScenePlan[],
   fixedMs: number,
   limits: { minMs?: number; maxMs?: number },
-  mode: "fail" | "speed"
+  mode: "fail" | "speed",
+  maxRate: number = DEFAULT_PLAN_OPTIONS.maxRate
 ): { plans: ScenePlan[]; totalMs: number; speedFactor: number } {
   const total = plans.reduce((n, p) => n + p.outMs, 0) + fixedMs;
   if (limits.minMs != null && total < limits.minMs - 10) {
@@ -285,6 +316,13 @@ export function fitPlans(
   const excess = total - (limits.maxMs - 100);
   if (flexible <= excess) throw new Error(`edit is ${(total / 1000).toFixed(1)} s and mostly holds — cannot speed it into ${limits.maxMs / 1000} s`);
   const k = flexible / (flexible - excess);
+  // Viewer pacing: motion (play/ramp) may not end up faster than maxRate. Stills may, they carry no motion.
+  const fastest = Math.max(1, ...plans.flatMap((p) => p.segments.filter((s) => s.kind === "play" || s.kind === "ramp").map((s) => s.rate)));
+  if (fastest * k > maxRate + 1e-6)
+    throw new Error(
+      `edit is ${(total / 1000).toFixed(1)} s; fitting ${limits.maxMs / 1000} s would play motion at x${(fastest * k).toFixed(1)} ` +
+        `(viewer limit x${maxRate}). Too much for the window: drop a scene (inVideo: false) or widen minSec/maxSec. Never rush the viewer.`
+    );
   const out = plans.map((p) =>
     finishPlan(
       p.segments.map((s) => (s.kind === "hold" ? s : { ...s, rate: s.rate * k })),

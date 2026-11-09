@@ -4,7 +4,7 @@ import { probeDurationMs, probeFreezeSpans, probeVideoDims, runFfmpeg } from "..
 import type { NativeTimeline, StoreProject, StoreVideoPresetId } from "../types.js";
 import { ensureDir, log, ok, step, writeJson } from "../util.js";
 import { sceneHash } from "../native/record.js";
-import { clampSpans, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations, type ScenePlan, type Span } from "./plan.js";
+import { clampSpans, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations, type ScenePlan, type Span, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs } from "./plan.js";
 import { posterTimeCode, storeVideoPreset, type StoreVideoPreset } from "./presets.js";
 import { loadNativeTimeline, loadStoreProject, localized, resolveIn, storePaths } from "./project.js";
 import {
@@ -82,8 +82,10 @@ async function planAll(project: Project, store: StoreProject, timeline: NativeTi
   const v = store.video ?? {};
   const options = {
     maxStillMs: v.maxStillMs ?? 700,
-    stillKeepMs: v.stillKeepMs ?? 250,
-    defaultRampRate: v.rampRate ?? 4,
+    stillKeepMs: v.stillKeepMs ?? DEFAULT_PLAN_OPTIONS.stillKeepMs,
+    defaultRampRate: v.rampRate ?? DEFAULT_PLAN_OPTIONS.defaultRampRate,
+    minHoldMs: v.minHoldMs ?? DEFAULT_PLAN_OPTIONS.minHoldMs,
+    maxRate: v.maxRate ?? DEFAULT_PLAN_OPTIONS.maxRate,
   };
   const out: PlannedScene[] = [];
   for (const scene of videoScenes(store)) {
@@ -140,8 +142,18 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
         planned.map((p) => p.plan),
         endMs,
         { minMs: preset.minSec != null ? preset.minSec * 1000 : undefined, maxMs: preset.maxSec != null ? preset.maxSec * 1000 : undefined },
-        v.durationFit ?? "fail"
+        v.durationFit ?? "fail",
+        v.maxRate ?? DEFAULT_PLAN_OPTIONS.maxRate
       );
+      // Viewer pacing: a captioned scene runs long enough to read its caption and see the action.
+      const short = planned
+        .map((p, i) => ({ id: p.id, outMs: fit.plans[i].outMs, needMs: minCaptionedSceneMs(captions[i]) }))
+        .filter((s) => s.outMs + 50 < s.needMs);
+      if (short.length)
+        throw new Error(
+          short.map((s) => `scene "${s.id}" runs ${(s.outMs / 1000).toFixed(1)} s; its caption needs ${(s.needMs / 1000).toFixed(1)} s to read`).join("; ") +
+            ` — lengthen its result hold (holds[].afterMs) or tailHoldMs, or drop a scene to make room.`
+        );
       if (fit.speedFactor !== 1) log(`durationFit: non-hold time sped up ×${fit.speedFactor.toFixed(2)} to fit ${preset.maxSec} s`);
       step(`${preset.id}: ${preset.width}x${preset.height}, ${(fit.totalMs / 1000).toFixed(2)} s`);
       const sceneFiles: string[] = [];
@@ -152,7 +164,7 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
       for (const [i, sc] of planned.entries()) {
         opts.onSceneStart?.(sc.id, i, planned.length);
         const plan = fit.plans[i];
-        const layout = videoLayout(preset.width, preset.height, sc.dims.width, sc.dims.height, v.layout ?? "auto", v.captionPosition ?? "top");
+        const layout = videoLayout(preset.width, preset.height, sc.dims.width, sc.dims.height, v.layout ?? "auto", v.captionPosition ?? "top", !!captions[i]);
         region = unionRect(region, clipRect(layout.video, preset.width, preset.height));
         const overlay = paths.tmp(`${preset.id}-${sc.id}-over.png`);
         await raster.render(videoOverlayHtml(brand, layout, captions[i]), preset.width, preset.height, overlay, { transparent: true });

@@ -4,7 +4,7 @@
 //   npx tsx --test test/store-media.mjs      (part of `npm test`)
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { clampSpans, DEFAULT_PLAN_OPTIONS, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
+import { clampSpans, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
 import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/validate.ts";
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
@@ -57,11 +57,27 @@ test("no still longer than maxStillMs survives the plan unless it is a hold", ()
   const first = plan.segments.find((s) => s.kind === "still" && s.fromMs === 1000);
   assert.ok(first);
   assert.ok(Math.abs((first.toMs - first.fromMs) / first.rate - DEFAULT_PLAN_OPTIONS.stillKeepMs) < 1);
-  // The ramp plays 4x; the hold plays 1x.
-  assert.equal(plan.segments.find((s) => s.fromMs === 4500).rate, 4);
+  // The 4x ramp is capped at the viewer limit (3x); the hold plays 1x.
+  assert.equal(plan.segments.find((s) => s.fromMs === 4500).rate, DEFAULT_PLAN_OPTIONS.maxRate);
   assert.ok(plan.segments.some((s) => s.kind === "hold" && s.rate === 1));
-  // After the hold, 800 ms of the landing still remain: ramped too.
-  assert.ok(plan.segments.some((s) => s.kind === "still" && s.fromMs === 9200));
+  // The 1.2 s hold is stretched to minHoldMs (1.5 s); the 0.5 s of landing left is under maxStillMs and plays 1x.
+  assert.ok(plan.segments.some((s) => s.kind === "hold" && s.fromMs === 8000 && s.toMs === 8000 + DEFAULT_PLAN_OPTIONS.minHoldMs));
+  assert.ok(!plan.segments.some((s) => s.kind === "still" && s.fromMs >= 8000));
+});
+
+test("viewer pacing: results readable, motion never rushed, captions get reading time", () => {
+  // A 0.6 s result hold becomes 1.5 s.
+  const p = planScene({ durationMs: 6000, freezes: [], ramps: [], holds: [{ startMs: 3000, endMs: 3600 }] });
+  const hold = p.segments.find((s) => s.kind === "hold");
+  assert.equal(hold.toMs - hold.fromMs, 1500);
+  // Squeezing 30 s of motion into 20 s would need x1.5 on 1x footage: fine. Into 10 s: refused.
+  const long = planScene({ durationMs: 30000, freezes: [], ramps: [], holds: [] });
+  assert.ok(fitPlans([long], 0, { maxMs: 20000 }, "speed").speedFactor < 3);
+  assert.throws(() => fitPlans([long], 0, { maxMs: 9000 }, "speed"), /viewer limit/);
+  // Caption reading floor.
+  assert.equal(minCaptionedSceneMs(undefined), 0);
+  assert.equal(minCaptionedSceneMs("Or *snap it.*"), 3000);
+  assert.ok(minCaptionedSceneMs("Every number, *one tap to fix,* even the portion size") > 3000);
 });
 
 test("plan output length = sum of segments + tail hold, and trim bounds it", () => {
@@ -195,6 +211,10 @@ test("layouts: fill for matching aspect, band/side otherwise; screenshots keep U
   // iPhone 6.9" raw (1320x2868) on the 886x1920 App Preview: fill (crop a few px).
   const fill = videoLayout(886, 1920, 1320, 2868);
   assert.equal(fill.mode, "fill");
+  // With a caption, never full-bleed: the caption gets its own band, off the app's UI.
+  const captioned = videoLayout(886, 1920, 1320, 2868, "auto", "top", true);
+  assert.equal(captioned.mode, "band");
+  assert.ok(captioned.caption.y + captioned.caption.h <= captioned.video.y);
   assert.ok(fill.video.w >= 886 && fill.video.h >= 1920);
   assert.equal(videoLayout(1080, 1920, 1320, 2868).mode, "band");
   const side = videoLayout(1920, 1080, 1320, 2868);

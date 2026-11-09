@@ -1719,10 +1719,14 @@ export const StoreProjectSchema = z.object({
       layout: StoreLayoutSchema.optional(),
       /** No still frame longer than this outside holds. Default 700. */
       maxStillMs: z.number().min(200).max(3000).optional(),
-      /** A frozen span longer than maxStillMs is ramped down to this. Default 250. */
+      /** A frozen span longer than maxStillMs is ramped down to this. Default 500. */
       stillKeepMs: z.number().min(0).max(1000).optional(),
-      /** Default ramp rate. Default 4. */
+      /** Default ramp rate. Default 2.5. */
       rampRate: z.number().min(1.1).max(16).optional(),
+      /** Viewer pacing: every hold lasts at least this long. Default 1500. */
+      minHoldMs: z.number().min(500).max(5000).optional(),
+      /** Viewer pacing: ramps and duration fitting never play motion faster than this. Default 3. */
+      maxRate: z.number().min(1).max(8).optional(),
       /** Caption placement for the fill layout. Default "top". */
       captionPosition: z.enum(["top", "bottom"]).optional(),
       /** Out-of-range duration: fail (default) or uniformly speed non-hold time up to fit. */

@@ -43,13 +43,16 @@ export function videoLayout(
   deviceW: number,
   deviceH: number,
   mode: "auto" | ResolvedLayout = "auto",
-  captionPosition: "top" | "bottom" = "top"
+  captionPosition: "top" | "bottom" = "top",
+  hasCaption = false
 ): VideoLayout {
   const ca = canvasW / canvasH;
   const da = deviceW / deviceH;
   let m: ResolvedLayout;
   if (mode !== "auto") m = mode;
-  else if (Math.abs(da - ca) / ca < 0.04) m = "fill";
+  // A caption over a full-bleed app collides with the app's own header text: with a
+  // caption, auto never picks fill — the caption gets its own band above the device.
+  else if (Math.abs(da - ca) / ca < 0.04 && !hasCaption) m = "fill";
   else m = ca < 1 ? "band" : "side";
   const W = canvasW;
   const H = canvasH;

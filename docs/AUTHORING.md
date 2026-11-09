@@ -1176,6 +1176,50 @@ renders relative to its own dir, keep any local asset paths (e.g. a music
 
 ## Verify before declaring done
 
+### Watch it as a viewer first (every demo, GIF and store video)
+
+`report.json`, `qa` and the store validators prove the file is *valid*. None
+of them prove a stranger can *follow* it. Before you call anything done, watch
+it as the person it is for: a viewer who has never seen the app, on a phone,
+with sound off, deciding in the first 3 seconds whether to keep watching.
+Play it at 1x end to end (not just a contact sheet), then answer each line.
+A "no" anywhere means the cut is not done:
+
+1. **One idea per scene, enough time per idea.** Count the scenes against the
+   runtime. Under ~4 s per captioned scene is a slideshow, not a demo. When it
+   does not fit, **drop a scene** (screenshots can carry the rest). Never speed
+   up the video to make it fit.
+2. **Every result is readable.** The number, the logged card, the confirmation:
+   it stands still long enough to read it out loud (≥ 1.5 s, more for a
+   number the viewer must compare).
+3. **Every caption is readable before the scene ends.** Roughly 1.2 s to find
+   the text and 0.3 s per word. A caption gone before it is read is noise.
+4. **Nothing flashes.** The moment the scene is *about* (the camera seeing the
+   meal, the scan landing, the tap) is on screen long enough to register:
+   watch for meaningful stills that freeze detection squeezed into a flash.
+5. **Motion stays human.** Sped-up typing, spinners and scrolls are fine up to
+   ~2–3x. Past that, screens jump-cut and the viewer loses the thread.
+6. **Captions never sit on the app's own text.** If a caption overlaps a
+   header, a title or a number, move it to its own band.
+7. **The first 3 seconds sell it alone.** Muted autoplay and search results
+   show only the opening. The first frame needs a caption plus a recognisable
+   result, not an empty screen or a loading state.
+8. **Look at it on the target size.** Make a phone-width frame sheet
+   (`aidemo frames --sheet`) and check every caption and number is legible there.
+
+Write down what you watched and the answer to each line in your report.
+Someone else's "it's too fast" is a check you skipped.
+
+The store edit enforces the mechanical half of this list by default:
+- `minHoldMs` 1500 makes every hold last at least that long;
+- `maxRate` 3 caps ramps and duration fitting;
+- `stillKeepMs` is 500;
+- captioned scenes get a reading-time floor;
+- in auto layout, captions never go over the app.
+
+The judgement half (one idea per scene, the first 3 seconds, which moment
+matters) is yours.
+
 **A selector that matched nothing** fails the take with drift suggestions:
 the failure log (and `logs/fail-<scene>-<n>.json`, `driftCandidates`) lists
 the interactive elements that most resemble what the selector asked for —
@@ -1642,9 +1686,11 @@ Store autoplay is **muted**, and search shows only the first seconds — so:
 
 1. **No still frame longer than `video.maxStillMs` (default 700 ms) unless it
    is a hold.** Every motionless stretch past that (freezedetect on the clip) is
-   ramped down to `stillKeepMs` (default 250 ms; 0 cuts it). Your `ramps` speed
+   ramped down to `stillKeepMs` (default 500 ms; 0 cuts it). Your `ramps` speed
    up known dead time that *moves* — typing, a spinner, a long scroll (default
-   rate `video.rampRate` 4). `holds`, `tailHoldMs` and the end card are the only
+   rate `video.rampRate` 2.5, capped at `video.maxRate` 3). A still that *is*
+   the point (a camera lens on the meal, a scan landing) is not dead time:
+   give it a hold, or freeze detection will squeeze it into a flash. `holds`, `tailHoldMs` and the end card are the only
    places a frame may stand still. The final file is re-checked; a violation
    fails the run with its time range.
 2. **Captions from text**, burned in (Chrome-rasterized; `*word*` = accent
@@ -1652,16 +1698,25 @@ Store autoplay is **muted**, and search shows only the first seconds — so:
    writes `<preset>.<lang>.mp4` from the **same clips**. Give the first scene a
    caption — the first frame must carry the message on its own.
 3. **End card** (`endCard: {appName, icon, line, durationMs}`, default 2 s).
+3b. **Viewer pacing** (see "Watch it as a viewer first"): every hold lasts
+   at least `video.minHoldMs` (default 1500 ms), and every captioned scene runs
+   at least 1.2 s + 0.3 s per caption word (never under 3 s). The run fails,
+   naming the scene, rather than shipping a caption nobody can read.
 4. **Silent stereo AAC** track (both stores expect audio; no voiceover needed).
 5. **Layout** (`video.layout`): `fill` (the device video covers the canvas,
-   caption on a plate — chosen automatically when the aspect matches, e.g. a
-   6.9" iPhone into the 886×1920 App Preview), `band` (portrait: caption band on
+   caption on a plate over the app. `auto` picks it only for a scene **without**
+   a caption, because a caption over a full-bleed app collides with the app's
+   own header text), `band` (portrait: caption band on
    top, rounded device video below — e.g. iPhone footage into Play's 1080×1920),
    `side` (landscape: caption panel left, device right). `auto` picks.
 6. **Duration**: the store window is enforced. Too short is always an error
    (the engine never pads with stills — add a scene or lengthen a hold); too
    long is an error unless `video.durationFit: "speed"` (all non-hold time
-   speeds up by one factor; the factor is in the report). `video.minSec` /
+   speeds up by one factor; the factor is in the report). The fit refuses to
+   push motion past `video.maxRate`: too much content for the window means
+   drop a scene (`inVideo: false`), never rush it. Plan for about 5–6 s per
+   captioned scene, so 3–4 scenes fill a 20–30 s preview and the rest go in
+   the screenshots. `video.minSec` /
    `video.maxSec` narrow the store's window for your project (e.g. a 15–20 s
    cut of a 30 s slot); fitting and the final validation both use the
    narrower window.
