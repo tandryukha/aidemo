@@ -1,0 +1,6 @@
+appId: com.apple.Preferences
+---
+- tapOn: "About"
+- assertVisible:
+    text: "About"
+    label: about

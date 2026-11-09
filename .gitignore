@@ -30,6 +30,8 @@ docs/internal/
 **/generated/timeline.json
 **/generated/timeline.prev.json
 **/generated/params.json
+**/generated/native-timeline.json
+**/.store-tmp/
 **/generated/captions.srt
 **/generated/captions.vtt
 **/generated/captions.cues.json

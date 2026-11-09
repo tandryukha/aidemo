@@ -39,6 +39,13 @@ import { localizeStoryboard } from "../i18n.js";
 import { scaffoldDemo, doctorReport, buildFeedback, fileFeedback } from "../distribute.js";
 import { readJson, writeJson, log, CanceledError, type SceneProgress } from "../util.js";
 import { JobManager, JobBusyError, type Job, type JobKind } from "./jobs.js";
+import { nativeRecord } from "../native/record.js";
+import { storeVideo } from "../store/video.js";
+import { storeScreenshots } from "../store/screenshots.js";
+import { checkStoreProject } from "../store/project.js";
+import { storeImagePreset, storeVideoPreset } from "../store/presets.js";
+import { validateStoreImageFile, validateStoreVideoFile } from "../store/validate.js";
+import { StoreScreenshotPresetIdSchema, StoreVideoPresetIdSchema } from "../types.js";
 
 /**
  * `aidemo mcp` — the agent interface. A stdio MCP server wrapping the same
@@ -1334,6 +1341,137 @@ export function buildMcpServer(jobs: JobManager = new JobManager()): { server: M
       jobs.runStage(job, "stills", async () => ({
         stills: await extractStills(project, { outDir: args.out }),
       }))
+  );
+
+  // --- Native capture + store media (generated/store.json) -------------------
+  registerJob(
+    "native_record",
+    "Record one clip per scene of generated/store.json on an iOS Simulator or " +
+      "Android emulator, each driven by the scene's Maestro flow (or simctl/adb " +
+      "steps) → recordings/native/<scene>.mp4 + generated/native-timeline.json " +
+      "(Maestro command timings as marks). Uses the booted device unless boot is set.",
+    {
+      dir: DIR_INPUT,
+      only: z.array(z.string()).optional().describe("re-record only these scene ids"),
+      device: z.string().optional().describe("simulator UDID/name or adb serial/AVD (overrides device.id)"),
+      boot: z.boolean().optional().describe("boot the device if it isn't running (shut down again after)"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "native_record", async () => {
+        const tl = await nativeRecord(project, {
+          only: args.only,
+          deviceId: args.device,
+          boot: args.boot,
+          signal: job.controller.signal,
+          ...sceneProgress(job),
+        });
+        return {
+          timeline: project.p("generated", "native-timeline.json"),
+          device: tl.device,
+          scenes: tl.scenes.map((s) => ({ id: s.id, clip: s.clip, durationMs: s.durationMs, marks: s.marks.length, still: s.still })),
+        };
+      })
+  );
+
+  registerJob(
+    "store_video",
+    "Edit the native clips into store videos (App Store App Preview 886x1920, " +
+      "Google Play promo 1080x1920/1920x1080): speed ramps, no still frame over " +
+      "maxStillMs unless held, burned-in text captions (lang = localized text " +
+      "swap), end card, silent stereo AAC, exact store encode. Fails on any spec " +
+      "violation. Returns files, poster + ASC poster timecode, report paths.",
+    {
+      dir: DIR_INPUT,
+      presets: z.array(StoreVideoPresetIdSchema).optional().describe("default: store.json video.presets"),
+      lang: z.string().optional().describe("use scenes' localized captions"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "store_video", async () => ({
+        videos: (await storeVideo(project, { presets: args.presets, lang: args.lang, ...sceneProgress(job) })).map((r) => ({
+          preset: r.preset,
+          file: r.file,
+          poster: r.poster,
+          posterTimeCode: r.posterTimeCode,
+          durationMs: r.durationMs,
+          report: r.reportFile,
+          warnings: r.report.warnings,
+        })),
+      }))
+  );
+
+  registerJob(
+    "store_screenshots",
+    "Render store screenshot sets (ios-6.9 1320x2868, play-phone 1080x1920, …) " +
+      "and the Play feature graphic (1024x500) from raw device frames: headline + " +
+      "zoomed/bleeding device frame, brand fonts/colours. Every file is checked " +
+      "(exact size, opaque RGB, byte cap).",
+    {
+      dir: DIR_INPUT,
+      presets: z.array(StoreScreenshotPresetIdSchema).optional().describe("default: store.json screenshots.presets"),
+      lang: z.string().optional().describe("use shots' localized headlines"),
+    },
+    (project, args) => async (job) =>
+      jobs.runStage(job, "store_screenshots", async () => ({
+        screenshots: (await storeScreenshots(project, { presets: args.presets, lang: args.lang })).map((r) => ({
+          preset: r.preset,
+          id: r.id,
+          file: r.file,
+          screenFraction: Math.round(r.screenFraction * 100) / 100,
+          warnings: r.report.warnings,
+        })),
+      }))
+  );
+
+  server.registerTool(
+    "store_check",
+    {
+      title: "Check a store project (no device)",
+      description:
+        "Validate <dir>/generated/store.json — schema plus cross-references (flow/clip/icon " +
+        "files exist, scene ids unique, screenshot sources resolve). Run after every edit.",
+      inputSchema: closedInput({ dir: DIR_INPUT }),
+      annotations: { readOnlyHint: true },
+    },
+    (async (args: { dir: string }) => {
+      const project = new Project(args.dir);
+      let raw: unknown;
+      try {
+        raw = await readJson<unknown>(project.p("generated", "store.json"));
+      } catch (err) {
+        return errorResult({ message: (err as Error).message });
+      }
+      const res = checkStoreProject(raw, project);
+      return res.ok
+        ? jsonResult({ valid: true, title: res.store.title, scenes: res.store.scenes.length, warnings: res.warnings })
+        : jsonResult({ valid: false, issues: res.issues, warnings: res.warnings });
+    }) as never
+  );
+
+  server.registerTool(
+    "store_validate",
+    {
+      title: "Check a file against a store spec",
+      description:
+        "ffprobe/PNG-header check of one video or image against a store preset " +
+        "(app-store-preview, play-promo-portrait, ios-6.9, play-phone, play-feature-graphic, …). " +
+        "Returns errors (would be rejected), warnings and facts.",
+      inputSchema: closedInput({
+        file: z.string().describe("absolute path to an .mp4/.mov or .png/.jpg"),
+        preset: z.string().describe("store preset id"),
+      }),
+      annotations: { readOnlyHint: true },
+    },
+    (async (args: { file: string; preset: string }) => {
+      try {
+        const file = resolve(args.file);
+        const report = /\.(mp4|mov|m4v)$/i.test(file)
+          ? await validateStoreVideoFile(file, storeVideoPreset(args.preset))
+          : await validateStoreImageFile(file, storeImagePreset(args.preset));
+        return jsonResult({ valid: report.errors.length === 0, ...report });
+      } catch (err) {
+        return errorResult({ message: (err as Error).message });
+      }
+    }) as never
   );
 
   registerJob(

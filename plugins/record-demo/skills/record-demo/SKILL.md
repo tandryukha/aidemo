@@ -6,9 +6,13 @@ description: >
   "make a demo video", "demo this feature", or points at a flow (e.g. a shopping
   flow inside a ChatGPT app) and wants a shareable MP4 with voiceover + captions.
   The skill authors a storyboard.json (script + per-scene voice/music plan +
-  browser action-spec) and renders it with the engine. Do NOT use for: live
-  screen-sharing, editing an already-rendered MP4, or demos of native/mobile
-  apps (browser only).
+  browser action-spec) and renders it with the engine. Also covers native
+  iOS/Android apps and store media: "make an App Store preview", "Play promo
+  video", "store screenshots" — record the iOS Simulator / Android emulator
+  with Maestro flows and export App Store / Google Play videos and screenshot
+  sets (guide topic `store`). Do NOT use for: live screen-sharing, editing an
+  already-rendered MP4 you have no project for, or physical devices
+  (simulators/emulators only).
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
@@ -23,7 +27,8 @@ fetch it first, then follow it:
 1. **Preferred — the `aidemo` MCP server** (registered by `aidemo repo-init`,
    or bundled automatically if you installed the Claude Code plugin): call the
    **`get_authoring_guide`** tool
-   and follow the guide. Pipeline operations (`probe`, `render`, `voice`,
+   and follow the guide (`topic: "store"` for native apps / App Store / Google
+   Play media). Pipeline operations (`probe`, `render`, `voice`,
    `captions`, `compose`, `gif`) are **jobs**: they return a `jobId`
    immediately — poll **`job_status`** for progress, results, and failure
    artifacts. Discover selectors with **`inspect`** (unique selectors per

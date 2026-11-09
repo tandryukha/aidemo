@@ -29,7 +29,10 @@ export type JobKind =
   | "frames"
   | "qa"
   | "inspect"
-  | "walkthrough";
+  | "walkthrough"
+  | "native_record"
+  | "store_video"
+  | "store_screenshots";
 
 export type JobStatus = "running" | "succeeded" | "failed" | "canceled";
 

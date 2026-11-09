@@ -40,6 +40,7 @@ export const GUIDE_TOPICS = {
     "Demo as regression test",
   ],
   troubleshooting: ["Troubleshooting"],
+  store: ["Native capture & store media"],
   ci: ["Demo as regression test", "Interfaces"],
 } as const;
 

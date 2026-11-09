@@ -1,0 +1,20 @@
+appId: com.apple.Preferences
+---
+- swipe:
+    start: 50%, 80%
+    end: 50%, 30%
+    duration: 1600
+- swipe:
+    start: 50%, 80%
+    end: 50%, 30%
+    duration: 1600
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 1600
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 1600
+- waitForAnimationToEnd:
+    label: settle

@@ -1457,3 +1457,305 @@ export const ProbeGoldenSchema = z.object({
   scenes: z.array(ProbeGoldenSceneSchema),
 });
 export type ProbeGolden = z.infer<typeof ProbeGoldenSchema>;
+
+// ---------------------------------------------------------------------------
+// Store media — native capture + App Store / Google Play exports.
+//
+// A separate, browser-free project file (`generated/store.json`) because store
+// media differ from a narrated demo in every stage: the take comes from an iOS
+// Simulator or Android emulator driven by Maestro flows (or simctl/adb steps),
+// the video is muted (store autoplay is silent), captions are burned in from
+// TEXT (so a locale is a text swap, no TTS/STT), dead time is ramped instead of
+// narrated over, and the exports must pass the stores' specs. Documented in
+// docs/AUTHORING.md § "Native capture & store media".
+// ---------------------------------------------------------------------------
+
+/** Per-language text overrides: `{ "ru": { "caption": "…" } }`. */
+const LocalizedTextSchema = z.record(
+  z.string(),
+  z.object({
+    caption: z.string().optional(),
+    headline: z.string().optional(),
+    subhead: z.string().optional(),
+    line: z.string().optional(),
+  })
+);
+
+/** A device-driving step for flows that don't use Maestro (no LLM, fixed spec). */
+export const NativeStepSchema = z.discriminatedUnion("op", [
+  /** Tap at a point (device points on iOS — needs `idb`; screen px on Android). */
+  z.object({ op: z.literal("tap"), x: z.number(), y: z.number(), label: z.string().optional() }),
+  z.object({
+    op: z.literal("swipe"),
+    x1: z.number(),
+    y1: z.number(),
+    x2: z.number(),
+    y2: z.number(),
+    ms: z.number().int().min(50).max(5000).optional(),
+    label: z.string().optional(),
+  }),
+  /** Type text into the focused field (iOS needs `idb`; Android `input text`). */
+  z.object({ op: z.literal("text"), text: z.string(), label: z.string().optional() }),
+  z.object({ op: z.literal("wait"), ms: z.number().int().min(0).max(60000), label: z.string().optional() }),
+  /** Open a URL / deep link (simctl openurl, `am start -a VIEW`). */
+  z.object({ op: z.literal("openUrl"), url: z.string(), label: z.string().optional() }),
+  /** Launch (and optionally relaunch) an app by bundle id / package. */
+  z.object({
+    op: z.literal("launch"),
+    appId: z.string(),
+    args: z.array(z.string()).optional(),
+    relaunch: z.boolean().optional(),
+    label: z.string().optional(),
+  }),
+  z.object({ op: z.literal("terminate"), appId: z.string(), label: z.string().optional() }),
+]);
+export type NativeStep = z.infer<typeof NativeStepSchema>;
+
+/**
+ * Where a ramp / hold applies inside a scene's clip. Either a Maestro command
+ * `label:` (or command type, e.g. "inputText") resolved from the flow's
+ * debug output, or explicit clip milliseconds.
+ */
+const ClipSpanSchema = z
+  .object({
+    /** Maestro command `label:` (exact) — the span is that command's run time. */
+    label: z.string().optional(),
+    /** Maestro command type, e.g. "inputText", "tapOn", "waitForAnimationToEnd". Every match. */
+    command: z.string().optional(),
+    /** Explicit span in clip ms (after `trim.startMs`'s origin, i.e. raw clip time). */
+    fromMs: z.number().min(0).optional(),
+    toMs: z.number().min(0).optional(),
+  })
+  .refine((s) => !!s.label || !!s.command || (s.fromMs != null && s.toMs != null), {
+    message: "a span needs `label`, `command`, or both `fromMs` and `toMs`",
+  });
+
+export const StoreRampSchema = ClipSpanSchema.and(
+  z.object({
+    /** Playback rate for the span (2–16). Default 4. */
+    rate: z.number().min(1.1).max(16).optional(),
+  })
+);
+export type StoreRamp = z.infer<typeof StoreRampSchema>;
+
+export const StoreHoldSchema = ClipSpanSchema.and(
+  z.object({
+    /**
+     * Keep this many ms at 1x starting at the span's END (a result landing:
+     * "the receipt appears, let it read"). Omit to hold the span itself.
+     */
+    afterMs: z.number().min(0).max(5000).optional(),
+  })
+);
+export type StoreHold = z.infer<typeof StoreHoldSchema>;
+
+export const StoreSceneSchema = z
+  .object({
+    id: z.string().regex(/^[A-Za-z0-9_-]+$/, "scene ids are file names: letters, digits, - and _"),
+    /** Maestro flow (path relative to the project dir) run WHILE recording. */
+    flow: z.string().optional(),
+    /** Native steps run while recording (alternative to `flow`). */
+    steps: z.array(NativeStepSchema).optional(),
+    /** Maestro flow run BEFORE recording starts (state prep, never filmed). */
+    setup: z.string().optional(),
+    /** Use an existing clip instead of recording (mp4/mov, relative to the project dir). */
+    clip: z.string().optional(),
+    /** Extra Maestro `-e KEY=VALUE` env for this scene (merged over the project's). */
+    env: z.record(z.string(), z.string()).optional(),
+    /** Burned-in caption shown for the whole scene (store autoplay is muted). */
+    caption: z.string().optional(),
+    /** Per-language overrides for `caption` (`--lang ru`). */
+    localized: LocalizedTextSchema.optional(),
+    /** Cut the clip to this raw-clip window before editing. */
+    trim: z
+      .object({ startMs: z.number().min(0).optional(), endMs: z.number().min(0).optional() })
+      .optional(),
+    /** Speed ramps for known dead time (typing, waiting). */
+    ramps: z.array(StoreRampSchema).optional(),
+    /** Spans exempt from the still-frame rule (a result that should read). */
+    holds: z.array(StoreHoldSchema).optional(),
+    /** Hold the clip's last frame for this many ms (counts as a hold). */
+    tailHoldMs: z.number().min(0).max(5000).optional(),
+    /** After the flow, grab a full-resolution device screenshot to `recordings/native/stills/<name>.png`. */
+    still: z.string().regex(/^[A-Za-z0-9_-]+$/).optional(),
+  })
+  .refine((s) => [s.flow, s.steps, s.clip].filter((x) => x != null).length === 1, {
+    message: "a scene needs exactly one of `flow`, `steps` or `clip`",
+  });
+export type StoreScene = z.infer<typeof StoreSceneSchema>;
+
+/** Brand used by captions, the end card and screenshots. */
+export const StoreBrandSchema = z.object({
+  /** CSS background for canvases (colour or gradient). Default a dark navy. */
+  background: z.string().optional(),
+  /** Headline / caption text colour. */
+  text: z.string().optional(),
+  /** Accent: `*word*` in a headline or caption is drawn in this colour. */
+  accent: z.string().optional(),
+  /** Secondary text colour (subheads, end-card line). */
+  muted: z.string().optional(),
+  /** CSS font-family. */
+  font: z.string().optional(),
+  /** A local font file (ttf/otf/woff2) loaded as the font — covers any script. */
+  fontFile: z.string().optional(),
+  /** Headline weight (CSS). Default 800. */
+  weight: z.number().int().min(100).max(1000).optional(),
+});
+export type StoreBrand = z.infer<typeof StoreBrandSchema>;
+
+export const STORE_VIDEO_PRESET_IDS = [
+  "app-store-preview",
+  "app-store-preview-landscape",
+  "play-promo-portrait",
+  "play-promo-landscape",
+] as const;
+export const StoreVideoPresetIdSchema = z.enum(STORE_VIDEO_PRESET_IDS);
+export type StoreVideoPresetId = z.infer<typeof StoreVideoPresetIdSchema>;
+
+export const STORE_SCREENSHOT_PRESET_IDS = [
+  "ios-6.9",
+  "ios-6.5",
+  "ipad-13",
+  "play-phone",
+  "play-tablet",
+] as const;
+export const StoreScreenshotPresetIdSchema = z.enum(STORE_SCREENSHOT_PRESET_IDS);
+export type StoreScreenshotPresetId = z.infer<typeof StoreScreenshotPresetIdSchema>;
+
+/** How the device video sits on the export canvas. */
+export const StoreLayoutSchema = z.enum(["auto", "fill", "band", "side"]);
+export type StoreLayout = z.infer<typeof StoreLayoutSchema>;
+
+export const StoreShotSchema = z
+  .object({
+    id: z.string().regex(/^[A-Za-z0-9_-]+$/),
+    /** Raw device frame (png/jpg, relative to the project dir). */
+    frame: z.string().optional(),
+    /** …or a frame pulled from a recorded scene clip at `atMs`. */
+    fromScene: z.object({ scene: z.string(), atMs: z.number().min(0) }).optional(),
+    /** …or the scene's `still` screenshot by name. */
+    still: z.string().optional(),
+    headline: z.string(),
+    subhead: z.string().optional(),
+    localized: LocalizedTextSchema.optional(),
+    /**
+     * Device width as a fraction of the canvas width. Default 0.92 — big
+     * enough that UI text reads at search-thumbnail size; > 1 bleeds off
+     * both sides.
+     */
+    zoom: z.number().min(0.4).max(2).optional(),
+    /** Which edge the device bleeds off. Default "bottom". */
+    bleed: z.enum(["bottom", "top", "none"]).optional(),
+    /** Device frame style. Default from the preset (iphone / android / tablet). */
+    device: z.enum(["iphone", "android", "tablet", "none"]).optional(),
+    /** Fraction (0–1) of the screen's height cut from its top before framing (scroll past the status bar). */
+    cropTop: z.number().min(0).max(0.6).optional(),
+  })
+  .refine((s) => [s.frame, s.fromScene, s.still].filter((x) => x != null).length === 1, {
+    message: "a shot needs exactly one of `frame`, `fromScene` or `still`",
+  });
+export type StoreShot = z.infer<typeof StoreShotSchema>;
+
+export const StoreProjectSchema = z.object({
+  title: z.string(),
+  /** The device to record on. */
+  device: z
+    .object({
+      platform: z.enum(["ios", "android"]),
+      /**
+       * iOS: simulator UDID or name; Android: adb serial or AVD name. Omit to
+       * use the single booted device of the platform.
+       */
+      id: z.string().optional(),
+      /** App under test — used by `launch` steps and the status-bar reset. */
+      appId: z.string().optional(),
+      /** Clean 9:41 status bar during the take (simctl status_bar / Android demo mode). Default true. */
+      cleanStatusBar: z.boolean().optional(),
+      /** Force light/dark appearance for the take (iOS + Android). */
+      appearance: z.enum(["light", "dark"]).optional(),
+    }),
+  /** Env passed to every Maestro flow (`-e`). */
+  env: z.record(z.string(), z.string()).optional(),
+  /** Maestro flow run once before the first scene (never filmed). */
+  setup: z.string().optional(),
+  scenes: z.array(StoreSceneSchema).min(1),
+  brand: StoreBrandSchema.optional(),
+  /** Store video export. */
+  video: z
+    .object({
+      presets: z.array(StoreVideoPresetIdSchema).min(1).optional(),
+      layout: StoreLayoutSchema.optional(),
+      /** No still frame longer than this outside holds. Default 700. */
+      maxStillMs: z.number().min(200).max(3000).optional(),
+      /** A frozen span longer than maxStillMs is ramped down to this. Default 250. */
+      stillKeepMs: z.number().min(0).max(1000).optional(),
+      /** Default ramp rate. Default 4. */
+      rampRate: z.number().min(1.1).max(16).optional(),
+      /** Caption placement for the fill layout. Default "top". */
+      captionPosition: z.enum(["top", "bottom"]).optional(),
+      /** Out-of-range duration: fail (default) or uniformly speed non-hold time up to fit. */
+      durationFit: z.enum(["fail", "speed"]).optional(),
+      /** Poster frame time in the final video. Default 0 (the first frame carries the message). */
+      posterAtMs: z.number().min(0).optional(),
+    })
+    .optional(),
+  /** End card: icon + app name + one line. Counts as a hold. */
+  endCard: z
+    .object({
+      appName: z.string(),
+      icon: z.string().optional(),
+      line: z.string().optional(),
+      localized: LocalizedTextSchema.optional(),
+      durationMs: z.number().min(500).max(5000).optional(),
+    })
+    .optional(),
+  /** Screenshot set. */
+  screenshots: z
+    .object({
+      presets: z.array(StoreScreenshotPresetIdSchema).min(1).optional(),
+      shots: z.array(StoreShotSchema).min(1),
+      /** Play feature graphic (1024x500). */
+      featureGraphic: z
+        .object({
+          headline: z.string(),
+          appName: z.string().optional(),
+          icon: z.string().optional(),
+          frame: z.string().optional(),
+          still: z.string().optional(),
+          localized: LocalizedTextSchema.optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+export type StoreProject = z.infer<typeof StoreProjectSchema>;
+
+/** A Maestro command (or native step) timing inside a scene clip, in clip ms. */
+export const NativeMarkSchema = z.object({
+  command: z.string(),
+  label: z.string().optional(),
+  startMs: z.number(),
+  endMs: z.number(),
+  status: z.string().optional(),
+});
+export type NativeMark = z.infer<typeof NativeMarkSchema>;
+
+/** Written by `native-record`: one clip per scene + the flow's command timings. */
+export const NativeTimelineSchema = z.object({
+  version: z.literal(1),
+  platform: z.enum(["ios", "android"]),
+  device: z.object({ id: z.string(), name: z.string(), width: z.number(), height: z.number() }),
+  recordedAt: z.string(),
+  scenes: z.array(
+    z.object({
+      id: z.string(),
+      clip: z.string(),
+      durationMs: z.number(),
+      /** sha256 of the flow/steps/env that produced the clip — compose warns on drift. */
+      hash: z.string(),
+      marks: z.array(NativeMarkSchema),
+      still: z.string().optional(),
+    })
+  ),
+});
+export type NativeTimeline = z.infer<typeof NativeTimelineSchema>;

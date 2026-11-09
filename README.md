@@ -124,6 +124,36 @@ replay with a smooth animated cursor).
   `gh release upload v1.4.0 demos/whats-new/output/final-demo.mp4`.
 - **Customer & prospect demos** — personalized flows against your real app:
   localhost, auth walls, your own logged-in Chrome; nothing leaves the machine.
+- **App Store & Google Play media** — see [Native apps & store media](#native-apps--store-media).
+
+## Native apps & store media
+
+For a **native iOS or Android app**, aidemo records the iOS Simulator
+(`simctl recordVideo`) or the Android emulator (`adb screenrecord`) while your
+own **Maestro** flows drive it, then edits the clips into store-ready media:
+
+- **App Store App Preview** (886×1920, 15–30 s, 30 fps H.264 + stereo AAC,
+  poster frame + its ASC timecode) and **Google Play promo** (1080×1920 or
+  1920×1080, YouTube-ready) — validated against the store spec; a file that
+  would be rejected fails the run.
+- **Made for muted autoplay**: burned-in captions rendered from text (a new
+  language is a text swap: `--lang ru`), speed ramps on labelled dead time
+  (typing, waiting), no still frame over ~0.7 s unless you mark it a hold,
+  an end card with icon, name and one line. No voiceover needed.
+- **Screenshot sets**: iOS 6.9" (1320×2868), Play phone (1080×1920), Play
+  feature graphic (1024×500) — headline + zoomed device frame that bleeds off the
+  edge so UI text is readable at search-thumbnail size; brand fonts and colours.
+
+```bash
+aidemo store-check        demos/store       # generated/store.json: scenes → Maestro flows, captions, shots
+aidemo native-record      demos/store       # one clip per scene on the booted simulator/emulator (--boot to start one)
+aidemo store-video        demos/store       # → output/store/app-store-preview.mp4 (+ poster, report)
+aidemo store-screenshots  demos/store       # → output/store/screenshots/ios-6.9/01-….png
+aidemo store-validate some.mp4 --preset app-store-preview   # check any file
+```
+
+Recipe: [docs/recipes/app-store-preview.md](docs/recipes/app-store-preview.md) ·
+reference: `aidemo guide --topic store`.
 
 ## Render in CI (self-maintaining demos)
 
@@ -193,6 +223,9 @@ aidemo compose <dir>          # trim + sync + zoom + cards + caption + mux → f
 aidemo gif     <dir>          # final-demo.mp4 → README-ready GIF (autoplays on GitHub)
 aidemo frames  <dir>          # evenly spaced PNGs from the video for review (--source raw)
 aidemo render  <dir>          # voice → record → captions → compose
+aidemo native-record <dir>    # iOS Simulator / Android emulator take, one clip per scene (Maestro)
+aidemo store-video <dir>      # → App Store App Preview / Play promo, spec-validated
+aidemo store-screenshots <dir> # → store screenshot sets + Play feature graphic
 aidemo guide                  # print the canonical authoring guide
 aidemo doctor                 # check Node, ffmpeg, Chrome, voice endpoint
 ```
@@ -218,7 +251,7 @@ Codex).
   [docs/AUTHORING.md](docs/AUTHORING.md) version-matched from the engine (can't go
   stale); `get_storyboard_schema`, `validate_storyboard`, `init_demo`, `doctor`.
 - **Pipeline tools run as jobs** — `probe`/`record`/`render`/`voice`/`captions`/
-  `compose`/`gif` return a `jobId` immediately; `job_status` reports stage,
+  `compose`/`gif` (and `native_record`/`store_video`/`store_screenshots`) return a `jobId` immediately; `job_status` reports stage,
   per-scene progress, and (on failure) the screenshot/frame-dump paths.
 - **`.env` works like the CLI** — the server loads its cwd's and the engine's
   `.env` at startup, and since MCP clients often start it outside your repo, each
@@ -320,7 +353,8 @@ demos/<name>/          ← your working area (untracked; scaffold with `aidemo i
 
 Shipped: the **GitHub Action** (CI re-render), cinematic polish (auto-zoom,
 scroll easing, music ducking, intro/outro cards, motion blur, post-hoc cursor
-control), native/OBS capture, the agent-neutral **MCP server** + authoring guide,
+control), native/OBS capture, **iOS Simulator / Android emulator capture with
+App Store / Google Play exports**, the agent-neutral **MCP server** + authoring guide,
 ElevenLabs and **in-process local voice** providers, and the **Claude Code plugin**.
 
 ## Contributing

@@ -31,13 +31,14 @@
     "build": "tsc --noEmit",
     "serve-example": "node examples/local-demo/serve.mjs",
     "mcp-smoke": "node test/mcp-smoke.mjs",
-    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/issue-93.mjs test/issue-94.mjs test/issue-95.mjs test/issue-96.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs test/release-wait.mjs",
+    "test": "tsx --test test/issue-64.mjs test/issue-89.mjs test/issue-93.mjs test/issue-94.mjs test/issue-95.mjs test/issue-96.mjs test/store-media.mjs test/runtime-setup.mjs test/mcp-schemas.mjs test/mcp-stdio.mjs test/release-wait.mjs",
     "test:blank-open": "tsx --test test/blank-open.mjs",
     "test:lead-in": "tsx --test test/lead-in.mjs",
     "mcp-env-test": "node test/mcp-env.mjs",
     "guard-openai-key": "tsx scripts/guard-openai-key.ts",
     "sync:plugin-skill": "cp .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md",
-    "check:plugin-skill": "diff -q .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md"
+    "check:plugin-skill": "diff -q .claude/skills/record-demo/SKILL.md plugins/record-demo/skills/record-demo/SKILL.md",
+    "test:store": "tsx --test test/store-render.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.4.0",

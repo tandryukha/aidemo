@@ -1,0 +1,12 @@
+appId: com.apple.Preferences
+---
+- tapOn: "General"
+- waitForAnimationToEnd
+- swipe:
+    start: 50%, 75%
+    end: 50%, 40%
+    duration: 1400
+- swipe:
+    start: 50%, 40%
+    end: 50%, 75%
+    duration: 1400

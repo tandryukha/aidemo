@@ -6,13 +6,18 @@ always matches the engine that will render:
 
 - **MCP** (preferred for agents): call the `get_authoring_guide` tool on the
   `aidemo` MCP server — it returns this document (pass `topic` — `core`,
-  `schema`, `attention`, `polish`, `chatgpt-apps`, `debug`… — for one slice).
+  `schema`, `attention`, `polish`, `chatgpt-apps`, `store`, `debug`… — for one slice).
 - **CLI**: `aidemo guide` prints it (`--topic core` / `--list` for a slice).
 
 You are the **demo director**: turn a feature + loose directions into a
 polished 30–60s narrated, captioned browser-demo MP4. You author the
 **storyboard** (script + per-scene voice/music plan + declarative browser
 action-spec); the engine does the mechanical steps deterministically.
+
+**Native apps and store media** (iOS Simulator / Android emulator capture
+driven by Maestro, App Store App Previews, Google Play promo videos, store
+screenshot sets) have their own pipeline and project file — see
+"Native capture & store media" (`--topic store`).
 
 ## Interfaces: MCP tools ↔ CLI commands
 
@@ -1536,3 +1541,175 @@ would be read by an English voice and mispronounced — `voice` warns when you d
 this. For genuine non-English speech, render that language with
 `AIDEMO_TTS_PROVIDER=elevenlabs` (multilingual) or OpenAI TTS. Set the storyboard
 `voice.voiceId` (globally, or per scene) if a language wants a different voice.
+
+## Native capture & store media (iOS Simulator, Android emulator, App Store, Google Play)
+
+Everything above records a **web page in Chrome**. For a **native app** — an
+App Store App Preview, a Google Play promo video, a store screenshot set — the
+engine has a second, browser-free pipeline with its own project file,
+`<dir>/generated/store.json`:
+
+```
+store.json ─▶ native-record ─▶ store-video ──────▶ output/store/<preset>[.<lang>].mp4 (+ .poster.png, .report.json)
+   (Maestro flows,  (one clip per scene,   (ramps, captions,
+    captions, shots)  command marks)        end card, spec check)
+              └─────────────────▶ store-screenshots ─▶ output/store/screenshots/<preset>[.<lang>]/NN-<id>.png
+```
+
+| Operation | MCP tool | CLI |
+|---|---|---|
+| Check store.json (schema + files, no device) | `store_check` | `aidemo store-check <dir>` (`--json`) |
+| Record the scenes on a device | `native_record` (job) | `aidemo native-record <dir> [--only a,b] [--device <id>] [--boot]` |
+| Edit + encode the store videos | `store_video` (job) | `aidemo store-video <dir> [--preset …] [--lang ru]` |
+| Screenshot set + Play feature graphic | `store_screenshots` (job) | `aidemo store-screenshots <dir> [--preset …] [--lang ru]` |
+| All three | — | `aidemo store <dir> [--no-record] [--lang ru]` |
+| Check any file against a store spec | `store_validate` | `aidemo store-validate <file> --preset <id>` (`--json`) |
+
+**Prerequisites.** ffmpeg + Chrome (as always), plus for recording: Xcode's
+`xcrun simctl` (iOS) or the Android SDK's `adb` (+ `emulator` for `--boot`;
+found on PATH or under `$ANDROID_HOME`), and **[Maestro](https://maestro.mobile.dev)**
+for `flow` scenes. `store-video` / `store-screenshots` need no device.
+
+**Same principles as the web pipeline.** No LLM drives a take: a scene is a
+**fixed Maestro flow** (or a fixed list of simctl/adb `steps`), so a re-record
+replays it. Polish is edit-time: changing a caption, ramp, hold or preset is a
+`store-video` re-run, never a re-record.
+
+### The device
+
+```json
+"device": { "platform": "ios", "id": "iPhone 17 Pro Max", "appId": "com.example.app",
+            "cleanStatusBar": true, "appearance": "light" }
+```
+
+- `platform` `ios` | `android`. `id` is a simulator UDID or name / an adb
+  serial or AVD name; omit it to use **the one booted device** (with several
+  booted, the run stops and lists them — name one).
+- The engine **never boots a device unless you pass `--boot`**, and then shuts
+  down only what it booted. Prefer recording on a device that is already up.
+- `cleanStatusBar` (default true): 9:41, full battery and bars for the take
+  (`simctl status_bar` / Android demo mode), restored afterwards.
+- Record on the device size the store wants: an **iPhone 6.9"** simulator
+  (1320×2868) for the App Preview and iOS screenshots; a 1080-px-wide phone AVD
+  for Play.
+
+### Scenes
+
+```json
+{ "id": "voice", "setup": "flows/reset.yaml", "flow": "flows/voice.yaml",
+  "caption": "Say it. *It's logged.*", "localized": { "ru": { "caption": "Скажите — и готово." } },
+  "ramps": [{ "label": "typing", "rate": 6 }, { "command": "waitForAnimationToEnd" }],
+  "holds": [{ "label": "receipt", "afterMs": 1200 }],
+  "tailHoldMs": 600, "still": "01-voice" }
+```
+
+- Exactly one source: `flow` (Maestro YAML, run **while** recording), `steps`
+  (`tap`, `swipe`, `text`, `wait`, `openUrl`, `launch`, `terminate` — iOS
+  tap/swipe/text need `idb`; prefer a flow), or `clip` (an existing mp4/mov —
+  edit-only, no device).
+- `setup` runs **before** the recorder starts (state prep is never filmed);
+  the project-level `setup` runs once before the first scene. `env` (project and
+  per scene) is passed to Maestro as `-e KEY=VALUE`.
+- **One clip per scene** (`recordings/native/<id>.mp4`), so `--only voice`
+  re-records just that scene. Make each scene self-contained with its `setup`.
+- `still` saves a full-resolution device screenshot after the flow
+  (`recordings/native/stills/<name>.png`) — the best source for screenshots.
+- **Marks.** Maestro's per-command start/duration (its debug output) is put on
+  the clip's clock in `generated/native-timeline.json`. Give a flow step a
+  `label:` and the edit can address it:
+
+  ```yaml
+  - inputText:
+      text: "two eggs on toast and a flat white"
+      label: typing
+  - assertVisible:
+      id: "receipt"
+      label: receipt
+  ```
+
+  `ramps`/`holds` take `label` (exact), `command` (a Maestro command type,
+  every match) or explicit clip ms `fromMs`/`toMs`. A label that matches nothing
+  fails the edit and lists the labels that were recorded.
+- The clip is trimmed to the flow's own commands (Maestro's JVM/driver
+  start-up and exit are cut) unless you set `trim: {startMs, endMs}`.
+
+### The edit (`store-video`)
+
+Store autoplay is **muted**, and search shows only the first seconds — so:
+
+1. **No still frame longer than `video.maxStillMs` (default 700 ms) unless it
+   is a hold.** Every motionless stretch past that (freezedetect on the clip) is
+   ramped down to `stillKeepMs` (default 250 ms; 0 cuts it). Your `ramps` speed
+   up known dead time that *moves* — typing, a spinner, a long scroll (default
+   rate `video.rampRate` 4). `holds`, `tailHoldMs` and the end card are the only
+   places a frame may stand still. The final file is re-checked; a violation
+   fails the run with its time range.
+2. **Captions from text**, burned in (Chrome-rasterized; `*word*` = accent
+   colour). A locale is a text swap: `localized.<lang>.caption` + `--lang`
+   writes `<preset>.<lang>.mp4` from the **same clips**. Give the first scene a
+   caption — the first frame must carry the message on its own.
+3. **End card** (`endCard: {appName, icon, line, durationMs}`, default 2 s).
+4. **Silent stereo AAC** track (both stores expect audio; no voiceover needed).
+5. **Layout** (`video.layout`): `fill` (the device video covers the canvas,
+   caption on a plate — chosen automatically when the aspect matches, e.g. a
+   6.9" iPhone into the 886×1920 App Preview), `band` (portrait: caption band on
+   top, rounded device video below — e.g. iPhone footage into Play's 1080×1920),
+   `side` (landscape: caption panel left, device right). `auto` picks.
+6. **Duration**: the store window is enforced. Too short is always an error
+   (the engine never pads with stills — add a scene or lengthen a hold); too
+   long is an error unless `video.durationFit: "speed"` (all non-hold time
+   speeds up by one factor; the factor is in the report).
+
+| Preset | Size | Rules enforced |
+|---|---|---|
+| `app-store-preview` | 886×1920 | 15–30 s, 30 fps CFR, H.264 High ≤ 4.0, yuv420p, stereo AAC 44.1/48 kHz, ≤ 500 MB (iPhone 6.9"/6.7" slot) |
+| `app-store-preview-landscape` | 1920×886 | same |
+| `play-promo-portrait` | 1080×1920 | 30 fps H.264 + stereo AAC; < 30 s or > 2 min is a warning (Google's recommendation) — upload to YouTube, paste the URL in Play Console |
+| `play-promo-landscape` | 1920×1080 | same |
+
+Outputs per preset: the video, `<file>.poster.png` (opaque, exact size) and
+`<file>.report.json` (spec facts, every scene's segments with their rates, the
+hold windows, `posterTimeCode` in ASC's `HH:MM:SS:FF` — set it as the preview's
+poster frame; `video.posterAtMs`, default 0).
+
+### Screenshots (`store-screenshots`)
+
+```json
+"screenshots": {
+  "presets": ["ios-6.9", "play-phone"],
+  "shots": [
+    { "id": "voice", "still": "01-voice", "headline": "Say it. *Logged.*", "zoom": 0.95, "bleed": "bottom" },
+    { "id": "photo", "fromScene": { "scene": "photo", "atMs": 4200 }, "headline": "Snap a plate" }
+  ],
+  "featureGraphic": { "headline": "Log food by *voice*", "still": "01-voice" }
+},
+"brand": { "background": "#0d1b2a", "text": "#fff", "accent": "#7ee08a", "font": "Inter", "fontFile": "brand/Inter.ttf" }
+```
+
+- Source per shot: `still` (best), `frame` (any png/jpg) or `fromScene` (a
+  frame from a clip).
+- `zoom` = device width / canvas width (default 0.92; > 1 bleeds off both
+  sides); `bleed` `bottom` | `top` | `none`; `cropTop` drops the status bar;
+  `device` `iphone` | `android` | `tablet` | `none`.
+- **Readable at search size**: the report flags a screen under 70% of the
+  canvas width and a headline over 5 words. The first three shots are all a
+  search result shows — make them tell the story.
+- Presets: `ios-6.9` 1320×2868, `ios-6.5` 1242×2688, `ipad-13` 2064×2752,
+  `play-phone` 1080×1920, `play-tablet` 1600×2560; `featureGraphic` →
+  `play-feature-graphic` 1024×500. Every file is checked: exact size, opaque
+  24-bit RGB (stores reject alpha), byte cap, Play's 2:1 aspect rule.
+- `brand.fontFile` embeds a font so any script renders the same; `localized`
+  + `--lang` swaps headlines/subheads.
+
+### Resource etiquette
+
+Simulators, emulators and x264 at store bitrates are heavy. Record on an
+already-booted device, never boot more than one, and shut down what you
+booted (`--boot` does). On a shared machine, run `native-record` /
+`store-video` behind whatever heavy-job lock the machine uses.
+
+### Not (yet) covered
+
+- Narrated native demos: the `voice → compose` pipeline still records browser
+  takes only; native clips feed `store-video`, which is muted by design.
+- Physical devices: simulators/emulators only.

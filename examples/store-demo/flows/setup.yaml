@@ -1,0 +1,4 @@
+appId: com.apple.Preferences
+---
+- stopApp
+- launchApp

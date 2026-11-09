@@ -1,0 +1,43 @@
+{
+  "title": "iOS Settings — store-media smoke test",
+  "device": { "platform": "ios", "appId": "com.apple.Preferences", "cleanStatusBar": true, "appearance": "light" },
+  "setup": "flows/setup.yaml",
+  "scenes": [
+    {
+      "id": "browse",
+      "flow": "flows/browse.yaml",
+      "caption": "Every setting, *one scroll away.*",
+      "localized": { "ru": { "caption": "Все настройки — *в одном свайпе.*" } },
+      "ramps": [{ "label": "settle", "rate": 6 }],
+      "still": "01-browse"
+    },
+    {
+      "id": "general",
+      "setup": "flows/home.yaml",
+      "flow": "flows/general.yaml",
+      "caption": "Open *General*",
+      "localized": { "ru": { "caption": "Откройте *Основные*" } },
+      "ramps": [{ "command": "waitForAnimationToEnd" }]
+    },
+    {
+      "id": "about",
+      "flow": "flows/about.yaml",
+      "caption": "Know your *device.*",
+      "localized": { "ru": { "caption": "Знайте своё *устройство.*" } },
+      "holds": [{ "label": "about", "afterMs": 1500 }],
+      "tailHoldMs": 600,
+      "still": "03-about"
+    }
+  ],
+  "brand": { "background": "linear-gradient(160deg,#1c2b4a 0%,#0b1222 70%)", "accent": "#7ee08a" },
+  "video": { "presets": ["app-store-preview", "play-promo-portrait"], "durationFit": "speed" },
+  "endCard": { "appName": "Settings", "line": "Already on your iPhone", "localized": { "ru": { "line": "Уже на вашем iPhone" } } },
+  "screenshots": {
+    "presets": ["ios-6.9", "play-phone"],
+    "shots": [
+      { "id": "browse", "still": "01-browse", "headline": "Every setting, *one scroll*" },
+      { "id": "about", "still": "03-about", "headline": "Know your *device*", "zoom": 1.08, "cropTop": 0.04 }
+    ],
+    "featureGraphic": { "headline": "Settings, *at a glance*", "appName": "Settings", "still": "01-browse" }
+  }
+}

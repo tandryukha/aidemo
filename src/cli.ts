@@ -37,6 +37,18 @@ import { exportWalkthrough } from "./walkthrough.js";
 import { localizeStoryboard, missingNarrations } from "./i18n.js";
 import { synthesizeMusicBed } from "./music.js";
 import { loadVariants, renderVariants } from "./variants.js";
+import { nativeRecord } from "./native/record.js";
+import { storeVideo } from "./store/video.js";
+import { storeScreenshots } from "./store/screenshots.js";
+import { checkStoreProject, loadStoreProject } from "./store/project.js";
+import { storeImagePreset, storeVideoPreset } from "./store/presets.js";
+import { validateStoreImageFile, validateStoreVideoFile } from "./store/validate.js";
+import {
+  STORE_SCREENSHOT_PRESET_IDS,
+  STORE_VIDEO_PRESET_IDS,
+  StoreScreenshotPresetIdSchema,
+  StoreVideoPresetIdSchema,
+} from "./types.js";
 import {
   ensureDir,
   ok,
@@ -1325,6 +1337,130 @@ program
       strictGate();
     }
   );
+
+// ---------------------------------------------------------------------------
+// Native capture + store media (generated/store.json) — docs/AUTHORING.md
+// § "Native capture & store media".
+// ---------------------------------------------------------------------------
+
+const splitList = (v?: string): string[] | undefined =>
+  v ? v.split(",").map((x) => x.trim()).filter(Boolean) : undefined;
+
+program
+  .command("native-record")
+  .argument("<dir>", "demo project directory (generated/store.json)")
+  .option("--only <ids>", "re-record only these scenes (comma-separated); the rest keep their clips")
+  .option("--device <id>", "simulator UDID/name or adb serial/AVD (overrides device.id)")
+  .option("--boot", "boot the device when it isn't running (shut down again at the end)", false)
+  .description(
+    "record one clip per scene on an iOS Simulator / Android emulator, driven by the scene's " +
+      "Maestro flow (or simctl/adb steps) → recordings/native/ + generated/native-timeline.json"
+  )
+  .action(async (dir: string, opts: { only?: string; device?: string; boot?: boolean }) => {
+    const project = new Project(dir);
+    await beginCommand(project, "native-record");
+    await nativeRecord(project, { only: splitList(opts.only), deviceId: opts.device, boot: opts.boot });
+  });
+
+program
+  .command("store-video")
+  .argument("<dir>", "demo project directory")
+  .option("--preset <ids>", `comma-separated: ${STORE_VIDEO_PRESET_IDS.join(", ")} (default: store.json video.presets)`)
+  .option("--lang <code>", "use the scenes' localized captions for <code>")
+  .description(
+    "edit the native clips into store videos: speed ramps, burned-in captions, end card, silent " +
+      "stereo AAC, exact store encode — validated against the spec (non-zero exit on any violation)"
+  )
+  .action(async (dir: string, opts: { preset?: string; lang?: string }) => {
+    const project = new Project(dir);
+    await beginCommand(project, "store-video");
+    const results = await storeVideo(project, {
+      presets: splitList(opts.preset)?.map((p) => StoreVideoPresetIdSchema.parse(p)),
+      lang: opts.lang,
+    });
+    for (const r of results) log(`${r.preset}: ${r.file} · poster ${r.posterTimeCode} · ${r.reportFile}`);
+  });
+
+program
+  .command("store-screenshots")
+  .argument("<dir>", "demo project directory")
+  .option("--preset <ids>", `comma-separated: ${STORE_SCREENSHOT_PRESET_IDS.join(", ")} (default: store.json screenshots.presets)`)
+  .option("--lang <code>", "use the shots' localized headlines for <code>")
+  .description("render store screenshot sets (+ the Play feature graphic) from raw device frames, validated per store")
+  .action(async (dir: string, opts: { preset?: string; lang?: string }) => {
+    const project = new Project(dir);
+    await beginCommand(project, "store-screenshots");
+    await storeScreenshots(project, {
+      presets: splitList(opts.preset)?.map((p) => StoreScreenshotPresetIdSchema.parse(p)),
+      lang: opts.lang,
+    });
+  });
+
+program
+  .command("store-validate")
+  .argument("<file>", "a store video (.mp4/.mov) or image (.png/.jpg)")
+  .requiredOption("--preset <id>", "store preset to check against")
+  .option("--json", "print the report as JSON", false)
+  .description("check one file against a store spec (non-zero exit on any violation)")
+  .action(async (file: string, opts: { preset: string; json?: boolean }) => {
+    const isVideo = /\.(mp4|mov|m4v)$/i.test(file);
+    const report = isVideo
+      ? await validateStoreVideoFile(resolve(file), storeVideoPreset(opts.preset))
+      : await validateStoreImageFile(resolve(file), storeImagePreset(opts.preset));
+    if (opts.json) console.log(JSON.stringify(report, null, 2));
+    else {
+      for (const [k, v] of Object.entries(report.facts)) log(`${k}: ${v}`);
+      for (const w of report.warnings) log(`⚠ ${w}`);
+      if (report.errors.length) {
+        fail(`${file} fails ${opts.preset}:`);
+        for (const e of report.errors) log(`  - ${e}`);
+      } else ok(`${file} passes ${opts.preset}`);
+    }
+    if (report.errors.length) process.exitCode = 1;
+  });
+
+program
+  .command("store-check")
+  .argument("<dir>", "demo project directory")
+  .option("--json", "print the structured result as JSON", false)
+  .description("validate generated/store.json (schema + file references) without touching a device")
+  .action(async (dir: string, opts: { json?: boolean }) => {
+    const project = new Project(dir);
+    const path = project.p("generated", "store.json");
+    const res = checkStoreProject(await readJson<unknown>(path), project);
+    if (opts.json) console.log(JSON.stringify(res.ok ? { valid: true, warnings: res.warnings } : { valid: false, issues: res.issues, warnings: res.warnings }, null, 2));
+    else if (res.ok) {
+      ok(`${path} — "${res.store.title}", ${res.store.scenes.length} scene(s)`);
+      for (const w of res.warnings) log(`⚠ ${w.path}: ${w.message}`);
+    } else {
+      fail(`${path}: ${res.issues.length} issue(s)`);
+      for (const i of res.issues) log(`  - ${i.path || "<root>"}: ${i.message}`);
+    }
+    if (!res.ok) process.exitCode = 1;
+  });
+
+program
+  .command("store")
+  .argument("<dir>", "demo project directory")
+  .option("--no-record", "reuse the recorded clips (edit + screenshots only)")
+  .option("--only <ids>", "re-record only these scenes")
+  .option("--device <id>", "device override")
+  .option("--boot", "boot the device if needed (shut down at the end)", false)
+  .option("--lang <code>", "localized captions/headlines")
+  .description("native-record → store-video → store-screenshots in one go")
+  .action(async (dir: string, opts: { record?: boolean; only?: string; device?: string; boot?: boolean; lang?: string }) => {
+    const project = new Project(dir);
+    await beginCommand(project, "store");
+    if (opts.record !== false) {
+      await stageLog(project, "native-record", () =>
+        nativeRecord(project, { only: splitList(opts.only), deviceId: opts.device, boot: opts.boot })
+      );
+    }
+    const store = await loadStoreProject(project);
+    await stageLog(project, "store-video", () => storeVideo(project, { lang: opts.lang }));
+    if (store.screenshots) await stageLog(project, "store-screenshots", () => storeScreenshots(project, { lang: opts.lang }));
+    step("Done");
+  });
 
 try {
   await program.parseAsync(process.argv);

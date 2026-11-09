@@ -1,0 +1,297 @@
+import { promises as fs } from "node:fs";
+import type { Project } from "../project.js";
+import { probeDurationMs, probeFreezeSpans, probeVideoDims, runFfmpeg } from "../ffmpeg.js";
+import type { NativeTimeline, StoreProject, StoreVideoPresetId } from "../types.js";
+import { ensureDir, log, ok, step, writeJson } from "../util.js";
+import { sceneHash } from "../native/record.js";
+import { fitPlans, planScene, resolveHolds, resolveRamps, stillViolations, type ScenePlan, type Span } from "./plan.js";
+import { posterTimeCode, storeVideoPreset, type StoreVideoPreset } from "./presets.js";
+import { loadNativeTimeline, loadStoreProject, localized, resolveIn, storePaths } from "./project.js";
+import {
+  brandCss,
+  dataUri,
+  endCardHtml,
+  Rasterizer,
+  toOpaqueRgbPng,
+  videoLayout,
+  videoOverlayHtml,
+} from "./render-html.js";
+import { readImageHeader, StoreSpecError, validateStoreVideoFile, type SpecReport } from "./validate.js";
+
+/**
+ * `store-video`: native clips → App Store App Preview / Google Play promo.
+ *
+ *  1. Plan each scene (src/store/plan.ts): Maestro start-up and exit are
+ *     trimmed by the flow's own command marks, labelled typing/waiting spans
+ *     are ramped, every still longer than maxStillMs that isn't a hold is
+ *     ramped down to stillKeepMs.
+ *  2. Per preset: lay the device video onto the canvas (fill / band / side),
+ *     burn in the scene caption (Chrome-rasterized PNG from text), append the
+ *     end card, add a silent stereo AAC track, encode to the store's spec.
+ *  3. Verify: ffprobe against the preset (dimensions, codec, fps, audio,
+ *     duration, size) and freezedetect against the still rule. Any failure
+ *     throws — a file that would be rejected never looks finished.
+ */
+
+export interface StoreVideoOptions {
+  presets?: StoreVideoPresetId[];
+  lang?: string;
+  onSceneStart?: (id: string, index: number, total: number) => void;
+  onSceneComplete?: (id: string, index: number, total: number) => void;
+}
+
+export interface StoreVideoResult {
+  preset: StoreVideoPresetId;
+  file: string;
+  poster: string;
+  posterTimeCode: string;
+  durationMs: number;
+  report: SpecReport;
+  reportFile: string;
+}
+
+/** Marks-based trim: drop Maestro's JVM/driver start-up and its exit. */
+export function defaultTrim(
+  durationMs: number,
+  marks: { startMs: number; endMs: number }[],
+  lead = 250,
+  tail = 600
+): { startMs: number; endMs: number } {
+  if (!marks.length) return { startMs: 0, endMs: durationMs };
+  const first = Math.min(...marks.map((m) => m.startMs));
+  const last = Math.max(...marks.map((m) => m.endMs));
+  return { startMs: Math.max(0, first - lead), endMs: Math.min(durationMs, Math.max(last + tail, first + 500)) };
+}
+
+interface PlannedScene {
+  id: string;
+  clip: string;
+  plan: ScenePlan;
+  caption?: string;
+  dims: { width: number; height: number };
+}
+
+async function planAll(project: Project, store: StoreProject, timeline: NativeTimeline): Promise<PlannedScene[]> {
+  const v = store.video ?? {};
+  const options = {
+    maxStillMs: v.maxStillMs ?? 700,
+    stillKeepMs: v.stillKeepMs ?? 250,
+    defaultRampRate: v.rampRate ?? 4,
+  };
+  const out: PlannedScene[] = [];
+  for (const scene of store.scenes) {
+    const rec = timeline.scenes.find((s) => s.id === scene.id);
+    if (!rec) throw new Error(`scene "${scene.id}" has no clip — run \`aidemo native-record <dir>\` (or --only ${scene.id})`);
+    const hash = await sceneHash(project, store, scene);
+    if (hash !== rec.hash)
+      log(`⚠ scene "${scene.id}": its flow/env changed since it was recorded — re-record with --only ${scene.id}`);
+    const durationMs = rec.durationMs || (await probeDurationMs(rec.clip));
+    const trim = scene.trim
+      ? { startMs: scene.trim.startMs ?? 0, endMs: scene.trim.endMs ?? durationMs }
+      : defaultTrim(durationMs, rec.marks);
+    const freezes = await probeFreezeSpans(rec.clip, options.maxStillMs);
+    const plan = planScene({
+      durationMs,
+      trim,
+      freezes: freezes.map((f) => ({ startMs: f.startMs, endMs: Math.min(f.endMs, durationMs) })),
+      ramps: resolveRamps(scene, rec.marks, options.defaultRampRate),
+      holds: resolveHolds(scene, rec.marks),
+      tailHoldMs: scene.tailHoldMs,
+      options,
+    });
+    out.push({ id: scene.id, clip: rec.clip, plan, caption: scene.caption, dims: await probeVideoDims(rec.clip) });
+  }
+  return out;
+}
+
+export async function storeVideo(project: Project, opts: StoreVideoOptions = {}): Promise<StoreVideoResult[]> {
+  const store = await loadStoreProject(project);
+  const timeline = await loadNativeTimeline(project);
+  if (!timeline) throw new Error("no generated/native-timeline.json — run `aidemo native-record <dir>` first");
+  const paths = storePaths(project);
+  const lang = opts.lang;
+  const presetIds = opts.presets?.length ? opts.presets : (store.video?.presets ?? ["app-store-preview"]);
+  const presets = presetIds.map(storeVideoPreset);
+  const v = store.video ?? {};
+  const maxStillMs = v.maxStillMs ?? 700;
+  const endMs = store.endCard ? (store.endCard.durationMs ?? 2000) : 0;
+
+  step("planning the edit");
+  const planned = await planAll(project, store, timeline);
+  const captions = store.scenes.map((s) => localized(s.caption, s.localized, "caption", lang));
+  if (!captions[0]) log("⚠ the first scene has no caption — store autoplay is muted, the first frame should carry the message");
+
+  const brand = await brandCss(store.brand, (p) => resolveIn(project, p));
+  const raster = new Rasterizer();
+  const results: StoreVideoResult[] = [];
+  await ensureDir(paths.outDir);
+  await fs.rm(paths.tmpDir, { recursive: true, force: true });
+  await ensureDir(paths.tmpDir);
+  try {
+    for (const preset of presets) {
+      const fit = fitPlans(
+        planned.map((p) => p.plan),
+        endMs,
+        { minMs: preset.minSec != null ? preset.minSec * 1000 : undefined, maxMs: preset.maxSec != null ? preset.maxSec * 1000 : undefined },
+        v.durationFit ?? "fail"
+      );
+      if (fit.speedFactor !== 1) log(`durationFit: non-hold time sped up ×${fit.speedFactor.toFixed(2)} to fit ${preset.maxSec} s`);
+      step(`${preset.id}: ${preset.width}x${preset.height}, ${(fit.totalMs / 1000).toFixed(2)} s`);
+      const sceneFiles: string[] = [];
+      const allowed: Span[] = [];
+      const sceneReport: Array<{ id: string; startMs: number; outMs: number; segments: ScenePlan["segments"] }> = [];
+      let t = 0;
+      for (const [i, sc] of planned.entries()) {
+        opts.onSceneStart?.(sc.id, i, planned.length);
+        const plan = fit.plans[i];
+        const layout = videoLayout(preset.width, preset.height, sc.dims.width, sc.dims.height, v.layout ?? "auto", v.captionPosition ?? "top");
+        const overlay = paths.tmp(`${preset.id}-${sc.id}-over.png`);
+        await raster.render(videoOverlayHtml(brand, layout, captions[i]), preset.width, preset.height, overlay, { transparent: true });
+        const out = paths.tmp(`${preset.id}-${sc.id}.mp4`);
+        await renderScene(sc.clip, plan, layout, overlay, out, preset.fps);
+        sceneFiles.push(out);
+        for (const h of plan.holdsOut) allowed.push({ startMs: t + h.startMs, endMs: t + h.endMs });
+        sceneReport.push({ id: sc.id, startMs: Math.round(t), outMs: plan.outMs, segments: plan.segments });
+        t += plan.outMs;
+        opts.onSceneComplete?.(sc.id, i, planned.length);
+      }
+      if (store.endCard) {
+        const png = paths.tmp(`${preset.id}-endcard.png`);
+        await raster.render(
+          endCardHtml(brand, preset.width, preset.height, {
+            appName: store.endCard.appName,
+            line: localized(store.endCard.line, store.endCard.localized, "line", lang),
+            iconUri: store.endCard.icon ? await dataUri(resolveIn(project, store.endCard.icon)) : undefined,
+          }),
+          preset.width,
+          preset.height,
+          png
+        );
+        const out = paths.tmp(`${preset.id}-endcard.mp4`);
+        await runFfmpeg([
+          "-loop", "1", "-framerate", String(preset.fps), "-t", (endMs / 1000).toFixed(3), "-i", png,
+          "-vf", `format=yuv420p`, "-r", String(preset.fps),
+          "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", out,
+        ]);
+        sceneFiles.push(out);
+        allowed.push({ startMs: t - 200, endMs: t + endMs + 1000 });
+        t += endMs;
+      }
+      const file = paths.video(preset.id, lang);
+      await encodeFinal(sceneFiles, file, preset);
+      const report = await validateStoreVideoFile(file, preset);
+      const finalFreezes = await probeFreezeSpans(file, maxStillMs + 120);
+      const bad = stillViolations(finalFreezes, allowed, maxStillMs);
+      if (bad.length)
+        report.errors.push(
+          ...bad.map(
+            (b) =>
+              `still frame ${(b.startMs / 1000).toFixed(2)}–${(Math.min(b.endMs, t) / 1000).toFixed(2)} s is longer than ${maxStillMs} ms and not a hold — add a ramp or mark it as a hold`
+          )
+        );
+      const posterAt = Math.min(v.posterAtMs ?? 0, Math.max(0, t - 100));
+      const poster = file.replace(/\.mp4$/, ".poster.png");
+      const posterTmp = paths.tmp(`${preset.id}-poster.png`);
+      await runFfmpeg(["-ss", (posterAt / 1000).toFixed(3), "-i", file, "-frames:v", "1", "-update", "1", posterTmp]);
+      await toOpaqueRgbPng(posterTmp, poster);
+      const ph = readImageHeader(await fs.readFile(poster));
+      if (ph.width !== preset.width || ph.height !== preset.height || ph.hasAlpha)
+        report.errors.push(`poster is ${ph.width}x${ph.height}${ph.hasAlpha ? " with alpha" : ""} — expected opaque ${preset.width}x${preset.height}`);
+      const reportFile = file.replace(/\.mp4$/, ".report.json");
+      const durationMs = Math.round(Number(report.facts.durationSec) * 1000);
+      await writeJson(reportFile, {
+        preset: preset.id,
+        note: preset.note,
+        lang: lang ?? null,
+        file,
+        poster,
+        posterTimeCode: posterTimeCode(posterAt, preset.fps),
+        durationMs,
+        speedFactor: fit.speedFactor,
+        holds: allowed,
+        scenes: sceneReport,
+        spec: report,
+      });
+      for (const w of report.warnings) log(`⚠ ${preset.id}: ${w}`);
+      if (report.errors.length) throw new StoreSpecError(report);
+      ok(`${preset.id} → ${file} (${(durationMs / 1000).toFixed(2)} s, poster ${posterTimeCode(posterAt, preset.fps)})`);
+      results.push({ preset: preset.id, file, poster, posterTimeCode: posterTimeCode(posterAt, preset.fps), durationMs, report, reportFile });
+    }
+  } finally {
+    await raster.close();
+    if (!process.env.AIDEMO_KEEP_TMP) await fs.rm(paths.tmpDir, { recursive: true, force: true });
+  }
+  return results;
+}
+
+/** Build the ffmpeg filter for one scene: CFR → segments at their rates → tail hold → canvas → overlay. */
+export function sceneFilter(plan: ScenePlan, layout: ReturnType<typeof videoLayout>, fps: number): string {
+  const n = plan.segments.length;
+  const parts: string[] = [];
+  // simctl/screenrecord are VFR (no frames while the screen is still): go CFR
+  // BEFORE trimming or the still tails of each segment vanish.
+  parts.push(`[0:v]fps=${fps},setpts=PTS-STARTPTS,split=${n}${plan.segments.map((_, i) => `[r${i}]`).join("")}`);
+  plan.segments.forEach((s, i) => {
+    parts.push(
+      `[r${i}]trim=start=${(s.fromMs / 1000).toFixed(4)}:end=${(s.toMs / 1000).toFixed(4)},setpts=(PTS-STARTPTS)/${s.rate.toFixed(6)}[s${i}]`
+    );
+  });
+  const tail = plan.tailHoldMs > 0 ? `,tpad=stop_mode=clone:stop_duration=${(plan.tailHoldMs / 1000).toFixed(3)}` : "";
+  parts.push(`${plan.segments.map((_, i) => `[s${i}]`).join("")}concat=n=${n}:v=1:a=0,fps=${fps}${tail}[c]`);
+  const { w: W, h: H } = layout.canvas;
+  const vr = layout.video;
+  if (layout.mode === "fill") {
+    const cx = Math.max(0, -vr.x);
+    const cy = Math.max(0, -vr.y);
+    parts.push(`[c]scale=${vr.w}:${vr.h}:flags=lanczos,crop=${W}:${H}:${cx}:${cy},setsar=1[v]`);
+  } else {
+    parts.push(`[c]scale=${vr.w}:${vr.h}:flags=lanczos,pad=${W}:${H}:${vr.x}:${vr.y}:color=black,setsar=1[v]`);
+  }
+  parts.push(`[v][1:v]overlay=0:0:format=auto,format=yuv420p[out]`);
+  return parts.join(";");
+}
+
+async function renderScene(
+  clip: string,
+  plan: ScenePlan,
+  layout: ReturnType<typeof videoLayout>,
+  overlay: string,
+  out: string,
+  fps: number
+): Promise<void> {
+  await runFfmpeg([
+    "-i", clip,
+    "-i", overlay,
+    "-filter_complex", sceneFilter(plan, layout, fps),
+    "-map", "[out]",
+    "-an",
+    "-r", String(fps),
+    "-c:v", "libx264", "-preset", "veryfast", "-crf", "12",
+    out,
+  ]);
+}
+
+async function encodeFinal(parts: string[], out: string, preset: StoreVideoPreset): Promise<void> {
+  // Total from the parts themselves, so the silent track is exactly as long.
+  let totalMs = 0;
+  for (const p of parts) totalMs += await probeDurationMs(p);
+  const inputs = parts.flatMap((p) => ["-i", p]);
+  const n = parts.length;
+  const filter = `${parts.map((_, i) => `[${i}:v]`).join("")}concat=n=${n}:v=1:a=0,fps=${preset.fps},format=yuv420p[v]`;
+  await runFfmpeg([
+    ...inputs,
+    // Bounded silent stereo track (never an unbounded source).
+    "-f", "lavfi", "-t", (totalMs / 1000).toFixed(3), "-i", `anullsrc=channel_layout=stereo:sample_rate=${preset.sampleRate}`,
+    "-filter_complex", filter,
+    "-map", "[v]", "-map", `${n}:a`,
+    "-r", String(preset.fps),
+    "-c:v", "libx264", "-profile:v", preset.profile, "-level:v", (preset.maxLevel / 10).toFixed(1),
+    "-preset", "slow", "-b:v", preset.videoBitrate, "-maxrate", preset.maxrate, "-bufsize", preset.bufsize,
+    "-pix_fmt", "yuv420p",
+    "-c:a", "aac", "-b:a", preset.audioBitrate, "-ar", String(preset.sampleRate), "-ac", "2",
+    "-t", (totalMs / 1000).toFixed(3),
+    "-movflags", "+faststart",
+    out,
+  ]);
+}
+
