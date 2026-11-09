@@ -36,6 +36,8 @@ export interface ScenePlan {
 export interface PlanOptions {
   maxStillMs: number;
   stillKeepMs: number;
+  /** Freeze spans this close (about one frame) are merged into one still before ramping. */
+  mergeGapMs: number;
   defaultRampRate: number;
   /** Viewer pacing: every hold lasts at least this long (a result must be readable). */
   minHoldMs: number;
@@ -53,6 +55,7 @@ export interface PlanOptions {
 export const DEFAULT_PLAN_OPTIONS: PlanOptions = {
   maxStillMs: 700,
   stillKeepMs: 500,
+  mergeGapMs: 40,
   defaultRampRate: 2.5,
   minHoldMs: 1500,
   maxRate: 3,
@@ -224,7 +227,7 @@ export function planScene(input: {
     .filter((x): x is RateSpan => !!x);
   // A still is only a problem past maxStillMs of NON-hold time; it is ramped
   // so it lasts stillKeepMs on screen (0 = cut out).
-  const stills = input.freezes
+  const stills = mergeTouching(input.freezes, o.mergeGapMs)
     .map((f) => clip(f, a, b))
     .filter((x): x is Span => !!x)
     .map((f) => ({ ...f, nonHold: uncoveredMs(f, holds) }))
@@ -355,6 +358,22 @@ export function clampSpans(spans: Span[], endMs: number): Span[] {
   return spans
     .map((f) => ({ startMs: f.startMs, endMs: Math.min(f.endMs, endMs) }))
     .filter((f) => f.endMs > f.startMs);
+}
+
+/**
+ * Freeze spans that touch (gap ≤ gapMs, about a frame) are one still to the viewer: freezedetect
+ * splits a motionless screen at a sub-noise blip (a shutter ring, a pulsing dot) that the scaled
+ * store canvas no longer shows. Ramped separately, two such halves each kept stillKeepMs and
+ * rendered as one still past maxStillMs (the Android photo scene, 2026-11-09).
+ */
+export function mergeTouching(spans: Span[], gapMs: number): Span[] {
+  const out: Span[] = [];
+  for (const f of [...spans].sort((x, y) => x.startMs - y.startMs)) {
+    const last = out[out.length - 1];
+    if (last && f.startMs - last.endMs <= gapMs) last.endMs = Math.max(last.endMs, f.endMs);
+    else out.push({ startMs: f.startMs, endMs: f.endMs });
+  }
+  return out;
 }
 
 export function stillViolations(freezes: Span[], allowed: Span[], maxStillMs: number, tolMs = 120): Span[] {

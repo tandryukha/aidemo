@@ -261,18 +261,31 @@ export function unionRect(a: Span2D | undefined, b: Span2D): Span2D {
 
 /** Build the ffmpeg filter for one scene: CFR → segments at their rates → tail hold → canvas → overlay. */
 export function sceneFilter(plan: ScenePlan, layout: ReturnType<typeof videoLayout>, fps: number): string {
-  const n = plan.segments.length;
+  // Each segment gets an exact frame count, taken from the plan's cumulative output clock
+  // (frames = round(end·fps) − round(start·fps)). Left to setpts + concat, every sped-up
+  // segment lost up to a frame at its end; across a 17-segment scene that drifted ~0.4 s, so
+  // the rendered holds no longer sat where the plan (and the still check) put them.
+  const frames: number[] = [];
+  let tOut = 0;
+  for (const s of plan.segments) {
+    const start = Math.round((tOut * fps) / 1000);
+    tOut += (s.toMs - s.fromMs) / s.rate;
+    frames.push(Math.round((tOut * fps) / 1000) - start);
+  }
+  const used = plan.segments.map((s, i) => ({ s, i, n: frames[i] })).filter((x) => x.n > 0);
+  const n = used.length;
   const parts: string[] = [];
   // simctl/screenrecord are VFR (no frames while the screen is still): go CFR
   // BEFORE trimming or the still tails of each segment vanish.
-  parts.push(`[0:v]fps=${fps},setpts=PTS-STARTPTS,split=${n}${plan.segments.map((_, i) => `[r${i}]`).join("")}`);
-  plan.segments.forEach((s, i) => {
+  parts.push(`[0:v]fps=${fps},setpts=PTS-STARTPTS,split=${n}${used.map((x) => `[r${x.i}]`).join("")}`);
+  for (const { s, i, n: count } of used) {
     parts.push(
-      `[r${i}]trim=start=${(s.fromMs / 1000).toFixed(4)}:end=${(s.toMs / 1000).toFixed(4)},setpts=(PTS-STARTPTS)/${s.rate.toFixed(6)}[s${i}]`
+      `[r${i}]trim=start=${(s.fromMs / 1000).toFixed(4)}:end=${(s.toMs / 1000).toFixed(4)},setpts=(PTS-STARTPTS)/${s.rate.toFixed(6)},` +
+        `fps=${fps},tpad=stop_mode=clone:stop_duration=${(2 / fps).toFixed(4)},trim=end_frame=${count},setpts=PTS-STARTPTS[s${i}]`
     );
-  });
+  }
   const tail = plan.tailHoldMs > 0 ? `,tpad=stop_mode=clone:stop_duration=${(plan.tailHoldMs / 1000).toFixed(3)}` : "";
-  parts.push(`${plan.segments.map((_, i) => `[s${i}]`).join("")}concat=n=${n}:v=1:a=0,fps=${fps}${tail}[c]`);
+  parts.push(`${used.map((x) => `[s${x.i}]`).join("")}concat=n=${n}:v=1:a=0,fps=${fps}${tail}[c]`);
   const { w: W, h: H } = layout.canvas;
   const vr = layout.video;
   if (layout.mode === "fill") {

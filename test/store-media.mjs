@@ -4,7 +4,7 @@
 //   npx tsx --test test/store-media.mjs      (part of `npm test`)
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { clampSpans, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
+import { clampSpans, mergeTouching, DEFAULT_PLAN_OPTIONS, minCaptionedSceneMs, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
 import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/validate.ts";
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
@@ -246,6 +246,30 @@ test("scene filter goes CFR before trimming and chains every segment", () => {
   assert.match(f, /^\[0:v\]fps=30,setpts=PTS-STARTPTS,split=3/);
   assert.match(f, /concat=n=3:v=1:a=0,fps=30,tpad=stop_mode=clone:stop_duration=0\.500/);
   assert.match(f, /overlay=0:0/);
+});
+
+test("touching freeze spans are one still: kept once, never two halves that add up past maxStillMs", () => {
+  // The Android photo scene: the shutter ring blinked at 28.63 s, splitting one motionless screen in two.
+  const freezes = [{ startMs: 26184, endMs: 28628 }, { startMs: 28628, endMs: 33173 }];
+  assert.deepEqual(mergeTouching(freezes, 40), [{ startMs: 26184, endMs: 33173 }]);
+  assert.equal(mergeTouching([{ startMs: 0, endMs: 1000 }, { startMs: 1100, endMs: 2000 }], 40).length, 2, "real motion between stills is kept");
+  const plan = planScene({ durationMs: 34000, trim: { startMs: 26000, endMs: 34000 }, freezes, ramps: [], holds: [] });
+  const outStill = outStills(plan, [{ startMs: 26184, endMs: 33173 }]);
+  assert.equal(stillViolations(outStill, plan.holdsOut, DEFAULT_PLAN_OPTIONS.maxStillMs, 0).length, 0);
+});
+
+test("scene filter gives every segment an exact frame count from the plan's output clock", () => {
+  // Many short sped-up segments (an Android tap-heavy scene): the per-segment counts must add up to the
+  // plan's own length, or the rendered holds drift away from where the still check expects them.
+  const freezes = [];
+  for (let t = 500; t < 19000; t += 1100) freezes.push({ startMs: t, endMs: t + 950 });
+  const plan = planScene({ durationMs: 20000, freezes, ramps: [], holds: [{ startMs: 19000, endMs: 20000 }] });
+  const f = sceneFilter(plan, videoLayout(1080, 1920, 1080, 2400), 30);
+  const counts = [...f.matchAll(/trim=end_frame=(\d+)/g)].map((m) => Number(m[1]));
+  assert.ok(counts.length > 10);
+  const outMs = plan.segments.reduce((a, s) => a + (s.toMs - s.fromMs) / s.rate, 0);
+  assert.equal(counts.reduce((a, b) => a + b, 0), Math.round((outMs * 30) / 1000));
+  assert.ok(counts.every((c) => c > 0), "a segment shorter than half a frame is dropped, never trimmed to 0");
 });
 
 test("schema: a scene needs exactly one source; presets and poster timecode", () => {

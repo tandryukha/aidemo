@@ -12,7 +12,10 @@ import { after, before, test } from "node:test";
 import { Project } from "../src/project.ts";
 import { runFfmpeg } from "../src/ffmpeg.ts";
 import { nativeRecord } from "../src/native/record.ts";
-import { storeVideo } from "../src/store/video.ts";
+import { sceneFilter, storeVideo } from "../src/store/video.ts";
+import { planScene } from "../src/store/plan.ts";
+import { videoLayout } from "../src/store/render-html.ts";
+import { probeDurationMs } from "../src/ffmpeg.ts";
 import { storeScreenshots } from "../src/store/screenshots.ts";
 import { readImageHeader } from "../src/store/validate.ts";
 import { brandCss, screenshotHtml, shotLayout } from "../src/store/render-html.ts";
@@ -170,4 +173,25 @@ test("a short screenshot headline keeps its full size (a display face overhangin
   } finally {
     await browser.close();
   }
+});
+
+test("a scene with many sped-up segments renders exactly as long as its plan", { timeout: 120000 }, async () => {
+  const clip = join(dir, "clips", "steps.mp4");
+  // 20 s of short motion bursts between ~1 s stills: the edit squeezes each still to 500 ms.
+  await runFfmpeg([
+    "-f", "lavfi", "-i", "testsrc2=s=540x1200:r=30:d=20",
+    "-vf", "select='lt(mod(t\\,1.1)\\,0.15)',setpts=N/30/TB,fps=30",
+    "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", clip,
+  ]).catch(async () => runFfmpeg(["-f", "lavfi", "-i", "testsrc2=s=540x1200:r=30:d=20", "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", clip]));
+  const durationMs = await probeDurationMs(clip);
+  const freezes = [];
+  for (let t = 150; t + 950 < durationMs - 1000; t += 1100) freezes.push({ startMs: t, endMs: t + 950 });
+  const plan = planScene({ durationMs, freezes, ramps: [], holds: [{ startMs: durationMs - 1000, endMs: durationMs }] });
+  const layout = videoLayout(1080, 1920, 540, 1200);
+  const overlay = join(dir, "clips", "over.png");
+  await runFfmpeg(["-f", "lavfi", "-i", "color=c=black@0.0:s=1080x1920:d=1,format=rgba", "-frames:v", "1", overlay]);
+  const out = join(dir, "clips", "steps-out.mp4");
+  await runFfmpeg(["-i", clip, "-i", overlay, "-filter_complex", sceneFilter(plan, layout, 30), "-map", "[out]", "-an", "-r", "30", "-c:v", "libx264", "-preset", "ultrafast", out]);
+  const got = await probeDurationMs(out);
+  assert.ok(Math.abs(got - plan.outMs) <= 40, `rendered ${got} ms, plan ${plan.outMs} ms`);
 });
