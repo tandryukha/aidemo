@@ -234,12 +234,19 @@ export async function brandCss(brand: StoreBrand | undefined, resolvePath: (p: s
   return { background: b.background, text: b.text, accent: b.accent, muted: b.muted, font, weight: b.weight, fontFace };
 }
 
-/** Shrinks every `.fit` element's font until its text fits its box. */
-const FIT_SCRIPT = `window.__fit = () => {
+/**
+ * Shrinks every `.fit` element's font until its text fits its box. A box with a `max-height`
+ * (an auto-height headline) is measured against that limit, not its own height: an auto box is
+ * always as tall as its line boxes, and a display face whose glyphs overhang a tight line-height
+ * would otherwise read as "overflowing" at every size and shrink to the floor.
+ */
+export const FIT_SCRIPT = `window.__fit = () => {
   for (const el of document.querySelectorAll('.fit')) {
     let size = parseFloat(getComputedStyle(el).fontSize);
     const min = size * 0.45;
-    while ((el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) && size > min) {
+    const mh = getComputedStyle(el).maxHeight;
+    const limitH = () => (mh !== 'none' ? parseFloat(mh) : el.clientHeight);
+    while ((el.scrollHeight > limitH() + 1 || el.scrollWidth > el.clientWidth + 1) && size > min) {
       size *= 0.95;
       el.style.fontSize = size + 'px';
     }

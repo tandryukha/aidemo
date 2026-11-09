@@ -15,6 +15,8 @@ import { nativeRecord } from "../src/native/record.ts";
 import { storeVideo } from "../src/store/video.ts";
 import { storeScreenshots } from "../src/store/screenshots.ts";
 import { readImageHeader } from "../src/store/validate.ts";
+import { brandCss, screenshotHtml, shotLayout } from "../src/store/render-html.ts";
+import { launchChrome } from "../src/browser.ts";
 
 let dir;
 
@@ -135,5 +137,37 @@ test("a failing scene keeps the scenes recorded before it in the timeline (then 
     assert.deepEqual(tl.scenes.map((s) => s.id), ["one", "two"]);
   } finally {
     await rm(pdir, { recursive: true, force: true });
+  }
+});
+
+test("a short screenshot headline keeps its full size (a display face overhanging its line-height is not overflow)", { timeout: 120000 }, async () => {
+  // Bricolage-like metrics: tight line-height, glyphs taller than the line box.
+  const brand = await brandCss({ weight: 800 }, (p) => p);
+  const L = shotLayout(1320, 2868, 1320, 2868, { zoom: 1, bleed: "bottom" });
+  const html = screenshotHtml(brand, L, { headline: "Say it. *It's logged.*", frameUri: "", device: "iphone", rawH: 2868 })
+    .replace("line-height:1.06", "line-height:0.8");
+  const browser = await launchChrome({ headless: true });
+  try {
+    const pg = await (await browser.newContext({ viewport: { width: 1320, height: 2868 } })).newPage();
+    await pg.setContent(html, { waitUntil: "load" });
+    const r = await pg.evaluate(async () => {
+      await document.fonts.ready;
+      const el = document.querySelector(".head");
+      const before = parseFloat(getComputedStyle(el).fontSize);
+      window.__fit();
+      return { before, after: parseFloat(getComputedStyle(el).fontSize) };
+    });
+    assert.equal(r.after, r.before, `headline shrank ${r.before} → ${r.after}px though it fits its box`);
+    // a headline that really is too long still shrinks
+    await pg.setContent(screenshotHtml(brand, L, { headline: "word ".repeat(80), frameUri: "", device: "iphone", rawH: 2868 }), { waitUntil: "load" });
+    const long = await pg.evaluate(() => {
+      const el = document.querySelector(".head");
+      const before = parseFloat(getComputedStyle(el).fontSize);
+      window.__fit();
+      return { before, after: parseFloat(getComputedStyle(el).fontSize) };
+    });
+    assert.ok(long.after < long.before);
+  } finally {
+    await browser.close();
   }
 });
