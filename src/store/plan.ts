@@ -201,12 +201,21 @@ export function planScene(input: {
 }): ScenePlan {
   const o = { ...DEFAULT_PLAN_OPTIONS, ...input.options };
   const a = Math.max(0, input.trim?.startMs ?? 0);
-  const b = Math.min(input.durationMs, input.trim?.endMs ?? input.durationMs);
+  let b = Math.min(input.durationMs, input.trim?.endMs ?? input.durationMs);
   if (b - a < MIN_OUT_MS) throw new Error(`scene window ${a}–${b} ms is empty`);
-  const holds = input.holds
+  const wanted = input.holds
     .map((h) => ({ startMs: h.startMs, endMs: Math.max(h.endMs, h.startMs + o.minHoldMs) }))
-    .map((h) => clip(h, a, b))
-    .filter((x): x is Span => !!x);
+    .filter((h) => h.endMs > a && h.startMs < b);
+  // A hold is a promise to the viewer ("let the result read"): the scene's cut never
+  // clips it. The window grows to cover it, and past the clip's last frame the
+  // remainder becomes a tail hold (a clone of the last frame).
+  const holdEnd = Math.max(b, ...wanted.map((h) => h.endMs));
+  let extraTailMs = 0;
+  if (holdEnd > b) {
+    b = Math.min(input.durationMs, holdEnd);
+    extraTailMs = Math.max(0, holdEnd - b);
+  }
+  const holds = wanted.map((h) => clip(h, a, b)).filter((x): x is Span => !!x);
   const ramps = input.ramps
     .map((r) => {
       const c = clip(r, a, b);
@@ -264,7 +273,7 @@ export function planScene(input: {
     } else segments.push({ ...seg });
   }
   const kept = segments.filter((s) => Number.isFinite(s.rate) && (s.toMs - s.fromMs) / s.rate >= MIN_OUT_MS);
-  return finishPlan(kept, Math.max(0, input.tailHoldMs ?? 0));
+  return finishPlan(kept, Math.max(0, input.tailHoldMs ?? 0, extraTailMs));
 }
 
 function finishPlan(segments: Segment[], tailHoldMs: number): ScenePlan {

@@ -10,7 +10,7 @@ import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, po
 import { parseMaestroCommands } from "../src/native/maestro.ts";
 import { toClipMarks } from "../src/native/record.ts";
 import { adbInputText, IosSimulator, parseAdbDevices, parseSimctlDevices, parseWmSize, pickSimulator } from "../src/native/device.ts";
-import { markup, shotLayout, videoLayout } from "../src/store/render-html.ts";
+import { markup, shotLayout, videoLayout, videoOverlayHtml } from "../src/store/render-html.ts";
 import { clipRect, defaultTrim, sceneFilter, unionRect, videoScenes } from "../src/store/video.ts";
 import { StoreProjectSchema } from "../src/types.ts";
 
@@ -63,6 +63,16 @@ test("no still longer than maxStillMs survives the plan unless it is a hold", ()
   // The 1.2 s hold is stretched to minHoldMs (1.5 s); the 0.5 s of landing left is under maxStillMs and plays 1x.
   assert.ok(plan.segments.some((s) => s.kind === "hold" && s.fromMs === 8000 && s.toMs === 8000 + DEFAULT_PLAN_OPTIONS.minHoldMs));
   assert.ok(!plan.segments.some((s) => s.kind === "still" && s.fromMs >= 8000));
+});
+
+test("viewer pacing: a hold is never clipped by the scene's cut", () => {
+  // Cut ends 600 ms after the result lands; the 2.2 s hold must survive.
+  const p = planScene({ durationMs: 8000, trim: { startMs: 0, endMs: 4600 }, freezes: [], ramps: [], holds: [{ startMs: 4000, endMs: 6200 }] });
+  const hold = p.segments.find((s) => s.kind === "hold");
+  assert.equal(hold.toMs - hold.fromMs, 2200);
+  // Past the clip's last frame, the rest is a tail hold.
+  const q = planScene({ durationMs: 5000, freezes: [], ramps: [], holds: [{ startMs: 4000, endMs: 6000 }] });
+  assert.ok(q.tailHoldMs >= 1000, String(q.tailHoldMs));
 });
 
 test("viewer pacing: results readable, motion never rushed, captions get reading time", () => {
@@ -226,6 +236,8 @@ test("layouts: fill for matching aspect, band/side otherwise; screenshots keep U
   const whole = shotLayout(1320, 2868, 1320, 2868, { bleed: "none" });
   assert.ok(whole.device.y + whole.device.h <= 2868);
   assert.equal(markup("Say it. *Logged.* <b>"), 'Say it. <span class="acc">Logged.</span> &lt;b&gt;');
+  // The caption is one inline run inside the flex box, so the space before the accent survives.
+  assert.match(videoOverlayHtml({ background: "#fff", text: "#000", accent: "#000", muted: "#555", font: "x", weight: 800, fontFace: "" }, videoLayout(886, 1920, 1320, 2868, "auto", "top", true), "Say it. *Logged.*"), /class="abs cap fit"><div>Say it\. <span/);
 });
 
 test("scene filter goes CFR before trimming and chains every segment", () => {

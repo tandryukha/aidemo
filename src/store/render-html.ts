@@ -303,7 +303,9 @@ export function videoOverlayHtml(b: BrandCss, L: VideoLayout, caption?: string):
   justify-content:${L.mode === "side" ? "flex-start" : "center"};text-align:${L.mode === "side" ? "left" : "center"};
   font-size:${size}px;line-height:1.08;font-weight:${b.weight};letter-spacing:-0.02em;${plate}
   text-shadow:0 2px 18px rgba(0,0,0,.35);}`;
-    body += `<div class="abs cap fit">${markup(caption)}</div>`;
+    // One inner block: a flex container would make the text and the accent span separate
+    // flex items and drop the space between them ("Say it.It's logged.").
+    body += `<div class="abs cap fit"><div>${markup(caption)}</div></div>`;
   }
   return page(b, W, H, css, body, true);
 }
