@@ -4,7 +4,7 @@ import { probeDurationMs, probeFreezeSpans, probeVideoDims, runFfmpeg } from "..
 import type { NativeTimeline, StoreProject, StoreVideoPresetId } from "../types.js";
 import { ensureDir, log, ok, step, writeJson } from "../util.js";
 import { sceneHash } from "../native/record.js";
-import { fitPlans, planScene, resolveHolds, resolveRamps, stillViolations, type ScenePlan, type Span } from "./plan.js";
+import { clampSpans, fitPlans, planScene, resolveHolds, resolveRamps, stillViolations, type ScenePlan, type Span } from "./plan.js";
 import { posterTimeCode, storeVideoPreset, type StoreVideoPreset } from "./presets.js";
 import { loadNativeTimeline, loadStoreProject, localized, resolveIn, storePaths } from "./project.js";
 import {
@@ -180,13 +180,14 @@ export async function storeVideo(project: Project, opts: StoreVideoOptions = {})
       const file = paths.video(preset.id, lang);
       await encodeFinal(sceneFiles, file, preset);
       const report = await validateStoreVideoFile(file, preset);
-      const finalFreezes = await probeFreezeSpans(file, maxStillMs + 120);
+      const fileMs = await probeDurationMs(file).catch(() => t);
+      const finalFreezes = clampSpans(await probeFreezeSpans(file, maxStillMs + 120), fileMs);
       const bad = stillViolations(finalFreezes, allowed, maxStillMs);
       if (bad.length)
         report.errors.push(
           ...bad.map(
             (b) =>
-              `still frame ${(b.startMs / 1000).toFixed(2)}–${(Math.min(b.endMs, t) / 1000).toFixed(2)} s is longer than ${maxStillMs} ms and not a hold — add a ramp or mark it as a hold`
+              `still frame ${(b.startMs / 1000).toFixed(2)}–${(b.endMs / 1000).toFixed(2)} s is longer than ${maxStillMs} ms and not a hold — add a ramp or mark it as a hold`
           )
         );
       const posterAt = Math.min(v.posterAtMs ?? 0, Math.max(0, t - 100));

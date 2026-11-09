@@ -4,7 +4,7 @@
 //   npx tsx --test test/store-media.mjs      (part of `npm test`)
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DEFAULT_PLAN_OPTIONS, fitPlans, planScene, resolveHolds, resolveRamps, stillViolations } from "../src/store/plan.ts";
+import { clampSpans, DEFAULT_PLAN_OPTIONS, fitPlans, planScene, resolveHolds, resolveRamps, stillViolations } from "../src/store/plan.ts";
 import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/validate.ts";
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
@@ -225,4 +225,15 @@ test("schema: a scene needs exactly one source; presets and poster timecode", ()
   assert.ok(StoreProjectSchema.safeParse({ ...base, video: { presets: ["app-store-preview", "play-promo-landscape"] } }).success);
   assert.equal(posterTimeCode(0), "00:00:00:00");
   assert.equal(posterTimeCode(5500), "00:00:05:15");
+});
+
+test("a still frozen through EOF (the end card) is covered once clamped to the file length", () => {
+  const fileMs = 16820;
+  const endCard = { startMs: 14820 - 200, endMs: 16820 + 1000 };
+  const eof = [{ startMs: 14800, endMs: Number.MAX_SAFE_INTEGER }];
+  assert.equal(stillViolations(eof, [endCard], 700).length, 1, "unbounded span is the bug");
+  assert.deepEqual(stillViolations(clampSpans(eof, fileMs), [endCard], 700), []);
+  // a real dead stretch before the end card still fails
+  const dead = clampSpans([{ startMs: 12000, endMs: Number.MAX_SAFE_INTEGER }], fileMs);
+  assert.equal(stillViolations(dead, [endCard], 700).length, 1);
 });

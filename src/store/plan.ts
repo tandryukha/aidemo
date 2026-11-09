@@ -247,6 +247,17 @@ export function fitPlans(
  * and not inside an allowed window (holds, the end card). `tolMs` absorbs
  * frame quantization.
  */
+/**
+ * Clamp freeze spans to a file's length. `probeFreezeSpans` reports a span
+ * still frozen at EOF (a static end card) as unbounded; measured as-is it
+ * would never be covered by the end-card allowance.
+ */
+export function clampSpans(spans: Span[], endMs: number): Span[] {
+  return spans
+    .map((f) => ({ startMs: f.startMs, endMs: Math.min(f.endMs, endMs) }))
+    .filter((f) => f.endMs > f.startMs);
+}
+
 export function stillViolations(freezes: Span[], allowed: Span[], maxStillMs: number, tolMs = 120): Span[] {
   return freezes.filter((f) => uncoveredMs(f, allowed) > maxStillMs + tolMs);
 }
