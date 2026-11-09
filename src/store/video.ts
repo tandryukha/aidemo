@@ -70,6 +70,19 @@ export function videoScenes(store: StoreProject): StoreProject["scenes"] {
   return scenes;
 }
 
+/**
+ * Still spans of a recorded clip, as the planner needs them. freezedetect only reports a freeze that
+ * lasts its `d`, so probing at maxStillMs dropped still pieces shorter than that: two 0.6 s halves
+ * split by a one-frame blip (a button dimming, a spinner tick) came back as "motion" and played at 1×
+ * next to a squeezed still, and the final video failed the still rule (Android photo scene,
+ * 2026-11-09). Probe at 100 ms and let `planScene` merge touching pieces and keep only stills longer
+ * than maxStillMs.
+ */
+export async function probeSourceStills(clip: string): Promise<Span[]> {
+  return (await probeFreezeSpans(clip, SOURCE_STILL_PROBE_MS)).map((f) => ({ startMs: f.startMs, endMs: f.endMs }));
+}
+const SOURCE_STILL_PROBE_MS = 100;
+
 interface PlannedScene {
   id: string;
   clip: string;
@@ -96,7 +109,7 @@ async function planAll(project: Project, store: StoreProject, timeline: NativeTi
       log(`⚠ scene "${scene.id}": its flow/env changed since it was recorded — re-record with --only ${scene.id}`);
     const durationMs = rec.durationMs || (await probeDurationMs(rec.clip));
     const trim = resolveTrim(scene, rec.marks, durationMs, defaultTrim(durationMs, rec.marks));
-    const freezes = await probeFreezeSpans(rec.clip, options.maxStillMs);
+    const freezes = await probeSourceStills(rec.clip);
     const plan = planScene({
       durationMs,
       trim,
