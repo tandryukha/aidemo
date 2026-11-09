@@ -114,6 +114,19 @@ export function resolveTrim(
   return { startMs, endMs };
 }
 
+/** Raw clip ms of a frame: `atMs`, or `afterMs` after the last recorded step matching `label` / `command`. */
+export function frameTime(
+  src: { atMs?: number; label?: string; command?: string; afterMs?: number },
+  marks: NativeMark[],
+  sceneId: string,
+  durationMs?: number
+): number {
+  if (src.atMs != null) return src.atMs;
+  const hits = spansFor(src, marks, "fromScene", sceneId);
+  const t = Math.max(...hits.map((h) => h.endMs)) + (src.afterMs ?? 0);
+  return durationMs != null ? Math.min(t, Math.max(0, durationMs - 34)) : t;
+}
+
 /** The store's duration window narrowed by the project's `video.minSec`/`maxSec`. */
 export function durationWindow(
   preset: { minSec?: number; maxSec?: number },

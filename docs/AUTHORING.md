@@ -1698,7 +1698,9 @@ poster frame; `video.posterAtMs`, default 0).
 ```
 
 - Source per shot: `still` (best), `frame` (any png/jpg) or `fromScene` (a
-  frame from a clip).
+  frame from a clip: `{scene, atMs}` in raw clip ms, or `{scene, label |
+  command, afterMs?}` — `afterMs` after that recorded step ends, which still
+  lands on the same moment after a re-record).
 - `zoom` = device width / canvas width (default 0.92; > 1 bleeds off both
   sides); `bleed` `bottom` | `top` | `none`; `cropTop` drops the status bar;
   `device` `iphone` | `android` | `tablet` | `none`.

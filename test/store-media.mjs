@@ -4,7 +4,7 @@
 //   npx tsx --test test/store-media.mjs      (part of `npm test`)
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { clampSpans, DEFAULT_PLAN_OPTIONS, durationWindow, fitPlans, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
+import { clampSpans, DEFAULT_PLAN_OPTIONS, durationWindow, fitPlans, frameTime, planScene, resolveHolds, resolveRamps, resolveTrim, stillViolations } from "../src/store/plan.ts";
 import { checkStoreImage, checkStoreVideo, readImageHeader } from "../src/store/validate.ts";
 import { STORE_VIDEO_PRESETS, STORE_SCREENSHOT_PRESETS, PLAY_FEATURE_GRAPHIC, posterTimeCode } from "../src/store/presets.ts";
 import { parseMaestroCommands } from "../src/native/maestro.ts";
@@ -327,4 +327,27 @@ test("video.minSec/maxSec narrow the store's window for fitting and validation",
   const fit = fitPlans([plan], 2000, { maxMs: w.maxSec * 1000 }, "speed");
   assert.ok(fit.speedFactor > 1 && fit.totalMs <= 20000, `${fit.totalMs}`);
   assert.ok(StoreProjectSchema.parse({ title: "t", device: { platform: "ios" }, scenes: [{ id: "s", flow: "f" }], video: { minSec: 15, maxSec: 20 } }).video.maxSec === 20);
+});
+
+test("fromScene picks a frame by recorded step (survives a re-record) or by raw atMs", () => {
+  const marks = [
+    { command: "waitForAnimationToEnd", label: "card", startMs: 9379, endMs: 11160 },
+    { command: "tapOn", startMs: 11161, endMs: 13512 },
+  ];
+  assert.equal(frameTime({ atMs: 4200 }, marks, "barcode"), 4200);
+  assert.equal(frameTime({ label: "card" }, marks, "barcode"), 11160);
+  assert.equal(frameTime({ label: "card", afterMs: 300 }, marks, "barcode"), 11460);
+  assert.equal(frameTime({ command: "tapOn", afterMs: 5000 }, marks, "barcode", 15000), 15000 - 34, "clamped inside the clip");
+  assert.throws(() => frameTime({ label: "nope" }, marks, "barcode"), /matches no recorded Maestro command/);
+  const shot = (fromScene) =>
+    StoreProjectSchema.safeParse({
+      title: "t",
+      device: { platform: "ios" },
+      scenes: [{ id: "barcode", flow: "b.yaml" }],
+      screenshots: { shots: [{ id: "scan", headline: "Scan it", fromScene }] },
+    }).success;
+  assert.ok(shot({ scene: "barcode", atMs: 1 }));
+  assert.ok(shot({ scene: "barcode", label: "card", afterMs: 300 }));
+  assert.ok(!shot({ scene: "barcode" }), "needs a time or a step");
+  assert.ok(!shot({ scene: "barcode", atMs: 1, label: "card" }), "not both");
 });

@@ -1649,7 +1649,22 @@ export const StoreShotSchema = z
     /** Raw device frame (png/jpg, relative to the project dir). */
     frame: z.string().optional(),
     /** …or a frame pulled from a recorded scene clip at `atMs`. */
-    fromScene: z.object({ scene: z.string(), atMs: z.number().min(0) }).optional(),
+    /**
+     * …or a frame pulled from a recorded scene clip: at raw clip `atMs`, or `afterMs` (default 0) after a
+     * recorded Maestro step (`label` / `command`, its last match) ends — which survives a re-record.
+     */
+    fromScene: z
+      .object({
+        scene: z.string(),
+        atMs: z.number().min(0).optional(),
+        label: z.string().optional(),
+        command: z.string().optional(),
+        afterMs: z.number().min(0).max(5000).optional(),
+      })
+      .refine((f) => (f.atMs != null) !== (!!f.label || !!f.command), {
+        message: "fromScene needs `atMs`, or a step (`label` / `command`) — not both",
+      })
+      .optional(),
     /** …or the scene's `still` screenshot by name. */
     still: z.string().optional(),
     headline: z.string(),

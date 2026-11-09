@@ -15,6 +15,7 @@ import {
   toOpaqueRgbPng,
 } from "./render-html.js";
 import { readImageHeader, StoreSpecError, validateStoreImageFile, type SpecReport } from "./validate.js";
+import { frameTime } from "./plan.js";
 
 /**
  * `store-screenshots`: raw device frames → store screenshot sets. Each shot
@@ -42,7 +43,11 @@ export interface ShotResult {
 /** Below this share of the canvas width the UI text turns to mush in search results. */
 export const MIN_SCREEN_FRACTION = 0.7;
 
-async function rawFrame(project: Project, src: { frame?: string; still?: string; fromScene?: { scene: string; atMs: number } }, id: string): Promise<string> {
+async function rawFrame(
+  project: Project,
+  src: { frame?: string; still?: string; fromScene?: { scene: string; atMs?: number; label?: string; command?: string; afterMs?: number } },
+  id: string
+): Promise<string> {
   const paths = storePaths(project);
   if (src.frame) return resolveIn(project, src.frame);
   if (src.still) {
@@ -59,7 +64,8 @@ async function rawFrame(project: Project, src: { frame?: string; still?: string;
   const rec = timeline?.scenes.find((s) => s.id === fs0.scene);
   if (!rec) throw new Error(`shot "${id}": scene "${fs0.scene}" has no clip — run native-record first`);
   const out = paths.tmp(`frame-${id}.png`);
-  await runFfmpeg(["-ss", (fs0.atMs / 1000).toFixed(3), "-i", rec.clip, "-frames:v", "1", "-update", "1", out]);
+  const atMs = frameTime(fs0, rec.marks, fs0.scene, rec.durationMs || undefined);
+  await runFfmpeg(["-ss", (atMs / 1000).toFixed(3), "-i", rec.clip, "-frames:v", "1", "-update", "1", out]);
   return out;
 }
 
