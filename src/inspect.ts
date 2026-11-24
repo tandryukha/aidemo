@@ -14,6 +14,7 @@ import type { Frame, Page } from "playwright";
 import { launchChromePersistent } from "./browser.js";
 import { chromeProfileDir } from "./config.js";
 import { ensureProfileUnlocked } from "./login.js";
+import { cloneChromeProfile, type ChromeProfileSpec } from "./chrome-profile.js";
 import { applySeeds, type Seeds } from "./setup.js";
 
 export interface InspectElement {
@@ -54,6 +55,8 @@ export interface InspectResult {
 export interface InspectOptions {
   url: string;
   profileDir?: string;
+  /** Scan in a throwaway clone of the user's signed-in Chrome profile. */
+  chromeProfile?: ChromeProfileSpec;
   headless?: boolean;
   viewport?: { width: number; height: number };
   /** Max elements returned (default 80). */
@@ -217,14 +220,22 @@ export async function scanInteractive(
 
 /** Open the URL in the recording profile and scan it. */
 export async function inspectPage(opts: InspectOptions): Promise<InspectResult> {
-  const profileDir = opts.profileDir ?? chromeProfileDir();
-  await ensureProfileUnlocked(profileDir);
+  const clone = opts.chromeProfile ? await cloneChromeProfile(opts.chromeProfile) : undefined;
+  const profileDir = clone?.dir ?? opts.profileDir ?? chromeProfileDir();
+  if (!clone) await ensureProfileUnlocked(profileDir);
   const viewport = opts.viewport ?? { width: 1280, height: 720 };
-  const context = await launchChromePersistent(profileDir, {
-    headless: opts.headless !== false,
-    args: ["--disable-blink-features=AutomationControlled"],
-    viewport,
-  });
+  let context;
+  try {
+    context = await launchChromePersistent(profileDir, {
+      headless: opts.headless !== false,
+      ...(clone ? { ignoreDefaultArgs: clone.launch.ignoreDefaultArgs } : {}),
+      args: ["--disable-blink-features=AutomationControlled", ...(clone ? clone.launch.args : [])],
+      viewport,
+    });
+  } catch (err) {
+    await clone?.cleanup();
+    throw err;
+  }
   try {
     const page = context.pages()[0] ?? (await context.newPage());
     if (opts.seeds) await applySeeds(context, page, opts.seeds);
@@ -266,6 +277,7 @@ export async function inspectPage(opts: InspectOptions): Promise<InspectResult> 
     };
   } finally {
     await context.close().catch(() => {});
+    await clone?.cleanup();
   }
 }
 

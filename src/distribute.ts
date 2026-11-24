@@ -798,6 +798,13 @@ export async function doctor(dir: string | undefined): Promise<void> {
   if (nodeSupported(r.node)) ok(`node: ${r.node}`);
   else fail(`node: ${r.node} — aidemo needs Node ${MIN_NODE.join(".")}+ (Node 20 is end-of-life)`);
   line("ffmpeg", r.ffmpeg);
+  if (!r.ffmpeg) {
+    log(
+      process.platform === "darwin"
+        ? "  install ffmpeg + ffprobe: brew install ffmpeg"
+        : "  install ffmpeg + ffprobe (e.g. apt install ffmpeg) and make sure both are on PATH"
+    );
+  }
   if (r.browser.source === "default") {
     line("chrome", r.chrome);
     ok(`browser: ${r.browser.description}`);
