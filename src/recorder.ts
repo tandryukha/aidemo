@@ -32,6 +32,7 @@ import {
   verifyCaptureMatchesPage,
 } from "./capture.js";
 import { ensureProfileUnlocked } from "./login.js";
+import { cloneChromeProfile, type ChromeProfileClone, type ChromeProfileSpec } from "./chrome-profile.js";
 import { resolveProfile } from "./profile.js";
 import { applySeeds, collectSeeds, runPreflight } from "./setup.js";
 import { ensureDir, exists, readJson, writeJson, log, ok, step } from "./util.js";
@@ -84,6 +85,11 @@ const KEEP_RE = /^raw\.keep-.*\.(webm|mp4)$/;
 export interface RecordOptions {
   /** Chrome user-data dir (logged-in profile). Defaults to config profile. */
   profileDir?: string;
+  /**
+   * Record in a throwaway CLONE of the user's real, signed-in Chrome profile
+   * (real macOS keychain; clone deleted after the run). See chrome-profile.ts.
+   */
+  chromeProfile?: ChromeProfileSpec;
   /**
    * Run against a WIPED throwaway profile (`<demo>/.chrome-profile-fresh`)
    * instead of the shared one. Use for any storyboard that shows a first-run
@@ -187,16 +193,19 @@ export async function record(
     );
   }
 
-  const { dir: profileDir, warning: profileWarning } = await resolveProfile(
-    project.dir,
-    storyboard,
-    { profileDir: options.profileDir, fresh: options.fresh }
-  );
+  let clone: ChromeProfileClone | undefined;
+  if (options.chromeProfile) {
+    step(`Cloning Chrome profile ${options.chromeProfile.profileDirectory ?? "Default"} (real keychain; temp copy, deleted after the run)`);
+    clone = await cloneChromeProfile(options.chromeProfile);
+  }
+  const { dir: profileDir, warning: profileWarning } = clone
+    ? { dir: clone.dir, warning: undefined }
+    : await resolveProfile(project.dir, storyboard, { profileDir: options.profileDir, fresh: options.fresh });
   // Fail fast with the actual fix when Chrome is still running on the profile
   // (a live lock stalls Playwright and then dies with a raw ProcessSingleton
   // error); clean up a stale lock from a crashed Chrome.
-  await ensureProfileUnlocked(profileDir);
-  log(`profile: ${profileDir}${options.fresh ? " (fresh)" : ""}`);
+  if (!clone || clone.persistent) await ensureProfileUnlocked(profileDir);
+  log(`profile: ${clone ? `clone of ${options.chromeProfile!.source}` : profileDir}${options.fresh ? " (fresh)" : ""}`);
   // Non-default browser (issue #80): resolve it now — a bad
   // AIDEMO_CHROME_CHANNEL fails here, before any preflight hook runs.
   if (process.env.AIDEMO_CHROME_EXECUTABLE?.trim() || process.env.AIDEMO_CHROME_CHANNEL?.trim()) {
@@ -350,12 +359,14 @@ export async function record(
   try {
     context = await launchChromePersistent(profileDir, {
       headless: options.headed === false,
+      ...(clone ? { ignoreDefaultArgs: clone.launch.ignoreDefaultArgs } : {}),
       // Hide the automation fingerprint (navigator.webdriver=false) so
       // Cloudflare on chatgpt.com doesn't throw a "Verify you are human"
       // challenge mid-recording. The profile's real cf_clearance cookie is
       // then honored because the browser matches the manual-login fingerprint.
       args: [
         "--disable-blink-features=AutomationControlled",
+        ...(clone ? clone.launch.args : []),
         // Keep the window at a known spot on the primary screen for capture.
         ...(external ? ["--window-position=40,60"] : []),
       ],
@@ -382,6 +393,7 @@ export async function record(
     });
   } catch (err) {
     // Wrong/missing browser (issue #80) is already actionable on its own.
+    await clone?.cleanup();
     if (err instanceof BrowserSetupError) throw err;
     throw new Error(
       `Failed to launch Chrome with profile ${profileDir}.\n` +
@@ -541,6 +553,7 @@ export async function record(
     // lead-in shifts every scene's window later by that much, so a reused
     // scene's window ran on into the next scene's navigation (issue #55).
     await context.close();
+    await clone?.cleanup();
     builtinTailMs = Math.max(0, Date.now() - (t0 + timeline!.totalMs));
   }
 

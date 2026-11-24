@@ -972,6 +972,22 @@ what the narration says, with nothing failing and nothing to see in review.
   log in and quit, then reports the profile ready. (Manual equivalent:
   `open -na "Google Chrome" --args --user-data-dir=<profile> --password-store=basic --use-mock-keychain https://chatgpt.com/`
   — a normal window like this also dodges Google's SSO automation block.)
+- **Your own signed-in Chrome (`--chrome-profile`).** `record`/`probe`/`render`/
+  `inspect` accept `--chrome-profile [default|<user-data-dir>]` (+
+  `--chrome-profile-dir "Profile 1"`; env `AIDEMO_CHROME_PROFILE_FROM` /
+  `AIDEMO_CHROME_PROFILE_NAME`). Chrome 136+ refuses automation on, and locks,
+  its live default profile, so aidemo copies `Local State` + the chosen profile
+  folder (copy-on-write on APFS; caches, history and extensions skipped) into a
+  temp user-data dir, launches real Chrome on the copy WITHOUT
+  `--use-mock-keychain --password-store=basic` (so Chrome itself decrypts its
+  cookies via the macOS Keychain — click Allow on the "Chrome Safe Storage"
+  prompt), and deletes the copy afterwards. aidemo never reads, decrypts or
+  exports a cookie. Use `--headed` (Cloudflare blocks headless). If a site still
+  shows its login page, the copied cookies were not decryptable by the Chrome
+  that launched the clone — use the persistent real-keychain profile instead:
+  `aidemo login --own` (sign in once, then quit Chrome), and record with
+  `--chrome-profile own` (profile lives in `~/.aidemo/chrome-profile`, outside
+  the npx cache; override with `AIDEMO_OWN_CHROME_PROFILE`).
 - Cloudflare: the engine launches with
   `--disable-blink-features=AutomationControlled` so `navigator.webdriver` is
   false and the profile's real `cf_clearance` is honored (otherwise you get a

@@ -9,6 +9,7 @@ import {
   chromeProfileDir,
 } from "./config.js";
 import { resetProfile } from "./profile.js";
+import { parseChromeProfile } from "./chrome-profile.js";
 import { Project, parseStoryboard } from "./project.js";
 import { record } from "./recorder.js";
 import { collectSeeds, parseCookieFlag, runPreflight } from "./setup.js";
@@ -351,6 +352,10 @@ const STORAGE_STATE_OPT_DESC =
   "seed a Playwright storageState JSON (cookies + localStorage) into the profile before the take";
 const COOKIE_OPT_DESC =
   'seed a cookie before the take: "name=value;domain=host[;path=/;secure;httpOnly;sameSite=Lax]" (repeatable)';
+const CHROME_PROFILE_OPT_DESC =
+  'record in a throwaway CLONE of your real signed-in Chrome profile (real keychain, so your logins work; clone deleted after). Value: a Chrome user-data dir, "default" (bare flag), or "own" (persistent ~/.aidemo/chrome-profile, sign in once with: aidemo login --own)';
+const CHROME_PROFILE_DIR_OPT_DESC =
+  'profile folder inside that user-data dir (default "Default"; e.g. "Profile 1")';
 const PROFILE_SEEDED_OPT_DESC =
   "the profile is seeded on purpose (login / cookie gate): silence the carried-over-state warning";
 
@@ -359,12 +364,16 @@ function seedOpts(opts: {
   storageState?: string;
   cookie?: string[];
   profileSeeded?: boolean;
+  chromeProfile?: string | boolean;
+  chromeProfileDir?: string;
 }): {
   storageState?: string;
   cookies?: ReturnType<typeof parseCookieFlag>[];
   profileSeeded?: boolean;
+  chromeProfile?: ReturnType<typeof parseChromeProfile>;
 } {
   return {
+    chromeProfile: parseChromeProfile(opts.chromeProfile, opts.chromeProfileDir),
     storageState: opts.storageState,
     cookies: opts.cookie?.length ? opts.cookie.map(parseCookieFlag) : undefined,
     profileSeeded: opts.profileSeeded,
@@ -396,13 +405,14 @@ program
   .argument("[profile]", "Chrome user-data dir (default: the engine's recording profile)")
   .option("--url <url>", "page to open for the login", "https://chatgpt.com/")
   .option("--no-wait", "launch Chrome and return without waiting for it to quit")
+  .option("--own", "log in to the persistent aidemo profile (~/.aidemo/chrome-profile) with the REAL keychain; record with --chrome-profile own", false)
   .description(
     "open a manual-login Chrome on the recording profile (mock-keychain cookie " +
       "store, same as record) and wait until you quit it"
   )
-  .action(async (profile: string | undefined, opts: { url: string; wait: boolean }) => {
+  .action(async (profile: string | undefined, opts: { url: string; wait: boolean; own?: boolean }) => {
     const { login } = await import("./login.js");
-    await login(profile, { url: opts.url, noWait: !opts.wait });
+    await login(profile, { url: opts.url, noWait: !opts.wait, own: opts.own });
   });
 
 program
@@ -587,6 +597,8 @@ program
   .argument("<url>", "page to inspect (absolute URL)")
   .option("--dir <dir>", "demo directory to write logs/inspect-*.json + screenshot into")
   .option("--profile <dir>", "Chrome user-data dir (default: the recording profile)")
+  .option("--chrome-profile [dir]", CHROME_PROFILE_OPT_DESC)
+  .option("--chrome-profile-dir <name>", CHROME_PROFILE_DIR_OPT_DESC)
   .option("--headed", "show the browser (default headless)", false)
   .option("--limit <n>", "max elements (default 80)", "80")
   .option("--viewport <WxH>", "viewport (default 1280x720)")
@@ -657,6 +669,10 @@ program
         url,
         headless: !opts.headed,
         profileDir: opts.profile,
+        chromeProfile: parseChromeProfile(
+          (opts as { chromeProfile?: string | boolean }).chromeProfile,
+          (opts as { chromeProfileDir?: string }).chromeProfileDir
+        ),
         limit: Number(opts.limit) || 80,
         ...(vp
           ? { viewport: { width: Number(vp[1]), height: Number(vp[2]) } }
@@ -756,6 +772,8 @@ program
   .command("record")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
+  .option("--chrome-profile [dir]", CHROME_PROFILE_OPT_DESC)
+  .option("--chrome-profile-dir <name>", CHROME_PROFILE_DIR_OPT_DESC)
   .option(
     "--fresh",
     "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
@@ -811,6 +829,8 @@ program
   .command("probe")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
+  .option("--chrome-profile [dir]", CHROME_PROFILE_OPT_DESC)
+  .option("--chrome-profile-dir <name>", CHROME_PROFILE_DIR_OPT_DESC)
   .option(
     "--fresh",
     "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",
@@ -1157,6 +1177,8 @@ program
   .command("render")
   .argument("<dir>", "demo project directory")
   .option("--profile <dir>", "Chrome user-data dir (logged-in profile)")
+  .option("--chrome-profile [dir]", CHROME_PROFILE_OPT_DESC)
+  .option("--chrome-profile-dir <name>", CHROME_PROFILE_DIR_OPT_DESC)
   .option(
     "--fresh",
     "wipe and use a throwaway profile for this take (no carried-over cookies/localStorage)",

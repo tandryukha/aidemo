@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { chromeProfileDir } from "./config.js";
+import { ownChromeProfileDir } from "./chrome-profile.js";
 import { manualLaunchBinary } from "./browser.js";
 import { ensureDir, log, ok, step, sleep } from "./util.js";
 
@@ -70,6 +71,12 @@ export interface LoginOptions {
   url?: string;
   /** Launch Chrome and print next steps without waiting for it to quit. */
   noWait?: boolean;
+  /**
+   * Real-keychain login into the persistent aidemo-owned profile
+   * (~/.aidemo/chrome-profile): no mock-keychain flags, so Chrome encrypts the
+   * cookies with the macOS Keychain and later runs (`--chrome-profile own`) read them.
+   */
+  own?: boolean;
 }
 
 /**
@@ -79,7 +86,7 @@ export interface LoginOptions {
  * launch) also dodges Google SSO's automation block.
  */
 export async function login(profileDir?: string, opts: LoginOptions = {}): Promise<void> {
-  const dir = resolve(profileDir ?? chromeProfileDir());
+  const dir = resolve(profileDir ?? (opts.own ? ownChromeProfileDir() : chromeProfileDir()));
   const url = opts.url ?? "https://chatgpt.com/";
   await ensureDir(dir);
 
@@ -92,9 +99,9 @@ export async function login(profileDir?: string, opts: LoginOptions = {}): Promi
     const args = [
       `--user-data-dir=${dir}`,
       // Same cookie store the recorder uses — a login made without these
-      // flags is keychain-encrypted and unreadable at record time.
-      "--password-store=basic",
-      "--use-mock-keychain",
+      // flags is keychain-encrypted and unreadable at record time. (--own
+      // flips this: the recorder then runs with the real keychain too.)
+      ...(opts.own ? [] : ["--password-store=basic", "--use-mock-keychain"]),
       "--no-first-run",
       "--no-default-browser-check",
       url,
@@ -121,7 +128,9 @@ export async function login(profileDir?: string, opts: LoginOptions = {}): Promi
   log(`1. Log in at ${url} in the window that opened (finish any 2FA).`);
   log(`2. Set the page up for recording (e.g. enable your app's dev connector).`);
   log(`3. Quit Chrome COMPLETELY (Cmd+Q — not just the window).`);
-  const recordHint = `aidemo record <demo-dir>${profileDir ? ` --profile ${dir}` : ""}`;
+  const recordHint = opts.own
+    ? `aidemo record <demo-dir> --chrome-profile own`
+    : `aidemo record <demo-dir>${profileDir ? ` --profile ${dir}` : ""}`;
   if (opts.noWait) {
     ok(`when you've quit Chrome, the profile is ready → ${recordHint}`);
     return;
