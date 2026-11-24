@@ -222,7 +222,7 @@ export async function scanInteractive(
 export async function inspectPage(opts: InspectOptions): Promise<InspectResult> {
   const clone = opts.chromeProfile ? await cloneChromeProfile(opts.chromeProfile) : undefined;
   const profileDir = clone?.dir ?? opts.profileDir ?? chromeProfileDir();
-  if (!clone) await ensureProfileUnlocked(profileDir);
+  if (!clone || clone.persistent) await ensureProfileUnlocked(profileDir);
   const viewport = opts.viewport ?? { width: 1280, height: 720 };
   let context;
   try {

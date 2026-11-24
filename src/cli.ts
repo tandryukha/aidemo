@@ -353,7 +353,7 @@ const STORAGE_STATE_OPT_DESC =
 const COOKIE_OPT_DESC =
   'seed a cookie before the take: "name=value;domain=host[;path=/;secure;httpOnly;sameSite=Lax]" (repeatable)';
 const CHROME_PROFILE_OPT_DESC =
-  'record in a throwaway CLONE of your real signed-in Chrome profile (real keychain, so your logins work; clone deleted after). Value: a Chrome user-data dir, or "default" (bare flag = default)';
+  'record in a throwaway CLONE of your real signed-in Chrome profile (real keychain, so your logins work; clone deleted after). Value: a Chrome user-data dir, "default" (bare flag), or "own" (persistent ~/.aidemo/chrome-profile, sign in once with: aidemo login --own)';
 const CHROME_PROFILE_DIR_OPT_DESC =
   'profile folder inside that user-data dir (default "Default"; e.g. "Profile 1")';
 const PROFILE_SEEDED_OPT_DESC =
@@ -405,13 +405,14 @@ program
   .argument("[profile]", "Chrome user-data dir (default: the engine's recording profile)")
   .option("--url <url>", "page to open for the login", "https://chatgpt.com/")
   .option("--no-wait", "launch Chrome and return without waiting for it to quit")
+  .option("--own", "log in to the persistent aidemo profile (~/.aidemo/chrome-profile) with the REAL keychain; record with --chrome-profile own", false)
   .description(
     "open a manual-login Chrome on the recording profile (mock-keychain cookie " +
       "store, same as record) and wait until you quit it"
   )
-  .action(async (profile: string | undefined, opts: { url: string; wait: boolean }) => {
+  .action(async (profile: string | undefined, opts: { url: string; wait: boolean; own?: boolean }) => {
     const { login } = await import("./login.js");
-    await login(profile, { url: opts.url, noWait: !opts.wait });
+    await login(profile, { url: opts.url, noWait: !opts.wait, own: opts.own });
   });
 
 program

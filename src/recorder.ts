@@ -204,7 +204,7 @@ export async function record(
   // Fail fast with the actual fix when Chrome is still running on the profile
   // (a live lock stalls Playwright and then dies with a raw ProcessSingleton
   // error); clean up a stale lock from a crashed Chrome.
-  if (!clone) await ensureProfileUnlocked(profileDir);
+  if (!clone || clone.persistent) await ensureProfileUnlocked(profileDir);
   log(`profile: ${clone ? `clone of ${options.chromeProfile!.source}` : profileDir}${options.fresh ? " (fresh)" : ""}`);
   // Non-default browser (issue #80): resolve it now — a bad
   // AIDEMO_CHROME_CHANNEL fails here, before any preflight hook runs.

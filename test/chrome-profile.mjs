@@ -44,3 +44,16 @@ test("cloneChromeProfile names the available profiles when the folder is missing
   mkdirSync(join(src, "Default"));
   await assert.rejects(cloneChromeProfile({ source: src, profileDirectory: "Profile 9" }), /Default/);
 });
+
+test("'own' is a persistent profile: not a copy, real keychain flags, cleanup keeps it", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "cp-own-"));
+  process.env.AIDEMO_OWN_CHROME_PROFILE = dir;
+  assert.equal(parseChromeProfile("own")?.source, "own");
+  const c = await cloneChromeProfile({ source: "own" });
+  assert.equal(c.dir, dir);
+  assert.equal(c.persistent, true);
+  assert.deepEqual(c.launch.ignoreDefaultArgs, MOCK_KEYCHAIN_ARGS);
+  await c.cleanup();
+  assert.ok(existsSync(dir));
+  delete process.env.AIDEMO_OWN_CHROME_PROFILE;
+});

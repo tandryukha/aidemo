@@ -26,7 +26,14 @@ export interface ChromeProfileSpec {
   profileDirectory?: string;
 }
 
+/** Persistent aidemo-owned profile (real keychain), outside the npx cache. */
+export function ownChromeProfileDir(): string {
+  return process.env.AIDEMO_OWN_CHROME_PROFILE?.trim() || join(homedir(), ".aidemo", "chrome-profile");
+}
+
 export interface ChromeProfileClone {
+  /** True for the aidemo-owned persistent profile: not a copy, never deleted. */
+  persistent?: boolean;
   /** Temp user-data dir to pass to launchPersistentContext. */
   dir: string;
   profileDirectory: string;
@@ -53,7 +60,7 @@ export function parseChromeProfile(
   const env = process.env.AIDEMO_CHROME_PROFILE_FROM?.trim();
   const v = value === undefined || value === false ? env || undefined : value;
   if (v === undefined) return undefined;
-  const source = v === true || v === "default" || v === "" ? "default" : String(v);
+  const source = v === true || v === "default" || v === "" ? "default" : v === "own" ? "own" : String(v);
   return {
     source,
     profileDirectory: profileDirectory || process.env.AIDEMO_CHROME_PROFILE_NAME?.trim() || undefined,
@@ -77,6 +84,13 @@ function keep(src: string): boolean {
 }
 
 export async function cloneChromeProfile(spec: ChromeProfileSpec): Promise<ChromeProfileClone> {
+  if (spec.source === "own") {
+    // Sign in once with `aidemo login --own`; Chrome writes its cookies with the
+    // real keychain, so the same Chrome can read them back on every take.
+    const dir = ownChromeProfileDir();
+    await fs.mkdir(dir, { recursive: true });
+    return { dir, persistent: true, profileDirectory: "Default", launch: { ignoreDefaultArgs: MOCK_KEYCHAIN_ARGS, args: [] }, cleanup: async () => {} };
+  }
   const source = spec.source === "default" ? defaultChromeUserDataDir() : resolve(spec.source);
   const profileDirectory = spec.profileDirectory || "Default";
   const profileSrc = join(source, profileDirectory);

@@ -984,7 +984,10 @@ what the narration says, with nothing failing and nothing to see in review.
   prompt), and deletes the copy afterwards. aidemo never reads, decrypts or
   exports a cookie. Use `--headed` (Cloudflare blocks headless). If a site still
   shows its login page, the copied cookies were not decryptable by the Chrome
-  that launched the clone — fall back to `aidemo login`.
+  that launched the clone — use the persistent real-keychain profile instead:
+  `aidemo login --own` (sign in once, then quit Chrome), and record with
+  `--chrome-profile own` (profile lives in `~/.aidemo/chrome-profile`, outside
+  the npx cache; override with `AIDEMO_OWN_CHROME_PROFILE`).
 - Cloudflare: the engine launches with
   `--disable-blink-features=AutomationControlled` so `navigator.webdriver` is
   false and the profile's real `cf_clearance` is honored (otherwise you get a
